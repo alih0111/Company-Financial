@@ -1,0 +1,15 @@
+# Frontend (React)
+client/node_modules/
+client/.env.local
+client/dist/
+
+# Backend (Python)
+server/__pycache__/
+server/.venv/
+server/*.pyc
+server/.env
+
+# General
+.DS_Store
+.idea/
+.vscode/
