@@ -12,13 +12,13 @@ import {
 } from "recharts";
 
 type DataPoint = {
-  reportDate: string,
-  percentage: number,
-  wow: number,
+  reportDate: string;
+  percentage: number;
+  wow: number;
 };
 
 type ChartComponentProps = {
-  data: DataPoint[],
+  data: DataPoint[];
 };
 
 const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
