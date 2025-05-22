@@ -22,6 +22,14 @@ export const fetchSalesData2 = async (companyName: string) => {
   return res.json();
 };
 
+export const fetchSalesDataScore = async (companyName: string) => {
+  const res = await fetch(
+    `${API_BASE}/CompanyScores?companyName=${encodeURIComponent(companyName)}`
+  );
+  if (!res.ok) throw new Error("Failed to fetch sales data 2");
+  return res.json();
+};
+
 export const fetchUrlForScript = async (
   companyName: string,
   script: "script1" | "script2"

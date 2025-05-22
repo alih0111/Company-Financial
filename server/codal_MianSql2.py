@@ -95,7 +95,7 @@ def main_scraper2(companyName, rowMeta, base_url, page_numbers):
                     # Skip reports earlier than 1397/09/30
                     try:
                         report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
-                        min_date = jdatetime.date(1397, 9, 30)
+                        min_date = jdatetime.date(1399, 1, 30)
                         if report_jdate <= min_date:
                             print(f"⏩ Skipping report dated {report_date} (before or on 1397/09/30)")
                             continue

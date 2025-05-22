@@ -15,12 +15,12 @@ const App = () => {
     setSelectedCompany,
     data1,
     data2,
+    dataScore,
     loadingData,
     ...scriptModalProps
   } = useCompanyData();
 
   return (
-    // <div className={`min-h-screen ${darkMode ? "dark" : ""}`}>
     <div
       className={`min-h-screen ${
         darkMode ? "dark" : ""
@@ -33,7 +33,6 @@ const App = () => {
           onCompanyChange={setSelectedCompany}
           {...scriptModalProps}
         />
-        {/* <main className="flex-1 p-6 bg-white dark:bg-gray-900"> */}
         <main className="flex-1 p-6  bg-white/50 dark:bg-gray-900/40 backdrop-blur-md rounded-xl m-4 shadow-2xl transition-all duration-300 ">
           {loadingData ? (
             <p className="text-center text-gray-500 dark:text-gray-300">
@@ -45,12 +44,12 @@ const App = () => {
                 <div className="w-2/3 shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] pr-[25px]">
                   <ChartComponent data={data1} />
                 </div>
-                <div className="w-1/3 shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] pr-[25px]">
-                  <DonutChartComponent data={data1} />
+                <div className="w-1/3 shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                  <DonutChartComponent data={dataScore} />
                 </div>
               </div>
 
-              <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] pr-[25px]">
+              <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] pr-[25px] pl-[15px]">
                 <ChartComponent data={data2} />
               </div>
             </div>

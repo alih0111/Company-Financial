@@ -17,6 +17,7 @@ from sales_data import sales_data_bp
 from sales_data2 import sales_data2_bp
 from run_script import run_script_bp
 from run_script2 import run_script2_bp
+from sales_data_score import score_bp
 
 app = Flask(__name__)
 
@@ -30,6 +31,7 @@ app.register_blueprint(sales_data_bp)
 app.register_blueprint(sales_data2_bp)
 app.register_blueprint(run_script_bp)
 app.register_blueprint(run_script2_bp)
+app.register_blueprint(score_bp)
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)

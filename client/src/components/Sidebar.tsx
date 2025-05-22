@@ -85,7 +85,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
           <button
             onClick={() => openModalForScript("script2")}
-            disabled={runningScripts.script2}
+            // disabled={runningScripts.script2}
             className="w-full h-11 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {runningScripts.script2 ? "Running..." : "Gathering Sales"}
@@ -94,7 +94,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         <div className="profile">
           <button className="w-full h-11 bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200">
-            Profile
+            Admin
           </button>
         </div>
       </div>

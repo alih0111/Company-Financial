@@ -88,7 +88,7 @@ const ScriptModal: React.FC<ScriptModalProps> = ({
 
         <button
           onClick={submitMetadata}
-          disabled={runningScripts[modal.script]}
+          // disabled={runningScripts[modal.script]}
           className="bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white rounded-lg py-3 font-semibold transition disabled:cursor-not-allowed"
         >
           {runningScripts[modal.script] ? "Running..." : "Run Script"}

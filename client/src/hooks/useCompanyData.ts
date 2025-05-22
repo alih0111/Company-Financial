@@ -3,6 +3,7 @@ import {
   fetchCompanyNames,
   fetchSalesData,
   fetchSalesData2,
+  fetchSalesDataScore,
   fetchUrlForScript,
   runScript,
 } from "../utils/api";
@@ -35,6 +36,7 @@ export default function useCompanyData() {
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [data1, setData1] = useState<CompanyData[]>([]);
   const [data2, setData2] = useState<CompanyData[]>([]);
+  const [dataScore, setDataScore] = useState<number>();
   const [loadingData, setLoadingData] = useState(false);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
 
@@ -74,12 +76,14 @@ export default function useCompanyData() {
     if (!selectedCompany) return;
     setLoadingData(true);
     try {
-      const [json1, json2] = await Promise.all([
+      const [json1, json2, jsonScore] = await Promise.all([
         fetchSalesData(selectedCompany),
         fetchSalesData2(selectedCompany),
+        fetchSalesDataScore(selectedCompany),
       ]);
       setData1(json1);
       setData2(json2);
+      setDataScore(jsonScore);
     } catch (e) {
       console.error(e);
     } finally {
@@ -115,7 +119,7 @@ export default function useCompanyData() {
     try {
       const res = await runScript(modal.script, metadata);
       alert(res.message);
-      await loadCompanyOptions();
+      // await loadCompanyOptions();
     } catch (e) {
       alert("Error running script");
       console.error(e);
@@ -124,12 +128,47 @@ export default function useCompanyData() {
     }
   }, [modal.script, metadata, loadCompanyOptions]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (runningScripts.script2 && selectedCompany) {
+      interval = setInterval(async () => {
+        try {
+          const updatedData = await fetchSalesData2(selectedCompany);
+          setData2(updatedData);
+        } catch (error) {
+          console.error("Error fetching data2 in interval:", error);
+        }
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [runningScripts.script2, selectedCompany]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+
+    if (runningScripts.script1 && selectedCompany) {
+      interval = setInterval(async () => {
+        try {
+          const updatedData = await fetchSalesData(selectedCompany);
+          setData1(updatedData);
+        } catch (error) {
+          console.error("Error fetching data in interval:", error);
+        }
+      }, 1000);
+    }
+
+    return () => clearInterval(interval);
+  }, [runningScripts.script1, selectedCompany]);
+
   return {
     companyOptions,
     selectedCompany,
     setSelectedCompany,
     data1,
     data2,
+    dataScore,
     loadingData,
     loadingCompanies,
     modal,
