@@ -15,6 +15,16 @@ interface Metadata {
   pageNumbers: number[];
 }
 
+interface ScoreModel {
+  companyID: string;
+  companyName: string;
+  epsGrowth: string;
+  epsLevel: string;
+  finalScore: string;
+  salesGrowth: string;
+  salesStability: string;
+}
+
 interface CompanyData {
   companyName: string;
   [key: string]: any;
@@ -26,7 +36,7 @@ const initialMetadata: Metadata = {
   companyName: "",
   rowMeta: 20,
   baseUrl: "",
-  pageNumbers: [1, 2],
+  pageNumbers: [1, 2, 3, 4],
 };
 
 export default function useCompanyData() {
@@ -36,7 +46,7 @@ export default function useCompanyData() {
   const [selectedCompany, setSelectedCompany] = useState<string>("");
   const [data1, setData1] = useState<CompanyData[]>([]);
   const [data2, setData2] = useState<CompanyData[]>([]);
-  const [dataScore, setDataScore] = useState<number>();
+  const [dataScore, setDataScore] = useState<ScoreModel[]>();
   const [loadingData, setLoadingData] = useState(false);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
 
@@ -72,20 +82,61 @@ export default function useCompanyData() {
     loadCompanyOptions();
   }, [loadCompanyOptions]);
 
+  // const fetchData = useCallback(async () => {
+  //   if (!selectedCompany) return;
+  //   setLoadingData(true);
+
+  //   try {
+  //     const [json1, json2, jsonScore] = await Promise.all([
+  //       fetchSalesData(selectedCompany),
+  //       fetchSalesData2(selectedCompany),
+  //       fetchSalesDataScore(selectedCompany),
+  //     ]);
+  //     setData1(json1);
+  //     setData2(json2);
+  //     setDataScore(jsonScore);
+  //   } catch (e) {
+  //     console.error(e);
+  //   } finally {
+  //     setLoadingData(false);
+  //   }
+  // }, [selectedCompany]);
+
   const fetchData = useCallback(async () => {
     if (!selectedCompany) return;
     setLoadingData(true);
+
+    // Reset previous data immediately
+    setData1([]);
+    setData2([]);
+    setDataScore(undefined);
+
     try {
-      const [json1, json2, jsonScore] = await Promise.all([
+      const [result1, result2, resultScore] = await Promise.allSettled([
         fetchSalesData(selectedCompany),
         fetchSalesData2(selectedCompany),
         fetchSalesDataScore(selectedCompany),
       ]);
-      setData1(json1);
-      setData2(json2);
-      setDataScore(jsonScore);
+
+      if (result1.status === "fulfilled") {
+        setData1(result1.value || []);
+      } else {
+        console.error("Error fetching data1:", result1.reason);
+      }
+
+      if (result2.status === "fulfilled") {
+        setData2(result2.value || []);
+      } else {
+        console.error("Error fetching data2:", result2.reason);
+      }
+
+      if (resultScore.status === "fulfilled") {
+        setDataScore(resultScore.value || []);
+      } else {
+        console.error("Error fetching score data:", resultScore.reason);
+      }
     } catch (e) {
-      console.error(e);
+      console.error("Unexpected error in fetchData:", e);
     } finally {
       setLoadingData(false);
     }

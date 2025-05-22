@@ -44,6 +44,7 @@ def get_sales_data():
             if(pct>0):
                 pct -= 100
 
+            pct=value1/1000000
             data.append({
                 "companyName": row.CompanyName,
                 "companyID": row.CompanyID,

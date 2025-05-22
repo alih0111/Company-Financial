@@ -40,17 +40,29 @@ const App = () => {
             </p>
           ) : (
             <div className="flex flex-col justify-between h-full">
-              <div className="flex gap-3">
-                <div className="w-2/3 shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] pr-[25px]">
-                  <ChartComponent data={data1} />
-                </div>
-                <div className="w-1/3 shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
-                  <DonutChartComponent data={dataScore} />
+              <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                <div className="flex gap-3">
+                  <div className="w-3/4 ">
+                    <ChartComponent data={data1} />
+                  </div>
+                  <div className="w-1/4 ">
+                    {dataScore && (
+                      <DonutChartComponent score={dataScore[0].epsGrowth} />
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] pr-[25px] pl-[15px]">
-                <ChartComponent data={data2} />
+              <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                <div className="flex gap-3">
+                  <div className="w-3/4">
+                    <ChartComponent data={data2} />
+                  </div>
+                  <div className="w-1/4">
+                    {dataScore && (
+                      <DonutChartComponent score={dataScore[0].salesGrowth} />
+                    )}
+                  </div>{" "}
+                </div>
               </div>
             </div>
           )}

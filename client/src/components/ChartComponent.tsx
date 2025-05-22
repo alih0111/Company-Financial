@@ -28,7 +28,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="reportDate" />
         <YAxis />
-        <Tooltip formatter={(value) => `${value}%`} />
+        <Tooltip formatter={(value) => `${value}`} />
         <ReferenceLine y={0} stroke="#000" />
         <Bar dataKey="percentage">
           {data.map((entry, index) => (

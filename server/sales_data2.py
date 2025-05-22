@@ -34,10 +34,10 @@ def get_sales_data():
                 "companyName": row.CompanyName,
                 "companyID": row.CompanyID,
                 "reportDate": row.ReportDate,
-                "value1": value1,
-                "value2": value2,
-                "value3": value3,
-                "percentage": value3,
+                "value1": value1/1000000,
+                "value2": value2/1000000,
+                "value3": value3/1000000,
+                "percentage": value3/1000,
                 "wow": 1 if (value1 > 0 and (value2 < 0 or value3 < 0)) else (-1 if (value1 < 0 and (value2 > 0 or value3 > 0)) else 0)
             })
 

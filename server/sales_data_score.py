@@ -45,6 +45,9 @@ def get_company_scores():
     # 3. Pivot tables
     sales_pivot = sales_df.pivot(index='ReportDate', columns='CompanyID', values='Sales')
     eps_pivot = eps_df.pivot(index='ReportDate', columns='CompanyID', values='EPS')
+    
+    # print(sales_pivot)
+    # print(eps_pivot)
 
     # 4. Score calculation
     scores = {}
@@ -58,7 +61,43 @@ def get_company_scores():
         sales_growth = sales_series.pct_change().mean()
         sales_stability = 1 - (sales_series.std() / sales_series.mean()) if sales_series.mean() else 0
         eps_level = eps_series.mean()
-        eps_growth = eps_series.pct_change().mean()
+        # eps_growth = eps_series.pct_change().mean()
+
+        
+
+        # Ensure eps_series is sorted
+        eps_series = eps_series.sort_index()
+
+        # Get the last 8 seasonal EPS values (to calculate last year vs year before)
+        if len(eps_series) >= 8:
+            recent_eps = eps_series[-4:].mean()
+            prev_year_eps = eps_series[-8:-4].mean()
+            
+            # Prevent division by zero
+            if prev_year_eps != 0:
+                eps_growth = (recent_eps - prev_year_eps) / abs(prev_year_eps)* 100
+                eps_growth = round(eps_growth, 2)
+            else:
+                eps_growth = 0
+        else:
+            eps_growth = 0  # Not enough data to compare two years
+        
+        if len(sales_series) >= 24:
+            recent_eps = sales_series[-12:].mean()
+            prev_year_eps = sales_series[-24:-12].mean()
+            
+            # print(recent_eps)
+            # print(prev_year_eps)
+            #132919
+            #
+            # Prevent division by zero
+            if prev_year_eps != 0:
+                sales_growth = (recent_eps - prev_year_eps) / abs(prev_year_eps) * 100
+                sales_growth = round(sales_growth, 2)
+            else:
+                sales_growth = 0
+        else:
+            sales_growth = 0  # Not enough data to compare two years
 
         scores[company] = {
             'SalesGrowth': sales_growth,

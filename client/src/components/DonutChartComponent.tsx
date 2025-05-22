@@ -1,51 +1,3 @@
-// import React from "react";
-// import { PieChart, Pie, Tooltip, Cell, ResponsiveContainer } from "recharts";
-
-// type DataPoint = {
-//   reportDate: string;
-//   percentage: number;
-//   wow: number;
-// };
-
-// type DonutChartProps = {
-//   data: DataPoint[];
-// };
-
-// const COLORS = ["#10B981", "#0D9488", "#FB923C", "#F43F5E"];
-
-// const DonutChartComponent: React.FC<DonutChartProps> = ({ data }) => {
-//   // Aggregate or transform data if needed – here just limiting to top 4
-//   const chartData = data.slice(0, 4).map((d) => ({
-//     name: d.reportDate,
-//     value: Math.abs(d.percentage), // Donut values should be positive
-//   }));
-
-//   return (
-//     <ResponsiveContainer width="100%" height={400}>
-//       <PieChart>
-//         <Pie
-//           data={chartData}
-//           dataKey="value"
-//           nameKey="name"
-//           cx="50%"
-//           cy="50%"
-//           innerRadius={70}
-//           outerRadius={100}
-//           fill="#8884d8"
-//           paddingAngle={5}
-//         >
-//           {chartData.map((_, index) => (
-//             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-//           ))}
-//         </Pie>
-//         <Tooltip formatter={(value: number) => `${value}%`} />
-//       </PieChart>
-//     </ResponsiveContainer>
-//   );
-// };
-
-// export default DonutChartComponent;
-
 import React from "react";
 import {
   PieChart,
@@ -55,28 +7,26 @@ import {
   ResponsiveContainer,
   Label,
 } from "recharts";
-import { useDarkMode } from "../utils/theme"; // adjust path as needed
+import { useDarkMode } from "../utils/theme";
 
-const COLORS = [
-  "#8884d8",
-  "#82ca9d",
-  "#ffc658",
-  "#ff7f50",
-  "#00C49F",
-  "#FFBB28",
-];
+const COLORS = ["#82ca9d", "#dddddd"];
 
-const DonutChartComponent = () => {
+type DonutChartProps = {
+  score?: number;
+};
+
+const DonutChartComponent: React.FC<DonutChartProps> = ({ score }) => {
   const { darkMode } = useDarkMode();
 
-  const data = [
-    { name: "Marketing", value: 400 },
-    { name: "Sales", value: 300 },
-    { name: "Development", value: 300 },
-    { name: "Customer Support", value: 200 },
-  ];
+  const actualScore = parseFloat(score?.toString() || "0");
 
-  const total = data.reduce((sum, entry) => sum + entry.value, 0);
+  // Clamp the score visually between 0 and 100
+  const scoreValue = Math.min(100, Math.max(0, actualScore));
+
+  const data = [
+    { name: "Score", value: scoreValue },
+    { name: "Remaining", value: 100 - scoreValue },
+  ];
 
   return (
     <ResponsiveContainer width="100%">
@@ -87,19 +37,16 @@ const DonutChartComponent = () => {
           outerRadius={100}
           paddingAngle={3}
           dataKey="value"
-          label={({ name, percent }) =>
-            `${name} ${(percent * 100).toFixed(0)}%`
-          }
           isAnimationActive
         >
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
           <Label
-            value={`Total: ${total}`}
+            value={`${actualScore}%`}
             position="center"
             fontSize={16}
-            fill={darkMode ? "#eee" : "#333"} // adapt label color to theme
+            fill={darkMode ? "#eee" : "#333"}
           />
         </Pie>
         <Tooltip />
