@@ -3,10 +3,14 @@ import {
   fetchCompanyNames,
   fetchSalesData,
   fetchSalesData2,
+  fetchSalesDataAllScore,
   fetchSalesDataScore,
   fetchUrlForScript,
+  runBulkScript,
   runScript,
 } from "../utils/api";
+
+import { useSearchParams } from "react-router-dom";
 
 interface Metadata {
   companyName: string;
@@ -18,25 +22,29 @@ interface Metadata {
 interface ScoreModel {
   companyID: string;
   companyName: string;
-  epsGrowth: string;
+  epsGrowth: number;
   epsLevel: string;
   finalScore: string;
-  salesGrowth: string;
+  salesGrowth: number;
   salesStability: string;
+}
+
+interface AllScoreModel {
+  companyName: string;
+  epsGrowth: number;
 }
 
 interface CompanyData {
   companyName: string;
   [key: string]: any;
 }
-
-type ScriptKey = "script1" | "script2";
+type ScriptKey = "script1" | "script2" | "full";
 
 const initialMetadata: Metadata = {
   companyName: "",
-  rowMeta: 20,
+  rowMeta: 2,
   baseUrl: "",
-  pageNumbers: [1, 2, 3, 4],
+  pageNumbers: [1],
 };
 
 export default function useCompanyData() {
@@ -47,10 +55,18 @@ export default function useCompanyData() {
   const [data1, setData1] = useState<CompanyData[]>([]);
   const [data2, setData2] = useState<CompanyData[]>([]);
   const [dataScore, setDataScore] = useState<ScoreModel[]>();
+  const [allDataScore, setAllDataScore] = useState<AllScoreModel[]>();
   const [loadingData, setLoadingData] = useState(false);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [modal, setModal] = useState<{ visible: boolean; script: ScriptKey }>({
+  const [modal, setModal] = useState<{
+    visible: boolean;
+    script: ScriptKey;
+    type?: "single" | "bulk";
+    companies?: string[];
+    selections?: Record<string, { script1: boolean; script2: boolean }>;
+  }>({
     visible: false,
     script: "script1",
   });
@@ -62,7 +78,36 @@ export default function useCompanyData() {
   >({
     script1: false,
     script2: false,
+    full: false,
   });
+
+  const [hasSynced, setHasSynced] = useState(false);
+
+  const [scriptModalStates, setScriptModalStates] = useState<
+    Record<ScriptKey, boolean>
+  >({
+    script1: false,
+    script2: false,
+    full: false,
+  });
+
+  const [fullModalData, setFullModalData] = useState<{
+    companies: string[];
+    selections: Record<
+      string,
+      { script1: boolean; script2: boolean; rowMeta: number }
+    >;
+  } | null>(null);
+
+  useEffect(() => {
+    if (!hasSynced && companyOptions.length) {
+      const paramCompany = searchParams.get("companyname");
+      if (paramCompany) {
+        setSelectedCompany(paramCompany);
+      }
+      setHasSynced(true);
+    }
+  }, [searchParams, companyOptions, hasSynced]);
 
   const loadCompanyOptions = useCallback(async () => {
     setLoadingCompanies(true);
@@ -70,37 +115,26 @@ export default function useCompanyData() {
       const names = await fetchCompanyNames();
       const options = names.map((name) => ({ value: name, label: name }));
       setCompanyOptions(options);
-      if (names.length > 0) setSelectedCompany(names[0]);
+
+      const paramCompany = searchParams.get("companyname");
+
+      if (paramCompany && names.includes(paramCompany)) {
+        setSelectedCompany(paramCompany);
+      } else if (names.length > 0) {
+        const firstName = names[0];
+        setSelectedCompany(firstName);
+        setSearchParams({ companyname: firstName });
+      }
     } catch (e) {
       console.error(e);
     } finally {
       setLoadingCompanies(false);
     }
-  }, []);
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     loadCompanyOptions();
   }, [loadCompanyOptions]);
-
-  // const fetchData = useCallback(async () => {
-  //   if (!selectedCompany) return;
-  //   setLoadingData(true);
-
-  //   try {
-  //     const [json1, json2, jsonScore] = await Promise.all([
-  //       fetchSalesData(selectedCompany),
-  //       fetchSalesData2(selectedCompany),
-  //       fetchSalesDataScore(selectedCompany),
-  //     ]);
-  //     setData1(json1);
-  //     setData2(json2);
-  //     setDataScore(jsonScore);
-  //   } catch (e) {
-  //     console.error(e);
-  //   } finally {
-  //     setLoadingData(false);
-  //   }
-  // }, [selectedCompany]);
 
   const fetchData = useCallback(async () => {
     if (!selectedCompany) return;
@@ -110,13 +144,16 @@ export default function useCompanyData() {
     setData1([]);
     setData2([]);
     setDataScore(undefined);
+    // setAllDataScore(undefined);
 
     try {
-      const [result1, result2, resultScore] = await Promise.allSettled([
-        fetchSalesData(selectedCompany),
-        fetchSalesData2(selectedCompany),
-        fetchSalesDataScore(selectedCompany),
-      ]);
+      const [result1, result2, resultScore, resultAllScore] =
+        await Promise.allSettled([
+          fetchSalesData(selectedCompany),
+          fetchSalesData2(selectedCompany),
+          fetchSalesDataScore(selectedCompany),
+          fetchSalesDataAllScore(),
+        ]);
 
       if (result1.status === "fulfilled") {
         setData1(result1.value || []);
@@ -135,6 +172,12 @@ export default function useCompanyData() {
       } else {
         console.error("Error fetching score data:", resultScore.reason);
       }
+
+      if (resultAllScore.status === "fulfilled") {
+        setAllDataScore(resultAllScore.value || []);
+      } else {
+        console.error("Error fetching score data:", resultAllScore.reason);
+      }
     } catch (e) {
       console.error("Unexpected error in fetchData:", e);
     } finally {
@@ -148,6 +191,19 @@ export default function useCompanyData() {
 
   const openModalForScript = useCallback(
     async (script: ScriptKey) => {
+      if (script === "full") {
+        const companies = companyOptions.map((c) => c.value);
+        const selections = Object.fromEntries(
+          companies.map((name) => [
+            name,
+            { script1: true, script2: true, rowMeta: 2 },
+          ])
+        );
+        setFullModalData({ companies, selections });
+        setScriptModalStates((prev) => ({ ...prev, full: true }));
+        return;
+      }
+
       if (!data1[0]?.companyName) return;
       try {
         const res = await fetchUrlForScript(data1[0].companyName, script);
@@ -156,62 +212,82 @@ export default function useCompanyData() {
           companyName: data1[0].companyName,
           baseUrl: res.url || "",
         });
-        setModal({ visible: true, script });
+        setScriptModalStates((prev) => ({ ...prev, [script]: true }));
       } catch (e) {
         console.error(e);
       }
     },
-    [data1, metadata]
+    [companyOptions, data1, metadata]
   );
 
-  const submitMetadata = useCallback(async () => {
-    setModal((m) => ({ ...m, visible: false }));
-    setRunningScripts((prev) => ({ ...prev, [modal.script]: true }));
-    try {
-      const res = await runScript(modal.script, metadata);
-      alert(res.message);
-      // await loadCompanyOptions();
-    } catch (e) {
-      alert("Error running script");
-      console.error(e);
-    } finally {
-      setRunningScripts((prev) => ({ ...prev, [modal.script]: false }));
-    }
-  }, [modal.script, metadata, loadCompanyOptions]);
+  const submitMetadata = useCallback(
+    async (script?: ScriptKey) => {
+      if (script === "full" && fullModalData) {
+        setScriptModalStates((prev) => ({ ...prev, full: false }));
 
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
+        const { selections } = fullModalData;
+        const companiesByScript: Record<"script1" | "script2", string[]> = {
+          script1: [],
+          script2: [],
+        };
 
-    if (runningScripts.script2 && selectedCompany) {
-      interval = setInterval(async () => {
-        try {
-          const updatedData = await fetchSalesData2(selectedCompany);
-          setData2(updatedData);
-        } catch (error) {
-          console.error("Error fetching data2 in interval:", error);
+        // Group companies by script
+        for (const [company, val] of Object.entries(selections)) {
+          if (val.script1) companiesByScript.script1.push(company);
+          if (val.script2) companiesByScript.script2.push(company);
         }
-      }, 1000);
-    }
 
-    return () => clearInterval(interval);
-  }, [runningScripts.script2, selectedCompany]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-
-    if (runningScripts.script1 && selectedCompany) {
-      interval = setInterval(async () => {
         try {
-          const updatedData = await fetchSalesData(selectedCompany);
-          setData1(updatedData);
-        } catch (error) {
-          console.error("Error fetching data in interval:", error);
-        }
-      }, 1000);
-    }
+          for (const scriptKey of ["script1", "script2"] as const) {
+            const scriptCompanies = companiesByScript[scriptKey];
 
-    return () => clearInterval(interval);
-  }, [runningScripts.script1, selectedCompany]);
+            // Group companies by their rowMeta values
+            const groupedByRowMeta: Record<number, string[]> = {};
+            for (const company of scriptCompanies) {
+              const rowMeta = selections[company].rowMeta;
+              if (!groupedByRowMeta[rowMeta]) {
+                groupedByRowMeta[rowMeta] = [];
+              }
+              groupedByRowMeta[rowMeta].push(company);
+            }
+
+            // Run scripts for each group
+            for (const [rowMetaStr, companies] of Object.entries(
+              groupedByRowMeta
+            )) {
+              const rowMeta = parseInt(rowMetaStr, 10);
+              setRunningScripts((prev) => ({ ...prev, full: true }));
+              await runBulkScript(scriptKey, companies, rowMeta, [1]);
+            }
+          }
+
+          alert("Bulk script execution complete.");
+        } catch (e) {
+          alert("Error running bulk script.");
+          console.error(e);
+        } finally {
+          setRunningScripts({ script1: false, script2: false, full: false });
+        }
+
+        return;
+      }
+
+      if (!script) return;
+      setScriptModalStates((prev) => ({ ...prev, [script]: false }));
+      setRunningScripts((prev) => ({ ...prev, [script]: true }));
+
+      try {
+        const res = await runScript(script, metadata);
+        alert(res.message);
+      } catch (e) {
+        alert("Error running script");
+        console.error(e);
+      } finally {
+        setRunningScripts((prev) => ({ ...prev, [script]: false }));
+      }
+    },
+    [metadata, fullModalData]
+  );
 
   return {
     companyOptions,
@@ -220,13 +296,16 @@ export default function useCompanyData() {
     data1,
     data2,
     dataScore,
+    allDataScore,
     loadingData,
     loadingCompanies,
-    modal,
-    setModal,
     metadata,
     setMetadata,
     runningScripts,
+    scriptModalStates,
+    setScriptModalStates,
+    fullModalData,
+    setFullModalData,
     openModalForScript,
     submitMetadata,
   };

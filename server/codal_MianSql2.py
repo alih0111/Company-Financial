@@ -27,8 +27,15 @@ def to_number(s):
 def main_scraper2(companyName, rowMeta, base_url, page_numbers):
     base_url = base_url.replace("&PageNumber=1", "")
 
+    # options = webdriver.ChromeOptions()
+    # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--window-size=1920x1080')
+
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
 
     all_data = []
     flag = True  # Ensure headers added only once

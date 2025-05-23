@@ -20,7 +20,7 @@ def get_company_scores():
 
     # 1. Load sales and EPS data
     sales_query = "SELECT CompanyID, CompanyName, ReportDate, Value1, Value2, Value3 FROM mahane"
-    eps_query = "SELECT CompanyID, CompanyName, ReportDate, Value1, Value2, Value3 FROM miandore"
+    eps_query = "SELECT CompanyID, CompanyName, ReportDate, Product1, Product2, Product3 FROM miandore2"
 
     params = ()
     if company_name:
@@ -37,10 +37,10 @@ def get_company_scores():
 
     # 2. Preprocess
     sales_df['Sales'] = sales_df[['Value3']].sum(axis=1)
-    eps_df['EPS'] = eps_df[['Value1']].mean(axis=1)
+    eps_df['EPS'] = eps_df[['Product1']].mean(axis=1)
 
     sales_df = sales_df[['CompanyID', 'CompanyName', 'ReportDate', 'Sales']]
-    eps_df = eps_df[['CompanyID', 'ReportDate', 'EPS']]
+    eps_df = eps_df[['CompanyID', 'ReportDate', 'EPS', 'CompanyName']]
 
     # 3. Pivot tables
     sales_pivot = sales_df.pivot(index='ReportDate', columns='CompanyID', values='Sales')
@@ -154,7 +154,7 @@ def get_company_scores():
     # 7. Combine with names
     result = []
     for company_id in normalized.index:
-        company_rows = sales_df[sales_df['CompanyID'] == company_id]
+        company_rows = eps_df[eps_df['CompanyID'] == company_id]
         company_name_val = company_rows['CompanyName'].iloc[0] if not company_rows.empty else None
 
         result.append({

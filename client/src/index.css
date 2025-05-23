@@ -7,3 +7,28 @@
         @apply bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900;
     }
 }
+
+/* For WebKit browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.7);
+}
+
+/* For Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(156, 163, 175, 0.5) transparent; }

@@ -5,9 +5,11 @@ interface SidebarProps {
   companyOptions: { value: string; label: string }[];
   selectedCompany: string;
   onCompanyChange: (val: string) => void;
-  openModalForScript: (script: "script1" | "script2") => void;
-  runningScripts: Record<"script1" | "script2", boolean>;
+  openModalForScript: (script: "script1" | "script2" | "full") => void;
+  runningScripts: Record<"script1" | "script2" | "full", boolean>;
+
   loadingCompanies: boolean;
+  companyProfits: { companyName: string; epsGrowth: number }[];
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -17,6 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   openModalForScript,
   runningScripts,
   loadingCompanies,
+  companyProfits,
 }) => {
   return (
     <aside className="m-4 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-6 transition-all duration-300 ease-in-out">
@@ -27,7 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div>
         <label
           htmlFor="company"
-          className="block mb-2 text-sm font-semibold text-gray-600 dark:text-gray-300"
+          className="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           Select a Company
         </label>
@@ -40,56 +43,140 @@ const Sidebar: React.FC<SidebarProps> = ({
           onChange={(option) => option && onCompanyChange(option.value)}
           isSearchable
           placeholder="Search or select..."
-          className="text-sm rtl:text-right" // Add rtl:text-right for RTL text alignment
           isLoading={loadingCompanies}
+          className="text-sm rtl:text-right"
           styles={{
-            control: (base) => ({
+            control: (base, state) => ({
               ...base,
               borderRadius: "0.75rem",
-              borderColor: "#e5e7eb",
-              boxShadow: "none",
-              paddingRight: "8px", // Adjust padding for RTL
-              textAlign: "right", // Force text alignment to right
+              borderColor: state.isFocused ? "#6366f1" : "#d1d5db", // focus: indigo-500, default: gray-300
+              boxShadow: state.isFocused
+                ? "0 0 0 2px rgba(99, 102, 241, 0.3)"
+                : "none",
+              transition: "all 0.2s",
+              minHeight: "2.75rem",
+              backgroundColor: "white",
+              textAlign: "right",
+            }),
+            valueContainer: (base) => ({
+              ...base,
+              paddingRight: "0.75rem",
+            }),
+            placeholder: (base) => ({
+              ...base,
+              color: "#9ca3af", // text-gray-400
+              fontWeight: 500,
             }),
             dropdownIndicator: (base) => ({
               ...base,
-              left: "8px", // Move dropdown indicator to the left
-              right: "auto", // Reset right positioning
+              paddingLeft: "0.5rem",
+              paddingRight: "0.5rem",
+              color: "#6b7280", // gray-500
             }),
-            indicatorSeparator: (base) => ({
-              ...base,
-              marginRight: "8px", // Adjust separator position
-              marginLeft: 0,
+            indicatorSeparator: () => ({
+              display: "none",
             }),
             input: (base) => ({
               ...base,
-              textAlign: "right", // Align input text to right
+              textAlign: "right",
             }),
             menu: (base) => ({
               ...base,
-              textAlign: "right", // Align dropdown menu items to right
+              borderRadius: "0.75rem",
+              boxShadow: "0px 10px 15px -3px rgba(0,0,0,0.1)",
+              textAlign: "right",
+              zIndex: 50,
+            }),
+            option: (base, state) => ({
+              ...base,
+              backgroundColor: state.isSelected
+                ? "#6366f1"
+                : state.isFocused
+                ? "#eef2ff"
+                : "white",
+              color: state.isSelected ? "white" : "#374151",
+              padding: "0.5rem 0.75rem",
+              cursor: "pointer",
+              fontWeight: state.isSelected ? 600 : 400,
             }),
           }}
         />
       </div>
 
-      <div className="flex flex-col justify-between h-full">
+      <div className="flex flex-col justify-between h-full overflow-auto">
         <div className="flex flex-col gap-3">
           <button
             onClick={() => openModalForScript("script1")}
             disabled={runningScripts.script1}
-            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-11 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-2xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {runningScripts.script1 ? "Running..." : "Gathering Profit"}
           </button>
 
           <button
             onClick={() => openModalForScript("script2")}
-            // disabled={runningScripts.script2}
-            className="w-full h-11 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={runningScripts.script2}
+            className="w-full h-11 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-2xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {runningScripts.script2 ? "Running..." : "Gathering Sales"}
           </button>
+
+          <button
+            onClick={() => openModalForScript("full")}
+            disabled={runningScripts.full}
+            className={`w-full h-11 text-white rounded-2xl font-medium tracking-wide shadow-lg transition-all duration-200
+      ${
+        runningScripts.full
+          ? "bg-gray-400 cursor-not-allowed"
+          : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-xl"
+      }`}
+          >
+            {runningScripts.full ? "Running..." : "Full Data Gathering"}
+          </button>
+        </div>
+
+        <div className="shadow-md backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 flex flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
+          {/* Fixed header */}
+          <div className="p-4 pb-2">
+            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+              Profit Overview
+            </h3>
+          </div>
+
+          {/* Scrollable content */}
+          <div className="overflow-auto direction-rtl flex-1 p-2 pt-0">
+            <div className="direction-ltr">
+              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+                {companyProfits.map((company, index) => {
+                  const eps = company.epsGrowth;
+                  let colorClass = "";
+
+                  if (eps > 50) {
+                    colorClass = "text-green-600 dark:text-green-400 font-bold";
+                  } else if (eps < -10) {
+                    colorClass = "text-red-600 dark:text-red-400 font-bold";
+                  }
+
+                  const isSelected = company.companyName === selectedCompany;
+
+                  return (
+                    <li
+                      key={index}
+                      className={`flex justify-between cursor-pointer p-2 rounded-lg transition text-base
+                        hover:bg-gray-200 dark:hover:bg-gray-600
+                        ${isSelected ? "bg-gray-100 dark:bg-gray-700" : ""}`}
+                      onClick={() => onCompanyChange(company.companyName)}
+                    >
+                      <span className={`font-semibold ${colorClass}`}>
+                        {eps.toFixed(2)}%
+                      </span>
+                      <span>{company.companyName}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          </div>
         </div>
 
         <div className="profile">

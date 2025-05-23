@@ -30,6 +30,12 @@ export const fetchSalesDataScore = async (companyName: string) => {
   return res.json();
 };
 
+export const fetchSalesDataAllScore = async () => {
+  const res = await fetch(`${API_BASE}/AllCompanyScores`);
+  if (!res.ok) throw new Error("Failed to fetch sales data 2");
+  return res.json();
+};
+
 export const fetchUrlForScript = async (
   companyName: string,
   script: "script1" | "script2"
@@ -59,5 +65,25 @@ export const runScript = async (
     body: JSON.stringify(metadata),
   });
   if (!res.ok) throw new Error("Failed to run script");
+  return res.json();
+};
+
+export const runBulkScript = async (
+  script: "script1" | "script2",
+  companies: string[],
+  rowMeta: number = 20,
+  pageNumbers: number[] = [1, 2, 3, 4]
+) => {
+  const res = await fetch(`${API_BASE}/fetchAllData`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ script, companies, rowMeta, pageNumbers }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error?.error || "Failed to run bulk script");
+  }
+
   return res.json();
 };
