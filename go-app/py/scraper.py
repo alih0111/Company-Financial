@@ -1,6 +1,6 @@
 import sys
 import json
-from codal_MianSql import main_scraper  # We need to put scraping logic in a callable function
+from MianSql import main_scraper  # We need to put scraping logic in a callable function
 
 if __name__ == "__main__":
     company = sys.argv[1]

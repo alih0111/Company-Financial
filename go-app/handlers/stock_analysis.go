@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"go-codal-app/config"
+	"go-app/config"
 
 	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gin-gonic/gin"

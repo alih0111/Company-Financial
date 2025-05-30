@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"go-codal-app/config"
-	"go-codal-app/models"
+	"go-app/config"
+	"go-app/models"
 
 	"github.com/gin-gonic/gin"
 )

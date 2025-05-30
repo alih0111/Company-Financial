@@ -30,7 +30,7 @@ func RunScript2(c *gin.Context) {
 		return
 	}
 
-	cmd := exec.Command("python", "py/codal_scraper2.py",
+	cmd := exec.Command("python", "py/scraper2.py",
 		req.CompanyName,
 		strconv.Itoa(req.RowMeta),
 		req.BaseURL,

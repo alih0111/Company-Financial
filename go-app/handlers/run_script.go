@@ -31,7 +31,7 @@ func RunScript(c *gin.Context) {
 		return
 	}
 
-	cmd := exec.Command("python", "py/codal_scraper.py",
+	cmd := exec.Command("python", "py/scraper.py",
 		req.CompanyName,
 		// string(rune(req.RowMeta)), // convert int to string
 		strconv.Itoa(req.RowMeta),

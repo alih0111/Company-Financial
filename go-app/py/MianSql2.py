@@ -10,8 +10,17 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from webdriver_manager.chrome import ChromeDriverManager
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
+
+server = os.getenv('DB_SERVER')
+database = os.getenv('DB_NAME')
+username = os.getenv('DB_USER')
+password = os.getenv('DB_PASSWORD')
 def generate_company_id(name):
+
     return hashlib.md5(name.encode('utf-8')).hexdigest()
 
 def to_number(s):
@@ -176,12 +185,6 @@ def main_scraper2(companyName, rowMeta, base_url, page_numbers):
                     )
 
                     # Database connection details
-                    server = 'wsn-mis-068'
-                    database = 'codal'
-                    username = 'sa'
-                    password = 'dbco@2023hamkaran'
-                    table_name = 'mahane'
-
                     conn_str = (
                         f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};'
                         f'UID={username};PWD={password}'

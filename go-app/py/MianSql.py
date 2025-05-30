@@ -12,6 +12,15 @@ import pyodbc
 import hashlib
 import json
 import jdatetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+server = os.getenv('DB_SERVER')
+database = os.getenv('DB_NAME')
+username = os.getenv('DB_USER')
+password = os.getenv('DB_PASSWORD')
 
 def generate_company_id(name):
     return hashlib.md5(name.encode('utf-8')).hexdigest()
@@ -140,20 +149,11 @@ def main_scraper(companyName, rowMeta, base_url, page_numbers):
                         last_row_num1[2], last_row_num2[2], last_row_product[2]
                     )
 
-                # print("/////////////////")
-                # print(last_row_num1)
-                # print(last_row_num2)
-                # print("/////////////////")
-
-                server = 'wsn-mis-068'
-                database = 'codal'
-                username = 'sa'
-                password = 'dbco@2023hamkaran'
-                table_name = 'miandore2'
                 conn_str = (
                     f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};'
                     f'UID={username};PWD={password}'
                 )
+
                 conn = pyodbc.connect(conn_str)
                 cursor = conn.cursor()
 
@@ -203,9 +203,3 @@ def main_scraper(companyName, rowMeta, base_url, page_numbers):
 
     driver.quit()
 
-if __name__ == "__main__":
-    companyName = 'قثابت'
-    rowMeta = 20
-    base_url = "https://www.codal.ir/ReportList.aspx?search&Symbol=%D9%82%D8%AB%D8%A7%D8%A8%D8%AA&LetterType=6&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=0&ReportingType=1000000&name=%DA%A9%D8%A7%D8%B1%D8%AE%D8%A7%D9%86%D9%87%20%D9%87%D8%A7%DB%8C%20%D8%AA%D9%88%D9%84%DB%8C%D8%AF%DB%8C%20%D9%88%20%D8%B5%D9%86%D8%B9%D8%AA%DB%8C%20%D8%AB%D8%A7%D8%A8%D8%AA%20%D8%AE%D8%B1%D8%A7%D8%B3%D8%A7%D9%86&Category=1"
-    page_numbers = range(1, 3)
-    main_scraper(companyName, rowMeta, base_url, page_numbers)

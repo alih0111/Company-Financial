@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sort"
 
-	"go-codal-app/config"
+	"go-app/config"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,6 +1,6 @@
 import sys
 import json
-from codal_MianSql2 import main_scraper2
+from MianSql2 import main_scraper2
 
 if __name__ == "__main__":
     company = sys.argv[1]

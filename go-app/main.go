@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-codal-app/handlers"
+	"go-app/handlers"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
