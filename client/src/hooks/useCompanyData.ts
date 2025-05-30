@@ -5,6 +5,8 @@ import {
   fetchSalesData2,
   fetchSalesDataAllScore,
   fetchSalesDataScore,
+  // fetchStockPrice,
+  fetchStockPriceScore,
   fetchUrlForScript,
   runBulkScript,
   runScript,
@@ -32,13 +34,22 @@ interface ScoreModel {
 interface AllScoreModel {
   companyName: string;
   epsGrowth: number;
+  priceScore: number;
+}
+
+interface StockDataPoint {
+  TradeDate: string; // e.g., "2023-05-23"
+  Open: number;
+  High: number;
+  Low: number;
+  Close: number;
 }
 
 interface CompanyData {
   companyName: string;
   [key: string]: any;
 }
-type ScriptKey = "script1" | "script2" | "full";
+type ScriptKey = "script1" | "script2" | "full" | "stockPrices";
 
 const initialMetadata: Metadata = {
   companyName: "",
@@ -56,9 +67,11 @@ export default function useCompanyData() {
   const [data2, setData2] = useState<CompanyData[]>([]);
   const [dataScore, setDataScore] = useState<ScoreModel[]>();
   const [allDataScore, setAllDataScore] = useState<AllScoreModel[]>();
+  const [stockPriceScore, setStockPriceScore] = useState<ScoreModel[]>();
   const [loadingData, setLoadingData] = useState(false);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [stockPrice, setStockPrice] = useState<StockDataPoint[]>([]);
 
   const [modal, setModal] = useState<{
     visible: boolean;
@@ -79,6 +92,7 @@ export default function useCompanyData() {
     script1: false,
     script2: false,
     full: false,
+    stockPrices: false,
   });
 
   const [hasSynced, setHasSynced] = useState(false);
@@ -89,6 +103,7 @@ export default function useCompanyData() {
     script1: false,
     script2: false,
     full: false,
+    stockPrices: false,
   });
 
   const [fullModalData, setFullModalData] = useState<{
@@ -144,16 +159,26 @@ export default function useCompanyData() {
     setData1([]);
     setData2([]);
     setDataScore(undefined);
+    setStockPriceScore(undefined);
+    setStockPrice([]);
     // setAllDataScore(undefined);
 
     try {
-      const [result1, result2, resultScore, resultAllScore] =
-        await Promise.allSettled([
-          fetchSalesData(selectedCompany),
-          fetchSalesData2(selectedCompany),
-          fetchSalesDataScore(selectedCompany),
-          fetchSalesDataAllScore(),
-        ]);
+      const [
+        result1,
+        result2,
+        resultScore,
+        resultAllScore,
+        // resultPrice,
+        resultPriceScore,
+      ] = await Promise.allSettled([
+        fetchSalesData(selectedCompany),
+        fetchSalesData2(selectedCompany),
+        fetchSalesDataScore(selectedCompany),
+        fetchSalesDataAllScore(),
+        // fetchStockPrice(selectedCompany),
+        fetchStockPriceScore(selectedCompany),
+      ]);
 
       if (result1.status === "fulfilled") {
         setData1(result1.value || []);
@@ -178,6 +203,18 @@ export default function useCompanyData() {
       } else {
         console.error("Error fetching score data:", resultAllScore.reason);
       }
+
+      // if (resultPrice.status === "fulfilled") {
+      //   setStockPrice(resultPrice.value || []);
+      // } else {
+      //   console.error("Error fetching score data:", resultPrice.reason);
+      // }
+
+      if (resultPriceScore.status === "fulfilled") {
+        setStockPriceScore(resultPriceScore.value || []);
+      } else {
+        console.error("Error fetching score data:", resultPriceScore.reason);
+      }
     } catch (e) {
       console.error("Unexpected error in fetchData:", e);
     } finally {
@@ -190,7 +227,7 @@ export default function useCompanyData() {
   }, [fetchData]);
 
   const openModalForScript = useCallback(
-    async (script: ScriptKey) => {
+    async (script: any) => {
       if (script === "full") {
         const companies = companyOptions.map((c) => c.value);
         const selections = Object.fromEntries(
@@ -266,7 +303,12 @@ export default function useCompanyData() {
           alert("Error running bulk script.");
           console.error(e);
         } finally {
-          setRunningScripts({ script1: false, script2: false, full: false });
+          setRunningScripts({
+            script1: false,
+            script2: false,
+            full: false,
+            stockPrices: false,
+          });
         }
 
         return;
@@ -296,7 +338,9 @@ export default function useCompanyData() {
     data1,
     data2,
     dataScore,
+    stockPrice,
     allDataScore,
+    stockPriceScore,
     loadingData,
     loadingCompanies,
     metadata,

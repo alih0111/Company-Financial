@@ -49,6 +49,12 @@ const ScriptFullModal = ({
     setSelectAll(!selectAll);
   };
 
+  const [searchTerm, setSearchTerm] = React.useState("");
+
+  const filteredCompanies = modal.companies.filter((name: string) =>
+    name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
       <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl w-full max-w-4xl p-6 transition-all duration-300">
@@ -56,7 +62,7 @@ const ScriptFullModal = ({
           Full Gathering Setup
         </h2>
 
-        <div className="overflow-auto max-h-[400px] border border-gray-200 dark:border-gray-700 rounded-xl">
+        <div className="overflow-auto max-h-[500px] border border-gray-200 dark:border-gray-700 rounded-xl">
           <div className="flex items-center justify-between px-6 py-3 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
             <h3 className="text-lg font-medium">Configure Companies</h3>
             <button
@@ -65,6 +71,16 @@ const ScriptFullModal = ({
             >
               {selectAll ? "Select All" : "Deselect All"}
             </button>
+          </div>
+
+          <div className="px-6 py-4">
+            <input
+              type="text"
+              placeholder="Search company..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-4 py-2 mb-4 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+            />
           </div>
 
           <table className="w-full table-auto text-sm">
@@ -77,7 +93,7 @@ const ScriptFullModal = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {modal.companies.map((name: string) => (
+              {filteredCompanies.map((name: string) => (
                 <tr
                   key={name}
                   className="text-center hover:bg-gray-50 dark:hover:bg-gray-800"

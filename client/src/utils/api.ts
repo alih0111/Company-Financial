@@ -36,12 +36,32 @@ export const fetchSalesDataAllScore = async () => {
   return res.json();
 };
 
+export const fetchStockPriceScore = async (companyName: string) => {
+  const res = await fetch(
+    `${API_BASE}/StockPriceScore?companyName=${encodeURIComponent(companyName)}`
+  );
+  if (!res.ok) throw new Error("Failed to fetch sales data 2");
+  return res.json();
+};
+
+// export const fetchStockPrice = async (companyName: string) => {
+//   const res = await fetch(
+//     `${API_BASE}/StockPrice?companyName=${encodeURIComponent(companyName)}`
+//   );
+//   if (!res.ok) throw new Error("Failed to fetch sales data 2");
+//   return res.json();
+// };
+
 export const fetchUrlForScript = async (
   companyName: string,
-  script: "script1" | "script2"
+  script: "script1" | "script2" | "stockPrices"
 ) => {
   const url =
-    script === "script1" ? `${API_BASE}/GetUrl` : `${API_BASE}/GetUrl2`;
+    script === "script1"
+      ? `${API_BASE}/GetUrl`
+      : script === "script2"
+      ? `${API_BASE}/GetUrl2`
+      : `${API_BASE}/GetUrl2`;
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -52,13 +72,20 @@ export const fetchUrlForScript = async (
 };
 
 export const runScript = async (
-  script: "script1" | "script2",
+  script: "script1" | "script2" | "stockPrices" | "full",
   metadata: any
 ) => {
   const url =
+    // script === "script1"
+    //   ? "http://localhost:5000/run-script"
+    //   : "http://localhost:5000/run-script2";
     script === "script1"
-      ? "http://localhost:5000/run-script"
-      : "http://localhost:5000/run-script2";
+      ? `${API_BASE}/run-script`
+      : script === "script2"
+      ? `${API_BASE}/run-script2`
+      : script === "stockPrices"
+      ? `${API_BASE}/run_script_price`
+      : "";
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },

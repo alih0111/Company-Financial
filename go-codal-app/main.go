@@ -13,12 +13,16 @@ func main() {
 
 	api := r.Group("/api")
 	{
+		api.GET("/AllCompanyScores", handlers.GetCompanyScores)
 		api.GET("/SalesData", handlers.GetSalesData)
-		api.GET("/SalesData2", handlers.GetSalesData2)
-		api.GET("/CompanyScores", handlers.GetCompanyScores)
 		api.GET("/CompanyNames", handlers.GetCompanyNames)
 		api.POST("/GetUrl", handlers.GetURL)
+		api.GET("/SalesData2", handlers.GetSalesData2)
 		api.POST("/GetUrl2", handlers.GetURL2)
+		api.GET("/CompanyScores", handlers.GetCompanyScores2)
+		api.GET("/StockPriceScore", handlers.StockPriceScore)
+		api.POST("/run-script", handlers.RunScript)
+		api.POST("/run-script2", handlers.RunScript2)
 	}
 
 	r.Run(":5000")

@@ -33,7 +33,6 @@ const ScriptModal: React.FC<ScriptModalProps> = ({
   submitMetadata,
 }) => {
   if (!modal.visible) return null;
-
   const scriptDisplayName = formatScriptName(modal.script);
   const isRunning = runningScripts?.[modal.script];
 

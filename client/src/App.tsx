@@ -9,25 +9,12 @@ import DonutChartComponent from "./components/DonutChartComponent";
 import { Routes, Route } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import ScriptFullModal from "./components/ScriptFullModal";
+import StockChartComponent from "./components/StockChartComponent";
+import StockCandleChart from "./components/StockChartComponent";
+import GaugeChartComponent from "./components/GaugeChartComponent";
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
-  // const {
-  //   companyOptions,
-  //   selectedCompany,
-  //   setSelectedCompany,
-  //   data1,
-  //   data2,
-  //   dataScore,
-  //   allDataScore,
-  //   loadingData,
-  //   runningScripts,
-  //   scriptModalStates,
-  //   setScriptModalStates,
-  //   fullModalData,
-  //   setFullModalData,
-  //   ...scriptModalProps
-  // } = useCompanyData();
   const {
     companyOptions,
     selectedCompany,
@@ -36,6 +23,8 @@ const App = () => {
     data2,
     dataScore,
     allDataScore,
+    stockPrice,
+    stockPriceScore,
     loadingData,
     runningScripts,
     metadata,
@@ -62,7 +51,7 @@ const App = () => {
         darkMode ? "dark" : ""
       } bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500`}
     >
-      <div className="flex h-screen">
+      <div className="flex h-full">
         <Sidebar
           companyOptions={companyOptions}
           selectedCompany={selectedCompany}
@@ -86,7 +75,7 @@ const App = () => {
                     Loading company data...
                   </p>
                 ) : (
-                  <div className="flex flex-col justify-between h-full">
+                  <div className="flex flex-col justify-start h-full">
                     <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
                       <div className="flex gap-3">
                         <div className="w-3/4 ">
@@ -101,20 +90,57 @@ const App = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                    <div className="shadow-lg mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
                       <div className="flex gap-3">
                         <div className="w-3/4">
                           <ChartComponent data={data2} />
                         </div>
-                        <div className="w-1/4">
+                        {/* <div className="w-1/4">
                           {dataScore && (
                             <DonutChartComponent
                               score={dataScore[0].salesGrowth}
                             />
                           )}
-                        </div>{" "}
+                        </div>
+                        <div className="w-1/4">
+                          {stockPriceScore && (
+                            <GaugeChartComponent
+                              score={stockPriceScore.Score}
+                            />
+                          )}
+                        </div> */}
+                        <div className="flex flex-col items-center space-y-4 w-1/4">
+                          <div className="min-h-[230px] min-w-[300px]">
+                            {dataScore && (
+                              <DonutChartComponent
+                                score={dataScore[0].salesGrowth}
+                              />
+                            )}
+                          </div>
+                          <div className="min-w-[300px] max-h-[150px] mt-36">
+                            {stockPriceScore && (
+                              <GaugeChartComponent
+                                score={stockPriceScore.Score}
+                              />
+                            )}
+                          </div>
+                        </div>
                       </div>
                     </div>
+                    {/* <div className="shadow-lg mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                      <div className="flex gap-3">
+                        <div className="w-full h-[400px]">
+                          <StockChartComponent data={stockPrice} />
+                        </div>
+                        <div className="w-1/4">
+                          {stockPriceScore && (
+                            <GaugeChartComponent
+                              score={stockPriceScore.Score}
+                            />
+                          )}
+                        </div>{" "}
+                      </div>
+                    </div> */}
                   </div>
                 )
               }
@@ -142,6 +168,23 @@ const App = () => {
         setMetadata={setMetadata}
         runningScripts={runningScripts}
         submitMetadata={() => submitMetadata("script2")}
+      />
+
+      <ScriptModal
+        modal={{
+          visible: scriptModalStates.stockPrices,
+          script: "stockPrices",
+        }}
+        setModal={(val) =>
+          setScriptModalStates((prev) => ({
+            ...prev,
+            stockPrices: val.visible,
+          }))
+        }
+        metadata={metadata}
+        setMetadata={setMetadata}
+        runningScripts={runningScripts}
+        submitMetadata={() => submitMetadata("stockPrices")}
       />
 
       <ScriptFullModal

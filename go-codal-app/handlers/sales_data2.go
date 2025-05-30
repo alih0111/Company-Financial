@@ -2,98 +2,102 @@ package handlers
 
 import (
 	"database/sql"
-	"go-codal-app/config"
 	"net/http"
+	"strings"
+
+	"go-codal-app/config"
+	"go-codal-app/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetSalesData2(c *gin.Context) {
-	companyName := c.Query("companyName")
-
-	query := "SELECT CompanyName, CompanyID, ReportDate, Value1, Value2, Value3 FROM mahane"
-	var params []interface{}
-	if companyName != "" {
-		query += " WHERE CompanyName = ?"
-		params = append(params, companyName)
-	}
-
-	db, err := config.GetDBConnection()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	db := config.GetDB()
 	defer db.Close()
 
-	rows, err := db.Query(query, params...)
+	companyName := c.Query("companyName")
+	query := "SELECT CompanyName, CompanyID, ReportDate, Value1, Value2, Value3 FROM mahane"
+
+	var rows *sql.Rows
+	var err error
+
+	if companyName != "" {
+		query += " WHERE CompanyName = @companyName"
+		rows, err = db.Query(query, sql.Named("companyName", companyName))
+	} else {
+		rows, err = db.Query(query)
+	}
+
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	defer rows.Close()
 
-	var results []map[string]interface{}
+	var data []models.SalesData2
 	for rows.Next() {
-		var name string
-		var id int
-		var reportDate string
-		var v1, v2, v3 float64
-		rows.Scan(&name, &id, &reportDate, &v1, &v2, &v3)
+		var s models.SalesData2
+		var v1, v2, v3 sql.NullFloat64
 
-		if v1 == 0 {
+		if err := rows.Scan(&s.CompanyName, &s.CompanyID, &s.ReportDate, &v1, &v2, &v3); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		s.Value1 = nullToFloat(v1)
+		s.Value2 = nullToFloat(v2)
+		s.Value3 = nullToFloat(v3)
+
+		if s.Value1 == 0 {
 			continue
 		}
 
-		wow := 0
-		if v1 > 0 && (v2 < 0 || v3 < 0) {
-			wow = 1
-		} else if v1 < 0 && (v2 > 0 || v3 > 0) {
-			wow = -1
+		s.Value1 /= 1_000_000
+		s.Value2 /= 1_000_000
+		s.Value3 /= 1_000_000
+		s.Percentage = s.Value3 * 1000 // equivalent of: value3 / 1000
+
+		if s.Value1 > 0 && (s.Value2 < 0 || s.Value3 < 0) {
+			s.WoW = 1
+		} else if s.Value1 < 0 && (s.Value2 > 0 || s.Value3 > 0) {
+			s.WoW = -1
+		} else {
+			s.WoW = 0
 		}
 
-		results = append(results, map[string]interface{}{
-			"companyName": name,
-			"companyID":   id,
-			"reportDate":  reportDate,
-			"value1":      v1 / 1000000,
-			"value2":      v2 / 1000000,
-			"value3":      v3 / 1000000,
-			"percentage":  v3 / 1000,
-			"wow":         wow,
-		})
+		data = append(data, s)
 	}
 
-	c.JSON(http.StatusOK, results)
+	c.JSON(http.StatusOK, data)
 }
 
 func GetURL2(c *gin.Context) {
-	var req struct {
-		CompanyName string `json:"companyName"`
-	}
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	db, err := config.GetDBConnection()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
+	db := config.GetDB()
 	defer db.Close()
 
-	query := "SELECT TOP 1 Url FROM mahane WHERE CompanyName like ?"
-	row := db.QueryRow(query, req.CompanyName)
-
-	var url string
-	err = row.Scan(&url)
-	if err == sql.ErrNoRows {
-		c.JSON(http.StatusOK, gin.H{"url": ""})
+	var req models.GetURLRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
-	} else if err != nil {
+	}
+
+	query := "SELECT TOP 1 Url FROM mahane WHERE CompanyName LIKE @companyName"
+	likePattern := "%" + strings.TrimSpace(req.CompanyName) + "%"
+	row := db.QueryRow(query, sql.Named("companyName", likePattern))
+
+	var url sql.NullString
+	if err := row.Scan(&url); err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusOK, models.GetURLResponse{URL: ""})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"url": url})
+	if url.Valid {
+		c.JSON(http.StatusOK, models.GetURLResponse{URL: url.String})
+	} else {
+		c.JSON(http.StatusOK, models.GetURLResponse{URL: ""})
+	}
 }

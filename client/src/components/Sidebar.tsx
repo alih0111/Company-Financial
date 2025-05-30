@@ -5,11 +5,20 @@ interface SidebarProps {
   companyOptions: { value: string; label: string }[];
   selectedCompany: string;
   onCompanyChange: (val: string) => void;
-  openModalForScript: (script: "script1" | "script2" | "full") => void;
-  runningScripts: Record<"script1" | "script2" | "full", boolean>;
+  openModalForScript: (
+    script: "script1" | "script2" | "full" | "stockPrices"
+  ) => void;
+  runningScripts: Record<
+    "script1" | "script2" | "full" | "stockPrices",
+    boolean
+  >;
 
   loadingCompanies: boolean;
-  companyProfits: { companyName: string; epsGrowth: number }[];
+  companyProfits: {
+    companyName: string;
+    epsGrowth: number;
+    priceScore: number;
+  }[];
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -22,7 +31,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   companyProfits,
 }) => {
   return (
-    <aside className="m-4 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-6 transition-all duration-300 ease-in-out">
+    <aside className="max-h-[940px] m-4 mb-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-6 transition-all duration-300 ease-in-out">
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight">
         Company Insights
       </h2>
@@ -103,7 +112,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         />
       </div>
 
-      <div className="flex flex-col justify-between h-full overflow-auto">
+      <div className="flex flex-col justify-start h-full overflow-auto">
         <div className="flex flex-col gap-3">
           <button
             onClick={() => openModalForScript("script1")}
@@ -125,20 +134,28 @@ const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => openModalForScript("full")}
             disabled={runningScripts.full}
             className={`w-full h-11 text-white rounded-2xl font-medium tracking-wide shadow-lg transition-all duration-200
-      ${
-        runningScripts.full
-          ? "bg-gray-400 cursor-not-allowed"
-          : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-xl"
-      }`}
+            ${
+              runningScripts.full
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-xl"
+            }`}
           >
             {runningScripts.full ? "Running..." : "Full Data Gathering"}
           </button>
+
+          <button
+            onClick={() => openModalForScript("stockPrices")}
+            disabled={runningScripts.stockPrices}
+            className="w-full h-11 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-2xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {runningScripts.stockPrices ? "Running..." : "Gathering Prices"}
+          </button>
         </div>
 
-        <div className="shadow-md backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 flex flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
+        <div className="shadow-md mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 max-h-[450px] flex flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
           {/* Fixed header */}
           <div className="p-4 pb-2">
-            <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               Profit Overview
             </h3>
           </div>
@@ -170,6 +187,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                       <span className={`font-semibold ${colorClass}`}>
                         {eps.toFixed(2)}%
                       </span>
+
+                      {/* <span className="text-sm">{company.priceScore}%</span> */}
                       <span>{company.companyName}</span>
                     </li>
                   );
@@ -179,7 +198,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        <div className="profile">
+        <div className="profile mt-4">
           <button className="w-full h-11 bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200">
             Admin
           </button>
