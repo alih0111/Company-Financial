@@ -33,7 +33,7 @@ def to_number(s):
 
     return float(s) if s else 0
 
-def main_scraper2(companyName, rowMeta, base_url, page_numbers):
+def main_scraper2(companyName, rowMeta, base_url, page_numbers, table_name):
     base_url = base_url.replace("&PageNumber=1", "")
 
     # options = webdriver.ChromeOptions()

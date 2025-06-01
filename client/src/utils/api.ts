@@ -1,45 +1,75 @@
 const API_BASE = "http://localhost:5000/api";
 
+const getAuthHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+};
+
 export const fetchCompanyNames = async (): Promise<string[]> => {
-  const res = await fetch(`${API_BASE}/CompanyNames`);
+  const res = await fetch(`${API_BASE}/CompanyNames`, {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error("Failed to fetch company names");
   return res.json();
 };
 
 export const fetchSalesData = async (companyName: string) => {
   const res = await fetch(
-    `${API_BASE}/SalesData?companyName=${encodeURIComponent(companyName)}`
+    `${API_BASE}/SalesData?companyName=${encodeURIComponent(companyName)}`,
+    {
+      headers: getAuthHeaders(),
+    }
   );
+
   if (!res.ok) throw new Error("Failed to fetch sales data");
   return res.json();
 };
 
 export const fetchSalesData2 = async (companyName: string) => {
   const res = await fetch(
-    `${API_BASE}/SalesData2?companyName=${encodeURIComponent(companyName)}`
+    `${API_BASE}/SalesData2?companyName=${encodeURIComponent(companyName)}`,
+    {
+      headers: getAuthHeaders(),
+    }
   );
+
   if (!res.ok) throw new Error("Failed to fetch sales data 2");
   return res.json();
 };
 
 export const fetchSalesDataScore = async (companyName: string) => {
   const res = await fetch(
-    `${API_BASE}/CompanyScores?companyName=${encodeURIComponent(companyName)}`
+    `${API_BASE}/CompanyScores?companyName=${encodeURIComponent(companyName)}`,
+    {
+      headers: getAuthHeaders(),
+    }
   );
+
   if (!res.ok) throw new Error("Failed to fetch sales data 2");
   return res.json();
 };
 
 export const fetchSalesDataAllScore = async () => {
-  const res = await fetch(`${API_BASE}/AllCompanyScores`);
+  const res = await fetch(`${API_BASE}/AllCompanyScores`, {
+    headers: getAuthHeaders(),
+  });
   if (!res.ok) throw new Error("Failed to fetch sales data 2");
   return res.json();
 };
 
 export const fetchStockPriceScore = async (companyName: string) => {
   const res = await fetch(
-    `${API_BASE}/StockPriceScore?companyName=${encodeURIComponent(companyName)}`
+    `${API_BASE}/StockPriceScore?companyName=${encodeURIComponent(
+      companyName
+    )}`,
+    {
+      headers: getAuthHeaders(),
+    }
   );
+
   if (!res.ok) throw new Error("Failed to fetch sales data 2");
   return res.json();
 };
@@ -64,7 +94,7 @@ export const fetchUrlForScript = async (
       : `${API_BASE}/GetUrl2`;
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ companyName }),
   });
   if (!res.ok) throw new Error("Failed to fetch URL for script");
@@ -88,7 +118,7 @@ export const runScript = async (
       : "";
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify(metadata),
   });
   if (!res.ok) throw new Error("Failed to run script");
@@ -103,7 +133,7 @@ export const runBulkScript = async (
 ) => {
   const res = await fetch(`${API_BASE}/fetchAllData`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: getAuthHeaders(),
     body: JSON.stringify({ script, companies, rowMeta, pageNumbers }),
   });
 

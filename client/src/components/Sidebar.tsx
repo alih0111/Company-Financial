@@ -199,7 +199,13 @@ const Sidebar: React.FC<SidebarProps> = ({
         </div>
 
         <div className="profile mt-4">
-          <button className="w-full h-11 bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200">
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              window.location.href = "/login";
+            }}
+            className="w-full h-11 bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200"
+          >
             Admin
           </button>
         </div>

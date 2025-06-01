@@ -36,8 +36,9 @@ def is_hidden_row(tr):
     tds = tr.find_all('td')
     return all(td.has_attr('hidden') for td in tds)
 
-def main_scraper(companyName, rowMeta, base_url, page_numbers):
+def main_scraper(companyName, rowMeta, base_url, page_numbers, table_name):
     base_url = base_url.replace("&PageNumber=1", "")
+    inserted_any = False
     # options = webdriver.ChromeOptions()
     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     options = webdriver.ChromeOptions()
@@ -193,6 +194,7 @@ def main_scraper(companyName, rowMeta, base_url, page_numbers):
                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     ''', company_id, companyName, report_date, *values_to_insert, base_url)
                     conn.commit()
+                    inserted_any = True 
 
                 cursor.close()
                 conn.close()
@@ -203,3 +205,7 @@ def main_scraper(companyName, rowMeta, base_url, page_numbers):
 
     driver.quit()
 
+    if inserted_any:
+        print(f"{companyName} scraping and saving successful")  # ✅ used by Go to detect success
+    else:
+        print(f"{companyName} finished but no new data saved")  # optional

@@ -2,6 +2,8 @@ package main
 
 import (
 	"go-app/handlers"
+	"go-app/middleware"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -9,20 +11,34 @@ import (
 
 func main() {
 	r := gin.Default()
-	r.Use(cors.Default())
+
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173"}, // frontend origin
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	api := r.Group("/api")
+
+	api.POST("/login", handlers.Login)
+
+	protected := api.Group("/")
+	protected.Use(middleware.AuthMiddleware())
 	{
-		api.GET("/AllCompanyScores", handlers.GetCompanyScores)
-		api.GET("/SalesData", handlers.GetSalesData)
-		api.GET("/CompanyNames", handlers.GetCompanyNames)
-		api.POST("/GetUrl", handlers.GetURL)
-		api.GET("/SalesData2", handlers.GetSalesData2)
-		api.POST("/GetUrl2", handlers.GetURL2)
-		api.GET("/CompanyScores", handlers.GetCompanyScores2)
-		api.GET("/StockPriceScore", handlers.StockPriceScore)
-		api.POST("/run-script", handlers.RunScript)
-		api.POST("/run-script2", handlers.RunScript2)
+		protected.GET("/AllCompanyScores", handlers.GetCompanyScores)
+		protected.GET("/SalesData", handlers.GetSalesData)
+		protected.GET("/CompanyNames", handlers.GetCompanyNames)
+		protected.POST("/GetUrl", handlers.GetURL)
+		protected.GET("/SalesData2", handlers.GetSalesData2)
+		protected.POST("/GetUrl2", handlers.GetURL2)
+		protected.GET("/CompanyScores", handlers.GetCompanyScores2)
+		protected.GET("/StockPriceScore", handlers.StockPriceScore)
+		protected.POST("/run-script", handlers.RunScript)
+		protected.POST("/run-script2", handlers.RunScript2)
+		protected.POST("/fetchAllData", handlers.BulkFetch)
 	}
 
 	r.Run(":5000")

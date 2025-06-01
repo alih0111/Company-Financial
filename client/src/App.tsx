@@ -9,9 +9,11 @@ import DonutChartComponent from "./components/DonutChartComponent";
 import { Routes, Route } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import ScriptFullModal from "./components/ScriptFullModal";
-import StockChartComponent from "./components/StockChartComponent";
-import StockCandleChart from "./components/StockChartComponent";
+// import StockChartComponent from "./components/StockChartComponent";
+// import StockCandleChart from "./components/StockChartComponent";
 import GaugeChartComponent from "./components/GaugeChartComponent";
+import Login from "./components/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -67,82 +69,57 @@ const App = () => {
         />
         <main className="flex-1 p-6 bg-white/50 dark:bg-gray-900/40 backdrop-blur-md rounded-xl m-4 shadow-2xl transition-all duration-300 ">
           <Routes>
+            <Route path="/login" element={<Login />} />
             <Route
               path="/"
               element={
-                loadingData ? (
-                  <p className="text-center text-gray-500 dark:text-gray-300">
-                    Loading company data...
-                  </p>
-                ) : (
-                  <div className="flex flex-col justify-start h-full">
-                    <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
-                      <div className="flex gap-3">
-                        <div className="w-3/4 ">
-                          <ChartComponent data={data1} />
-                        </div>
-                        <div className="w-1/4 ">
-                          {dataScore && (
-                            <DonutChartComponent
-                              score={dataScore[0].epsGrowth}
-                            />
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="shadow-lg mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
-                      <div className="flex gap-3">
-                        <div className="w-3/4">
-                          <ChartComponent data={data2} />
-                        </div>
-                        {/* <div className="w-1/4">
-                          {dataScore && (
-                            <DonutChartComponent
-                              score={dataScore[0].salesGrowth}
-                            />
-                          )}
-                        </div>
-                        <div className="w-1/4">
-                          {stockPriceScore && (
-                            <GaugeChartComponent
-                              score={stockPriceScore.Score}
-                            />
-                          )}
-                        </div> */}
-                        <div className="flex flex-col items-center space-y-4 w-1/4">
-                          <div className="min-h-[230px] min-w-[300px]">
+                <ProtectedRoute>
+                  {loadingData ? (
+                    <p className="text-center text-gray-500 dark:text-gray-300">
+                      Loading company data...
+                    </p>
+                  ) : (
+                    <div className="flex flex-col justify-start h-full">
+                      <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                        <div className="flex gap-3">
+                          <div className="w-3/4">
+                            <ChartComponent data={data1} />
+                          </div>
+                          <div className="w-1/4">
                             {dataScore && (
                               <DonutChartComponent
-                                score={dataScore[0].salesGrowth}
+                                score={dataScore[0].epsGrowth}
                               />
                             )}
                           </div>
-                          <div className="min-w-[300px] max-h-[150px] mt-36">
-                            {stockPriceScore && (
-                              <GaugeChartComponent
-                                score={stockPriceScore.Score}
-                              />
-                            )}
+                        </div>
+                      </div>
+                      <div className="shadow-lg mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                        <div className="flex gap-3">
+                          <div className="w-3/4">
+                            <ChartComponent data={data2} />
+                          </div>
+                          <div className="flex flex-col items-center space-y-4 w-1/4">
+                            <div className="min-h-[230px] min-w-[300px]">
+                              {dataScore && (
+                                <DonutChartComponent
+                                  score={dataScore[0].salesGrowth}
+                                />
+                              )}
+                            </div>
+                            <div className="min-w-[300px] max-h-[150px] mt-36">
+                              {stockPriceScore && (
+                                <GaugeChartComponent
+                                  score={stockPriceScore.Score}
+                                />
+                              )}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                    {/* <div className="shadow-lg mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
-                      <div className="flex gap-3">
-                        <div className="w-full h-[400px]">
-                          <StockChartComponent data={stockPrice} />
-                        </div>
-                        <div className="w-1/4">
-                          {stockPriceScore && (
-                            <GaugeChartComponent
-                              score={stockPriceScore.Score}
-                            />
-                          )}
-                        </div>{" "}
-                      </div>
-                    </div> */}
-                  </div>
-                )
+                  )}
+                </ProtectedRoute>
               }
             />
           </Routes>

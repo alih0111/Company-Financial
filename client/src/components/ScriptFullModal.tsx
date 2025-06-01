@@ -41,6 +41,21 @@ const ScriptFullModal = ({
         {
           ...modal.selections[name],
           script1: selectAll,
+          // script2: selectAll,
+        },
+      ])
+    );
+    setModal({ ...modal, selections: updated });
+    setSelectAll(!selectAll);
+  };
+
+  const handleToggleAll2 = () => {
+    const updated = Object.fromEntries(
+      modal.companies.map((name: string) => [
+        name,
+        {
+          ...modal.selections[name],
+          // script1: selectAll,
           script2: selectAll,
         },
       ])
@@ -67,6 +82,12 @@ const ScriptFullModal = ({
             <h3 className="text-lg font-medium">Configure Companies</h3>
             <button
               onClick={handleToggleAll}
+              className="text-sm font-medium px-4 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-md transition"
+            >
+              {selectAll ? "Select All" : "Deselect All"}
+            </button>
+            <button
+              onClick={handleToggleAll2}
               className="text-sm font-medium px-4 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-md transition"
             >
               {selectAll ? "Select All" : "Deselect All"}

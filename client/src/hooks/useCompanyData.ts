@@ -53,7 +53,7 @@ type ScriptKey = "script1" | "script2" | "full" | "stockPrices";
 
 const initialMetadata: Metadata = {
   companyName: "",
-  rowMeta: 2,
+  rowMeta: 1,
   baseUrl: "",
   pageNumbers: [1],
 };
@@ -233,7 +233,7 @@ export default function useCompanyData() {
         const selections = Object.fromEntries(
           companies.map((name) => [
             name,
-            { script1: true, script2: true, rowMeta: 2 },
+            { script1: true, script2: true, rowMeta: 1 },
           ])
         );
         setFullModalData({ companies, selections });

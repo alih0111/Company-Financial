@@ -14,4 +14,4 @@ if __name__ == "__main__":
     print(f"Running scraper for {company} with row meta {row_meta} on pages {page_numbers}")
 
     # Assuming your main scraping code is inside a function main_scraper() with params
-    main_scraper(company, row_meta, base_url, page_numbers)
+    main_scraper(company, row_meta, base_url, page_numbers, "miandore2")
