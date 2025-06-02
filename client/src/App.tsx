@@ -14,6 +14,7 @@ import ScriptFullModal from "./components/ScriptFullModal";
 import GaugeChartComponent from "./components/GaugeChartComponent";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
+import BigDataTable from "./components/BigDataTable";
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -99,27 +100,31 @@ const App = () => {
                           <div className="w-3/4">
                             <ChartComponent data={data2} />
                           </div>
-                          <div className="flex flex-col items-center space-y-4 w-1/4">
-                            <div className="min-h-[230px] min-w-[300px]">
-                              {dataScore && (
-                                <DonutChartComponent
-                                  score={dataScore[0].salesGrowth}
-                                />
-                              )}
-                            </div>
-                            <div className="min-w-[300px] max-h-[150px] mt-36">
-                              {stockPriceScore && (
-                                <GaugeChartComponent
-                                  score={stockPriceScore.Score}
-                                />
-                              )}
-                            </div>
+                          <div className="w-1/4">
+                            {dataScore && (
+                              <DonutChartComponent
+                                score={dataScore[0].salesGrowth}
+                              />
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
                   )}
                 </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/Table"
+              element={
+                <div>
+                  <BigDataTable
+                    data={Array.isArray(allDataScore) ? allDataScore : []}
+                    selectedCompany={selectedCompany}
+                    onCompanyChange={handleCompanyChange}
+                  />
+                </div>
               }
             />
           </Routes>

@@ -124,18 +124,3 @@ func GetURL(c *gin.Context) {
 		c.JSON(http.StatusOK, models.GetURLResponse{URL: ""})
 	}
 }
-
-// func nullToFloat(n sql.NullFloat64) float64 {
-// 	if n.Valid {
-// 		return n.Float64
-// 	}
-// 	return 0
-// }
-
-// func roundFloat(val float64, places int) float64 {
-// 	pow := 1.0
-// 	for i := 0; i < places; i++ {
-// 		pow *= 10
-// 	}
-// 	return float64(int(val*pow+0.5)) / pow
-// }

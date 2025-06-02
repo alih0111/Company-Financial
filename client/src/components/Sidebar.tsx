@@ -1,5 +1,7 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import Select from "react-select";
+import NavigationButton from "./NavigationButton";
 
 interface SidebarProps {
   companyOptions: { value: string; label: string }[];
@@ -18,6 +20,7 @@ interface SidebarProps {
     companyName: string;
     epsGrowth: number;
     priceScore: number;
+    salesGrowth: number;
   }[];
 }
 
@@ -30,6 +33,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   loadingCompanies,
   companyProfits,
 }) => {
+  const navigate = useNavigate();
+  const goToTable = () => {
+    navigate("/Table");
+  };
+
   return (
     <aside className="max-h-[940px] m-4 mb-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-6 transition-all duration-300 ease-in-out">
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight">
@@ -154,10 +162,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         <div className="shadow-md mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 max-h-[450px] flex flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
           {/* Fixed header */}
-          <div className="p-4 pb-2">
+          <div className="p-4 pb-2 flex justify-between items-center">
             <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
               Profit Overview
             </h3>
+            <NavigationButton />
           </div>
 
           {/* Scrollable content */}

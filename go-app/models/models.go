@@ -23,6 +23,7 @@ type CompanyScore struct {
 	CompanyID   string  `json:"companyID"`
 	CompanyName string  `json:"companyName"`
 	EPSGrowth   float64 `json:"epsGrowth"`
+	SalesGrowth float64 `json:"salesGrowth"`
 }
 
 type EPSRecord struct {
