@@ -157,7 +157,7 @@ const BigDataTable: React.FC<Props> = ({
                 <tr
                   {...row.getRowProps()}
                   onClick={() => onCompanyChange(rowCompanyName)}
-                  className={`cursor-pointer transition-colors duration-300`}
+                  className={`cursor-pointer transition-colors duration-300 hover:bg-indigo-50 dark:hover:bg-gray-800`}
                   //    ${
                   //   isSelected
                   //     ? "bg-indigo-100 dark:bg-indigo-900"
@@ -168,7 +168,7 @@ const BigDataTable: React.FC<Props> = ({
                   {row.cells.map((cell) => (
                     <td
                       {...cell.getCellProps()}
-                      className="p-4 text-center text-gray-700 dark:text-gray-300"
+                      className="p-2 text-center text-gray-700 dark:text-gray-300"
                       key={cell.column.id}
                     >
                       {cell.render("Cell")}

@@ -39,18 +39,18 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="max-h-[940px] m-4 mb-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-6 transition-all duration-300 ease-in-out">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight">
+    <aside className="max-h-[747px] m-4 mb-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-3 transition-all duration-300 ease-in-out">
+      <h2 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight mb-2">
         Company Insights
       </h2>
 
       <div>
-        <label
+        {/* <label
           htmlFor="company"
           className="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300"
         >
           Select a Company
-        </label>
+        </label> */}
         <Select
           inputId="company"
           options={companyOptions}
@@ -71,7 +71,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 ? "0 0 0 2px rgba(99, 102, 241, 0.3)"
                 : "none",
               transition: "all 0.2s",
-              minHeight: "2.75rem",
+              minHeight: "2rem",
               backgroundColor: "white",
               textAlign: "right",
             }),
@@ -120,12 +120,12 @@ const Sidebar: React.FC<SidebarProps> = ({
         />
       </div>
 
-      <div className="flex flex-col justify-start h-full overflow-auto">
-        <div className="flex flex-col gap-3">
+      <div className="flex flex-col justify-start h-full overflow-auto text-sm ">
+        <div className="flex flex-col gap-2">
           <button
             onClick={() => openModalForScript("script1")}
             disabled={runningScripts.script1}
-            className="w-full h-11 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-2xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className=" w-full h-9 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {runningScripts.script1 ? "Running..." : "Gathering Profit"}
           </button>
@@ -133,7 +133,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={() => openModalForScript("script2")}
             disabled={runningScripts.script2}
-            className="w-full h-11 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-2xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {runningScripts.script2 ? "Running..." : "Gathering Sales"}
           </button>
@@ -141,7 +141,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={() => openModalForScript("full")}
             disabled={runningScripts.full}
-            className={`w-full h-11 text-white rounded-2xl font-medium tracking-wide shadow-lg transition-all duration-200
+            className={`w-full h-9 text-white rounded-xl font-medium tracking-wide shadow-lg transition-all duration-200
             ${
               runningScripts.full
                 ? "bg-gray-400 cursor-not-allowed"
@@ -154,13 +154,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={() => openModalForScript("stockPrices")}
             disabled={runningScripts.stockPrices}
-            className="w-full h-11 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-2xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {runningScripts.stockPrices ? "Running..." : "Gathering Prices"}
           </button>
         </div>
 
-        <div className="shadow-md mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 max-h-[450px] flex flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
+        <div className="shadow-md mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 max-h-[363px] flex flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
           {/* Fixed header */}
           <div className="p-4 pb-2 flex justify-between items-center">
             <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
@@ -172,7 +172,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Scrollable content */}
           <div className="overflow-auto direction-rtl flex-1 p-2 pt-0">
             <div className="direction-ltr">
-              <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
                 {companyProfits.map((company, index) => {
                   const eps = company.epsGrowth;
                   let colorClass = "";
@@ -188,7 +188,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   return (
                     <li
                       key={index}
-                      className={`flex justify-between cursor-pointer p-2 rounded-lg transition text-base
+                      className={`flex justify-between cursor-pointer p-2 rounded-lg transition text-sm
                         hover:bg-gray-200 dark:hover:bg-gray-600
                         ${isSelected ? "bg-gray-100 dark:bg-gray-700" : ""}`}
                       onClick={() => onCompanyChange(company.companyName)}
@@ -213,7 +213,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               localStorage.removeItem("token");
               window.location.href = "/login";
             }}
-            className="w-full h-11 bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200"
+            className="w-full h-9 bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200"
           >
             Admin
           </button>

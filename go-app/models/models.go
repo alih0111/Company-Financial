@@ -1,5 +1,7 @@
 package models
 
+import "gorm.io/gorm"
+
 type SalesRecord struct {
 	CompanyName string
 	CompanyID   string
@@ -65,4 +67,10 @@ type SalesData2 struct {
 	Value3      float64 `json:"value3"`
 	Percentage  float64 `json:"percentage"`
 	WoW         int     `json:"wow"`
+}
+
+type User struct {
+	gorm.Model
+	Username string `gorm:"uniqueIndex" json:"username"`
+	Password string `json:"password"` // store hashed password only
 }

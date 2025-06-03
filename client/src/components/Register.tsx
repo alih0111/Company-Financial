@@ -1,13 +1,13 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-const Login = () => {
+const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
-    const res = await fetch("http://localhost:5000/api/login", {
+  const handleRegister = async () => {
+    const res = await fetch("http://localhost:5000/api/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
@@ -15,8 +15,8 @@ const Login = () => {
     const data = await res.json();
 
     if (res.ok) {
-      localStorage.setItem("token", data.token);
-      navigate("/");
+      alert("Registration successful! Please login.");
+      navigate("/login");
     } else {
       alert(data.error);
     }
@@ -25,7 +25,7 @@ const Login = () => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100 dark:bg-gray-800">
       <div className="p-6 bg-white dark:bg-gray-700 rounded shadow">
-        <h2 className="text-xl font-bold mb-4">Login</h2>
+        <h2 className="text-xl font-bold mb-4">Register</h2>
         <input
           type="text"
           className="mb-2 p-2 border rounded w-full"
@@ -41,20 +41,14 @@ const Login = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
         <button
-          onClick={handleLogin}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          onClick={handleRegister}
+          className="bg-green-500 text-white px-4 py-2 rounded"
         >
-          Login
+          Register
         </button>
-        <p className="mt-4 text-sm">
-          Don't have an account?{" "}
-          <Link to="/register" className="text-blue-500">
-            Register
-          </Link>
-        </p>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Register;

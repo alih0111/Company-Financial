@@ -15,6 +15,7 @@ import GaugeChartComponent from "./components/GaugeChartComponent";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import BigDataTable from "./components/BigDataTable";
+import Register from "./components/Register";
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -68,9 +69,10 @@ const App = () => {
           }
           {...scriptModalProps}
         />
-        <main className="flex-1 p-6 bg-white/50 dark:bg-gray-900/40 backdrop-blur-md rounded-xl m-4 shadow-2xl transition-all duration-300 ">
+        <main className="flex-1 bg-white/50 dark:bg-gray-900/40 backdrop-blur-lg mb-0 shadow-2xl transition-all duration-300 my-5 mr-[15px] p-4 rounded-3xl border border-gray-200 dark:border-gray-700">
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route
               path="/"
               element={
@@ -80,8 +82,8 @@ const App = () => {
                       Loading company data...
                     </p>
                   ) : (
-                    <div className="flex flex-col justify-start h-full">
-                      <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                    <div className="flex flex-col justify-center h-full ">
+                      <div className="shadow-md backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
                         <div className="flex gap-3">
                           <div className="w-3/4">
                             <ChartComponent data={data1} />
@@ -95,7 +97,7 @@ const App = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="shadow-lg mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                      <div className="shadow-md mt-2 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
                         <div className="flex gap-3">
                           <div className="w-3/4">
                             <ChartComponent data={data2} />
@@ -180,7 +182,7 @@ const App = () => {
 
       <button
         onClick={toggleDarkMode}
-        className="fixed bottom-16 left-8 p-2 rounded-full bg-gray-200 dark:bg-gray-700 shadow-lg"
+        className="fixed bottom-14 left-8 p-2 rounded-full bg-gray-200 dark:bg-gray-700 shadow-lg"
       >
         {darkMode ? <FaSun /> : <FaMoon />}
       </button>

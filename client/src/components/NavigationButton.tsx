@@ -15,7 +15,10 @@ const NavigationButton = () => {
   };
 
   return (
-    <button onClick={handleClick} className=" text-white rounded">
+    <button
+      onClick={handleClick}
+      className="rounded text-sm font-semibold text-gray-800 dark:text-gray-200"
+    >
       {isOnTablePage ? "Home" : "Table"}
     </button>
   );

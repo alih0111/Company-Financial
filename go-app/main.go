@@ -22,7 +22,8 @@ func main() {
 	}))
 
 	api := r.Group("/api")
-
+	
+	r.POST("/api/register", handlers.Register)
 	api.POST("/login", handlers.Login)
 
 	protected := api.Group("/")
