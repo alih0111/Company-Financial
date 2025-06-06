@@ -6,7 +6,7 @@ import ScriptModal from "./components/ScriptModal";
 import { useDarkMode } from "./utils/theme";
 import { FaSun, FaMoon } from "react-icons/fa";
 import DonutChartComponent from "./components/DonutChartComponent";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import ScriptFullModal from "./components/ScriptFullModal";
 // import StockChartComponent from "./components/StockChartComponent";
@@ -16,6 +16,7 @@ import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import BigDataTable from "./components/BigDataTable";
 import Register from "./components/Register";
+import { getAuthStatus } from "./hooks/useGetUser";
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -49,6 +50,12 @@ const App = () => {
     setSearchParams({ companyname: name });
   };
 
+  const location = useLocation();
+  const hideSidebar =
+    location.pathname === "/login" || location.pathname === "/register";
+
+  const { isAdmin, username } = getAuthStatus();
+
   return (
     <div
       className={`min-h-screen ${
@@ -56,20 +63,25 @@ const App = () => {
       } bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500`}
     >
       <div className="flex h-full">
-        <Sidebar
-          companyOptions={companyOptions}
-          selectedCompany={selectedCompany}
-          onCompanyChange={handleCompanyChange}
-          openModalForScript={openModalForScript}
-          runningScripts={runningScripts}
-          companyProfits={
-            allDataScore
-              ? allDataScore
-              : [{ companyName: "loading", epsGrowth: 0 }]
-          }
-          {...scriptModalProps}
-        />
-        <main className="flex-1 bg-white/50 dark:bg-gray-900/40 backdrop-blur-lg mb-0 shadow-2xl transition-all duration-300 my-5 mr-[15px] p-4 rounded-3xl border border-gray-200 dark:border-gray-700">
+        {!hideSidebar && (
+          <Sidebar
+            companyOptions={companyOptions}
+            selectedCompany={selectedCompany}
+            onCompanyChange={handleCompanyChange}
+            openModalForScript={openModalForScript}
+            runningScripts={runningScripts}
+            companyProfits={
+              allDataScore
+                ? allDataScore
+                : [{ companyName: "loading", epsGrowth: 0 }]
+            }
+            {...scriptModalProps}
+            isAdmin={isAdmin}
+            username={username}
+          />
+        )}
+
+        <main className="flex-1  bg-white/50 dark:bg-gray-900/40 backdrop-blur-lg mb-0 shadow-2xl transition-all duration-300 my-5 mx-[15px] p-4 rounded-3xl border border-gray-200 dark:border-gray-700">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

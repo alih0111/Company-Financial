@@ -16,6 +16,8 @@ interface SidebarProps {
   >;
 
   loadingCompanies: boolean;
+  isAdmin: boolean;
+  username: string;
   companyProfits: {
     companyName: string;
     epsGrowth: number;
@@ -32,6 +34,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   runningScripts,
   loadingCompanies,
   companyProfits,
+  isAdmin,
+  username,
 }) => {
   const navigate = useNavigate();
   const goToTable = () => {
@@ -39,7 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="max-h-[747px] m-4 mb-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-3 transition-all duration-300 ease-in-out">
+    <aside className="max-h-[747px] m-4 mb-0 mr-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-3 transition-all duration-300 ease-in-out">
       <h2 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight mb-2">
         Company Insights
       </h2>
@@ -121,46 +125,49 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       <div className="flex flex-col justify-start h-full overflow-auto text-sm ">
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={() => openModalForScript("script1")}
-            disabled={runningScripts.script1}
-            className=" w-full h-9 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {runningScripts.script1 ? "Running..." : "Gathering Profit"}
-          </button>
+        {isAdmin && (
+          <>
+            <div className="flex flex-col gap-1">
+              <button
+                onClick={() => openModalForScript("script1")}
+                disabled={runningScripts.script1}
+                className=" w-full h-8 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl font-sm tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {runningScripts.script1 ? "Running..." : "Gathering Profit"}
+              </button>
 
-          <button
-            onClick={() => openModalForScript("script2")}
-            disabled={runningScripts.script2}
-            className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {runningScripts.script2 ? "Running..." : "Gathering Sales"}
-          </button>
+              <button
+                onClick={() => openModalForScript("script2")}
+                disabled={runningScripts.script2}
+                className="w-full h-8 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-sm tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {runningScripts.script2 ? "Running..." : "Gathering Sales"}
+              </button>
 
-          <button
-            onClick={() => openModalForScript("full")}
-            disabled={runningScripts.full}
-            className={`w-full h-9 text-white rounded-xl font-medium tracking-wide shadow-lg transition-all duration-200
+              <button
+                onClick={() => openModalForScript("full")}
+                disabled={runningScripts.full}
+                className={`w-full h-8 text-white rounded-xl font-sm tracking-wide shadow-lg transition-all duration-200
             ${
               runningScripts.full
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-xl"
             }`}
-          >
-            {runningScripts.full ? "Running..." : "Full Data Gathering"}
-          </button>
+              >
+                {runningScripts.full ? "Running..." : "Full Data Gathering"}
+              </button>
 
-          <button
-            onClick={() => openModalForScript("stockPrices")}
-            disabled={runningScripts.stockPrices}
-            className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-medium tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {runningScripts.stockPrices ? "Running..." : "Gathering Prices"}
-          </button>
-        </div>
-
-        <div className="shadow-md mt-4 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 max-h-[363px] flex flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
+              <button
+                onClick={() => openModalForScript("stockPrices")}
+                disabled={runningScripts.stockPrices}
+                className="w-full h-8 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-sm tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {runningScripts.stockPrices ? "Running..." : "Gathering Prices"}
+              </button>
+            </div>
+          </>
+        )}
+        <div className="shadow-md mt-1 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 flex flex-1 flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
           {/* Fixed header */}
           <div className="p-4 pb-2 flex justify-between items-center">
             <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
@@ -215,7 +222,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             }}
             className="w-full h-9 bg-black dark:bg-gray-200 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-black rounded-xl font-semibold tracking-wide shadow-md transition-all duration-200"
           >
-            Admin
+            {username}
           </button>
         </div>
       </div>

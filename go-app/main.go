@@ -22,7 +22,8 @@ func main() {
 	}))
 
 	api := r.Group("/api")
-	
+
+	r.POST("/api/register/send-code", handlers.SendVerificationCode)
 	r.POST("/api/register", handlers.Register)
 	api.POST("/login", handlers.Login)
 
