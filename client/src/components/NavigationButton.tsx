@@ -6,11 +6,14 @@ const NavigationButton = () => {
 
   const isOnTablePage = location.pathname === "/Table";
 
+  const searchParams = new URLSearchParams(location.search);
+  const companyName = searchParams.get("companyname");
+
   const handleClick = () => {
     if (isOnTablePage) {
-      navigate("/"); // Go back home
+      navigate(`/?companyname=${encodeURIComponent(companyName || "")}`);
     } else {
-      navigate("/Table"); // Go to table page
+      navigate(`/Table?companyname=${encodeURIComponent(companyName || "")}`);
     }
   };
 

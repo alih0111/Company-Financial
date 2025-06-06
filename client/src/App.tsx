@@ -1,4 +1,3 @@
-import React from "react";
 import Sidebar from "./components/Sidebar";
 import ChartComponent from "./components/ChartComponent";
 import useCompanyData from "./hooks/useCompanyData";
@@ -9,9 +8,6 @@ import DonutChartComponent from "./components/DonutChartComponent";
 import { Routes, Route, useLocation } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import ScriptFullModal from "./components/ScriptFullModal";
-// import StockChartComponent from "./components/StockChartComponent";
-// import StockCandleChart from "./components/StockChartComponent";
-import GaugeChartComponent from "./components/GaugeChartComponent";
 import Login from "./components/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 import BigDataTable from "./components/BigDataTable";

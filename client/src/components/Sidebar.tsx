@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import NavigationButton from "./NavigationButton";
 
@@ -17,7 +16,7 @@ interface SidebarProps {
 
   loadingCompanies: boolean;
   isAdmin: boolean;
-  username: string;
+  username: string | null;
   companyProfits: {
     companyName: string;
     epsGrowth: number;
@@ -37,11 +36,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   isAdmin,
   username,
 }) => {
-  const navigate = useNavigate();
-  const goToTable = () => {
-    navigate("/Table");
-  };
-
   return (
     <aside className="max-h-[747px] m-4 mb-0 mr-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-3 transition-all duration-300 ease-in-out">
       <h2 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight mb-2">
