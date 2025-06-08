@@ -5,7 +5,7 @@ import ScriptModal from "./components/ScriptModal";
 import { useDarkMode } from "./utils/theme";
 import { FaSun, FaMoon } from "react-icons/fa";
 import DonutChartComponent from "./components/DonutChartComponent";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import ScriptFullModal from "./components/ScriptFullModal";
 import Login from "./components/Login";
@@ -41,9 +41,11 @@ const App = () => {
 
   const [searchParams, setSearchParams] = useSearchParams();
 
+  const navigate = useNavigate();
   const handleCompanyChange = (name: string) => {
     setSelectedCompany(name);
     setSearchParams({ companyname: name });
+    navigate(`/?companyname=${encodeURIComponent(name || "")}`);
   };
 
   const location = useLocation();

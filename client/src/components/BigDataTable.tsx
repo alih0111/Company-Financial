@@ -29,6 +29,7 @@ const BigDataTable: React.FC<Props> = ({
         Header: "EPS Growth (%)",
         accessor: "eps_growth",
         sortType: "basic",
+        className: "w-32",
         Cell: ({ value }: { value: number }) => {
           let colorClass = "";
           if (value != null && value > 50)
@@ -47,12 +48,11 @@ const BigDataTable: React.FC<Props> = ({
         Header: "P/E",
         accessor: "pe",
         sortType: "basic",
+        className: "w-32",
         Cell: ({ value }: { value: number }) => {
           let colorClass = "";
           if (value != null && value < 6 && value > 0)
             colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          // else if (value != null && value < -10)
-          //   colorClass = "text-red-600 dark:text-red-400 font-semibold";
 
           return (
             <span className={colorClass}>
@@ -61,11 +61,11 @@ const BigDataTable: React.FC<Props> = ({
           );
         },
       },
-
       {
         Header: "Sales Growth (%)",
         accessor: "sales_growth",
         sortType: "basic",
+        className: "w-32",
         Cell: ({ value }: { value: number }) => {
           let colorClass = "";
           if (value != null && value > 50)
@@ -83,11 +83,23 @@ const BigDataTable: React.FC<Props> = ({
       {
         Header: "Company Name",
         accessor: "company_name",
+        className: "w-32",
         Cell: ({ value }: { value: string }) => (
           <span className="font-medium text-gray-900 dark:text-gray-100">
             {value}
           </span>
         ),
+      },
+      {
+        Header: "ردیف",
+        id: "row_number",
+        Cell: ({ row }: { row: any }) => (
+          <span className="font-medium text-gray-700 dark:text-gray-300">
+            {row.index + 1}
+          </span>
+        ),
+        disableSortBy: true,
+        className: "w-20",
       },
     ],
     []
@@ -119,7 +131,7 @@ const BigDataTable: React.FC<Props> = ({
   };
 
   return (
-    <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px] max-h-[91vh] overflow-auto">
+    <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px] ">
       <div className="relative mb-2 max-w-md mx-auto text-md ">
         <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
         <input
@@ -128,13 +140,13 @@ const BigDataTable: React.FC<Props> = ({
           onChange={handleSearch}
           placeholder="جستجوی شرکت..."
           dir="rtl"
-          className="p-2 w-full  rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          className="p-2 w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         />
       </div>
-      <div className="overflow-x-auto">
+      <div className=" overflow-auto max-h-[82vh]">
         <table
           {...getTableProps()}
-          className="min-w-full text-sm border-collapse rounded-xl overflow-hidden"
+          className="min-w-full text-sm border-collapse rounded-xl overflow-auto max-h-[82vh]"
           style={{ borderSpacing: 0 }}
         >
           <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
@@ -147,7 +159,9 @@ const BigDataTable: React.FC<Props> = ({
                   <th
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                     key={column.getHeaderProps().key}
-                    className="p-4 text-center text-gray-700 dark:text-gray-300 font-semibold select-none cursor-pointer user-select-none"
+                    className={`p-4 text-center text-gray-700 dark:text-gray-300 font-semibold select-none cursor-pointer ${
+                      column.className || ""
+                    }`}
                   >
                     <div className="flex items-center justify-center gap-2">
                       <span>{column.render("Header")}</span>
@@ -188,7 +202,9 @@ const BigDataTable: React.FC<Props> = ({
                     <td
                       {...cell.getCellProps()}
                       key={cell.getCellProps().key}
-                      className="p-2 text-center text-gray-700 dark:text-gray-300"
+                      className={`p-2 text-center text-gray-700 dark:text-gray-300 ${
+                        cell.column.className || ""
+                      }`}
                     >
                       {cell.render("Cell")}
                     </td>
