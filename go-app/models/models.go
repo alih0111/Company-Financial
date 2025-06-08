@@ -21,11 +21,20 @@ type ScoreResult struct {
 	EPSGrowth      float64 `json:"epsGrowth"`
 }
 
+// type CompanyScore struct {
+// 	CompanyID   string  `json:"companyID"`
+// 	CompanyName string  `json:"companyName"`
+// 	EPSGrowth   float64 `json:"epsGrowth"`
+// 	SalesGrowth float64 `json:"salesGrowth"`
+// }
+
 type CompanyScore struct {
-	CompanyID   string  `json:"companyID"`
-	CompanyName string  `json:"companyName"`
-	EPSGrowth   float64 `json:"epsGrowth"`
-	SalesGrowth float64 `json:"salesGrowth"`
+	CompanyID   string  `json:"company_id"`
+	CompanyName string  `json:"company_name"`
+	SalesGrowth float64 `json:"sales_growth"`
+	EPSGrowth   float64 `json:"eps_growth"`
+	PE          float64 `json:"pe"`
+	Price       float64 `json:"price"`
 }
 
 type EPSRecord struct {
@@ -73,4 +82,12 @@ type User struct {
 	gorm.Model
 	Username string `gorm:"uniqueIndex" json:"username"`
 	Password string `json:"password"` // store hashed password only
+}
+
+type FullPE struct {
+	ID           int     `json:"id"`
+	CompanyName  string  `json:"company_name"`
+	PE           float64 `json:"pe"`
+	Price        float64 `json:"price"`
+	LastModified string  `json:"last_modified"`
 }

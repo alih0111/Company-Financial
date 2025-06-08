@@ -3,10 +3,11 @@ import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import { FaSort, FaSortUp, FaSortDown, FaSearch } from "react-icons/fa";
 
 interface DataRow {
-  companyName: string;
-  epsGrowth: number;
-  salesGrowth: number;
-  priceScore: number;
+  company_id: string;
+  company_name: string;
+  eps_growth: number;
+  sales_growth: number;
+  pe: number;
 }
 
 interface Props {
@@ -26,41 +27,62 @@ const BigDataTable: React.FC<Props> = ({
     () => [
       {
         Header: "EPS Growth (%)",
-        accessor: "epsGrowth",
-        sortType: (rowA, rowB, columnId) => {
-          const a = rowA.values[columnId];
-          const b = rowB.values[columnId];
-          return a > b ? 1 : a < b ? -1 : 0;
-        },
+        accessor: "eps_growth",
+        sortType: "basic",
         Cell: ({ value }: { value: number }) => {
           let colorClass = "";
-          if (value > 50)
+          if (value != null && value > 50)
             colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          else if (value < -10)
+          else if (value != null && value < -10)
             colorClass = "text-red-600 dark:text-red-400 font-semibold";
-          return <span className={colorClass}>{value.toFixed(2)}%</span>;
+
+          return (
+            <span className={colorClass}>
+              {value != null ? value.toFixed(2) + "%" : "--"}
+            </span>
+          );
         },
       },
       {
-        Header: "Sales Growth (%)",
-        accessor: "salesGrowth",
-        sortType: (rowA, rowB, columnId) => {
-          const a = rowA.values[columnId];
-          const b = rowB.values[columnId];
-          return a > b ? 1 : a < b ? -1 : 0;
-        },
+        Header: "P/E",
+        accessor: "pe",
+        sortType: "basic",
         Cell: ({ value }: { value: number }) => {
           let colorClass = "";
-          if (value > 50)
+          if (value != null && value < 6 && value > 0)
             colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          else if (value < -10)
+          // else if (value != null && value < -10)
+          //   colorClass = "text-red-600 dark:text-red-400 font-semibold";
+
+          return (
+            <span className={colorClass}>
+              {value != null ? value.toFixed(2) + "%" : "--"}
+            </span>
+          );
+        },
+      },
+
+      {
+        Header: "Sales Growth (%)",
+        accessor: "sales_growth",
+        sortType: "basic",
+        Cell: ({ value }: { value: number }) => {
+          let colorClass = "";
+          if (value != null && value > 50)
+            colorClass = "text-green-600 dark:text-green-400 font-semibold";
+          else if (value != null && value < -10)
             colorClass = "text-red-600 dark:text-red-400 font-semibold";
-          return <span className={colorClass}>{value.toFixed(2)}%</span>;
+
+          return (
+            <span className={colorClass}>
+              {value != null ? value.toFixed(2) + "%" : "--"}
+            </span>
+          );
         },
       },
       {
         Header: "Company Name",
-        accessor: "companyName",
+        accessor: "company_name",
         Cell: ({ value }: { value: string }) => (
           <span className="font-medium text-gray-900 dark:text-gray-100">
             {value}
@@ -98,7 +120,7 @@ const BigDataTable: React.FC<Props> = ({
 
   return (
     <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px] max-h-[91vh] overflow-auto">
-      <div className="relative mb-6 max-w-md mx-auto">
+      <div className="relative mb-2 max-w-md mx-auto text-md ">
         <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
         <input
           type="text"
@@ -106,7 +128,7 @@ const BigDataTable: React.FC<Props> = ({
           onChange={handleSearch}
           placeholder="جستجوی شرکت..."
           dir="rtl"
-          className=" w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+          className="p-2 w-full  rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
         />
       </div>
       <div className="overflow-x-auto">
@@ -117,13 +139,15 @@ const BigDataTable: React.FC<Props> = ({
         >
           <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
             {headerGroups.map((headerGroup) => (
-              <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
-                {headerGroup.headers.map((column: any) => (
+              <tr
+                {...headerGroup.getHeaderGroupProps()}
+                key={headerGroup.getHeaderGroupProps().key}
+              >
+                {headerGroup.headers.map((column) => (
                   <th
                     {...column.getHeaderProps(column.getSortByToggleProps())}
+                    key={column.getHeaderProps().key}
                     className="p-4 text-center text-gray-700 dark:text-gray-300 font-semibold select-none cursor-pointer user-select-none"
-                    key={column.id}
-                    style={{ userSelect: "none" }}
                   >
                     <div className="flex items-center justify-center gap-2">
                       <span>{column.render("Header")}</span>
@@ -144,32 +168,27 @@ const BigDataTable: React.FC<Props> = ({
               </tr>
             ))}
           </thead>
+
           <tbody
             {...getTableBodyProps()}
             className="divide-y divide-gray-200 dark:divide-gray-700"
           >
             {rows.map((row) => {
               prepareRow(row);
-              const rowCompanyName = row.original.companyName;
-              const isSelected = rowCompanyName === selectedCompany;
+              const rowCompanyName = row.original.company_name;
 
               return (
                 <tr
                   {...row.getRowProps()}
+                  key={row.getRowProps().key}
                   onClick={() => onCompanyChange(rowCompanyName)}
-                  className={`cursor-pointer transition-colors duration-300 hover:bg-indigo-50 dark:hover:bg-gray-800`}
-                  //    ${
-                  //   isSelected
-                  //     ? "bg-indigo-100 dark:bg-indigo-900"
-                  //     : "hover:bg-indigo-50 dark:hover:bg-indigo-800"
-                  // }
-                  key={row.id}
+                  className="cursor-pointer transition-colors duration-300 hover:bg-indigo-50 dark:hover:bg-gray-800"
                 >
                   {row.cells.map((cell) => (
                     <td
                       {...cell.getCellProps()}
+                      key={cell.getCellProps().key}
                       className="p-2 text-center text-gray-700 dark:text-gray-300"
-                      key={cell.column.id}
                     >
                       {cell.render("Cell")}
                     </td>
@@ -177,13 +196,14 @@ const BigDataTable: React.FC<Props> = ({
                 </tr>
               );
             })}
+
             {rows.length === 0 && (
               <tr>
                 <td
                   colSpan={columns.length}
                   className="text-center p-6 text-gray-500 dark:text-gray-400"
                 >
-                  هیچ داده‌ای یافت نشد
+                  داده‌ای یافت نشد
                 </td>
               </tr>
             )}

@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
+import { SlArrowRight } from "react-icons/sl";
 
 const NavigationButton = () => {
   const navigate = useNavigate();
@@ -20,9 +21,18 @@ const NavigationButton = () => {
   return (
     <button
       onClick={handleClick}
-      className="rounded text-sm font-semibold text-gray-800 dark:text-gray-200"
+      className="rounded text-sm font-semibold text-gray-800 dark:text-gray-200 flex items-center"
     >
-      {isOnTablePage ? "Home" : "Table"}
+      {/* {isOnTablePage ? `Home  <SlArrowRight />` : "Table >"} */}
+      {isOnTablePage ? (
+        <>
+          Home <SlArrowRight />
+        </>
+      ) : (
+        <>
+          Table <SlArrowRight />
+        </>
+      )}
     </button>
   );
 };

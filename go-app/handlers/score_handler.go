@@ -34,9 +34,42 @@ func GetCompanyScores(c *gin.Context) {
 	}
 	defer epsRows.Close()
 
-	// Parse sales data into map[CompanyID][]float64
+	// Query FullPE data
+	fullPEQuery := "SELECT TOP (1000) ID, CompanyName, PE, Price, LastModified FROM codal.dbo.FullPE"
+	fullPERows, err := db.Query(fullPEQuery)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	defer fullPERows.Close()
+
+	// Parse FullPE data into a map
+	type FullPEData struct {
+		PE    float64
+		Price float64
+	}
+	fullPEMap := make(map[string]FullPEData)
+
+	for fullPERows.Next() {
+		var id int
+		var companyName string
+		var pe, price sql.NullFloat64
+		var lastModified sql.NullTime
+
+		if err := fullPERows.Scan(&id, &companyName, &pe, &price, &lastModified); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		fullPEMap[companyName] = FullPEData{
+			PE:    nullToFloat(pe),
+			Price: nullToFloat(price),
+		}
+	}
+
+	// Parse sales data
 	salesMap := make(map[string][]float64)
-	nameMap := make(map[string]string) // CompanyID -> CompanyName
+	nameMap := make(map[string]string)
 
 	for salesRows.Next() {
 		var companyID, companyName, reportDate string
@@ -49,7 +82,7 @@ func GetCompanyScores(c *gin.Context) {
 		nameMap[companyID] = companyName
 	}
 
-	// Parse EPS data into map[CompanyID][]float64
+	// Parse EPS data
 	epsMap := make(map[string][]float64)
 	for epsRows.Next() {
 		var companyID, companyName, reportDate string
@@ -64,7 +97,7 @@ func GetCompanyScores(c *gin.Context) {
 		}
 	}
 
-	// Calculate scores for companies appearing in either sales or EPS data
+	// Merge results
 	companies := make(map[string]bool)
 	for id := range salesMap {
 		companies[id] = true
@@ -77,6 +110,7 @@ func GetCompanyScores(c *gin.Context) {
 	for companyID := range companies {
 		sales := salesMap[companyID]
 		eps := epsMap[companyID]
+		name := nameMap[companyID]
 
 		// Calculate sales growth
 		var salesGrowth float64
@@ -98,28 +132,26 @@ func GetCompanyScores(c *gin.Context) {
 			}
 		}
 
+		// Get PE and Price from FullPEMap
+		peData := fullPEMap[name]
+
 		scores = append(scores, models.CompanyScore{
 			CompanyID:   companyID,
-			CompanyName: nameMap[companyID],
+			CompanyName: name,
 			SalesGrowth: roundFloat(salesGrowth, 2),
 			EPSGrowth:   roundFloat(epsGrowth, 2),
+			PE:          roundFloat(peData.PE, 2),
+			Price:       roundFloat(peData.Price, 2),
 		})
 	}
 
-	// Sort by combined score or by EPS growth if you want; here sorted by EPSGrowth descending
+	// Sort by EPS growth descending
 	sort.Slice(scores, func(i, j int) bool {
 		return scores[i].EPSGrowth > scores[j].EPSGrowth
 	})
 
 	c.JSON(http.StatusOK, scores)
 }
-
-// func nullToFloat(n sql.NullFloat64) float64 {
-// 	if n.Valid {
-// 		return n.Float64
-// 	}
-// 	return 0
-// }
 
 func mean(vals []float64) float64 {
 	if len(vals) == 0 {
@@ -131,91 +163,3 @@ func mean(vals []float64) float64 {
 	}
 	return sum / float64(len(vals))
 }
-
-// func roundFloat(val float64, places int) float64 {
-// 	pow := math.Pow(10, float64(places))
-// 	return math.Round(val*pow) / pow
-// }
-
-// func GetCompanyScores(c *gin.Context) {
-// 	db := config.GetDB()
-// 	defer db.Close()
-
-// 	query := "SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2"
-// 	rows, err := db.Query(query)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	defer rows.Close()
-
-// 	var data []models.EPSRecord
-// 	for rows.Next() {
-// 		var record models.EPSRecord
-// 		// var product1 sql.NullFloat64
-
-// 		// if err := rows.Scan(&record.CompanyID, &record.CompanyName, &record.ReportDate, &product1); err != nil {
-// 		// 	c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 		// 	return
-// 		// }
-// 		var product1 sql.NullFloat64
-// 		if err := rows.Scan(&record.CompanyID, &record.CompanyName, &record.ReportDate, &product1); err != nil {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-// 			return
-// 		}
-
-// 		if product1.Valid {
-// 			record.EPS = product1.Float64
-// 		} else {
-// 			record.EPS = 0
-// 		}
-// 		data = append(data, record)
-// 	}
-
-// 	// Group EPS by company
-// 	epsMap := make(map[string][]float64)
-// 	nameMap := make(map[string]string)
-
-// 	for _, rec := range data {
-// 		epsMap[rec.CompanyID] = append(epsMap[rec.CompanyID], rec.EPS)
-// 		nameMap[rec.CompanyID] = rec.CompanyName
-// 	}
-
-// 	// Calculate EPS growth
-// 	var scores []models.CompanyScore
-// 	for companyID, epsSeries := range epsMap {
-// 		var growth float64
-// 		if len(epsSeries) >= 8 {
-// 			recent := mean(epsSeries[len(epsSeries)-4:])
-// 			previous := mean(epsSeries[len(epsSeries)-8 : len(epsSeries)-4])
-// 			if previous != 0 {
-// 				growth = ((recent - previous) / math.Abs(previous)) * 100
-// 			}
-// 		}
-// 		scores = append(scores, models.CompanyScore{
-// 			CompanyID:   companyID,
-// 			CompanyName: nameMap[companyID],
-// 			EPSGrowth:   roundFloat(growth, 2),
-// 		})
-// 	}
-
-// 	// Sort scores descending
-// 	sort.Slice(scores, func(i, j int) bool {
-// 		return scores[i].EPSGrowth > scores[j].EPSGrowth
-// 	})
-
-// 	c.JSON(http.StatusOK, scores)
-// }
-
-// func mean(values []float64) float64 {
-// 	sum := 0.0
-// 	for _, v := range values {
-// 		sum += v
-// 	}
-// 	return sum / float64(len(values))
-// }
-
-// func roundFloat(val float64, places int) float64 {
-// 	pow := math.Pow(10, float64(places))
-// 	return math.Round(val*pow) / pow
-// }

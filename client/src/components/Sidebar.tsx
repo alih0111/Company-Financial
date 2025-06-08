@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Select from "react-select";
 import NavigationButton from "./NavigationButton";
+import { fetchFullPE } from "../utils/api";
 
 interface SidebarProps {
   companyOptions: { value: string; label: string }[];
@@ -18,10 +19,10 @@ interface SidebarProps {
   isAdmin: boolean;
   username: string | null;
   companyProfits: {
-    companyName: string;
-    epsGrowth: number;
+    company_name: string;
+    eps_growth: number;
     priceScore: number;
-    salesGrowth: number;
+    sales_growth: number;
   }[];
 }
 
@@ -36,12 +37,21 @@ const Sidebar: React.FC<SidebarProps> = ({
   isAdmin,
   username,
 }) => {
+  const [loadingFullPE, setLoadingFullPE] = useState(false);
+  const fullPE = async () => {
+    setLoadingFullPE(true);
+    const res = await fetchFullPE();
+    setLoadingFullPE(false);
+  };
+
   return (
     <aside className="max-h-[747px] m-4 mb-0 mr-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-3 transition-all duration-300 ease-in-out">
-      <h2 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight mb-2">
-        Company Insights
-      </h2>
-
+      <div className="pb-2 flex justify-between items-center">
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight mb-2">
+          Company Insights
+        </h2>
+        <NavigationButton />
+      </div>
       <div>
         {/* <label
           htmlFor="company"
@@ -121,11 +131,16 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex flex-col justify-start h-full overflow-auto text-sm ">
         {isAdmin && (
           <>
-            <div className="flex flex-col gap-1">
+            <div className="p-4 pb-2 flex justify-between items-center">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                Profit Overview
+              </h3>
+            </div>
+            <div className="flex flex-col gap-2">
               <button
                 onClick={() => openModalForScript("script1")}
                 disabled={runningScripts.script1}
-                className=" w-full h-8 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl font-sm tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className=" w-full h-9 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl font-sm tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {runningScripts.script1 ? "Running..." : "Gathering Profit"}
               </button>
@@ -133,80 +148,97 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => openModalForScript("script2")}
                 disabled={runningScripts.script2}
-                className="w-full h-8 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-sm tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-sm tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {runningScripts.script2 ? "Running..." : "Gathering Sales"}
               </button>
 
               <button
-                onClick={() => openModalForScript("full")}
-                disabled={runningScripts.full}
-                className={`w-full h-8 text-white rounded-xl font-sm tracking-wide shadow-lg transition-all duration-200
+                onClick={() => fullPE()}
+                disabled={loadingFullPE}
+                className={`w-full h-9 text-white rounded-xl font-sm tracking-wide shadow-lg transition-all duration-200
             ${
-              runningScripts.full
+              loadingFullPE
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-xl"
             }`}
               >
-                {runningScripts.full ? "Running..." : "Full Data Gathering"}
+                {loadingFullPE ? "Running..." : "Full P/E"}
               </button>
 
               <button
                 onClick={() => openModalForScript("stockPrices")}
                 disabled={runningScripts.stockPrices}
-                className="w-full h-8 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-sm tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl font-sm tracking-wide shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {runningScripts.stockPrices ? "Running..." : "Gathering Prices"}
+              </button>
+
+              <button
+                onClick={() => openModalForScript("full")}
+                disabled={runningScripts.full}
+                className={`w-full h-9 text-white rounded-xl font-sm tracking-wide shadow-lg transition-all duration-200
+                  ${
+                    runningScripts.full
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-xl"
+                  }`}
+              >
+                {runningScripts.full ? "Running..." : "Full Data Gathering"}
               </button>
             </div>
           </>
         )}
-        <div className="shadow-md mt-1 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 flex flex-1 flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
-          {/* Fixed header */}
-          <div className="p-4 pb-2 flex justify-between items-center">
-            <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-              Profit Overview
-            </h3>
-            <NavigationButton />
-          </div>
+        {!isAdmin && (
+          <div className="shadow-md mt-1 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 h-4/6 flex flex-1 flex-col bg-white/30 dark:bg-gray-700/30 rounded-xl shadow-inner">
+            {/* Fixed header */}
+            <div className="p-4 pb-2 flex justify-between items-center">
+              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                Profit Overview
+              </h3>
+            </div>
 
-          {/* Scrollable content */}
-          <div className="overflow-auto direction-rtl flex-1 p-2 pt-0">
-            <div className="direction-ltr">
-              <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
-                {companyProfits.map((company, index) => {
-                  const eps = company.epsGrowth;
-                  let colorClass = "";
+            {/* Scrollable content */}
 
-                  if (eps > 50) {
-                    colorClass = "text-green-600 dark:text-green-400 font-bold";
-                  } else if (eps < -10) {
-                    colorClass = "text-red-600 dark:text-red-400 font-bold";
-                  }
+            <div className="overflow-auto direction-rtl flex-1 p-2 pt-0">
+              <div className="direction-ltr">
+                <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
+                  {companyProfits.map((company, index) => {
+                    const eps = company.eps_growth;
+                    let colorClass = "";
 
-                  const isSelected = company.companyName === selectedCompany;
+                    if (eps > 50) {
+                      colorClass =
+                        "text-green-600 dark:text-green-400 font-bold";
+                    } else if (eps < -10) {
+                      colorClass = "text-red-600 dark:text-red-400 font-bold";
+                    }
 
-                  return (
-                    <li
-                      key={index}
-                      className={`flex justify-between cursor-pointer p-2 rounded-lg transition text-sm
+                    const isSelected = company.company_name === selectedCompany;
+
+                    return (
+                      <li
+                        key={index}
+                        className={`flex justify-between cursor-pointer p-2 rounded-lg transition text-sm
                         hover:bg-gray-200 dark:hover:bg-gray-600
                         ${isSelected ? "bg-gray-100 dark:bg-gray-700" : ""}`}
-                      onClick={() => onCompanyChange(company.companyName)}
-                    >
-                      <span className={`font-semibold ${colorClass}`}>
-                        {eps.toFixed(2)}%
-                      </span>
+                        onClick={() => onCompanyChange(company.company_name)}
+                      >
+                        <span className={`font-semibold ${colorClass}`}>
+                          {/* {eps.toFixed(2)}% */}
+                          {eps != null ? eps.toFixed(2) + "%" : "--"}
+                        </span>
 
-                      {/* <span className="text-sm">{company.priceScore}%</span> */}
-                      <span>{company.companyName}</span>
-                    </li>
-                  );
-                })}
-              </ul>
+                        {/* <span className="text-sm">{company.priceScore}%</span> */}
+                        <span>{company.company_name}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         <div className="profile mt-4">
           <button

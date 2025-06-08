@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"math"
 	"net/http"
 	"strings"
 
@@ -55,7 +56,7 @@ func GetSalesData2(c *gin.Context) {
 		s.Value1 /= 1_000_000
 		s.Value2 /= 1_000_000
 		s.Value3 /= 1_000_000
-		s.Percentage = s.Value3 * 1000 // equivalent of: value3 / 1000
+		s.Percentage = math.Round(s.Value3*1000*100) / 100
 
 		if s.Value1 > 0 && (s.Value2 < 0 || s.Value3 < 0) {
 			s.WoW = 1

@@ -74,6 +74,15 @@ export const fetchStockPriceScore = async (companyName: string) => {
   return res.json();
 };
 
+export const fetchFullPE = async () => {
+  const res = await fetch(`${API_BASE}/FetchFullPE`, {
+    headers: getAuthHeaders(),
+  });
+
+  if (!res.ok) throw new Error("Failed to fetch sales data 2");
+  return res.json();
+};
+
 // export const fetchStockPrice = async (companyName: string) => {
 //   const res = await fetch(
 //     `${API_BASE}/StockPrice?companyName=${encodeURIComponent(companyName)}`
