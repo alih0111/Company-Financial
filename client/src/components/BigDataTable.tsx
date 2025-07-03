@@ -26,6 +26,23 @@ const BigDataTable: React.FC<Props> = ({
   const columns = useMemo(
     () => [
       {
+        Header: "P/E",
+        accessor: "pe",
+        sortType: "basic",
+        className: "w-32",
+        Cell: ({ value }: { value: number }) => {
+          let colorClass = "";
+          if (value != null && value < 6 && value > 0)
+            colorClass = "text-green-600 dark:text-green-400 font-semibold";
+
+          return (
+            <span className={colorClass}>
+              {value != null ? value.toFixed(2) : "--"}
+            </span>
+          );
+        },
+      },
+      {
         Header: "EPS Growth (%)",
         accessor: "eps_growth",
         sortType: "basic",
@@ -44,23 +61,7 @@ const BigDataTable: React.FC<Props> = ({
           );
         },
       },
-      {
-        Header: "P/E",
-        accessor: "pe",
-        sortType: "basic",
-        className: "w-32",
-        Cell: ({ value }: { value: number }) => {
-          let colorClass = "";
-          if (value != null && value < 6 && value > 0)
-            colorClass = "text-green-600 dark:text-green-400 font-semibold";
 
-          return (
-            <span className={colorClass}>
-              {value != null ? value.toFixed(2) + "%" : "--"}
-            </span>
-          );
-        },
-      },
       {
         Header: "Sales Growth (%)",
         accessor: "sales_growth",
