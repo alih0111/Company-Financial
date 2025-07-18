@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -36,13 +37,14 @@ func RunScript2(c *gin.Context) {
 	// 	req.BaseURL,
 	// 	string(pageNumsJSON),
 	// )
+	log.Println("RunScript2 called py")
 	cmd := exec.Command("python", "py/scraper2.py",
 		req.CompanyName,
 		strconv.Itoa(req.RowMeta),
 		req.BaseURL,
 		string(pageNumsJSON),
 	)
-
+	log.Println("RunScript2 called py2")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get stdout: " + err.Error()})

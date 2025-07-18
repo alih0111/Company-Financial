@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"math"
 	"net/http"
-	"sort"
+	"strings"
 
 	"go-app/config"
 
@@ -21,168 +21,17 @@ type rawMetric struct {
 	CompanyName    string
 }
 
-func GetCompanyScores2(c *gin.Context) {
-	db := config.GetDB()
-	defer db.Close()
-
-	companyName := c.Query("companyName")
-
-	salesQuery := "SELECT CompanyID, CompanyName, ReportDate, Value3 FROM mahane"
-	epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2"
-
-	var salesRows, epsRows *sql.Rows
-	var err error
-
-	if companyName != "" {
-		param := "%" + companyName + "%"
-		salesQuery += " WHERE CompanyName LIKE @companyName"
-		epsQuery += " WHERE CompanyName LIKE @companyName"
-		salesRows, err = db.Query(salesQuery, sql.Named("companyName", param))
-		if err == nil {
-			epsRows, err = db.Query(epsQuery, sql.Named("companyName", param))
-		}
-	} else {
-		salesRows, err = db.Query(salesQuery)
-		if err == nil {
-			epsRows, err = db.Query(epsQuery)
-		}
-	}
-
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-	defer salesRows.Close()
-	defer epsRows.Close()
-
-	// Sales and EPS time series
-	salesMap := make(map[string][]float64)
-	epsMap := make(map[string][]float64)
-	nameMap := make(map[string]string)
-
-	// Parse sales data
-	for salesRows.Next() {
-		var companyID, name, date string
-		var value3 sql.NullFloat64
-		if err := salesRows.Scan(&companyID, &name, &date, &value3); err == nil {
-			salesMap[companyID] = append(salesMap[companyID], nullToFloat(value3))
-			nameMap[companyID] = name
-		}
-	}
-
-	// Parse EPS data
-	for epsRows.Next() {
-		var companyID, name, date string
-		var product1 sql.NullFloat64
-		if err := epsRows.Scan(&companyID, &name, &date, &product1); err == nil {
-			epsMap[companyID] = append(epsMap[companyID], nullToFloat(product1))
-			if _, ok := nameMap[companyID]; !ok {
-				nameMap[companyID] = name
-			}
-		}
-	}
-
-	if len(salesMap) == 0 && len(epsMap) == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "No data found"})
-		return
-	}
-
-	// Scoring
-	allCompanies := make(map[string]bool)
-	for k := range salesMap {
-		allCompanies[k] = true
-	}
-	for k := range epsMap {
-		allCompanies[k] = true
-	}
-
-	scoreList := []rawMetric{}
-	for companyID := range allCompanies {
-		sales := salesMap[companyID]
-		eps := epsMap[companyID]
-
-		// Sales Growth
-		var salesGrowth float64
-		if len(sales) >= 24 {
-			recent := mean(sales[len(sales)-12:])
-			previous := mean(sales[len(sales)-24 : len(sales)-12])
-			if previous != 0 {
-				salesGrowth = roundFloat((recent-previous)/math.Abs(previous)*100, 2)
-			}
-		}
-
-		// Sales Stability
-		var stability float64
-		if len(sales) > 1 {
-			avg := mean(sales)
-			if avg != 0 {
-				stability = 1 - stdDev(sales)/avg
-			}
-		}
-
-		// EPS Level and Growth
-		epsLevel := mean(eps)
-		var epsGrowth float64
-		if len(eps) >= 8 {
-			recent := mean(eps[len(eps)-4:])
-			previous := mean(eps[len(eps)-8 : len(eps)-4])
-			if previous != 0 {
-				epsGrowth = roundFloat((recent-previous)/math.Abs(previous)*100, 2)
-			}
-		}
-
-		scoreList = append(scoreList, rawMetric{
-			CompanyID:      companyID,
-			CompanyName:    nameMap[companyID],
-			SalesGrowth:    salesGrowth,
-			SalesStability: stability,
-			EPSLevel:       epsLevel,
-			EPSGrowth:      epsGrowth,
-		})
-	}
-
-	// MinMax normalize across all companies
-	normalizeFields(&scoreList)
-
-	// Final scoring formula
-	for i := range scoreList {
-		s := &scoreList[i]
-		s.FinalScore = 0.3*s.SalesGrowth + 0.2*s.SalesStability + 0.3*s.EPSLevel + 0.2*s.EPSGrowth
-	}
-
-	// Format output
-	sort.Slice(scoreList, func(i, j int) bool {
-		return scoreList[i].FinalScore > scoreList[j].FinalScore
-	})
-
-	var result []gin.H
-	for _, s := range scoreList {
-		result = append(result, gin.H{
-			"companyID":      s.CompanyID,
-			"companyName":    s.CompanyName,
-			"finalScore":     roundFloat(s.FinalScore, 4),
-			"salesGrowth":    roundFloat(s.SalesGrowth, 4),
-			"salesStability": roundFloat(s.SalesStability, 4),
-			"epsLevel":       roundFloat(s.EPSLevel, 4),
-			"epsGrowth":      roundFloat(s.EPSGrowth, 4),
-		})
-	}
-
-	c.JSON(http.StatusOK, result)
+type FullPEData struct {
+	PE    float64
+	Price float64
 }
 
-// --- Helpers ---
-
-// func mean(arr []float64) float64 {
-// 	if len(arr) == 0 {
-// 		return 0
-// 	}
-// 	sum := 0.0
-// 	for _, v := range arr {
-// 		sum += v
-// 	}
-// 	return sum / float64(len(arr))
-// }
+func nullToFloat(n sql.NullFloat64) float64 {
+	if n.Valid {
+		return n.Float64
+	}
+	return 0
+}
 
 func stdDev(data []float64) float64 {
 	if len(data) <= 1 {
@@ -202,52 +51,154 @@ func roundFloat(val float64, places int) float64 {
 	return math.Round(val*pow) / pow
 }
 
-func nullToFloat(n sql.NullFloat64) float64 {
-	if n.Valid {
-		return n.Float64
-	}
-	return 0
+// Optional: simple sigmoid-based normalization
+func normalize(x float64) float64 {
+	return 1 / (1 + math.Exp(-x/10))
 }
 
-func normalizeFields(scores *[]rawMetric) {
-	minMax := func(get func(r rawMetric) float64) (min, max float64) {
-		min, max = math.MaxFloat64, -math.MaxFloat64
-		for _, r := range *scores {
-			v := get(r)
-			if v < min {
-				min = v
-			}
-			if v > max {
-				max = v
+func GetCompanyScores2(c *gin.Context) {
+	db := config.GetDB()
+	defer db.Close()
+
+	// companyName := c.Query("companyName")
+	// if companyName == "" {
+	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "companyName query parameter is required"})
+	// 	return
+	// }
+
+	// param := "%" + companyName + "%"
+
+	// // Queries with filters
+	// salesQuery := `SELECT CompanyID, CompanyName, ReportDate, Value3 FROM mahane WHERE CompanyName LIKE @companyName`
+	// epsQuery := `SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2 WHERE CompanyName LIKE @companyName`
+	// fullPEQuery := `SELECT CompanyName, PE, Price FROM codal.dbo.FullPE WHERE CompanyName LIKE @companyName`
+
+	companyName := strings.TrimSpace(c.Query("companyName"))
+	param := companyName + "%"
+
+	salesQuery := `SELECT CompanyID, CompanyName, ReportDate, Value3 FROM mahane WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName)) + '%'`
+	epsQuery := `SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2 WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName)) + '%'`
+	fullPEQuery := `SELECT CompanyName, PE, Price FROM codal.dbo.FullPE WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName)) + '%'`
+
+	salesRows, err := db.Query(salesQuery, sql.Named("companyName", param))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "sales query error: " + err.Error()})
+		return
+	}
+	defer salesRows.Close()
+
+	epsRows, err := db.Query(epsQuery, sql.Named("companyName", param))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "eps query error: " + err.Error()})
+		return
+	}
+	defer epsRows.Close()
+
+	fullPERows, err := db.Query(fullPEQuery, sql.Named("companyName", param))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "fullPE query error: " + err.Error()})
+		return
+	}
+	defer fullPERows.Close()
+
+	// Maps
+	salesMap := make(map[string][]float64)
+	epsMap := make(map[string][]float64)
+	nameMap := make(map[string]string)
+	fullPEMap := make(map[string]FullPEData)
+
+	// Load Sales
+	for salesRows.Next() {
+		var id, name, date string
+		var value sql.NullFloat64
+		if err := salesRows.Scan(&id, &name, &date, &value); err == nil {
+			salesMap[id] = append(salesMap[id], nullToFloat(value))
+			nameMap[id] = name
+		}
+	}
+
+	// Load EPS
+	for epsRows.Next() {
+		var id, name, date string
+		var value sql.NullFloat64
+		if err := epsRows.Scan(&id, &name, &date, &value); err == nil {
+			epsMap[id] = append(epsMap[id], nullToFloat(value))
+			if _, exists := nameMap[id]; !exists {
+				nameMap[id] = name
 			}
 		}
-		if min == max {
-			return 0, 1
+	}
+
+	// Load PE
+	for fullPERows.Next() {
+		var name string
+		var pe, price sql.NullFloat64
+		if err := fullPERows.Scan(&name, &pe, &price); err == nil {
+			fullPEMap[name] = FullPEData{PE: nullToFloat(pe), Price: nullToFloat(price)}
 		}
+	}
+
+	if len(salesMap) == 0 && len(epsMap) == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Company not found"})
 		return
 	}
 
-	fields := []struct {
-		get  func(r rawMetric) float64
-		set  func(r *rawMetric, v float64)
-		name string
-	}{
-		{func(r rawMetric) float64 { return r.SalesGrowth }, func(r *rawMetric, v float64) { r.SalesGrowth = v }, "SalesGrowth"},
-		{func(r rawMetric) float64 { return r.SalesStability }, func(r *rawMetric, v float64) { r.SalesStability = v }, "SalesStability"},
-		{func(r rawMetric) float64 { return r.EPSLevel }, func(r *rawMetric, v float64) { r.EPSLevel = v }, "EPSLevel"},
-		{func(r rawMetric) float64 { return r.EPSGrowth }, func(r *rawMetric, v float64) { r.EPSGrowth = v }, "EPSGrowth"},
+	var results []gin.H
+	for id := range nameMap {
+		sales := salesMap[id]
+		eps := epsMap[id]
+		name := nameMap[id]
+
+		// Sales growth
+		var salesGrowth float64
+		if len(sales) >= 24 {
+			recent := mean(sales[len(sales)-12:])
+			previous := mean(sales[len(sales)-24 : len(sales)-12])
+			if previous != 0 {
+				salesGrowth = ((recent - previous) / math.Abs(previous)) * 100
+			}
+		}
+
+		// EPS growth
+		var epsGrowth float64
+		if len(eps) >= 8 {
+			recent := mean(eps[len(eps)-4:])
+			previous := mean(eps[len(eps)-8 : len(eps)-4])
+			if previous != 0 {
+				epsGrowth = ((recent - previous) / math.Abs(previous)) * 100
+			}
+		}
+
+		// Stability
+		var stability float64
+		if len(sales) > 1 {
+			avg := mean(sales)
+			if avg != 0 {
+				stability = 1 - stdDev(sales)/avg
+			}
+		}
+
+		// EPS Level
+		epsLevel := mean(eps)
+
+		// Final Score (after normalization, could improve this part later)
+		score := 0.3*normalize(salesGrowth) + 0.2*normalize(stability) + 0.3*normalize(epsLevel) + 0.2*normalize(epsGrowth)
+
+		// PE and Price
+		peData := fullPEMap[name]
+
+		results = append(results, gin.H{
+			"companyID":      id,
+			"companyName":    name,
+			"salesGrowth":    roundFloat(salesGrowth, 2),
+			"salesStability": roundFloat(stability, 2),
+			"epsLevel":       roundFloat(epsLevel, 2),
+			"epsGrowth":      roundFloat(epsGrowth, 2),
+			"PE":             roundFloat(peData.PE, 2),
+			"Price":          roundFloat(peData.Price, 2),
+			"finalScore":     roundFloat(score, 4),
+		})
 	}
 
-	for _, f := range fields {
-		min, max := minMax(f.get)
-		rangeVal := max - min
-		if rangeVal == 0 {
-			rangeVal = 1
-		}
-		for i := range *scores {
-			orig := f.get((*scores)[i])
-			norm := (orig - min) / rangeVal
-			f.set(&(*scores)[i], norm)
-		}
-	}
+	c.JSON(http.StatusOK, results)
 }

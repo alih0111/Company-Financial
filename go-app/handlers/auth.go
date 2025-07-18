@@ -70,7 +70,7 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	} else if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -117,19 +117,44 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	db := config.GetDB()
+	defer db.Close()
+
+	// 🔍 Check if the username already exists
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM [codal].[dbo].[Users] WHERE [UserName] = @p1", input.Username).Scan(&count)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error while checking username"})
+		return
+	}
+	if count > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Username already taken"})
+		return
+	}
+
+	var count2 int
+	err2 := db.QueryRow("SELECT COUNT(*) FROM [codal].[dbo].[Users] WHERE [Email] = @p1", input.Email).Scan(&count2)
+	if err2 != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error while checking Email"})
+		return
+	}
+	if count2 > 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Email already taken"})
+		return
+	}
+
+	// 🔐 Hash the password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash password"})
 		return
 	}
 
-	db := config.GetDB()
-	defer db.Close()
-
+	// ✅ Insert new user
 	_, err = db.Exec(`
 		INSERT INTO [codal].[dbo].[Users] ([UserName], [Email], [Password], [IsOnline], [ViewedItems])
 		VALUES (@p1, @p2, @p3, 0, '')
-	`, input.Username, input.Email, string(hashedPassword))
+		`, input.Username, input.Email, string(hashedPassword))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
 		return

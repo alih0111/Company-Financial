@@ -4,7 +4,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-import pandas as pd
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import re
@@ -42,11 +41,13 @@ def main_scraper(companyName, rowMeta, base_url, page_numbers, table_name):
     # options = webdriver.ChromeOptions()
     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     options = webdriver.ChromeOptions()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--window-size=1920x1080')
+    # options.add_argument('--headless')
+    # options.add_argument('--disable-gpu')
+    # options.add_argument('--window-size=1920x1080')
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    chrome_driver_path = r"D:\RFA\Company-Financial\go-app\py\chromedriver-win32\chromedriver.exe"
+    driver = webdriver.Chrome(service=Service(chrome_driver_path), options=options)
 
 
     for page in page_numbers:

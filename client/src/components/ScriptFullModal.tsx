@@ -70,6 +70,15 @@ const ScriptFullModal = ({
     name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const [rowNum, setRowNum] = React.useState(2);
+
+  const handleMainRowMetaChange=(num:number)=>{
+    modal.companies.forEach(element => {
+      modal.selections[element].rowMeta = num
+    });
+    setRowNum(num)
+  }
+
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
       <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-2xl shadow-2xl w-full max-w-4xl p-6 transition-all duration-300">
@@ -94,13 +103,22 @@ const ScriptFullModal = ({
             </button>
           </div>
 
-          <div className="px-6 py-4">
+          <div className="px-6 py-4 flex items-center justify-between gap-2">
             <input
               type="text"
               placeholder="Search company..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-2 mb-4 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-800 dark:text-white"
+            />
+             <input
+              type="number"
+              min="1"
+              className="w-20 px-2 py-2 rounded-md border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={rowNum}
+ onChange={(e) =>
+                        handleMainRowMetaChange(Number(e.target.value))
+                      }
             />
           </div>
 

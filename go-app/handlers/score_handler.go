@@ -135,6 +135,24 @@ func GetCompanyScores(c *gin.Context) {
 		// Get PE and Price from FullPEMap
 		peData := fullPEMap[name]
 
+		epsPositiveAndGrowing := false
+		if len(eps) >= 16 {
+			epsPositiveAndGrowing = true
+			prevYearEPS := 0.0
+
+			for i := 4; i > 0; i-- {
+				start := len(eps) - i*4
+				end := start + 4
+				yearEPS := mean(eps[start:end])
+
+				if yearEPS <= 0 || (i < 4 && yearEPS <= prevYearEPS) {
+					epsPositiveAndGrowing = false
+					break
+				}
+				prevYearEPS = yearEPS
+			}
+		}
+
 		scores = append(scores, models.CompanyScore{
 			CompanyID:   companyID,
 			CompanyName: name,
@@ -142,6 +160,7 @@ func GetCompanyScores(c *gin.Context) {
 			EPSGrowth:   roundFloat(epsGrowth, 2),
 			PE:          roundFloat(peData.PE, 2),
 			Price:       roundFloat(peData.Price, 2),
+			Stable:      epsPositiveAndGrowing,
 		})
 	}
 

@@ -35,6 +35,7 @@ type CompanyScore struct {
 	EPSGrowth   float64 `json:"eps_growth"`
 	PE          float64 `json:"pe"`
 	Price       float64 `json:"price"`
+	Stable      bool    `json:"Stable"`
 }
 
 type EPSRecord struct {

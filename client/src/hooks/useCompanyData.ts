@@ -133,13 +133,18 @@ export default function useCompanyData() {
 
       const paramCompany = searchParams.get("companyname");
 
-      if (paramCompany && names.includes(paramCompany)) {
-        setSelectedCompany(paramCompany);
-      } else if (names.length > 0) {
+      if(paramCompany == null || paramCompany == ""){
         const firstName = names[0];
         setSelectedCompany(firstName);
-        setSearchParams({ companyname: firstName });
       }
+
+      // if (paramCompany && names.includes(paramCompany)) {
+      //   setSelectedCompany(paramCompany);
+      // } else if (names.length > 0) {
+      //   const firstName = names[0];
+      //   setSelectedCompany(firstName);
+      //   setSearchParams({ companyname: firstName });
+      // }
     } catch (e) {
       console.error(e);
     } finally {

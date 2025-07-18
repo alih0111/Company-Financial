@@ -94,32 +94,40 @@ const App = () => {
                   ) : (
                     <div className="flex flex-col justify-center h-full ">
                       <div className="shadow-md backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
-                        <div className="flex gap-3">
-                          <div className="w-3/4">
-                            <ChartComponent data={data1} />
+                        {data1 ? (
+                          <div className="flex gap-3">
+                            <div className="w-3/4">
+                              <ChartComponent data={data1} />
+                            </div>
+                            <div className="w-1/4">
+                              {dataScore && (
+                                <DonutChartComponent
+                                  score={dataScore[0].epsGrowth}
+                                />
+                              )}
+                            </div>
                           </div>
-                          <div className="w-1/4">
-                            {dataScore && (
-                              <DonutChartComponent
-                                score={dataScore[0].epsGrowth}
-                              />
-                            )}
-                          </div>
-                        </div>
+                        ) : (
+                          <p>Loading chart data...</p>
+                        )}
                       </div>
                       <div className="shadow-md mt-2 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
-                        <div className="flex gap-3">
-                          <div className="w-3/4">
-                            <ChartComponent data={data2} />
+                        {data2 ? (
+                          <div className="flex gap-3">
+                            <div className="w-3/4">
+                              <ChartComponent data={data2} />
+                            </div>
+                            <div className="w-1/4">
+                              {dataScore && (
+                                <DonutChartComponent
+                                  score={dataScore[0].salesGrowth}
+                                />
+                              )}
+                            </div>
                           </div>
-                          <div className="w-1/4">
-                            {dataScore && (
-                              <DonutChartComponent
-                                score={dataScore[0].salesGrowth}
-                              />
-                            )}
-                          </div>
-                        </div>
+                        ) : (
+                          <p>Loading chart data...</p>
+                        )}
                       </div>
                     </div>
                   )}

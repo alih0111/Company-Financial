@@ -34,7 +34,10 @@ def scrape_pe_values(url, normalized_company_names):
     options.add_argument('--headless')
     options.add_argument('--disable-gpu')
     options.add_argument('--window-size=1920x1080')
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    chrome_driver_path = r"D:\RFA\Company-Financial\go-app\py\chromedriver-win32\chromedriver.exe"
+    driver = webdriver.Chrome(service=Service(chrome_driver_path), options=options)
+    
 
     driver.get(url)
     WebDriverWait(driver, 20).until(
