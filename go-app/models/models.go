@@ -21,13 +21,6 @@ type ScoreResult struct {
 	EPSGrowth      float64 `json:"epsGrowth"`
 }
 
-// type CompanyScore struct {
-// 	CompanyID   string  `json:"companyID"`
-// 	CompanyName string  `json:"companyName"`
-// 	EPSGrowth   float64 `json:"epsGrowth"`
-// 	SalesGrowth float64 `json:"salesGrowth"`
-// }
-
 type CompanyScore struct {
 	CompanyID   string  `json:"company_id"`
 	CompanyName string  `json:"company_name"`
@@ -36,6 +29,7 @@ type CompanyScore struct {
 	PE          float64 `json:"pe"`
 	Price       float64 `json:"price"`
 	Stable      bool    `json:"Stable"`
+	Operation   float64 `json:"operation"`
 }
 
 type EPSRecord struct {

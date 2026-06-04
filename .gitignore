@@ -4,10 +4,13 @@ client/.env.local
 client/dist/
 
 # Backend (Python)
-server/__pycache__/
-server/.venv/
-server/*.pyc
-server/.env
+go-app/.venv/
+go-app/*.pyc
+go-app/.env
+go-app/.browser_profile/
+go-app/py/__pycache__/
+go-app/py/__pycache__/*.pyc
+go-app/py/chromium-profile/
 
 # General
 .DS_Store

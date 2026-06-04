@@ -161,11 +161,19 @@ func GetCompanyScores2(c *gin.Context) {
 
 		// EPS growth
 		var epsGrowth float64
-		if len(eps) >= 8 {
-			recent := mean(eps[len(eps)-4:])
-			previous := mean(eps[len(eps)-8 : len(eps)-4])
-			if previous != 0 {
-				epsGrowth = ((recent - previous) / math.Abs(previous)) * 100
+		// if len(eps) >= 8 {
+		// 	recent := mean(eps[len(eps)-4:])
+		// 	previous := mean(eps[len(eps)-8 : len(eps)-4])
+		// 	if previous != 0 {
+		// 		epsGrowth = ((recent - previous) / math.Abs(previous)) * 100
+		// 	}
+		// }
+		if len(eps) >= 5 {
+			current := eps[len(eps)-1]  // e.g. 1404/09/30
+			lastYear := eps[len(eps)-5] // e.g. 1403/09/30
+
+			if lastYear != 0 {
+				epsGrowth = ((current - lastYear) / math.Abs(lastYear)) * 100
 			}
 		}
 

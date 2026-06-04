@@ -12,6 +12,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type EPSMetrics struct {
+	Product1s               []float64
+	OperatingProfitNews     []float64
+	OperatingProfitLastYear []float64
+}
+
 func GetCompanyScores(c *gin.Context) {
 	db := config.GetDB()
 	defer db.Close()
@@ -26,7 +32,8 @@ func GetCompanyScores(c *gin.Context) {
 	defer salesRows.Close()
 
 	// Query EPS data
-	epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2"
+	// epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2"
+	epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1, OperatingProfitNew, OperatingProfitLastYear FROM miandore2 "
 	epsRows, err := db.Query(epsQuery)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -83,15 +90,26 @@ func GetCompanyScores(c *gin.Context) {
 	}
 
 	// Parse EPS data
-	epsMap := make(map[string][]float64)
+	// epsMap := make(map[string][]float64)
+
+	epsMap := make(map[string]*EPSMetrics)
 	for epsRows.Next() {
 		var companyID, companyName, reportDate string
-		var product1 sql.NullFloat64
-		if err := epsRows.Scan(&companyID, &companyName, &reportDate, &product1); err != nil {
+		var product1, operatingProfitNew, OperatingProfitLastYear sql.NullFloat64
+
+		if err := epsRows.Scan(&companyID, &companyName, &reportDate, &product1, &operatingProfitNew, &OperatingProfitLastYear); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		epsMap[companyID] = append(epsMap[companyID], nullToFloat(product1))
+
+		if _, exists := epsMap[companyID]; !exists {
+			epsMap[companyID] = &EPSMetrics{}
+		}
+
+		epsMap[companyID].Product1s = append(epsMap[companyID].Product1s, nullToFloat(product1))
+		epsMap[companyID].OperatingProfitNews = append(epsMap[companyID].OperatingProfitNews, nullToFloat(operatingProfitNew))
+		epsMap[companyID].OperatingProfitLastYear = append(epsMap[companyID].OperatingProfitLastYear, nullToFloat(OperatingProfitLastYear))
+
 		if _, ok := nameMap[companyID]; !ok {
 			nameMap[companyID] = companyName
 		}
@@ -109,10 +127,96 @@ func GetCompanyScores(c *gin.Context) {
 	var scores []models.CompanyScore
 	for companyID := range companies {
 		sales := salesMap[companyID]
-		eps := epsMap[companyID]
 		name := nameMap[companyID]
 
-		// Calculate sales growth
+		var eps []float64
+		var operation float64
+		var epsGrowth float64
+		var epsPositiveAndGrowing bool
+
+		epsData, hasEPS := epsMap[companyID]
+		if hasEPS && epsData != nil {
+			eps = epsData.Product1s
+
+			if len(epsData.OperatingProfitNews) > 0 && len(epsData.OperatingProfitLastYear) > 0 {
+				opNew := epsData.OperatingProfitNews[len(epsData.OperatingProfitNews)-1]
+				op := epsData.OperatingProfitLastYear[len(epsData.OperatingProfitLastYear)-1]
+
+				if !math.IsNaN(opNew) && !math.IsNaN(op) && op != 0 {
+					// operation = ((opNew - op) / math.Abs(op)) * 100
+					operation = opNew
+				}
+			}
+
+			// Calculate EPS growth
+			// if len(eps) >= 8 {
+			// 	recent := mean(eps[len(eps)-4:])
+			// 	previous := mean(eps[len(eps)-8 : len(eps)-4])
+			// 	if previous != 0 {
+			// 		epsGrowth = ((recent - previous) / math.Abs(previous)) * 100
+			// 	}
+			// }
+			// YoY EPS growth: compare latest quarter with same quarter last year
+			if len(eps) >= 5 {
+				current := eps[len(eps)-1]  // e.g. 1404/09/30
+				lastYear := eps[len(eps)-5] // e.g. 1403/09/30
+
+				if lastYear != 0 {
+					epsGrowth = ((current - lastYear) / math.Abs(lastYear)) * 100
+				}
+			}
+
+			// EPS Positive and Growing
+			if len(eps) >= 16 {
+				epsPositiveAndGrowing = true
+				prevYearEPS := 0.0
+
+				for i := 4; i > 0; i-- {
+					start := len(eps) - i*4
+					end := start + 4
+					yearEPS := mean(eps[start:end])
+
+					if yearEPS <= 0 || (i < 4 && yearEPS <= prevYearEPS) {
+						epsPositiveAndGrowing = false
+						break
+					}
+					prevYearEPS = yearEPS
+				}
+			}
+			if len(eps) >= 8 && len(eps) < 16 {
+				epsPositiveAndGrowing = true
+				prevYearEPS := 0.0
+
+				for i := 2; i > 0; i-- {
+					start := len(eps) - i*4
+					end := start + 4
+					yearEPS := mean(eps[start:end])
+
+					if yearEPS <= 0 || (i < 2 && yearEPS <= prevYearEPS) {
+						epsPositiveAndGrowing = false
+						break
+					}
+					prevYearEPS = yearEPS
+				}
+			}
+
+			// 40,000,000,000
+			if (eps[len(eps)-1] / 40000000000) > 1 {
+				epsPositiveAndGrowing = true
+			}
+
+			// epsGrowth := true
+
+			for _, v := range eps[max(0, len(eps)-8):] {
+				if v < 0 {
+					epsPositiveAndGrowing = false
+					break
+				}
+			}
+
+		}
+
+		// Sales growth always calculated
 		var salesGrowth float64
 		if len(sales) >= 24 {
 			recent := mean(sales[len(sales)-12:])
@@ -122,36 +226,8 @@ func GetCompanyScores(c *gin.Context) {
 			}
 		}
 
-		// Calculate EPS growth
-		var epsGrowth float64
-		if len(eps) >= 8 {
-			recent := mean(eps[len(eps)-4:])
-			previous := mean(eps[len(eps)-8 : len(eps)-4])
-			if previous != 0 {
-				epsGrowth = ((recent - previous) / math.Abs(previous)) * 100
-			}
-		}
-
-		// Get PE and Price from FullPEMap
+		// PE and price
 		peData := fullPEMap[name]
-
-		epsPositiveAndGrowing := false
-		if len(eps) >= 16 {
-			epsPositiveAndGrowing = true
-			prevYearEPS := 0.0
-
-			for i := 4; i > 0; i-- {
-				start := len(eps) - i*4
-				end := start + 4
-				yearEPS := mean(eps[start:end])
-
-				if yearEPS <= 0 || (i < 4 && yearEPS <= prevYearEPS) {
-					epsPositiveAndGrowing = false
-					break
-				}
-				prevYearEPS = yearEPS
-			}
-		}
 
 		scores = append(scores, models.CompanyScore{
 			CompanyID:   companyID,
@@ -161,6 +237,7 @@ func GetCompanyScores(c *gin.Context) {
 			PE:          roundFloat(peData.PE, 2),
 			Price:       roundFloat(peData.Price, 2),
 			Stable:      epsPositiveAndGrowing,
+			Operation:   roundFloat(operation, 2),
 		})
 	}
 

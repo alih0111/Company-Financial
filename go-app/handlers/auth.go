@@ -153,7 +153,7 @@ func Register(c *gin.Context) {
 	// ✅ Insert new user
 	_, err = db.Exec(`
 		INSERT INTO [codal].[dbo].[Users] ([UserName], [Email], [Password], [IsOnline], [ViewedItems])
-		VALUES (@p1, @p2, @p3, 0, '')
+		VALUES (@p1, @p2, @p3, 0, '[]')
 		`, input.Username, input.Email, string(hashedPassword))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})

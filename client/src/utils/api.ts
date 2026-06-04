@@ -153,3 +153,18 @@ export const runBulkScript = async (
 
   return res.json();
 };
+
+export const addViewedItem = async (item: string) => {
+  const res = await fetch(`${API_BASE}/users/viewed-items`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ item }),
+  });
+
+  if (!res.ok) {
+    const error = await res.json().catch(() => null);
+    throw new Error(error?.error || "Failed to add viewed item");
+  }
+
+  return res.json();
+};

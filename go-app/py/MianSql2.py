@@ -1,85 +1,101 @@
-import re
-import time
-import hashlib
-import jdatetime
-import pyodbc
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from bs4 import BeautifulSoup
-from webdriver_manager.chrome import ChromeDriverManager
-from dotenv import load_dotenv
-import os
-import logging
-import sys
-import json
-from selenium.webdriver.chrome.service import Service
+# import re
+# import time
+# import hashlib
+# import jdatetime
+# import pyodbc
+# import logging
+# import sys
+# import json
+# import os
+# from selenium import webdriver
+# from selenium.webdriver.common.by import By
+# from selenium.webdriver.support.ui import WebDriverWait
+# from selenium.webdriver.support import expected_conditions as EC
+# from bs4 import BeautifulSoup
+# from dotenv import load_dotenv
 
+# # --------------------- Logging Setup ---------------------
+# logging.basicConfig(
+#     level=logging.INFO,
+#     format='%(asctime)s [%(levelname)s] %(message)s',
+#     handlers=[logging.StreamHandler(sys.stdout)]
+# )
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]  # or add FileHandler if needed
-)
+# # --------------------- Load Environment ---------------------
+# load_dotenv()
 
+# server = os.getenv('DB_SERVER')
+# database = os.getenv('DB_NAME')
+# username = os.getenv('DB_USER')
+# password = os.getenv('DB_PASSWORD')
 
-load_dotenv()
+# # --------------------- Helpers ---------------------
+# def generate_company_id(name):
+#     return hashlib.md5(name.encode('utf-8')).hexdigest()
 
-server = os.getenv('DB_SERVER')
-database = os.getenv('DB_NAME')
-username = os.getenv('DB_USER')
-password = os.getenv('DB_PASSWORD')
-def generate_company_id(name):
+# def to_number(s):
+#     s = s.replace(',', '').replace('٬', '')  # Remove commas (Arabic/Persian/English)
+#     s = re.sub(r'[^\d\.\-\(\)]', '', s)
+#     if re.match(r'^\(\d+(\.\d+)?\)$', s):
+#         s = '-' + s.strip('()')
+#     return float(s) if s else 0
 
-    return hashlib.md5(name.encode('utf-8')).hexdigest()
+# def driver_path():
+#     # try:
+#         # driver_path = ChromeDriverManager().install()
+#     # except Exception:
+#     driver_path = r"D:\RFA\Company-Financial\go-app\py\chromedriver-win32\chromedriver.exe"
+#     return driver_path
 
-def to_number(s):
-    s = s.replace(',', '').replace('٬', '')  # Remove commas (Arabic/Persian/English)
-    s = re.sub(r'[^\d\.\-\(\)]', '', s)      # Remove non-numeric except (), - and .
+# def create_driver():
 
-    # Check for parentheses to indicate negative numbers
-    if re.match(r'^\(\d+(\.\d+)?\)$', s):
-        s = '-' + s.strip('()')
+#     CHROMIUM_BINARY = r"C:\Users\aliheyd\AppData\Local\Chromium\Application\chrome.exe"
+#     options = webdriver.ChromeOptions()
+#     options.binary_location = CHROMIUM_BINARY
 
-    return float(s) if s else 0
+#     options.add_argument("--disable-gpu")
+#     options.add_argument("--no-sandbox")
+#     options.add_argument("--disable-dev-shm-usage")
 
+#     return webdriver.Chrome(options=options)
+
+# # --------------------- MAIN FUNCTION ---------------------
 # def main_scraper2(companyName, rowMeta, base_url, page_numbers, table_name):
 #     base_url = base_url.replace("&PageNumber=1", "")
-
+#     inserted_any = False
 #     # options = webdriver.ChromeOptions()
-#     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-#     options = webdriver.ChromeOptions()
-#     # options.add_argument('--headless')
-#     # options.add_argument('--disable-gpu')
-#     # options.add_argument('--window-size=1920x1080')
-
-#     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+#     # # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+#     # service = Service(driver_path())
+#     # driver = webdriver.Chrome(service=service, options=options)
+    
+#     driver = create_driver()
 
 
 #     all_data = []
-#     flag = True  # Ensure headers added only once
+#     flag = True  # Add headers only once
 
 #     for page in page_numbers:
 #         current_url = f"{base_url}&PageNumber={page}"
-#         driver.get(current_url)
-#         print(f"📄 Fetching data from page {page}...")
+#         logging.info(f"🌐 Opening page: {current_url}")
+
+#         try:
+#             driver.get(current_url)
+#         except Exception as e:
+#             logging.error(f"❌ Page load timeout or error: {e}")
+#             continue
 
 #         try:
 #             WebDriverWait(driver, 20).until(
 #                 EC.presence_of_element_located((By.CLASS_NAME, "scrollContent"))
 #             )
-#             time.sleep(5)
-#         except:
-#             print(f"❌ The table did not load on page {page}. Skipping...")
+#             time.sleep(3)
+#         except Exception as e:
+#             logging.warning(f"⚠️ Table not found on page {page}: {e}")
 #             continue
 
-#         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-#         report_links = []
+#         # Extract report links
 #         rows = driver.find_elements(By.CSS_SELECTOR, "tbody.scrollContent tr")
-
+#         report_links = []
 #         for row in rows[:rowMeta]:
 #             try:
 #                 link_element = row.find_element(By.CSS_SELECTOR, "td:nth-child(4) a")
@@ -87,360 +103,786 @@ def to_number(s):
 #             except:
 #                 continue
 
-#         if not report_links:
-#             print(f"⚠️ No report links found on page {page}. Retrying after extra wait time...")
-#             time.sleep(5)
-#             rows = driver.find_elements(By.CSS_SELECTOR, "tbody.scrollContent tr")
-#             for row in rows:
-#                 try:
-#                     link_element = row.find_element(By.CSS_SELECTOR, "td:nth-child(4) a")
-#                     report_links.append(link_element.get_attribute("href"))
-#                 except:
-#                     continue
-
-#         print(f"✅ Found {len(report_links)} report links on page {page}.")
+#         logging.info(f"✅ Found {len(report_links)} report links on page {page}")
 
 #         for link in report_links:
 #             try:
 #                 driver.get(link)
-#                 print(f"🔍 Scraping: {link}")
+#                 logging.info(f"🔍 Scraping report: {link}")
 
-#                 # Wait for Angular stability
-#                 WebDriverWait(driver, 15).until(
-#                     lambda d: d.execute_script(
-#                         "return window.getAllAngularTestabilities && window.getAllAngularTestabilities().every(t => t.isStable())"
-#                     )
-#                 )
-#                 WebDriverWait(driver, 10).until(
+#                 WebDriverWait(driver, 20).until(
 #                     EC.presence_of_element_located((By.CLASS_NAME, "rayanDynamicStatement"))
 #                 )
+#                 time.sleep(2)
 
-#                 # Extract report date
+#                 # Parse date
 #                 try:
 #                     date_element = driver.find_element(By.ID, "ctl00_lblPeriodEndToDate")
 #                     report_date = date_element.text.strip()
-
-#                     # Skip reports earlier than 1397/09/30
-#                     try:
-#                         report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
-#                         min_date = jdatetime.date(1399, 1, 30)
-#                         if report_jdate <= min_date:
-#                             print(f"⏩ Skipping report dated {report_date} (before or on 1397/09/30)")
-#                             continue
-#                     except Exception as e:
-#                         print(f"❌ Failed to parse date '{report_date}': {e}")
+#                     report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
+#                     min_date = jdatetime.date(1399, 1, 30)
+#                     if report_jdate <= min_date:
+#                         logging.info(f"⏩ Skipping old report {report_date}")
 #                         continue
+#                 except Exception as e:
+#                     logging.warning(f"⚠️ Could not parse report date: {e}")
+#                     continue
 
-#                 except:
-#                     report_date = "N/A"
-
-#                 page_source = driver.page_source
-#                 soup = BeautifulSoup(page_source, 'html.parser')
-
+#                 soup = BeautifulSoup(driver.page_source, 'html.parser')
 #                 table = soup.find('table', {'class': 'rayanDynamicStatement'})
+#                 if not table:
+#                     logging.warning(f"⚠️ No data table found for {link}")
+#                     continue
 
-#                 if table:
-#                     headers = [th.text.strip() for th in table.find_all('th')]
-#                     all_rows = table.find_all('tr')[1:]
+#                 headers = [th.text.strip() for th in table.find_all('th')]
+#                 all_rows = table.find_all('tr')[1:]
+#                 first_row = [td.text.strip() for td in all_rows[0].find_all('td')] if all_rows else []
 
-#                     first_row = [td.text.strip() for td in all_rows[0].find_all('td')] if len(all_rows) > 0 else []
-#                     last_row = []
-#                     if len(all_rows) >= 3:
-#                         row2 = [td.text.strip() for td in all_rows[-1].find_all('td')]
+#                 # Extract numeric values from last row
+#                 last_row = []
+#                 if len(all_rows) >= 3:
+#                     row2 = [td.text.strip() for td in all_rows[-1].find_all('td')]
+#                     for i in range(len(row2) - 1, 0, -1):
+#                         try:
+#                             num2 = to_number(row2[i])
+#                             if num2 > 0:
+#                                 last_row.append(num2)
+#                                 if len(last_row) == 3:
+#                                     break
+#                         except ValueError:
+#                             last_row.append(0)
 
-#                         last_row = []
+#                 max_cols = max(len(first_row), len(last_row))
+#                 headers = headers[3:max_cols + 2]
 
-#                         cc = 0
-#                         for i in range(len(row2) - 1, 0, -1):
-#                             try:
-#                                 num2 = to_number(row2[i])
-#                                 if num2 > 0:
-#                                     cc = cc + 1
-#                                     last_row.append(num2)
-#                                     if(cc==3):
-#                                         break
-#                             except ValueError:
-#                                 last_row.append(0)
+#                 if flag:
+#                     all_data.append(["Report Date"] + headers + ["داخلی", "صادراتی", "مجموع تعدادی"])
+#                     flag = False
 
-#                     else:
-#                         last_row = []
+#                 # Find sales values
+#                 dakheli_value = saderati_value = "0"
+#                 for tr in all_rows:
+#                     tds = tr.find_all('td')
+#                     if not tds:
+#                         continue
+#                     title = tds[0].get_text(strip=True)
+#                     if "جمع فروش داخلی" in title:
+#                         if len(tds) >= 15:
+#                             dakheli_value = tds[14].get_text(strip=True)
+#                     if "جمع فروش صادراتی" in title:
+#                         if len(tds) >= 15:
+#                             saderati_value = tds[14].get_text(strip=True)
 
-#                     max_cols = max(len(first_row), len(last_row))
-#                     headers = headers[3:max_cols + 2]
-                                       
-#                     if flag:
-#                         all_data.append(
-#                             ["Report Date"] + headers + ["داخلی"] + ["صادراتی"] + ["مجموع تعدادی"]
-#                         )
-#                         flag = False
+#                 dakheli_int = float(dakheli_value.replace(',', '').replace('٬', '') or "0")
+#                 saderati_int = float(saderati_value.replace(',', '').replace('٬', '') or "0")
+#                 total_value = dakheli_int + saderati_int
 
-#                     dakheli_value = "0"
-#                     saderati_value = "0"
+#                 all_data.append(
+#                     [report_date] + last_row + [dakheli_value, saderati_value, str(total_value)]
+#                 )
 
-#                     for tr in all_rows:
-#                         tds = tr.find_all('td')
-#                         if tds and "جمع فروش داخلی" in tds[0].get_text(strip=True):
-#                             if len(tds) >= 15:
-#                                 dakheli_value = tds[14].get_text(strip=True)
-#                         if tds and "جمع فروش صادراتی" in tds[0].get_text(strip=True):
-#                             if len(tds) >= 15:
-#                                 saderati_value = tds[14].get_text(strip=True)
-#                             break
+#                 # ---------- Save to SQL ----------
+#                 conn_str = (
+#                     f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};'
+#                     f'UID={username};PWD={password}'
+#                 )
+#                 conn = pyodbc.connect(conn_str)
+#                 cursor = conn.cursor()
 
-#                     # Clean and convert to float
-#                     dakheli_int = float(dakheli_value.replace(',', '').replace('٬', '') or "0")
-#                     saderati_int = float(saderati_value.replace(',', '').replace('٬', '') or "0")
-#                     total_value = dakheli_int + saderati_int
-
-#                     all_data.append(
-#                         [report_date] + last_row + [dakheli_value] + [saderati_value] + [str(total_value)]
+#                 cursor.execute(f'''
+#                     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='{table_name}' AND xtype='U')
+#                     CREATE TABLE {table_name} (
+#                         CompanyID NVARCHAR(50),
+#                         CompanyName NVARCHAR(50),
+#                         ReportDate NVARCHAR(50),
+#                         Value1 FLOAT,
+#                         Value2 FLOAT,
+#                         Value3 FLOAT,
+#                         Url VARCHAR(550),
+#                         PRIMARY KEY (CompanyID, ReportDate)
 #                     )
+#                 ''')
+#                 conn.commit()
 
-#                     # Database connection details
-#                     conn_str = (
-#                         f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};'
-#                         f'UID={username};PWD={password}'
-#                     )
-#                     conn = pyodbc.connect(conn_str)
-#                     cursor = conn.cursor()
+#                 company_id = generate_company_id(companyName)
+#                 calculated_values = last_row[0:3]
 
-#                     # Create table if not exists
+#                 cursor.execute(f'''
+#                     SELECT COUNT(*) FROM {table_name}
+#                     WHERE CompanyID = ? AND ReportDate = ?
+#                 ''', company_id, report_date)
+#                 exists = cursor.fetchone()[0]
+
+#                 if not exists and all(isinstance(val, (float, int)) for val in calculated_values):
 #                     cursor.execute(f'''
-#                         IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='{table_name}' AND xtype='U')
-#                         CREATE TABLE {table_name} (
-#                             CompanyID NVARCHAR(50),
-#                             CompanyName NVARCHAR(50),
-#                             ReportDate NVARCHAR(50),
-#                             Value1 FLOAT,
-#                             Value2 FLOAT,
-#                             Value3 FLOAT,
-#                             Url VARCHAR(550),
-#                             PRIMARY KEY (CompanyID, ReportDate)
-#                         )
-#                     ''')
+#                         INSERT INTO {table_name} (CompanyID, CompanyName, ReportDate, Value1, Value2, Value3, Url)
+#                         VALUES (?, ?, ?, ?, ?, ?, ?)
+#                     ''', company_id, companyName, report_date,
+#                         calculated_values[0], calculated_values[1], calculated_values[2], base_url)
 #                     conn.commit()
 
-#                     company_id = generate_company_id(companyName)
+#                 cursor.close()
+#                 conn.close()
 
-#                     # Extract calculated values from last_row slice (adjust indices if needed)
-#                     # Here assuming last_row contains these values at index 0-2
-#                     print(last_row)
-#                     calculated_values = last_row[0:3] 
-#                     print(calculated_values)
-#                     # Insert or skip if exists
-#                     cursor.execute(f'''
-#                         SELECT COUNT(*) FROM {table_name}
-#                         WHERE CompanyID = ? AND ReportDate = ?
-#                     ''', company_id, report_date)
-#                     exists = cursor.fetchone()[0]
-
-#                     if not exists and all(isinstance(val, (float, int)) for val in calculated_values):
-#                         cursor.execute(f'''
-#                             INSERT INTO {table_name} (CompanyID, CompanyName, ReportDate, Value1, Value2, Value3, Url)
-#                             VALUES (?, ?, ?, ?, ?, ?, ?)
-#                         ''', company_id, companyName, report_date,
-#                             calculated_values[0], calculated_values[1], calculated_values[2], base_url)
-
-#                     conn.commit()
-#                     cursor.close()
-#                     conn.close()
-
-#                     print(f"✅ Calculated values saved to SQL Server table '{table_name}'")
-#                     print(f"✅ Data extracted from: {link}")
+#                 logging.info(f"✅ Report {report_date} saved to SQL.")
 
 #             except Exception as e:
-#                 print(f"❌ Error scraping {link}: {e}")
+#                 logging.exception(f"❌ Error scraping {link}: {e}")
 #                 continue
 
 #     driver.quit()
+#     logging.info("🎉 Scraping session completed.")
 
 
-def main_scraper2(companyName, rowMeta, base_url, page_numbers, table_name):
-    base_url = base_url.replace("&PageNumber=1", "")
-    options = webdriver.ChromeOptions()
-        
-    # options.add_argument('--headless')
-    # options.add_argument('--disable-gpu')
-    # options.add_argument('--window-size=1920x1080')
-    # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    
-    chrome_driver_path = r"D:\RFA\Company-Financial\go-app\py\chromedriver-win32\chromedriver.exe"
-    driver = webdriver.Chrome(service=Service(chrome_driver_path), options=options)
+# # MianSql2.py  (فقط بخش‌های تغییر کرده/اضافه شده)
+
+# # # ... import ها همون قبلی ...
+
+# # def main_scraper2_with_driver(driver, companyName, rowMeta, base_url, page_numbers, table_name):
+# #     base_url = base_url.replace("&PageNumber=1", "")
+# #     inserted_any = False
+
+# #     all_data = []
+# #     flag = True
+
+# #     for page in page_numbers:
+# #         current_url = f"{base_url}&PageNumber={page}"
+# #         logging.info(f"🌐 Opening page: {current_url}")
+
+# #         try:
+# #             driver.get(current_url)
+# #         except Exception as e:
+# #             logging.error(f"❌ Page load timeout or error: {e}")
+# #             continue
+
+# #         try:
+# #             WebDriverWait(driver, 20).until(
+# #                 EC.presence_of_element_located((By.CLASS_NAME, "scrollContent"))
+# #             )
+# #             time.sleep(3)
+# #         except Exception as e:
+# #             logging.warning(f"⚠️ Table not found on page {page}: {e}")
+# #             continue
+
+# #         rows = driver.find_elements(By.CSS_SELECTOR, "tbody.scrollContent tr")
+# #         report_links = []
+# #         for row in rows[:rowMeta]:
+# #             try:
+# #                 link_element = row.find_element(By.CSS_SELECTOR, "td:nth-child(4) a")
+# #                 report_links.append(link_element.get_attribute("href"))
+# #             except:
+# #                 continue
+
+# #         logging.info(f"✅ Found {len(report_links)} report links on page {page}")
+
+# #         for link in report_links:
+# #             try:
+# #                 driver.get(link)
+# #                 logging.info(f"🔍 Scraping report: {link}")
+
+# #                 WebDriverWait(driver, 20).until(
+# #                     EC.presence_of_element_located((By.CLASS_NAME, "rayanDynamicStatement"))
+# #                 )
+# #                 time.sleep(2)
+
+# #                 try:
+# #                     date_element = driver.find_element(By.ID, "ctl00_lblPeriodEndToDate")
+# #                     report_date = date_element.text.strip()
+# #                     report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
+# #                     min_date = jdatetime.date(1399, 1, 30)
+# #                     if report_jdate <= min_date:
+# #                         logging.info(f"⏩ Skipping old report {report_date}")
+# #                         continue
+# #                 except Exception as e:
+# #                     logging.warning(f"⚠️ Could not parse report date: {e}")
+# #                     continue
+
+# #                 soup = BeautifulSoup(driver.page_source, 'html.parser')
+# #                 table = soup.find('table', {'class': 'rayanDynamicStatement'})
+# #                 if not table:
+# #                     logging.warning(f"⚠️ No data table found for {link}")
+# #                     continue
+
+# #                 headers = [th.text.strip() for th in table.find_all('th')]
+# #                 all_rows = table.find_all('tr')[1:]
+# #                 first_row = [td.text.strip() for td in all_rows[0].find_all('td')] if all_rows else []
+
+# #                 last_row = []
+# #                 if len(all_rows) >= 3:
+# #                     row2 = [td.text.strip() for td in all_rows[-1].find_all('td')]
+# #                     for i in range(len(row2) - 1, 0, -1):
+# #                         try:
+# #                             num2 = to_number(row2[i])
+# #                             if num2 > 0:
+# #                                 last_row.append(num2)
+# #                                 if len(last_row) == 3:
+# #                                     break
+# #                         except ValueError:
+# #                             last_row.append(0)
+
+# #                 max_cols = max(len(first_row), len(last_row))
+# #                 headers = headers[3:max_cols + 2]
+
+# #                 if flag:
+# #                     all_data.append(["Report Date"] + headers + ["داخلی", "صادراتی", "مجموع تعدادی"])
+# #                     flag = False
+
+# #                 dakheli_value = saderati_value = "0"
+# #                 for tr in all_rows:
+# #                     tds = tr.find_all('td')
+# #                     if not tds:
+# #                         continue
+# #                     title = tds[0].get_text(strip=True)
+# #                     if "جمع فروش داخلی" in title:
+# #                         if len(tds) >= 15:
+# #                             dakheli_value = tds[14].get_text(strip=True)
+# #                     if "جمع فروش صادراتی" in title:
+# #                         if len(tds) >= 15:
+# #                             saderati_value = tds[14].get_text(strip=True)
+
+# #                 dakheli_int = float(dakheli_value.replace(',', '').replace('٬', '') or "0")
+# #                 saderati_int = float(saderati_value.replace(',', '').replace('٬', '') or "0")
+# #                 total_value = dakheli_int + saderati_int
+
+# #                 all_data.append(
+# #                     [report_date] + last_row + [dakheli_value, saderati_value, str(total_value)]
+# #                 )
+
+# #                 conn_str = (
+# #                     f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};'
+# #                     f'UID={username};PWD={password}'
+# #                 )
+# #                 conn = pyodbc.connect(conn_str)
+# #                 cursor = conn.cursor()
+
+# #                 cursor.execute(f'''
+# #                     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='{table_name}' AND xtype='U')
+# #                     CREATE TABLE {table_name} (
+# #                         CompanyID NVARCHAR(50),
+# #                         CompanyName NVARCHAR(50),
+# #                         ReportDate NVARCHAR(50),
+# #                         Value1 FLOAT,
+# #                         Value2 FLOAT,
+# #                         Value3 FLOAT,
+# #                         Url VARCHAR(550),
+# #                         PRIMARY KEY (CompanyID, ReportDate)
+# #                     )
+# #                 ''')
+# #                 conn.commit()
+
+# #                 company_id = generate_company_id(companyName)
+# #                 calculated_values = last_row[0:3]
+
+# #                 cursor.execute(f'''
+# #                     SELECT COUNT(*) FROM {table_name}
+# #                     WHERE CompanyID = ? AND ReportDate = ?
+# #                 ''', company_id, report_date)
+# #                 exists = cursor.fetchone()[0]
+
+# #                 if not exists and all(isinstance(val, (float, int)) for val in calculated_values):
+# #                     cursor.execute(f'''
+# #                         INSERT INTO {table_name} (CompanyID, CompanyName, ReportDate, Value1, Value2, Value3, Url)
+# #                         VALUES (?, ?, ?, ?, ?, ?, ?)
+# #                     ''', company_id, companyName, report_date,
+# #                         calculated_values[0], calculated_values[1], calculated_values[2], base_url)
+# #                     conn.commit()
+# #                     inserted_any = True
+
+# #                 cursor.close()
+# #                 conn.close()
+
+# #                 logging.info(f"✅ Report {report_date} saved to SQL.")
+
+# #             except Exception as e:
+# #                 logging.exception(f"❌ Error scraping {link}: {e}")
+# #                 continue
+
+# #     return inserted_any
 
 
-    all_data = []
-    flag = True  # Ensure headers added only once
+# # # اگر میخوای سازگاری قبلی هم حفظ بشه:
+# # def main_scraper2(companyName, rowMeta, base_url, page_numbers, table_name):
+# #     options = webdriver.ChromeOptions()
+# #     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+# #     try:
+# #         return main_scraper2_with_driver(driver, companyName, rowMeta, base_url, page_numbers, table_name)
+# #     finally:
+# #         driver.quit()
+# #         logging.info("🎉 Scraping session completed.")
 
-    for page in page_numbers:
-        current_url = f"{base_url}&PageNumber={page}"
-        driver.get(current_url)
-        logging.info(f"📄 Fetching data from page {page}...")
+import os
+import re
+import sys
+import hashlib
+import logging
+from pathlib import Path
+from urllib.parse import urljoin
+
+import pyodbc
+import jdatetime
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
+
+
+# --------------------- Logging Setup ---------------------
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+
+
+# --------------------- Load Environment ---------------------
+load_dotenv()
+
+server = os.getenv("DB_SERVER")
+database = os.getenv("DB_NAME")
+username = os.getenv("DB_USER")
+password = os.getenv("DB_PASSWORD")
+
+
+# مسیر Chromium خودت
+CHROMIUM_BINARY = r"C:\Users\aliheyd\AppData\Local\Chromium\Application\chrome.exe"
+
+# پروفایل جدا برای Chromium
+CHROMIUM_PROFILE_DIR = r"D:\rfa\Company-Financial\go-app\py\chromium-profile"
+
+
+# --------------------- Helpers ---------------------
+def generate_company_id(name):
+    return hashlib.md5(name.encode("utf-8")).hexdigest()
+
+
+def normalize_text(text):
+    if text is None:
+        return ""
+
+    return (
+        str(text)
+        .strip()
+        .replace("\u200c", "")
+        .replace("\xa0", "")
+        .replace("ي", "ی")
+        .replace("ك", "ک")
+    )
+
+
+def to_number(s):
+    if s is None:
+        return 0
+
+    s = str(s)
+    s = s.replace(",", "").replace("٬", "")
+    s = re.sub(r"[^\d\.\-\(\)]", "", s)
+
+    if re.match(r"^\(\d+(\.\d+)?\)$", s):
+        s = "-" + s.strip("()")
+
+    return float(s) if s else 0
+
+
+def safe_sql_identifier(name):
+    """
+    چون اسم جدول را نمی‌شود با ? پارامتری کرد،
+    فقط حروف، عدد و underscore مجاز است.
+    """
+    table_name = str(name)
+
+    if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", table_name):
+        raise ValueError(f"Invalid SQL table name: {name}")
+
+    return table_name
+
+
+def validate_config():
+    missing = []
+
+    if not server:
+        missing.append("DB_SERVER")
+    if not database:
+        missing.append("DB_NAME")
+    if not username:
+        missing.append("DB_USER")
+    if not password:
+        missing.append("DB_PASSWORD")
+
+    if missing:
+        raise RuntimeError(f"Missing .env values: {', '.join(missing)}")
+
+    chromium_path = Path(CHROMIUM_BINARY)
+    if not chromium_path.exists():
+        raise FileNotFoundError(f"Chromium not found: {CHROMIUM_BINARY}")
+
+
+def get_db_connection():
+    conn_str = (
+        f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+        f"SERVER={server};"
+        f"DATABASE={database};"
+        f"UID={username};"
+        f"PWD={password}"
+    )
+
+    return pyodbc.connect(conn_str)
+
+
+def ensure_table(cursor, table_name):
+    table_name = safe_sql_identifier(table_name)
+
+    cursor.execute(f"""
+        IF OBJECT_ID(N'dbo.{table_name}', N'U') IS NULL
+        CREATE TABLE dbo.[{table_name}] (
+            CompanyID NVARCHAR(50) NOT NULL,
+            CompanyName NVARCHAR(50),
+            ReportDate NVARCHAR(50) NOT NULL,
+            Value1 FLOAT,
+            Value2 FLOAT,
+            Value3 FLOAT,
+            Url VARCHAR(550),
+            CONSTRAINT PK_{table_name}_Company_ReportDate PRIMARY KEY (CompanyID, ReportDate)
+        )
+    """)
+
+
+def wait_for_angular_stable(page, timeout=15000):
+    try:
+        page.wait_for_function(
+            """
+            () => {
+                if (!window.getAllAngularTestabilities) return true;
+                return window.getAllAngularTestabilities().every(t => t.isStable());
+            }
+            """,
+            timeout=timeout
+        )
+    except PlaywrightTimeoutError:
+        logging.warning("⚠️ Angular stability wait timed out; continuing anyway.")
+
+
+def create_context(playwright):
+    validate_config()
+
+    Path(CHROMIUM_PROFILE_DIR).mkdir(parents=True, exist_ok=True)
+
+    context = playwright.chromium.launch_persistent_context(
+        user_data_dir=CHROMIUM_PROFILE_DIR,
+        executable_path=CHROMIUM_BINARY,
+        headless=False,
+        viewport={"width": 1366, "height": 768},
+        args=[
+            "--disable-gpu",
+            "--disable-dev-shm-usage",
+            "--no-first-run",
+            "--no-default-browser-check",
+        ],
+    )
+
+    return context
+
+
+def get_report_links(page, row_meta):
+    report_links = []
+
+    page.wait_for_selector("tbody.scrollContent tr", timeout=20000)
+
+    rows = page.locator("tbody.scrollContent tr")
+    row_count = rows.count()
+
+    for i in range(min(row_count, row_meta)):
+        row = rows.nth(i)
+        link_locator = row.locator("td:nth-child(4) a")
 
         try:
-            WebDriverWait(driver, 20).until(
-                EC.presence_of_element_located((By.CLASS_NAME, "scrollContent"))
-            )
-            time.sleep(5)
-        except Exception as e:
-            logging.warning(f"❌ The table did not load on page {page}: {e}")
+            if link_locator.count() > 0:
+                href = link_locator.first.get_attribute("href")
+
+                if href:
+                    full_url = urljoin("https://www.codal.ir", href)
+                    report_links.append(full_url)
+
+        except Exception:
             continue
 
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    return report_links
 
-        report_links = []
-        rows = driver.find_elements(By.CSS_SELECTOR, "tbody.scrollContent tr")
 
-        for row in rows[:rowMeta]:
+def parse_report_table(page, link):
+    page.goto(link, wait_until="domcontentloaded", timeout=60000)
+    logging.info(f"🔍 Scraping report: {link}")
+
+    wait_for_angular_stable(page)
+
+    try:
+        page.wait_for_selector("table.rayanDynamicStatement", timeout=20000)
+    except PlaywrightTimeoutError:
+        logging.warning(f"⚠️ Data table not found for report: {link}")
+        return None
+
+    page.wait_for_timeout(2000)
+
+    # --------------------- Parse Date ---------------------
+    try:
+        report_date = page.locator("#ctl00_lblPeriodEndToDate").inner_text(timeout=10000).strip()
+
+        report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
+        min_date = jdatetime.date(1399, 1, 30)
+
+        if report_jdate <= min_date:
+            logging.info(f"⏩ Skipping old report {report_date}")
+            return None
+
+    except Exception as e:
+        logging.warning(f"⚠️ Could not parse report date: {e}")
+        return None
+
+    # --------------------- Parse HTML Table ---------------------
+    soup = BeautifulSoup(page.content(), "html.parser")
+    table = soup.find("table", {"class": "rayanDynamicStatement"})
+
+    if not table:
+        logging.warning(f"⚠️ No data table found for {link}")
+        return None
+
+    headers = [th.get_text(strip=True) for th in table.find_all("th")]
+    all_rows = table.find_all("tr")[1:]
+
+    first_row = []
+    if all_rows:
+        first_row = [td.get_text(strip=True) for td in all_rows[0].find_all("td")]
+
+    # Extract numeric values from last row
+    last_row = []
+
+    if len(all_rows) >= 3:
+        row2 = [td.get_text(strip=True) for td in all_rows[-1].find_all("td")]
+
+        for i in range(len(row2) - 1, 0, -1):
             try:
-                link_element = row.find_element(By.CSS_SELECTOR, "td:nth-child(4) a")
-                report_links.append(link_element.get_attribute("href"))
-            except:
-                continue
+                num2 = to_number(row2[i])
 
-        if not report_links:
-            logging.warning(f"⚠️ No report links found on page {page}. Retrying after wait...")
-            time.sleep(5)
-            rows = driver.find_elements(By.CSS_SELECTOR, "tbody.scrollContent tr")
-            for row in rows:
+                if num2 > 0:
+                    last_row.append(num2)
+
+                    if len(last_row) == 3:
+                        break
+
+            except ValueError:
+                last_row.append(0)
+
+    max_cols = max(len(first_row), len(last_row))
+    headers = headers[3:max_cols + 2]
+
+    # --------------------- Find Sales Values ---------------------
+    dakheli_value = "0"
+    saderati_value = "0"
+
+    for tr in all_rows:
+        tds = tr.find_all("td")
+
+        if not tds:
+            continue
+
+        title = tds[0].get_text(strip=True)
+
+        if "جمع فروش داخلی" in title:
+            if len(tds) >= 15:
+                dakheli_value = tds[14].get_text(strip=True)
+
+        if "جمع فروش صادراتی" in title:
+            if len(tds) >= 15:
+                saderati_value = tds[14].get_text(strip=True)
+
+    try:
+        dakheli_int = float(dakheli_value.replace(",", "").replace("٬", "") or "0")
+    except Exception:
+        dakheli_int = 0
+
+    try:
+        saderati_int = float(saderati_value.replace(",", "").replace("٬", "") or "0")
+    except Exception:
+        saderati_int = 0
+
+    total_value = dakheli_int + saderati_int
+
+    return {
+        "report_date": report_date,
+        "headers": headers,
+        "last_row": last_row,
+        "dakheli_value": dakheli_value,
+        "saderati_value": saderati_value,
+        "total_value": total_value,
+    }
+
+
+def save_report_to_sql(company_name, report_date, last_row, base_url, table_name):
+    table_name = safe_sql_identifier(table_name)
+
+    calculated_values = last_row[0:3]
+
+    if len(calculated_values) < 3:
+        logging.warning(f"⚠️ Not enough calculated values for {company_name} - {report_date}")
+        return False
+
+    if not all(isinstance(val, (float, int)) for val in calculated_values):
+        logging.warning(f"⚠️ Invalid calculated values for {company_name} - {report_date}")
+        return False
+
+    conn = None
+    cursor = None
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+
+        ensure_table(cursor, table_name)
+        conn.commit()
+
+        company_id = generate_company_id(company_name)
+
+        cursor.execute(
+            f"""
+            SELECT COUNT(*)
+            FROM dbo.[{table_name}]
+            WHERE CompanyID = ? AND ReportDate = ?
+            """,
+            company_id,
+            report_date
+        )
+
+        exists = cursor.fetchone()[0]
+
+        if exists:
+            logging.info(f"⏩ Already exists: {company_name} - {report_date}")
+            return False
+
+        cursor.execute(
+            f"""
+            INSERT INTO dbo.[{table_name}] (
+                CompanyID,
+                CompanyName,
+                ReportDate,
+                Value1,
+                Value2,
+                Value3,
+                Url
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            company_id,
+            company_name,
+            report_date,
+            calculated_values[0],
+            calculated_values[1],
+            calculated_values[2],
+            base_url
+        )
+
+        conn.commit()
+
+        logging.info(f"✅ Report {report_date} saved to SQL.")
+        return True
+
+    except Exception as e:
+        logging.exception(f"❌ SQL error for {company_name} - {report_date}: {e}")
+        return False
+
+    finally:
+        if cursor:
+            cursor.close()
+        if conn:
+            conn.close()
+
+
+# --------------------- MAIN FUNCTION ---------------------
+def main_scraper2(companyName, rowMeta, base_url, page_numbers, table_name):
+    base_url = base_url.replace("&PageNumber=1", "")
+    inserted_any = False
+
+    all_data = []
+    flag = True
+
+    with sync_playwright() as playwright:
+        context = create_context(playwright)
+        page = context.new_page()
+
+        try:
+            for page_number in page_numbers:
+                current_url = f"{base_url}&PageNumber={page_number}"
+                logging.info(f"🌐 Opening page: {current_url}")
+
                 try:
-                    link_element = row.find_element(By.CSS_SELECTOR, "td:nth-child(4) a")
-                    report_links.append(link_element.get_attribute("href"))
-                except:
+                    page.goto(current_url, wait_until="domcontentloaded", timeout=60000)
+                    page.wait_for_selector("tbody.scrollContent tr", timeout=20000)
+
+                    # جایگزین time.sleep(3)
+                    page.wait_for_timeout(3000)
+
+                except PlaywrightTimeoutError as e:
+                    logging.warning(f"⚠️ Table not found on page {page_number}: {e}")
                     continue
 
-        logging.info(f"✅ Found {len(report_links)} report links on page {page}.")
+                except Exception as e:
+                    logging.error(f"❌ Page load timeout or error: {e}")
+                    continue
 
-        for link in report_links:
-            try:
-                driver.get(link)
-                logging.info(f"🔍 Scraping: {link}")
-
-                WebDriverWait(driver, 15).until(
-                    lambda d: d.execute_script(
-                        "return window.getAllAngularTestabilities && window.getAllAngularTestabilities().every(t => t.isStable())"
-                    )
-                )
-                WebDriverWait(driver, 10).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "rayanDynamicStatement"))
-                )
-
+                # --------------------- Extract Report Links ---------------------
                 try:
-                    date_element = driver.find_element(By.ID, "ctl00_lblPeriodEndToDate")
-                    report_date = date_element.text.strip()
+                    report_links = get_report_links(page, rowMeta)
+                    logging.info(f"✅ Found {len(report_links)} report links on page {page_number}")
 
+                except Exception as e:
+                    logging.warning(f"⚠️ Could not extract report links on page {page_number}: {e}")
+                    continue
+
+                # --------------------- Scrape Reports ---------------------
+                for link in report_links:
                     try:
-                        report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
-                        min_date = jdatetime.date(1399, 1, 30)
-                        if report_jdate <= min_date:
-                            logging.info(f"⏩ Skipping report dated {report_date} (too old)")
+                        result = parse_report_table(page, link)
+
+                        if not result:
                             continue
+
+                        report_date = result["report_date"]
+                        headers = result["headers"]
+                        last_row = result["last_row"]
+                        dakheli_value = result["dakheli_value"]
+                        saderati_value = result["saderati_value"]
+                        total_value = result["total_value"]
+
+                        if flag:
+                            all_data.append(
+                                ["Report Date"] + headers + ["داخلی", "صادراتی", "مجموع تعدادی"]
+                            )
+                            flag = False
+
+                        all_data.append(
+                            [report_date] + last_row + [dakheli_value, saderati_value, str(total_value)]
+                        )
+
+                        saved = save_report_to_sql(
+                            company_name=companyName,
+                            report_date=report_date,
+                            last_row=last_row,
+                            base_url=base_url,
+                            table_name=table_name,
+                        )
+
+                        if saved:
+                            inserted_any = True
+
                     except Exception as e:
-                        logging.warning(f"❌ Failed to parse date '{report_date}': {e}")
+                        logging.exception(f"❌ Error scraping {link}: {e}")
                         continue
 
-                except:
-                    report_date = "N/A"
+        finally:
+            context.close()
 
-                soup = BeautifulSoup(driver.page_source, 'html.parser')
-                table = soup.find('table', {'class': 'rayanDynamicStatement'})
+    logging.info("🎉 Scraping session completed.")
 
-                if table:
-                    headers = [th.text.strip() for th in table.find_all('th')]
-                    all_rows = table.find_all('tr')[1:]
-                    first_row = [td.text.strip() for td in all_rows[0].find_all('td')] if all_rows else []
+    if inserted_any:
+        print(f"{companyName} scraping and saving successful")
+    else:
+        print(f"{companyName} finished but no new data saved")
 
-                    last_row = []
-                    if len(all_rows) >= 3:
-                        row2 = [td.text.strip() for td in all_rows[-1].find_all('td')]
-                        for i in range(len(row2) - 1, 0, -1):
-                            try:
-                                num2 = to_number(row2[i])
-                                if num2 > 0:
-                                    last_row.append(num2)
-                                    if len(last_row) == 3:
-                                        break
-                            except ValueError:
-                                last_row.append(0)
-
-                    max_cols = max(len(first_row), len(last_row))
-                    headers = headers[3:max_cols + 2]
-
-                    if flag:
-                        all_data.append(["Report Date"] + headers + ["داخلی", "صادراتی", "مجموع تعدادی"])
-                        flag = False
-
-                    dakheli_value = "0"
-                    saderati_value = "0"
-
-                    for tr in all_rows:
-                        tds = tr.find_all('td')
-                        if tds and "جمع فروش داخلی" in tds[0].get_text(strip=True):
-                            if len(tds) >= 15:
-                                dakheli_value = tds[14].get_text(strip=True)
-                        if tds and "جمع فروش صادراتی" in tds[0].get_text(strip=True):
-                            if len(tds) >= 15:
-                                saderati_value = tds[14].get_text(strip=True)
-                            break
-
-                    dakheli_int = float(dakheli_value.replace(',', '').replace('٬', '') or "0")
-                    saderati_int = float(saderati_value.replace(',', '').replace('٬', '') or "0")
-                    total_value = dakheli_int + saderati_int
-
-                    all_data.append(
-                        [report_date] + last_row + [dakheli_value, saderati_value, str(total_value)]
-                    )
-
-                    conn_str = (
-                        f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};'
-                        f'UID={username};PWD={password}'
-                    )
-                    conn = pyodbc.connect(conn_str)
-                    cursor = conn.cursor()
-
-                    cursor.execute(f'''
-                        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='{table_name}' AND xtype='U')
-                        CREATE TABLE {table_name} (
-                            CompanyID NVARCHAR(50),
-                            CompanyName NVARCHAR(50),
-                            ReportDate NVARCHAR(50),
-                            Value1 FLOAT,
-                            Value2 FLOAT,
-                            Value3 FLOAT,
-                            Url VARCHAR(550),
-                            PRIMARY KEY (CompanyID, ReportDate)
-                        )
-                    ''')
-                    conn.commit()
-
-                    company_id = generate_company_id(companyName)
-
-                    calculated_values = last_row[0:3]
-                    logging.debug(f"Last row: {last_row}")
-                    logging.debug(f"Calculated values: {calculated_values}")
-
-                    cursor.execute(f'''
-                        SELECT COUNT(*) FROM {table_name}
-                        WHERE CompanyID = ? AND ReportDate = ?
-                    ''', company_id, report_date)
-                    exists = cursor.fetchone()[0]
-
-                    if not exists and all(isinstance(val, (float, int)) for val in calculated_values):
-                        cursor.execute(f'''
-                            INSERT INTO {table_name} (CompanyID, CompanyName, ReportDate, Value1, Value2, Value3, Url)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)
-                        ''', company_id, companyName, report_date,
-                            calculated_values[0], calculated_values[1], calculated_values[2], base_url)
-
-                    conn.commit()
-                    cursor.close()
-                    conn.close()
-
-                    logging.info(f"✅ Saved report dated {report_date} to SQL Server.")
-                    logging.info(f"✅ Scraped: {link}")
-
-            except Exception as e:
-                logging.exception(f"❌ Error scraping {link}: {e}")
-                continue
-
-    driver.quit()
-    logging.info("✅ Scraping session completed.")
+    return inserted_any

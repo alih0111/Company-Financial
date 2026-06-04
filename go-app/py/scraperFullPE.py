@@ -31,44 +31,6 @@ def get_company_names():
     conn.close()
     return [row[0].strip() for row in rows if row[0]]
 
-# def save_to_db(pe_data):
-#     conn = pyodbc.connect(
-#         'DRIVER={ODBC Driver 17 for SQL Server};'
-#         'SERVER=localhost;'
-#         'DATABASE=codal;'
-#         'Trusted_Connection=yes;'
-#     )
-#     cursor = conn.cursor()
-
-#     # Delete all existing records before inserting new ones
-#     try:
-#         cursor.execute("DELETE FROM [codal].[dbo].[FullPE]")
-#         conn.commit()
-#     except Exception as e:
-#         print(f"Error deleting existing records: {e}")
-#         cursor.close()
-#         conn.close()
-#         return  # Exit early if delete fails
-
-#     # Now insert new data
-#     for item in pe_data:
-#         company_name = str(item[0]).strip()
-#         pe = safe_float(item[1])
-#         price = safe_float(item[2])
-#         last_modified = datetime.now()
-
-#         try:
-#             cursor.execute('''
-#                 INSERT INTO [codal].[dbo].[FullPE] (CompanyName, PE, Price, LastModified)
-#                 VALUES (?, ?, ?, ?)
-#             ''', company_name, pe, price, last_modified)
-#         except Exception as e:
-#             print(f"Error inserting {company_name}: {e}")
-#             continue
-
-#     conn.commit()
-#     cursor.close()
-#     conn.close()
 import pyodbc
 from datetime import datetime
 

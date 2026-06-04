@@ -3,6 +3,7 @@ import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import { FaSort, FaSortUp, FaSortDown, FaSearch } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { addViewedItem } from "../utils/api";
 
 interface DataRow {
   company_id: string;
@@ -11,6 +12,7 @@ interface DataRow {
   sales_growth: number;
   pe: number;
   stable: boolean;
+  operation: number;
 }
 
 interface Props {
@@ -48,7 +50,23 @@ const BigDataTable: React.FC<Props> = ({
           );
         },
       },
+      {
+        Header: "Operation",
+        accessor: "operation",
+        sortType: "basic",
+        className: "w-32",
+        Cell: ({ value }: { value: number }) => {
+          let colorClass = "";
+          if (value != null && value > 30)
+            colorClass = "text-red-600 dark:text-red-400 font-semibold";
 
+          return (
+            <span className={colorClass}>
+              {value != null ? value.toFixed(2) : "--"}
+            </span>
+          );
+        },
+      },
       {
         Header: "P/E",
         accessor: "pe",
@@ -73,7 +91,7 @@ const BigDataTable: React.FC<Props> = ({
         className: "w-32",
         Cell: ({ value }: { value: number }) => {
           let colorClass = "";
-          if (value != null && value > 50)
+          if (value != null && value > 30)
             colorClass = "text-green-600 dark:text-green-400 font-semibold";
           else if (value != null && value < -10)
             colorClass = "text-red-600 dark:text-red-400 font-semibold";
@@ -127,7 +145,7 @@ const BigDataTable: React.FC<Props> = ({
         className: "w-20",
       },
     ],
-    []
+    [],
   );
 
   const tableInstance = useTable(
@@ -137,7 +155,7 @@ const BigDataTable: React.FC<Props> = ({
       initialState: { hiddenColumns: [] },
     },
     useGlobalFilter,
-    useSortBy
+    useSortBy,
   );
 
   const {
@@ -156,9 +174,7 @@ const BigDataTable: React.FC<Props> = ({
     setFilter(value);
   };
 
-  // Add this function inside your component
   const exportToExcel = () => {
-    debugger;
     const exportData = data.map((row, index) => ({
       ردیف: index + 1,
       "Company Name": row.company_name,
@@ -180,7 +196,11 @@ const BigDataTable: React.FC<Props> = ({
     const dataBlob = new Blob([excelBuffer], {
       type: "application/octet-stream",
     });
-    saveAs(dataBlob, "BigDataTable.xlsx");
+
+    const today = new Date();
+    const dateStr = today.toISOString().split("T")[0];
+
+    saveAs(dataBlob, `RFADataTable_${dateStr}.xlsx`);
   };
 
   return (
@@ -271,8 +291,23 @@ const BigDataTable: React.FC<Props> = ({
                 <tr
                   {...row.getRowProps()}
                   key={row.getRowProps().key}
-                  onClick={() => {
-                    const url = `http://rfa.systemgroup.net?companyname=${row.original.company_name}`;
+                  // onClick={() => {
+                  //   const url = `http://rfa.systemgroup.net?companyname=${row.original.company_name}`;
+                  //   window.open(url, "_blank");
+                  // }}
+                  onClick={async () => {
+                    const companyName = row.original.company_name;
+
+                    try {
+                      await addViewedItem(companyName);
+                    } catch (err) {
+                      console.error("Failed to save viewed item:", err);
+                    }
+
+                    const url = `http://rfa.systemgroup.net?companyname=${encodeURIComponent(
+                      companyName,
+                    )}`;
+
                     window.open(url, "_blank");
                   }}
                   className="cursor-pointer transition-colors duration-300 hover:bg-indigo-50 dark:hover:bg-gray-800"

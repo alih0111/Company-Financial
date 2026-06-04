@@ -32,26 +32,6 @@ func RunScript(c *gin.Context) {
 		return
 	}
 
-	// cmd := exec.Command("python", "py/scraper.py",
-	// 	req.CompanyName,
-	// 	// string(rune(req.RowMeta)), // convert int to string
-	// 	strconv.Itoa(req.RowMeta),
-	// 	req.BaseURL,
-	// 	string(pageNumsJSON),
-	// )
-
-	// // Optional: redirect output (or capture if needed)
-	// output, err := cmd.CombinedOutput()
-	// if err != nil {
-	// 	c.JSON(http.StatusInternalServerError, gin.H{
-	// 		"error":   "Script execution failed",
-	// 		"details": string(output),
-	// 	})
-	// 	return
-	// }
-
-	// c.JSON(http.StatusOK, gin.H{"message": "Script executed successfully!"})
-
 	cmd := exec.Command("python", "py/scraper.py",
 		req.CompanyName,
 		strconv.Itoa(req.RowMeta),

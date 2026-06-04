@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import Select from "react-select";
 import NavigationButton from "./NavigationButton";
-import { fetchFullPE } from "../utils/api";
+import { addViewedItem, fetchFullPE } from "../utils/api";
 
 interface SidebarProps {
   companyOptions: { value: string; label: string }[];
   selectedCompany: string;
   onCompanyChange: (val: string) => void;
   openModalForScript: (
-    script: "script1" | "script2" | "full" | "stockPrices"
+    script: "script1" | "script2" | "full" | "stockPrices",
   ) => void;
   runningScripts: Record<
     "script1" | "script2" | "full" | "stockPrices",
@@ -44,6 +44,16 @@ const Sidebar: React.FC<SidebarProps> = ({
     setLoadingFullPE(false);
   };
 
+  const handleCompanySelect = async (companyName: string) => {
+    try {
+      await addViewedItem(companyName);
+    } catch (err) {
+      console.error("Failed to save viewed item:", err);
+    }
+
+    onCompanyChange(companyName);
+  };
+
   return (
     <aside className="max-h-[747px] m-4 mb-0 mr-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-3 transition-all duration-300 ease-in-out">
       <div className="pb-2 flex justify-between items-center">
@@ -65,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           value={
             companyOptions.find((opt) => opt.value === selectedCompany) || null
           }
-          onChange={(option) => option && onCompanyChange(option.value)}
+          onChange={(option) => option && handleCompanySelect(option.value)}
           isSearchable
           placeholder="Search or select..."
           isLoading={loadingCompanies}
@@ -117,8 +127,8 @@ const Sidebar: React.FC<SidebarProps> = ({
               backgroundColor: state.isSelected
                 ? "#6366f1"
                 : state.isFocused
-                ? "#eef2ff"
-                : "white",
+                  ? "#eef2ff"
+                  : "white",
               color: state.isSelected ? "white" : "#374151",
               padding: "0.5rem 0.75rem",
               cursor: "pointer",
@@ -207,7 +217,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     const eps = company.eps_growth;
                     let colorClass = "";
 
-                    if (eps > 50) {
+                    if (eps > 30) {
                       colorClass =
                         "text-green-600 dark:text-green-400 font-bold";
                     } else if (eps < -10) {
@@ -222,7 +232,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                         className={`flex justify-between cursor-pointer p-2 rounded-lg transition text-sm
                         hover:bg-gray-200 dark:hover:bg-gray-600
                         ${isSelected ? "bg-gray-100 dark:bg-gray-700" : ""}`}
-                        onClick={() => onCompanyChange(company.company_name)}
+                        onClick={() =>
+                          handleCompanySelect(company.company_name)
+                        }
                       >
                         <span className={`font-semibold ${colorClass}`}>
                           {/* {eps.toFixed(2)}% */}

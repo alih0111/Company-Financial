@@ -73,7 +73,7 @@ func GetCompanyNames(c *gin.Context) {
 	db := config.GetDB()
 	defer db.Close()
 
-	query := "SELECT DISTINCT CompanyName FROM miandore2 ORDER BY CompanyName"
+	query := "SELECT DISTINCT CompanyName FROM miandore2 ORDER BY CompanyName "
 	rows, err := db.Query(query)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

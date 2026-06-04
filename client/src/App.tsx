@@ -79,7 +79,7 @@ const App = () => {
           />
         )}
 
-        <main className="flex-1  bg-white/50 dark:bg-gray-900/40 backdrop-blur-lg mb-0 shadow-2xl transition-all duration-300 my-5 mx-[15px] p-4 rounded-3xl border border-gray-200 dark:border-gray-700">
+        <main className="flex-1  bg-white/50 dark:bg-gray-900/40 backdrop-blur-lg mb-0 shadow-2xl transition-all duration-300 my-4 mx-[15px] p-4 rounded-3xl border border-gray-200 dark:border-gray-700">
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
