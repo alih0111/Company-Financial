@@ -10,7 +10,10 @@ go-app/.env
 go-app/.browser_profile/
 go-app/py/__pycache__/
 go-app/py/__pycache__/*.pyc
+go-app/chromium-profile/
+go-app/chromedriver-win32/
 go-app/py/chromium-profile/
+go-app/py/chromedriver-win32/
 
 # General
 .DS_Store

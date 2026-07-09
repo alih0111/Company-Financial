@@ -17,7 +17,7 @@ func GetSalesData2(c *gin.Context) {
 	defer db.Close()
 
 	companyName := c.Query("companyName")
-	query := "SELECT CompanyName, CompanyID, ReportDate, Value1, Value2, Value3 FROM mahane"
+	query := "SELECT CompanyName, CompanyID, ReportDate, Value1, Value2, Value3 FROM mahane "
 
 	var rows *sql.Rows
 	var err error
@@ -49,9 +49,9 @@ func GetSalesData2(c *gin.Context) {
 		s.Value2 = nullToFloat(v2)
 		s.Value3 = nullToFloat(v3)
 
-		if s.Value1 == 0 {
-			continue
-		}
+		// if s.Value1 == 0 {
+		// 	continue
+		// }
 
 		s.Value1 /= 1_000_000
 		s.Value2 /= 1_000_000
@@ -82,7 +82,7 @@ func GetURL2(c *gin.Context) {
 		return
 	}
 
-	query := "SELECT TOP 1 Url FROM mahane WHERE CompanyName LIKE @companyName"
+	query := "SELECT TOP 1 Url FROM mahane WHERE CompanyName LIKE @companyName "
 	likePattern := "%" + strings.TrimSpace(req.CompanyName) + "%"
 	row := db.QueryRow(query, sql.Named("companyName", likePattern))
 

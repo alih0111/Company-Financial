@@ -1,19 +1,23 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useTable, useSortBy, useGlobalFilter } from "react-table";
 import { FaSort, FaSortUp, FaSortDown, FaSearch } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import { addViewedItem } from "../utils/api";
+import {
+  addViewedItem,
+  getAIStockSummary,
+  type AIStockMetric,
+} from "../utils/api";
 
 interface DataRow {
   company_id: string;
   company_name: string;
-  eps_growth: number;
-  sales_growth: number;
-  pe: number;
-  stable: boolean;
-  operation: number;
-  quant_score?: number | null;
+  eps_growth?: number | null;
+  sales_growth?: number | null;
+  pe?: number | null;
+  stable?: boolean | null;
+  Stable?: boolean | null;
+  operation?: number | null;
 }
 
 interface Props {
@@ -22,25 +26,122 @@ interface Props {
   onCompanyChange: (name: string) => void;
 }
 
-const BigDataTable: React.FC<Props> = ({
+type MergedRow = DataRow & {
+  ai?: AIStockMetric | null;
+};
+
+const fmt = (v: number | null | undefined, digits = 2) => {
+  if (v === null || v === undefined || Number.isNaN(v)) return "--";
+  return v.toFixed(digits);
+};
+
+const pct = (v: number | null | undefined) => {
+  if (v === null || v === undefined || Number.isNaN(v)) return "--";
+  return `${v.toFixed(2)}%`;
+};
+
+const normalize = (v?: string | null) => (v || "").trim().toLowerCase();
+
+const getStableValue = (row: MergedRow) => {
+  return row.stable ?? row.Stable ?? null;
+};
+
+const getRisks = (row?: AIStockMetric | null) => {
+  if (!row) return "";
+
+  return [
+    row.bad_pe_flag ? "P/E" : "",
+    row.weak_sales_flag ? "فروش" : "",
+    row.weak_operating_profit_flag ? "سود عملیاتی" : "",
+    row.weak_liquidity_flag ? "نقدشوندگی" : "",
+  ]
+    .filter(Boolean)
+    .join("، ");
+};
+
+const PercentCell = ({ value }: { value: number | null | undefined }) => {
+  let colorClass = "";
+
+  if (value != null && value > 30) {
+    colorClass = "text-green-600 dark:text-green-400 font-semibold";
+  } else if (value != null && value < -10) {
+    colorClass = "text-red-600 dark:text-red-400 font-semibold";
+  }
+
+  return <span className={colorClass}>{pct(value)}</span>;
+};
+
+const PECell = ({ value }: { value: number | null | undefined }) => {
+  let colorClass = "";
+
+  if (value != null && value > 0 && value < 6) {
+    colorClass = "text-green-600 dark:text-green-400 font-semibold";
+  } else if (value != null && (value <= 0 || value > 80)) {
+    colorClass = "text-red-600 dark:text-red-400 font-semibold";
+  }
+
+  return <span className={colorClass}>{fmt(value)}</span>;
+};
+
+const MergedStockTable: React.FC<Props> = ({
   data,
   selectedCompany,
   onCompanyChange,
 }) => {
   const [globalFilter, setGlobalFilter] = useState("");
+  const [aiData, setAiData] = useState<AIStockMetric[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
 
-  const columns = useMemo(
+  const loadAIData = async () => {
+    setAiLoading(true);
+
+    try {
+      const rows = await getAIStockSummary(30);
+      setAiData(Array.isArray(rows) ? rows : []);
+    } catch (err) {
+      console.error("Failed to load AI stock summary:", err);
+      setAiData([]);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAIData();
+  }, []);
+
+  const mergedData = useMemo<MergedRow[]>(() => {
+    const aiById = new Map<string, AIStockMetric>();
+    const aiByName = new Map<string, AIStockMetric>();
+
+    aiData.forEach((row) => {
+      if (row.company_id) aiById.set(row.company_id, row);
+      if (row.company_name) aiByName.set(normalize(row.company_name), row);
+    });
+
+    return data.map((row) => ({
+      ...row,
+      ai:
+        aiById.get(row.company_id) ||
+        aiByName.get(normalize(row.company_name)) ||
+        null,
+    }));
+  }, [data, aiData]);
+
+  const columns = useMemo<any[]>(
     () => [
       {
         Header: "Stable",
-        accessor: "Stable",
+        id: "Stable",
+        accessor: (row: MergedRow) => getStableValue(row),
         sortType: "basic",
         className: "w-16",
         Cell: ({ value }: { value: boolean | null | undefined }) => {
           let colorClass = "";
+
           if (value === true) {
             colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          } else {
+          } else if (value === false) {
             colorClass = "text-red-700 dark:text-red-400 font-semibold";
           }
 
@@ -56,18 +157,19 @@ const BigDataTable: React.FC<Props> = ({
         accessor: "operation",
         sortType: "basic",
         className: "w-32",
-        Cell: ({ value }: { value: number }) => {
+        Cell: ({ value }: { value: number | null | undefined }) => {
           let colorClass = "";
-
           let validValue = value;
+
           if (value != null) {
             if (value < -50 || value > 99) {
               validValue = -1;
             }
           }
 
-          if (validValue != null && validValue > 30)
+          if (validValue != null && validValue > 30) {
             colorClass = "text-red-600 dark:text-red-400 font-semibold";
+          }
 
           return (
             <span className={colorClass}>
@@ -77,27 +179,16 @@ const BigDataTable: React.FC<Props> = ({
         },
       },
       {
-        Header: "Score",
-        accessor: "quant_score",
-        sortType: "basic",
-        className: "w-28",
-        Cell: ({ value }: { value: number | null | undefined }) => {
-          return (
-            <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
-              {value != null && !Number.isNaN(value) ? value.toFixed(2) : "--"}
-            </span>
-          );
-        },
-      },
-      {
         Header: "P/E",
         accessor: "pe",
         sortType: "basic",
         className: "w-32",
-        Cell: ({ value }: { value: number }) => {
+        Cell: ({ value }: { value: number | null | undefined }) => {
           let colorClass = "";
-          if (value != null && value < 6 && value > 0)
+
+          if (value != null && value < 6 && value > 0) {
             colorClass = "text-green-600 dark:text-green-400 font-semibold";
+          }
 
           return (
             <span className={colorClass}>
@@ -111,12 +202,14 @@ const BigDataTable: React.FC<Props> = ({
         accessor: "eps_growth",
         sortType: "basic",
         className: "w-32",
-        Cell: ({ value }: { value: number }) => {
+        Cell: ({ value }: { value: number | null | undefined }) => {
           let colorClass = "";
-          if (value != null && value > 30)
+
+          if (value != null && value > 30) {
             colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          else if (value != null && value < -10)
+          } else if (value != null && value < -10) {
             colorClass = "text-red-600 dark:text-red-400 font-semibold";
+          }
 
           return (
             <span className={colorClass}>
@@ -125,18 +218,19 @@ const BigDataTable: React.FC<Props> = ({
           );
         },
       },
-
       {
         Header: "Sales Growth",
         accessor: "sales_growth",
         sortType: "basic",
         className: "w-32",
-        Cell: ({ value }: { value: number }) => {
+        Cell: ({ value }: { value: number | null | undefined }) => {
           let colorClass = "";
-          if (value != null && value > 50)
+
+          if (value != null && value > 50) {
             colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          else if (value != null && value < -10)
+          } else if (value != null && value < -10) {
             colorClass = "text-red-600 dark:text-red-400 font-semibold";
+          }
 
           return (
             <span className={colorClass}>
@@ -146,7 +240,7 @@ const BigDataTable: React.FC<Props> = ({
         },
       },
       {
-        Header: "Company",
+        Header: "Company Name",
         accessor: "company_name",
         className: "w-32",
         Cell: ({ value }: { value: string }) => (
@@ -155,6 +249,126 @@ const BigDataTable: React.FC<Props> = ({
           </span>
         ),
       },
+
+      // AI columns start here
+      {
+        Header: "نماد",
+        id: "symbol",
+        accessor: (row: MergedRow) => row.ai?.symbol || "",
+        sortType: "basic",
+        className: "w-24",
+        Cell: ({ value }: { value: string }) => (
+          <span className="font-semibold text-gray-900 dark:text-gray-100">
+            {value || "--"}
+          </span>
+        ),
+      },
+      {
+        Header: "AI Score",
+        id: "quant_score",
+        accessor: (row: MergedRow) => row.ai?.quant_score ?? null,
+        sortType: "basic",
+        className: "w-28",
+        Cell: ({ value }: { value: number | null | undefined }) => (
+          <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+            {fmt(value)}
+          </span>
+        ),
+      },
+      {
+        Header: "رشد فروش ۱۲M",
+        id: "sales_growth_12m",
+        accessor: (row: MergedRow) => row.ai?.sales_growth_12m ?? null,
+        sortType: "basic",
+        className: "w-36",
+        Cell: ({ value }: { value: number | null | undefined }) => (
+          <PercentCell value={value} />
+        ),
+      },
+      {
+        Header: "رشد سود عملیاتی",
+        id: "operating_profit_growth_yoy",
+        accessor: (row: MergedRow) =>
+          row.ai?.operating_profit_growth_yoy ?? null,
+        sortType: "basic",
+        className: "w-40",
+        Cell: ({ value }: { value: number | null | undefined }) => (
+          <PercentCell value={value} />
+        ),
+      },
+      {
+        Header: "رشد سود خالص",
+        id: "net_profit_growth_4_reports",
+        accessor: (row: MergedRow) =>
+          row.ai?.net_profit_growth_4_reports ?? null,
+        sortType: "basic",
+        className: "w-36",
+        Cell: ({ value }: { value: number | null | undefined }) => (
+          <PercentCell value={value} />
+        ),
+      },
+      {
+        Header: "AI P/E",
+        id: "pe_approx",
+        accessor: (row: MergedRow) => row.ai?.pe_approx ?? null,
+        sortType: "basic",
+        className: "w-32",
+        Cell: ({ value }: { value: number | null | undefined }) => (
+          <PECell value={value} />
+        ),
+      },
+      {
+        Header: "قیمت",
+        id: "latest_price",
+        accessor: (row: MergedRow) => row.ai?.latest_price ?? null,
+        sortType: "basic",
+        className: "w-32",
+        Cell: ({ value }: { value: number | null | undefined }) => fmt(value),
+      },
+      {
+        Header: "بازده ۳۰D",
+        id: "price_return_30d",
+        accessor: (row: MergedRow) => row.ai?.price_return_30d ?? null,
+        sortType: "basic",
+        className: "w-32",
+        Cell: ({ value }: { value: number | null | undefined }) => (
+          <PercentCell value={value} />
+        ),
+      },
+      {
+        Header: "ارزش معاملات ۳۰D",
+        id: "avg_trade_value_30d",
+        accessor: (row: MergedRow) => row.ai?.avg_trade_value_30d ?? null,
+        sortType: "basic",
+        className: "w-44",
+        Cell: ({ value }: { value: number | null | undefined }) =>
+          fmt(value, 0),
+      },
+      {
+        Header: "ریسک‌ها",
+        id: "risks",
+        accessor: (row: MergedRow) => getRisks(row.ai),
+        disableSortBy: true,
+        className: "w-44",
+        Cell: ({ row }: any) => {
+          const risks = getRisks(row.original.ai);
+
+          if (!risks) {
+            return (
+              <span className="text-green-600 dark:text-green-400 font-semibold">
+                --
+              </span>
+            );
+          }
+
+          return (
+            <span className="text-red-600 dark:text-red-400 font-semibold">
+              {risks}
+            </span>
+          );
+        },
+      },
+
       {
         Header: "ردیف",
         id: "row_number",
@@ -166,15 +380,15 @@ const BigDataTable: React.FC<Props> = ({
     [],
   );
 
-  const tableInstance = useTable(
+  const tableInstance = useTable<MergedRow>(
     {
       columns,
-      data,
+      data: mergedData,
       initialState: { hiddenColumns: [] },
     },
     useGlobalFilter,
     useSortBy,
-  );
+  ) as any;
 
   const {
     getTableProps,
@@ -193,18 +407,37 @@ const BigDataTable: React.FC<Props> = ({
   };
 
   const exportToExcel = () => {
-    const exportData = data.map((row, index) => ({
+    const exportData = mergedData.map((row, index) => ({
       ردیف: index + 1,
       "Company Name": row.company_name,
-      "P/E": row.pe?.toFixed(2),
-      "EPS Growth (%)": row.eps_growth?.toFixed(2) + "%",
-      "Sales Growth (%)": row.sales_growth?.toFixed(2) + "%",
-      Stable: row.Stable ? "Yes" : "No",
-      "AI Score": row.quant_score != null ? row.quant_score.toFixed(2) : "--",
+      "P/E": row.pe != null ? row.pe.toFixed(2) : "--",
+      "EPS Growth (%)":
+        row.eps_growth != null ? row.eps_growth.toFixed(2) + "%" : "--",
+      "Sales Growth (%)":
+        row.sales_growth != null ? row.sales_growth.toFixed(2) + "%" : "--",
+      Stable:
+        getStableValue(row) === true
+          ? "Yes"
+          : getStableValue(row) === false
+            ? "No"
+            : "--",
+      "N-Operation": pct(row.operation),
+
+      نماد: row.ai?.symbol || "--",
+      "AI Score": fmt(row.ai?.quant_score),
+      "رشد فروش ۱۲M": pct(row.ai?.sales_growth_12m),
+      "رشد سود عملیاتی": pct(row.ai?.operating_profit_growth_yoy),
+      "رشد سود خالص": pct(row.ai?.net_profit_growth_4_reports),
+      "AI P/E": fmt(row.ai?.pe_approx),
+      قیمت: fmt(row.ai?.latest_price),
+      "بازده ۳۰D": pct(row.ai?.price_return_30d),
+      "ارزش معاملات ۳۰D": fmt(row.ai?.avg_trade_value_30d, 0),
+      ریسک‌ها: getRisks(row.ai) || "--",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
+
     XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
 
     const excelBuffer = XLSX.write(workbook, {
@@ -225,8 +458,9 @@ const BigDataTable: React.FC<Props> = ({
   return (
     <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px] ">
       <div className="flex justify-start">
-        <div className="relative mb-2 max-w-md mx-auto text-md ml-0">
+        <div className="relative mb-2 max-w-md mx-auto text-md ml-2">
           <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+
           <input
             type="text"
             value={globalFilter}
@@ -236,6 +470,7 @@ const BigDataTable: React.FC<Props> = ({
             className="p-2 w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
           />
         </div>
+
         <div className="text-center mb-2 mr-2">
           <button
             onClick={() =>
@@ -249,6 +484,17 @@ const BigDataTable: React.FC<Props> = ({
             Golden Sort
           </button>
         </div>
+
+        {/* <div className="text-center mb-2 mr-2">
+          <button
+            onClick={loadAIData}
+            disabled={aiLoading}
+            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white py-2 px-4 rounded-xl transition"
+          >
+            {aiLoading ? "در حال دریافت..." : "دریافت کاندیدها"}
+          </button>
+        </div> */}
+
         <div className="text-center mb-2 mr-2">
           <button
             onClick={exportToExcel}
@@ -258,6 +504,7 @@ const BigDataTable: React.FC<Props> = ({
           </button>
         </div>
       </div>
+
       <div className=" overflow-auto max-h-[82vh]">
         <table
           {...getTableProps()}
@@ -265,12 +512,12 @@ const BigDataTable: React.FC<Props> = ({
           style={{ borderSpacing: 0 }}
         >
           <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
-            {headerGroups.map((headerGroup) => (
+            {headerGroups.map((headerGroup: any) => (
               <tr
                 {...headerGroup.getHeaderGroupProps()}
                 key={headerGroup.getHeaderGroupProps().key}
               >
-                {headerGroup.headers.map((column) => (
+                {headerGroup.headers.map((column: any) => (
                   <th
                     {...column.getHeaderProps(column.getSortByToggleProps())}
                     key={column.getHeaderProps().key}
@@ -280,6 +527,7 @@ const BigDataTable: React.FC<Props> = ({
                   >
                     <div className="flex items-center justify-center gap-2">
                       <span>{column.render("Header")}</span>
+
                       <span className="flex items-center text-indigo-500">
                         {column.isSorted ? (
                           column.isSortedDesc ? (
@@ -302,18 +550,13 @@ const BigDataTable: React.FC<Props> = ({
             {...getTableBodyProps()}
             className="divide-y divide-gray-200 dark:divide-gray-700"
           >
-            {rows.map((row, rowIndex) => {
+            {rows.map((row: any, rowIndex: number) => {
               prepareRow(row);
-              const rowCompanyName = row.original.company_name;
 
               return (
                 <tr
                   {...row.getRowProps()}
                   key={row.getRowProps().key}
-                  // onClick={() => {
-                  //   const url = `http://rfa.systemgroup.net?companyname=${row.original.company_name}`;
-                  //   window.open(url, "_blank");
-                  // }}
                   onClick={async () => {
                     const companyName = row.original.company_name;
 
@@ -331,7 +574,7 @@ const BigDataTable: React.FC<Props> = ({
                   }}
                   className="cursor-pointer transition-colors duration-300 hover:bg-indigo-50 dark:hover:bg-gray-800"
                 >
-                  {row.cells.map((cell) => (
+                  {row.cells.map((cell: any) => (
                     <td
                       {...cell.getCellProps()}
                       key={cell.getCellProps().key}
@@ -369,4 +612,4 @@ const BigDataTable: React.FC<Props> = ({
   );
 };
 
-export default BigDataTable;
+export default MergedStockTable;

@@ -23,7 +23,7 @@ func GetCompanyScores(c *gin.Context) {
 	defer db.Close()
 
 	// Query sales data
-	salesQuery := "SELECT CompanyID, CompanyName, ReportDate, Value3 FROM mahane"
+	salesQuery := "SELECT CompanyID, CompanyName, ReportDate, Value3 FROM mahane "
 	salesRows, err := db.Query(salesQuery)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -33,7 +33,7 @@ func GetCompanyScores(c *gin.Context) {
 
 	// Query EPS data
 	// epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2"
-	epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1, OperatingProfitNew, OperatingProfitLastYear FROM miandore2 "
+	epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1, OperatingProfitNew, OperatingProfitLastYear FROM miandore2"
 	epsRows, err := db.Query(epsQuery)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -143,65 +143,105 @@ func GetCompanyScores(c *gin.Context) {
 				op := epsData.OperatingProfitLastYear[len(epsData.OperatingProfitLastYear)-1]
 
 				if !math.IsNaN(opNew) && !math.IsNaN(op) && op != 0 {
+					// operation = ((opNew-op)/math.Abs(op))*100
+					operation = op / opNew * 100
 					// operation = ((opNew - op) / math.Abs(op)) * 100
-					operation = opNew
+					// operation = opNew
 				}
 			}
 
-			// Calculate EPS growth
-			// if len(eps) >= 8 {
-			// 	recent := mean(eps[len(eps)-4:])
-			// 	previous := mean(eps[len(eps)-8 : len(eps)-4])
-			// 	if previous != 0 {
-			// 		epsGrowth = ((recent - previous) / math.Abs(previous)) * 100
-			// 	}
-			// }
-			// YoY EPS growth: compare latest quarter with same quarter last year
-			if len(eps) >= 5 {
-				current := eps[len(eps)-1]  // e.g. 1404/09/30
-				lastYear := eps[len(eps)-5] // e.g. 1403/09/30
-
+			if len(eps) >= 8 {
+				recent := float64(mean(eps[len(eps)-4:]))
+				previous := float64(mean(eps[len(eps)-8 : len(eps)-4]))
+				if previous != 0 {
+					epsGrowth = ((recent - previous) / math.Abs(previous)) * 100
+				}
+			} else if len(eps) >= 5 {
+				current := float64(eps[len(eps)-1])
+				lastYear := float64(eps[len(eps)-5])
 				if lastYear != 0 {
 					epsGrowth = ((current - lastYear) / math.Abs(lastYear)) * 100
 				}
 			}
 
 			// EPS Positive and Growing
-			if len(eps) >= 16 {
-				epsPositiveAndGrowing = true
-				prevYearEPS := 0.0
+			// if len(eps) >= 16 {
+			// 	epsPositiveAndGrowing = true
+			// 	prevYearEPS := 0.0
 
-				for i := 4; i > 0; i-- {
-					start := len(eps) - i*4
-					end := start + 4
-					yearEPS := mean(eps[start:end])
+			// 	for i := 4; i > 0; i-- {
+			// 		start := len(eps) - i*4
+			// 		end := start + 4
+			// 		yearEPS := mean(eps[start:end])
 
-					if yearEPS <= 0 || (i < 4 && yearEPS <= prevYearEPS) {
-						epsPositiveAndGrowing = false
-						break
-					}
-					prevYearEPS = yearEPS
+			// 		if yearEPS <= 0 || (i < 4 && yearEPS <= prevYearEPS) {
+			// 			epsPositiveAndGrowing = false
+			// 			break
+			// 		}
+			// 		prevYearEPS = yearEPS
+			// 	}
+			// }
+			// if len(eps) >= 8 && len(eps) < 16 {
+			// 	epsPositiveAndGrowing = true
+			// 	prevYearEPS := 0.0
+
+			// 	for i := 2; i > 0; i-- {
+			// 		start := len(eps) - i*4
+			// 		end := start + 4
+			// 		yearEPS := mean(eps[start:end])
+
+			// 		if yearEPS <= 0 || (i < 2 && yearEPS <= prevYearEPS) {
+			// 			epsPositiveAndGrowing = false
+			// 			break
+			// 		}
+			// 		prevYearEPS = yearEPS
+			// 	}
+			// }
+
+			const (
+				quartersPerYear = 4
+				maxYears        = 4
+				minYears        = 2
+				maxDropPercent  = 0.10
+			)
+
+			availableYears := len(eps) / quartersPerYear
+
+			if availableYears >= minYears {
+				yearsToCheck := availableYears
+				if yearsToCheck > maxYears {
+					yearsToCheck = maxYears
 				}
-			}
-			if len(eps) >= 8 && len(eps) < 16 {
+
+				firstQuarter := len(eps) - yearsToCheck*quartersPerYear
+				previousYearEPS := 0.0
+
 				epsPositiveAndGrowing = true
-				prevYearEPS := 0.0
 
-				for i := 2; i > 0; i-- {
-					start := len(eps) - i*4
-					end := start + 4
-					yearEPS := mean(eps[start:end])
+				for year := 0; year < yearsToCheck; year++ {
+					start := firstQuarter + year*quartersPerYear
+					end := start + quartersPerYear
 
-					if yearEPS <= 0 || (i < 2 && yearEPS <= prevYearEPS) {
+					// Quarterly EPS values should normally be summed.
+					yearEPS := sum(eps[start:end])
+
+					if yearEPS <= 0 {
 						epsPositiveAndGrowing = false
 						break
 					}
-					prevYearEPS = yearEPS
+
+					// Compare each year with the previous year.
+					if year > 0 && yearEPS <= previousYearEPS*(1-maxDropPercent) {
+						epsPositiveAndGrowing = false
+						break
+					}
+
+					previousYearEPS = yearEPS
 				}
 			}
 
 			// 40,000,000,000
-			if (eps[len(eps)-1] / 40000000000) > 1 {
+			if (eps[len(eps)-1] / 100000000000) > 1 {
 				epsPositiveAndGrowing = true
 			}
 
@@ -212,6 +252,9 @@ func GetCompanyScores(c *gin.Context) {
 					epsPositiveAndGrowing = false
 					break
 				}
+			}
+			if len(eps) < 16 {
+				epsPositiveAndGrowing = false
 			}
 
 		}
@@ -247,6 +290,16 @@ func GetCompanyScores(c *gin.Context) {
 	})
 
 	c.JSON(http.StatusOK, scores)
+}
+
+func sum(values []float64) float64 {
+	total := 0.0
+
+	for _, value := range values {
+		total += value
+	}
+
+	return total
 }
 
 func mean(vals []float64) float64 {

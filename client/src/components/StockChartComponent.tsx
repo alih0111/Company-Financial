@@ -52,7 +52,7 @@ const StockChartComponent: React.FC<Props> = ({ data }) => {
 
     // Construct a date string in YYYY-MM-DD format
     const gregorianDateString = `${gy}-${String(gm).padStart(2, "0")}-${String(
-      gd
+      gd,
     ).padStart(2, "0")}`;
 
     return parseDate(gregorianDateString);

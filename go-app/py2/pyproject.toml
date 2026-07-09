@@ -1,0 +1,39 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "codal-ingestor"
+version = "0.2.0"
+description = "Codal financial report ingestion service for PostgreSQL"
+requires-python = ">=3.11"
+dependencies = [
+  "alembic>=1.13,<2",
+  "beautifulsoup4>=4.12,<5",
+  "jdatetime>=5,<6",
+  "playwright>=1.50,<2",
+  "psycopg[binary,pool]>=3.2,<4",
+  "pydantic-settings>=2.2,<3",
+  "sqlalchemy>=2.0,<3",
+  "typer>=0.12,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8,<9",
+  "ruff>=0.9,<1",
+]
+
+[project.scripts]
+codal-ingest = "codal_ingestor.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/codal_ingestor"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"

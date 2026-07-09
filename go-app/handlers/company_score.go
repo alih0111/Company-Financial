@@ -60,25 +60,12 @@ func GetCompanyScores2(c *gin.Context) {
 	db := config.GetDB()
 	defer db.Close()
 
-	// companyName := c.Query("companyName")
-	// if companyName == "" {
-	// 	c.JSON(http.StatusBadRequest, gin.H{"error": "companyName query parameter is required"})
-	// 	return
-	// }
-
-	// param := "%" + companyName + "%"
-
-	// // Queries with filters
-	// salesQuery := `SELECT CompanyID, CompanyName, ReportDate, Value3 FROM mahane WHERE CompanyName LIKE @companyName`
-	// epsQuery := `SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2 WHERE CompanyName LIKE @companyName`
-	// fullPEQuery := `SELECT CompanyName, PE, Price FROM codal.dbo.FullPE WHERE CompanyName LIKE @companyName`
-
 	companyName := strings.TrimSpace(c.Query("companyName"))
-	param := companyName + "%"
+	param := companyName
 
-	salesQuery := `SELECT CompanyID, CompanyName, ReportDate, Value3 FROM mahane WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName)) + '%'`
-	epsQuery := `SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2 WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName)) + '%'`
-	fullPEQuery := `SELECT CompanyName, PE, Price FROM codal.dbo.FullPE WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName)) + '%'`
+	salesQuery := `SELECT CompanyID, CompanyName, ReportDate, Value3 FROM mahane WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName))`
+	epsQuery := `SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2 WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName))`
+	fullPEQuery := `SELECT CompanyName, PE, Price FROM codal.dbo.FullPE WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName))`
 
 	salesRows, err := db.Query(salesQuery, sql.Named("companyName", param))
 	if err != nil {
@@ -162,16 +149,29 @@ func GetCompanyScores2(c *gin.Context) {
 		// EPS growth
 		var epsGrowth float64
 		// if len(eps) >= 8 {
-		// 	recent := mean(eps[len(eps)-4:])
-		// 	previous := mean(eps[len(eps)-8 : len(eps)-4])
+		// 	recent := sum(eps[len(eps)-4:])
+		// 	previous := sum(eps[len(eps)-8 : len(eps)-4])
 		// 	if previous != 0 {
 		// 		epsGrowth = ((recent - previous) / math.Abs(previous)) * 100
 		// 	}
 		// }
-		if len(eps) >= 5 {
-			current := eps[len(eps)-1]  // e.g. 1404/09/30
-			lastYear := eps[len(eps)-5] // e.g. 1403/09/30
+		// else if len(eps) >= 5 {
+		// 	current := eps[len(eps)-1]  // e.g. 1404/09/30
+		// 	lastYear := eps[len(eps)-5] // e.g. 1403/09/30
 
+		// 	if lastYear != 0 {
+		// 		epsGrowth = ((current - lastYear) / math.Abs(lastYear)) * 100
+		// 	}
+		// }
+		if len(eps) >= 8 {
+			recent := float64(mean(eps[len(eps)-4:]))
+			previous := float64(mean(eps[len(eps)-8 : len(eps)-4]))
+			if previous != 0 {
+				epsGrowth = ((recent - previous) / math.Abs(previous)) * 100
+			}
+		} else if len(eps) >= 5 {
+			current := float64(eps[len(eps)-1])
+			lastYear := float64(eps[len(eps)-5])
 			if lastYear != 0 {
 				epsGrowth = ((current - lastYear) / math.Abs(lastYear)) * 100
 			}

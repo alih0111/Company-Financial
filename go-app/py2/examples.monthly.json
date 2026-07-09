@@ -1,0 +1,12 @@
+{
+  "company_name": "شرکت نمونه",
+  "period_end_jalali": "1404/03/31",
+  "source_url": "https://www.codal.ir/example/monthly",
+  "production_quantity": "1200",
+  "sales_quantity": "1100",
+  "sales_amount": "25000000000",
+  "domestic_sales_amount": "20000000000",
+  "export_sales_amount": "5000000000",
+  "currency_unit": "rial",
+  "quantity_unit": "unit"
+}

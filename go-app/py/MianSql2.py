@@ -1,415 +1,3 @@
-# import re
-# import time
-# import hashlib
-# import jdatetime
-# import pyodbc
-# import logging
-# import sys
-# import json
-# import os
-# from selenium import webdriver
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-# from bs4 import BeautifulSoup
-# from dotenv import load_dotenv
-
-# # --------------------- Logging Setup ---------------------
-# logging.basicConfig(
-#     level=logging.INFO,
-#     format='%(asctime)s [%(levelname)s] %(message)s',
-#     handlers=[logging.StreamHandler(sys.stdout)]
-# )
-
-# # --------------------- Load Environment ---------------------
-# load_dotenv()
-
-# server = os.getenv('DB_SERVER')
-# database = os.getenv('DB_NAME')
-# username = os.getenv('DB_USER')
-# password = os.getenv('DB_PASSWORD')
-
-# # --------------------- Helpers ---------------------
-# def generate_company_id(name):
-#     return hashlib.md5(name.encode('utf-8')).hexdigest()
-
-# def to_number(s):
-#     s = s.replace(',', '').replace('٬', '')  # Remove commas (Arabic/Persian/English)
-#     s = re.sub(r'[^\d\.\-\(\)]', '', s)
-#     if re.match(r'^\(\d+(\.\d+)?\)$', s):
-#         s = '-' + s.strip('()')
-#     return float(s) if s else 0
-
-# def driver_path():
-#     # try:
-#         # driver_path = ChromeDriverManager().install()
-#     # except Exception:
-#     driver_path = r"D:\RFA\Company-Financial\go-app\py\chromedriver-win32\chromedriver.exe"
-#     return driver_path
-
-# def create_driver():
-
-#     CHROMIUM_BINARY = r"C:\Users\aliheyd\AppData\Local\Chromium\Application\chrome.exe"
-#     options = webdriver.ChromeOptions()
-#     options.binary_location = CHROMIUM_BINARY
-
-#     options.add_argument("--disable-gpu")
-#     options.add_argument("--no-sandbox")
-#     options.add_argument("--disable-dev-shm-usage")
-
-#     return webdriver.Chrome(options=options)
-
-# # --------------------- MAIN FUNCTION ---------------------
-# def main_scraper2(companyName, rowMeta, base_url, page_numbers, table_name):
-#     base_url = base_url.replace("&PageNumber=1", "")
-#     inserted_any = False
-#     # options = webdriver.ChromeOptions()
-#     # # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-#     # service = Service(driver_path())
-#     # driver = webdriver.Chrome(service=service, options=options)
-    
-#     driver = create_driver()
-
-
-#     all_data = []
-#     flag = True  # Add headers only once
-
-#     for page in page_numbers:
-#         current_url = f"{base_url}&PageNumber={page}"
-#         logging.info(f"🌐 Opening page: {current_url}")
-
-#         try:
-#             driver.get(current_url)
-#         except Exception as e:
-#             logging.error(f"❌ Page load timeout or error: {e}")
-#             continue
-
-#         try:
-#             WebDriverWait(driver, 20).until(
-#                 EC.presence_of_element_located((By.CLASS_NAME, "scrollContent"))
-#             )
-#             time.sleep(3)
-#         except Exception as e:
-#             logging.warning(f"⚠️ Table not found on page {page}: {e}")
-#             continue
-
-#         # Extract report links
-#         rows = driver.find_elements(By.CSS_SELECTOR, "tbody.scrollContent tr")
-#         report_links = []
-#         for row in rows[:rowMeta]:
-#             try:
-#                 link_element = row.find_element(By.CSS_SELECTOR, "td:nth-child(4) a")
-#                 report_links.append(link_element.get_attribute("href"))
-#             except:
-#                 continue
-
-#         logging.info(f"✅ Found {len(report_links)} report links on page {page}")
-
-#         for link in report_links:
-#             try:
-#                 driver.get(link)
-#                 logging.info(f"🔍 Scraping report: {link}")
-
-#                 WebDriverWait(driver, 20).until(
-#                     EC.presence_of_element_located((By.CLASS_NAME, "rayanDynamicStatement"))
-#                 )
-#                 time.sleep(2)
-
-#                 # Parse date
-#                 try:
-#                     date_element = driver.find_element(By.ID, "ctl00_lblPeriodEndToDate")
-#                     report_date = date_element.text.strip()
-#                     report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
-#                     min_date = jdatetime.date(1399, 1, 30)
-#                     if report_jdate <= min_date:
-#                         logging.info(f"⏩ Skipping old report {report_date}")
-#                         continue
-#                 except Exception as e:
-#                     logging.warning(f"⚠️ Could not parse report date: {e}")
-#                     continue
-
-#                 soup = BeautifulSoup(driver.page_source, 'html.parser')
-#                 table = soup.find('table', {'class': 'rayanDynamicStatement'})
-#                 if not table:
-#                     logging.warning(f"⚠️ No data table found for {link}")
-#                     continue
-
-#                 headers = [th.text.strip() for th in table.find_all('th')]
-#                 all_rows = table.find_all('tr')[1:]
-#                 first_row = [td.text.strip() for td in all_rows[0].find_all('td')] if all_rows else []
-
-#                 # Extract numeric values from last row
-#                 last_row = []
-#                 if len(all_rows) >= 3:
-#                     row2 = [td.text.strip() for td in all_rows[-1].find_all('td')]
-#                     for i in range(len(row2) - 1, 0, -1):
-#                         try:
-#                             num2 = to_number(row2[i])
-#                             if num2 > 0:
-#                                 last_row.append(num2)
-#                                 if len(last_row) == 3:
-#                                     break
-#                         except ValueError:
-#                             last_row.append(0)
-
-#                 max_cols = max(len(first_row), len(last_row))
-#                 headers = headers[3:max_cols + 2]
-
-#                 if flag:
-#                     all_data.append(["Report Date"] + headers + ["داخلی", "صادراتی", "مجموع تعدادی"])
-#                     flag = False
-
-#                 # Find sales values
-#                 dakheli_value = saderati_value = "0"
-#                 for tr in all_rows:
-#                     tds = tr.find_all('td')
-#                     if not tds:
-#                         continue
-#                     title = tds[0].get_text(strip=True)
-#                     if "جمع فروش داخلی" in title:
-#                         if len(tds) >= 15:
-#                             dakheli_value = tds[14].get_text(strip=True)
-#                     if "جمع فروش صادراتی" in title:
-#                         if len(tds) >= 15:
-#                             saderati_value = tds[14].get_text(strip=True)
-
-#                 dakheli_int = float(dakheli_value.replace(',', '').replace('٬', '') or "0")
-#                 saderati_int = float(saderati_value.replace(',', '').replace('٬', '') or "0")
-#                 total_value = dakheli_int + saderati_int
-
-#                 all_data.append(
-#                     [report_date] + last_row + [dakheli_value, saderati_value, str(total_value)]
-#                 )
-
-#                 # ---------- Save to SQL ----------
-#                 conn_str = (
-#                     f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};'
-#                     f'UID={username};PWD={password}'
-#                 )
-#                 conn = pyodbc.connect(conn_str)
-#                 cursor = conn.cursor()
-
-#                 cursor.execute(f'''
-#                     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='{table_name}' AND xtype='U')
-#                     CREATE TABLE {table_name} (
-#                         CompanyID NVARCHAR(50),
-#                         CompanyName NVARCHAR(50),
-#                         ReportDate NVARCHAR(50),
-#                         Value1 FLOAT,
-#                         Value2 FLOAT,
-#                         Value3 FLOAT,
-#                         Url VARCHAR(550),
-#                         PRIMARY KEY (CompanyID, ReportDate)
-#                     )
-#                 ''')
-#                 conn.commit()
-
-#                 company_id = generate_company_id(companyName)
-#                 calculated_values = last_row[0:3]
-
-#                 cursor.execute(f'''
-#                     SELECT COUNT(*) FROM {table_name}
-#                     WHERE CompanyID = ? AND ReportDate = ?
-#                 ''', company_id, report_date)
-#                 exists = cursor.fetchone()[0]
-
-#                 if not exists and all(isinstance(val, (float, int)) for val in calculated_values):
-#                     cursor.execute(f'''
-#                         INSERT INTO {table_name} (CompanyID, CompanyName, ReportDate, Value1, Value2, Value3, Url)
-#                         VALUES (?, ?, ?, ?, ?, ?, ?)
-#                     ''', company_id, companyName, report_date,
-#                         calculated_values[0], calculated_values[1], calculated_values[2], base_url)
-#                     conn.commit()
-
-#                 cursor.close()
-#                 conn.close()
-
-#                 logging.info(f"✅ Report {report_date} saved to SQL.")
-
-#             except Exception as e:
-#                 logging.exception(f"❌ Error scraping {link}: {e}")
-#                 continue
-
-#     driver.quit()
-#     logging.info("🎉 Scraping session completed.")
-
-
-# # MianSql2.py  (فقط بخش‌های تغییر کرده/اضافه شده)
-
-# # # ... import ها همون قبلی ...
-
-# # def main_scraper2_with_driver(driver, companyName, rowMeta, base_url, page_numbers, table_name):
-# #     base_url = base_url.replace("&PageNumber=1", "")
-# #     inserted_any = False
-
-# #     all_data = []
-# #     flag = True
-
-# #     for page in page_numbers:
-# #         current_url = f"{base_url}&PageNumber={page}"
-# #         logging.info(f"🌐 Opening page: {current_url}")
-
-# #         try:
-# #             driver.get(current_url)
-# #         except Exception as e:
-# #             logging.error(f"❌ Page load timeout or error: {e}")
-# #             continue
-
-# #         try:
-# #             WebDriverWait(driver, 20).until(
-# #                 EC.presence_of_element_located((By.CLASS_NAME, "scrollContent"))
-# #             )
-# #             time.sleep(3)
-# #         except Exception as e:
-# #             logging.warning(f"⚠️ Table not found on page {page}: {e}")
-# #             continue
-
-# #         rows = driver.find_elements(By.CSS_SELECTOR, "tbody.scrollContent tr")
-# #         report_links = []
-# #         for row in rows[:rowMeta]:
-# #             try:
-# #                 link_element = row.find_element(By.CSS_SELECTOR, "td:nth-child(4) a")
-# #                 report_links.append(link_element.get_attribute("href"))
-# #             except:
-# #                 continue
-
-# #         logging.info(f"✅ Found {len(report_links)} report links on page {page}")
-
-# #         for link in report_links:
-# #             try:
-# #                 driver.get(link)
-# #                 logging.info(f"🔍 Scraping report: {link}")
-
-# #                 WebDriverWait(driver, 20).until(
-# #                     EC.presence_of_element_located((By.CLASS_NAME, "rayanDynamicStatement"))
-# #                 )
-# #                 time.sleep(2)
-
-# #                 try:
-# #                     date_element = driver.find_element(By.ID, "ctl00_lblPeriodEndToDate")
-# #                     report_date = date_element.text.strip()
-# #                     report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
-# #                     min_date = jdatetime.date(1399, 1, 30)
-# #                     if report_jdate <= min_date:
-# #                         logging.info(f"⏩ Skipping old report {report_date}")
-# #                         continue
-# #                 except Exception as e:
-# #                     logging.warning(f"⚠️ Could not parse report date: {e}")
-# #                     continue
-
-# #                 soup = BeautifulSoup(driver.page_source, 'html.parser')
-# #                 table = soup.find('table', {'class': 'rayanDynamicStatement'})
-# #                 if not table:
-# #                     logging.warning(f"⚠️ No data table found for {link}")
-# #                     continue
-
-# #                 headers = [th.text.strip() for th in table.find_all('th')]
-# #                 all_rows = table.find_all('tr')[1:]
-# #                 first_row = [td.text.strip() for td in all_rows[0].find_all('td')] if all_rows else []
-
-# #                 last_row = []
-# #                 if len(all_rows) >= 3:
-# #                     row2 = [td.text.strip() for td in all_rows[-1].find_all('td')]
-# #                     for i in range(len(row2) - 1, 0, -1):
-# #                         try:
-# #                             num2 = to_number(row2[i])
-# #                             if num2 > 0:
-# #                                 last_row.append(num2)
-# #                                 if len(last_row) == 3:
-# #                                     break
-# #                         except ValueError:
-# #                             last_row.append(0)
-
-# #                 max_cols = max(len(first_row), len(last_row))
-# #                 headers = headers[3:max_cols + 2]
-
-# #                 if flag:
-# #                     all_data.append(["Report Date"] + headers + ["داخلی", "صادراتی", "مجموع تعدادی"])
-# #                     flag = False
-
-# #                 dakheli_value = saderati_value = "0"
-# #                 for tr in all_rows:
-# #                     tds = tr.find_all('td')
-# #                     if not tds:
-# #                         continue
-# #                     title = tds[0].get_text(strip=True)
-# #                     if "جمع فروش داخلی" in title:
-# #                         if len(tds) >= 15:
-# #                             dakheli_value = tds[14].get_text(strip=True)
-# #                     if "جمع فروش صادراتی" in title:
-# #                         if len(tds) >= 15:
-# #                             saderati_value = tds[14].get_text(strip=True)
-
-# #                 dakheli_int = float(dakheli_value.replace(',', '').replace('٬', '') or "0")
-# #                 saderati_int = float(saderati_value.replace(',', '').replace('٬', '') or "0")
-# #                 total_value = dakheli_int + saderati_int
-
-# #                 all_data.append(
-# #                     [report_date] + last_row + [dakheli_value, saderati_value, str(total_value)]
-# #                 )
-
-# #                 conn_str = (
-# #                     f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};'
-# #                     f'UID={username};PWD={password}'
-# #                 )
-# #                 conn = pyodbc.connect(conn_str)
-# #                 cursor = conn.cursor()
-
-# #                 cursor.execute(f'''
-# #                     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='{table_name}' AND xtype='U')
-# #                     CREATE TABLE {table_name} (
-# #                         CompanyID NVARCHAR(50),
-# #                         CompanyName NVARCHAR(50),
-# #                         ReportDate NVARCHAR(50),
-# #                         Value1 FLOAT,
-# #                         Value2 FLOAT,
-# #                         Value3 FLOAT,
-# #                         Url VARCHAR(550),
-# #                         PRIMARY KEY (CompanyID, ReportDate)
-# #                     )
-# #                 ''')
-# #                 conn.commit()
-
-# #                 company_id = generate_company_id(companyName)
-# #                 calculated_values = last_row[0:3]
-
-# #                 cursor.execute(f'''
-# #                     SELECT COUNT(*) FROM {table_name}
-# #                     WHERE CompanyID = ? AND ReportDate = ?
-# #                 ''', company_id, report_date)
-# #                 exists = cursor.fetchone()[0]
-
-# #                 if not exists and all(isinstance(val, (float, int)) for val in calculated_values):
-# #                     cursor.execute(f'''
-# #                         INSERT INTO {table_name} (CompanyID, CompanyName, ReportDate, Value1, Value2, Value3, Url)
-# #                         VALUES (?, ?, ?, ?, ?, ?, ?)
-# #                     ''', company_id, companyName, report_date,
-# #                         calculated_values[0], calculated_values[1], calculated_values[2], base_url)
-# #                     conn.commit()
-# #                     inserted_any = True
-
-# #                 cursor.close()
-# #                 conn.close()
-
-# #                 logging.info(f"✅ Report {report_date} saved to SQL.")
-
-# #             except Exception as e:
-# #                 logging.exception(f"❌ Error scraping {link}: {e}")
-# #                 continue
-
-# #     return inserted_any
-
-
-# # # اگر میخوای سازگاری قبلی هم حفظ بشه:
-# # def main_scraper2(companyName, rowMeta, base_url, page_numbers, table_name):
-# #     options = webdriver.ChromeOptions()
-# #     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-# #     try:
-# #         return main_scraper2_with_driver(driver, companyName, rowMeta, base_url, page_numbers, table_name)
-# #     finally:
-# #         driver.quit()
-# #         logging.info("🎉 Scraping session completed.")
-
 import os
 import re
 import sys
@@ -450,6 +38,12 @@ CHROMIUM_PROFILE_DIR = r"D:\rfa\Company-Financial\go-app\py\chromium-profile"
 
 
 # --------------------- Helpers ---------------------
+PERSIAN_ARABIC_DIGITS = str.maketrans(
+    "۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩",
+    "01234567890123456789"
+)
+
+
 def generate_company_id(name):
     return hashlib.md5(name.encode("utf-8")).hexdigest()
 
@@ -462,7 +56,10 @@ def normalize_text(text):
         str(text)
         .strip()
         .replace("\u200c", "")
-        .replace("\xa0", "")
+        .replace("\u200e", "")
+        .replace("\u200f", "")
+        .replace("\ufeff", "")
+        .replace("\xa0", " ")
         .replace("ي", "ی")
         .replace("ك", "ک")
     )
@@ -470,16 +67,19 @@ def normalize_text(text):
 
 def to_number(s):
     if s is None:
-        return 0
+        return 0.0
 
-    s = str(s)
+    s = normalize_text(s).translate(PERSIAN_ARABIC_DIGITS)
     s = s.replace(",", "").replace("٬", "")
     s = re.sub(r"[^\d\.\-\(\)]", "", s)
 
-    if re.match(r"^\(\d+(\.\d+)?\)$", s):
-        s = "-" + s.strip("()")
+    if re.fullmatch(r"\(\d+(?:\.\d+)?\)", s):
+        s = "-" + s[1:-1]
 
-    return float(s) if s else 0
+    try:
+        return float(s) if s else 0.0
+    except ValueError:
+        return 0.0
 
 
 def safe_sql_identifier(name):
@@ -626,11 +226,11 @@ def parse_report_table(page, link):
         report_date = page.locator("#ctl00_lblPeriodEndToDate").inner_text(timeout=10000).strip()
 
         report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
-        min_date = jdatetime.date(1399, 1, 30)
+        # min_date = jdatetime.date(1399, 1, 30)
 
-        if report_jdate <= min_date:
-            logging.info(f"⏩ Skipping old report {report_date}")
-            return None
+        # if report_jdate <= min_date:
+        #     logging.info(f"⏩ Skipping old report {report_date}")
+        #     return None
 
     except Exception as e:
         logging.warning(f"⚠️ Could not parse report date: {e}")
@@ -638,14 +238,14 @@ def parse_report_table(page, link):
 
     # --------------------- Parse HTML Table ---------------------
     soup = BeautifulSoup(page.content(), "html.parser")
-    table = soup.find("table", {"class": "rayanDynamicStatement"})
+    table = find_supported_statement_table(soup)
 
     if not table:
-        logging.warning(f"⚠️ No data table found for {link}")
+        logging.warning(f"⚠️ No supported data table found for {link}")
         return None
 
-    headers = [th.get_text(strip=True) for th in table.find_all("th")]
-    all_rows = table.find_all("tr")[1:]
+    headers = [th.get_text(" ", strip=True) for th in table.select("thead th")]
+    all_rows = table.select("tbody tr")
 
     first_row = []
     if all_rows:
@@ -669,6 +269,13 @@ def parse_report_table(page, link):
 
             except ValueError:
                 last_row.append(0)
+    monthly_values = extract_one_month_values(table)
+
+    if len(monthly_values) != 3:
+        logging.warning(
+            f"⚠️ Could not extract one-month values for {link}"
+        )
+        return None
 
     max_cols = max(len(first_row), len(last_row))
     headers = headers[3:max_cols + 2]
@@ -705,27 +312,48 @@ def parse_report_table(page, link):
 
     total_value = dakheli_int + saderati_int
 
+    # در جدول خدمات، ردیف‌های فروش داخلی/صادراتی وجود ندارند.
+    if total_value == 0 and monthly_values[2] != 0:
+        total_value = monthly_values[2]
+
+    logging.info(f"ℹ️ total_value={total_value}")
+
     return {
         "report_date": report_date,
         "headers": headers,
-        "last_row": last_row,
+        "monthly_values": monthly_values,
         "dakheli_value": dakheli_value,
         "saderati_value": saderati_value,
         "total_value": total_value,
     }
 
 
-def save_report_to_sql(company_name, report_date, last_row, base_url, table_name):
+def save_report_to_sql(
+    company_name,
+    report_date,
+    monthly_values,
+    base_url,
+    table_name
+):
     table_name = safe_sql_identifier(table_name)
 
-    calculated_values = last_row[0:3]
+    calculated_values = monthly_values
 
-    if len(calculated_values) < 3:
-        logging.warning(f"⚠️ Not enough calculated values for {company_name} - {report_date}")
+    if len(calculated_values) != 3:
+        logging.warning(
+            f"⚠️ Invalid monthly values for "
+            f"{company_name} - {report_date}: {calculated_values}"
+        )
         return False
 
-    if not all(isinstance(val, (float, int)) for val in calculated_values):
-        logging.warning(f"⚠️ Invalid calculated values for {company_name} - {report_date}")
+    if not all(
+        isinstance(value, (float, int))
+        for value in calculated_values
+    ):
+        logging.warning(
+            f"⚠️ Non-numeric monthly values for "
+            f"{company_name} - {report_date}: {calculated_values}"
+        )
         return False
 
     conn = None
@@ -753,7 +381,9 @@ def save_report_to_sql(company_name, report_date, last_row, base_url, table_name
         exists = cursor.fetchone()[0]
 
         if exists:
-            logging.info(f"⏩ Already exists: {company_name} - {report_date}")
+            logging.info(
+                f"⏩ Already exists: {company_name} - {report_date}"
+            )
             return False
 
         cursor.execute(
@@ -772,24 +402,30 @@ def save_report_to_sql(company_name, report_date, last_row, base_url, table_name
             company_id,
             company_name,
             report_date,
-            calculated_values[0],
-            calculated_values[1],
-            calculated_values[2],
+            calculated_values[0],  # تعداد تولید یک‌ماهه؛ برای خدمات صفر
+            calculated_values[1],  # تعداد فروش یک‌ماهه؛ برای خدمات صفر
+            calculated_values[2],  # مبلغ فروش/درآمد شناسایی‌شده یک‌ماهه
             base_url
         )
 
         conn.commit()
 
-        logging.info(f"✅ Report {report_date} saved to SQL.")
+        logging.info(
+            f"✅ Monthly report {report_date} saved to SQL: "
+            f"{calculated_values}"
+        )
         return True
 
     except Exception as e:
-        logging.exception(f"❌ SQL error for {company_name} - {report_date}: {e}")
+        logging.exception(
+            f"❌ SQL error for {company_name} - {report_date}: {e}"
+        )
         return False
 
     finally:
         if cursor:
             cursor.close()
+
         if conn:
             conn.close()
 
@@ -843,27 +479,51 @@ def main_scraper2(companyName, rowMeta, base_url, page_numbers, table_name):
                         if not result:
                             continue
 
+                        monthly_values = result["monthly_values"]
                         report_date = result["report_date"]
-                        headers = result["headers"]
-                        last_row = result["last_row"]
+                        # headers = result["headers"]
+                        # last_row = result["last_row"]
                         dakheli_value = result["dakheli_value"]
                         saderati_value = result["saderati_value"]
                         total_value = result["total_value"]
 
+                        # if flag:
+                        #     all_data.append(
+                        #         ["Report Date"] + headers + ["داخلی", "صادراتی", "مجموع تعدادی"]
+                        #     )
+                        #     flag = False
                         if flag:
-                            all_data.append(
-                                ["Report Date"] + headers + ["داخلی", "صادراتی", "مجموع تعدادی"]
-                            )
+                            all_data.append([
+                                "Report Date",
+                                "تعداد تولید یک‌ماهه",
+                                "تعداد فروش یک‌ماهه",
+                                "مبلغ فروش یک‌ماهه",
+                                "داخلی",
+                                "صادراتی",
+                                "مجموع تعدادی",
+                            ])
                             flag = False
 
+                        # all_data.append(
+                        #     [report_date] + last_row + [dakheli_value, saderati_value, str(total_value)]
+                        # )
                         all_data.append(
-                            [report_date] + last_row + [dakheli_value, saderati_value, str(total_value)]
+                            [report_date]
+                            + monthly_values
+                            + [dakheli_value, saderati_value, total_value]
                         )
 
+                        # saved = save_report_to_sql(
+                        #     company_name=companyName,
+                        #     report_date=report_date,
+                        #     last_row=last_row,
+                        #     base_url=base_url,
+                        #     table_name=table_name,
+                        # )
                         saved = save_report_to_sql(
                             company_name=companyName,
                             report_date=report_date,
-                            last_row=last_row,
+                            monthly_values=monthly_values,
                             base_url=base_url,
                             table_name=table_name,
                         )
@@ -886,3 +546,350 @@ def main_scraper2(companyName, rowMeta, base_url, page_numbers, table_name):
         print(f"{companyName} finished but no new data saved")
 
     return inserted_any
+
+
+def normalize_header(text):
+    text = normalize_text(text)
+    text = text.translate(PERSIAN_ARABIC_DIGITS)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def is_one_month_header(text):
+    """
+    تشخیص هدرهایی مانند:
+    دوره یک ماهه منتهی به ...
+    دوره 1 ماهه منتهی به ...
+    """
+    text = normalize_header(text)
+
+    return bool(
+        re.search(r"دوره\s*(?:یک|1)\s*ماهه", text)
+    )
+
+
+def expand_data_cells(tr):
+    """
+    دریافت سلول‌های قابل مشاهده ردیف با درنظرگرفتن colspan.
+    """
+    expanded_cells = []
+
+    for td in tr.find_all("td", recursive=False):
+
+        # سلول مخفی نباید شماره ستون را جابه‌جا کند
+        if is_hidden_cell(td):
+            continue
+
+        try:
+            colspan = int(td.get("colspan", 1))
+        except (TypeError, ValueError):
+            colspan = 1
+
+        expanded_cells.extend([td] * colspan)
+
+    return expanded_cells
+
+
+# def find_total_cells(table):
+#     """آخرین ردیف جمع واقعی جدول را برمی‌گرداند."""
+#     for tr in reversed(table.select("tbody tr")):
+#         cells = expand_data_cells(tr)
+
+#         if not cells:
+#             continue
+
+#         title = normalize_header(cells[0].get_text(" ", strip=True))
+
+#         if title in {"جمع", "جمع کل", "مجموع"}:
+#             return cells
+
+#     return None
+
+def find_total_cells(table):
+    """آخرین ردیف جمع واقعی جدول را برمی‌گرداند."""
+
+    for tr in reversed(table.select("tbody tr")):
+        cells = expand_data_cells(tr)
+
+        if not cells:
+            continue
+
+        title = normalize_header(
+            cells[0].get_text(" ", strip=True)
+        )
+
+        is_total_row = (
+            title in {"جمع", "جمع کل", "مجموع"}
+            or bool(
+                re.fullmatch(
+                    r"جمع(?: کل)? درآمدهای? عملیاتی",
+                    title
+                )
+            )
+        )
+
+        if is_total_row:
+            logging.info(f"✅ Final total row found: {title}")
+            return cells
+
+    return None
+
+def find_supported_statement_table(soup):
+    """
+    از میان جدول‌های داینامیک، جدولی را انتخاب می‌کند که ستون دوره
+    یک‌ماهه فروش/تولید یا درآمد شناسایی‌شده داشته باشد.
+    """
+    tables = soup.select("table.rayanDynamicStatement")
+
+    for table in tables:
+        header_texts = [
+            normalize_header(th.get_text(" ", strip=True))
+            for th in table.select("thead th")
+            if not is_hidden_cell(th)
+        ]
+
+        has_one_month = any(is_one_month_header(text) for text in header_texts)
+        has_supported_metric = any(
+            any(keyword in text for keyword in (
+                "تعداد تولید",
+                "تعداد فروش",
+                "مبلغ فروش",
+                "درآمد",
+                "درامد",
+            ))
+            for text in header_texts
+        )
+
+        if has_one_month and has_supported_metric:
+            return table
+
+    # برای حفظ سازگاری با گزارش‌های قدیمی که متن هدر متفاوتی دارند.
+    return tables[0] if tables else None
+
+
+def extract_one_month_values(table):
+    """
+    خروجی سازگار با ساختار فعلی دیتابیس:
+
+    گزارش تولید/فروش:
+        [تعداد تولید یک‌ماهه، تعداد فروش یک‌ماهه، مبلغ فروش یک‌ماهه]
+
+    گزارش خدمات/درآمد:
+        [0، 0، درآمد شناسایی‌شده طی دوره یک‌ماهه]
+    """
+    header_grid = build_header_grid(table)
+
+    if not header_grid:
+        logging.warning("⚠️ Table header grid is empty.")
+        return []
+
+    max_columns = max(len(row) for row in header_grid)
+    one_month_columns = []
+
+    for column_index in range(max_columns):
+        column_headers = []
+
+        for header_row in header_grid:
+            if column_index >= len(header_row):
+                continue
+
+            header_text = header_row[column_index]
+
+            if header_text and header_text not in column_headers:
+                column_headers.append(header_text)
+
+        if any(is_one_month_header(header) for header in column_headers):
+            combined_header = normalize_header(" | ".join(column_headers))
+
+            one_month_columns.append({
+                "index": column_index,
+                "field": normalize_header(column_headers[-1]),
+                "combined": combined_header,
+                "headers": column_headers,
+            })
+
+    if not one_month_columns:
+        logging.warning("⚠️ One-month period header was not found.")
+        return []
+
+    logging.info(
+        "✅ One-month columns: %s",
+        [(item["index"], item["field"]) for item in one_month_columns]
+    )
+
+    total_cells = find_total_cells(table)
+
+    if total_cells is None:
+        logging.warning("⚠️ Final total row was not found.")
+        return []
+
+    # حالت قدیمی: جدول تولید و فروش محصول
+    product_indexes = {}
+
+    for item in one_month_columns:
+        header = item["combined"]
+        index = item["index"]
+
+        if "تعداد تولید" in header:
+            product_indexes["production"] = index
+        elif "تعداد فروش" in header:
+            product_indexes["sales_quantity"] = index
+        elif "مبلغ فروش" in header:
+            product_indexes["sales_amount"] = index
+
+    required_product_fields = {
+        "production",
+        "sales_quantity",
+        "sales_amount",
+    }
+
+    if required_product_fields.issubset(product_indexes):
+        selected_indexes = [
+            product_indexes["production"],
+            product_indexes["sales_quantity"],
+            product_indexes["sales_amount"],
+        ]
+
+        if max(selected_indexes) >= len(total_cells):
+            logging.warning(
+                "⚠️ Product one-month index is outside total row. "
+                f"Row cells={len(total_cells)}, indexes={selected_indexes}"
+            )
+            return []
+
+        monthly_values = [
+            to_number(total_cells[index].get_text(" ", strip=True))
+            for index in selected_indexes
+        ]
+
+        logging.info(
+            "✅ Product one-month values extracted: "
+            f"production={monthly_values[0]}, "
+            f"sales_quantity={monthly_values[1]}, "
+            f"sales_amount={monthly_values[2]}"
+        )
+        return monthly_values
+
+    # حالت جدید: جدول خدمات/فروش با ستون درآمد شناسایی‌شده طی یک ماه
+    revenue_candidates = [
+        item
+        for item in one_month_columns
+        if "درآمد" in item["combined"] or "درامد" in item["combined"]
+    ]
+
+    if revenue_candidates:
+        # هدر «طی دوره یک‌ماهه» نسبت به عبارات تجمعی اولویت دارد.
+        revenue_item = next(
+            (
+                item for item in revenue_candidates
+                if "طی دوره" in item["combined"]
+            ),
+            revenue_candidates[0],
+        )
+        revenue_index = revenue_item["index"]
+
+        if revenue_index >= len(total_cells):
+            logging.warning(
+                "⚠️ Revenue one-month index is outside total row. "
+                f"Row cells={len(total_cells)}, index={revenue_index}"
+            )
+            return []
+
+        one_month_revenue = to_number(
+            total_cells[revenue_index].get_text(" ", strip=True)
+        )
+        monthly_values = [0.0, 0.0, one_month_revenue]
+
+        logging.info(
+            "✅ Service one-month revenue extracted: "
+            f"revenue={one_month_revenue}"
+        )
+        return monthly_values
+
+    logging.warning(
+        "⚠️ One-month columns were found, but their metric type is unsupported: %s",
+        [item["combined"] for item in one_month_columns]
+    )
+    return []
+
+def is_hidden_cell(tag):
+    if tag.has_attr("hidden"):
+        return True
+
+    style = (tag.get("style") or "").replace(" ", "").lower()
+
+    return (
+        "display:none" in style
+        or "visibility:hidden" in style
+    )
+
+
+def build_header_grid(table):
+    """
+    ساخت ماتریس هدر فقط براساس ستون‌های قابل مشاهده.
+    ستون‌های hidden در محاسبه اندیس دخالت نمی‌کنند.
+    """
+    header_rows = table.select("thead tr")
+    grid = []
+
+    for row_index, tr in enumerate(header_rows):
+        while len(grid) <= row_index:
+            grid.append([])
+
+        column_index = 0
+
+        for th in tr.find_all("th", recursive=False):
+
+            # ستون‌های مخفی را کاملاً نادیده بگیر
+            if is_hidden_cell(th):
+                continue
+
+            while (
+                column_index < len(grid[row_index])
+                and grid[row_index][column_index] is not None
+            ):
+                column_index += 1
+
+            text = normalize_header(
+                th.get_text(" ", strip=True)
+            )
+
+            try:
+                colspan = int(th.get("colspan", 1))
+            except (TypeError, ValueError):
+                colspan = 1
+
+            try:
+                rowspan = int(th.get("rowspan", 1))
+            except (TypeError, ValueError):
+                rowspan = 1
+
+            for target_row in range(
+                row_index,
+                row_index + rowspan
+            ):
+                while len(grid) <= target_row:
+                    grid.append([])
+
+                required_length = column_index + colspan
+
+                if len(grid[target_row]) < required_length:
+                    grid[target_row].extend(
+                        [None] * (
+                            required_length
+                            - len(grid[target_row])
+                        )
+                    )
+
+                for target_column in range(
+                    column_index,
+                    column_index + colspan
+                ):
+                    grid[target_row][target_column] = text
+
+            column_index += colspan
+
+    return grid
+
+
+

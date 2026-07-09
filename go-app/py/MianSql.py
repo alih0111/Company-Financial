@@ -1,383 +1,28 @@
-# from selenium import webdriver
-# from selenium.webdriver.chrome.service import Service
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.support.ui import WebDriverWait
-# from selenium.webdriver.support import expected_conditions as EC
-# from bs4 import BeautifulSoup
-# from webdriver_manager.chrome import ChromeDriverManager
-# import time
-# import re
-# import pyodbc
-# import hashlib
-# import json
-# import jdatetime
-# from dotenv import load_dotenv
-# import os
-# from selenium.webdriver.support.ui import Select
-# import logging
-# from selenium import webdriver
-# from selenium.webdriver.chrome.service import Service
-# from pathlib import Path
-
-# load_dotenv()
-
-# server = os.getenv('DB_SERVER')
-# database = os.getenv('DB_NAME')
-# username = os.getenv('DB_USER')
-# password = os.getenv('DB_PASSWORD')
-
-# def generate_company_id(name):
-#     return hashlib.md5(name.encode('utf-8')).hexdigest()
-
-# def to_number(s):
-#     s = s.replace(',', '').replace('٬', '')
-#     s = re.sub(r'[^\d\.\-\(\)]', '', s)
-#     if re.match(r'^\(\d+(\.\d+)?\)$', s):
-#         s = '-' + s.strip('()')
-#     return float(s) if s else 0
-
-# def is_hidden_row(tr):
-#     tds = tr.find_all('td')
-#     return all(td.has_attr('hidden') for td in tds)
-
-# def driver_path():
-#     # try:
-#         # driver_path = ChromeDriverManager().install()
-#     # except Exception:
-#     driver_path = r"D:\RFA\Company-Financial\go-app\py\chromedriver-win32\chromedriver.exe"
-#     return driver_path
-    
-# CHROMIUM_BINARY = r"C:\Users\aliheyd\AppData\Local\Chromium\Application\chrome.exe"
-
-# CHROMEDRIVER_PATH = r"D:\rfa\Company-Financial\go-app\py\chromedriver-win32\chromedriver.exe"
-
-# def create_driver():
-#     chromium_path = Path(CHROMIUM_BINARY)
-#     driver_path = Path(CHROMEDRIVER_PATH)
-
-#     if not chromium_path.exists():
-#         raise FileNotFoundError(f"Chromium not found: {CHROMIUM_BINARY}")
-
-#     if not driver_path.exists():
-#         raise FileNotFoundError(f"ChromeDriver not found: {CHROMEDRIVER_PATH}")
-
-#     options = webdriver.ChromeOptions()
-#     options.binary_location = CHROMIUM_BINARY
-
-#     # برای اینکه از پروفایل Chrome اصلی استفاده نکند
-#     options.add_argument(r"--user-data-dir=D:\rfa\Company-Financial\go-app\py\chromium-profile")
-
-#     # اختیاری، برای پایداری بیشتر
-#     options.add_argument("--disable-gpu")
-#     options.add_argument("--disable-dev-shm-usage")
-#     options.add_argument("--no-first-run")
-#     options.add_argument("--no-default-browser-check")
-
-#     service = Service(CHROMEDRIVER_PATH)
-
-#     return webdriver.Chrome(service=service, options=options)
-    
-# def main_scraper(companyName, rowMeta, base_url, page_numbers, table_name):
-#     base_url = base_url.replace("&PageNumber=1", "")
-#     inserted_any = False
-#     # options = webdriver.ChromeOptions()
-#     # # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    
-#     # service = Service(driver_path())
-#     # driver = webdriver.Chrome(service=service, options=options)
-
-#     driver = create_driver()
-
-#     for page in page_numbers:
-#         current_url = f"{base_url}&PageNumber={page}"
-#         driver.get(current_url)
-#         print(f"Fetching data from page {page}...")
-
-#         try:
-#             WebDriverWait(driver, 20).until(
-#                 EC.presence_of_element_located((By.CLASS_NAME, "scrollContent"))
-#             )
-#             time.sleep(5)
-#         except:
-#             print(f"Table did not load on page {page}. Skipping...")
-#             continue
-
-#         rows = driver.find_elements(By.CSS_SELECTOR, "tbody.scrollContent tr")
-#         report_links = []
-#         for row in rows[:rowMeta]:
-#             try:
-#                 link_element = row.find_element(By.CSS_SELECTOR, "td:nth-child(4) a")
-#                 report_links.append(link_element.get_attribute("href"))
-#             except:
-#                 continue
-
-#         for link in report_links:
-#             try:
-#                 driver.get(link)
-#                 # logging.info(f"🔍 Scraping report: {link}")
-
-#                 # ✅ Ensure selectbox is set to "صورت سود و زیان"
-#                 # try:
-#                 #     select_element = WebDriverWait(driver, 10).until(
-#                 #         EC.presence_of_element_located((By.ID, "ctl00_ddlTable"))
-#                 #     )
-#                 #     select = Select(select_element)
-#                 #     selected_text = select.first_selected_option.text.strip()
-
-#                 #     if selected_text != "صورت سود و زیان":
-#                 #         select.select_by_visible_text("صورت سود و زیان")
-#                 #         # logging.info("🔁 Changed selectbox to 'صورت سود و زیان'")
-#                 #         WebDriverWait(driver, 10).until(
-#                 #             EC.presence_of_element_located((By.CLASS_NAME, "rayanDynamicStatement"))
-#                 #         )
-#                 #         time.sleep(2)
-#                 #     else:
-#                 #         c=1
-#                 #         # logging.info("✅ Selectbox already on 'صورت سود و زیان'")
-#                 # except Exception as e:
-#                 #     # logging.warning(f"⚠️ Could not change selectbox: {e}")
-#                 #     continue
-#                 # from selenium.webdriver.support.ui import Select
-
-#                 driver.get(link)
-#                 logging.info(f"🔍 Scraping report: {link}")
-
-#                 # ✅ Ensure selectbox is set to "صورت سود و زیان"
-#                 try:
-#                     # Try both possible IDs
-#                     possible_ids = ["ctl00_ddlTable", "ddlTable"]
-#                     select_element = None
-
-#                     for sel_id in possible_ids:
-#                         try:
-#                             select_element = WebDriverWait(driver, 5).until(
-#                                 EC.presence_of_element_located((By.ID, sel_id))
-#                             )
-#                             logging.info(f"✅ Found selectbox with ID: {sel_id}")
-#                             break
-#                         except Exception:
-#                             continue
-
-#                     if not select_element:
-#                         raise Exception("No selectbox found with IDs ctl00_ddlTable or ddlTable")
-
-#                     # Wrap in Selenium Select object
-#                     select = Select(select_element)
-
-#                     # Clean and normalize text (trim spaces, invisible chars)
-#                     selected_text = select.first_selected_option.text.strip().replace("\u200c", "").replace("\xa0", "")
-#                     target_text = "صورت سود و زیان"
-#                     # Compare normalized texts
-#                     if selected_text != target_text and selected_text != 'صورت سود و زیان تلفیقی':
-#                         # Find and select the correct option — ignoring any invisible chars/spaces
-#                         matched = False
-#                         for option in select.options:
-#                             opt_text = option.text.strip().replace("\u200c", "").replace("\xa0", "")
-#                             if opt_text == target_text:
-#                                 option.click()  # safer than select_by_visible_text for mixed whitespace
-#                                 matched = True
-#                                 logging.info("🔁 Changed selectbox to 'صورت سود و زیان'")
-#                                 break
-
-#                         if not matched:
-#                             raise Exception("Option 'صورت سود و زیان' not found in dropdown")
-
-#                         # Wait for postback / reload after changing select
-#                         WebDriverWait(driver, 15).until(
-#                             EC.presence_of_element_located((By.CLASS_NAME, "rayanDynamicStatement"))
-#                         )
-#                         time.sleep(2)
-#                     else:
-#                         logging.info("✅ Selectbox already on 'صورت سود و زیان'")
-
-#                 except Exception as e:
-#                     logging.warning(f"⚠️ Could not change selectbox: {e}")
-#                     continue
-
-
-#                 WebDriverWait(driver, 15).until(
-#                     lambda d: d.execute_script(
-#                         "return window.getAllAngularTestabilities && window.getAllAngularTestabilities().every(t => t.isStable())"
-#                     )
-#                 )
-#                 WebDriverWait(driver, 10).until(
-#                     EC.presence_of_element_located((By.CLASS_NAME, "rayanDynamicStatement"))
-#                 )
-
-#                 date_element = driver.find_element(By.ID, "ctl00_lblPeriodEndToDate")
-#                 report_date = date_element.text.strip()
-#                 try:
-#                     report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
-#                     min_date = jdatetime.date(1397, 12, 29)
-#                     if report_jdate <= min_date:
-#                         continue
-#                 except:
-#                     continue
-
-#                 soup = BeautifulSoup(driver.page_source, 'html.parser')
-#                 table = soup.find('table', {'class': 'rayanDynamicStatement'})
-#                 if not table:
-#                     continue
-
-#                 all_rows = table.find_all('tr')[1:]
-#                 # if len(all_rows) < 3:
-#                 #     continue
-
-#                 # row1 = [td.text.strip() for td in all_rows[-2].find_all('td')]
-#                 # row2 = [td.text.strip() for td in all_rows[-1].find_all('td')]
-                
-
-#                 valid_rows = [tr for tr in all_rows if not is_hidden_row(tr)]
-
-#                 if len(valid_rows) < 2:
-#                     continue
-
-#                 row1 = [td.text.strip() for td in valid_rows[-2].find_all('td')]
-#                 row2 = [td.text.strip() for td in valid_rows[-1].find_all('td')]
-#                 row3 = [td.text.strip() for td in valid_rows[3].find_all('td')]     
-#                 row4 = [td.text.strip() for td in valid_rows[-7].find_all('td')]  
-
-#                 sayer = [td.text.strip() for td in valid_rows[6].find_all('td')]
-#                 sayerGheir = [td.text.strip() for td in valid_rows[10].find_all('td')]  
-#                 print("sayerGheir[0]: ",sayer[0])        
-#                 Amaliati = 1
-#                 if(sayer[0] != "ساير درآمدها" ):
-#                     Amaliati= 0
-#                 print("Amaliati: ",Amaliati)        
-
-#                 OperatingProfitNew= to_number(sayer[1])+to_number(sayerGheir[1])
-
-#                 min_len = min(len(row4), len(row2))
-
-#                 last_row_num1 = []
-#                 last_row_num2 = []
-#                 last_row_num4 = []
-#                 last_row_product = []                
-
-#                 for i in range(1, min_len):
-#                     try:
-#                         num1 = to_number(row1[i])
-#                         num2 = to_number(row2[i])
-#                         num4 = to_number(row4[i])
-#                         # num1 = num4 if (num1 is None or num1 == 0) else num1
-#                         # OperatingProfitNew = to_number(row3[1])
-#                         last_row_num1.append(num1)
-#                         last_row_num2.append(num2)
-#                         last_row_num4.append(num4)
-#                         last_row_product.append(num1 * num2)
-#                         OperatingProfitNew = to_number(OperatingProfitNew)/last_row_product[1]
-#                     except:
-#                         last_row_num1.append(0)
-#                         last_row_num2.append(0)
-#                         last_row_num4.append(0)
-#                         last_row_product.append(0)
-
-#                 if(last_row_num1[0]==0):
-#                     values_to_insert = (
-#                         last_row_num1[1], last_row_num2[1], last_row_num4[1], last_row_product[1],
-#                         last_row_num1[2], last_row_num2[2], last_row_num4[2], last_row_product[2],
-#                         last_row_num1[3], last_row_num2[3], last_row_num4[3], last_row_product[3]
-#                     )
-#                     OperatingProfitNew = OperatingProfitNew/last_row_product[1]*100000
-#                 else:
-#                     values_to_insert = (
-#                         last_row_num1[0], last_row_num2[0], last_row_num4[0], last_row_product[0],
-#                         last_row_num1[1], last_row_num2[1], last_row_num4[1], last_row_product[1],
-#                         last_row_num1[2], last_row_num2[2], last_row_num4[2], last_row_product[2]
-#                     )
-                    
-#                     OperatingProfitNew = OperatingProfitNew/last_row_product[0]*100000
-
-#                 if(Amaliati==0):
-#                     OperatingProfitNew=-1
-
-#                 conn_str = (
-#                     f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};'
-#                     f'UID={username};PWD={password}'
-#                 )
-
-#                 conn = pyodbc.connect(conn_str)
-#                 cursor = conn.cursor()
-
-#                 cursor.execute(f'''
-#                     IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='{table_name}' AND xtype='U')
-#                     CREATE TABLE {table_name} (
-#                         CompanyID NVARCHAR(50),
-#                         CompanyName NVARCHAR(50),
-#                         ReportDate NVARCHAR(50),
-#                         Num1_Value1 FLOAT,
-#                         Num2_Value1 FLOAT,
-#                         Num4_Value1 FLOAT,
-#                         Product1 FLOAT,
-#                         Num1_Value2 FLOAT,
-#                         Num4_Value2 FLOAT,
-#                         Num2_Value2 FLOAT,
-#                         Product2 FLOAT,
-#                         Num1_Value3 FLOAT,
-#                         Num2_Value3 FLOAT,
-#                         Num4_Value3 FLOAT,
-#                         Product3 FLOAT,
-#                         Url VARCHAR(550),
-#                         PRIMARY KEY (CompanyID, ReportDate)
-#                     )
-#                 ''')
-#                 conn.commit()
-
-#                 company_id = generate_company_id(companyName)
-#                 cursor.execute(f'SELECT COUNT(*) FROM {table_name} WHERE CompanyID = ? AND ReportDate = ?', company_id, report_date)
-#                 exists = cursor.fetchone()[0]
-
-#                 if not exists:
-#                     cursor.execute(f'''
-#                         INSERT INTO {table_name} (
-#                             CompanyID, CompanyName, ReportDate,
-#                             Num1_Value1, Num2_Value1, Num4_Value1, Product1,
-#                             Num1_Value2, Num2_Value2, Num4_Value2, Product2,
-#                             Num1_Value3, Num2_Value3, Num4_Value3, Product3,
-#                             OperatingProfitNew, OperatingProfitLastYear,
-#                             Url
-#                         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-#                     ''', company_id, companyName, report_date, *values_to_insert, OperatingProfitNew, 100, base_url)
-#                     conn.commit()
-#                     inserted_any = True 
-
-#                 cursor.close()
-#                 conn.close()
-
-#             except Exception as e:
-#                 print(f"Error: {e}")
-#                 continue
-
-#     driver.quit()
-
-#     if inserted_any:
-#         print(f"{companyName} scraping and saving successful")  # ✅ used by Go to detect success
-#     else:
-#         print(f"{companyName} finished but no new data saved")  # optional
-
-
-
 import os
 import re
 import hashlib
 import logging
 import sys
 from pathlib import Path
+from urllib.parse import urljoin
 
 import pyodbc
 import jdatetime
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
-from urllib.parse import urljoin
+from playwright.sync_api import (
+    sync_playwright,
+    TimeoutError as PlaywrightTimeoutError,
+)
 
 
 # --------------------- Logging Setup ---------------------
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    handlers=[logging.StreamHandler(sys.stdout)],
 )
+
 
 # --------------------- Load Environment ---------------------
 load_dotenv()
@@ -387,11 +32,28 @@ database = os.getenv("DB_NAME")
 username = os.getenv("DB_USER")
 password = os.getenv("DB_PASSWORD")
 
+
 # مسیر Chromium خودت
-CHROMIUM_BINARY = r"C:\Users\aliheyd\AppData\Local\Chromium\Application\chrome.exe"
+CHROMIUM_BINARY = (
+    r"C:\Users\aliheyd\AppData\Local\Chromium\Application\chrome.exe"
+)
 
 # پروفایل جدا برای Chromium، نه Chrome اصلی سیستم
-CHROMIUM_PROFILE_DIR = r"D:\rfa\Company-Financial\go-app\py\chromium-profile"
+CHROMIUM_PROFILE_DIR = (
+    r"D:\rfa\Company-Financial\go-app\py\chromium-profile"
+)
+
+
+PERSIAN_ARABIC_DIGITS = str.maketrans(
+    "۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩",
+    "01234567890123456789",
+)
+
+INVISIBLE_CHARS_RE = re.compile(
+    r"[\u200b\u200c\u200d\u200e\u200f\u202a-\u202e\u2066-\u2069\ufeff]"
+)
+
+DATE_RE = re.compile(r"(?:13|14)\d{2}/\d{1,2}/\d{1,2}")
 
 
 # --------------------- Helpers ---------------------
@@ -403,48 +65,536 @@ def normalize_text(text):
     if text is None:
         return ""
 
+    text = str(text).translate(PERSIAN_ARABIC_DIGITS)
+    text = INVISIBLE_CHARS_RE.sub("", text)
+
     return (
-        str(text)
-        .strip()
-        .replace("\u200c", "")
-        .replace("\xa0", "")
+        text.strip()
+        .replace("\xa0", " ")
         .replace("ي", "ی")
+        .replace("ى", "ی")
         .replace("ك", "ک")
+        .replace("ۀ", "ه")
     )
 
 
-def to_number(s):
-    if s is None:
-        return 0
-
-    s = str(s)
-    s = s.replace(",", "").replace("٬", "")
-    s = re.sub(r"[^\d\.\-\(\)]", "", s)
-
-    if re.match(r"^\(\d+(\.\d+)?\)$", s):
-        s = "-" + s.strip("()")
-
-    return float(s) if s else 0
+def normalize_label(text):
+    """
+    متن عنوان ردیف را برای مقایسه پایدار می‌کند.
+    تفاوت فاصله، نیم‌فاصله، پرانتز، خط تیره و حروف عربی نادیده گرفته می‌شود.
+    """
+    text = normalize_text(text).lower()
+    text = text.replace("ؤ", "و").replace("إ", "ا").replace("أ", "ا")
+    text = re.sub(r"[()\[\]{}:؛،,.%٪/\\ـ_\-–—]+", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
 
 
-def is_hidden_row(tr):
-    tds = tr.find_all("td")
-    if not tds:
-        return False
-    return all(td.has_attr("hidden") for td in tds)
+def to_number(value):
+    if value is None:
+        return 0.0
 
+    text = normalize_text(value)
+    text = text.replace(",", "").replace("٬", "")
+    text = text.replace("−", "-").replace("–", "-").replace("—", "-")
+    text = text.strip()
 
-def get_row_cells(row):
-    if not row:
-        return []
-    return [td.get_text(strip=True) for td in row.find_all("td")]
+    if text in {"", "-", "--", "---"}:
+        return 0.0
 
+    is_parenthesized_negative = bool(
+        re.fullmatch(r"\(\s*[+-]?\d+(?:\.\d+)?\s*\)", text)
+    )
 
-def cell(row, index, default="0"):
+    cleaned = re.sub(r"[^\d.\-+()]", "", text)
+
+    if is_parenthesized_negative:
+        cleaned = "-" + cleaned.strip("() +-")
+    else:
+        cleaned = cleaned.replace("(", "").replace(")", "")
+
+    if cleaned in {"", "+", "-", "."}:
+        return 0.0
+
     try:
-        return row[index]
-    except Exception:
-        return default
+        return float(cleaned)
+    except ValueError:
+        logging.warning("⚠️ Could not convert value to number: %r", value)
+        return 0.0
+
+
+def is_hidden_cell(tag):
+    if tag is None:
+        return False
+
+    if tag.has_attr("hidden"):
+        return True
+
+    aria_hidden = normalize_text(tag.get("aria-hidden", "")).lower()
+    if aria_hidden == "true":
+        return True
+
+    style = (tag.get("style") or "").replace(" ", "").lower()
+
+    return (
+        "display:none" in style
+        or "visibility:hidden" in style
+        or "opacity:0" in style
+    )
+
+
+def visible_direct_cells(row, cell_name="td"):
+    if row is None:
+        return []
+
+    return [
+        cell
+        for cell in row.find_all(cell_name, recursive=False)
+        if not is_hidden_cell(cell)
+    ]
+
+
+def expand_visible_cells(row, cell_name="td"):
+    """
+    سلول‌های قابل مشاهده را با لحاظ colspan توسعه می‌دهد تا اندیس سلول
+    دقیقاً با اندیس ستون هدر یکسان باشد.
+    """
+    expanded = []
+
+    for cell_tag in visible_direct_cells(row, cell_name):
+        try:
+            colspan = max(1, int(cell_tag.get("colspan", 1)))
+        except (TypeError, ValueError):
+            colspan = 1
+
+        expanded.extend([cell_tag] * colspan)
+
+    return expanded
+
+
+def build_header_grid(table):
+    """
+    هدرهای rowspan/colspan را به یک ماتریس ستونی تبدیل می‌کند.
+    ستون‌های hidden وارد ماتریس نمی‌شوند.
+    """
+    header_rows = table.select("thead tr")
+    grid = []
+
+    for row_index, tr in enumerate(header_rows):
+        while len(grid) <= row_index:
+            grid.append([])
+
+        column_index = 0
+
+        for th in visible_direct_cells(tr, "th"):
+            while (
+                column_index < len(grid[row_index])
+                and grid[row_index][column_index] is not None
+            ):
+                column_index += 1
+
+            text = normalize_text(th.get_text(" ", strip=True))
+
+            try:
+                colspan = max(1, int(th.get("colspan", 1)))
+            except (TypeError, ValueError):
+                colspan = 1
+
+            try:
+                rowspan = max(1, int(th.get("rowspan", 1)))
+            except (TypeError, ValueError):
+                rowspan = 1
+
+            for target_row in range(row_index, row_index + rowspan):
+                while len(grid) <= target_row:
+                    grid.append([])
+
+                required_length = column_index + colspan
+                if len(grid[target_row]) < required_length:
+                    grid[target_row].extend(
+                        [None] * (required_length - len(grid[target_row]))
+                    )
+
+                for target_column in range(
+                    column_index,
+                    column_index + colspan,
+                ):
+                    grid[target_row][target_column] = text
+
+            column_index += colspan
+
+    return grid
+
+
+def get_column_headers(table):
+    grid = build_header_grid(table)
+    if not grid:
+        return []
+
+    max_columns = max(len(row) for row in grid)
+    columns = []
+
+    for column_index in range(max_columns):
+        parts = []
+
+        for header_row in grid:
+            if column_index >= len(header_row):
+                continue
+
+            value = header_row[column_index]
+            if value and value not in parts:
+                parts.append(value)
+
+        columns.append(
+            {
+                "index": column_index,
+                "parts": parts,
+                "text": normalize_label(" ".join(parts)),
+            }
+        )
+
+    return columns
+
+
+def get_period_columns(table):
+    """
+    ستون‌های واقعی دوره را برمی‌گرداند و ستون «شرح»، «درصد تغییر» و
+    ستون‌های hidden را حذف می‌کند.
+    """
+    columns = get_column_headers(table)
+    period_columns = []
+
+    for column in columns:
+        text = column["text"]
+        raw_text = " ".join(column["parts"])
+
+        if column["index"] == 0 or text == "شرح":
+            continue
+
+        if "درصد تغییر" in text:
+            continue
+
+        if DATE_RE.search(normalize_text(raw_text)) or "دوره منتهی" in text:
+            period_columns.append(column)
+
+    # بعضی نسخه‌ها در هدر فقط وضعیت حسابرسی را نمایش می‌دهند.
+    # در این حالت همه ستون‌های بین «شرح» و «درصد تغییر» دوره محسوب می‌شوند.
+    if not period_columns:
+        for column in columns:
+            text = column["text"]
+
+            if column["index"] == 0 or text == "شرح":
+                continue
+
+            if "درصد تغییر" in text:
+                continue
+
+            period_columns.append(column)
+
+    period_columns.sort(key=lambda item: item["index"])
+    return period_columns
+
+
+def get_table_rows(table):
+    rows = []
+
+    for tr in table.select("tbody tr"):
+        cells = expand_visible_cells(tr, "td")
+        if not cells:
+            continue
+
+        title = normalize_label(cells[0].get_text(" ", strip=True))
+        if not title:
+            continue
+
+        rows.append(
+            {
+                "title": title,
+                "raw_title": normalize_text(cells[0].get_text(" ", strip=True)),
+                "cells": cells,
+                "tr": tr,
+            }
+        )
+
+    return rows
+
+
+def row_has_numeric_data(row, column_indexes=None):
+    if row is None:
+        return False
+
+    cells = row["cells"]
+    indexes = column_indexes or range(1, len(cells))
+
+    for index in indexes:
+        if index >= len(cells):
+            continue
+
+        text = normalize_text(cells[index].get_text(" ", strip=True))
+        if re.search(r"[0-9۰-۹٠-٩]", text):
+            return True
+
+    return False
+
+
+def find_row(
+    rows,
+    exact_titles=(),
+    contains_all=(),
+    excludes=(),
+    column_indexes=None,
+):
+    exact_titles = {normalize_label(title) for title in exact_titles}
+    contains_all = tuple(normalize_label(part) for part in contains_all)
+    excludes = tuple(normalize_label(part) for part in excludes)
+
+    exact_matches = []
+    partial_matches = []
+
+    for row in rows:
+        title = row["title"]
+
+        if any(excluded and excluded in title for excluded in excludes):
+            continue
+
+        if not row_has_numeric_data(row, column_indexes):
+            continue
+
+        if title in exact_titles:
+            exact_matches.append(row)
+            continue
+
+        if contains_all and all(part in title for part in contains_all):
+            partial_matches.append(row)
+
+    if exact_matches:
+        return exact_matches[0]
+
+    if partial_matches:
+        return partial_matches[0]
+
+    return None
+
+
+def value_from_row(row, column_index):
+    if row is None or column_index is None:
+        return 0.0
+
+    cells = row["cells"]
+    if column_index >= len(cells):
+        return 0.0
+
+    return to_number(cells[column_index].get_text(" ", strip=True))
+
+
+def find_profit_loss_table(soup):
+    """
+    در صفحه‌هایی که چند جدول دارند، جدولی را انتخاب می‌کند که بیشترین
+    نشانه‌های صورت سود و زیان را داشته باشد.
+    """
+    candidates = soup.select("table.rayanDynamicStatement")
+    best_table = None
+    best_score = -1
+
+    required_markers = (
+        "درآمدهای عملیاتی",
+        "سود زیان ناخالص",
+        "سود زیان عملیاتی",
+        "سود زیان خالص",
+        "سرمایه",
+    )
+
+    for table in candidates:
+        table_text = normalize_label(table.get_text(" ", strip=True))
+        score = sum(
+            1
+            for marker in required_markers
+            if normalize_label(marker) in table_text
+        )
+
+        if score > best_score:
+            best_score = score
+            best_table = table
+
+    if best_score < 2:
+        return None
+
+    return best_table
+
+
+def extract_report_date_from_table(table):
+    period_columns = get_period_columns(table)
+    if not period_columns:
+        return None
+
+    first_header = " ".join(period_columns[0]["parts"])
+    match = DATE_RE.search(normalize_text(first_header))
+    return match.group(0) if match else None
+
+
+def extract_profit_loss_values(table):
+    """
+    خروجی سازگار با ساختار فعلی SQL:
+
+    Num1 = سود/زیان خالص هر سهم - ریال
+    Num2 = سرمایه
+    Num4 = سود/زیان عملیاتی هر سهم - ریال
+    Product = Num1 * Num2
+
+    Value1/2/3 به ترتیب سه ستون دوره‌ای قابل مشاهده جدول هستند.
+
+    OperatingProfitNew = سود/زیان عملیاتی دوره جاری
+    OperatingProfitLastYear = سود/زیان عملیاتی دوره مقایسه‌ای سال قبل
+    """
+    period_columns = get_period_columns(table)
+
+    # if len(period_columns) < 3:
+    #     logging.warning(
+    #         "⚠️ Expected at least 3 period columns, found %s: %s",
+    #         len(period_columns),
+    #         [column["parts"] for column in period_columns],
+    #     )
+    #     return None
+    if len(period_columns) < 2:
+        logging.warning(
+            "⚠️ Expected at least 2 period columns, found %s: %s",
+            len(period_columns),
+            [column["parts"] for column in period_columns],
+        )
+        return None
+
+    # period_columns = period_columns[:3]
+    # فقط سه دوره اصلی ذخیره می‌شوند؛ ستون درصد تغییر قبلاً حذف شده است.
+    period_columns = period_columns[:3]
+    period_indexes = [column["index"] for column in period_columns]
+
+    rows = get_table_rows(table)
+
+    net_eps_row = find_row(
+        rows,
+        exact_titles=(
+            "سود (زیان) خالص هر سهم - ریال",
+            "سود (زیان) خالص هر سهم– ریال",
+            "سود زیان خالص هر سهم ریال",
+        ),
+        contains_all=("سود", "زیان", "خالص", "هر سهم", "ریال"),
+        excludes=("درصد",),
+        column_indexes=period_indexes,
+    )
+
+    # در برخی گزارش‌ها ردیف «خالص هر سهم» وجود ندارد؛ ردیف پایه fallback است.
+    if net_eps_row is None:
+        net_eps_row = find_row(
+            rows,
+            exact_titles=("سود (زیان) پایه هر سهم",),
+            contains_all=("سود", "زیان", "پایه", "هر سهم"),
+            column_indexes=period_indexes,
+        )
+
+    capital_row = find_row(
+        rows,
+        exact_titles=("سرمایه",),
+        contains_all=("سرمایه",),
+        excludes=("افزایش", "کاهش"),
+        column_indexes=period_indexes,
+    )
+
+    operating_eps_row = find_row(
+        rows,
+        exact_titles=("عملیاتی (ریال)", "عملیاتی ریال"),
+        contains_all=("عملیاتی", "ریال"),
+        excludes=("غیرعملیاتی", "سود", "زیان"),
+        column_indexes=period_indexes,
+    )
+
+    operating_profit_row = find_row(
+        rows,
+        exact_titles=("سود (زیان) عملیاتی", "سود(زیان) عملیاتی"),
+        contains_all=("سود", "زیان", "عملیاتی"),
+        excludes=(
+            "هر سهم",
+            "قبل از مالیات",
+            "در حال تداوم",
+            "متوقف شده",
+            "غیرعملیاتی",
+        ),
+        column_indexes=period_indexes,
+    )
+
+    missing = []
+    if net_eps_row is None:
+        missing.append("net EPS")
+    if capital_row is None:
+        missing.append("capital")
+    if operating_eps_row is None:
+        missing.append("operating EPS")
+    if operating_profit_row is None:
+        missing.append("operating profit")
+
+    if missing:
+        logging.warning(
+            "⚠️ Required profit/loss rows not found: %s. Available rows: %s",
+            ", ".join(missing),
+            [row["raw_title"] for row in rows],
+        )
+        return None
+
+    period_values = []
+
+    for column in period_columns:
+        index = column["index"]
+        net_eps = value_from_row(net_eps_row, index)
+        capital = value_from_row(capital_row, index)
+        operating_eps = value_from_row(operating_eps_row, index)
+
+        period_values.extend(
+            (
+                net_eps,
+                capital,
+                operating_eps,
+                net_eps * capital,
+            )
+        )
+    
+    # INSERT همیشه ۱۲ مقدار می‌خواهد:
+    # سه دوره × چهار مقدار
+    #
+    # اگر دوره سوم در گزارش وجود نداشت، مقادیر آن باید NULL باشند.
+    # از صفر استفاده نمی‌کنیم، چون صفر ممکن است داده مالی واقعی باشد.
+    while len(period_values) < 12:
+        period_values.extend((None, None, None, None))
+
+    operating_profit_new = value_from_row(
+        operating_profit_row,
+        period_columns[0]["index"],
+    )
+    operating_profit_last_year = value_from_row(
+        operating_profit_row,
+        period_columns[1]["index"],
+    )
+
+    result = {
+        "period_headers": [column["parts"] for column in period_columns],
+        "values_to_insert": tuple(period_values),
+        "operating_profit_new": operating_profit_new,
+        "operating_profit_last_year": operating_profit_last_year,
+        "matched_rows": {
+            "net_eps": net_eps_row["raw_title"],
+            "capital": capital_row["raw_title"],
+            "operating_eps": operating_eps_row["raw_title"],
+            "operating_profit": operating_profit_row["raw_title"],
+        },
+    }
+
+    logging.info("✅ Profit/loss period columns: %s", result["period_headers"])
+    logging.info("✅ Matched profit/loss rows: %s", result["matched_rows"])
+    logging.info(
+        "✅ Operating profit: current=%s, prior=%s",
+        operating_profit_new,
+        operating_profit_last_year,
+    )
+
+    return result
 
 
 def safe_sql_identifier(name):
@@ -452,8 +602,11 @@ def safe_sql_identifier(name):
     چون اسم جدول را نمی‌شود با ? پارامتری کرد،
     فقط حروف، عدد و underscore مجاز است.
     """
-    if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", table_name := str(name)):
+    table_name = str(name)
+
+    if not re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", table_name):
         raise ValueError(f"Invalid SQL table name: {name}")
+
     return table_name
 
 
@@ -491,7 +644,8 @@ def get_db_connection():
 def ensure_table(cursor, table_name):
     table_name = safe_sql_identifier(table_name)
 
-    cursor.execute(f"""
+    cursor.execute(
+        f"""
         IF OBJECT_ID(N'dbo.{table_name}', N'U') IS NULL
         CREATE TABLE dbo.[{table_name}] (
             CompanyID NVARCHAR(50) NOT NULL,
@@ -518,20 +672,27 @@ def ensure_table(cursor, table_name):
 
             Url VARCHAR(550),
 
-            CONSTRAINT PK_{table_name}_Company_ReportDate PRIMARY KEY (CompanyID, ReportDate)
+            CONSTRAINT PK_{table_name}_Company_ReportDate
+                PRIMARY KEY (CompanyID, ReportDate)
         )
-    """)
+        """
+    )
 
-    # اگر جدول قبلاً با نسخه قدیمی ساخته شده و این ستون‌ها را ندارد، اضافه شوند
-    cursor.execute(f"""
+    cursor.execute(
+        f"""
         IF COL_LENGTH('dbo.{table_name}', 'OperatingProfitNew') IS NULL
-        ALTER TABLE dbo.[{table_name}] ADD OperatingProfitNew FLOAT NULL
-    """)
+        ALTER TABLE dbo.[{table_name}]
+        ADD OperatingProfitNew FLOAT NULL
+        """
+    )
 
-    cursor.execute(f"""
+    cursor.execute(
+        f"""
         IF COL_LENGTH('dbo.{table_name}', 'OperatingProfitLastYear') IS NULL
-        ALTER TABLE dbo.[{table_name}] ADD OperatingProfitLastYear FLOAT NULL
-    """)
+        ALTER TABLE dbo.[{table_name}]
+        ADD OperatingProfitLastYear FLOAT NULL
+        """
+    )
 
 
 def wait_for_angular_stable(page, timeout=15000):
@@ -543,7 +704,7 @@ def wait_for_angular_stable(page, timeout=15000):
                 return window.getAllAngularTestabilities().every(t => t.isStable());
             }
             """,
-            timeout=timeout
+            timeout=timeout,
         )
     except PlaywrightTimeoutError:
         logging.warning("⚠️ Angular stability wait timed out; continuing anyway.")
@@ -554,7 +715,7 @@ def create_context(playwright):
 
     Path(CHROMIUM_PROFILE_DIR).mkdir(parents=True, exist_ok=True)
 
-    context = playwright.chromium.launch_persistent_context(
+    return playwright.chromium.launch_persistent_context(
         user_data_dir=CHROMIUM_PROFILE_DIR,
         executable_path=CHROMIUM_BINARY,
         headless=False,
@@ -567,7 +728,6 @@ def create_context(playwright):
         ],
     )
 
-    return context
 
 def get_report_links(page, row_meta):
     report_links = []
@@ -576,217 +736,168 @@ def get_report_links(page, row_meta):
     rows = page.locator("tbody.scrollContent tr")
     row_count = rows.count()
 
-    for i in range(min(row_count, row_meta)):
-        row = rows.nth(i)
+    for index in range(min(row_count, row_meta)):
+        row = rows.nth(index)
         link = row.locator("td:nth-child(4) a")
 
         try:
-            if link.count() > 0:
-                href = link.first.get_attribute("href")
-                if href:
-                    full_url = urljoin("https://www.codal.ir", href)
-                    report_links.append(full_url)
+            if link.count() == 0:
+                continue
+
+            href = link.first.get_attribute("href")
+            if href:
+                report_links.append(urljoin("https://www.codal.ir", href))
         except Exception:
             continue
 
     return report_links
 
 
+def page_contains_profit_loss_table(page):
+    try:
+        html = page.content()
+        soup = BeautifulSoup(html, "html.parser")
+        return find_profit_loss_table(soup) is not None
+    except Exception:
+        return False
+
+
 def ensure_profit_loss_selected(page):
     """
-    تلاش می‌کند selectbox گزارش را روی «صورت سود و زیان» بگذارد.
-    اگر از قبل روی صورت سود و زیان یا صورت سود و زیان تلفیقی باشد، ادامه می‌دهد.
+    جدول «صورت سود و زیان» را انتخاب می‌کند.
+    اگر selectbox در نسخه جدید وجود نداشته باشد ولی جدول درست نمایش داده شده
+    باشد، پردازش متوقف نمی‌شود.
     """
+    if page_contains_profit_loss_table(page):
+        logging.info("✅ Profit/loss table is already visible.")
+        return True
 
-    possible_selectors = [
+    selectors = (
         "select#ctl00_ddlTable",
         "select#ddlTable",
-        "#ctl00_ddlTable",
-        "#ddlTable",
-    ]
+        "select[name*='ddlTable']",
+        "select[id*='ddlTable']",
+    )
 
     select_locator = None
 
-    for selector in possible_selectors:
+    for selector in selectors:
         locator = page.locator(selector)
         try:
-            locator.first.wait_for(state="attached", timeout=5000)
-            select_locator = locator.first
-            logging.info(f"✅ Found selectbox: {selector}")
-            break
+            if locator.count() > 0:
+                select_locator = locator.first
+                select_locator.wait_for(state="attached", timeout=3000)
+                logging.info("✅ Found report selectbox: %s", selector)
+                break
         except PlaywrightTimeoutError:
             continue
 
+    # fallback: هر select که option صورت سود و زیان داشته باشد
     if select_locator is None:
-        raise RuntimeError("No selectbox found with IDs ctl00_ddlTable or ddlTable")
+        all_selects = page.locator("select")
+        for index in range(all_selects.count()):
+            candidate = all_selects.nth(index)
+            option_texts = []
 
+            try:
+                options = candidate.locator("option")
+                for option_index in range(options.count()):
+                    option_texts.append(
+                        normalize_label(options.nth(option_index).inner_text())
+                    )
+            except Exception:
+                continue
+
+            if normalize_label("صورت سود و زیان") in option_texts:
+                select_locator = candidate
+                break
+
+    if select_locator is None:
+        raise RuntimeError("Profit/loss selectbox was not found")
+
+    target_value = None
     selected_text = ""
+
     try:
-        selected_text = normalize_text(
+        selected_text = normalize_label(
             select_locator.locator("option:checked").inner_text(timeout=3000)
         )
     except Exception:
         pass
 
-    target_text = normalize_text("صورت سود و زیان")
-    consolidated_text = normalize_text("صورت سود و زیان تلفیقی")
-
-    if selected_text in [target_text, consolidated_text]:
-        logging.info("✅ Selectbox already on profit/loss table.")
+    if selected_text in {
+        normalize_label("صورت سود و زیان"),
+        normalize_label("صورت سود و زیان تلفیقی"),
+    }:
+        logging.info("✅ Selectbox already points to a profit/loss table.")
         return True
 
     options = select_locator.locator("option")
-    option_count = options.count()
 
-    target_value = None
+    for index in range(options.count()):
+        option = options.nth(index)
+        option_text = normalize_label(option.inner_text())
 
-    for i in range(option_count):
-        option = options.nth(i)
-        option_text = normalize_text(option.inner_text())
-
-        if option_text == target_text:
+        if option_text == normalize_label("صورت سود و زیان"):
             target_value = option.get_attribute("value")
             break
 
     if target_value is None:
-        raise RuntimeError("Option 'صورت سود و زیان' not found in dropdown")
+        raise RuntimeError("Option 'صورت سود و زیان' was not found")
 
     select_locator.select_option(value=target_value, timeout=10000)
-
-    # برای postback / ajax / angular
     page.wait_for_timeout(2500)
     wait_for_angular_stable(page)
     page.wait_for_selector("table.rayanDynamicStatement", timeout=15000)
 
-    logging.info("🔁 Changed selectbox to 'صورت سود و زیان'")
+    if not page_contains_profit_loss_table(page):
+        raise RuntimeError("Selected table is not recognized as profit/loss")
+
+    logging.info("🔁 Changed report table to 'صورت سود و زیان'")
     return True
 
 
-def scrape_report(page, link, company_name, base_url, table_name):
-    table_name = safe_sql_identifier(table_name)
-
-    page.goto(link, wait_until="domcontentloaded", timeout=60000)
-    logging.info(f"🔍 Scraping report: {link}")
-
-    try:
-        ensure_profit_loss_selected(page)
-    except Exception as e:
-        logging.warning(f"⚠️ Could not change/select profit-loss table: {e}")
-        return False
-
-    wait_for_angular_stable(page)
-
-    try:
-        page.wait_for_selector("table.rayanDynamicStatement", timeout=15000)
-    except PlaywrightTimeoutError:
-        logging.warning("⚠️ rayanDynamicStatement table not found.")
-        return False
-
-    # تاریخ گزارش
-    try:
-        report_date = page.locator("#ctl00_lblPeriodEndToDate").inner_text(timeout=10000).strip()
-    except Exception as e:
-        logging.warning(f"⚠️ Could not read report date: {e}")
-        return False
-
-    try:
-        report_jdate = jdatetime.datetime.strptime(report_date, "%Y/%m/%d").date()
-        min_date = jdatetime.date(1397, 12, 29)
-
-        if report_jdate <= min_date:
-            logging.info(f"⏩ Skipping old report: {report_date}")
-            return False
-    except Exception as e:
-        logging.warning(f"⚠️ Could not parse report date '{report_date}': {e}")
-        return False
-
-    soup = BeautifulSoup(page.content(), "html.parser")
-    table = soup.find("table", {"class": "rayanDynamicStatement"})
-
-    if not table:
-        logging.warning("⚠️ No data table found in page content.")
-        return False
-
-    all_rows = table.find_all("tr")[1:]
-    valid_rows = [tr for tr in all_rows if not is_hidden_row(tr)]
-
-    # این کد به ردیف‌های 6 و 10 و -7 نیاز دارد
-    if len(valid_rows) < 11:
-        logging.warning(f"⚠️ Not enough valid rows. Found: {len(valid_rows)}")
-        return False
-
-    row1 = get_row_cells(valid_rows[-2])
-    row2 = get_row_cells(valid_rows[-1])
-    row4 = get_row_cells(valid_rows[-7])
-
-    sayer = get_row_cells(valid_rows[6])
-    sayer_gheir = get_row_cells(valid_rows[10])
-
-    logging.info(f"sayer[0]: {cell(sayer, 0, '')}")
-
-    amaliati = 1 if normalize_text(cell(sayer, 0, "")) == normalize_text("سایر درآمدها") else 0
-    logging.info(f"Amaliati: {amaliati}")
-
-    operating_profit_total = to_number(cell(sayer, 1)) + to_number(cell(sayer_gheir, 1))
-
-    min_len = min(len(row1), len(row2), len(row4))
-
-    last_row_num1 = []
-    last_row_num2 = []
-    last_row_num4 = []
-    last_row_product = []
-
-    for i in range(1, min_len):
-        try:
-            num1 = to_number(row1[i])
-            num2 = to_number(row2[i])
-            num4 = to_number(row4[i])
-            product = num1 * num2
-
-            last_row_num1.append(num1)
-            last_row_num2.append(num2)
-            last_row_num4.append(num4)
-            last_row_product.append(product)
-
-        except Exception:
-            last_row_num1.append(0)
-            last_row_num2.append(0)
-            last_row_num4.append(0)
-            last_row_product.append(0)
-
-    if len(last_row_num1) < 4:
-        logging.warning("⚠️ Not enough numeric columns extracted.")
-        return False
-
-    def pick(index):
-        return (
-            last_row_num1[index],
-            last_row_num2[index],
-            last_row_num4[index],
-            last_row_product[index],
-        )
-
-    if last_row_num1[0] == 0:
-        picked1 = pick(1)
-        picked2 = pick(2)
-        picked3 = pick(3)
-        denominator = last_row_product[1]
-    else:
-        picked1 = pick(0)
-        picked2 = pick(1)
-        picked3 = pick(2)
-        denominator = last_row_product[0]
-
-    values_to_insert = (
-        *picked1,
-        *picked2,
-        *picked3,
+def read_report_date(page, table):
+    selectors = (
+        "#ctl00_lblPeriodEndToDate",
+        "#lblPeriodEndToDate",
+        "[id*='lblPeriodEndToDate']",
     )
 
-    if amaliati == 0:
-        operating_profit_new = -1
-    else:
-        operating_profit_new = (operating_profit_total / denominator * 100000) if denominator else 0
+    for selector in selectors:
+        locator = page.locator(selector)
+        try:
+            if locator.count() == 0:
+                continue
+
+            text = normalize_text(locator.first.inner_text(timeout=3000))
+            match = DATE_RE.search(text)
+            if match:
+                return match.group(0)
+        except Exception:
+            continue
+
+    return extract_report_date_from_table(table)
+
+
+def save_profit_loss_to_sql(
+    company_name,
+    report_date,
+    values_to_insert,
+    operating_profit_new,
+    operating_profit_last_year,
+    base_url,
+    table_name,
+):
+    table_name = safe_sql_identifier(table_name)
+
+    if len(values_to_insert) != 12:
+        logging.warning(
+            "⚠️ Expected 12 calculated values, got %s: %s",
+            len(values_to_insert),
+            values_to_insert,
+        )
+        return False
 
     conn = None
     cursor = None
@@ -807,13 +918,13 @@ def scrape_report(page, link, company_name, base_url, table_name):
             WHERE CompanyID = ? AND ReportDate = ?
             """,
             company_id,
-            report_date
+            report_date,
         )
 
         exists = cursor.fetchone()[0]
 
         if exists:
-            logging.info(f"⏩ Already exists: {company_name} - {report_date}")
+            logging.info("⏩ Already exists: %s - %s", company_name, report_date)
             return False
 
         cursor.execute(
@@ -850,17 +961,21 @@ def scrape_report(page, link, company_name, base_url, table_name):
             report_date,
             *values_to_insert,
             operating_profit_new,
-            100,
-            base_url
+            operating_profit_last_year,
+            base_url,
         )
 
         conn.commit()
-
-        logging.info(f"✅ Saved: {company_name} - {report_date}")
+        logging.info("✅ Saved: %s - %s", company_name, report_date)
         return True
 
-    except Exception as e:
-        logging.exception(f"❌ SQL error for {company_name} - {report_date}: {e}")
+    except Exception as exc:
+        logging.exception(
+            "❌ SQL error for %s - %s: %s",
+            company_name,
+            report_date,
+            exc,
+        )
         return False
 
     finally:
@@ -870,6 +985,75 @@ def scrape_report(page, link, company_name, base_url, table_name):
             conn.close()
 
 
+def scrape_report(page, link, company_name, base_url, table_name):
+    page.goto(link, wait_until="domcontentloaded", timeout=60000)
+    logging.info("🔍 Scraping report: %s", link)
+
+    try:
+        ensure_profit_loss_selected(page)
+    except Exception as exc:
+        logging.warning(
+            "⚠️ Could not change/select profit-loss table: %s",
+            exc,
+        )
+        return False
+
+    wait_for_angular_stable(page)
+
+    try:
+        page.wait_for_selector("table.rayanDynamicStatement", timeout=15000)
+    except PlaywrightTimeoutError:
+        logging.warning("⚠️ rayanDynamicStatement table not found.")
+        return False
+
+    page.wait_for_timeout(1000)
+
+    soup = BeautifulSoup(page.content(), "html.parser")
+    table = find_profit_loss_table(soup)
+
+    if table is None:
+        logging.warning("⚠️ Profit/loss table was not found in page content.")
+        return False
+
+    report_date = read_report_date(page, table)
+    if not report_date:
+        logging.warning("⚠️ Could not read report date.")
+        return False
+
+    try:
+        report_jdate = jdatetime.datetime.strptime(
+            report_date,
+            "%Y/%m/%d",
+        ).date()
+        min_date = jdatetime.date(1397, 12, 29)
+
+        if report_jdate <= min_date:
+            logging.info("⏩ Skipping old report: %s", report_date)
+            return False
+    except Exception as exc:
+        logging.warning(
+            "⚠️ Could not parse report date %r: %s",
+            report_date,
+            exc,
+        )
+        return False
+
+    extracted = extract_profit_loss_values(table)
+    if extracted is None:
+        return False
+
+    return save_profit_loss_to_sql(
+        company_name=company_name,
+        report_date=report_date,
+        values_to_insert=extracted["values_to_insert"],
+        operating_profit_new=extracted["operating_profit_new"],
+        operating_profit_last_year=extracted["operating_profit_last_year"],
+        base_url=base_url,
+        table_name=table_name,
+    )
+
+
+# --------------------- Main Function ---------------------
 def main_scraper(companyName, rowMeta, base_url, page_numbers, table_name):
     base_url = base_url.replace("&PageNumber=1", "")
     inserted_any = False
@@ -882,28 +1066,52 @@ def main_scraper(companyName, rowMeta, base_url, page_numbers, table_name):
             for page_number in page_numbers:
                 current_url = f"{base_url}&PageNumber={page_number}"
 
-                logging.info(f"🌐 Fetching data from page {page_number}: {current_url}")
+                logging.info(
+                    "🌐 Fetching data from page %s: %s",
+                    page_number,
+                    current_url,
+                )
 
                 try:
-                    page.goto(current_url, wait_until="domcontentloaded", timeout=60000)
-                    page.wait_for_selector("tbody.scrollContent tr", timeout=20000)
-
-                    # جایگزین time.sleep(5)
+                    page.goto(
+                        current_url,
+                        wait_until="domcontentloaded",
+                        timeout=60000,
+                    )
+                    page.wait_for_selector(
+                        "tbody.scrollContent tr",
+                        timeout=20000,
+                    )
                     page.wait_for_timeout(5000)
 
                 except PlaywrightTimeoutError:
-                    logging.warning(f"⚠️ Table did not load on page {page_number}. Skipping...")
+                    logging.warning(
+                        "⚠️ Table did not load on page %s. Skipping...",
+                        page_number,
+                    )
                     continue
 
-                except Exception as e:
-                    logging.warning(f"⚠️ Could not open page {page_number}: {e}")
+                except Exception as exc:
+                    logging.warning(
+                        "⚠️ Could not open page %s: %s",
+                        page_number,
+                        exc,
+                    )
                     continue
 
                 try:
                     report_links = get_report_links(page, rowMeta)
-                    logging.info(f"✅ Found {len(report_links)} report links on page {page_number}")
-                except Exception as e:
-                    logging.warning(f"⚠️ Could not extract report links from page {page_number}: {e}")
+                    logging.info(
+                        "✅ Found %s report links on page %s",
+                        len(report_links),
+                        page_number,
+                    )
+                except Exception as exc:
+                    logging.warning(
+                        "⚠️ Could not extract report links from page %s: %s",
+                        page_number,
+                        exc,
+                    )
                     continue
 
                 for link in report_links:
@@ -913,14 +1121,18 @@ def main_scraper(companyName, rowMeta, base_url, page_numbers, table_name):
                             link=link,
                             company_name=companyName,
                             base_url=base_url,
-                            table_name=table_name
+                            table_name=table_name,
                         )
 
                         if saved:
                             inserted_any = True
 
-                    except Exception as e:
-                        logging.exception(f"❌ Error scraping report {link}: {e}")
+                    except Exception as exc:
+                        logging.exception(
+                            "❌ Error scraping report %s: %s",
+                            link,
+                            exc,
+                        )
                         continue
 
         finally:
@@ -930,3 +1142,5 @@ def main_scraper(companyName, rowMeta, base_url, page_numbers, table_name):
         print(f"{companyName} scraping and saving successful")
     else:
         print(f"{companyName} finished but no new data saved")
+
+    return inserted_any

@@ -42,7 +42,11 @@ func main() {
 		protected.POST("/run-script2", handlers.RunScript2)
 		protected.POST("/fetchAllData", handlers.BulkFetch)
 		protected.GET("/FetchFullPE", handlers.RunScriptPE)
-		protected.POST("/users/viewed-items", handlers.AddViewedItem)
+		protected.POST("/users/get-items", handlers.AddViewedItem)
+
+		protected.GET("/summary", handlers.GetAIStockSummary)
+		protected.GET("/detail", handlers.GetAIStockDetail)
+		protected.POST("/analyze", handlers.AnalyzeTopStocksWithAI)
 	}
 
 	r.Run(":5000")

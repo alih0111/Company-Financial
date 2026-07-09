@@ -155,7 +155,7 @@ export const runBulkScript = async (
 };
 
 export const addViewedItem = async (item: string) => {
-  const res = await fetch(`${API_BASE}/users/viewed-items`, {
+  const res = await fetch(`${API_BASE}/users/get-items`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify({ item }),
@@ -168,3 +168,77 @@ export const addViewedItem = async (item: string) => {
 
   return res.json();
 };
+
+
+export interface AIStockMetric {
+  company_id: string;
+  symbol: string;
+  company_name: string;
+
+  quant_score: number;
+  data_quality_score: number;
+  has_enough_data: boolean;
+
+  latest_sales_report_date: string;
+  latest_profit_report_date: string;
+  latest_market_date: string;
+
+  sales_growth_12m: number;
+  sales_growth_3m: number;
+  sales_stability: number;
+
+  operating_profit_growth_yoy: number;
+  operating_profit_growth_4_reports: number;
+  net_profit_growth_4_reports: number;
+
+  latest_eps: number;
+  latest_operating_eps: number;
+  latest_price: number;
+  pe_approx: number;
+
+  price_return_7d: number;
+  price_return_30d: number;
+  price_return_90d: number;
+
+  avg_trade_value_30d: number;
+  avg_volume_30d: number;
+  volatility_30d: number;
+  price_position_90d: number;
+
+  bad_pe_flag: boolean;
+  weak_sales_flag: boolean;
+  weak_operating_profit_flag: boolean;
+  weak_liquidity_flag: boolean;
+}
+
+export async function getAIStockSummary(limit = 20): Promise<AIStockMetric[]> {
+  const res = await fetch(`${API_BASE}/summary?limit=${limit}`, {
+    headers: getAuthHeaders(),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch AI stock summary: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export async function analyzeTopStocks(limit = 20): Promise<any> {
+  const res = await fetch(`${API_BASE}/analyze`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      limit,
+      min_avg_trade_value_30d: 0,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`AI analyze failed: ${res.status} ${text}`);
+  }
+
+  return res.json();
+}

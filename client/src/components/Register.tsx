@@ -11,11 +11,14 @@ const Register = () => {
 
   const handleSendCode = async () => {
     try {
-      const res = await fetch("http://rfa_back.systemgroup.net/api/register/send-code", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
+      const res = await fetch(
+        "http://rfa_back.systemgroup.net/api/register/send-code",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        },
+      );
       const data = await res.json();
       if (res.ok) {
         setCodeSent(true);

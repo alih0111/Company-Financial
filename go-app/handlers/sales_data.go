@@ -16,13 +16,13 @@ func GetSalesData(c *gin.Context) {
 	defer db.Close()
 
 	companyName := c.Query("companyName")
-	query := "SELECT CompanyName, CompanyID, ReportDate, Product1, Product2, Product3 FROM miandore2 "
+	query := "SELECT CompanyName, CompanyID, ReportDate, Product1, Product2, Product3 FROM miandore2"
 
 	var rows *sql.Rows
 	var err error
 
 	if companyName != "" {
-		query += " WHERE CompanyName = @companyName"
+		query += " WHERE CompanyName = @companyName order by reportdate "
 		rows, err = db.Query(query, sql.Named("companyName", companyName))
 
 	} else {

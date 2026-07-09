@@ -1,0 +1,11 @@
+{
+  "company_name": "شرکت نمونه",
+  "period_end_jalali": "1403/12/30",
+  "source_url": "https://www.codal.ir/example/profit-loss",
+  "facts": [
+    {"period_order": 1, "period_header": "دوره جاری", "metric_code": "net_eps", "value": "1250", "unit_code": "rial_per_share"},
+    {"period_order": 1, "period_header": "دوره جاری", "metric_code": "capital", "value": "40000000000", "unit_code": "million_rial"},
+    {"period_order": 1, "period_header": "دوره جاری", "metric_code": "operating_profit", "value": "8500000", "unit_code": "million_rial"},
+    {"period_order": 2, "period_header": "دوره مشابه قبل", "metric_code": "net_eps", "value": "970", "unit_code": "rial_per_share"}
+  ]
+}

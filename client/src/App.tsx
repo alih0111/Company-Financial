@@ -13,6 +13,9 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import BigDataTable from "./components/BigDataTable";
 import Register from "./components/Register";
 import { getAuthStatus } from "./hooks/useGetUser";
+import { useEffect, useMemo, useState } from "react";
+import AIStockTable from "./components/AIStockTable";
+import { getAIStockSummary } from "./utils/api";
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -53,6 +56,43 @@ const App = () => {
     location.pathname === "/login" || location.pathname === "/register";
 
   const { isAdmin, username } = getAuthStatus();
+
+  useEffect(() => {
+    document.title = selectedCompany ? `RFA | ${selectedCompany}` : "RFA";
+  }, [selectedCompany]);
+
+  const [aiScores, setAiScores] = useState<Record<string, number | null>>({});
+
+  useEffect(() => {
+    const loadAIScores = async () => {
+      try {
+        const rows = await getAIStockSummary(1000);
+
+        const scoreMap: Record<string, number | null> = {};
+
+        rows.forEach((row) => {
+          if (row.company_id) {
+            scoreMap[String(row.company_id)] = row.quant_score ?? null;
+          }
+        });
+
+        setAiScores(scoreMap);
+      } catch (err) {
+        console.error("Failed to load AI scores:", err);
+      }
+    };
+
+    loadAIScores();
+  }, []);
+
+  const bigTableData = useMemo(() => {
+    const baseData = Array.isArray(allDataScore) ? allDataScore : [];
+
+    return baseData.map((row) => ({
+      ...row,
+      quant_score: aiScores[String(row.company_id)] ?? null,
+    }));
+  }, [allDataScore, aiScores]);
 
   return (
     <div
@@ -135,12 +175,30 @@ const App = () => {
               }
             />
 
-            <Route
+            {/* <Route
               path="/Table"
               element={
                 <div>
                   <BigDataTable
                     data={Array.isArray(allDataScore) ? allDataScore : []}
+                    selectedCompany={selectedCompany}
+                    onCompanyChange={handleCompanyChange}
+                  />
+
+                  <AIStockTable
+                    data={Array.isArray(allDataScore) ? allDataScore : []}
+                    selectedCompany={selectedCompany}
+                    onCompanyChange={handleCompanyChange}
+                  />
+                </div>
+              }
+            /> */}
+            <Route
+              path="/Table"
+              element={
+                <div>
+                  <BigDataTable
+                    data={bigTableData}
                     selectedCompany={selectedCompany}
                     onCompanyChange={handleCompanyChange}
                   />

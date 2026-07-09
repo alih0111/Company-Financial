@@ -38,10 +38,10 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
                 entry.wow === 1
                   ? "#0D9488" // green
                   : entry.wow === -1
-                  ? "#FB923C" // orange
-                  : entry.percentage >= 0
-                  ? "#10B981" // teal
-                  : "#F43F5E" // red
+                    ? "#FB923C" // orange
+                    : entry.percentage >= 0
+                      ? "#10B981" // teal
+                      : "#F43F5E" // red
               }
             />
           ))}
