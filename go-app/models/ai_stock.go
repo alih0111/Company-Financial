@@ -21,6 +21,18 @@ type AIStockMetric struct {
 	OperatingProfitGrowth4Reports float64 `json:"operating_profit_growth_4_reports"`
 	NetProfitGrowth4Reports       float64 `json:"net_profit_growth_4_reports"`
 
+	// معیارهای دقیق هم‌منبع از آخرین گزارش صورت سود و زیان
+	OperatingMarginLatest float64 `json:"operating_margin_latest"`
+	NetMarginLatest       float64 `json:"net_margin_latest"`
+	RevenueGrowthYoY      float64 `json:"revenue_growth_yoy"`
+	InterestCoverage     float64 `json:"interest_coverage"`
+
+	// معیارهای ۱۲ ماهه (fallback)
+	NetProfitMargin12M float64 `json:"net_profit_margin_12m"`
+	OperatingMargin12M float64 `json:"operating_margin_12m"`
+	OperatingMarginTrend float64 `json:"operating_margin_trend"`
+	PSRatio              float64 `json:"ps_ratio"`
+
 	LatestEPS          float64 `json:"latest_eps"`
 	LatestOperatingEPS float64 `json:"latest_operating_eps"`
 	LatestPrice        float64 `json:"latest_price"`
@@ -39,6 +51,9 @@ type AIStockMetric struct {
 	WeakSalesFlag           bool `json:"weak_sales_flag"`
 	WeakOperatingProfitFlag bool `json:"weak_operating_profit_flag"`
 	WeakLiquidityFlag       bool `json:"weak_liquidity_flag"`
+	LossMakerFlag           bool `json:"loss_maker_flag"`
+	WeakCoverageFlag        bool `json:"weak_coverage_flag"`
+	MarginContractionFlag   bool `json:"margin_contraction_flag"`
 }
 
 type AIMonthlyPoint struct {
@@ -56,6 +71,12 @@ type AIProfitPoint struct {
 	NetProfitApprox         float64 `json:"net_profit_approx"`
 	OperatingProfitNew      float64 `json:"operating_profit_new"`
 	OperatingProfitLastYear float64 `json:"operating_profit_last_year"`
+
+	// اجزای غیرعملیاتی (برای تفکیک سهم عملیاتی/غیرعملیاتی از سود)
+	FinanceCostsNew      float64 `json:"finance_costs_new"`
+	FinanceCostsLastYear float64 `json:"finance_costs_last_year"`
+	OtherNonOpNew        float64 `json:"other_non_op_new"`
+	OtherNonOpLastYear   float64 `json:"other_non_op_last_year"`
 }
 
 type AIMarketPoint struct {

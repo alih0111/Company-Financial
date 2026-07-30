@@ -32,7 +32,14 @@ interface ScoreModel {
 }
 
 interface AllScoreModel {
-  companyName: string;
+  company_id: string;
+  company_name: string;
+  eps_growth: number;
+  sales_growth: number;
+  pe: number;
+  price: number;
+  Stable: boolean;
+  operation: number;
   epsGrowth: number;
   priceScore: number;
 }

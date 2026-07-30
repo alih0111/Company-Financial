@@ -5,6 +5,90 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { addViewedItem } from "../utils/api";
 
+const fmt = (v: number | null | undefined, digits = 2) => {
+  if (v === null || v === undefined || Number.isNaN(v)) return "--";
+  return v.toFixed(digits);
+};
+
+const pct = (v: number | null | undefined) => {
+  if (v === null || v === undefined || Number.isNaN(v)) return "--";
+  return `${v.toFixed(2)}%`;
+};
+
+const getStableValue = (row: DataRow): boolean | null => {
+  return row.stable ?? row.Stable ?? null;
+};
+
+const getRisks = (row: DataRow): string => {
+  return [
+    row.bad_pe_flag ? "P/E" : "",
+    row.weak_sales_flag ? "فروش" : "",
+    row.weak_operating_profit_flag ? "سود عملیاتی" : "",
+    row.weak_liquidity_flag ? "نقدشوندگی" : "",
+    row.loss_maker_flag ? "زیان‌ده" : "",
+    row.weak_coverage_flag ? "بهره" : "",
+    row.margin_contraction_flag ? "انقباض حاشیه" : "",
+  ]
+    .filter(Boolean)
+    .join("، ");
+};
+
+// مرتب‌سازی عددی با مدیریت null
+// nullها همیشه آخر (چه صعودی چه نزولی)
+const numericSort = (
+  rowA: any,
+  rowB: any,
+  columnId: string,
+  desc?: boolean,
+) => {
+  const parseValue = (value: unknown): number | null => {
+    if (value === null || value === undefined || value === "") {
+      return null;
+    }
+
+    const parsed = Number(value);
+
+    return Number.isFinite(parsed) ? parsed : null;
+  };
+
+  const a = parseValue(rowA.values[columnId]);
+  const b = parseValue(rowB.values[columnId]);
+
+  if (a === null && b === null) return 0;
+
+  // react-table نتیجه را در حالت desc معکوس می‌کند؛
+  // بنابراین اینجا باید جهت را لحاظ کنیم تا null همیشه آخر بماند.
+  if (a === null) return desc ? -1 : 1;
+  if (b === null) return desc ? 1 : -1;
+
+  return a - b;
+};
+// const numericSort = (
+//   rowA: any,
+//   rowB: any,
+//   columnId: string,
+//   desc?: boolean,
+// ) => {
+//   const a = rowA.values[columnId];
+//   const b = rowB.values[columnId];
+
+//   const aVal =
+//     a == null || a === "" || Number.isNaN(Number(a)) ? null : Number(a);
+//   const bVal =
+//     b == null || b === "" || Number.isNaN(Number(b)) ? null : Number(b);
+
+//   // هر دو null
+//   if (aVal == null && bVal == null) return 0;
+//   // null همیشه آخر (جهت‌مستقل)
+//   if (aVal == null) return 1;
+//   if (bVal == null) return -1;
+
+//   // مقادیر واقعی
+//   if (aVal === bVal) return 0;
+//   // صعودی: a > b یعنی a بعد (1)
+//   return aVal > bVal ? 1 : -1;
+// };
+
 interface DataRow {
   company_id: string;
   company_name: string;
@@ -12,8 +96,29 @@ interface DataRow {
   sales_growth: number;
   pe: number;
   stable: boolean;
+  Stable?: boolean;
   operation: number;
   quant_score?: number | null;
+
+  revenue_growth_yoy?: number | null;
+  operating_margin_latest?: number | null;
+  net_margin_latest?: number | null;
+  operating_margin_trend?: number | null;
+  interest_coverage?: number | null;
+  ps_ratio?: number | null;
+  latest_price?: number | null;
+  pe_approx?: number | null;
+  symbol?: string | null;
+  price_return_30d?: number | null;
+  avg_trade_value_30d?: number | null;
+
+  bad_pe_flag?: boolean;
+  weak_sales_flag?: boolean;
+  weak_operating_profit_flag?: boolean;
+  weak_liquidity_flag?: boolean;
+  loss_maker_flag?: boolean;
+  weak_coverage_flag?: boolean;
+  margin_contraction_flag?: boolean;
 }
 
 interface Props {
@@ -33,14 +138,15 @@ const BigDataTable: React.FC<Props> = ({
     () => [
       {
         Header: "Stable",
-        accessor: "Stable",
+        id: "Stable",
+        accessor: (row: DataRow) => getStableValue(row),
         sortType: "basic",
         className: "w-16",
         Cell: ({ value }: { value: boolean | null | undefined }) => {
           let colorClass = "";
           if (value === true) {
             colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          } else {
+          } else if (value === false) {
             colorClass = "text-red-700 dark:text-red-400 font-semibold";
           }
 
@@ -52,56 +158,77 @@ const BigDataTable: React.FC<Props> = ({
         },
       },
       {
-        Header: "N-Operation",
+        Header: "حاشیه عملیاتی",
         accessor: "operation",
         sortType: "basic",
         className: "w-32",
-        Cell: ({ value }: { value: number }) => {
+        Cell: ({ value }: { value: number | null | undefined }) => {
           let colorClass = "";
 
-          let validValue = value;
           if (value != null) {
-            if (value < -50 || value > 99) {
-              validValue = -1;
+            if (value >= 25) {
+              colorClass = "text-green-600 dark:text-green-400 font-bold";
+            } else if (value >= 15) {
+              colorClass = "text-green-600 dark:text-green-400 font-medium";
+            } else if (value >= 10) {
+              colorClass = "text-lime-600 dark:text-lime-400";
+            } else if (value >= 5) {
+              colorClass = "text-yellow-600 dark:text-yellow-400";
+            } else if (value > 0) {
+              colorClass = "text-orange-600 dark:text-orange-400";
+            } else {
+              colorClass = "text-red-600 dark:text-red-400 font-semibold";
             }
           }
 
-          if (validValue != null && validValue > 30)
-            colorClass = "text-red-600 dark:text-red-400 font-semibold";
-
           return (
             <span className={colorClass}>
-              {validValue != null ? validValue.toFixed(2) + "%" : "--"}
+              {value != null ? value.toFixed(2) + "%" : "--"}
             </span>
           );
         },
       },
       {
         Header: "Score",
-        accessor: "quant_score",
-        sortType: "basic",
-        className: "w-28",
-        Cell: ({ value }: { value: number | null | undefined }) => {
-          return (
-            <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
-              {value != null && !Number.isNaN(value) ? value.toFixed(2) : "--"}
-            </span>
-          );
+        id: "quant_score",
+
+        accessor: (row: DataRow) => {
+          const value = row.quant_score;
+
+          if (value === null || value === undefined || value === "") {
+            return null;
+          }
+
+          const parsed = Number(value);
+          return Number.isFinite(parsed) ? parsed : null;
         },
-      },
-      {
-        Header: "P/E",
-        accessor: "pe",
-        sortType: "basic",
-        className: "w-32",
-        Cell: ({ value }: { value: number }) => {
+
+        sortType: "numericSort",
+        sortDescFirst: true,
+        className: "w-28",
+
+        Cell: ({ value }: { value: number | null | undefined }) => {
           let colorClass = "";
-          if (value != null && value < 6 && value > 0)
-            colorClass = "text-green-600 dark:text-green-400 font-semibold";
+
+          if (value != null) {
+            if (value >= 70) {
+              colorClass = "text-green-600 dark:text-green-400 font-bold";
+            } else if (value >= 55) {
+              colorClass = "text-green-600 dark:text-green-400 font-semibold";
+            } else if (value >= 40) {
+              colorClass = "text-indigo-600 dark:text-indigo-400 font-semibold";
+            } else if (value >= 25) {
+              colorClass = "text-yellow-600 dark:text-yellow-400";
+            } else {
+              colorClass = "text-red-600 dark:text-red-400 font-semibold";
+            }
+          }
 
           return (
             <span className={colorClass}>
-              {value != null ? value.toFixed(2) : "--"}
+              {value != null && Number.isFinite(value)
+                ? value.toFixed(2)
+                : "--"}
             </span>
           );
         },
@@ -125,7 +252,6 @@ const BigDataTable: React.FC<Props> = ({
           );
         },
       },
-
       {
         Header: "Sales Growth",
         accessor: "sales_growth",
@@ -141,6 +267,25 @@ const BigDataTable: React.FC<Props> = ({
           return (
             <span className={colorClass}>
               {value != null ? value.toFixed(2) + "%" : "--"}
+            </span>
+          );
+        },
+      },
+      {
+        Header: "P/E",
+        accessor: "pe",
+        sortType: "basic",
+        className: "w-28",
+        Cell: ({ value }: { value: number }) => {
+          let colorClass = "";
+          if (value != null && value < 6 && value > 0)
+            colorClass = "text-green-600 dark:text-green-400 font-semibold";
+          else if (value != null && (value <= 0 || value > 80))
+            colorClass = "text-red-600 dark:text-red-400 font-semibold";
+
+          return (
+            <span className={colorClass}>
+              {value != null ? value.toFixed(2) : "--"}
             </span>
           );
         },
@@ -171,6 +316,9 @@ const BigDataTable: React.FC<Props> = ({
       columns,
       data,
       initialState: { hiddenColumns: [] },
+      sortTypes: {
+        numericSort,
+      },
     },
     useGlobalFilter,
     useSortBy,
@@ -196,11 +344,19 @@ const BigDataTable: React.FC<Props> = ({
     const exportData = data.map((row, index) => ({
       ردیف: index + 1,
       "Company Name": row.company_name,
-      "P/E": row.pe?.toFixed(2),
-      "EPS Growth (%)": row.eps_growth?.toFixed(2) + "%",
-      "Sales Growth (%)": row.sales_growth?.toFixed(2) + "%",
-      Stable: row.Stable ? "Yes" : "No",
-      "AI Score": row.quant_score != null ? row.quant_score.toFixed(2) : "--",
+      Stable:
+        getStableValue(row) === true
+          ? "Yes"
+          : getStableValue(row) === false
+            ? "No"
+            : "--",
+      "AI Score": fmt(row.quant_score),
+      "حاشیه عملیاتی": pct(row.operation),
+      "EPS Growth (%)":
+        row.eps_growth != null ? row.eps_growth.toFixed(2) + "%" : "--",
+      "Sales Growth (%)":
+        row.sales_growth != null ? row.sales_growth.toFixed(2) + "%" : "--",
+      "P/E": row.pe != null ? row.pe.toFixed(2) : "--",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
@@ -236,7 +392,7 @@ const BigDataTable: React.FC<Props> = ({
             className="p-2 w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
           />
         </div>
-        <div className="text-center mb-2 mr-2">
+        <div className="mb-2 mr-2 flex justify-center gap-3">
           <button
             onClick={() =>
               setSortBy([
@@ -244,17 +400,51 @@ const BigDataTable: React.FC<Props> = ({
                 { id: "eps_growth", desc: true },
               ])
             }
-            className="bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-xl transition"
+            className="
+      rounded-xl border border-slate-300
+      bg-gradient-to-br from-slate-100 via-slate-300 to-slate-400
+      px-4 py-2 font-semibold text-slate-800
+      shadow-md transition-all duration-200
+      hover:-translate-y-0.5 hover:from-slate-200 hover:to-slate-500
+      hover:shadow-lg
+      focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2
+    "
           >
-            Golden Sort
+            ◇ Silver
+          </button>
+
+          <button
+            onClick={() => setSortBy([{ id: "quant_score", desc: true }])}
+            className="
+              rounded-xl border border-amber-400
+              bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500
+              px-4 py-2 font-semibold text-amber-950
+              shadow-md transition-all duration-200
+              hover:-translate-y-0.5 hover:from-amber-400 hover:to-orange-500
+              hover:shadow-lg
+              focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
+            "
+          >
+            ★ Golden
           </button>
         </div>
-        <div className="text-center mb-2 mr-2">
+        <div className="mb-2 mr-2 flex justify-center">
           <button
             onClick={exportToExcel}
-            className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-xl transition"
+            className="
+      inline-flex items-center gap-2
+      rounded-xl border border-emerald-500
+      bg-gradient-to-br from-emerald-400 via-emerald-500 to-green-600
+      px-4 py-2 font-semibold text-white
+      shadow-md transition-all duration-200
+      hover:-translate-y-0.5 hover:from-emerald-500 hover:to-green-700
+      hover:shadow-lg
+      active:translate-y-0 active:shadow-md
+      focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
+    "
           >
-            Export to Excel
+            <span aria-hidden="true">📊</span>
+            Export
           </button>
         </div>
       </div>

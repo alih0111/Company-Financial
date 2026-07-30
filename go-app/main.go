@@ -47,6 +47,10 @@ func main() {
 		protected.GET("/summary", handlers.GetAIStockSummary)
 		protected.GET("/detail", handlers.GetAIStockDetail)
 		protected.POST("/analyze", handlers.AnalyzeTopStocksWithAI)
+
+		protected.GET("/portfolio", handlers.GetPortfolio)
+		protected.POST("/portfolio", handlers.UpsertHolding)
+		protected.DELETE("/portfolio/:company_id", handlers.DeleteHolding)
 	}
 
 	r.Run(":5000")

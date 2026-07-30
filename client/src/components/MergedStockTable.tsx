@@ -153,27 +153,32 @@ const MergedStockTable: React.FC<Props> = ({
         },
       },
       {
-        Header: "N-Operation",
+        Header: "حاشیه سود عملیاتی",
         accessor: "operation",
         sortType: "basic",
         className: "w-32",
         Cell: ({ value }: { value: number | null | undefined }) => {
           let colorClass = "";
-          let validValue = value;
 
           if (value != null) {
-            if (value < -50 || value > 99) {
-              validValue = -1;
+            if (value >= 25) {
+              colorClass = "text-green-600 dark:text-green-400 font-bold";
+            } else if (value >= 15) {
+              colorClass = "text-green-600 dark:text-green-400 font-medium";
+            } else if (value >= 10) {
+              colorClass = "text-lime-600 dark:text-lime-400";
+            } else if (value >= 5) {
+              colorClass = "text-yellow-600 dark:text-yellow-400";
+            } else if (value > 0) {
+              colorClass = "text-orange-600 dark:text-orange-400";
+            } else {
+              colorClass = "text-red-600 dark:text-red-400 font-semibold";
             }
-          }
-
-          if (validValue != null && validValue > 30) {
-            colorClass = "text-red-600 dark:text-red-400 font-semibold";
           }
 
           return (
             <span className={colorClass}>
-              {validValue != null ? validValue.toFixed(2) + "%" : "--"}
+              {value != null ? value.toFixed(2) + "%" : "--"}
             </span>
           );
         },
@@ -421,7 +426,7 @@ const MergedStockTable: React.FC<Props> = ({
           : getStableValue(row) === false
             ? "No"
             : "--",
-      "N-Operation": pct(row.operation),
+      "حاشیه سود عملیاتی": pct(row.operation),
 
       نماد: row.ai?.symbol || "--",
       "AI Score": fmt(row.ai?.quant_score),

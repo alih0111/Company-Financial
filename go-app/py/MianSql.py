@@ -521,6 +521,46 @@ def extract_profit_loss_values(table):
         column_indexes=period_indexes,
     )
 
+    # ردیف «درآمدهای عملیاتی» برای محاسبه حاشیه سود عملیاتی (اختیاری)
+    revenue_row = find_row(
+        rows,
+        exact_titles=("درآمدهای عملیاتی",),
+        contains_all=("درآمد", "عملیاتی"),
+        excludes=(
+            "بهای تمام شده",
+            "تامین",
+            "هر سهم",
+            "سایر",
+            "هزینه",
+        ),
+        column_indexes=period_indexes,
+    )
+
+    # ردیف‌های «غیرعملیاتی» (اختیاری — اگه نباشند، fetch شکست نمی‌خوره)
+    finance_costs_row = find_row(
+        rows,
+        exact_titles=("هزینه مالی", "هزینه\u200cهای مالی", "هزینه های مالی"),
+        contains_all=("هزینه", "مالی"),
+        excludes=(
+            "مالیات",
+            "فروش",
+            "کاهش",
+            "سایر",
+        ),
+        column_indexes=period_indexes,
+    )
+
+    other_non_op_row = find_row(
+        rows,
+        exact_titles=(
+            "سایر درآمدها و هزینه\u200cهای غیرعملیاتی",
+            "سایر درآمدها و هزینه های غیرعملیاتی",
+        ),
+        contains_all=("سایر", "غیرعملیاتی"),
+        excludes=("هر سهم", "ریال"),
+        column_indexes=period_indexes,
+    )
+
     missing = []
     if net_eps_row is None:
         missing.append("net EPS")
@@ -573,16 +613,64 @@ def extract_profit_loss_values(table):
         period_columns[1]["index"],
     )
 
+    # مقادیر ردیف‌های غیرعملیاتی (اگر موجود نباشند، صفر درج می‌شود)
+    finance_costs_new = value_from_row(
+        finance_costs_row,
+        period_columns[0]["index"],
+    )
+    finance_costs_last_year = value_from_row(
+        finance_costs_row,
+        period_columns[1]["index"],
+    )
+
+    other_non_op_new = value_from_row(
+        other_non_op_row,
+        period_columns[0]["index"],
+    )
+    other_non_op_last_year = value_from_row(
+        other_non_op_row,
+        period_columns[1]["index"],
+    )
+
+    # مقادیر ردیف «درآمدهای عملیاتی» (اگر موجود نباشد، NULL ذخیره می‌شود)
+    if revenue_row is not None:
+        revenue_new = value_from_row(
+            revenue_row,
+            period_columns[0]["index"],
+        )
+        revenue_last_year = value_from_row(
+            revenue_row,
+            period_columns[1]["index"],
+        )
+    else:
+        revenue_new = None
+        revenue_last_year = None
+
     result = {
         "period_headers": [column["parts"] for column in period_columns],
         "values_to_insert": tuple(period_values),
         "operating_profit_new": operating_profit_new,
         "operating_profit_last_year": operating_profit_last_year,
+        "finance_costs_new": finance_costs_new,
+        "finance_costs_last_year": finance_costs_last_year,
+        "other_non_op_new": other_non_op_new,
+        "other_non_op_last_year": other_non_op_last_year,
+        "revenue_new": revenue_new,
+        "revenue_last_year": revenue_last_year,
         "matched_rows": {
             "net_eps": net_eps_row["raw_title"],
             "capital": capital_row["raw_title"],
             "operating_eps": operating_eps_row["raw_title"],
             "operating_profit": operating_profit_row["raw_title"],
+            "revenue": (
+                revenue_row["raw_title"] if revenue_row else None
+            ),
+            "finance_costs": (
+                finance_costs_row["raw_title"] if finance_costs_row else None
+            ),
+            "other_non_op": (
+                other_non_op_row["raw_title"] if other_non_op_row else None
+            ),
         },
     }
 
@@ -592,6 +680,18 @@ def extract_profit_loss_values(table):
         "✅ Operating profit: current=%s, prior=%s",
         operating_profit_new,
         operating_profit_last_year,
+    )
+    logging.info(
+        "✅ Finance costs: current=%s, prior=%s | Other non-op: current=%s, prior=%s",
+        finance_costs_new,
+        finance_costs_last_year,
+        other_non_op_new,
+        other_non_op_last_year,
+    )
+    logging.info(
+        "✅ Revenue: current=%s, prior=%s",
+        revenue_new,
+        revenue_last_year,
     )
 
     return result
@@ -670,6 +770,14 @@ def ensure_table(cursor, table_name):
             OperatingProfitNew FLOAT,
             OperatingProfitLastYear FLOAT,
 
+            FinanceCostsNew FLOAT,
+            FinanceCostsLastYear FLOAT,
+            OtherNonOpNew FLOAT,
+            OtherNonOpLastYear FLOAT,
+
+            RevenueNew FLOAT,
+            RevenueLastYear FLOAT,
+
             Url VARCHAR(550),
 
             CONSTRAINT PK_{table_name}_Company_ReportDate
@@ -678,21 +786,17 @@ def ensure_table(cursor, table_name):
         """
     )
 
-    cursor.execute(
-        f"""
-        IF COL_LENGTH('dbo.{table_name}', 'OperatingProfitNew') IS NULL
-        ALTER TABLE dbo.[{table_name}]
-        ADD OperatingProfitNew FLOAT NULL
-        """
-    )
-
-    cursor.execute(
-        f"""
-        IF COL_LENGTH('dbo.{table_name}', 'OperatingProfitLastYear') IS NULL
-        ALTER TABLE dbo.[{table_name}]
-        ADD OperatingProfitLastYear FLOAT NULL
-        """
-    )
+    for col in ("OperatingProfitNew", "OperatingProfitLastYear",
+                "FinanceCostsNew", "FinanceCostsLastYear",
+                "OtherNonOpNew", "OtherNonOpLastYear",
+                "RevenueNew", "RevenueLastYear"):
+        cursor.execute(
+            f"""
+            IF COL_LENGTH('dbo.{table_name}', '{col}') IS NULL
+            ALTER TABLE dbo.[{table_name}]
+            ADD {col} FLOAT NULL
+            """
+        )
 
 
 def wait_for_angular_stable(page, timeout=15000):
@@ -888,6 +992,12 @@ def save_profit_loss_to_sql(
     operating_profit_last_year,
     base_url,
     table_name,
+    finance_costs_new=None,
+    finance_costs_last_year=None,
+    other_non_op_new=None,
+    other_non_op_last_year=None,
+    revenue_new=None,
+    revenue_last_year=None,
 ):
     table_name = safe_sql_identifier(table_name)
 
@@ -952,9 +1062,17 @@ def save_profit_loss_to_sql(
                 OperatingProfitNew,
                 OperatingProfitLastYear,
 
+                FinanceCostsNew,
+                FinanceCostsLastYear,
+                OtherNonOpNew,
+                OtherNonOpLastYear,
+
+                RevenueNew,
+                RevenueLastYear,
+
                 Url
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             company_id,
             company_name,
@@ -962,6 +1080,12 @@ def save_profit_loss_to_sql(
             *values_to_insert,
             operating_profit_new,
             operating_profit_last_year,
+            finance_costs_new,
+            finance_costs_last_year,
+            other_non_op_new,
+            other_non_op_last_year,
+            revenue_new,
+            revenue_last_year,
             base_url,
         )
 
@@ -1050,6 +1174,12 @@ def scrape_report(page, link, company_name, base_url, table_name):
         operating_profit_last_year=extracted["operating_profit_last_year"],
         base_url=base_url,
         table_name=table_name,
+        finance_costs_new=extracted.get("finance_costs_new"),
+        finance_costs_last_year=extracted.get("finance_costs_last_year"),
+        other_non_op_new=extracted.get("other_non_op_new"),
+        other_non_op_last_year=extracted.get("other_non_op_last_year"),
+        revenue_new=extracted.get("revenue_new"),
+        revenue_last_year=extracted.get("revenue_last_year"),
     )
 
 

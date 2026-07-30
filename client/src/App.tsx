@@ -15,7 +15,8 @@ import Register from "./components/Register";
 import { getAuthStatus } from "./hooks/useGetUser";
 import { useEffect, useMemo, useState } from "react";
 import AIStockTable from "./components/AIStockTable";
-import { getAIStockSummary } from "./utils/api";
+import Portfolio from "./components/Portfolio";
+import { getAIStockSummary, type AIStockMetric } from "./utils/api";
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -61,38 +62,41 @@ const App = () => {
     document.title = selectedCompany ? `RFA | ${selectedCompany}` : "RFA";
   }, [selectedCompany]);
 
-  const [aiScores, setAiScores] = useState<Record<string, number | null>>({});
+  const [aiRows, setAiRows] = useState<Record<string, AIStockMetric>>({});
 
   useEffect(() => {
-    const loadAIScores = async () => {
+    const loadAIData = async () => {
       try {
         const rows = await getAIStockSummary(1000);
 
-        const scoreMap: Record<string, number | null> = {};
+        const rowMap: Record<string, AIStockMetric> = {};
 
         rows.forEach((row) => {
           if (row.company_id) {
-            scoreMap[String(row.company_id)] = row.quant_score ?? null;
+            rowMap[String(row.company_id)] = row;
           }
         });
 
-        setAiScores(scoreMap);
+        setAiRows(rowMap);
       } catch (err) {
-        console.error("Failed to load AI scores:", err);
+        console.error("Failed to load AI data:", err);
       }
     };
 
-    loadAIScores();
+    loadAIData();
   }, []);
 
   const bigTableData = useMemo(() => {
     const baseData = Array.isArray(allDataScore) ? allDataScore : [];
 
-    return baseData.map((row) => ({
-      ...row,
-      quant_score: aiScores[String(row.company_id)] ?? null,
-    }));
-  }, [allDataScore, aiScores]);
+    return baseData.map((row) => {
+      const ai = aiRows[String(row.company_id)];
+      return {
+        ...row,
+        ...ai,
+      };
+    });
+  }, [allDataScore, aiRows]);
 
   return (
     <div
@@ -111,7 +115,7 @@ const App = () => {
             companyProfits={
               allDataScore
                 ? allDataScore
-                : [{ companyName: "loading", epsGrowth: 0 }]
+                : [{ company_name: "loading", eps_growth: 0 }]
             }
             {...scriptModalProps}
             isAdmin={isAdmin}
@@ -133,7 +137,7 @@ const App = () => {
                     </p>
                   ) : (
                     <div className="flex flex-col justify-center h-full ">
-                      <div className="shadow-md backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                      <div className="py-2">
                         {data1 ? (
                           <div className="flex gap-3">
                             <div className="w-3/4">
@@ -151,7 +155,7 @@ const App = () => {
                           <p>Loading chart data...</p>
                         )}
                       </div>
-                      <div className="shadow-md mt-2 backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px]">
+                      <div className=" py-2">
                         {data2 ? (
                           <div className="flex gap-3">
                             <div className="w-3/4">
@@ -203,6 +207,14 @@ const App = () => {
                     onCompanyChange={handleCompanyChange}
                   />
                 </div>
+              }
+            />
+            <Route
+              path="/portfolio"
+              element={
+                <ProtectedRoute>
+                  <Portfolio />
+                </ProtectedRoute>
               }
             />
           </Routes>

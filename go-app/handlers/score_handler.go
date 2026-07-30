@@ -16,6 +16,7 @@ type EPSMetrics struct {
 	Product1s               []float64
 	OperatingProfitNews     []float64
 	OperatingProfitLastYear []float64
+	RevenueNews             []float64
 }
 
 func GetCompanyScores(c *gin.Context) {
@@ -33,7 +34,7 @@ func GetCompanyScores(c *gin.Context) {
 
 	// Query EPS data
 	// epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1 FROM miandore2"
-	epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1, OperatingProfitNew, OperatingProfitLastYear FROM miandore2"
+	epsQuery := "SELECT CompanyID, CompanyName, ReportDate, Product1, OperatingProfitNew, OperatingProfitLastYear, RevenueNew FROM miandore2"
 	epsRows, err := db.Query(epsQuery)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -95,9 +96,9 @@ func GetCompanyScores(c *gin.Context) {
 	epsMap := make(map[string]*EPSMetrics)
 	for epsRows.Next() {
 		var companyID, companyName, reportDate string
-		var product1, operatingProfitNew, OperatingProfitLastYear sql.NullFloat64
+		var product1, operatingProfitNew, OperatingProfitLastYear, revenueNew sql.NullFloat64
 
-		if err := epsRows.Scan(&companyID, &companyName, &reportDate, &product1, &operatingProfitNew, &OperatingProfitLastYear); err != nil {
+		if err := epsRows.Scan(&companyID, &companyName, &reportDate, &product1, &operatingProfitNew, &OperatingProfitLastYear, &revenueNew); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
@@ -109,6 +110,7 @@ func GetCompanyScores(c *gin.Context) {
 		epsMap[companyID].Product1s = append(epsMap[companyID].Product1s, nullToFloat(product1))
 		epsMap[companyID].OperatingProfitNews = append(epsMap[companyID].OperatingProfitNews, nullToFloat(operatingProfitNew))
 		epsMap[companyID].OperatingProfitLastYear = append(epsMap[companyID].OperatingProfitLastYear, nullToFloat(OperatingProfitLastYear))
+		epsMap[companyID].RevenueNews = append(epsMap[companyID].RevenueNews, nullToFloat(revenueNew))
 
 		if _, ok := nameMap[companyID]; !ok {
 			nameMap[companyID] = companyName
@@ -138,15 +140,12 @@ func GetCompanyScores(c *gin.Context) {
 		if hasEPS && epsData != nil {
 			eps = epsData.Product1s
 
-			if len(epsData.OperatingProfitNews) > 0 && len(epsData.OperatingProfitLastYear) > 0 {
+			if len(epsData.OperatingProfitNews) > 0 && len(epsData.RevenueNews) > 0 {
 				opNew := epsData.OperatingProfitNews[len(epsData.OperatingProfitNews)-1]
-				op := epsData.OperatingProfitLastYear[len(epsData.OperatingProfitLastYear)-1]
+				revenue := epsData.RevenueNews[len(epsData.RevenueNews)-1]
 
-				if !math.IsNaN(opNew) && !math.IsNaN(op) && op != 0 {
-					// operation = ((opNew-op)/math.Abs(op))*100
-					operation = op / opNew * 100
-					// operation = ((opNew - op) / math.Abs(op)) * 100
-					// operation = opNew
+				if !math.IsNaN(opNew) && !math.IsNaN(revenue) && revenue != 0 {
+					operation = opNew / revenue * 100
 				}
 			}
 

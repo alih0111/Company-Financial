@@ -191,6 +191,16 @@ export interface AIStockMetric {
   operating_profit_growth_4_reports: number;
   net_profit_growth_4_reports: number;
 
+  operating_margin_latest: number;
+  net_margin_latest: number;
+  revenue_growth_yoy: number;
+  interest_coverage: number;
+
+  net_profit_margin_12m: number;
+  operating_margin_12m: number;
+  operating_margin_trend: number;
+  ps_ratio: number;
+
   latest_eps: number;
   latest_operating_eps: number;
   latest_price: number;
@@ -209,6 +219,9 @@ export interface AIStockMetric {
   weak_sales_flag: boolean;
   weak_operating_profit_flag: boolean;
   weak_liquidity_flag: boolean;
+  loss_maker_flag: boolean;
+  weak_coverage_flag: boolean;
+  margin_contraction_flag: boolean;
 }
 
 export async function getAIStockSummary(limit = 20): Promise<AIStockMetric[]> {
@@ -220,6 +233,87 @@ export async function getAIStockSummary(limit = 20): Promise<AIStockMetric[]> {
     throw new Error(`Failed to fetch AI stock summary: ${res.status}`);
   }
 
+  return res.json();
+}
+
+// ----------------------------- Portfolio -----------------------------
+
+export interface PortfolioHoldingEnriched {
+  company_id: string;
+  symbol?: string;
+  company_name: string;
+  quantity: number;
+  buy_price: number;
+  buy_date?: string;
+  note?: string;
+
+  latest_price: number;
+  has_live_price: boolean;
+  market_value: number;
+  cost_basis: number;
+  gain: number;
+  gain_pct: number;
+  weight: number;
+}
+
+export interface PortfolioSummary {
+  total_cost: number;
+  total_cost_raw: number;
+  total_market_value: number;
+  total_gain: number;
+  total_gain_pct: number;
+  holdings_count: number;
+  holdings: PortfolioHoldingEnriched[];
+}
+
+export async function getPortfolio(): Promise<PortfolioSummary> {
+  const res = await fetch(`${API_BASE}/portfolio`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || "Failed to fetch portfolio");
+  }
+  return res.json();
+}
+
+export interface UpsertHoldingPayload {
+  company_id: string;
+  symbol?: string;
+  company_name: string;
+  quantity: number;
+  buy_price: number;
+  buy_date?: string;
+  note?: string;
+}
+
+export async function upsertHolding(
+  payload: UpsertHoldingPayload
+): Promise<any> {
+  const res = await fetch(`${API_BASE}/portfolio`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || "Failed to save holding");
+  }
+  return res.json();
+}
+
+export async function deleteHolding(companyID: string): Promise<any> {
+  const res = await fetch(
+    `${API_BASE}/portfolio/${encodeURIComponent(companyID)}`,
+    {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || "Failed to delete holding");
+  }
   return res.json();
 }
 

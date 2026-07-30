@@ -167,7 +167,13 @@ type SortKey =
   | "sales_growth_12m"
   | "operating_profit_growth_yoy"
   | "net_profit_growth_4_reports"
+  | "revenue_growth_yoy"
+  | "operating_margin_latest"
+  | "net_margin_latest"
+  | "interest_coverage"
+  | "operating_margin_trend"
   | "pe_approx"
+  | "ps_ratio"
   | "latest_price"
   | "price_return_30d"
   | "avg_trade_value_30d"
@@ -197,6 +203,12 @@ const columns: Column[] = [
     sortable: true,
   },
   {
+    key: "revenue_growth_yoy",
+    title: "رشد درآمد YoY",
+    className: "w-36",
+    sortable: true,
+  },
+  {
     key: "operating_profit_growth_yoy",
     title: "رشد سود عملیاتی",
     className: "w-40",
@@ -208,8 +220,33 @@ const columns: Column[] = [
     className: "w-36",
     sortable: true,
   },
-  { key: "pe_approx", title: "P/E تقریبی", className: "w-32", sortable: true },
-  { key: "latest_price", title: "قیمت", className: "w-32", sortable: true },
+  {
+    key: "operating_margin_latest",
+    title: "حاشیه عملیاتی",
+    className: "w-32",
+    sortable: true,
+  },
+  {
+    key: "net_margin_latest",
+    title: "حاشیه خالص",
+    className: "w-32",
+    sortable: true,
+  },
+  {
+    key: "operating_margin_trend",
+    title: "روند حاشیه",
+    className: "w-32",
+    sortable: true,
+  },
+  {
+    key: "interest_coverage",
+    title: "پوشش بهره",
+    className: "w-32",
+    sortable: true,
+  },
+  { key: "pe_approx", title: "P/E", className: "w-28", sortable: true },
+  { key: "ps_ratio", title: "P/S", className: "w-28", sortable: true },
+  { key: "latest_price", title: "قیمت", className: "w-28", sortable: true },
   {
     key: "price_return_30d",
     title: "بازده ۳۰D",
@@ -222,7 +259,7 @@ const columns: Column[] = [
     className: "w-44",
     sortable: true,
   },
-  { key: "risks", title: "ریسک‌ها", className: "w-44", sortable: false },
+  { key: "risks", title: "ریسک‌ها", className: "w-48", sortable: false },
 ];
 
 const getRisks = (row: AIStockMetric) => {
@@ -231,6 +268,9 @@ const getRisks = (row: AIStockMetric) => {
     row.weak_sales_flag ? "فروش" : "",
     row.weak_operating_profit_flag ? "سود عملیاتی" : "",
     row.weak_liquidity_flag ? "نقدشوندگی" : "",
+    row.loss_maker_flag ? "زیان‌ده" : "",
+    row.weak_coverage_flag ? "بهره" : "",
+    row.margin_contraction_flag ? "انقباض حاشیه" : "",
   ]
     .filter(Boolean)
     .join("، ");
@@ -262,15 +302,74 @@ const PercentCell = ({ value }: { value: number }) => {
 const ScoreCell = ({ value }: { value: number }) => {
   let colorClass = "";
 
-  // if (value >= 70) {
-  //   colorClass = "text-green-600 dark:text-green-400 font-semibold";
-  // } else if (value < 45) {
-  //   colorClass = "text-red-600 dark:text-red-400 font-semibold";
-  // } else {
-  // }
-  colorClass = "text-indigo-600 dark:text-indigo-400 font-semibold";
+  if (value >= 70) {
+    colorClass = "text-green-600 dark:text-green-400 font-bold";
+  } else if (value >= 55) {
+    colorClass = "text-green-600 dark:text-green-400 font-semibold";
+  } else if (value >= 40) {
+    colorClass = "text-indigo-600 dark:text-indigo-400 font-semibold";
+  } else if (value >= 25) {
+    colorClass = "text-yellow-600 dark:text-yellow-400";
+  } else {
+    colorClass = "text-red-600 dark:text-red-400 font-semibold";
+  }
 
   return <span className={colorClass}>{fmt(value)}</span>;
+};
+
+const MarginCell = ({ value }: { value: number }) => {
+  let colorClass = "";
+
+  if (value != null && value !== 0) {
+    if (value >= 25) {
+      colorClass = "text-green-600 dark:text-green-400 font-bold";
+    } else if (value >= 15) {
+      colorClass = "text-green-600 dark:text-green-400 font-medium";
+    } else if (value >= 10) {
+      colorClass = "text-lime-600 dark:text-lime-400";
+    } else if (value >= 5) {
+      colorClass = "text-yellow-600 dark:text-yellow-400";
+    } else if (value > 0) {
+      colorClass = "text-orange-600 dark:text-orange-400";
+    } else {
+      colorClass = "text-red-600 dark:text-red-400 font-semibold";
+    }
+  }
+
+  return <span className={colorClass}>{value != null ? value.toFixed(2) + "%" : "--"}</span>;
+};
+
+const TrendCell = ({ value }: { value: number }) => {
+  let colorClass = "";
+
+  if (value != null && value !== 0) {
+    if (value > 2) {
+      colorClass = "text-green-600 dark:text-green-400 font-semibold";
+    } else if (value < -2) {
+      colorClass = "text-red-600 dark:text-red-400 font-semibold";
+    }
+  }
+
+  const display = value != null ? (value > 0 ? "+" : "") + value.toFixed(2) + "%" : "--";
+  return <span className={colorClass}>{display}</span>;
+};
+
+const CoverageCell = ({ value }: { value: number }) => {
+  let colorClass = "";
+
+  if (value != null && value !== 0) {
+    if (value >= 5) {
+      colorClass = "text-green-600 dark:text-green-400 font-semibold";
+    } else if (value >= 2) {
+      colorClass = "text-green-600 dark:text-green-400";
+    } else if (value >= 1.5) {
+      colorClass = "text-yellow-600 dark:text-yellow-400";
+    } else {
+      colorClass = "text-red-600 dark:text-red-400 font-semibold";
+    }
+  }
+
+  return <span className={colorClass}>{fmt(value, 2)}</span>;
 };
 
 const PECell = ({ value }: { value: number }) => {
@@ -279,6 +378,18 @@ const PECell = ({ value }: { value: number }) => {
   if (value != null && value > 0 && value < 6) {
     colorClass = "text-green-600 dark:text-green-400 font-semibold";
   } else if (value <= 0 || value > 80) {
+    colorClass = "text-red-600 dark:text-red-400 font-semibold";
+  }
+
+  return <span className={colorClass}>{fmt(value)}</span>;
+};
+
+const PSCell = ({ value }: { value: number }) => {
+  let colorClass = "";
+
+  if (value != null && value > 0 && value < 1) {
+    colorClass = "text-green-600 dark:text-green-400 font-semibold";
+  } else if (value != null && value > 10) {
     colorClass = "text-red-600 dark:text-red-400 font-semibold";
   }
 
@@ -496,6 +607,10 @@ const AIStockTable: React.FC = () => {
                 </td>
 
                 <td className="p-2 text-center text-gray-700 dark:text-gray-300">
+                  <PercentCell value={row.revenue_growth_yoy} />
+                </td>
+
+                <td className="p-2 text-center text-gray-700 dark:text-gray-300">
                   <PercentCell value={row.operating_profit_growth_yoy} />
                 </td>
 
@@ -504,7 +619,27 @@ const AIStockTable: React.FC = () => {
                 </td>
 
                 <td className="p-2 text-center text-gray-700 dark:text-gray-300">
+                  <MarginCell value={row.operating_margin_latest} />
+                </td>
+
+                <td className="p-2 text-center text-gray-700 dark:text-gray-300">
+                  <MarginCell value={row.net_margin_latest} />
+                </td>
+
+                <td className="p-2 text-center text-gray-700 dark:text-gray-300">
+                  <TrendCell value={row.operating_margin_trend} />
+                </td>
+
+                <td className="p-2 text-center text-gray-700 dark:text-gray-300">
+                  <CoverageCell value={row.interest_coverage} />
+                </td>
+
+                <td className="p-2 text-center text-gray-700 dark:text-gray-300">
                   <PECell value={row.pe_approx} />
+                </td>
+
+                <td className="p-2 text-center text-gray-700 dark:text-gray-300">
+                  <PSCell value={row.ps_ratio} />
                 </td>
 
                 <td className="p-2 text-center text-gray-700 dark:text-gray-300">

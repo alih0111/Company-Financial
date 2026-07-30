@@ -85,6 +85,18 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	var operatingProfitGrowth4Reports sql.NullFloat64
 	var netProfitGrowth4Reports sql.NullFloat64
 
+	// معیارهای دقیق هم‌منبع از آخرین گزارش
+	var operatingMarginLatest sql.NullFloat64
+	var netMarginLatest sql.NullFloat64
+	var revenueGrowthYoY sql.NullFloat64
+	var interestCoverage sql.NullFloat64
+
+	// معیارهای ۱۲ ماهه (fallback)
+	var netProfitMargin12M sql.NullFloat64
+	var operatingMargin12M sql.NullFloat64
+	var operatingMarginTrend sql.NullFloat64
+	var psRatio sql.NullFloat64
+
 	var latestEPS sql.NullFloat64
 	var latestOperatingEPS sql.NullFloat64
 	var latestPrice sql.NullFloat64
@@ -104,6 +116,9 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	var weakSalesFlag sql.NullBool
 	var weakOperatingProfitFlag sql.NullBool
 	var weakLiquidityFlag sql.NullBool
+	var lossMakerFlag sql.NullBool
+	var weakCoverageFlag sql.NullBool
+	var marginContractionFlag sql.NullBool
 
 	err := rows.Scan(
 		&r.CompanyID,
@@ -126,6 +141,16 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 		&operatingProfitGrowth4Reports,
 		&netProfitGrowth4Reports,
 
+		&operatingMarginLatest,
+		&netMarginLatest,
+		&revenueGrowthYoY,
+		&interestCoverage,
+
+		&netProfitMargin12M,
+		&operatingMargin12M,
+		&operatingMarginTrend,
+		&psRatio,
+
 		&latestEPS,
 		&latestOperatingEPS,
 		&latestPrice,
@@ -144,6 +169,9 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 		&weakSalesFlag,
 		&weakOperatingProfitFlag,
 		&weakLiquidityFlag,
+		&lossMakerFlag,
+		&weakCoverageFlag,
+		&marginContractionFlag,
 	)
 
 	if err != nil {
@@ -169,6 +197,16 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	r.OperatingProfitGrowth4Reports = nfloat(operatingProfitGrowth4Reports)
 	r.NetProfitGrowth4Reports = nfloat(netProfitGrowth4Reports)
 
+	r.OperatingMarginLatest = nfloat(operatingMarginLatest)
+	r.NetMarginLatest = nfloat(netMarginLatest)
+	r.RevenueGrowthYoY = nfloat(revenueGrowthYoY)
+	r.InterestCoverage = nfloat(interestCoverage)
+
+	r.NetProfitMargin12M = nfloat(netProfitMargin12M)
+	r.OperatingMargin12M = nfloat(operatingMargin12M)
+	r.OperatingMarginTrend = nfloat(operatingMarginTrend)
+	r.PSRatio = nfloat(psRatio)
+
 	r.LatestEPS = nfloat(latestEPS)
 	r.LatestOperatingEPS = nfloat(latestOperatingEPS)
 	r.LatestPrice = nfloat(latestPrice)
@@ -187,6 +225,9 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	r.WeakSalesFlag = nbool(weakSalesFlag)
 	r.WeakOperatingProfitFlag = nbool(weakOperatingProfitFlag)
 	r.WeakLiquidityFlag = nbool(weakLiquidityFlag)
+	r.LossMakerFlag = nbool(lossMakerFlag)
+	r.WeakCoverageFlag = nbool(weakCoverageFlag)
+	r.MarginContractionFlag = nbool(marginContractionFlag)
 
 	return r, nil
 }
@@ -224,6 +265,16 @@ func GetAIStockSummary(c *gin.Context) {
             OperatingProfitGrowth4Reports,
             NetProfitGrowth4Reports,
 
+            OperatingMarginLatest,
+            NetMarginLatest,
+            RevenueGrowthYoY,
+            InterestCoverage,
+
+            NetProfitMargin12M,
+            OperatingMargin12M,
+            OperatingMarginTrend,
+            PSRatio,
+
             LatestEPS,
             LatestOperatingEPS,
             LatestPrice,
@@ -241,7 +292,10 @@ func GetAIStockSummary(c *gin.Context) {
             BadPEFlag,
             WeakSalesFlag,
             WeakOperatingProfitFlag,
-            WeakLiquidityFlag
+            WeakLiquidityFlag,
+            LossMakerFlag,
+            WeakCoverageFlag,
+            MarginContractionFlag
         FROM dbo.vw_AIStockMetrics
 		WHERE ISNULL(AvgTradeValue30D, 0) >= @minAvgTradeValue30D
         ORDER BY QuantScore DESC
@@ -300,6 +354,16 @@ func getOneSummaryByCompanyID(db *sql.DB, companyID string) (models.AIStockMetri
             OperatingProfitGrowth4Reports,
             NetProfitGrowth4Reports,
 
+            OperatingMarginLatest,
+            NetMarginLatest,
+            RevenueGrowthYoY,
+            InterestCoverage,
+
+            NetProfitMargin12M,
+            OperatingMargin12M,
+            OperatingMarginTrend,
+            PSRatio,
+
             LatestEPS,
             LatestOperatingEPS,
             LatestPrice,
@@ -317,7 +381,10 @@ func getOneSummaryByCompanyID(db *sql.DB, companyID string) (models.AIStockMetri
             BadPEFlag,
             WeakSalesFlag,
             WeakOperatingProfitFlag,
-            WeakLiquidityFlag
+            WeakLiquidityFlag,
+            LossMakerFlag,
+            WeakCoverageFlag,
+            MarginContractionFlag
         FROM dbo.vw_AIStockMetrics
         WHERE CompanyID = @companyID
     `
@@ -447,7 +514,11 @@ func getProfitPoints(db *sql.DB, companyID string, limit int) ([]models.AIProfit
             Num4_Value1,
             Product1,
             OperatingProfitNew,
-            OperatingProfitLastYear
+            OperatingProfitLastYear,
+            FinanceCostsNew,
+            FinanceCostsLastYear,
+            OtherNonOpNew,
+            OtherNonOpLastYear
         FROM dbo.miandore2
         WHERE CompanyID = @companyID
           AND dbo.fn_JalaliKey(ReportDate) IS NOT NULL
@@ -469,6 +540,7 @@ func getProfitPoints(db *sql.DB, companyID string, limit int) ([]models.AIProfit
 	for rows.Next() {
 		var r models.AIProfitPoint
 		var netEPS, capital, operatingEPS, netProfit, opNew, opLast sql.NullFloat64
+		var fcNew, fcLast, nonNew, nonLast sql.NullFloat64
 
 		if err := rows.Scan(
 			&r.ReportDate,
@@ -478,6 +550,10 @@ func getProfitPoints(db *sql.DB, companyID string, limit int) ([]models.AIProfit
 			&netProfit,
 			&opNew,
 			&opLast,
+			&fcNew,
+			&fcLast,
+			&nonNew,
+			&nonLast,
 		); err != nil {
 			return nil, err
 		}
@@ -488,6 +564,10 @@ func getProfitPoints(db *sql.DB, companyID string, limit int) ([]models.AIProfit
 		r.NetProfitApprox = nfloat(netProfit)
 		r.OperatingProfitNew = nfloat(opNew)
 		r.OperatingProfitLastYear = nfloat(opLast)
+		r.FinanceCostsNew = nfloat(fcNew)
+		r.FinanceCostsLastYear = nfloat(fcLast)
+		r.OtherNonOpNew = nfloat(nonNew)
+		r.OtherNonOpLastYear = nfloat(nonLast)
 
 		result = append(result, r)
 	}
@@ -746,6 +826,16 @@ func AnalyzeTopStocksWithAI(c *gin.Context) {
             OperatingProfitGrowth4Reports,
             NetProfitGrowth4Reports,
 
+            OperatingMarginLatest,
+            NetMarginLatest,
+            RevenueGrowthYoY,
+            InterestCoverage,
+
+            NetProfitMargin12M,
+            OperatingMargin12M,
+            OperatingMarginTrend,
+            PSRatio,
+
             LatestEPS,
             LatestOperatingEPS,
             LatestPrice,
@@ -763,7 +853,10 @@ func AnalyzeTopStocksWithAI(c *gin.Context) {
             BadPEFlag,
             WeakSalesFlag,
             WeakOperatingProfitFlag,
-            WeakLiquidityFlag
+            WeakLiquidityFlag,
+            LossMakerFlag,
+            WeakCoverageFlag,
+            MarginContractionFlag
         FROM dbo.vw_AIStockMetrics
 		WHERE ISNULL(AvgTradeValue30D, 0) >= @minAvgTradeValue30D
         ORDER BY QuantScore DESC
