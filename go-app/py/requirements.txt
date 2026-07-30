@@ -1,0 +1,5 @@
+# وابستگی‌های کالکتور قیمت BRS
+# (pyodbc و python-dotenv قبلاً توسط price.py استفاده می‌شوند)
+requests>=2.31.0
+pyodbc>=5.1.0
+python-dotenv>=1.0.1

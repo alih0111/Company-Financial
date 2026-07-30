@@ -40,8 +40,6 @@ WITH CompanyList AS (
         SELECT CompanyID, CompanyName FROM dbo.mahane WHERE CompanyID IS NOT NULL
         UNION ALL
         SELECT CompanyID, CompanyName FROM dbo.miandore2 WHERE CompanyID IS NOT NULL
-        UNION ALL
-        SELECT CompanyID, CompanyName FROM dbo.MarketPriceHistory WHERE CompanyID IS NOT NULL
     ) x
     GROUP BY CompanyID
 ),

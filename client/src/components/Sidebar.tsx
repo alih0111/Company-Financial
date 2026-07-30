@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Select from "react-select";
 import NavigationButton from "./NavigationButton";
-import { addViewedItem, fetchFullPE } from "../utils/api";
+import { addViewedItem, collectBrsPrices, fetchFullPE } from "../utils/api";
 
 interface SidebarProps {
   companyOptions: { value: string; label: string }[];
@@ -38,10 +38,40 @@ const Sidebar: React.FC<SidebarProps> = ({
   username,
 }) => {
   const [loadingFullPE, setLoadingFullPE] = useState(false);
+  const [loadingBrsDaily, setLoadingBrsDaily] = useState(false);
+  const [loadingBrsBackfill, setLoadingBrsBackfill] = useState(false);
+  const [brsMsg, setBrsMsg] = useState<string | null>(null);
+
   const fullPE = async () => {
     setLoadingFullPE(true);
     const res = await fetchFullPE();
     setLoadingFullPE(false);
+  };
+
+  const runBrsDaily = async () => {
+    setLoadingBrsDaily(true);
+    setBrsMsg(null);
+    try {
+      await collectBrsPrices("daily");
+      setBrsMsg("قیمت روزانه ذخیره شد ✓");
+    } catch (e: any) {
+      setBrsMsg(e?.message || "خطا در دریافت قیمت");
+    } finally {
+      setLoadingBrsDaily(false);
+    }
+  };
+
+  const runBrsBackfill = async () => {
+    setLoadingBrsBackfill(true);
+    setBrsMsg(null);
+    try {
+      await collectBrsPrices("backfill");
+      setBrsMsg("تاریخچه قیمت به‌روزرسانی شد ✓");
+    } catch (e: any) {
+      setBrsMsg(e?.message || "خطا در backfill");
+    } finally {
+      setLoadingBrsBackfill(false);
+    }
   };
 
   const handleCompanySelect = async (companyName: string) => {
@@ -196,6 +226,43 @@ const Sidebar: React.FC<SidebarProps> = ({
               >
                 {runningScripts.full ? "Running..." : "Full Data Gathering"}
               </button>
+
+              <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                  BRS Prices
+                </h3>
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={runBrsDaily}
+                    disabled={loadingBrsDaily}
+                    className={`w-full h-9 text-white rounded-xl font-sm tracking-wide shadow-lg transition-all duration-200
+                      ${
+                        loadingBrsDaily
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-xl"
+                      }`}
+                  >
+                    {loadingBrsDaily ? "Running..." : "Daily Prices"}
+                  </button>
+                  <button
+                    onClick={runBrsBackfill}
+                    disabled={loadingBrsBackfill}
+                    className={`w-full h-9 text-white rounded-xl font-sm tracking-wide shadow-lg transition-all duration-200
+                      ${
+                        loadingBrsBackfill
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 hover:shadow-xl"
+                      }`}
+                  >
+                    {loadingBrsBackfill ? "Running..." : "Backfill History"}
+                  </button>
+                  {brsMsg && (
+                    <p className="text-xs text-center text-gray-600 dark:text-gray-300">
+                      {brsMsg}
+                    </p>
+                  )}
+                </div>
+              </div>
             </div>
           </>
         )}

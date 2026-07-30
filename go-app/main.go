@@ -44,6 +44,9 @@ func main() {
 		protected.GET("/FetchFullPE", handlers.RunScriptPE)
 		protected.POST("/users/get-items", handlers.AddViewedItem)
 
+		// کالکتور قیمت BRS (فقط ادمین) → py/brs_prices.py
+		protected.POST("/brs/collect", handlers.RunBrsCollector)
+
 		protected.GET("/summary", handlers.GetAIStockSummary)
 		protected.GET("/detail", handlers.GetAIStockDetail)
 		protected.POST("/analyze", handlers.AnalyzeTopStocksWithAI)

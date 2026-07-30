@@ -337,3 +337,29 @@ export async function analyzeTopStocks(limit = 20): Promise<any> {
 
   return res.json();
 }
+
+// ----------------------------- BRS Price Collector -----------------------------
+
+export type BrsCollectMode = "daily" | "backfill";
+
+export async function collectBrsPrices(
+  mode: BrsCollectMode = "daily",
+  options?: { limit?: number; symbol?: string }
+): Promise<any> {
+  const res = await fetch(`${API_BASE}/brs/collect`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({
+      mode,
+      limit: options?.limit,
+      symbol: options?.symbol,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || `BRS collect failed: ${res.status}`);
+  }
+
+  return res.json();
+}
