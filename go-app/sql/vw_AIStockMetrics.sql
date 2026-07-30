@@ -559,7 +559,11 @@ Ranked AS (
                         THEN b.InterestCoverage
                     ELSE -999999.0
                 END
-        ) AS InterestCoverageRank
+        ) AS InterestCoverageRank,
+
+        -- NEW v2: کیفیت سود — هرچه سهم غیرعملیاتی کمتر = سود پایدارتر = بهتر
+        -- رتبه‌بندی معکوس: NonOperatingPct پایین = بهتر = رتبه بالا
+        1.0 - CUME_DIST() OVER (ORDER BY ISNULL(b.NonOperatingPct, 999999.0)) AS EarningsQualityRank
     FROM BaseMetrics b
 )
 
@@ -688,16 +692,17 @@ SELECT
     --
     --  محاسبه‌ی وزن رتبه‌ها (مجموع وزن‌ها = 1.00):
     --
-    --   0.12  SalesGrowthRank         رشد فروش سالانه
+    --   0.11  SalesGrowthRank         رشد فروش سالانه
     --   0.05  SalesGrowth3MRank        رشد فروش 3 ماهه
-    --   0.10  RevenueGrowthRank        رشد درآمد دقیق YoY         (NEW v2)
-    --   0.12  OperatingProfitRank      رشد سود عملیاتی YoY
-    --   0.08  NetProfitRank            رشد سود خالص 4 گزارش
-    --   0.08  OperatingMarginLatestRank حاشیه عملیاتی دقیق         (NEW v2)
+    --   0.09  RevenueGrowthRank        رشد درآمد دقیق YoY
+    --   0.11  OperatingProfitRank      رشد سود عملیاتی YoY
+    --   0.07  NetProfitRank            رشد سود خالص 4 گزارش
+    --   0.07  OperatingMarginLatestRank حاشیه عملیاتی دقیق
     --   0.05  NetMarginRank            حاشیه سود خالص 12M
     --   0.05  MarginTrendRank          روند تغییر حاشیه
-    --   0.05  InterestCoverageRank     پوشش بهره                   (NEW v2)
-    --   0.10  PERank                   ارزانی P/E
+    --   0.05  InterestCoverageRank     پوشش بهره
+    --   0.06  EarningsQualityRank      کیفیت سود (سهم غیرعملیاتی)  (NEW v2)
+    --   0.09  PERank                   ارزانی P/E
     --   0.04  PSRank                   ارزانی P/S
     --   0.06  StabilityRank            ثبات فروش
     --   0.06  LiquidityRank            نقدشوندگی
@@ -713,20 +718,22 @@ SELECT
     --   -15%  اگر شرکت زیان‌ده (سود خالص 4 گزارشه منفی)
     --   -08%  اگر پوشش بهره ضعیف (< 1.5)
     --   -05%  اگر انقباض حاشیه عملیاتی (> -2%)
+    --   -08%  اگر سهم غیرعملیاتی بالا (> 30%)                 (NEW v2)
     -- ----------------------------------------------------------------------
     ROUND(
         100.0 *
         (
-            0.12 * SalesGrowthRank
+            0.11 * SalesGrowthRank
             + 0.05 * SalesGrowth3MRank
-            + 0.10 * RevenueGrowthRank
-            + 0.12 * OperatingProfitRank
-            + 0.08 * NetProfitRank
-            + 0.08 * OperatingMarginLatestRank
+            + 0.09 * RevenueGrowthRank
+            + 0.11 * OperatingProfitRank
+            + 0.07 * NetProfitRank
+            + 0.07 * OperatingMarginLatestRank
             + 0.05 * NetMarginRank
             + 0.05 * MarginTrendRank
             + 0.05 * InterestCoverageRank
-            + 0.10 * PERank
+            + 0.06 * EarningsQualityRank
+            + 0.09 * PERank
             + 0.04 * PSRank
             + 0.06 * StabilityRank
             + 0.06 * LiquidityRank
@@ -742,6 +749,7 @@ SELECT
             - 0.15 * CASE WHEN NetProfitLast4Reports IS NULL OR NetProfitLast4Reports < 0 THEN 1 ELSE 0 END
             - 0.08 * CASE WHEN InterestCoverage IS NOT NULL AND InterestCoverage < 1.5 THEN 1 ELSE 0 END
             - 0.05 * CASE WHEN OperatingMarginTrend IS NOT NULL AND OperatingMarginTrend < -2 THEN 1 ELSE 0 END
+            - 0.08 * CASE WHEN NonOperatingPct IS NOT NULL AND NonOperatingPct > 30 THEN 1 ELSE 0 END
         )
     , 2) AS QuantScore
 FROM Ranked;
