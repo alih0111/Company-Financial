@@ -561,6 +561,19 @@ def extract_profit_loss_values(table):
         column_indexes=period_indexes,
     )
 
+    # در گزارش‌های کشاورزی/دامداری، ردیف «سود/زیان فروش دارایی زیستی مولد»
+    # به‌صورت جداگانه ذکر می‌شود و جزء درآمدهای غیرعملیاتی است.
+    biological_asset_sale_row = find_row(
+        rows,
+        exact_titles=(
+            "سود (زیان) فروش دارایی زیستی مولد",
+            "سود زیان فروش دارایی زیستی مولد",
+            "سود (زیان) فروش دارایی\u200cهای زیستی مولد",
+        ),
+        contains_all=("فروش", "دارایی", "زیستی"),
+        column_indexes=period_indexes,
+    )
+
     missing = []
     if net_eps_row is None:
         missing.append("net EPS")
@@ -632,6 +645,21 @@ def extract_profit_loss_values(table):
         period_columns[1]["index"],
     )
 
+    # افزودن سود/زیان فروش دارایی زیستی مولد به درآمد غیرعملیاتی
+    # (در گزارش‌های کشاورزی/دامداری به‌صورت ردیف جداگانه ذکر می‌شود)
+    bio_sale_new = value_from_row(
+        biological_asset_sale_row,
+        period_columns[0]["index"],
+    )
+    bio_sale_last_year = value_from_row(
+        biological_asset_sale_row,
+        period_columns[1]["index"],
+    )
+
+    if biological_asset_sale_row is not None:
+        other_non_op_new = other_non_op_new + bio_sale_new
+        other_non_op_last_year = other_non_op_last_year + bio_sale_last_year
+
     # مقادیر ردیف «درآمدهای عملیاتی» (اگر موجود نباشد، NULL ذخیره می‌شود)
     if revenue_row is not None:
         revenue_new = value_from_row(
@@ -670,6 +698,11 @@ def extract_profit_loss_values(table):
             ),
             "other_non_op": (
                 other_non_op_row["raw_title"] if other_non_op_row else None
+            ),
+            "biological_asset_sale": (
+                biological_asset_sale_row["raw_title"]
+                if biological_asset_sale_row
+                else None
             ),
         },
     }
@@ -1034,8 +1067,31 @@ def save_profit_loss_to_sql(
         exists = cursor.fetchone()[0]
 
         if exists:
-            logging.info("⏩ Already exists: %s - %s", company_name, report_date)
-            return False
+            # رکورد موجود است — ستون‌های جدید را آپدیت کن (اگر NULL باشند)
+            cursor.execute(
+                f"""
+                UPDATE dbo.[{table_name}]
+                SET
+                    FinanceCostsNew     = COALESCE(FinanceCostsNew, ?),
+                    FinanceCostsLastYear = COALESCE(FinanceCostsLastYear, ?),
+                    OtherNonOpNew       = COALESCE(OtherNonOpNew, ?),
+                    OtherNonOpLastYear  = COALESCE(OtherNonOpLastYear, ?),
+                    RevenueNew          = COALESCE(RevenueNew, ?),
+                    RevenueLastYear     = COALESCE(RevenueLastYear, ?)
+                WHERE CompanyID = ? AND ReportDate = ?
+                """,
+                finance_costs_new,
+                finance_costs_last_year,
+                other_non_op_new,
+                other_non_op_last_year,
+                revenue_new,
+                revenue_last_year,
+                company_id,
+                report_date,
+            )
+            conn.commit()
+            logging.info("🔄 Updated missing columns: %s - %s", company_name, report_date)
+            return True
 
         cursor.execute(
             f"""

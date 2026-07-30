@@ -195,6 +195,7 @@ export interface AIStockMetric {
   net_margin_latest: number;
   revenue_growth_yoy: number;
   interest_coverage: number;
+  non_operating_pct: number;
 
   net_profit_margin_12m: number;
   operating_margin_12m: number;

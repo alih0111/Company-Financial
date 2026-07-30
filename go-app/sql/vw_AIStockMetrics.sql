@@ -110,7 +110,8 @@ ProfitRaw AS (
         TRY_CONVERT(FLOAT, OperatingProfitLastYear) AS OperatingProfitLastYear,
         TRY_CONVERT(FLOAT, RevenueNew) AS RevenueNew,
         TRY_CONVERT(FLOAT, RevenueLastYear) AS RevenueLastYear,
-        TRY_CONVERT(FLOAT, FinanceCostsNew) AS FinanceCostsNew
+        TRY_CONVERT(FLOAT, FinanceCostsNew) AS FinanceCostsNew,
+        TRY_CONVERT(FLOAT, OtherNonOpNew) AS OtherNonOpNew
     FROM dbo.miandore2
     WHERE CompanyID IS NOT NULL
       AND dbo.fn_JalaliKey(ReportDate) IS NOT NULL
@@ -125,7 +126,8 @@ ProfitRaw AS (
         OperatingProfitLastYear,
         RevenueNew,
         RevenueLastYear,
-        FinanceCostsNew
+        FinanceCostsNew,
+        OtherNonOpNew
 ),
 
 ProfitRanked AS (
@@ -160,6 +162,7 @@ ProfitAgg AS (
         MAX(CASE WHEN rn = 1 THEN RevenueNew END) AS LatestRevenue,
         MAX(CASE WHEN rn = 1 THEN RevenueLastYear END) AS LatestRevenueLastYear,
         MAX(CASE WHEN rn = 1 THEN FinanceCostsNew END) AS LatestFinanceCosts,
+        MAX(CASE WHEN rn = 1 THEN OtherNonOpNew END) AS LatestOtherNonOp,
 
         SUM(CASE WHEN rn BETWEEN 1 AND 4 THEN NetProfit ELSE 0 END) AS NetProfitLast4Reports,
         SUM(CASE WHEN rn BETWEEN 5 AND 8 THEN NetProfit ELSE 0 END) AS NetProfitPrev4Reports,
@@ -276,6 +279,7 @@ BaseMetrics AS (
         p.LatestRevenue,
         p.LatestRevenueLastYear,
         p.LatestFinanceCosts,
+        p.LatestOtherNonOp,
 
         p.NetProfitLast4Reports,
         p.NetProfitPrev4Reports,
@@ -394,15 +398,16 @@ BaseMetrics AS (
             ELSE NULL
         END AS InterestCoverage,
 
-        -- سهم غیرعملیاتی از سود خالص (درصد)
-        -- (NetProfit - OperatingProfit) / NetProfit * 100
-        -- مثبت = بخشی از سود از منابع غیرعملیاتی (فروش دارایی، سود بانک، ...)
-        -- منفی = هزینه‌های غیرعملیاتی (مالیات، بهره) بیش از درآمد غیرعملیاتی
+        -- سهم درآمد غیرعملیاتی از سود عملیاتی (درصد)
+        -- (سایر درآمدها و هزینه‌های غیرعملیاتی) / سود عملیاتی × ۱۰۰
+        -- مثلاً اگه شرکت زمین فروخته باشه، این عدد بالا می‌شه
+        -- عدد پایین/نزدیک صفر = سود باکیفیت (از فعالیت اصلی)
+        -- عدد بالا = سود وابسته به منابع یکبار/غیرعملیاتی
         CASE
-            WHEN p.LatestNetProfit IS NOT NULL
+            WHEN p.LatestOtherNonOp IS NOT NULL
              AND p.LatestOperatingProfit IS NOT NULL
-             AND ABS(p.LatestNetProfit) > 0
-                THEN ((p.LatestNetProfit - p.LatestOperatingProfit) / ABS(p.LatestNetProfit)) * 100.0
+             AND ABS(p.LatestOperatingProfit) > 0
+                THEN (p.LatestOtherNonOp / ABS(p.LatestOperatingProfit)) * 100.0
             ELSE NULL
         END AS NonOperatingPct,
 

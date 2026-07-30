@@ -90,6 +90,7 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	var netMarginLatest sql.NullFloat64
 	var revenueGrowthYoY sql.NullFloat64
 	var interestCoverage sql.NullFloat64
+	var nonOperatingPct sql.NullFloat64
 
 	// معیارهای ۱۲ ماهه (fallback)
 	var netProfitMargin12M sql.NullFloat64
@@ -145,6 +146,7 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 		&netMarginLatest,
 		&revenueGrowthYoY,
 		&interestCoverage,
+		&nonOperatingPct,
 
 		&netProfitMargin12M,
 		&operatingMargin12M,
@@ -201,6 +203,7 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	r.NetMarginLatest = nfloat(netMarginLatest)
 	r.RevenueGrowthYoY = nfloat(revenueGrowthYoY)
 	r.InterestCoverage = nfloat(interestCoverage)
+	r.NonOperatingPct = nfloat(nonOperatingPct)
 
 	r.NetProfitMargin12M = nfloat(netProfitMargin12M)
 	r.OperatingMargin12M = nfloat(operatingMargin12M)
@@ -239,8 +242,8 @@ func GetAIStockSummary(c *gin.Context) {
 	limit := parseIntQuery(c, "limit", 20)
 	minAvgTradeValue30D := parseFloatQuery(c, "min_avg_trade_value_30d", 0)
 
-	if limit > 100 {
-		limit = 100
+	if limit > 1000 {
+		limit = 1000
 	}
 
 	query := `
@@ -269,6 +272,7 @@ func GetAIStockSummary(c *gin.Context) {
             NetMarginLatest,
             RevenueGrowthYoY,
             InterestCoverage,
+            NonOperatingPct,
 
             NetProfitMargin12M,
             OperatingMargin12M,
@@ -358,6 +362,7 @@ func getOneSummaryByCompanyID(db *sql.DB, companyID string) (models.AIStockMetri
             NetMarginLatest,
             RevenueGrowthYoY,
             InterestCoverage,
+            NonOperatingPct,
 
             NetProfitMargin12M,
             OperatingMargin12M,
@@ -830,6 +835,7 @@ func AnalyzeTopStocksWithAI(c *gin.Context) {
             NetMarginLatest,
             RevenueGrowthYoY,
             InterestCoverage,
+            NonOperatingPct,
 
             NetProfitMargin12M,
             OperatingMargin12M,

@@ -105,6 +105,7 @@ interface DataRow {
   net_margin_latest?: number | null;
   operating_margin_trend?: number | null;
   interest_coverage?: number | null;
+  non_operating_pct?: number | null;
   ps_ratio?: number | null;
   latest_price?: number | null;
   pe_approx?: number | null;
@@ -153,6 +154,35 @@ const BigDataTable: React.FC<Props> = ({
           return (
             <span className={colorClass}>
               {value === true ? "Yes" : value === false ? "No" : "--"}
+            </span>
+          );
+        },
+      },
+      {
+        Header: "غیرعملیاتی",
+        accessor: "non_operating_pct",
+        sortType: "numericSort",
+        className: "w-32",
+        Cell: ({ value }: { value: number | null | undefined }) => {
+          let colorClass = "";
+
+          if (value != null && Number.isFinite(value)) {
+            if (value < 5) {
+              colorClass = "text-green-600 dark:text-green-400";
+            } else if (value < 15) {
+              colorClass = "text-yellow-600 dark:text-yellow-400";
+            } else if (value < 30) {
+              colorClass = "text-orange-600 dark:text-orange-400";
+            } else {
+              colorClass = "text-red-600 dark:text-red-400 font-semibold";
+            }
+          }
+
+          return (
+            <span className={colorClass}>
+              {value != null && Number.isFinite(value)
+                ? value.toFixed(2) + "%"
+                : "--"}
             </span>
           );
         },
@@ -233,6 +263,7 @@ const BigDataTable: React.FC<Props> = ({
           );
         },
       },
+
       {
         Header: "EPS Growth",
         accessor: "eps_growth",
@@ -351,6 +382,7 @@ const BigDataTable: React.FC<Props> = ({
             ? "No"
             : "--",
       "AI Score": fmt(row.quant_score),
+      غیرعملیاتی: pct(row.non_operating_pct),
       "حاشیه عملیاتی": pct(row.operation),
       "EPS Growth (%)":
         row.eps_growth != null ? row.eps_growth.toFixed(2) + "%" : "--",

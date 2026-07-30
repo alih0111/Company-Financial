@@ -26,6 +26,7 @@ type AIStockMetric struct {
 	NetMarginLatest       float64 `json:"net_margin_latest"`
 	RevenueGrowthYoY      float64 `json:"revenue_growth_yoy"`
 	InterestCoverage     float64 `json:"interest_coverage"`
+	NonOperatingPct      float64 `json:"non_operating_pct"`
 
 	// معیارهای ۱۲ ماهه (fallback)
 	NetProfitMargin12M float64 `json:"net_profit_margin_12m"`
