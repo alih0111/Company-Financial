@@ -44,6 +44,9 @@ func main() {
 		protected.GET("/FetchFullPE", handlers.RunScriptPE)
 		protected.POST("/users/get-items", handlers.AddViewedItem)
 
+		// تاریخچه‌ی قیمت نماد
+		protected.GET("/price-history", handlers.GetPriceHistory)
+
 		// کالکتور قیمت BRS (فقط ادمین) → py/brs_prices.py
 		protected.POST("/brs/collect", handlers.RunBrsCollector)
 

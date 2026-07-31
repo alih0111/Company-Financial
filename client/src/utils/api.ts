@@ -318,6 +318,39 @@ export async function deleteHolding(companyID: string): Promise<any> {
   return res.json();
 }
 
+// ----------------------------- Price History -----------------------------
+
+export interface PriceHistoryRow {
+  date: string;
+  jalali_date: string;
+  closing_price: number;
+  last_price: number;
+  high_price: number;
+  low_price: number;
+  volume: number;
+  trade_value: number;
+  change_percent: number;
+}
+
+export async function getPriceHistory(
+  companyName: string,
+  limit = 365
+): Promise<PriceHistoryRow[]> {
+  const res = await fetch(
+    `${API_BASE}/price-history?companyName=${encodeURIComponent(
+      companyName
+    )}&limit=${limit}`,
+    {
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || "Failed to fetch price history");
+  }
+  return res.json();
+}
+
 export async function analyzeTopStocks(limit = 20): Promise<any> {
   const res = await fetch(`${API_BASE}/analyze`, {
     method: "POST",

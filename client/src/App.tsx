@@ -1,5 +1,7 @@
 import Sidebar from "./components/Sidebar";
 import ChartComponent from "./components/ChartComponent";
+import PriceChart from "./components/PriceChart";
+import ScoreBreakdown from "./components/ScoreBreakdown";
 import useCompanyData from "./hooks/useCompanyData";
 import ScriptModal from "./components/ScriptModal";
 import { useDarkMode } from "./utils/theme";
@@ -173,6 +175,24 @@ const App = () => {
                           <p>Loading chart data...</p>
                         )}
                       </div>
+
+                      {/* نمودار قیمت سهم */}
+                      {selectedCompany && (
+                        <div className="py-2 min-h-[440px]">
+                          <PriceChart companyName={selectedCompany} />
+                        </div>
+                      )}
+
+                      {/* تجزیه‌ی امتیاز */}
+                      {selectedCompany && (
+                        <div className="py-2">
+                          <ScoreBreakdown
+                            metric={Object.values(aiRows).find(
+                              (r) => r.company_name === selectedCompany
+                            )}
+                          />
+                        </div>
+                      )}
                     </div>
                   )}
                 </ProtectedRoute>

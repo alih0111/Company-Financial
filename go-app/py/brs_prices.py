@@ -1040,6 +1040,342 @@ def cmd_daily(table_name="MarketPriceHistory"):
     _print_summary("daily", upserted, len(matched), len(unmatched), unmatched)
 
 
+def detect_corporate_events(days=14, threshold=-12.0, table_name="MarketPriceHistory"):
+    """
+    شناسایی نمادهایی که احتمالاً رویداد شرکتی (تقسیم سود، افزایش سرمایه، تجزیه)
+    داشته‌اند.
+
+    منطق: در بورس ایران دامنه‌ی نوسان روزانه ±۶٪ است. هر تغییر خارج از این
+    محدوده (با تلورانس) عملاً فقط ناشی از تعدیل قیمت پایه به دلیل رویداد
+    شرکتی است.
+
+    خروجی: لیستی از {symbol, instrument_code, company_id, date, pct_change}
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    events = []
+    try:
+        cursor.execute(
+            f"""
+            WITH Recent AS (
+                SELECT Symbol, InstrumentCode, CompanyID,
+                    GregorianDate, ClosingPrice,
+                    LAG(ClosingPrice) OVER (
+                        PARTITION BY InstrumentCode
+                        ORDER BY GregorianDate
+                    ) AS PrevClosing,
+                    ROW_NUMBER() OVER (
+                        PARTITION BY InstrumentCode
+                        ORDER BY GregorianDate DESC
+                    ) AS rn
+                FROM dbo.[{safe_sql_identifier(table_name)}]
+                WHERE CompanyID IS NOT NULL
+            )
+            SELECT Symbol, InstrumentCode, CompanyID,
+                GregorianDate,
+                CAST((ClosingPrice - PrevClosing) AS FLOAT)
+                    / NULLIF(PrevClosing, 0) * 100.0 AS pct
+            FROM Recent
+            WHERE rn BETWEEN 1 AND ?
+              AND PrevClosing IS NOT NULL AND PrevClosing > 0
+              AND (
+                  CAST((ClosingPrice - PrevClosing) AS FLOAT)
+                      / NULLIF(PrevClosing, 0) * 100.0 < ?
+                  OR
+                  CAST((ClosingPrice - PrevClosing) AS FLOAT)
+                      / NULLIF(PrevClosing, 0) * 100.0 > ?
+              )
+            ORDER BY GregorianDate DESC
+            """,
+            days, threshold, abs(threshold),
+        )
+        for sym, ic, cid, gdate, pct in cursor.fetchall():
+            events.append({
+                "symbol": sym,
+                "instrument_code": str(ic) if ic else "",
+                "company_id": str(cid) if cid else "",
+                "date": str(gdate),
+                "pct_change": round(float(pct), 2) if pct is not None else None,
+            })
+    finally:
+        cursor.close()
+        conn.close()
+    return events
+
+
+PRICE_COLUMNS = (
+    "ClosingPrice", "LastPrice", "FirstPrice",
+    "HighPrice", "LowPrice", "YesterdayPrice",
+)
+
+
+def local_adjust_prices(cursor, instrument_code, events, table_name):
+    """
+    تعدیل محلی قیمت‌ها بدون نیاز به API.
+
+    برای هر رویداد شرکتی، ضریب تعدیل محاسبه و روی قیمت‌های قبل از رویداد
+    اعمال می‌شود:
+        factor = close روز رویداد / close روز قبل
+
+    رویدادها از قدیم به جدید پردازش می‌شوند تا ضریب‌ها تجمعی اعمال شوند.
+
+    خروجی: تعداد ردیف‌های تعدیل‌شده.
+    """
+    table = safe_sql_identifier(table_name)
+
+    # بارگذاری همه‌ی قیمت‌های این نماد به ترتیب تاریخ
+    cursor.execute(
+        f"""
+        SELECT GregorianDate, ClosingPrice, LastPrice, FirstPrice,
+               HighPrice, LowPrice, YesterdayPrice
+        FROM dbo.[{table}]
+        WHERE InstrumentCode = ?
+        ORDER BY GregorianDate
+        """,
+        instrument_code,
+    )
+    cols = [d[0] for d in cursor.description]
+    rows = []
+    by_date = {}
+    for r in cursor.fetchall():
+        row = dict(zip(cols, r))
+        rows.append(row)
+        by_date[str(row["GregorianDate"])] = row
+
+    if not rows:
+        return 0
+
+    # مرتب‌سازی رویدادها از قدیم به جدید
+    sorted_events = sorted(events, key=lambda e: e["date"])
+
+    total_adjusted = 0
+    for event in sorted_events:
+        event_date = event["date"]
+        gap_row = by_date.get(event_date)
+        if gap_row is None:
+            continue
+
+        gap_close = gap_row.get("ClosingPrice")
+        if gap_close is None or gap_close <= 0:
+            continue
+
+        # پیدا کردن close روز قبل از رویداد
+        prev_close = None
+        for r in rows:
+            if str(r["GregorianDate"]) < event_date:
+                prev_close = r.get("ClosingPrice")
+            else:
+                break
+
+        if prev_close is None or prev_close <= 0:
+            continue
+
+        factor = gap_close / prev_close
+        # اگه ضریب خیلی به ۱ نزدیکه، نیازی به تعدیل نیست
+        if abs(factor - 1.0) < 0.02:
+            continue
+
+        # اعمال ضریب روی همه‌ی ردیف‌های قبل از تاریخ رویداد
+        adjusted_count = 0
+        for r in rows:
+            if str(r["GregorianDate"]) < event_date:
+                for col in PRICE_COLUMNS:
+                    val = r.get(col)
+                    if val is not None and val > 0:
+                        r[col] = round(val * factor)
+                adjusted_count += 1
+
+        total_adjusted += adjusted_count
+
+    if total_adjusted == 0:
+        return 0
+
+    # بازمحاسبه‌ی YesterdayPrice برای همه‌ی ردیف‌ها
+    prev_close = None
+    for r in rows:
+        close = r.get("ClosingPrice")
+        if close is None:
+            prev_close = None
+            continue
+        if prev_close is not None and prev_close > 0:
+            r["YesterdayPrice"] = prev_close
+        else:
+            r["YesterdayPrice"] = None
+        prev_close = close
+
+    # ذخیره‌ی تغییرات: UPDATE گروهی با executemany برای سرعت
+    set_cols = list(PRICE_COLUMNS)
+    set_clause = ", ".join(f"{col} = ?" for col in set_cols)
+    update_sql = f"""
+        UPDATE dbo.[{table}]
+        SET {set_clause}
+        WHERE InstrumentCode = ? AND GregorianDate = ?
+    """
+    batch = []
+    for r in rows:
+        gd = str(r["GregorianDate"])
+        params = [r.get(c) for c in set_cols] + [instrument_code, gd]
+        batch.append(params)
+
+    cursor.fast_executemany = True
+    cursor.executemany(update_sql, batch)
+
+    return total_adjusted
+
+
+def cmd_sync(days=14, threshold=-8.0, use_api=False, table_name="MarketPriceHistory"):
+    """
+    شناسایی نمادهای متأثر از رویداد شرکتی و تعدیل قیمت‌ها.
+
+    threshold: آستانه‌ی تشخیص شکاف (پیش‌فرض: ±۸٪).
+        در بورس ایران دامنه‌ی نوسان روزانه ±۶٪ است، پس هر شکاف بیشتر
+        از ۷٪ عملاً فقط از رویداد شرکتی ناشی می‌شود. ۸٪ حاشیه‌ی امن است.
+        برای محتاط‌تر بودن می‌توان ۱۰ یا ۱۲ گذاشت.
+
+    حالت پیش‌فرض (use_api=False): تعدیل محلی — بدون نیاز به API پولی.
+    ضریب تعدیل از شکاف قیمت محاسبه و روی تاریخچه اعمال می‌شود.
+
+    حالت use_api=True: re-backfill از Candlestick.php (نیازمند اشتراک).
+
+    فرکانس توصیه‌شده: هفتگی یا ماهانه.
+    """
+    log.info("🔍 بررسی رویدادهای شرکتی در %s روز اخیر (آستانه: ±%s%%)...", days, abs(threshold))
+    events = detect_corporate_events(days=days, threshold=threshold, table_name=table_name)
+
+    if not events:
+        log.info("✅ هیچ رویداد شرکتی در %s روز اخیر یافت نشد.", days)
+        print(f"RESULT|mode=sync|events=0|adjusted=0|failed=0")
+        return
+
+    # حذف تکراری‌ها و گروه‌بندی بر اساس instrument_code
+    by_instrument = {}
+    for e in events:
+        ic = e["instrument_code"]
+        if ic not in by_instrument:
+            by_instrument[ic] = {**e, "events": []}
+        by_instrument[ic]["events"].append(e)
+
+    unique = list(by_instrument.values())
+    log.info(
+        "📋 %s رویداد در %s نماد یافت شد:",
+        len(events), len(unique),
+    )
+    for e in unique[:15]:
+        log.info(
+            "  • %s: %s%% در %s",
+            e["symbol"], e["pct_change"], e["date"],
+        )
+    if len(unique) > 15:
+        log.info("  ... و %s نماد دیگر", len(unique) - 15)
+
+    mode_label = "API re-fetch" if use_api else "تعدیل محلی"
+    log.info("🔧 حالت: %s", mode_label)
+
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    total_adjusted = 0
+    failed = 0
+    quota_exhausted = False
+    try:
+        ensure_price_history_table(cursor, table_name)
+
+        for idx, item in enumerate(unique, 1):
+            ic = item["instrument_code"]
+            sym = item["symbol"]
+
+            if use_api:
+                # --- حالت API: re-fetch از Candlestick ---
+                try:
+                    cursor.execute(
+                        f"DELETE FROM dbo.[{safe_sql_identifier(table_name)}] WHERE InstrumentCode = ?",
+                        ic,
+                    )
+                    conn.commit()
+
+                    payload = fetch_candlestick(sym, ctype=3)
+                except urllib.error.HTTPError as exc:
+                    if exc.code in (402, 429):
+                        log.warning("⛔ محدودیت سهمیه API روی %s.", sym)
+                        quota_exhausted = True
+                        break
+                    log.warning("⚠️ fetch fail %s: %s", sym, exc)
+                    failed += 1
+                    continue
+
+                candles = (
+                    payload.get("candle_daily_adjusted", [])
+                    if isinstance(payload, dict)
+                    else (payload if isinstance(payload, list) else [])
+                )
+                rows = []
+                prev_close = None
+                for candle in candles:
+                    row = build_history_row(
+                        candle, item["company_id"], sym, sym, sym
+                    )
+                    if row is None:
+                        prev_close = None
+                        continue
+                    row["instrument_code"] = ic
+                    if prev_close is not None and row["closing_price"] is not None:
+                        row["yesterday_price"] = prev_close
+                        py_val = prev_close
+                        pc_val = row["closing_price"]
+                        if py_val not in (None, 0):
+                            row["closing_change_percent"] = round(
+                                (pc_val - py_val) / py_val * 100.0, 4
+                            )
+                    prev_close = row["closing_price"]
+                    rows.append(row)
+
+                if rows:
+                    upsert_rows(cursor, rows, table_name)
+                    conn.commit()
+                    total_adjusted += len(rows)
+                    log.info(
+                        "✅ [%s/%s] %s: %s ردیف re-fetch شد",
+                        idx, len(unique), sym, len(rows),
+                    )
+                time.sleep(0.5)
+
+            else:
+                # --- حالت تعدیل محلی: بدون API ---
+                try:
+                    n = local_adjust_prices(cursor, ic, item["events"], table_name)
+                    conn.commit()
+                    total_adjusted += n
+                    if n > 0:
+                        log.info(
+                            "✅ [%s/%s] %s: %s ردیف تعدیل شد (%s%%)",
+                            idx, len(unique), sym, n, item["pct_change"],
+                        )
+                    else:
+                        log.info(
+                            "⏭️ [%s/%s] %s: نیازی به تعدیل نبود",
+                            idx, len(unique), sym,
+                        )
+                except Exception as exc:
+                    conn.rollback()
+                    log.error("❌ تعدیل %s ناموفق: %s", sym, exc)
+                    failed += 1
+
+    finally:
+        cursor.close()
+        conn.close()
+
+    log.info(
+        "🏁 sync پایان: %s نماد، %s ردیف تعدیل، %s ناموفق",
+        len(unique), total_adjusted, failed,
+    )
+    if quota_exhausted:
+        log.warning("⏸️ سهمیه API تمام شد.")
+    print(
+        f"RESULT|mode=sync|events={len(unique)}|"
+        f"adjusted={total_adjusted}|failed={failed}|"
+        f"quota_exhausted={int(quota_exhausted)}"
+    )
+
+
 def cmd_backfill(limit=None, symbol=None, force=False, table_name="MarketPriceHistory"):
     matched, unmatched = resolve_matched_symbols(table_name)
 
@@ -1280,6 +1616,24 @@ def main():
         help="نادیده‌گرفتن تاریخچه‌ی موجود؛ برای re-backfill بعد از تغییر منبع داده",
     )
 
+    sy = sub.add_parser(
+        "sync",
+        help="شناسایی خودکار رویدادهای شرکتی و تعدیل قیمت‌ها",
+    )
+    sy.add_argument(
+        "--days", type=int, default=14,
+        help="بازه‌ی بررسی رویدادها به روز (پیش‌فرض: ۱۴)",
+    )
+    sy.add_argument(
+        "--threshold", type=float, default=-8.0,
+        help="آستانه‌ی تشخیص شکاف به درصد (پیش‌فرض: ۸، یعنی ±۸٪). "
+             "دامنه‌ی نوسان روزانه بورس ۶٪ است؛ ۸ حاشیه‌ی امن.",
+    )
+    sy.add_argument(
+        "--api", action="store_true",
+        help="استفاده از API برای re-fetch به‌جای تعدیل محلی (نیازمند اشتراک)",
+    )
+
     args = parser.parse_args()
     validate_env()
 
@@ -1287,6 +1641,8 @@ def main():
         cmd_daily()
     elif args.command == "backfill":
         cmd_backfill(limit=args.limit, symbol=args.symbol, force=args.force)
+    elif args.command == "sync":
+        cmd_sync(days=args.days, threshold=args.threshold, use_api=args.api)
 
 
 if __name__ == "__main__":

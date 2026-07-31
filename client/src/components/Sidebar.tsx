@@ -40,6 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [loadingFullPE, setLoadingFullPE] = useState(false);
   const [loadingBrsDaily, setLoadingBrsDaily] = useState(false);
   const [loadingBrsBackfill, setLoadingBrsBackfill] = useState(false);
+  const [loadingBrsSync, setLoadingBrsSync] = useState(false);
   const [brsMsg, setBrsMsg] = useState<string | null>(null);
 
   const fullPE = async () => {
@@ -74,6 +75,19 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
+  const runBrsSync = async () => {
+    setLoadingBrsSync(true);
+    setBrsMsg(null);
+    try {
+      const res = await collectBrsPrices("sync", { limit: 30 });
+      setBrsMsg("تعدیل قیمت‌ها انجام شد ✓");
+    } catch (e: any) {
+      setBrsMsg(e?.message || "خطا در sync");
+    } finally {
+      setLoadingBrsSync(false);
+    }
+  };
+
   const handleCompanySelect = async (companyName: string) => {
     try {
       await addViewedItem(companyName);
@@ -85,7 +99,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="max-h-[747px] m-4 mb-0 mr-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-3 transition-all duration-300 ease-in-out">
+    <aside className="max-h-[97vh] m-4 mb-0 mr-0 w-72 p-6 bg-white/60 dark:bg-gray-800/60 backdrop-blur-lg shadow-2xl rounded-3xl border border-gray-200 dark:border-gray-700 flex flex-col gap-3 transition-all duration-300 ease-in-out sticky top-4">
       <div className="pb-2 flex justify-between items-center">
         <h2 className="text-xl font-bold text-gray-800 dark:text-white tracking-tight mb-2">
           Company Insights
@@ -255,6 +269,18 @@ const Sidebar: React.FC<SidebarProps> = ({
                       }`}
                   >
                     {loadingBrsBackfill ? "Running..." : "Backfill History"}
+                  </button>
+                  <button
+                    onClick={runBrsSync}
+                    disabled={loadingBrsSync}
+                    className={`w-full h-9 text-white rounded-xl font-sm tracking-wide shadow-lg transition-all duration-200
+                      ${
+                        loadingBrsSync
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 hover:shadow-xl"
+                      }`}
+                  >
+                    {loadingBrsSync ? "Running..." : "Sync Adjustments"}
                   </button>
                   {brsMsg && (
                     <p className="text-xs text-center text-gray-600 dark:text-gray-300">

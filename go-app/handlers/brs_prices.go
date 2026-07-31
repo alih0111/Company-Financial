@@ -10,10 +10,11 @@ import (
 
 // BrsCollectRequest بدنه‌ی درخواست اجرای کالکتور قیمت BRS.
 type BrsCollectRequest struct {
-	Mode   string `json:"mode"`   // "daily" | "backfill"
-	Limit  int    `json:"limit"`  // فقط backfill
+	Mode   string `json:"mode"`   // "daily" | "backfill" | "sync"
+	Limit  int    `json:"limit"`  // backfill: تعداد نماد | sync: تعداد روز
 	Symbol string `json:"symbol"` // فقط backfill: نماد خاص
-	Force  bool   `json:"force"`  // فقط backfill: نادیده‌گرفتن تاریخچه‌ی موجود
+	Force  bool   `json:"force"`  // فقط backfill: نادیده‌گرفتن تاریخچه
+	API    bool   `json:"api"`    // فقط sync: استفاده از API به‌جای تعدیل محلی
 }
 
 // RunBrsCollector کالکتور قیمت BRS (py/brs_prices.py) را اجرا می‌کند.
@@ -29,7 +30,7 @@ func RunBrsCollector(c *gin.Context) {
 	_ = c.ShouldBindJSON(&req)
 
 	mode := req.Mode
-	if mode != "daily" && mode != "backfill" {
+	if mode != "daily" && mode != "backfill" && mode != "sync" {
 		mode = "daily"
 	}
 
@@ -43,6 +44,14 @@ func RunBrsCollector(c *gin.Context) {
 		}
 		if req.Force {
 			args = append(args, "--force")
+		}
+	}
+	if mode == "sync" {
+		if req.Limit > 0 {
+			args = append(args, "--days", strconv.Itoa(req.Limit))
+		}
+		if req.API {
+			args = append(args, "--api")
 		}
 	}
 
