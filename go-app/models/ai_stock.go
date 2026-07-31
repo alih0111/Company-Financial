@@ -55,6 +55,11 @@ type AIStockMetric struct {
 	LossMakerFlag           bool `json:"loss_maker_flag"`
 	WeakCoverageFlag        bool `json:"weak_coverage_flag"`
 	MarginContractionFlag   bool `json:"margin_contraction_flag"`
+
+	GrowthScore       float64 `json:"growth_score"`
+	ProfitabilityScore float64 `json:"profitability_score"`
+	ValuationScore    float64 `json:"valuation_score"`
+	MarketScore       float64 `json:"market_score"`
 }
 
 type AIMonthlyPoint struct {

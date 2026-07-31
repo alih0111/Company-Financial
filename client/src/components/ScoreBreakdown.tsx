@@ -20,6 +20,8 @@ type Category = {
   title: string;
   icon: React.ReactNode;
   color: string;
+  maxScore: number;
+  actualScore: number | undefined;
   factors: Factor[];
 };
 
@@ -126,6 +128,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
       title: "رشد",
       icon: <FaArrowUp className="text-emerald-500" />,
       color: "emerald",
+      maxScore: 43,
+      actualScore: metric.growth_score,
       factors: [
         {
           label: "رشد فروش سالانه",
@@ -183,6 +187,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
       title: "سودآوری",
       icon: <FaArrowDown className="text-blue-500 rotate-180" />,
       color: "blue",
+      maxScore: 28,
+      actualScore: metric.profitability_score,
       factors: [
         {
           label: "حاشیه عملیاتی",
@@ -245,6 +251,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
       title: "ارزش‌گذاری",
       icon: <FaMinus className="text-purple-500" />,
       color: "purple",
+      maxScore: 13,
+      actualScore: metric.valuation_score,
       factors: [
         {
           label: "P/E",
@@ -273,6 +281,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
       title: "بازار",
       icon: <FaArrowUp className="text-cyan-500" />,
       color: "cyan",
+      maxScore: 16,
+      actualScore: metric.market_score,
       factors: [
         {
           label: "نقدشوندگی (۳۰روز)",
@@ -321,6 +331,17 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
   ];
 
   // ---- جریمه‌ها ----
+  // جریمه‌ی پله‌ای کیفیت سود: از ۲۰٪ شروع، خطی تا ۸۰٪، سقف ۸٪
+  const highNonOp =
+    metric.non_operating_pct != null && metric.non_operating_pct > 20;
+
+  const nonOpPenalty = (() => {
+    const v = metric.non_operating_pct;
+    if (v == null || v <= 20) return 0;
+    if (v >= 80) return 15;
+    return Math.round(((v - 20) / 60) * 15 * 100) / 100;
+  })();
+
   const penalties: { label: string; active: boolean; pct: number }[] = [
     { label: "P/E نامعتبر", active: metric.bad_pe_flag, pct: 15 },
     { label: "رشد فروش ضعیف", active: metric.weak_sales_flag, pct: 10 },
@@ -335,6 +356,11 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
       label: "انقباض حاشیه",
       active: metric.margin_contraction_flag,
       pct: 5,
+    },
+    {
+      label: `سهم غیرعملیاتی (${metric.non_operating_pct != null ? metric.non_operating_pct.toFixed(0) + "٪" : "?"})`,
+      active: highNonOp,
+      pct: nonOpPenalty,
     },
   ];
 
@@ -419,22 +445,33 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
 
       {/* دسته‌بندی‌ها */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-        {categories.map((cat) => (
+        {categories.map((cat) => {
+          const earned = cat.actualScore ?? 0;
+          const ratio = cat.maxScore > 0 ? earned / cat.maxScore : 0;
+          const scoreColor =
+            ratio >= 0.7
+              ? "text-green-600 dark:text-green-400"
+              : ratio >= 0.4
+                ? "text-amber-500"
+                : "text-red-600 dark:text-red-400";
+
+          return (
           <div key={cat.title}>
             <div className="flex items-center gap-2 mb-1 pb-1 border-b border-gray-200 dark:border-gray-700">
               {cat.icon}
               <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
                 {cat.title}
               </span>
-              <span className="text-[10px] text-gray-400 mr-auto">
-                وزن: {(cat.factors.reduce((s, f) => s + f.weight, 0) * 100).toFixed(0)}%
+              <span className={`text-xs font-bold mr-auto ${scoreColor}`}>
+                {earned.toFixed(1)} / {cat.maxScore}
               </span>
             </div>
             {cat.factors.map((f, i) => (
               <FactorRow key={i} f={f} dark={dark} />
             ))}
           </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* جریمه‌های فعال */}

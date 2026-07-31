@@ -121,6 +121,11 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	var weakCoverageFlag sql.NullBool
 	var marginContractionFlag sql.NullBool
 
+	var growthScore sql.NullFloat64
+	var profitabilityScore sql.NullFloat64
+	var valuationScore sql.NullFloat64
+	var marketScore sql.NullFloat64
+
 	err := rows.Scan(
 		&r.CompanyID,
 		&symbol,
@@ -174,6 +179,11 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 		&lossMakerFlag,
 		&weakCoverageFlag,
 		&marginContractionFlag,
+
+		&growthScore,
+		&profitabilityScore,
+		&valuationScore,
+		&marketScore,
 	)
 
 	if err != nil {
@@ -231,6 +241,11 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	r.LossMakerFlag = nbool(lossMakerFlag)
 	r.WeakCoverageFlag = nbool(weakCoverageFlag)
 	r.MarginContractionFlag = nbool(marginContractionFlag)
+
+	r.GrowthScore = nfloat(growthScore)
+	r.ProfitabilityScore = nfloat(profitabilityScore)
+	r.ValuationScore = nfloat(valuationScore)
+	r.MarketScore = nfloat(marketScore)
 
 	return r, nil
 }
@@ -299,7 +314,12 @@ func GetAIStockSummary(c *gin.Context) {
             WeakLiquidityFlag,
             LossMakerFlag,
             WeakCoverageFlag,
-            MarginContractionFlag
+            MarginContractionFlag,
+
+            GrowthScore,
+            ProfitabilityScore,
+            ValuationScore,
+            MarketScore
         FROM dbo.vw_AIStockMetrics
 		WHERE ISNULL(AvgTradeValue30D, 0) >= @minAvgTradeValue30D
         ORDER BY QuantScore DESC
@@ -389,7 +409,12 @@ func getOneSummaryByCompanyID(db *sql.DB, companyID string) (models.AIStockMetri
             WeakLiquidityFlag,
             LossMakerFlag,
             WeakCoverageFlag,
-            MarginContractionFlag
+            MarginContractionFlag,
+
+            GrowthScore,
+            ProfitabilityScore,
+            ValuationScore,
+            MarketScore
         FROM dbo.vw_AIStockMetrics
         WHERE CompanyID = @companyID
     `
@@ -862,7 +887,12 @@ func AnalyzeTopStocksWithAI(c *gin.Context) {
             WeakLiquidityFlag,
             LossMakerFlag,
             WeakCoverageFlag,
-            MarginContractionFlag
+            MarginContractionFlag,
+
+            GrowthScore,
+            ProfitabilityScore,
+            ValuationScore,
+            MarketScore
         FROM dbo.vw_AIStockMetrics
 		WHERE ISNULL(AvgTradeValue30D, 0) >= @minAvgTradeValue30D
         ORDER BY QuantScore DESC

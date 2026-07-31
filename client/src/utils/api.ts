@@ -223,6 +223,11 @@ export interface AIStockMetric {
   loss_maker_flag: boolean;
   weak_coverage_flag: boolean;
   margin_contraction_flag: boolean;
+
+  growth_score: number;
+  profitability_score: number;
+  valuation_score: number;
+  market_score: number;
 }
 
 export async function getAIStockSummary(limit = 20): Promise<AIStockMetric[]> {

@@ -747,8 +747,43 @@ SELECT
             - 0.15 * CASE WHEN NetProfitLast4Reports IS NULL OR NetProfitLast4Reports < 0 THEN 1 ELSE 0 END
             - 0.08 * CASE WHEN InterestCoverage IS NOT NULL AND InterestCoverage < 1.5 THEN 1 ELSE 0 END
             - 0.05 * CASE WHEN OperatingMarginTrend IS NOT NULL AND OperatingMarginTrend < -2 THEN 1 ELSE 0 END
-            - 0.08 * CASE WHEN NonOperatingPct IS NOT NULL AND NonOperatingPct > 30 THEN 1 ELSE 0 END
+            - CASE
+                -- جریمه‌ی پله‌ای کیفیت سود: از ۲۰٪ شروع، خطی تا ۸۰٪، سقف ۱۵٪
+                WHEN NonOperatingPct IS NULL THEN 0
+                WHEN NonOperatingPct <= 20 THEN 0
+                WHEN NonOperatingPct >= 80 THEN 0.15
+                ELSE (NonOperatingPct - 20.0) / 60.0 * 0.15
+              END
         )
-    , 2) AS QuantScore
+    , 2) AS QuantScore,
+
+    -- زیر‌امتیاز هر دسته (مقیاس ۰ تا حداکثر وزن دسته)
+    ROUND(100.0 * (
+        0.11 * SalesGrowthRank
+        + 0.05 * SalesGrowth3MRank
+        + 0.09 * RevenueGrowthRank
+        + 0.11 * OperatingProfitRank
+        + 0.07 * NetProfitRank
+    ), 1) AS GrowthScore,
+
+    ROUND(100.0 * (
+        0.07 * OperatingMarginLatestRank
+        + 0.05 * NetMarginRank
+        + 0.05 * MarginTrendRank
+        + 0.05 * InterestCoverageRank
+        + 0.06 * EarningsQualityRank
+    ), 1) AS ProfitabilityScore,
+
+    ROUND(100.0 * (
+        0.09 * PERank
+        + 0.04 * PSRank
+    ), 1) AS ValuationScore,
+
+    ROUND(100.0 * (
+        0.06 * LiquidityRank
+        + 0.06 * StabilityRank
+        + 0.02 * LowVolatilityRank
+        + 0.02 * HealthyMomentumRank
+    ), 1) AS MarketScore
 FROM Ranked;
 GO
