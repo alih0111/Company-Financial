@@ -1,5 +1,10 @@
 import React from "react";
-import { FaArrowUp, FaArrowDown, FaMinus, FaExclamationTriangle } from "react-icons/fa";
+import {
+  FaArrowUp,
+  FaArrowDown,
+  FaMinus,
+  FaExclamationTriangle,
+} from "react-icons/fa";
 import type { AIStockMetric } from "../utils/api";
 import { useDarkMode } from "../utils/theme";
 
@@ -53,8 +58,9 @@ const barColor = (good: boolean | null) => {
   return good ? "#10b981" : "#ef4444";
 };
 
-const FactorRow: React.FC<{ f: Factor; dark: boolean }> = ({ f, dark }) => {
-  const pctWidth = f.weight * 100;
+const FactorRow: React.FC<{ f: Factor; dark: boolean; maxWeight: number }> = ({ f, dark, maxWeight }) => {
+  // نوار نسبی: سهم این فاکتور از حداکثر وزن دسته
+  const pctWidth = maxWeight > 0 ? (f.weight / maxWeight) * 100 : 0;
 
   return (
     <div className="flex items-center gap-3 py-1.5">
@@ -76,7 +82,7 @@ const FactorRow: React.FC<{ f: Factor; dark: boolean }> = ({ f, dark }) => {
           {f.display}
         </span>
       </div>
-      {/* نوار وزن */}
+      {/* نوار وزن نسبی */}
       <div
         className={`h-1.5 rounded-full shrink-0 w-16 ${
           dark ? "bg-gray-700" : "bg-gray-200"
@@ -116,11 +122,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
 
   const score = metric.quant_score ?? 0;
   const scoreColor =
-    score >= 60
-      ? "#10b981"
-      : score >= 40
-        ? "#f59e0b"
-        : "#ef4444";
+    score >= 60 ? "#10b981" : score >= 40 ? "#f59e0b" : "#ef4444";
 
   // ---- دسته‌بندی فاکتورها ----
   const categories: Category[] = [
@@ -147,9 +149,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           display: pct(metric.sales_growth_3m),
           weight: 0.05,
           good:
-            metric.sales_growth_3m == null
-              ? null
-              : metric.sales_growth_3m > 10,
+            metric.sales_growth_3m == null ? null : metric.sales_growth_3m > 10,
         },
         {
           label: "رشد درآمد (دقیق)",
@@ -311,9 +311,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           display: pct(metric.volatility_30d),
           weight: 0.02,
           good:
-            metric.volatility_30d == null
-              ? null
-              : metric.volatility_30d < 3,
+            metric.volatility_30d == null ? null : metric.volatility_30d < 3,
           note: "پایین = کم‌نوسان‌تر",
         },
         {
@@ -368,9 +366,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
   const totalPenalty = activePenalties.reduce((s, p) => s + p.pct, 0);
 
   const cardCls = `rounded-2xl border p-4 ${
-    dark
-      ? "bg-gray-800/60 border-gray-700"
-      : "bg-white/70 border-gray-200"
+    dark ? "bg-gray-800/60 border-gray-700" : "bg-white/70 border-gray-200"
   }`;
 
   return (
@@ -404,10 +400,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span
-              className="text-2xl font-bold"
-              style={{ color: scoreColor }}
-            >
+            <span className="text-2xl font-bold" style={{ color: scoreColor }}>
               {score.toFixed(0)}
             </span>
             <span className="text-[10px] text-gray-400">از ۱۰۰</span>
@@ -454,6 +447,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
               : ratio >= 0.4
                 ? "text-amber-500"
                 : "text-red-600 dark:text-red-400";
+          const maxWeight = Math.max(...cat.factors.map((f) => f.weight));
 
           return (
           <div key={cat.title}>
@@ -467,7 +461,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
               </span>
             </div>
             {cat.factors.map((f, i) => (
-              <FactorRow key={i} f={f} dark={dark} />
+              <FactorRow key={i} f={f} dark={dark} maxWeight={maxWeight} />
             ))}
           </div>
           );
