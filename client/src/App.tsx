@@ -61,8 +61,14 @@ const App = () => {
   const { isAdmin, username } = getAuthStatus();
 
   useEffect(() => {
-    document.title = selectedCompany ? `RFA | ${selectedCompany}` : "RFA";
-  }, [selectedCompany]);
+    if (location.pathname === "/Table") {
+      document.title = "RFA | Table";
+    } else if (location.pathname === "/portfolio") {
+      document.title = "RFA | Portfolio";
+    } else {
+      document.title = selectedCompany ? `RFA | ${selectedCompany}` : "RFA";
+    }
+  }, [selectedCompany, location.pathname]);
 
   const [aiRows, setAiRows] = useState<Record<string, AIStockMetric>>({});
 
