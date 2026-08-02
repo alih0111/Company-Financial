@@ -1040,6 +1040,264 @@ def cmd_daily(table_name="MarketPriceHistory"):
     _print_summary("daily", upserted, len(matched), len(unmatched), unmatched)
 
 
+def tsetmc_search(keyword):
+    """
+    جستجوی نماد در TSETMC (بدون مرورگر — درخواست HTTP ساده).
+    خروجی: لیستی از {ticker, company_name, instrument_code} یا None.
+    """
+    from urllib.parse import quote
+    url = f"http://www.tsetmc.com/tsev2/data/search.aspx?skey={quote(keyword)}"
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={"User-Agent": USER_AGENT, "Accept": "text/plain, */*"},
+        )
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            text = resp.read().decode("utf-8", errors="replace")
+    except Exception:
+        return None
+
+    if not text or not text.strip():
+        return None
+
+    # فرمت هر خط: InsCode;LVal18A;LVal30A;CSVal;CGrValC;Flow;...
+    results = []
+    for line in text.strip().split("\n"):
+        parts = line.split(";")
+        if len(parts) >= 3 and parts[1].strip():
+            results.append({
+                "ticker": parts[1].strip(),
+                "company_name": parts[2].strip(),
+                "instrument_code": parts[0].strip(),
+            })
+    return results if results else None
+
+
+def fallback_tsetmc_scrape(symbol, table_name="MarketPriceHistory"):
+    """
+    Fallback: استخراج قیمت از TSETMC مستقیم با Playwright.
+    وقتی BRS نماد را ندارد، این تابع اجرا می‌شود.
+
+    ۱. جستجوی نماد در TSETMC (HTTP) برای یافتن ticker دقیق
+    ۲. استفاده از price.py موجود برای استخراج با Playwright
+    """
+    log.info("🌐 Fallback به TSETMC مستقیم...")
+
+    # ۱. جستجوی ticker دقیق
+    ticker = symbol
+    search_results = tsetmc_search(symbol)
+    if search_results:
+        best = search_results[0]
+        ticker = best.get("ticker", symbol)
+        log.info(
+            "🔍 TSETMC search: «%s» → %s (%s)",
+            symbol, ticker, best.get("company_name"),
+        )
+    else:
+        log.info("🔍 TSETMC search کار نکرد، استفاده از ورودی مستقیم: %s", ticker)
+
+    # ۲. استخراج با Playwright (price.py)
+    try:
+        import importlib.util as _ilu
+        price_spec = _ilu.spec_from_file_location(
+            "tsetmc_price", str(SCRIPT_DIR / "price.py")
+        )
+        if not price_spec or not price_spec.loader:
+            log.error("❌ price.py بارگذاری نشد")
+            return False
+        tsetmc = _ilu.module_from_spec(price_spec)
+        price_spec.loader.exec_module(tsetmc)
+    except Exception as exc:
+        log.error("❌ بارگذاری price.py ناموفق: %s", exc)
+        log.error("   مطمئن شو Playwright نصب است: pip install playwright")
+        return False
+
+    MARKET_URL = "http://old.tsetmc.com/Loader.aspx?ParTree=15131F#"
+
+    try:
+        result = tsetmc.scrape_market_data_with_history(
+            market_url=MARKET_URL,
+            normalized_company_names=[ticker],
+            headless=True,
+            max_history_pages=None,
+            save_to_sql=True,
+            history_table_name=table_name,
+        )
+
+        if result:
+            for company in result:
+                rows_count = len(company.get("history", []))
+                log.info(
+                    "✅ %s: %s ردیف از TSETMC ذخیره شد",
+                    company.get("company_name", ticker),
+                    rows_count,
+                )
+            return True
+        else:
+            log.warning("⚠️ نماد «%s» در TSETMC market watch یافت نشد", ticker)
+            return False
+    except Exception as exc:
+        log.error("❌ خطا در TSETMC fallback: %s", exc)
+        return False
+
+
+def cmd_backfill_raw(symbol, table_name="MarketPriceHistory"):
+    """
+    جمع‌آوری تاریخچه‌ی قیمت یک نماد — بدون نیاز به تطبیق با codal.
+    فقط با نماد (l18) از BRS می‌گیرد و با CompanyID تولید‌شده از نام ذخیره می‌کند.
+
+    مناسب برای نمادهایی که در codal نیستند ولی قیمت آن‌ها لازم است.
+    """
+    sym_norm = normalize_persian(symbol)
+
+    # ۱. پیدا کردن نماد در AllSymbols — چند روش جستجو
+    data = fetch_all_symbols()
+    if not isinstance(data, list):
+        raise RuntimeError("AllSymbols returned non-list")
+
+    item = None
+
+    # روش ۱: تطبیق دقیق l18 (نماد) یا l30 (نام شرکت)
+    for d in data:
+        l18 = normalize_persian(d.get("l18"))
+        l30 = normalize_persian(d.get("l30"))
+        if l18 == sym_norm or (l30 and l30 == sym_norm):
+            item = d
+            break
+
+    # روش ۲: جستجوی محتوایی — ورودی در نام BRS یا برعکس
+    if not item:
+        for d in data:
+            l18 = normalize_persian(d.get("l18"))
+            l30 = normalize_persian(d.get("l30"))
+            if l18 and (l18 in sym_norm or sym_norm in l18):
+                item = d
+                break
+            if l30 and len(sym_norm) >= 4 and (
+                l30 in sym_norm or sym_norm in l30
+            ):
+                item = d
+                break
+
+    # روش ۳: تطبیق فازی بر اساس توکن‌ها
+    if not item:
+        target_tokens = tokens_for_match(symbol)
+        if target_tokens:
+            best = (0.0, None)
+            for d in data:
+                l30 = d.get("l30") or ""
+                cand_tokens = tokens_for_match(l30)
+                if cand_tokens:
+                    score = jaccard(target_tokens, cand_tokens)
+                    if score > best[0]:
+                        best = (score, d)
+            if best[0] >= 0.4 and best[1]:
+                item = best[1]
+                log.info(
+                    "🔍 تطبیق فازی: «%s» → %s (امتیاز: %.2f)",
+                    symbol,
+                    best[1].get("l18"),
+                    best[0],
+                )
+
+    if not item:
+        log.warning("⚠️ «%s» در BRS یافت نشد — تلاش با TSETMC مستقیم...", symbol)
+        if fallback_tsetmc_scrape(symbol, table_name):
+            print(f"RESULT|mode=backfill-raw|source=tsetmc|symbol={symbol}")
+        else:
+            log.error("❌ «%s» نه در BRS و نه در TSETMC یافت نشد", symbol)
+            print(f"RESULT|mode=backfill-raw|error=not-found|symbol={symbol}")
+        return
+
+    sym = item.get("l18")
+    name = item.get("l30") or sym
+    instrument_code = str(item.get("id") or item.get("isin") or sym or "")
+
+    # CompanyID = md5(normalize_persian(name)) — اینطوری اگه بعداً شرکت
+    # به codal اضافه بشه، قیمت‌ها خودکار لینک می‌شن.
+    company_id = hashlib.md5(normalize_persian(name).encode("utf-8")).hexdigest()
+
+    log.info(
+        "🔧 raw backfill: %s (%s) → CompanyID=%s...",
+        sym, name, company_id[:12],
+    )
+
+    # ۲. دریافت تاریخچه از Candlestick (تعدیل‌شده)
+    try:
+        payload = fetch_candlestick(sym, ctype=3)
+    except urllib.error.HTTPError as exc:
+        if exc.code in (402, 429):
+            # سهمیه BRS تموم شده → fallback به TSETMC
+            log.warning(
+                "⚠️ BRS محدودیت (HTTP %s) — fallback به TSETMC مستقیم...",
+                exc.code,
+            )
+            if fallback_tsetmc_scrape(sym, table_name):
+                print(f"RESULT|mode=backfill-raw|source=tsetmc-fallback|symbol={sym}")
+            else:
+                print(f"RESULT|mode=backfill-raw|error=tsetmc-failed|symbol={sym}")
+            return
+        log.error("⛔ fetch fail %s: HTTP %s", sym, exc.code)
+        print(f"RESULT|mode=backfill-raw|error=http-{exc.code}|symbol={sym}")
+        return
+    except Exception as exc:
+        log.error("⛔ fetch fail %s: %s", sym, exc)
+        print(f"RESULT|mode=backfill-raw|error=fetch|symbol={sym}")
+        return
+
+    candles = (
+        payload.get("candle_daily_adjusted", [])
+        if isinstance(payload, dict)
+        else (payload if isinstance(payload, list) else [])
+    )
+    if not candles:
+        log.warning("⚠️ %s: هیچ کندلی دریافت نشد", sym)
+        print(f"RESULT|mode=backfill-raw|upserted=0|symbol={sym}")
+        return
+
+    # ۳. ساخت و ذخیره ردیف‌ها
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    total = 0
+    try:
+        ensure_price_history_table(cursor, table_name)
+
+        rows = []
+        prev_close = None
+        for candle in candles:
+            row = build_history_row(candle, company_id, sym, name, name)
+            if row is None:
+                prev_close = None
+                continue
+            row["instrument_code"] = instrument_code
+            if prev_close is not None and row["closing_price"] is not None:
+                row["yesterday_price"] = prev_close
+                py_val = prev_close
+                pc_val = row["closing_price"]
+                if py_val not in (None, 0):
+                    row["closing_change"] = pc_val - py_val
+                    row["closing_change_percent"] = round(
+                        (pc_val - py_val) / py_val * 100.0, 4
+                    )
+                    row["last_change"] = row["closing_change"]
+                    row["last_change_percent"] = row["closing_change_percent"]
+            prev_close = row["closing_price"]
+            rows.append(row)
+
+        if rows:
+            upsert_rows(cursor, rows, table_name)
+            conn.commit()
+            total = len(rows)
+            log.info("✅ %s: %s ردیف ذخیره شد", sym, total)
+        else:
+            log.warning("⚠️ %s: ردیف معتبری ساخته نشد", sym)
+    finally:
+        cursor.close()
+        conn.close()
+
+    print(f"RESULT|mode=backfill-raw|upserted={total}|symbol={sym}")
+
+
 def detect_corporate_events(days=14, threshold=-12.0, table_name="MarketPriceHistory"):
     """
     شناسایی نمادهایی که احتمالاً رویداد شرکتی (تقسیم سود، افزایش سرمایه، تجزیه)
@@ -1615,6 +1873,10 @@ def main():
         action="store_true",
         help="نادیده‌گرفتن تاریخچه‌ی موجود؛ برای re-backfill بعد از تغییر منبع داده",
     )
+    bf.add_argument(
+        "--raw", action="store_true",
+        help="جمع‌آوری بدون تطبیق codal — فقط با نماد BRS (نیازمند --symbol)",
+    )
 
     sy = sub.add_parser(
         "sync",
@@ -1640,7 +1902,13 @@ def main():
     if args.command == "daily":
         cmd_daily()
     elif args.command == "backfill":
-        cmd_backfill(limit=args.limit, symbol=args.symbol, force=args.force)
+        if args.raw:
+            if not args.symbol:
+                log.error("--raw نیازمند --symbol است")
+                sys.exit(1)
+            cmd_backfill_raw(args.symbol)
+        else:
+            cmd_backfill(limit=args.limit, symbol=args.symbol, force=args.force)
     elif args.command == "sync":
         cmd_sync(days=args.days, threshold=args.threshold, use_api=args.api)
 

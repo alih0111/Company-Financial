@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"os/exec"
 	"strconv"
@@ -14,6 +16,7 @@ type BrsCollectRequest struct {
 	Limit  int    `json:"limit"`  // backfill: تعداد نماد | sync: تعداد روز
 	Symbol string `json:"symbol"` // فقط backfill: نماد خاص
 	Force  bool   `json:"force"`  // فقط backfill: نادیده‌گرفتن تاریخچه
+	Raw    bool   `json:"raw"`    // فقط backfill: بدون تطبیق codal
 	API    bool   `json:"api"`    // فقط sync: استفاده از API به‌جای تعدیل محلی
 }
 
@@ -45,6 +48,9 @@ func RunBrsCollector(c *gin.Context) {
 		if req.Force {
 			args = append(args, "--force")
 		}
+		if req.Raw && req.Symbol != "" {
+			args = append(args, "--raw")
+		}
 	}
 	if mode == "sync" {
 		if req.Limit > 0 {
@@ -56,6 +62,10 @@ func RunBrsCollector(c *gin.Context) {
 	}
 
 	cmd := exec.Command("python", args...)
+
+	// دیباگ: نمایش args برای عیب‌یابی
+	log.Printf("🔍 BRS collector args: %v", args)
+	fmt.Printf("🔍 BRS raw=%v symbol=%q\n", req.Raw, req.Symbol)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {

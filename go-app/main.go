@@ -47,6 +47,9 @@ func main() {
 		// تاریخچه‌ی قیمت نماد
 		protected.GET("/price-history", handlers.GetPriceHistory)
 
+		// خروجی CSV امتیازات
+		protected.GET("/export/scores", handlers.ExportScoresCSV)
+
 		// کالکتور قیمت BRS (فقط ادمین) → py/brs_prices.py
 		protected.POST("/brs/collect", handlers.RunBrsCollector)
 

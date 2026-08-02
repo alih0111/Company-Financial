@@ -8,8 +8,13 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
-import { FaChartLine } from "react-icons/fa";
-import { getPriceHistory, type PriceHistoryRow } from "../utils/api";
+import { FaChartLine, FaDownload, FaSync } from "react-icons/fa";
+import {
+  getPriceHistory,
+  collectBrsPrices,
+  type PriceHistoryRow,
+} from "../utils/api";
+import { getAuthStatus } from "../hooks/useGetUser";
 import { useDarkMode } from "../utils/theme";
 import {
   chartPalette,
@@ -36,19 +41,44 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rangeIdx, setRangeIdx] = useState(2); // پیش‌فرض: ۶ ماه
+  const [fetching, setFetching] = useState(false);
+  const [fetchMsg, setFetchMsg] = useState<string | null>(null);
+  const [logScale, setLogScale] = useState(true);
+  const { isAdmin } = getAuthStatus();
 
-  useEffect(() => {
+  const loadData = () => {
     if (!companyName) return;
     setLoading(true);
     setError(null);
     getPriceHistory(companyName, RANGES[rangeIdx].days)
       .then((rows) => {
-        // مرتب‌سازی از قدیم به جدید
         setData(rows.reverse());
       })
       .catch((e) => setError(e?.message || "خطا"))
       .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    loadData();
   }, [companyName, rangeIdx]);
+
+  const handleFetchPrices = async () => {
+    setFetching(true);
+    setFetchMsg(null);
+    try {
+      await collectBrsPrices("backfill", { symbol: companyName, raw: true, limit: 0 });
+      setFetchMsg("قیمت‌ها جمع شد ✓");
+      // ریلود داده بعد از ۲ ثانیه
+      setTimeout(() => {
+        loadData();
+        setFetchMsg(null);
+      }, 2000);
+    } catch (e: any) {
+      setFetchMsg(e?.message || "خطا در جمع‌آوری قیمت");
+    } finally {
+      setFetching(false);
+    }
+  };
 
   const chartData = useMemo(() => {
     return data
@@ -119,22 +149,37 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
             نمودار قیمت
           </h3>
         </div>
-        <div className="flex gap-1">
-          {RANGES.map((r, i) => (
-            <button
-              key={i}
-              onClick={() => setRangeIdx(i)}
-              className={`px-2 py-1 rounded-lg text-xs font-medium transition ${
-                i === rangeIdx
-                  ? "bg-indigo-600 text-white"
-                  : dark
-                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            {RANGES.map((r, i) => (
+              <button
+                key={i}
+                onClick={() => setRangeIdx(i)}
+                className={`px-2 py-1 rounded-lg text-xs font-medium transition ${
+                  i === rangeIdx
+                    ? "bg-indigo-600 text-white"
+                    : dark
+                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                {r.label}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={() => setLogScale(!logScale)}
+            title="تغییر مقیاس نمودار"
+            className={`px-2 py-1 rounded-lg text-xs font-medium transition ${
+              logScale
+                ? "bg-purple-600 text-white"
+                : dark
+                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {logScale ? "Log" : "Linear"}
+          </button>
         </div>
       </div>
 
@@ -181,9 +226,44 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
       ) : error ? (
         <p className="text-center text-red-500 py-10">{error}</p>
       ) : chartData.length === 0 ? (
-        <p className="text-center text-gray-500 dark:text-gray-300 py-10">
-          داده‌ای برای این نماد موجود نیست
-        </p>
+        <div className="text-center py-10">
+          <p className="text-gray-500 dark:text-gray-300 mb-4">
+            داده‌ای برای این نماد موجود نیست
+          </p>
+          {isAdmin && (
+            <button
+              onClick={handleFetchPrices}
+              disabled={fetching}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm shadow-lg transition-all ${
+                fetching
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700"
+              }`}
+            >
+              {fetching ? (
+                <>
+                  <FaSync className="animate-spin" />
+                  در حال جمع‌آوری...
+                </>
+              ) : (
+                <>
+                  <FaDownload />
+                  جمع کردن قیمت
+                </>
+              )}
+            </button>
+          )}
+          {fetchMsg && (
+            <p className="mt-3 text-xs text-gray-600 dark:text-gray-300">
+              {fetchMsg}
+            </p>
+          )}
+          {!isAdmin && (
+            <p className="mt-2 text-xs text-gray-400">
+              (فقط ادمین می‌تواند قیمت جمع کند)
+            </p>
+          )}
+        </div>
       ) : (
         <ResponsiveContainer width="100%" height={320}>
           <AreaChart
@@ -222,8 +302,17 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
               tickLine={false}
               axisLine={false}
               width={56}
+              scale={logScale ? "log" : "linear"}
+              domain={
+                logScale
+                  ? [
+                      (dataMin: number) => Math.max(dataMin * 0.9, 1),
+                      (dataMax: number) => dataMax * 1.1,
+                    ]
+                  : ["dataMin - 5%", "dataMax + 5%"]
+              }
+              allowDataOverflow
               tickFormatter={(v) => fmtShort(Number(v), 0)}
-              domain={["dataMin - 5%", "dataMax + 5%"]}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area

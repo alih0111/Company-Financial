@@ -382,7 +382,7 @@ export type BrsCollectMode = "daily" | "backfill";
 
 export async function collectBrsPrices(
   mode: BrsCollectMode = "daily",
-  options?: { limit?: number; symbol?: string }
+  options?: { limit?: number; symbol?: string; force?: boolean; raw?: boolean }
 ): Promise<any> {
   const res = await fetch(`${API_BASE}/brs/collect`, {
     method: "POST",
@@ -391,6 +391,8 @@ export async function collectBrsPrices(
       mode,
       limit: options?.limit,
       symbol: options?.symbol,
+      force: options?.force,
+      raw: options?.raw,
     }),
   });
 

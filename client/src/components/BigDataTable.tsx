@@ -5,6 +5,8 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { addViewedItem } from "../utils/api";
 
+const API_BASE = "http://rfa_back.systemgroup.net/api";
+
 const fmt = (v: number | null | undefined, digits = 2) => {
   if (v === null || v === undefined || Number.isNaN(v)) return "--";
   return v.toFixed(digits);
@@ -159,7 +161,7 @@ const BigDataTable: React.FC<Props> = ({
         },
       },
       {
-        Header: "غیرعملیاتی",
+        Header: "nonOperating",
         accessor: "non_operating_pct",
         sortType: "numericSort",
         className: "w-32",
@@ -187,37 +189,37 @@ const BigDataTable: React.FC<Props> = ({
           );
         },
       },
-      {
-        Header: "حاشیه عملیاتی",
-        accessor: "operation",
-        sortType: "basic",
-        className: "w-32",
-        Cell: ({ value }: { value: number | null | undefined }) => {
-          let colorClass = "";
+      // {
+      //   Header: "حاشیه عملیاتی",
+      //   accessor: "operation",
+      //   sortType: "basic",
+      //   className: "w-32",
+      //   Cell: ({ value }: { value: number | null | undefined }) => {
+      //     let colorClass = "";
 
-          if (value != null) {
-            if (value >= 25) {
-              colorClass = "text-green-600 dark:text-green-400 font-bold";
-            } else if (value >= 15) {
-              colorClass = "text-green-600 dark:text-green-400 font-medium";
-            } else if (value >= 10) {
-              colorClass = "text-lime-600 dark:text-lime-400";
-            } else if (value >= 5) {
-              colorClass = "text-yellow-600 dark:text-yellow-400";
-            } else if (value > 0) {
-              colorClass = "text-orange-600 dark:text-orange-400";
-            } else {
-              colorClass = "text-red-600 dark:text-red-400 font-semibold";
-            }
-          }
+      //     if (value != null) {
+      //       if (value >= 25) {
+      //         colorClass = "text-green-600 dark:text-green-400 font-bold";
+      //       } else if (value >= 15) {
+      //         colorClass = "text-green-600 dark:text-green-400 font-medium";
+      //       } else if (value >= 10) {
+      //         colorClass = "text-lime-600 dark:text-lime-400";
+      //       } else if (value >= 5) {
+      //         colorClass = "text-yellow-600 dark:text-yellow-400";
+      //       } else if (value > 0) {
+      //         colorClass = "text-orange-600 dark:text-orange-400";
+      //       } else {
+      //         colorClass = "text-red-600 dark:text-red-400 font-semibold";
+      //       }
+      //     }
 
-          return (
-            <span className={colorClass}>
-              {value != null ? value.toFixed(2) + "%" : "--"}
-            </span>
-          );
-        },
-      },
+      //     return (
+      //       <span className={colorClass}>
+      //         {value != null ? value.toFixed(2) + "%" : "--"}
+      //       </span>
+      //     );
+      //   },
+      // },
       {
         Header: "Score",
         id: "quant_score",
@@ -302,25 +304,25 @@ const BigDataTable: React.FC<Props> = ({
           );
         },
       },
-      {
-        Header: "P/E",
-        accessor: "pe",
-        sortType: "basic",
-        className: "w-28",
-        Cell: ({ value }: { value: number }) => {
-          let colorClass = "";
-          if (value != null && value < 6 && value > 0)
-            colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          else if (value != null && (value <= 0 || value > 80))
-            colorClass = "text-red-600 dark:text-red-400 font-semibold";
+      // {
+      //   Header: "P/E",
+      //   accessor: "pe",
+      //   sortType: "basic",
+      //   className: "w-28",
+      //   Cell: ({ value }: { value: number }) => {
+      //     let colorClass = "";
+      //     if (value != null && value < 6 && value > 0)
+      //       colorClass = "text-green-600 dark:text-green-400 font-semibold";
+      //     else if (value != null && (value <= 0 || value > 80))
+      //       colorClass = "text-red-600 dark:text-red-400 font-semibold";
 
-          return (
-            <span className={colorClass}>
-              {value != null ? value.toFixed(2) : "--"}
-            </span>
-          );
-        },
-      },
+      //     return (
+      //       <span className={colorClass}>
+      //         {value != null ? value.toFixed(2) : "--"}
+      //       </span>
+      //     );
+      //   },
+      // },
       {
         Header: "Company",
         accessor: "company_name",
@@ -369,6 +371,23 @@ const BigDataTable: React.FC<Props> = ({
     const value = e.target.value || "";
     setGlobalFilter(value);
     setFilter(value);
+  };
+
+  const exportFullScoresCSV = () => {
+    const token = localStorage.getItem("token");
+    const url = `${API_BASE}/export/scores?limit=1000`;
+    fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("خطا در دریافت فایل");
+        return res.blob();
+      })
+      .then((blob) => {
+        const today = new Date().toISOString().slice(0, 10);
+        saveAs(blob, `stock_scores_${today}.csv`);
+      })
+      .catch((err) => alert(err.message));
   };
 
   const exportToExcel = () => {
@@ -445,7 +464,7 @@ const BigDataTable: React.FC<Props> = ({
             ◇ Silver
           </button>
 
-          <button
+          {/* <button
             onClick={() => setSortBy([{ id: "quant_score", desc: true }])}
             className="
               rounded-xl border border-amber-400
@@ -458,10 +477,10 @@ const BigDataTable: React.FC<Props> = ({
             "
           >
             ★ Golden
-          </button>
+          </button> */}
         </div>
-        <div className="mb-2 mr-2 flex justify-center">
-          <button
+        <div className="mb-2 mr-2 flex justify-center gap-2">
+          {/* <button
             onClick={exportToExcel}
             className="
       inline-flex items-center gap-2
@@ -477,7 +496,25 @@ const BigDataTable: React.FC<Props> = ({
           >
             <span aria-hidden="true">📊</span>
             Export
-          </button>
+          </button> */}
+
+          {/* <button
+            onClick={exportFullScoresCSV}
+            className="
+      inline-flex items-center gap-2
+      rounded-xl border border-indigo-500
+      bg-gradient-to-br from-indigo-400 via-indigo-500 to-purple-600
+      px-4 py-2 font-semibold text-white
+      shadow-md transition-all duration-200
+      hover:-translate-y-0.5 hover:from-indigo-500 hover:to-purple-700
+      hover:shadow-lg
+      active:translate-y-0 active:shadow-md
+      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
+    "
+          >
+            <span aria-hidden="true">🧠</span>
+            امتیازات
+          </button> */}
         </div>
       </div>
       <div className=" overflow-auto max-h-[82vh]">
