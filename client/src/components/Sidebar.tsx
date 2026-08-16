@@ -185,15 +185,15 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex flex-col justify-start h-full overflow-auto text-sm ">
         {isAdmin && (
           <>
-            <div className=" pb-2 flex justify-between items-center">
+            <div className=" pb-2 flex justify-between items-center mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
               {/* <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                 Profit Overview
               </h3> */}
-              <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+              
                 <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
                   Profit Overview
                 </h3>
-              </div>
+              
             </div>
             <div className="flex flex-col gap-2">
               <button

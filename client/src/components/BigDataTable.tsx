@@ -140,6 +140,51 @@ const BigDataTable: React.FC<Props> = ({
   const columns = useMemo(
     () => [
       {
+        Header: "Score",
+        id: "quant_score",
+
+        accessor: (row: DataRow) => {
+          const value = row.quant_score;
+
+          if (value === null || value === undefined || value === "") {
+            return null;
+          }
+
+          const parsed = Number(value);
+          return Number.isFinite(parsed) ? parsed : null;
+        },
+
+        sortType: "numericSort",
+        sortDescFirst: true,
+        className: "w-28",
+
+        Cell: ({ value }: { value: number | null | undefined }) => {
+          let colorClass = "";
+
+          if (value != null) {
+            if (value >= 70) {
+              colorClass = "text-green-600 dark:text-green-400 font-bold";
+            } else if (value >= 55) {
+              colorClass = "text-green-600 dark:text-green-400 font-semibold";
+            } else if (value >= 40) {
+              colorClass = "text-indigo-600 dark:text-indigo-400 font-semibold";
+            } else if (value >= 25) {
+              colorClass = "text-yellow-600 dark:text-yellow-400";
+            } else {
+              colorClass = "text-red-600 dark:text-red-400 font-semibold";
+            }
+          }
+
+          return (
+            <span className={colorClass}>
+              {value != null && Number.isFinite(value)
+                ? value.toFixed(2)
+                : "--"}
+            </span>
+          );
+        },
+      },
+      {
         Header: "Stable",
         id: "Stable",
         accessor: (row: DataRow) => getStableValue(row),
@@ -220,51 +265,6 @@ const BigDataTable: React.FC<Props> = ({
       //     );
       //   },
       // },
-      {
-        Header: "Score",
-        id: "quant_score",
-
-        accessor: (row: DataRow) => {
-          const value = row.quant_score;
-
-          if (value === null || value === undefined || value === "") {
-            return null;
-          }
-
-          const parsed = Number(value);
-          return Number.isFinite(parsed) ? parsed : null;
-        },
-
-        sortType: "numericSort",
-        sortDescFirst: true,
-        className: "w-28",
-
-        Cell: ({ value }: { value: number | null | undefined }) => {
-          let colorClass = "";
-
-          if (value != null) {
-            if (value >= 70) {
-              colorClass = "text-green-600 dark:text-green-400 font-bold";
-            } else if (value >= 55) {
-              colorClass = "text-green-600 dark:text-green-400 font-semibold";
-            } else if (value >= 40) {
-              colorClass = "text-indigo-600 dark:text-indigo-400 font-semibold";
-            } else if (value >= 25) {
-              colorClass = "text-yellow-600 dark:text-yellow-400";
-            } else {
-              colorClass = "text-red-600 dark:text-red-400 font-semibold";
-            }
-          }
-
-          return (
-            <span className={colorClass}>
-              {value != null && Number.isFinite(value)
-                ? value.toFixed(2)
-                : "--"}
-            </span>
-          );
-        },
-      },
 
       {
         Header: "EPS Growth",
