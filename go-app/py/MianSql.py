@@ -1151,8 +1151,28 @@ def get_report_links(page, row_meta):
     rows = page.locator("tbody.scrollContent tr")
     row_count = rows.count()
 
+    # فیلتر تاریخ انتشار روی خود لیست (اختیاری):
+    # CODAL_MIN_PUB_JKEY=13980101 → ردیف‌هایی که «زمان ارسال»شان قدیمی‌تر است
+    # بدون باز شدن گزارش رد می‌شوند (صرفه‌جویی چند ده ثانیه‌ای به‌ازای هر گزارش قدیمی)
+    min_pub = os.environ.get("CODAL_MIN_PUB_JKEY", "").strip()
+    min_pub = int(min_pub) if min_pub.isdigit() else None
+
     for index in range(min(row_count, row_meta)):
         row = rows.nth(index)
+
+        if min_pub is not None:
+            try:
+                date_text = normalize_text(
+                    row.locator("td:nth-child(6)").inner_text(timeout=2000)
+                )
+                m = DATE_RE.search(str(date_text))
+                if m:
+                    fy, fm, fd = (int(x) for x in m.group(0).split("/"))
+                    if fy * 10000 + fm * 100 + fd < min_pub:
+                        continue
+            except Exception:
+                pass  # تاریخ خوانده نشد → ردیف نگه داشته می‌شود (fail-safe)
+
         link = row.locator("td:nth-child(4) a")
 
         try:

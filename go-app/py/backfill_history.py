@@ -81,9 +81,39 @@ def company_state(cur, name):
     return url, int(total or 0), int(complete or 0)
 
 
+def kill_orphan_scraper_browsers():
+    """پروسه‌های chromium یتیمِ چسبیده به پروفایل اسکرپر را می‌کشد.
+    فقط پروسه‌هایی که command-line‌شان مسیر chromium-profile این پروژه را دارد
+    (مرورگر شخصی کاربر دست‌نخورده می‌ماند). قفل پروفایل مانع launch بعدی می‌شود."""
+    try:
+        import subprocess as sp
+
+        out = sp.run(
+            ["powershell", "-NoProfile", "-Command",
+             "Get-CimInstance Win32_Process -Filter \"Name='chrome.exe'\" | "
+             "Where-Object {$_.CommandLine -like '*Company-Financial*chromium-profile*'} | "
+             "Select-Object -ExpandProperty ProcessId"],
+            capture_output=True, text=True, timeout=30,
+        ).stdout
+        pids = [int(x) for x in out.split() if x.strip().isdigit()]
+        for pid in pids:
+            try:
+                sp.run(["powershell", "-NoProfile", "-Command",
+                        f"Stop-Process -Id {pid} -Force -ErrorAction SilentlyContinue"],
+                       capture_output=True, timeout=15)
+            except Exception:  # noqa: BLE001
+                pass
+        if pids:
+            print(f"  {len(pids)} پروسه‌ی chromium یتیم پاک شد", flush=True)
+            time.sleep(2)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def run_company(name, url, n_reports):
     pages = list(range(1, min(math.ceil(n_reports / ROWS_PER_PAGE) + 2, MAX_PAGES + 1)))
     print(f"  شروع اسکرپ: صفحات {pages}", flush=True)
+    kill_orphan_scraper_browsers()
     cwd = os.path.dirname(os.path.abspath(__file__)) + os.sep + ".."
     try:
         result = subprocess.run(
@@ -94,6 +124,7 @@ def run_company(name, url, n_reports):
             errors="replace",
             timeout=PER_COMPANY_TIMEOUT,
             cwd=cwd,
+            env={**os.environ, "CODAL_MIN_PUB_JKEY": "13980101"},
         )
         out = (result.stdout or "") + (result.stderr or "")
         if "scraping and saving successful" in out:

@@ -87,6 +87,17 @@ AS
 --       • اعتبارسنجی: درون‌نمونه ۹۹-۰۲ IC: 0.108→0.129 | برون‌نمونه ۰۳-۰۴
 --         IC: 0.214→0.219 و پرتفوی بدون افت | کل دوره Top20-۶ماهه:
 --         اضافه‌بازده 5.0→5.8٪/ماه، نرخ برد 74→85٪
+--
+--  اصلاح v3.5 — بازتنظیم وزن فاکتورهای v3.2 بر اساس بک‌تست فاز ۲
+--     (py/backtest_phase2.py؛ ۱۰ نمادِ بک‌فیل‌شده کامل، ۶۱ ماه):
+--       • IC فاکتورها: ROE +0.156(t=2.6) | حاشیه خالص۱۲م +0.138(t=2.3) قوی؛
+--         کیفیت نقدی +0.051، اهرم +0.021، نسبت جاری −0.063، P/B +0.043 نوفه
+--       • تغییرات: ROE 5→6، حاشیه خالص 3→4، کیفیت نقدی 4→2، اهرم 4→2،
+--         نسبت جاری 3→2، P/B 3→2
+--       • نتیجه‌ی پرتفوی (Top-5 در برابر میانگین ۱۰ نماد): مجموع ۳ماهه
+--         510→765٪ (بنچمارک 446٪) | ۶ماهه 261→459٪ (بنچمارک 343٪)
+--       • محدودیت: مقطع فقط ۱۰ نماد — وزن‌ها محافظه‌کارانه (نه صفر) تعدیل
+--         شدند؛ بعد از بک‌فیل نمادهای بیشتر بازبینی مجدد شود
 -- ============================================================================
 
 WITH CompanyList AS (
@@ -1381,18 +1392,18 @@ SELECT
             THEN PEApprox * ROE / 100.0 ELSE NULL END, 2) AS PBRatio,
 
     -- ----------------------------------------------------------------------
-    --  زیرامتیاز دسته‌ها (وزن × رتبه − جریمه، با کف صفر) — وزن‌های v3.4
-    --  (بازتنظیم‌شده با بک‌تست point-in-time؛ جزئیات در کامنت ابتدای فایل)
+    --  زیرامتیاز دسته‌ها (وزن × رتبه − جریمه، با کف صفر) — وزن‌های v3.5
+    --  (رشد/ارزش/بازار از بک‌تست فاز ۱؛ فاکتورهای v3.2 از فاز ۲)
     --
     --  رشد ۳۶:    فروش سالانه 10 | فروش ۳ماهه 6 | درآمد 5 | عملیاتی 5 | خالص 10
-    --  سودآوری ۲۶: حاشیه عملیاتی 4 | حاشیه خالص 3 | ROE 5 | روند حاشیه 3 | پوشش بهره 3 | کیفیت نقدی 4 | کیفیت سود 4
-    --  ارزش‌گذاری ۱۷: P/E 11 | P/S 3 | P/B 3
-    --  بازار ۲۰:  نقدشوندگی 6 | اهرم 4 | نسبت جاری 3 | ثبات فروش 1 | نوسان کم 5 | مومنتوم 1
+    --  سودآوری ۲۶: حاشیه عملیاتی 4 | حاشیه خالص 4 | ROE 6 | روند حاشیه 3 | پوشش بهره 3 | کیفیت نقدی 2 | کیفیت سود 4
+    --  ارزش‌گذاری ۱۶: P/E 11 | P/S 3 | P/B 2
+    --  بازار ۱۷:  نقدشوندگی 6 | اهرم 2 | نسبت جاری 2 | ثبات فروش 1 | نوسان کم 5 | مومنتوم 1
     --
     --  QuantScore = DataQualityScore × مجموع چهار دسته (سازگار با تجزیه‌وتحلیل فرانت)
     -- ----------------------------------------------------------------------
     -- امتیاز خام هر دسته = مجموع (وزن × رتبه)؛ وزن‌ها بر حسب امتیازند
-    -- رشد: 10+6+5+5+10=36 | سودآوری: 4+3+5+3+3+4+4=26 | ارزش: 11+3+3=17 | بازار: 6+4+3+1+5+1=20
+    -- رشد: 10+6+5+5+10=36 | سودآوری: 4+4+6+3+3+2+4=26 | ارزش: 11+3+2=16 | بازار: 6+2+2+1+5+1=17
     ROUND(
         CASE WHEN (10.0*SalesGrowthRank + 6.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
                    + 5.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty < 0
@@ -1402,24 +1413,24 @@ SELECT
         END, 1) AS GrowthScore,
 
     ROUND(
-        CASE WHEN (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
-                   + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty < 0
+        CASE WHEN (4.0*OperatingMarginRank + 4.0*NetMarginRank + 6.0*ROERank + 3.0*MarginTrendRank
+                   + 3.0*InterestCoverageRank + 2.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty < 0
              THEN 0
-             ELSE (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
-                   + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty
+             ELSE (4.0*OperatingMarginRank + 4.0*NetMarginRank + 6.0*ROERank + 3.0*MarginTrendRank
+                   + 3.0*InterestCoverageRank + 2.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty
         END, 1) AS ProfitabilityScore,
 
     ROUND(
-        CASE WHEN (11.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty < 0
+        CASE WHEN (11.0*PERank + 3.0*PSRank + 2.0*PBRank) - ValuationPenalty < 0
              THEN 0
-             ELSE (11.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty
+             ELSE (11.0*PERank + 3.0*PSRank + 2.0*PBRank) - ValuationPenalty
         END, 1) AS ValuationScore,
 
     ROUND(
-        CASE WHEN (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 1.0*StabilityRank
+        CASE WHEN (6.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
                    + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty < 0
              THEN 0
-             ELSE (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 1.0*StabilityRank
+             ELSE (6.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
                    + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty
         END, 1) AS MarketScore,
 
@@ -1431,20 +1442,20 @@ SELECT
                  ELSE (10.0*SalesGrowthRank + 6.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
                        + 5.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty
             END
-            + CASE WHEN (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
-                         + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty < 0
+            + CASE WHEN (4.0*OperatingMarginRank + 4.0*NetMarginRank + 6.0*ROERank + 3.0*MarginTrendRank
+                         + 3.0*InterestCoverageRank + 2.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty < 0
                  THEN 0
-                 ELSE (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
-                       + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty
+                 ELSE (4.0*OperatingMarginRank + 4.0*NetMarginRank + 6.0*ROERank + 3.0*MarginTrendRank
+                       + 3.0*InterestCoverageRank + 2.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty
               END
-            + CASE WHEN (11.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty < 0
+            + CASE WHEN (11.0*PERank + 3.0*PSRank + 2.0*PBRank) - ValuationPenalty < 0
                  THEN 0
-                 ELSE (11.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty
+                 ELSE (11.0*PERank + 3.0*PSRank + 2.0*PBRank) - ValuationPenalty
               END
-            + CASE WHEN (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 1.0*StabilityRank
+            + CASE WHEN (6.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
                          + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty < 0
                  THEN 0
-                 ELSE (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 1.0*StabilityRank
+                 ELSE (6.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
                        + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty
               END
         ), 2) AS QuantScore,
@@ -1476,7 +1487,7 @@ SELECT
 
     ROUND(ImpliedShares, 0) AS ImpliedShares,
 
-    N'v3.4' AS ScoreVersion,
+    N'v3.5' AS ScoreVersion,
 
     -- ----------------------------------------------------------------------
     --  رتبه‌ی درصدی هر فاکتور بین کل بازار (CUME_DIST؛ برای شفافیت کامل در UI)
