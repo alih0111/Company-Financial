@@ -60,6 +60,49 @@ type AIStockMetric struct {
 	ProfitabilityScore float64 `json:"profitability_score"`
 	ValuationScore    float64 `json:"valuation_score"`
 	MarketScore       float64 `json:"market_score"`
+
+	// ستون‌های شفافیت v3: جریمه‌های هر دسته (بر حسب امتیاز)، کهنگی داده و TTM
+	GrowthPenalty        float64 `json:"growth_penalty"`
+	ProfitabilityPenalty float64 `json:"profitability_penalty"`
+	ValuationPenalty     float64 `json:"valuation_penalty"`
+	MarketPenalty        float64 `json:"market_penalty"`
+	ProfitReportAgeMonths int    `json:"profit_report_age_months"`
+	MarketDataAgeDays    int    `json:"market_data_age_days"`
+	StaleDataFlag        bool   `json:"stale_data_flag"`
+	TTMNetProfit         float64 `json:"ttm_net_profit"`
+	TTMEPS               float64 `json:"ttm_eps"`
+	ScoreVersion         string  `json:"score_version"`
+
+	// رتبه‌ی درصدی هر فاکتور بین کل بازار (۰ تا ۱) — برای تجزیه‌ی دقیق در UI
+	SalesGrowthRank            float64 `json:"sales_growth_rank"`
+	SalesGrowth3MRank          float64 `json:"sales_growth_3m_rank"`
+	RevenueGrowthRank          float64 `json:"revenue_growth_rank"`
+	OperatingProfitGrowthRank  float64 `json:"operating_profit_growth_rank"`
+	NetProfitGrowthRank        float64 `json:"net_profit_growth_rank"`
+	OperatingMarginRank        float64 `json:"operating_margin_rank"`
+	NetMarginRank              float64 `json:"net_margin_rank"`
+	MarginTrendRank            float64 `json:"margin_trend_rank"`
+	InterestCoverageRank       float64 `json:"interest_coverage_rank"`
+	EarningsQualityRank        float64 `json:"earnings_quality_rank"`
+	PERank                     float64 `json:"pe_rank"`
+	PSRank                     float64 `json:"ps_rank"`
+	LiquidityRank              float64 `json:"liquidity_rank"`
+	StabilityRank              float64 `json:"stability_rank"`
+	LowVolatilityRank          float64 `json:"low_volatility_rank"`
+	MomentumRank               float64 `json:"momentum_rank"`
+
+	// فاکتورهای v3.2 (ترازنامه و جریان نقدی)
+	ROE              float64 `json:"roe"`
+	FinancialLeverage float64 `json:"financial_leverage"`
+	CurrentRatio     float64 `json:"current_ratio"`
+	CashConversion   float64 `json:"cash_conversion"`
+	PBRatio          float64 `json:"pb_ratio"`
+
+	ROERank              float64 `json:"roe_rank"`
+	LeverageRank         float64 `json:"leverage_rank"`
+	CurrentRatioRank     float64 `json:"current_ratio_rank"`
+	CashConversionRank   float64 `json:"cash_conversion_rank"`
+	PBRank               float64 `json:"pb_rank"`
 }
 
 type AIMonthlyPoint struct {

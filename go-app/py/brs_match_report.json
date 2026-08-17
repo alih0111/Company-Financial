@@ -1,14 +1,14 @@
 {
   "summary": {
     "total_brs_symbols": 1518,
-    "matched": 254,
-    "unmatched": 1264,
+    "matched": 255,
+    "unmatched": 1263,
     "match_breakdown": {
-      "symbol-equals-name": 250,
+      "symbol-equals-name": 251,
       "exact-name": 2,
-      "stored-symbol": 2
+      "containment": 2
     },
-    "codal_names_in_index": 269
+    "codal_names_in_index": 270
   },
   "brs_raw_sample": {
     "_comment": "ساختار واقعی پاسخ BRS برای عیب‌یابی فیلدها",

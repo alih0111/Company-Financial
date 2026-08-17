@@ -18,7 +18,7 @@ import { getAuthStatus } from "./hooks/useGetUser";
 import { useEffect, useMemo, useState } from "react";
 import AIStockTable from "./components/AIStockTable";
 import Portfolio from "./components/Portfolio";
-import { getAIStockSummary, type AIStockMetric } from "./utils/api";
+import { getAIStockSummary, collectBrsPrices, type AIStockMetric } from "./utils/api";
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -59,6 +59,26 @@ const App = () => {
     location.pathname === "/login" || location.pathname === "/register";
 
   const { isAdmin, username } = getAuthStatus();
+
+  const [collectingPrice, setCollectingPrice] = useState(false);
+  const [priceCollectMsg, setPriceCollectMsg] = useState<string | null>(null);
+
+  const collectCompanyPrices = async () => {
+    if (!selectedCompany) return;
+    setCollectingPrice(true);
+    setPriceCollectMsg(null);
+    try {
+      await collectBrsPrices("backfill", {
+        symbol: selectedCompany,
+        force: true,
+      });
+      setPriceCollectMsg("تاریخچه‌ی قیمت کامل شد ✓");
+    } catch (e: any) {
+      setPriceCollectMsg(e?.message || "خطا در جمع‌آوری قیمت");
+    } finally {
+      setCollectingPrice(false);
+    }
+  };
 
   useEffect(() => {
     if (location.pathname === "/Table") {
@@ -182,9 +202,37 @@ const App = () => {
                         )}
                       </div>
 
-                      {/* نمودار قیمت سهم */}
+                      {/* نمودار قیمت سهم + جمع‌آوری کامل قیمت همین نماد */}
                       {selectedCompany && (
                         <div className="py-2 min-h-[440px]">
+                          {isAdmin && (
+                            <div className="flex items-center gap-3 mb-2">
+                              <button
+                                onClick={collectCompanyPrices}
+                                disabled={collectingPrice}
+                                className={`text-xs font-medium px-3 py-1.5 rounded-lg transition ${
+                                  collectingPrice
+                                    ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                                    : "bg-cyan-600 hover:bg-cyan-700 text-white"
+                                }`}
+                              >
+                                {collectingPrice
+                                  ? "در حال جمع‌آوری... (۱۵-۳۰ ثانیه)"
+                                  : "📥 جمع‌آوری کامل قیمت این نماد"}
+                              </button>
+                              {priceCollectMsg && (
+                                <span
+                                  className={`text-xs ${
+                                    priceCollectMsg.includes("✓")
+                                      ? "text-green-600 dark:text-green-400"
+                                      : "text-red-500"
+                                  }`}
+                                >
+                                  {priceCollectMsg}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           <PriceChart companyName={selectedCompany} />
                         </div>
                       )}

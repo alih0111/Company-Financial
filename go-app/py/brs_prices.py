@@ -680,20 +680,46 @@ def today_jalali():
 
 
 # --------------------- Row builders ---------------------
+def _is_recent_gdate(gdate, max_age_days=10):
+    """
+    آیا تاریخ میلادی داده‌شده متعلق به همین روزهای اخیر است؟
+    AllSymbols یک snapshot از «امروز» است؛ اگر فیلدی به‌اشتباه تاریخِ
+    قابل‌تفسیر بدهد (مثل z که تعداد سهام است و عددش گاهی timestamp-like
+    می‌شود)، آن تاریخ باید نادیده گرفته شود.
+    """
+    if not gdate:
+        return False
+    try:
+        from datetime import date as _date, timedelta as _td
+
+        y, m, d = (int(part) for part in str(gdate).split("-"))
+        g = _date(y, m, d)
+        return abs((_date.today() - g).days) <= max_age_days
+    except Exception:
+        return False
+
+
 def build_daily_row(item, company_id, codal_name, brs_name):
     """
     ساخت ردیف روزانه.
-        codal_name: نام اصلی شرکت از codal (دست‌نخورده)
+        codal_name: نام اصلی شرکت از codal (دست‌خورده)
         brs_name:   نام منبع BRS (در ستون جداگانه)
     """
-    # اولویت ۱: timestamp (TSETMC از فیلد z استفاده می‌کند)
+    # اولویت ۱: timestamp — فقط اگر به تاریخ «همین روزهای اخیر» تبدیل شود.
+    # در AllSymbols فیلد z تعداد سهام است و مقدارش گاهی به‌صورت unix timestamp
+    # قابل‌تفسیر است (مثلاً 1.5e9 سهام → سال ۲۰۱۷!) و باعث می‌شد ردیفِ امروز
+    # روی یک تاریخ خیلی قدیمی overwrite شود. (رفع باگ ۱۸ نمادِ قفل‌شده)
     raw_ts = _first_present(item, TIMESTAMP_FIELDS)
     gdate, jdate = parse_brs_timestamp(raw_ts)
+    if gdate is not None and not _is_recent_gdate(gdate):
+        gdate, jdate = None, None
 
-    # اولویت ۲: فیلد تاریخ مستقیم
+    # اولویت ۲: فیلد تاریخ مستقیم — با همان شرط تازگی
     if gdate is None:
         raw_date = _first_present(item, DATE_FIELDS)
         gdate, jdate = parse_brs_date(raw_date)
+        if gdate is not None and not _is_recent_gdate(gdate):
+            gdate, jdate = None, None
 
     # اولویت ۳: AllSymbols داده‌ی روز جاری است → تاریخ سیستم
     if gdate is None:
@@ -1307,6 +1333,11 @@ def detect_corporate_events(days=14, threshold=-12.0, table_name="MarketPriceHis
     محدوده (با تلورانس) عملاً فقط ناشی از تعدیل قیمت پایه به دلیل رویداد
     شرکتی است.
 
+    ضد تشخیص کاذب: اگر بین دو ردیفِ متوالی ذخیره‌شده چند روز «داده‌ی غایب»
+    باشد، حرکت مجاز روزانه جمع می‌شود (مثلاً ۳ روز کاری گپ → تا ~۱۹٪ حرکت
+    عادی). بنابراین آستانه‌ی مؤثر هر ردیف = max(آستانه‌ی کاربر، سقف مجازِ
+    تعداد روزهای گپ‌خورده) است؛ سقفِ شیب تا ۶ روز کاری (~۴۲٪) لحاظ می‌شود.
+
     خروجی: لیستی از {symbol, instrument_code, company_id, date, pct_change}
     """
     conn = get_db_connection()
@@ -1322,30 +1353,46 @@ def detect_corporate_events(days=14, threshold=-12.0, table_name="MarketPriceHis
                         PARTITION BY InstrumentCode
                         ORDER BY GregorianDate
                     ) AS PrevClosing,
+                    LAG(GregorianDate) OVER (
+                        PARTITION BY InstrumentCode
+                        ORDER BY GregorianDate
+                    ) AS PrevDate,
                     ROW_NUMBER() OVER (
                         PARTITION BY InstrumentCode
                         ORDER BY GregorianDate DESC
                     ) AS rn
                 FROM dbo.[{safe_sql_identifier(table_name)}]
                 WHERE CompanyID IS NOT NULL
+            ),
+            Gaps AS (
+                SELECT Symbol, InstrumentCode, CompanyID, GregorianDate,
+                    CAST((ClosingPrice - PrevClosing) AS FLOAT)
+                        / NULLIF(PrevClosing, 0) * 100.0 AS pct,
+                    -- روزهای کاریِ تقریبی بین دو ردیف متوالی (۵ از ۷ روز هفته)
+                    CASE
+                        WHEN PrevDate IS NULL OR DATEDIFF(DAY, PrevDate, GregorianDate) <= 0
+                            THEN 1
+                        ELSE DATEDIFF(DAY, PrevDate, GregorianDate) * 5 / 7 + 1
+                    END AS gap_trading_days
+                FROM Recent
+                WHERE rn BETWEEN 1 AND ?
+                  AND PrevClosing IS NOT NULL AND PrevClosing > 0
             )
-            SELECT Symbol, InstrumentCode, CompanyID,
-                GregorianDate,
-                CAST((ClosingPrice - PrevClosing) AS FLOAT)
-                    / NULLIF(PrevClosing, 0) * 100.0 AS pct
-            FROM Recent
-            WHERE rn BETWEEN 1 AND ?
-              AND PrevClosing IS NOT NULL AND PrevClosing > 0
-              AND (
-                  CAST((ClosingPrice - PrevClosing) AS FLOAT)
-                      / NULLIF(PrevClosing, 0) * 100.0 < ?
-                  OR
-                  CAST((ClosingPrice - PrevClosing) AS FLOAT)
-                      / NULLIF(PrevClosing, 0) * 100.0 > ?
-              )
+            SELECT Symbol, InstrumentCode, CompanyID, GregorianDate, pct
+            FROM Gaps
+            CROSS APPLY (
+                SELECT
+                    CASE WHEN gap_trading_days > 6 THEN 6 ELSE gap_trading_days END AS gtd
+            ) cap
+            CROSS APPLY (
+                SELECT
+                    (POWER(1.06, cap.gtd) - 1.0) * 100.0 AS allow_pct
+            ) allowance
+            WHERE pct < -1.0 * IIF(allowance.allow_pct > ?, allowance.allow_pct, ?)
+               OR pct >  1.0 * IIF(allowance.allow_pct > ?, allowance.allow_pct, ?)
             ORDER BY GregorianDate DESC
             """,
-            days, threshold, abs(threshold),
+            days, abs(threshold), abs(threshold), abs(threshold), abs(threshold),
         )
         for sym, ic, cid, gdate, pct in cursor.fetchall():
             events.append({
@@ -1481,11 +1528,11 @@ def local_adjust_prices(cursor, instrument_code, events, table_name):
     return total_adjusted
 
 
-def cmd_sync(days=14, threshold=-8.0, use_api=False, table_name="MarketPriceHistory"):
+def cmd_sync(days=14, threshold=-20.0, use_api=False, table_name="MarketPriceHistory"):
     """
     شناسایی نمادهای متأثر از رویداد شرکتی و تعدیل قیمت‌ها.
 
-    threshold: آستانه‌ی تشخیص شکاف (پیش‌فرض: ±۸٪).
+    threshold: آستانه‌ی تشخیص شکاف به درصد (پیش‌فرض: ±۲۰٪).
         در بورس ایران دامنه‌ی نوسان روزانه ±۶٪ است، پس هر شکاف بیشتر
         از ۷٪ عملاً فقط از رویداد شرکتی ناشی می‌شود. ۸٪ حاشیه‌ی امن است.
         برای محتاط‌تر بودن می‌توان ۱۰ یا ۱۲ گذاشت.
@@ -1638,10 +1685,19 @@ def cmd_backfill(limit=None, symbol=None, force=False, table_name="MarketPriceHi
     matched, unmatched = resolve_matched_symbols(table_name)
 
     if symbol:
+        # تطبیق دوگانه: هم نماد BRS (l18) و هم نام شرکت codal پذیرفته می‌شود
+        # تا دکمه‌ی «جمع‌آوری قیمت این نماد» با هر دو شناسه کار کند
         sym_norm = normalize_persian(symbol)
-        matched = [m for m in matched if normalize_persian(m["symbol"]) == sym_norm]
+        matched = [
+            m for m in matched
+            if normalize_persian(m["symbol"]) == sym_norm
+            or normalize_persian(m.get("company_name") or "") == sym_norm
+        ]
         if not matched:
-            log.error("❌ نماد %s تطبیق داده نشد؛ backfill لغو شد", symbol)
+            log.error(
+                "❌ نماد/شرکت %s تطبیق داده نشد؛ backfill لغو شد "
+                "(نه در نمادهای BRS و نه در نام شرکت‌های codal)", symbol
+            )
             _print_summary("backfill", 0, 0, len(unmatched), unmatched)
             return
 
@@ -1670,25 +1726,54 @@ def cmd_backfill(limit=None, symbol=None, force=False, table_name="MarketPriceHi
             # محاسبه‌ی تاریخ برش (KEEP_RECENT_DAYS روز پیش)
             import datetime as _dt
             cutoff_date = (_dt.date.today() - _dt.timedelta(days=KEEP_RECENT_DAYS)).isoformat()
-            log.info(
-                "🔄 حالت --force: پاک‌سازی تاریخچه‌ی قدیمی‌تر از %s و حفظ %s روز اخیر",
-                cutoff_date, KEEP_RECENT_DAYS,
-            )
-            try:
-                cursor.execute(
-                    f"""
-                    DELETE FROM dbo.[{safe_sql_identifier(table_name)}]
-                    WHERE GregorianDate < ?
-                    """,
-                    cutoff_date,
+            scope_codes = [m["instrument_code"] for m in matched if m.get("instrument_code")]
+            if symbol and scope_codes:
+                # --force برای یک نماد: فقط تاریخچه‌ی «همان نماد» پاک می‌شود؛
+                # پاک‌سازی سراسری فقط در حالت force کامل (بدون symbol) انجام می‌شود.
+                placeholders = ",".join("?" for _ in scope_codes)
+                log.info(
+                    "🔄 حالت --force (تک‌نماد): پاک‌سازی تاریخچه‌ی قدیمی‌تر از %s فقط برای %s",
+                    cutoff_date, symbol,
                 )
-                conn.commit()
-                log.info("🔄 %s ردیف قدیمی حذف شد", cursor.rowcount)
-            except Exception as exc:
-                log.warning("⚠️ cannot clear old history: %s", exc)
-                conn.rollback()
+                try:
+                    cursor.execute(
+                        f"""
+                        DELETE FROM dbo.[{safe_sql_identifier(table_name)}]
+                        WHERE GregorianDate < ?
+                          AND InstrumentCode IN ({placeholders})
+                        """,
+                        cutoff_date,
+                        *scope_codes,
+                    )
+                    conn.commit()
+                    log.info("🔄 %s ردیف قدیمی این نماد حذف شد", cursor.rowcount)
+                except Exception as exc:
+                    log.warning("⚠️ cannot clear old history: %s", exc)
+                    conn.rollback()
+            else:
+                log.info(
+                    "🔄 حالت --force (کامل): پاک‌سازی تاریخچه‌ی قدیمی‌تر از %s و حفظ %s روز اخیر",
+                    cutoff_date, KEEP_RECENT_DAYS,
+                )
+                try:
+                    cursor.execute(
+                        f"""
+                        DELETE FROM dbo.[{safe_sql_identifier(table_name)}]
+                        WHERE GregorianDate < ?
+                        """,
+                        cutoff_date,
+                    )
+                    conn.commit()
+                    log.info("🔄 %s ردیف قدیمی حذف شد", cursor.rowcount)
+                except Exception as exc:
+                    log.warning("⚠️ cannot clear old history: %s", exc)
+                    conn.rollback()
         else:
             try:
+                # skip فقط برای نمادهایی که هم تاریخچه‌ی کافی دارند و هم
+                # داده‌شان تازه است (حداکثر ۷ روز تأخیر). اگر داده‌ی نماد کهنه
+                # شده باشد (گپ — مثل نمادهایی که daily به دلایلی جا انداخته)،
+                # backfill عادی خودش دوباره جمعش می‌کند (خوددرمانی گپ‌ها).
                 cursor.execute(
                     f"""
                     SELECT InstrumentCode
@@ -1696,6 +1781,8 @@ def cmd_backfill(limit=None, symbol=None, force=False, table_name="MarketPriceHi
                     WHERE InstrumentCode IS NOT NULL
                     GROUP BY InstrumentCode
                     HAVING COUNT(*) >= ?
+                       AND MAX(TRY_CONVERT(DATE, GregorianDate))
+                           >= DATEADD(DAY, -7, CONVERT(DATE, GETDATE()))
                     """,
                     MIN_HISTORY_ROWS,
                 )
@@ -1887,9 +1974,9 @@ def main():
         help="بازه‌ی بررسی رویدادها به روز (پیش‌فرض: ۱۴)",
     )
     sy.add_argument(
-        "--threshold", type=float, default=-8.0,
-        help="آستانه‌ی تشخیص شکاف به درصد (پیش‌فرض: ۸، یعنی ±۸٪). "
-             "دامنه‌ی نوسان روزانه بورس ۶٪ است؛ ۸ حاشیه‌ی امن.",
+        "--threshold", type=float, default=-20.0,
+        help="آستانه‌ی تشخیص شکاف به درصد (پیش‌فرض: ۲۰، یعنی ±۲۰٪). "
+             "با گپِ داده، آستانه تا سقف شیبِ ۶٪ در روز به‌صورت خودکار بزرگ‌تر می‌شود.",
     )
     sy.add_argument(
         "--api", action="store_true",

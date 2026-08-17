@@ -79,7 +79,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     setLoadingBrsSync(true);
     setBrsMsg(null);
     try {
-      const res = await collectBrsPrices("sync", { limit: 30 });
+      const res = await collectBrsPrices("sync", { limit: 30, threshold: 20 });
       setBrsMsg("تعدیل قیمت‌ها انجام شد ✓");
     } catch (e: any) {
       setBrsMsg(e?.message || "خطا در sync");

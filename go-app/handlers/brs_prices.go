@@ -12,12 +12,13 @@ import (
 
 // BrsCollectRequest بدنه‌ی درخواست اجرای کالکتور قیمت BRS.
 type BrsCollectRequest struct {
-	Mode   string `json:"mode"`   // "daily" | "backfill" | "sync"
-	Limit  int    `json:"limit"`  // backfill: تعداد نماد | sync: تعداد روز
-	Symbol string `json:"symbol"` // فقط backfill: نماد خاص
-	Force  bool   `json:"force"`  // فقط backfill: نادیده‌گرفتن تاریخچه
-	Raw    bool   `json:"raw"`    // فقط backfill: بدون تطبیق codal
-	API    bool   `json:"api"`    // فقط sync: استفاده از API به‌جای تعدیل محلی
+	Mode      string  `json:"mode"`   // "daily" | "backfill" | "sync"
+	Limit     int     `json:"limit"`  // backfill: تعداد نماد | sync: تعداد روز
+	Symbol    string  `json:"symbol"` // فقط backfill: نماد خاص
+	Force     bool    `json:"force"`  // فقط backfill: نادیده‌گرفتن تاریخچه
+	Raw       bool    `json:"raw"`    // فقط backfill: بدون تطبیق codal
+	API       bool    `json:"api"`    // فقط sync: استفاده از API به‌جای تعدیل محلی
+	Threshold float64 `json:"threshold"` // فقط sync: آستانه‌ی تشخیص شکاف (درصد)
 }
 
 // RunBrsCollector کالکتور قیمت BRS (py/brs_prices.py) را اجرا می‌کند.
@@ -55,6 +56,9 @@ func RunBrsCollector(c *gin.Context) {
 	if mode == "sync" {
 		if req.Limit > 0 {
 			args = append(args, "--days", strconv.Itoa(req.Limit))
+		}
+		if req.Threshold > 0 {
+			args = append(args, "--threshold", strconv.FormatFloat(req.Threshold, 'f', -1, 64))
 		}
 		if req.API {
 			args = append(args, "--api")

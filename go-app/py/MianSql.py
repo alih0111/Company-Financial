@@ -574,6 +574,23 @@ def extract_profit_loss_values(table):
         column_indexes=period_indexes,
     )
 
+    # ردیف واقعی «سود (زیان) خالص» از خود جدول — هم‌واحد با بقیه‌ی مبالغ
+    # گزارش (برخلاف Product1 = EPS × سرمایه که مقیاسش مخلوط است)
+    net_profit_row = find_row(
+        rows,
+        exact_titles=("سود (زیان) خالص", "سود(زیان) خالص"),
+        contains_all=("سود", "زیان", "خالص"),
+        excludes=(
+            "هر سهم",
+            "عملیات",
+            "در حال تداوم",
+            "متوقف شده",
+            "پایه",
+            "جامع",
+        ),
+        column_indexes=period_indexes,
+    )
+
     missing = []
     if net_eps_row is None:
         missing.append("net EPS")
@@ -674,6 +691,27 @@ def extract_profit_loss_values(table):
         revenue_new = None
         revenue_last_year = None
 
+    # مقادیر واقعی ردیف سود خالص (ستون ۱=دوره جاری، ۲=دوره مشابه سال قبل،
+    # ۳=سکل سال قبل) و ستون سوم سایر ردیف‌ها برای TTM تک‌گزارشی
+    has_third_column = len(period_columns) >= 3
+    third_index = period_columns[2]["index"] if has_third_column else None
+
+    net_profit_amount = value_from_row(net_profit_row, period_columns[0]["index"]) if net_profit_row else None
+    net_profit_amount_ly = value_from_row(net_profit_row, period_columns[1]["index"]) if net_profit_row else None
+    net_profit_amount_fyprev = (
+        value_from_row(net_profit_row, third_index)
+        if net_profit_row and has_third_column
+        else None
+    )
+    operating_profit_fyprev = (
+        value_from_row(operating_profit_row, third_index)
+        if has_third_column
+        else None
+    )
+    revenue_fyprev = (
+        value_from_row(revenue_row, third_index) if revenue_row and has_third_column else None
+    )
+
     result = {
         "period_headers": [column["parts"] for column in period_columns],
         "values_to_insert": tuple(period_values),
@@ -685,6 +723,11 @@ def extract_profit_loss_values(table):
         "other_non_op_last_year": other_non_op_last_year,
         "revenue_new": revenue_new,
         "revenue_last_year": revenue_last_year,
+        "net_profit_amount": net_profit_amount,
+        "net_profit_amount_ly": net_profit_amount_ly,
+        "net_profit_amount_fyprev": net_profit_amount_fyprev,
+        "operating_profit_fyprev": operating_profit_fyprev,
+        "revenue_fyprev": revenue_fyprev,
         "matched_rows": {
             "net_eps": net_eps_row["raw_title"],
             "capital": capital_row["raw_title"],
@@ -822,7 +865,15 @@ def ensure_table(cursor, table_name):
     for col in ("OperatingProfitNew", "OperatingProfitLastYear",
                 "FinanceCostsNew", "FinanceCostsLastYear",
                 "OtherNonOpNew", "OtherNonOpLastYear",
-                "RevenueNew", "RevenueLastYear"):
+                "RevenueNew", "RevenueLastYear",
+                "TotalAssets", "TotalAssetsLY",
+                "CurrentAssets", "CurrentAssetsLY",
+                "TotalLiabilities", "TotalLiabilitiesLY",
+                "CurrentLiabilities", "CurrentLiabilitiesLY",
+                "TotalEquity", "TotalEquityLY",
+                "OperatingCashFlow", "OperatingCashFlowLY", "OperatingCashFlowFYPrev",
+                "NetProfitAmount", "NetProfitAmountLY", "NetProfitAmountFYPrev",
+                "OperatingProfitFYPrev", "RevenueFYPrev"):
         cursor.execute(
             f"""
             IF COL_LENGTH('dbo.{table_name}', '{col}') IS NULL
@@ -845,6 +896,233 @@ def wait_for_angular_stable(page, timeout=15000):
         )
     except PlaywrightTimeoutError:
         logging.warning("⚠️ Angular stability wait timed out; continuing anyway.")
+
+
+# --------------------------------------------------------------------------
+# انتخاب جدول‌های دیگر همان گزارش CODAL (ترازنامه / جریان نقدی)
+# --------------------------------------------------------------------------
+def find_statement_table(soup, markers, min_score=1):
+    """جدول rayanDynamicStatement ای را برمی‌گرداند که بیشترین نشانه را داشته باشد."""
+    candidates = soup.select("table.rayanDynamicStatement")
+    best_table = None
+    best_score = -1
+
+    for table in candidates:
+        table_text = normalize_label(table.get_text(" ", strip=True))
+        score = sum(
+            1
+            for marker in markers
+            if normalize_label(marker) in table_text
+        )
+        if score > best_score:
+            best_score = score
+            best_table = table
+
+    if best_score < min_score:
+        return None
+    return best_table
+
+
+def _find_table_selectbox(page):
+    selectors = (
+        "select#ctl00_ddlTable",
+        "select#ddlTable",
+        "select[name*='ddlTable']",
+        "select[id*='ddlTable']",
+    )
+    for selector in selectors:
+        locator = page.locator(selector)
+        try:
+            if locator.count() > 0:
+                locator.first.wait_for(state="attached", timeout=3000)
+                return locator.first
+        except PlaywrightTimeoutError:
+            continue
+
+    all_selects = page.locator("select")
+    for index in range(all_selects.count()):
+        candidate = all_selects.nth(index)
+        try:
+            options = candidate.locator("option")
+            option_texts = [
+                normalize_label(options.nth(i).inner_text())
+                for i in range(options.count())
+            ]
+            if any("صورت سود و زیان" in text for text in option_texts):
+                return candidate
+        except Exception:
+            continue
+    return None
+
+
+def ensure_statement_selected(page, option_labels, table_markers):
+    """
+    جدول دلخواه گزارش (مثل «صورت وضعیت مالی») را از selectbox صفحه انتخاب
+    می‌کند و منتظر می‌ماند جدول جدید رندر شود.
+    برمی‌گرداند: جدول BeautifulSoup یا None (در صورت خطا فرآیند خراب نمی‌شود).
+    """
+    try:
+        select_locator = _find_table_selectbox(page)
+        if select_locator is None:
+            logging.warning("⚠️ Statement selectbox not found for %s", option_labels[0])
+            return None
+
+        normalized_targets = {normalize_label(label) for label in option_labels}
+        options = select_locator.locator("option")
+        target_value = None
+
+        for index in range(options.count()):
+            option = options.nth(index)
+            option_text = normalize_label(option.inner_text())
+            if option_text in normalized_targets or any(
+                target in option_text or option_text in target
+                for target in normalized_targets
+            ):
+                target_value = option.get_attribute("value")
+                break
+
+        if target_value is None:
+            logging.warning(
+                "⚠️ Option %s not found in statement selectbox", option_labels[0]
+            )
+            return None
+
+        select_locator.select_option(value=target_value, timeout=10000)
+        page.wait_for_timeout(2500)
+        wait_for_angular_stable(page)
+        page.wait_for_selector("table.rayanDynamicStatement", timeout=15000)
+        page.wait_for_timeout(1000)
+
+        soup = BeautifulSoup(page.content(), "html.parser")
+        table = find_statement_table(soup, table_markers, min_score=2)
+        if table is None:
+            logging.warning("⚠️ Statement table not recognized: %s", option_labels[0])
+        return table
+    except Exception as exc:
+        logging.warning("⚠️ Could not select statement %s: %s", option_labels[0], exc)
+        return None
+
+
+def extract_balance_sheet_values(table):
+    """
+    ردیف‌های اصلی صورت وضعیت مالی (ترازنامه) را استخراج می‌کند.
+    ستون اول = پایان دوره‌ی جاری، ستون دوم = پایان دوره/سال قبل.
+    """
+    period_columns = get_period_columns(table)
+    if len(period_columns) < 2:
+        logging.warning("⚠️ Balance sheet: expected 2 date columns, found %s", len(period_columns))
+        return None
+
+    col_now = period_columns[0]["index"]
+    col_ly = period_columns[1]["index"]
+    rows = get_table_rows(table)
+
+    def cell(row_finder, col):
+        row = row_finder()
+        return value_from_row(row, col) if row is not None else None
+
+    def find_total_assets():
+        return find_row(
+            rows,
+            exact_titles=("جمع دارایی ها",),
+            contains_all=("جمع", "دارایی"),
+            excludes=("جاری", "غیرجاری", "درآمد", "هزینه", "بدهی"),
+            column_indexes=[col_now, col_ly],
+        )
+
+    def find_current_assets():
+        return find_row(
+            rows,
+            contains_all=("جمع", "دارایی", "جاری"),
+            excludes=("بدهی", "غیرجاری"),
+            column_indexes=[col_now, col_ly],
+        )
+
+    def find_total_liabilities():
+        return find_row(
+            rows,
+            exact_titles=("جمع بدهی ها",),
+            contains_all=("جمع", "بدهی"),
+            excludes=("جاری", "غیرجاری", "حقوق"),
+            column_indexes=[col_now, col_ly],
+        )
+
+    def find_current_liabilities():
+        return find_row(
+            rows,
+            contains_all=("جمع", "بدهی", "جاری"),
+            excludes=("غیرجاری", "دارایی"),
+            column_indexes=[col_now, col_ly],
+        )
+
+    def find_total_equity():
+        return find_row(
+            rows,
+            contains_all=("جمع", "حقوق مالکانه"),
+            excludes=("فرعی",),
+            column_indexes=[col_now, col_ly],
+        )
+
+    result = {
+        "total_assets": cell(find_total_assets, col_now),
+        "total_assets_ly": cell(find_total_assets, col_ly),
+        "current_assets": cell(find_current_assets, col_now),
+        "current_assets_ly": cell(find_current_assets, col_ly),
+        "total_liabilities": cell(find_total_liabilities, col_now),
+        "total_liabilities_ly": cell(find_total_liabilities, col_ly),
+        "current_liabilities": cell(find_current_liabilities, col_now),
+        "current_liabilities_ly": cell(find_current_liabilities, col_ly),
+        "total_equity": cell(find_total_equity, col_now),
+        "total_equity_ly": cell(find_total_equity, col_ly),
+    }
+
+    found = sum(1 for value in result.values() if value is not None)
+    if found < 4:
+        logging.warning("⚠️ Balance sheet: too few rows matched (%s/10)", found)
+        return None
+    return result
+
+
+def extract_cashflow_values(table):
+    """ردیف «خالص جریان‌های نقدی عملیاتی» (تجمعی از ابتدای سال، مثل سود)."""
+    period_columns = get_period_columns(table)
+    if len(period_columns) < 2:
+        return None
+
+    col_now = period_columns[0]["index"]
+    col_ly = period_columns[1]["index"]
+    third_index = period_columns[2]["index"] if len(period_columns) >= 3 else None
+    rows = get_table_rows(table)
+
+    ocf_row = find_row(
+        rows,
+        exact_titles=(
+            "خالص جریان های نقدی عملیاتی",
+            "خالص جریانهای نقدی عملیاتی",
+        ),
+        contains_all=("خالص", "جریان", "عملیاتی"),
+        excludes=(
+            "سرمایه گذاری",
+            "تامین مالی",
+            "تأمین مالی",
+            "تمویل مالی",
+            "ارزی",
+            "ابتدای",
+            "پایان",
+        ),
+        column_indexes=[c["index"] for c in period_columns],
+    )
+    if ocf_row is None:
+        logging.warning("⚠️ Cash flow: operating row not found")
+        return None
+
+    return {
+        "operating_cash_flow": value_from_row(ocf_row, col_now),
+        "operating_cash_flow_ly": value_from_row(ocf_row, col_ly),
+        "operating_cash_flow_fyprev": (
+            value_from_row(ocf_row, third_index) if third_index is not None else None
+        ),
+    }
 
 
 def create_context(playwright):
@@ -1031,6 +1309,24 @@ def save_profit_loss_to_sql(
     other_non_op_last_year=None,
     revenue_new=None,
     revenue_last_year=None,
+    total_assets=None,
+    total_assets_ly=None,
+    current_assets=None,
+    current_assets_ly=None,
+    total_liabilities=None,
+    total_liabilities_ly=None,
+    current_liabilities=None,
+    current_liabilities_ly=None,
+    total_equity=None,
+    total_equity_ly=None,
+    operating_cash_flow=None,
+    operating_cash_flow_ly=None,
+    operating_cash_flow_fyprev=None,
+    net_profit_amount=None,
+    net_profit_amount_ly=None,
+    net_profit_amount_fyprev=None,
+    operating_profit_fyprev=None,
+    revenue_fyprev=None,
 ):
     table_name = safe_sql_identifier(table_name)
 
@@ -1077,7 +1373,25 @@ def save_profit_loss_to_sql(
                     OtherNonOpNew       = COALESCE(OtherNonOpNew, ?),
                     OtherNonOpLastYear  = COALESCE(OtherNonOpLastYear, ?),
                     RevenueNew          = COALESCE(RevenueNew, ?),
-                    RevenueLastYear     = COALESCE(RevenueLastYear, ?)
+                    RevenueLastYear     = COALESCE(RevenueLastYear, ?),
+                    TotalAssets         = COALESCE(TotalAssets, ?),
+                    TotalAssetsLY       = COALESCE(TotalAssetsLY, ?),
+                    CurrentAssets       = COALESCE(CurrentAssets, ?),
+                    CurrentAssetsLY     = COALESCE(CurrentAssetsLY, ?),
+                    TotalLiabilities    = COALESCE(TotalLiabilities, ?),
+                    TotalLiabilitiesLY  = COALESCE(TotalLiabilitiesLY, ?),
+                    CurrentLiabilities  = COALESCE(CurrentLiabilities, ?),
+                    CurrentLiabilitiesLY = COALESCE(CurrentLiabilitiesLY, ?),
+                    TotalEquity         = COALESCE(TotalEquity, ?),
+                    TotalEquityLY       = COALESCE(TotalEquityLY, ?),
+                    OperatingCashFlow   = COALESCE(OperatingCashFlow, ?),
+                    OperatingCashFlowLY = COALESCE(OperatingCashFlowLY, ?),
+                    OperatingCashFlowFYPrev = COALESCE(OperatingCashFlowFYPrev, ?),
+                    NetProfitAmount     = COALESCE(NetProfitAmount, ?),
+                    NetProfitAmountLY   = COALESCE(NetProfitAmountLY, ?),
+                    NetProfitAmountFYPrev = COALESCE(NetProfitAmountFYPrev, ?),
+                    OperatingProfitFYPrev = COALESCE(OperatingProfitFYPrev, ?),
+                    RevenueFYPrev       = COALESCE(RevenueFYPrev, ?)
                 WHERE CompanyID = ? AND ReportDate = ?
                 """,
                 finance_costs_new,
@@ -1086,6 +1400,24 @@ def save_profit_loss_to_sql(
                 other_non_op_last_year,
                 revenue_new,
                 revenue_last_year,
+                total_assets,
+                total_assets_ly,
+                current_assets,
+                current_assets_ly,
+                total_liabilities,
+                total_liabilities_ly,
+                current_liabilities,
+                current_liabilities_ly,
+                total_equity,
+                total_equity_ly,
+                operating_cash_flow,
+                operating_cash_flow_ly,
+                operating_cash_flow_fyprev,
+                net_profit_amount,
+                net_profit_amount_ly,
+                net_profit_amount_fyprev,
+                operating_profit_fyprev,
+                revenue_fyprev,
                 company_id,
                 report_date,
             )
@@ -1126,9 +1458,29 @@ def save_profit_loss_to_sql(
                 RevenueNew,
                 RevenueLastYear,
 
+                TotalAssets,
+                TotalAssetsLY,
+                CurrentAssets,
+                CurrentAssetsLY,
+                TotalLiabilities,
+                TotalLiabilitiesLY,
+                CurrentLiabilities,
+                CurrentLiabilitiesLY,
+                TotalEquity,
+                TotalEquityLY,
+                OperatingCashFlow,
+                OperatingCashFlowLY,
+                OperatingCashFlowFYPrev,
+
+                NetProfitAmount,
+                NetProfitAmountLY,
+                NetProfitAmountFYPrev,
+                OperatingProfitFYPrev,
+                RevenueFYPrev,
+
                 Url
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             company_id,
             company_name,
@@ -1142,6 +1494,24 @@ def save_profit_loss_to_sql(
             other_non_op_last_year,
             revenue_new,
             revenue_last_year,
+            total_assets,
+            total_assets_ly,
+            current_assets,
+            current_assets_ly,
+            total_liabilities,
+            total_liabilities_ly,
+            current_liabilities,
+            current_liabilities_ly,
+            total_equity,
+            total_equity_ly,
+            operating_cash_flow,
+            operating_cash_flow_ly,
+            operating_cash_flow_fyprev,
+            net_profit_amount,
+            net_profit_amount_ly,
+            net_profit_amount_fyprev,
+            operating_profit_fyprev,
+            revenue_fyprev,
             base_url,
         )
 
@@ -1222,10 +1592,46 @@ def scrape_report(page, link, company_name, base_url, table_name):
     if extracted is None:
         return False
 
+    # ---- صورت وضعیت مالی (ترازنامه) — از همان صفحه‌ی گزارش CODAL ----
+    balance = {}
+    try:
+        bs_table = ensure_statement_selected(
+            page,
+            ("صورت وضعیت مالی", "صورت وضعیت مالی تلفیقی"),
+            ("جمع دارایی", "جمع بدهی", "حقوق مالکانه"),
+        )
+        if bs_table is not None:
+            balance = extract_balance_sheet_values(bs_table) or {}
+    except Exception as exc:
+        logging.warning("⚠️ Balance sheet extraction failed: %s", exc)
+
+    # ---- صورت جریان‌های نقدی — از همان صفحه‌ی گزارش CODAL ----
+    cashflow = {}
+    try:
+        cf_table = ensure_statement_selected(
+            page,
+            ("صورت جریان های نقدی", "صورت جریانهای نقدی", "صورت جریان های نقدی تلفیقی"),
+            ("جریان", "عملیاتی", "سرمایه گذاری"),
+        )
+        if cf_table is not None:
+            cashflow = extract_cashflow_values(cf_table) or {}
+    except Exception as exc:
+        logging.warning("⚠️ Cash flow extraction failed: %s", exc)
+
+    if balance:
+        logging.info(
+            "🏦 Balance sheet: assets=%s liabilities=%s equity=%s",
+            balance.get("total_assets"),
+            balance.get("total_liabilities"),
+            balance.get("total_equity"),
+        )
+    if cashflow:
+        logging.info("💵 Operating cash flow: %s", cashflow.get("operating_cash_flow"))
+
     return save_profit_loss_to_sql(
-        company_name=company_name,
-        report_date=report_date,
-        values_to_insert=extracted["values_to_insert"],
+            company_name=company_name,
+            report_date=report_date,
+            values_to_insert=extracted["values_to_insert"],
         operating_profit_new=extracted["operating_profit_new"],
         operating_profit_last_year=extracted["operating_profit_last_year"],
         base_url=base_url,
@@ -1236,6 +1642,24 @@ def scrape_report(page, link, company_name, base_url, table_name):
         other_non_op_last_year=extracted.get("other_non_op_last_year"),
         revenue_new=extracted.get("revenue_new"),
         revenue_last_year=extracted.get("revenue_last_year"),
+        total_assets=balance.get("total_assets"),
+        total_assets_ly=balance.get("total_assets_ly"),
+        current_assets=balance.get("current_assets"),
+        current_assets_ly=balance.get("current_assets_ly"),
+        total_liabilities=balance.get("total_liabilities"),
+        total_liabilities_ly=balance.get("total_liabilities_ly"),
+        current_liabilities=balance.get("current_liabilities"),
+        current_liabilities_ly=balance.get("current_liabilities_ly"),
+        total_equity=balance.get("total_equity"),
+        total_equity_ly=balance.get("total_equity_ly"),
+        operating_cash_flow=cashflow.get("operating_cash_flow"),
+        operating_cash_flow_ly=cashflow.get("operating_cash_flow_ly"),
+        operating_cash_flow_fyprev=cashflow.get("operating_cash_flow_fyprev"),
+        net_profit_amount=extracted.get("net_profit_amount"),
+        net_profit_amount_ly=extracted.get("net_profit_amount_ly"),
+        net_profit_amount_fyprev=extracted.get("net_profit_amount_fyprev"),
+        operating_profit_fyprev=extracted.get("operating_profit_fyprev"),
+        revenue_fyprev=extracted.get("revenue_fyprev"),
     )
 
 

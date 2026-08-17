@@ -228,6 +228,48 @@ export interface AIStockMetric {
   profitability_score: number;
   valuation_score: number;
   market_score: number;
+
+  // ستون‌های شفافیت v3
+  growth_penalty: number;
+  profitability_penalty: number;
+  valuation_penalty: number;
+  market_penalty: number;
+  profit_report_age_months: number;
+  market_data_age_days: number;
+  stale_data_flag: boolean;
+  ttm_net_profit: number;
+  ttm_eps: number;
+  score_version: string;
+
+  // رتبه‌ی درصدی هر فاکتور بین کل بازار (۰ تا ۱)
+  sales_growth_rank: number;
+  sales_growth_3m_rank: number;
+  revenue_growth_rank: number;
+  operating_profit_growth_rank: number;
+  net_profit_growth_rank: number;
+  operating_margin_rank: number;
+  net_margin_rank: number;
+  margin_trend_rank: number;
+  interest_coverage_rank: number;
+  earnings_quality_rank: number;
+  pe_rank: number;
+  ps_rank: number;
+  liquidity_rank: number;
+  stability_rank: number;
+  low_volatility_rank: number;
+  momentum_rank: number;
+
+  // فاکتورهای v3.2 (ترازنامه و جریان نقدی)
+  roe: number;
+  financial_leverage: number;
+  current_ratio: number;
+  cash_conversion: number;
+  pb_ratio: number;
+  roe_rank: number;
+  leverage_rank: number;
+  current_ratio_rank: number;
+  cash_conversion_rank: number;
+  pb_rank: number;
 }
 
 export async function getAIStockSummary(limit = 20): Promise<AIStockMetric[]> {
@@ -382,7 +424,13 @@ export type BrsCollectMode = "daily" | "backfill";
 
 export async function collectBrsPrices(
   mode: BrsCollectMode = "daily",
-  options?: { limit?: number; symbol?: string; force?: boolean; raw?: boolean }
+  options?: {
+    limit?: number;
+    symbol?: string;
+    force?: boolean;
+    raw?: boolean;
+    threshold?: number;
+  }
 ): Promise<any> {
   const res = await fetch(`${API_BASE}/brs/collect`, {
     method: "POST",
@@ -393,6 +441,7 @@ export async function collectBrsPrices(
       symbol: options?.symbol,
       force: options?.force,
       raw: options?.raw,
+      threshold: options?.threshold,
     }),
   });
 

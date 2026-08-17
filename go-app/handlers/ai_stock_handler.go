@@ -36,6 +36,13 @@ func nbool(n sql.NullBool) bool {
 	return n.Valid && n.Bool
 }
 
+func nullInt64(n sql.NullInt64) int64 {
+	if n.Valid {
+		return n.Int64
+	}
+	return 0
+}
+
 func parseIntQuery(c *gin.Context, key string, fallback int) int {
 	raw := strings.TrimSpace(c.Query(key))
 	if raw == "" {
@@ -126,6 +133,48 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	var valuationScore sql.NullFloat64
 	var marketScore sql.NullFloat64
 
+	// ستون‌های شفافیت v3
+	var growthPenalty sql.NullFloat64
+	var profitabilityPenalty sql.NullFloat64
+	var valuationPenalty sql.NullFloat64
+	var marketPenalty sql.NullFloat64
+	var profitReportAgeMonths sql.NullInt64
+	var marketDataAgeDays sql.NullInt64
+	var staleDataFlag sql.NullBool
+	var ttmNetProfit sql.NullFloat64
+	var ttmEPS sql.NullFloat64
+	var scoreVersion sql.NullString
+
+	// رتبه‌ی درصدی فاکتورها (شفافیت v3)
+	var salesGrowthRank sql.NullFloat64
+	var salesGrowth3MRank sql.NullFloat64
+	var revenueGrowthRank sql.NullFloat64
+	var operatingProfitGrowthRank sql.NullFloat64
+	var netProfitGrowthRank sql.NullFloat64
+	var operatingMarginRank sql.NullFloat64
+	var netMarginRank sql.NullFloat64
+	var marginTrendRank sql.NullFloat64
+	var interestCoverageRank sql.NullFloat64
+	var earningsQualityRank sql.NullFloat64
+	var peRank sql.NullFloat64
+	var psRank sql.NullFloat64
+	var liquidityRank sql.NullFloat64
+	var stabilityRank sql.NullFloat64
+	var lowVolatilityRank sql.NullFloat64
+	var momentumRank sql.NullFloat64
+
+	// فاکتورهای v3.2 (ترازنامه و جریان نقدی)
+	var roe sql.NullFloat64
+	var financialLeverage sql.NullFloat64
+	var currentRatio sql.NullFloat64
+	var cashConversion sql.NullFloat64
+	var pbRatio sql.NullFloat64
+	var roeRank sql.NullFloat64
+	var leverageRank sql.NullFloat64
+	var currentRatioRank sql.NullFloat64
+	var cashConversionRank sql.NullFloat64
+	var pbRank sql.NullFloat64
+
 	err := rows.Scan(
 		&r.CompanyID,
 		&symbol,
@@ -184,6 +233,45 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 		&profitabilityScore,
 		&valuationScore,
 		&marketScore,
+
+		&growthPenalty,
+		&profitabilityPenalty,
+		&valuationPenalty,
+		&marketPenalty,
+		&profitReportAgeMonths,
+		&marketDataAgeDays,
+		&staleDataFlag,
+		&ttmNetProfit,
+		&ttmEPS,
+		&scoreVersion,
+
+		&salesGrowthRank,
+		&salesGrowth3MRank,
+		&revenueGrowthRank,
+		&operatingProfitGrowthRank,
+		&netProfitGrowthRank,
+		&operatingMarginRank,
+		&netMarginRank,
+		&marginTrendRank,
+		&interestCoverageRank,
+		&earningsQualityRank,
+		&peRank,
+		&psRank,
+		&liquidityRank,
+		&stabilityRank,
+		&lowVolatilityRank,
+		&momentumRank,
+
+		&roe,
+		&financialLeverage,
+		&currentRatio,
+		&cashConversion,
+		&pbRatio,
+		&roeRank,
+		&leverageRank,
+		&currentRatioRank,
+		&cashConversionRank,
+		&pbRank,
 	)
 
 	if err != nil {
@@ -246,6 +334,45 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 	r.ProfitabilityScore = nfloat(profitabilityScore)
 	r.ValuationScore = nfloat(valuationScore)
 	r.MarketScore = nfloat(marketScore)
+
+	r.GrowthPenalty = nfloat(growthPenalty)
+	r.ProfitabilityPenalty = nfloat(profitabilityPenalty)
+	r.ValuationPenalty = nfloat(valuationPenalty)
+	r.MarketPenalty = nfloat(marketPenalty)
+	r.ProfitReportAgeMonths = int(nullInt64(profitReportAgeMonths))
+	r.MarketDataAgeDays = int(nullInt64(marketDataAgeDays))
+	r.StaleDataFlag = nbool(staleDataFlag)
+	r.TTMNetProfit = nfloat(ttmNetProfit)
+	r.TTMEPS = nfloat(ttmEPS)
+	r.ScoreVersion = nstring(scoreVersion)
+
+	r.SalesGrowthRank = nfloat(salesGrowthRank)
+	r.SalesGrowth3MRank = nfloat(salesGrowth3MRank)
+	r.RevenueGrowthRank = nfloat(revenueGrowthRank)
+	r.OperatingProfitGrowthRank = nfloat(operatingProfitGrowthRank)
+	r.NetProfitGrowthRank = nfloat(netProfitGrowthRank)
+	r.OperatingMarginRank = nfloat(operatingMarginRank)
+	r.NetMarginRank = nfloat(netMarginRank)
+	r.MarginTrendRank = nfloat(marginTrendRank)
+	r.InterestCoverageRank = nfloat(interestCoverageRank)
+	r.EarningsQualityRank = nfloat(earningsQualityRank)
+	r.PERank = nfloat(peRank)
+	r.PSRank = nfloat(psRank)
+	r.LiquidityRank = nfloat(liquidityRank)
+	r.StabilityRank = nfloat(stabilityRank)
+	r.LowVolatilityRank = nfloat(lowVolatilityRank)
+	r.MomentumRank = nfloat(momentumRank)
+
+	r.ROE = nfloat(roe)
+	r.FinancialLeverage = nfloat(financialLeverage)
+	r.CurrentRatio = nfloat(currentRatio)
+	r.CashConversion = nfloat(cashConversion)
+	r.PBRatio = nfloat(pbRatio)
+	r.ROERank = nfloat(roeRank)
+	r.LeverageRank = nfloat(leverageRank)
+	r.CurrentRatioRank = nfloat(currentRatioRank)
+	r.CashConversionRank = nfloat(cashConversionRank)
+	r.PBRank = nfloat(pbRank)
 
 	return r, nil
 }
@@ -319,7 +446,46 @@ func GetAIStockSummary(c *gin.Context) {
             GrowthScore,
             ProfitabilityScore,
             ValuationScore,
-            MarketScore
+            MarketScore,
+
+            GrowthPenalty,
+            ProfitabilityPenalty,
+            ValuationPenalty,
+            MarketPenalty,
+            ProfitReportAgeMonths,
+            MarketDataAgeDays,
+            StaleDataFlag,
+            TTMNetProfit,
+            TTMEPS,
+            ScoreVersion,
+
+            SalesGrowthRank,
+            SalesGrowth3MRank,
+            RevenueGrowthRank,
+            OperatingProfitGrowthRank,
+            NetProfitGrowthRank,
+            OperatingMarginRank,
+            NetMarginRank,
+            MarginTrendRank,
+            InterestCoverageRank,
+            EarningsQualityRank,
+            PERank,
+            PSRank,
+            LiquidityRank,
+            StabilityRank,
+            LowVolatilityRank,
+            MomentumRank,
+
+            ROE,
+            FinancialLeverage,
+            CurrentRatio,
+            CashConversion,
+            PBRatio,
+            ROERank,
+            LeverageRank,
+            CurrentRatioRank,
+            CashConversionRank,
+            PBRank
         FROM dbo.vw_AIStockMetrics
 		WHERE ISNULL(AvgTradeValue30D, 0) >= @minAvgTradeValue30D
         ORDER BY QuantScore DESC
@@ -414,7 +580,46 @@ func getOneSummaryByCompanyID(db *sql.DB, companyID string) (models.AIStockMetri
             GrowthScore,
             ProfitabilityScore,
             ValuationScore,
-            MarketScore
+            MarketScore,
+
+            GrowthPenalty,
+            ProfitabilityPenalty,
+            ValuationPenalty,
+            MarketPenalty,
+            ProfitReportAgeMonths,
+            MarketDataAgeDays,
+            StaleDataFlag,
+            TTMNetProfit,
+            TTMEPS,
+            ScoreVersion,
+
+            SalesGrowthRank,
+            SalesGrowth3MRank,
+            RevenueGrowthRank,
+            OperatingProfitGrowthRank,
+            NetProfitGrowthRank,
+            OperatingMarginRank,
+            NetMarginRank,
+            MarginTrendRank,
+            InterestCoverageRank,
+            EarningsQualityRank,
+            PERank,
+            PSRank,
+            LiquidityRank,
+            StabilityRank,
+            LowVolatilityRank,
+            MomentumRank,
+
+            ROE,
+            FinancialLeverage,
+            CurrentRatio,
+            CashConversion,
+            PBRatio,
+            ROERank,
+            LeverageRank,
+            CurrentRatioRank,
+            CashConversionRank,
+            PBRank
         FROM dbo.vw_AIStockMetrics
         WHERE CompanyID = @companyID
     `
@@ -892,7 +1097,46 @@ func AnalyzeTopStocksWithAI(c *gin.Context) {
             GrowthScore,
             ProfitabilityScore,
             ValuationScore,
-            MarketScore
+            MarketScore,
+
+            GrowthPenalty,
+            ProfitabilityPenalty,
+            ValuationPenalty,
+            MarketPenalty,
+            ProfitReportAgeMonths,
+            MarketDataAgeDays,
+            StaleDataFlag,
+            TTMNetProfit,
+            TTMEPS,
+            ScoreVersion,
+
+            SalesGrowthRank,
+            SalesGrowth3MRank,
+            RevenueGrowthRank,
+            OperatingProfitGrowthRank,
+            NetProfitGrowthRank,
+            OperatingMarginRank,
+            NetMarginRank,
+            MarginTrendRank,
+            InterestCoverageRank,
+            EarningsQualityRank,
+            PERank,
+            PSRank,
+            LiquidityRank,
+            StabilityRank,
+            LowVolatilityRank,
+            MomentumRank,
+
+            ROE,
+            FinancialLeverage,
+            CurrentRatio,
+            CashConversion,
+            PBRatio,
+            ROERank,
+            LeverageRank,
+            CurrentRatioRank,
+            CashConversionRank,
+            PBRank
         FROM dbo.vw_AIStockMetrics
 		WHERE ISNULL(AvgTradeValue30D, 0) >= @minAvgTradeValue30D
         ORDER BY QuantScore DESC

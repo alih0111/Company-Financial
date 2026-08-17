@@ -17,21 +17,51 @@ GO
 CREATE VIEW [dbo].[vw_AIStockMetrics]
 AS
 -- ============================================================================
---  vw_AIStockMetrics
+--  vw_AIStockMetrics  (v3.0)
 --  رتبه‌بندی کمّی شرکت‌های بورسی بر اساس داده‌های ماهانه (فروش) و گزارش‌های
---  فصلی صورت سود و زیان. خروجی اصلی: QuantScore بین 0..100.
+--  میان‌دوره‌ی صورت سود و زیان. خروجی اصلی: QuantScore بین 0..100.
 --
---  تغییرات نسخه‌ی جدید:
---   1) افزودن 4 فاکتور جدید قابل محاسبه از داده‌ی موجود:
---        - NetProfitMargin12M  : حاشیه سود خالص سالانه
---        - OperatingMargin12M  : حاشیه سود عملیاتی سالانه
---        - OperatingMarginTrend: روند تغییر حاشیه عملیاتی YoY
---        - PSRatio             : نسبت قیمت به فروش سالانه (P/S)
---   2) تبدیل جریمه‌ها از حالت ضربی به جمعی (با کف 0.50)
---        نسخه‌ی قدیمی Україن: 0.55 * 0.70 * 0.70 = 0.27 (بیش از 70% کاهش)
---        نسخه‌ی جدید: 1.00 - (0.15+0.10+0.10+0.15) = 0.50 (حداکثر 50% کاهش)
---   3) افزودن جریمه‌ی «شرکت زیان‌ده» (سود خالص ۴ گزارشه منفی)
---   4) اصلاح وزن‌ها برای ترغیب رشد سود + کیفیت حاشیه
+--  اصلاحات بنیادی نسخه‌ی v3 نسبت به v2:
+--
+--  ۱) سود و درآمد گزارش‌های میان‌دوره «تجمعی از ابتدای سال مالی» است، نه فصلی.
+--     جمع ساده‌ی ۴ گزارش اخیر (روش v2) عملاً ~۲ سال سود را جمع می‌زد و
+--     رشد سود و حاشیه‌های ۱۲ماهه را خراب می‌کرد. در v3 سود ۱۲ماهه‌ی واقعی
+--     (TTM) به این شکل ساخته می‌شود:
+--         TTM = سود تجمعی جدیدترین گزارش + س کل سال قبل - سود تجمعی دوره‌ی
+--               مشابه سال قبل
+--     و رشد TTM از نسبت TTM امسال به TTM سال قبل محاسبه می‌شود.
+--
+--  ۲) P/E با EPS تجمعیِ گزارش آخر ساخته می‌شد که برای گزارش ۳ماهه حدوداً
+--     ۴ برابر P/E واقعی می‌داد. اکنون EPS دوازده‌ماهه (TTM EPS) محاسبه و
+--     P/E = قیمت / EPS_TTM است (با جدول FullPE اعتبارسنجی شد؛ میانه‌ی
+--     اختلاف ~۱.۱ برابر که عمدتاً از اختلاف تاریخ قیمت است).
+--
+--  ۳) P/S قبلاً با «تعداد سهم» ضربدر قیمت ساخته می‌شد که واحد سهم‌ها با
+--     واحد فروش سازگار نبود و برای ۱۰۰٪ شرکت‌ها مقداری ≥ ۱۰۰ (بی‌معنی)
+--     می‌داد. اکنون از هم‌ارزی بدون واحد استفاده می‌شود:
+--         P/S = P/E × (سود خالص / فروش)
+--
+--  ۴) باگ رتبه‌ی «پوشش بهره» اصلاح شد: قبلاً پوشش بالای ۱۰۰ به‌عنوان
+--     «بدترین» رتبه‌بندی می‌شد (وارونگی). اکنون پوشش بالا تا سقف ۲۰×
+--     بهترین رتبه را می‌گیرد.
+--
+--  ۵) واحد ستون OperatingProfitNew در داده‌ها مخلوط است (اکثر ردیف‌ها
+--     per-share، بعضی مطلق). با نسبت سطر-به-سطر (سود/تعداد سهم ضمنی)
+--     یکسان‌سازی می‌شود.
+--
+--  ۶) مومنتوم قیمت: قبلاً بازده بالای ۳۵٪ «بدترین» رتبه را می‌گرفت.
+--     اکنون بازده ۳۰روزه در بازه‌ی [-50, +40] کراپ می‌شود.
+--
+--  ۷) کهنگی داده (Staleness) وارد امتیاز شد: کیفیت داده بONUS تازگی گزارش
+--     سود/قیمت دارد و داده‌ی کهنه جریمه‌ی امتیازی می‌گیرد.
+--
+--  ۸) جریمه‌ها از ضریب ضربی به «امتیاز کسرِی شفاف در هر دسته» تبدیل شدند و
+--     مجموع زیر‌امتیازها × کیفیت داده دقیقاً برابر QuantScore است:
+--         QuantScore = DataQualityScore × (Growth + Profitability + Valuation + Market)
+--
+--  ۹) فاکتورهای بدونِ داده‌ی ساختاری (مثل فروش ماهانه برای بانک‌ها) به جای
+--     بدترین رتبه، رتبه‌ی خنثی (۰.۳) می‌گیرند؛ مقادیر «نامعتبرِ واقعی»
+--     (مثل P/E منفی) همچنان بدترین رتبه + جریمه دارند.
 -- ============================================================================
 
 WITH CompanyList AS (
@@ -44,6 +74,9 @@ WITH CompanyList AS (
     GROUP BY CompanyID
 ),
 
+-- ---------------------------------------------------------------------------
+--  فروش ماهانه (مقادیر هر ماه، غیرتجمعی — با نمونه‌ها صحت‌سنجی شد)
+-- ---------------------------------------------------------------------------
 MonthlyRaw AS (
     SELECT
         CompanyID,
@@ -93,84 +126,184 @@ SalesAgg AS (
     GROUP BY CompanyID
 ),
 
+-- ---------------------------------------------------------------------------
+--  داده‌ی صورت سود و زیان:
+--   - حذف ردیف‌های تکراریِ (شرکت، سال، ماه) با نگه‌داشتن آخرین گزارش
+--   - یکسان‌سازی واحد سود عملیاتی (per-share → مطلق با نسبت سود/EPS سطر)
+--   - ساخت TTM با اتصال گزارش‌های (سال-۱، ماه) و (سال-۱، ۱۲) و (سال-۲، ...)
+-- ---------------------------------------------------------------------------
 ProfitRaw AS (
     SELECT
         CompanyID,
-        MAX(CompanyName) AS CompanyName,
+        CompanyName,
         ReportDate,
         dbo.fn_JalaliKey(ReportDate) AS ReportKey,
+        dbo.fn_JalaliKey(ReportDate) / 10000 AS JYear,
+        (dbo.fn_JalaliKey(ReportDate) % 10000) / 100 AS JMonth,
 
-        TRY_CONVERT(FLOAT, Num1_Value1) AS LatestEPS,
-        TRY_CONVERT(FLOAT, Num2_Value1) AS Capital,        -- NEW: تعداد سهم (سرمایه)
-        TRY_CONVERT(FLOAT, Num4_Value1) AS LatestOperatingEPS,
+        TRY_CONVERT(FLOAT, Num1_Value1) AS EPS,
         TRY_CONVERT(FLOAT, Product1) AS NetProfit,
-        TRY_CONVERT(FLOAT, OperatingProfitNew) AS OperatingProfitNew,
-        TRY_CONVERT(FLOAT, OperatingProfitLastYear) AS OperatingProfitLastYear,
-        TRY_CONVERT(FLOAT, RevenueNew) AS RevenueNew,
-        TRY_CONVERT(FLOAT, RevenueLastYear) AS RevenueLastYear,
-        TRY_CONVERT(FLOAT, FinanceCostsNew) AS FinanceCostsNew,
-        TRY_CONVERT(FLOAT, OtherNonOpNew) AS OtherNonOpNew
+        TRY_CONVERT(FLOAT, OperatingProfitNew) AS OpRaw,
+        TRY_CONVERT(FLOAT, OperatingProfitLastYear) AS OpLYRaw,
+        TRY_CONVERT(FLOAT, RevenueNew) AS Revenue,
+        TRY_CONVERT(FLOAT, RevenueLastYear) AS RevenueLY,
+        TRY_CONVERT(FLOAT, FinanceCostsNew) AS FinanceCosts,
+        TRY_CONVERT(FLOAT, OtherNonOpNew) AS OtherNonOp,
+
+        -- مقادیر واقعی جدول (هم‌واحد، معمولاً میلیون ریال) — v3.2
+        TRY_CONVERT(FLOAT, NetProfitAmount) AS NetProfitAmount,
+        TRY_CONVERT(FLOAT, NetProfitAmountLY) AS NetProfitAmountLY,
+        TRY_CONVERT(FLOAT, NetProfitAmountFYPrev) AS NetProfitAmountFYPrev,
+        TRY_CONVERT(FLOAT, OperatingProfitFYPrev) AS OperatingProfitFYPrev,
+        TRY_CONVERT(FLOAT, RevenueFYPrev) AS RevenueFYPrev,
+        TRY_CONVERT(FLOAT, OperatingCashFlow) AS OperatingCashFlow,
+        TRY_CONVERT(FLOAT, OperatingCashFlowLY) AS OperatingCashFlowLY,
+        TRY_CONVERT(FLOAT, OperatingCashFlowFYPrev) AS OperatingCashFlowFYPrev,
+
+        TRY_CONVERT(FLOAT, TotalAssets) AS TotalAssets,
+        TRY_CONVERT(FLOAT, CurrentAssets) AS CurrentAssets,
+        TRY_CONVERT(FLOAT, TotalLiabilities) AS TotalLiabilities,
+        TRY_CONVERT(FLOAT, CurrentLiabilities) AS CurrentLiabilities,
+        TRY_CONVERT(FLOAT, TotalEquity) AS TotalEquity
     FROM dbo.miandore2
     WHERE CompanyID IS NOT NULL
       AND dbo.fn_JalaliKey(ReportDate) IS NOT NULL
-    GROUP BY
-        CompanyID,
-        ReportDate,
-        Num1_Value1,
-        Num2_Value1,
-        Num4_Value1,
-        Product1,
-        OperatingProfitNew,
-        OperatingProfitLastYear,
-        RevenueNew,
-        RevenueLastYear,
-        FinanceCostsNew,
-        OtherNonOpNew
 ),
 
-ProfitRanked AS (
+ProfitDedup AS (
     SELECT
-        *,
-        ROW_NUMBER() OVER (
-            PARTITION BY CompanyID
-            ORDER BY ReportKey DESC
-        ) AS rn
-    FROM ProfitRaw
+        p.*,
+        ROW_NUMBER() OVER (PARTITION BY CompanyID, JYear, JMonth ORDER BY ReportKey DESC) AS drn,
+        ROW_NUMBER() OVER (PARTITION BY CompanyID ORDER BY ReportKey DESC) AS rn
+    FROM ProfitRaw p
+),
+
+-- یک ردیف به‌ازای (شرکت، سال، ماه) با واحد یکسان
+-- تشخیص واحد سود عملیاتی (مطلق یا per-share) به این ترتیب:
+--   ۱) اگر درآمدِ همان سطر موجود باشد: هرگاه سود عملیاتی به‌مراتب کوچک‌تر از
+--      درآمد باشد per-share است (با سهم ضمنی = سود/EPS به مطلق برمی‌گردد)
+--   ۲) در غیر این صورت معیار EPS: مقدار در مقیاس EPS (بین ۰.۰۵×EPS و ۱۰۰×EPS)
+--      و به‌مراتب کوچک‌تر از سود خالصِ مطلق → per-share
+--      (شرط حداقل ۰.۰۵×EPS مقادیر placeholder مثل 1.0 را دور می‌ریزد)
+ProfitClean AS (
+    SELECT
+        CompanyID, CompanyName, ReportDate, ReportKey, JYear, JMonth, drn, rn,
+        EPS, NetProfit, Revenue, RevenueLY, FinanceCosts, OtherNonOp,
+        OpRaw, OpLYRaw,
+        NetProfitAmount, NetProfitAmountLY, NetProfitAmountFYPrev,
+        OperatingProfitFYPrev, RevenueFYPrev,
+        OperatingCashFlow, OperatingCashFlowLY, OperatingCashFlowFYPrev,
+        TotalAssets, CurrentAssets, TotalLiabilities, CurrentLiabilities, TotalEquity,
+
+        CASE
+            WHEN OpRaw IS NULL THEN NULL
+            WHEN Revenue IS NOT NULL AND ABS(Revenue) > 0 THEN
+                CASE
+                    WHEN ABS(OpRaw) < 0.001 * ABS(Revenue) AND EPS > 0 AND NetProfit > 0
+                        THEN OpRaw * NetProfit / EPS
+                    ELSE OpRaw
+                END
+            WHEN EPS > 0 AND NetProfit > 0
+                 AND ABS(OpRaw) < 0.05 * NetProfit
+                 AND ABS(OpRaw) < 100.0 * EPS
+                 AND ABS(OpRaw) >= 0.05 * EPS
+                THEN OpRaw * NetProfit / EPS
+            ELSE OpRaw
+        END AS OpAbs,
+
+        CASE
+            WHEN OpLYRaw IS NULL THEN NULL
+            WHEN RevenueLY IS NOT NULL AND ABS(RevenueLY) > 0 THEN
+                CASE
+                    WHEN ABS(OpLYRaw) < 0.001 * ABS(RevenueLY) AND EPS > 0 AND NetProfit > 0
+                        THEN OpLYRaw * NetProfit / EPS
+                    ELSE OpLYRaw
+                END
+            WHEN EPS > 0 AND NetProfit > 0
+                 AND ABS(OpLYRaw) < 0.05 * NetProfit
+                 AND ABS(OpLYRaw) < 100.0 * EPS
+                 AND ABS(OpLYRaw) >= 0.05 * EPS
+                THEN OpLYRaw * NetProfit / EPS
+            ELSE OpLYRaw
+        END AS OpLYAbs
+    FROM ProfitDedup
+    WHERE drn = 1
+),
+
+-- اتصال آخرین گزارش به گزارش‌های سال قبل برای ساخت TTM
+ProfitWide AS (
+    SELECT
+        a.CompanyID,
+        a.CompanyName AS CompanyName_p,
+        a.ReportDate AS LatestProfitReportDate,
+        a.ReportKey AS LatestProfitReportKey,
+        a.JYear AS LatestJYear,
+        a.JMonth AS LatestJMonth,
+
+        a.EPS AS LatestEPSReport,           -- EPS تجمعی گزارش آخر
+        a.NetProfit AS LatestNetProfitCum,  -- سود خالص تجمعی گزارش آخر
+        a.OpAbs AS LatestOpAbs,
+        a.OpLYAbs AS LatestOpLYAbs,
+        a.Revenue AS LatestRevenueCum,
+        a.RevenueLY AS LatestRevenueLYCum,
+        a.FinanceCosts AS LatestFinanceCosts,
+        a.OtherNonOp AS LatestOtherNonOp,
+
+        -- مقادیر هم‌واحد گزارش آخر — v3.2
+        a.NetProfitAmount AS LatestNetProfitAmount,
+        a.NetProfitAmountLY AS LatestNetProfitAmountLY,
+        a.NetProfitAmountFYPrev AS LatestNetProfitAmountFYPrev,
+        a.OperatingProfitFYPrev AS LatestOperatingProfitFYPrev,
+        a.RevenueFYPrev AS LatestRevenueFYPrev,
+        a.OperatingCashFlow AS LatestOperatingCashFlow,
+        a.OperatingCashFlowLY AS LatestOperatingCashFlowLY,
+        a.OperatingCashFlowFYPrev AS LatestOperatingCashFlowFYPrev,
+        a.TotalAssets AS LatestTotalAssets,
+        a.CurrentAssets AS LatestCurrentAssets,
+        a.TotalLiabilities AS LatestTotalLiabilities,
+        a.CurrentLiabilities AS LatestCurrentLiabilities,
+        a.TotalEquity AS LatestTotalEquity,
+        a.OpRaw AS LatestOpRaw,
+        a.OpLYRaw AS LatestOpLYRaw,
+
+        b.NetProfit AS FYPrevNetProfit,     -- س کل سال قبل
+        b.OpAbs AS FYPrevOpAbs,
+        b.Revenue AS FYPrevRevenue,
+
+        c.NetProfit AS LYPNetProfit,        -- دوره‌ی مشابه سال قبل (تجمعی)
+        c.OpAbs AS LYPOpAbs,
+        c.Revenue AS LYPRevenue,
+
+        d.NetProfit AS FYPrev2NetProfit,    -- س کل دو سال قبل
+        d.OpAbs AS FYPrev2OpAbs,
+        d.Revenue AS FYPrev2Revenue,
+
+        e.NetProfit AS LYP2NetProfit,       -- دوره‌ی مشابه دو سال قبل
+        e.OpAbs AS LYP2OpAbs,
+        e.Revenue AS LYP2Revenue
+    FROM ProfitClean a
+    LEFT JOIN ProfitClean b
+        ON b.CompanyID = a.CompanyID AND b.JYear = a.JYear - 1 AND b.JMonth = 12
+    LEFT JOIN ProfitClean c
+        ON c.CompanyID = a.CompanyID AND c.JYear = a.JYear - 1 AND c.JMonth = a.JMonth
+    LEFT JOIN ProfitClean d
+        ON d.CompanyID = a.CompanyID AND d.JYear = a.JYear - 2 AND d.JMonth = 12
+    LEFT JOIN ProfitClean e
+        ON e.CompanyID = a.CompanyID AND e.JYear = a.JYear - 2 AND e.JMonth = a.JMonth
+    WHERE a.rn = 1
 ),
 
 ProfitAgg AS (
     SELECT
         CompanyID,
-
-        MAX(CASE WHEN rn = 1 THEN CompanyName END) AS CompanyName,
-        MAX(CASE WHEN rn = 1 THEN ReportDate END) AS LatestProfitReportDate,
-        MAX(CASE WHEN rn = 1 THEN ReportKey END) AS LatestProfitReportKey,
-
-        COUNT(*) AS ProfitReportCount,
-
-        MAX(CASE WHEN rn = 1 THEN LatestEPS END) AS LatestEPS,
-        MAX(CASE WHEN rn = 1 THEN LatestOperatingEPS END) AS LatestOperatingEPS,
-        MAX(CASE WHEN rn = 1 THEN Capital END) AS LatestCapital,    -- NEW
-
-        MAX(CASE WHEN rn = 1 THEN OperatingProfitNew END) AS LatestOperatingProfit,
-        MAX(CASE WHEN rn = 1 THEN OperatingProfitLastYear END) AS LatestOperatingProfitLastYear,
-
-        MAX(CASE WHEN rn = 1 THEN NetProfit END) AS LatestNetProfit,
-
-        MAX(CASE WHEN rn = 1 THEN RevenueNew END) AS LatestRevenue,
-        MAX(CASE WHEN rn = 1 THEN RevenueLastYear END) AS LatestRevenueLastYear,
-        MAX(CASE WHEN rn = 1 THEN FinanceCostsNew END) AS LatestFinanceCosts,
-        MAX(CASE WHEN rn = 1 THEN OtherNonOpNew END) AS LatestOtherNonOp,
-
-        SUM(CASE WHEN rn BETWEEN 1 AND 4 THEN NetProfit ELSE 0 END) AS NetProfitLast4Reports,
-        SUM(CASE WHEN rn BETWEEN 5 AND 8 THEN NetProfit ELSE 0 END) AS NetProfitPrev4Reports,
-
-        SUM(CASE WHEN rn BETWEEN 1 AND 4 THEN OperatingProfitNew ELSE 0 END) AS OperatingProfitLast4Reports,
-        SUM(CASE WHEN rn BETWEEN 5 AND 8 THEN OperatingProfitNew ELSE 0 END) AS OperatingProfitPrev4Reports
-    FROM ProfitRanked
+        COUNT(*) AS ProfitReportCount
+    FROM ProfitClean
     GROUP BY CompanyID
 ),
 
+-- ---------------------------------------------------------------------------
+--  داده‌ی بازار
+-- ---------------------------------------------------------------------------
 MarketRaw AS (
     SELECT
         CompanyID,
@@ -230,18 +363,21 @@ MarketAgg AS (
     GROUP BY CompanyID
 ),
 
+-- ---------------------------------------------------------------------------
+--  معیارهای پایه
+-- ---------------------------------------------------------------------------
 BaseMetrics AS (
     SELECT
         c.CompanyID,
         COALESCE(m.Symbol, N'') AS Symbol,
-        COALESCE(c.CompanyName, s.CompanyName, p.CompanyName, m.CompanyName) AS CompanyName,
+        COALESCE(c.CompanyName, s.CompanyName, p.CompanyName_p, m.CompanyName) AS CompanyName,
 
         s.LatestSalesReportDate,
         p.LatestProfitReportDate,
         m.LatestMarketDate,
 
         ISNULL(s.SalesReportCount, 0) AS SalesReportCount,
-        ISNULL(p.ProfitReportCount, 0) AS ProfitReportCount,
+        ISNULL(pa.ProfitReportCount, 0) AS ProfitReportCount,
         ISNULL(m.MarketDaysCount, 0) AS MarketDaysCount,
 
         s.SalesLast12M,
@@ -267,169 +403,144 @@ BaseMetrics AS (
             ELSE NULL
         END AS SalesStability,
 
-        p.LatestEPS,
-        p.LatestOperatingEPS,
-        p.LatestCapital,                       -- NEW
-        p.LatestOperatingProfit,
-        p.LatestOperatingProfitLastYear,
-
-        p.LatestNetProfit,
-        p.LatestRevenue,
-        p.LatestRevenueLastYear,
-        p.LatestFinanceCosts,
-        p.LatestOtherNonOp,
-
-        p.NetProfitLast4Reports,
-        p.NetProfitPrev4Reports,
-
-        CASE
-            WHEN p.NetProfitPrev4Reports IS NOT NULL AND ABS(p.NetProfitPrev4Reports) > 0
-                THEN ((p.NetProfitLast4Reports - p.NetProfitPrev4Reports) / ABS(p.NetProfitPrev4Reports)) * 100.0
-            ELSE NULL
-        END AS NetProfitGrowth4Reports,
-
-        CASE
-            WHEN p.LatestOperatingProfitLastYear IS NOT NULL AND ABS(p.LatestOperatingProfitLastYear) > 0
-                THEN ((p.LatestOperatingProfit - p.LatestOperatingProfitLastYear) / ABS(p.LatestOperatingProfitLastYear)) * 100.0
-            ELSE NULL
-        END AS OperatingProfitGrowthYoY,
-
-        CASE
-            WHEN p.OperatingProfitPrev4Reports IS NOT NULL AND ABS(p.OperatingProfitPrev4Reports) > 0
-                THEN ((p.OperatingProfitLast4Reports - p.OperatingProfitPrev4Reports) / ABS(p.OperatingProfitPrev4Reports)) * 100.0
-            ELSE NULL
-        END AS OperatingProfitGrowth4Reports,
-
-        -- NEW: حاشیه‌ی سود خالص سالانه
-        --     سود خالص 4 گزارش فصلی (معادل 12 ماه) تقسیم بر فروش 12 ماه
-        CASE
-            WHEN p.NetProfitLast4Reports IS NOT NULL
-             AND s.SalesLast12M IS NOT NULL
-             AND ABS(s.SalesLast12M) > 0
-                THEN (p.NetProfitLast4Reports / ABS(s.SalesLast12M)) * 100.0
-            ELSE NULL
-        END AS NetProfitMargin12M,
-
-        -- NEW: حاشیه‌ی سود عملیاتی سالانه
-        CASE
-            WHEN p.OperatingProfitLast4Reports IS NOT NULL
-             AND s.SalesLast12M IS NOT NULL
-             AND ABS(s.SalesLast12M) > 0
-                THEN (p.OperatingProfitLast4Reports / ABS(s.SalesLast12M)) * 100.0
-            ELSE NULL
-        END AS OperatingMargin12M,
-
-        -- NEW: حاشیه‌ی سود عملیاتی سال قبل (برای روند)
-        CASE
-            WHEN p.OperatingProfitPrev4Reports IS NOT NULL
-             AND s.SalesPrev12M IS NOT NULL
-             AND ABS(s.SalesPrev12M) > 0
-                THEN (p.OperatingProfitPrev4Reports / ABS(s.SalesPrev12M)) * 100.0
-            ELSE NULL
-        END AS OperatingMarginPrev12M,
-
-        -- روند تغییر حاشیه‌ی عملیاتی YoY (دقیق، از داده‌ی هم‌منبع)
-        -- اولویت ۱: هم صورت و هم مخرج از یک گزارش (OperatingProfit + Revenue)
-        -- اولویت ۲: fallback به روش قدیمی (12M aggregation)
+        -- ============ موتور TTM (اصلاح‌شده در v3) ============
+        -- ۱) TTM تک‌گزارشی (v3.2): از سه ستون دوره‌ی خود گزارش
+        --    (دوره جاری + س کل سال قبل − دوره‌ی مشابه سال قبل) — هم‌واحد و دقیق
+        -- ۲) fallback: TTM بین‌گزارشی از ترکیب گزارش‌های تاریخی
         COALESCE(
             CASE
-                WHEN p.LatestOperatingProfit IS NOT NULL
-                 AND p.LatestOperatingProfitLastYear IS NOT NULL
-                 AND p.LatestRevenue IS NOT NULL
-                 AND p.LatestRevenueLastYear IS NOT NULL
-                 AND ABS(p.LatestRevenue) > 0
-                 AND ABS(p.LatestRevenueLastYear) > 0
-                    THEN (p.LatestOperatingProfit / ABS(p.LatestRevenue)) * 100.0
-                         - (p.LatestOperatingProfitLastYear / ABS(p.LatestRevenueLastYear)) * 100.0
+                WHEN p.LatestJMonth = 12 AND p.LatestNetProfitAmount IS NOT NULL
+                    THEN p.LatestNetProfitAmount
+                WHEN p.LatestNetProfitAmount IS NOT NULL
+                 AND p.LatestNetProfitAmountFYPrev IS NOT NULL
+                 AND p.LatestNetProfitAmountLY IS NOT NULL
+                    THEN p.LatestNetProfitAmount + p.LatestNetProfitAmountFYPrev - p.LatestNetProfitAmountLY
                 ELSE NULL
             END,
             CASE
-                WHEN p.OperatingProfitLast4Reports IS NOT NULL
-                 AND p.OperatingProfitPrev4Reports IS NOT NULL
-                 AND s.SalesLast12M IS NOT NULL
-                 AND s.SalesPrev12M IS NOT NULL
-                 AND ABS(s.SalesLast12M) > 0
-                 AND ABS(s.SalesPrev12M) > 0
-                    THEN
-                        (p.OperatingProfitLast4Reports / ABS(s.SalesLast12M)) * 100.0
-                        -
-                        (p.OperatingProfitPrev4Reports / ABS(s.SalesPrev12M)) * 100.0
+                WHEN p.LatestJMonth = 12 THEN p.LatestNetProfitCum
+                WHEN p.FYPrevNetProfit IS NOT NULL AND p.LYPNetProfit IS NOT NULL
+                    THEN p.LatestNetProfitCum + p.FYPrevNetProfit - p.LYPNetProfit
                 ELSE NULL
             END
-        ) AS OperatingMarginTrend,
+        ) AS TTMNetProfit,
 
-        -- حاشیه‌ی سود عملیاتی (دقیق، از آخرین گزارش — هم‌منبع)
+        -- TTMهای تک‌گزارشی هم‌واحد (برای حاشیه‌ها، ROE و جریان نقدی)
         CASE
-            WHEN p.LatestOperatingProfit IS NOT NULL
-             AND p.LatestRevenue IS NOT NULL
-             AND ABS(p.LatestRevenue) > 0
-                THEN (p.LatestOperatingProfit / ABS(p.LatestRevenue)) * 100.0
+            WHEN p.LatestJMonth = 12 AND p.LatestNetProfitAmount IS NOT NULL
+                THEN p.LatestNetProfitAmount
+            WHEN p.LatestNetProfitAmount IS NOT NULL
+             AND p.LatestNetProfitAmountFYPrev IS NOT NULL
+             AND p.LatestNetProfitAmountLY IS NOT NULL
+                THEN p.LatestNetProfitAmount + p.LatestNetProfitAmountFYPrev - p.LatestNetProfitAmountLY
             ELSE NULL
-        END AS OperatingMarginLatest,
+        END AS SR_TTMNetProfit,
 
-        -- حاشیه‌ی سود خالص (دقیق، از آخرین گزارش — هم‌منبع)
         CASE
-            WHEN p.LatestNetProfit IS NOT NULL
-             AND p.LatestRevenue IS NOT NULL
-             AND ABS(p.LatestRevenue) > 0
-                THEN (p.LatestNetProfit / ABS(p.LatestRevenue)) * 100.0
+            WHEN p.LatestJMonth = 12 AND p.LatestOpRaw IS NOT NULL
+                THEN p.LatestOpRaw
+            WHEN p.LatestOpRaw IS NOT NULL
+             AND p.LatestOperatingProfitFYPrev IS NOT NULL
+             AND p.LatestOpLYRaw IS NOT NULL
+                THEN p.LatestOpRaw + p.LatestOperatingProfitFYPrev - p.LatestOpLYRaw
             ELSE NULL
-        END AS NetMarginLatest,
+        END AS SR_TTMOperatingProfit,
 
-        -- رشد درآمد YoY (دقیق، از صورت سود و زیان)
         CASE
-            WHEN p.LatestRevenue IS NOT NULL
-             AND p.LatestRevenueLastYear IS NOT NULL
-             AND ABS(p.LatestRevenueLastYear) > 0
-                THEN ((p.LatestRevenue - p.LatestRevenueLastYear) / ABS(p.LatestRevenueLastYear)) * 100.0
+            WHEN p.LatestJMonth = 12 AND p.LatestRevenueCum IS NOT NULL
+                THEN p.LatestRevenueCum
+            WHEN p.LatestRevenueCum IS NOT NULL
+             AND p.LatestRevenueFYPrev IS NOT NULL
+             AND p.LatestRevenueLYCum IS NOT NULL
+                THEN p.LatestRevenueCum + p.LatestRevenueFYPrev - p.LatestRevenueLYCum
             ELSE NULL
-        END AS RevenueGrowthYoY,
+        END AS SR_TTMRevenue,
 
-        -- نسبت پوشش هزینه مالی (Interest Coverage)
-        -- OperatingProfit / |FinanceCosts| — توان پرداخت بهره از سود عملیاتی
-        -- زیر ۱.۵ = هشدار، زیر ۱ = بحرانی
         CASE
-            WHEN p.LatestOperatingProfit IS NOT NULL
-             AND p.LatestFinanceCosts IS NOT NULL
-             AND ABS(p.LatestFinanceCosts) > 0
-                THEN p.LatestOperatingProfit / ABS(p.LatestFinanceCosts)
+            WHEN p.LatestJMonth = 12 AND p.LatestOperatingCashFlow IS NOT NULL
+                THEN p.LatestOperatingCashFlow
+            WHEN p.LatestOperatingCashFlow IS NOT NULL
+             AND p.LatestOperatingCashFlowFYPrev IS NOT NULL
+             AND p.LatestOperatingCashFlowLY IS NOT NULL
+                THEN p.LatestOperatingCashFlow + p.LatestOperatingCashFlowFYPrev - p.LatestOperatingCashFlowLY
             ELSE NULL
-        END AS InterestCoverage,
+        END AS SR_TTMOperatingCashFlow,
 
-        -- سهم درآمد غیرعملیاتی از سود عملیاتی (درصد)
-        -- (سایر درآمدها و هزینه‌های غیرعملیاتی) / سود عملیاتی × ۱۰۰
-        -- مثلاً اگه شرکت زمین فروخته باشه، این عدد بالا می‌شه
-        -- عدد پایین/نزدیک صفر = سود باکیفیت (از فعالیت اصلی)
-        -- عدد بالا = سود وابسته به منابع یکبار/غیرعملیاتی
+        -- سود خالص ۱۲ماهه‌ی سال قبل
         CASE
-            WHEN p.LatestOtherNonOp IS NOT NULL
-             AND p.LatestOperatingProfit IS NOT NULL
-             AND ABS(p.LatestOperatingProfit) > 0
-                THEN (p.LatestOtherNonOp / ABS(p.LatestOperatingProfit)) * 100.0
+            WHEN p.LatestJMonth = 12 THEN p.LYPNetProfit
+            WHEN p.FYPrev2NetProfit IS NOT NULL AND p.LYP2NetProfit IS NOT NULL
+                THEN p.LYPNetProfit + p.FYPrev2NetProfit - p.LYP2NetProfit
             ELSE NULL
-        END AS NonOperatingPct,
+        END AS TTMNetProfitPrev,
 
-        -- NEW: نسبت قیمت به فروش سالانه (P/S)
-        --     MarketCap / SalesLast12M = (LatestPrice * LatestCapital) / SalesLast12M
-        --     یک شرکت سودآور ولی کم‌ارزش می‌تونه P/S پایین داشته باشه.
+        -- سود عملیاتی ۱۲ماهه
+        -- گارد سازگاری مقیاس: اگر اجزاء (گزارش آخر، س سال قبل، دوره‌ی مشابه)
+        -- بیش از ۱۰۰ برابر اختلاف magnitude داشته باشند یعنی واحدها در گزارش‌های
+        -- شرکت مخلوط است → محاسبه کنار گذاشته می‌شود (NULL)
         CASE
-            WHEN m.LatestPrice IS NOT NULL
-             AND p.LatestCapital IS NOT NULL
-             AND p.LatestCapital > 0
-             AND s.SalesLast12M IS NOT NULL
-             AND ABS(s.SalesLast12M) > 0
-                THEN (m.LatestPrice * p.LatestCapital) / ABS(s.SalesLast12M)
+            WHEN p.LatestJMonth = 12 THEN p.LatestOpAbs
+            WHEN p.FYPrevOpAbs IS NOT NULL AND p.LYPOpAbs IS NOT NULL
+             AND (p.FYPrevOpAbs = 0 OR p.LatestOpAbs = 0
+                  OR (ABS(p.FYPrevOpAbs) <= ABS(p.LatestOpAbs) * 100.0
+                      AND ABS(p.LatestOpAbs) <= ABS(p.FYPrevOpAbs) * 100.0))
+             AND (p.LYPOpAbs = 0 OR p.LatestOpAbs = 0
+                  OR (ABS(p.LYPOpAbs) <= ABS(p.LatestOpAbs) * 100.0
+                      AND ABS(p.LatestOpAbs) <= ABS(p.LYPOpAbs) * 100.0))
+                THEN p.LatestOpAbs + p.FYPrevOpAbs - p.LYPOpAbs
             ELSE NULL
-        END AS PSRatio,
+        END AS TTMOperatingProfit,
 
+        -- سود عملیاتی ۱۲ماهه‌ی سال قبل (با همان گارد سازگاری مقیاس)
+        CASE
+            WHEN p.LatestJMonth = 12 THEN p.LYPOpAbs
+            WHEN p.FYPrev2OpAbs IS NOT NULL AND p.LYP2OpAbs IS NOT NULL
+             AND (p.FYPrev2OpAbs = 0 OR p.LYPOpAbs = 0
+                  OR (ABS(p.FYPrev2OpAbs) <= ABS(p.LYPOpAbs) * 100.0
+                      AND ABS(p.LYPOpAbs) <= ABS(p.FYPrev2OpAbs) * 100.0))
+             AND (p.LYP2OpAbs = 0 OR p.LYPOpAbs = 0
+                  OR (ABS(p.LYP2OpAbs) <= ABS(p.LYPOpAbs) * 100.0
+                      AND ABS(p.LYPOpAbs) <= ABS(p.LYP2OpAbs) * 100.0))
+                THEN p.LYPOpAbs + p.FYPrev2OpAbs - p.LYP2OpAbs
+            ELSE NULL
+        END AS TTMOperatingProfitPrev,
+
+        -- درآمد ۱۲ماهه (هم‌منبع؛ فقط برای شرکت‌های دارای ستون درآمد)
+        CASE
+            WHEN p.LatestJMonth = 12 THEN p.LatestRevenueCum
+            WHEN p.FYPrevRevenue IS NOT NULL AND p.LYPRevenue IS NOT NULL
+                THEN p.LatestRevenueCum + p.FYPrevRevenue - p.LYPRevenue
+            ELSE NULL
+        END AS TTMRevenue,
+
+        -- تعداد سهم ضمنی = سود تجمعی / EPS همان گزارش (سازگار با واحد سود)
+        CASE
+            WHEN p.LatestEPSReport > 0 AND p.LatestNetProfitCum > 0
+                THEN p.LatestNetProfitCum / p.LatestEPSReport
+            ELSE NULL
+        END AS ImpliedShares,
+
+        p.LatestEPSReport,
+        p.LatestNetProfitCum,
+        p.LatestOpAbs,
+        p.LatestOpLYAbs,
+        p.LatestRevenueCum,
+        p.LatestRevenueLYCum,
+        p.LatestFinanceCosts,
+        p.LatestOtherNonOp,
+        p.LatestNetProfitAmount,
+        p.LatestTotalAssets,
+        p.LatestCurrentAssets,
+        p.LatestTotalLiabilities,
+        p.LatestCurrentLiabilities,
+        p.LatestTotalEquity,
+
+        p.LYPNetProfit,
+        p.LYPOpAbs,
+
+        -- ============ معیارهای بازار ============
         m.LatestPrice,
         m.LatestClosingPrice,
-
-        CASE
-            WHEN p.LatestEPS IS NOT NULL AND p.LatestEPS > 0 AND m.LatestPrice IS NOT NULL
-                THEN m.LatestPrice / p.LatestEPS
-            ELSE NULL
-        END AS PEApprox,
 
         CASE
             WHEN m.ClosingPrice7D IS NOT NULL AND ABS(m.ClosingPrice7D) > 0
@@ -462,107 +573,584 @@ BaseMetrics AS (
             ELSE NULL
         END AS PricePosition90D,
 
+        -- ============ کهنگی داده ============
+        -- تاریخ امروز شمسی (تقریبی؛ برای سنجش کهنگی به افقی چند ماهه کافی است)
+        (YEAR(GETDATE()) -
+            CASE
+                WHEN (MONTH(GETDATE()) < 3) OR (MONTH(GETDATE()) = 3 AND DAY(GETDATE()) < 21) THEN 622
+                ELSE 621
+            END) * 12
+        + CASE MONTH(GETDATE())
+            WHEN 1 THEN 11 WHEN 2 THEN 12 WHEN 3 THEN 1 WHEN 4 THEN 2
+            WHEN 5 THEN 3 WHEN 6 THEN 4 WHEN 7 THEN 5 WHEN 8 THEN 6
+            WHEN 9 THEN 7 WHEN 10 THEN 8 WHEN 11 THEN 9 WHEN 12 THEN 10
+          END
+        - (p.LatestJYear * 12 + p.LatestJMonth) AS ProfitReportAgeMonths,
+
+        DATEDIFF(DAY, m.LatestMarketDate, GETDATE()) AS MarketDataAgeDays,
+
+        -- ============ کیفیت داده (با مؤلفه‌ی تازگی — v3) ============
         (
             CASE
-                WHEN ISNULL(s.SalesReportCount, 0) >= 24 THEN 0.35
-                WHEN ISNULL(s.SalesReportCount, 0) >= 12 THEN 0.25
-                WHEN ISNULL(s.SalesReportCount, 0) >= 6 THEN 0.12
+                WHEN ISNULL(s.SalesReportCount, 0) >= 24 THEN 0.28
+                WHEN ISNULL(s.SalesReportCount, 0) >= 12 THEN 0.16
+                WHEN ISNULL(s.SalesReportCount, 0) >= 6 THEN 0.09
                 ELSE 0
             END
             +
             CASE
-                WHEN ISNULL(p.ProfitReportCount, 0) >= 8 THEN 0.30
-                WHEN ISNULL(p.ProfitReportCount, 0) >= 4 THEN 0.20
-                WHEN ISNULL(p.ProfitReportCount, 0) >= 1 THEN 0.10
+                WHEN ISNULL(pa.ProfitReportCount, 0) >= 16 THEN 0.28
+                WHEN ISNULL(pa.ProfitReportCount, 0) >= 8 THEN 0.16
+                WHEN ISNULL(pa.ProfitReportCount, 0) >= 4 THEN 0.09
                 ELSE 0
             END
             +
             CASE
-                WHEN ISNULL(m.MarketDaysCount, 0) >= 90 THEN 0.25
-                WHEN ISNULL(m.MarketDaysCount, 0) >= 30 THEN 0.18
-                WHEN ISNULL(m.MarketDaysCount, 0) >= 10 THEN 0.08
+                WHEN ISNULL(m.MarketDaysCount, 0) >= 90 THEN 0.21
+                WHEN ISNULL(m.MarketDaysCount, 0) >= 30 THEN 0.13
+                WHEN ISNULL(m.MarketDaysCount, 0) >= 10 THEN 0.06
                 ELSE 0
             END
             +
             CASE
-                WHEN m.LatestPrice IS NOT NULL AND m.LatestPrice > 0 THEN 0.10
+                WHEN m.LatestPrice IS NOT NULL AND m.LatestPrice > 0 THEN 0.09
+                ELSE 0
+            END
+            +
+            -- تازگی گزارش سود
+            CASE
+                WHEN p.LatestProfitReportDate IS NULL THEN 0
+                WHEN (YEAR(GETDATE()) -
+                        CASE
+                            WHEN (MONTH(GETDATE()) < 3) OR (MONTH(GETDATE()) = 3 AND DAY(GETDATE()) < 21) THEN 622
+                            ELSE 621
+                        END) * 12
+                     + CASE MONTH(GETDATE())
+                        WHEN 1 THEN 11 WHEN 2 THEN 12 WHEN 3 THEN 1 WHEN 4 THEN 2
+                        WHEN 5 THEN 3 WHEN 6 THEN 4 WHEN 7 THEN 5 WHEN 8 THEN 6
+                        WHEN 9 THEN 7 WHEN 10 THEN 8 WHEN 11 THEN 9 WHEN 12 THEN 10
+                       END
+                     - (p.LatestJYear * 12 + p.LatestJMonth) <= 5 THEN 0.08
+                WHEN (YEAR(GETDATE()) -
+                        CASE
+                            WHEN (MONTH(GETDATE()) < 3) OR (MONTH(GETDATE()) = 3 AND DAY(GETDATE()) < 21) THEN 622
+                            ELSE 621
+                        END) * 12
+                     + CASE MONTH(GETDATE())
+                        WHEN 1 THEN 11 WHEN 2 THEN 12 WHEN 3 THEN 1 WHEN 4 THEN 2
+                        WHEN 5 THEN 3 WHEN 6 THEN 4 WHEN 7 THEN 5 WHEN 8 THEN 6
+                        WHEN 9 THEN 7 WHEN 10 THEN 8 WHEN 11 THEN 9 WHEN 12 THEN 10
+                       END
+                     - (p.LatestJYear * 12 + p.LatestJMonth) <= 8 THEN 0.045
+                ELSE 0
+            END
+            +
+            -- تازگی داده‌ی قیمت
+            CASE
+                WHEN m.LatestMarketDate IS NULL THEN 0
+                WHEN DATEDIFF(DAY, m.LatestMarketDate, GETDATE()) <= 7 THEN 0.06
+                WHEN DATEDIFF(DAY, m.LatestMarketDate, GETDATE()) <= 14 THEN 0.035
                 ELSE 0
             END
         ) AS DataQualityScore
     FROM CompanyList c
     LEFT JOIN SalesAgg s ON s.CompanyID = c.CompanyID
-    LEFT JOIN ProfitAgg p ON p.CompanyID = c.CompanyID
+    LEFT JOIN ProfitWide p ON p.CompanyID = c.CompanyID
+    LEFT JOIN ProfitAgg pa ON pa.CompanyID = c.CompanyID
     LEFT JOIN MarketAgg m ON m.CompanyID = c.CompanyID
 ),
 
-Ranked AS (
+Derived AS (
     SELECT
         b.*,
 
-        CUME_DIST() OVER (ORDER BY ISNULL(b.SalesGrowth12M, -999999.0)) AS SalesGrowthRank,
-        CUME_DIST() OVER (ORDER BY ISNULL(b.SalesGrowth3M, -999999.0)) AS SalesGrowth3MRank,
-        CUME_DIST() OVER (ORDER BY ISNULL(b.OperatingProfitGrowthYoY, -999999.0)) AS OperatingProfitRank,
-        CUME_DIST() OVER (ORDER BY ISNULL(b.NetProfitGrowth4Reports, -999999.0)) AS NetProfitRank,
-        CUME_DIST() OVER (ORDER BY ISNULL(b.SalesStability, -999999.0)) AS StabilityRank,
-        CUME_DIST() OVER (ORDER BY ISNULL(b.AvgTradeValue30D, 0.0)) AS LiquidityRank,
+        -- رشد سود خالص: TTM در اولویت، در غیر این صورت رشد دوره‌ی مشابه سال قبل
+        COALESCE(
+            CASE
+                WHEN b.TTMNetProfitPrev IS NOT NULL AND ABS(b.TTMNetProfitPrev) > 0
+                    THEN ((b.TTMNetProfit - b.TTMNetProfitPrev) / ABS(b.TTMNetProfitPrev)) * 100.0
+                ELSE NULL
+            END,
+            CASE
+                WHEN b.LYPNetProfit IS NOT NULL AND ABS(b.LYPNetProfit) > 0
+                    THEN ((b.LatestNetProfitCum - b.LYPNetProfit) / ABS(b.LYPNetProfit)) * 100.0
+                ELSE NULL
+            END
+        ) AS NetProfitGrowthTTM,
 
-        1.0 - CUME_DIST() OVER (
-            ORDER BY
-                CASE
-                    WHEN b.PEApprox IS NOT NULL AND b.PEApprox > 0 AND b.PEApprox < 80
-                        THEN b.PEApprox
-                    ELSE 999999.0
-                END
-        ) AS PERank,
+        -- رشد سود عملیاتی: TTM در اولویت، بعد دوره‌ی مشابه، بعد ستون داخل گزارش
+        -- (هر مقایسه فقط با گارد سازگاری مقیاس ±۱۰۰ برابر انجام می‌شود)
+        COALESCE(
+            CASE
+                WHEN b.TTMOperatingProfitPrev IS NOT NULL AND ABS(b.TTMOperatingProfitPrev) > 0
+                    THEN ((b.TTMOperatingProfit - b.TTMOperatingProfitPrev) / ABS(b.TTMOperatingProfitPrev)) * 100.0
+                ELSE NULL
+            END,
+            CASE
+                WHEN b.LYPOpAbs IS NOT NULL AND ABS(b.LYPOpAbs) > 0
+                 AND b.LatestOpAbs IS NOT NULL
+                 AND ABS(b.LYPOpAbs) <= ABS(b.LatestOpAbs) * 100.0
+                 AND ABS(b.LatestOpAbs) <= ABS(b.LYPOpAbs) * 100.0
+                    THEN ((b.LatestOpAbs - b.LYPOpAbs) / ABS(b.LYPOpAbs)) * 100.0
+                ELSE NULL
+            END,
+            CASE
+                WHEN b.LatestOpLYAbs IS NOT NULL AND ABS(b.LatestOpLYAbs) > 0
+                 AND b.LatestOpAbs IS NOT NULL
+                 AND ABS(b.LatestOpLYAbs) <= ABS(b.LatestOpAbs) * 100.0
+                 AND ABS(b.LatestOpAbs) <= ABS(b.LatestOpLYAbs) * 100.0
+                    THEN ((b.LatestOpAbs - b.LatestOpLYAbs) / ABS(b.LatestOpLYAbs)) * 100.0
+                ELSE NULL
+            END
+        ) AS OperatingProfitGrowthTTM,
 
-        1.0 - CUME_DIST() OVER (
-            ORDER BY ISNULL(b.Volatility30D, 999999.0)
-        ) AS LowVolatilityRank,
+        -- درآمد ۱۲ماهه‌ی مؤثر: هم‌منبع در اولویت، وگرنه فروش ماهانه
+        COALESCE(b.TTMRevenue, b.SalesLast12M) AS EffectiveRevenue12M,
 
-        CUME_DIST() OVER (
-            ORDER BY
-                CASE
-                    WHEN b.PriceReturn30D BETWEEN -15 AND 35 THEN b.PriceReturn30D
-                    ELSE -999999.0
-                END
-        ) AS HealthyMomentumRank,
+        -- حاشیه‌های ۱۲ماهه؛ اولویت با TTM تک‌گزارشی هم‌واحد (v3.2)
+        -- سقف معقولیت |حاشیه| ≤ ۲۰۰٪: خارج از آن تقریباً همیشه خطای واحد داده است
+        CASE
+            WHEN b.SR_TTMOperatingProfit IS NOT NULL AND b.SR_TTMRevenue IS NOT NULL
+             AND ABS(b.SR_TTMRevenue) > 0
+             AND ABS(b.SR_TTMOperatingProfit / ABS(b.SR_TTMRevenue) * 100.0) <= 200.0
+                THEN (b.SR_TTMOperatingProfit / ABS(b.SR_TTMRevenue)) * 100.0
+            WHEN b.TTMOperatingProfit IS NOT NULL AND ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) > 0
+             AND ABS(b.TTMOperatingProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) * 100.0) <= 200.0
+                THEN (b.TTMOperatingProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M))) * 100.0
+            ELSE NULL
+        END AS OperatingMargin12M,
 
-        -- NEW: رتبه‌بندی بر اساس حاشیه سود خالص (بالا = بهتر)
-        CUME_DIST() OVER (ORDER BY ISNULL(b.NetProfitMargin12M, -999999.0)) AS NetMarginRank,
+        CASE
+            WHEN b.SR_TTMNetProfit IS NOT NULL AND b.SR_TTMRevenue IS NOT NULL
+             AND ABS(b.SR_TTMRevenue) > 0
+             AND ABS(b.SR_TTMNetProfit / ABS(b.SR_TTMRevenue) * 100.0) <= 200.0
+                THEN (b.SR_TTMNetProfit / ABS(b.SR_TTMRevenue)) * 100.0
+            WHEN b.TTMNetProfit IS NOT NULL AND ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) > 0
+             AND ABS(b.TTMNetProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) * 100.0) <= 200.0
+                THEN (b.TTMNetProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M))) * 100.0
+            ELSE NULL
+        END AS NetProfitMargin12M,
 
-        -- NEW: رتبه‌بندی بر اساس روند تغییر حاشیه (مثبت/روبه‌بالا = بهتر)
-        CUME_DIST() OVER (ORDER BY ISNULL(b.OperatingMarginTrend, -999999.0)) AS MarginTrendRank,
+        -- حاشیه‌های گزارش آخر (هم‌منبع؛ نسبت است پس طول دوره خنثی می‌شود)
+        CASE
+            WHEN b.LatestOpAbs IS NOT NULL AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
+                THEN (b.LatestOpAbs / ABS(b.LatestRevenueCum)) * 100.0
+            ELSE NULL
+        END AS OperatingMarginLatest,
 
-        -- NEW: رتبه‌بندی P/S (پایین = ارزان = بهتر)
-        1.0 - CUME_DIST() OVER (
-            ORDER BY
-                CASE
-                    WHEN b.PSRatio IS NOT NULL AND b.PSRatio > 0 AND b.PSRatio < 100
-                        THEN b.PSRatio
-                    ELSE 999999.0
-                END
-        ) AS PSRank,
+        CASE
+            WHEN b.LatestNetProfitCum IS NOT NULL AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
+                THEN (b.LatestNetProfitCum / ABS(b.LatestRevenueCum)) * 100.0
+            ELSE NULL
+        END AS NetMarginLatest,
 
-        -- NEW v2: رتبه‌بندی بر اساس حاشیه عملیاتی دقیق (هم‌منبع از آخرین گزارش)
-        CUME_DIST() OVER (ORDER BY ISNULL(b.OperatingMarginLatest, -999999.0)) AS OperatingMarginLatestRank,
+        -- روند حاشیه عملیاتی: هم‌منبع در اولویت
+        COALESCE(
+            CASE
+                WHEN b.LatestOpAbs IS NOT NULL AND b.LatestOpLYAbs IS NOT NULL
+                 AND b.LatestRevenueCum IS NOT NULL AND b.LatestRevenueLYCum IS NOT NULL
+                 AND ABS(b.LatestRevenueCum) > 0 AND ABS(b.LatestRevenueLYCum) > 0
+                    THEN (b.LatestOpAbs / ABS(b.LatestRevenueCum)) * 100.0
+                       - (b.LatestOpLYAbs / ABS(b.LatestRevenueLYCum)) * 100.0
+                ELSE NULL
+            END,
+            CASE
+                WHEN b.TTMOperatingProfitPrev IS NOT NULL
+                 AND b.SalesPrev12M IS NOT NULL AND ABS(b.SalesPrev12M) > 0
+                 AND ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) > 0
+                    THEN (b.TTMOperatingProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M))) * 100.0
+                       - (b.TTMOperatingProfitPrev / ABS(b.SalesPrev12M)) * 100.0
+                ELSE NULL
+            END
+        ) AS OperatingMarginTrend,
 
-        -- NEW v2: رتبه‌بندی بر اساس رشد درآمد دقیق YoY
-        CUME_DIST() OVER (ORDER BY ISNULL(b.RevenueGrowthYoY, -999999.0)) AS RevenueGrowthRank,
+        -- رشد درآمد هم‌منبع (دوره‌ی مشابه سال قبل)
+        CASE
+            WHEN b.LatestRevenueCum IS NOT NULL AND b.LatestRevenueLYCum IS NOT NULL
+             AND ABS(b.LatestRevenueLYCum) > 0
+                THEN ((b.LatestRevenueCum - b.LatestRevenueLYCum) / ABS(b.LatestRevenueLYCum)) * 100.0
+            ELSE NULL
+        END AS RevenueGrowthYoY,
 
-        -- NEW v2: رتبه‌بندی بر اساس پوشش بهره (بالا = ایمن = بهتر)
-        CUME_DIST() OVER (
-            ORDER BY
-                CASE
-                    WHEN b.InterestCoverage IS NOT NULL AND b.InterestCoverage > 0 AND b.InterestCoverage < 100
-                        THEN b.InterestCoverage
-                    ELSE -999999.0
-                END
-        ) AS InterestCoverageRank,
+        -- پوشش هزینه‌ی مالی (هم‌منبع)؛ خارج از بازه‌ی معقول (۰, ۱۰۰۰۰] → NULL
+        CASE
+            WHEN b.LatestOpAbs IS NOT NULL AND b.LatestFinanceCosts IS NOT NULL
+             AND ABS(b.LatestFinanceCosts) > 0
+             AND b.LatestOpAbs / ABS(b.LatestFinanceCosts) > 0
+             AND b.LatestOpAbs / ABS(b.LatestFinanceCosts) <= 10000.0
+                THEN b.LatestOpAbs / ABS(b.LatestFinanceCosts)
+            ELSE NULL
+        END AS InterestCoverage,
 
-        -- NEW v2: کیفیت سود — هرچه سهم غیرعملیاتی کمتر = سود پایدارتر = بهتر
-        -- رتبه‌بندی معکوس: NonOperatingPct پایین = بهتر = رتبه بالا
-        1.0 - CUME_DIST() OVER (ORDER BY ISNULL(b.NonOperatingPct, 999999.0)) AS EarningsQualityRank
+        -- سهم غیرعملیاتی از سود عملیاتی (هم‌منبع؛ قدرمطلق چون وابستگی ملاک است)
+        CASE
+            WHEN b.LatestOtherNonOp IS NOT NULL AND b.LatestOpAbs IS NOT NULL
+             AND ABS(b.LatestOpAbs) > 0
+                THEN (ABS(b.LatestOtherNonOp) / ABS(b.LatestOpAbs)) * 100.0
+            ELSE NULL
+        END AS NonOperatingPct,
+
+        -- ============ فاکتورهای v3.2 از ترازنامه و جریان نقدی ============
+        -- ROE = سود خالص ۱۲ماهه‌ی هم‌واحد / حقوق مالکانه (سقف معقولیت ±۳۰۰٪)
+        CASE
+            WHEN b.SR_TTMNetProfit IS NOT NULL
+             AND b.LatestTotalEquity IS NOT NULL AND b.LatestTotalEquity > 0
+             AND ABS(b.SR_TTMNetProfit / b.LatestTotalEquity * 100.0) <= 300.0
+                THEN (b.SR_TTMNetProfit / b.LatestTotalEquity) * 100.0
+            ELSE NULL
+        END AS ROE,
+
+        -- اهرم مالی = بدهی‌ها / حقوق مالکانه (کمتر = ایمن‌تر؛ سقف ۵۰)
+        CASE
+            WHEN b.LatestTotalLiabilities IS NOT NULL AND b.LatestTotalLiabilities >= 0
+             AND b.LatestTotalEquity IS NOT NULL AND b.LatestTotalEquity > 0
+             AND b.LatestTotalLiabilities / b.LatestTotalEquity <= 50.0
+                THEN b.LatestTotalLiabilities / b.LatestTotalEquity
+            ELSE NULL
+        END AS FinancialLeverage,
+
+        -- نسبت جاری = دارایی جاری / بدهی جاری (سقف ۱۵)
+        CASE
+            WHEN b.LatestCurrentAssets IS NOT NULL AND b.LatestCurrentAssets >= 0
+             AND b.LatestCurrentLiabilities IS NOT NULL AND b.LatestCurrentLiabilities > 0
+             AND b.LatestCurrentAssets / b.LatestCurrentLiabilities <= 15.0
+                THEN b.LatestCurrentAssets / b.LatestCurrentLiabilities
+            ELSE NULL
+        END AS CurrentRatio,
+
+        -- کیفیت نقدی سود = جریان نقد عملیاتی ۱۲ماهه / سود خالص ۱۲ماهه
+        -- هرچه به ۱ نزدیک‌تر یا بالاتر = سود پشتوانه‌ی نقدی دارد (بازه‌ی معقول −۲..۵)
+        CASE
+            WHEN b.SR_TTMOperatingCashFlow IS NOT NULL
+             AND b.SR_TTMNetProfit IS NOT NULL AND b.SR_TTMNetProfit > 0
+             AND b.SR_TTMOperatingCashFlow / b.SR_TTMNetProfit BETWEEN -2.0 AND 5.0
+                THEN b.SR_TTMOperatingCashFlow / b.SR_TTMNetProfit
+            ELSE NULL
+        END AS CashConversion,
+
+        -- EPS دوازده‌ماهه — نسبت‌ها باید هم‌مقیاس باشند:
+        -- اولویت ۱: SR_TTM ÷ NetProfitAmount (هر دو واحد جدول) × EPS گزارش
+        -- اولویت ۲: TTM بین‌گزارشی ÷ سود تجمعی Product1 (هر دو مقیاس Product1) × EPS
+        COALESCE(
+            CASE
+                WHEN b.SR_TTMNetProfit IS NOT NULL
+                 AND b.LatestNetProfitAmount IS NOT NULL AND b.LatestNetProfitAmount > 0
+                 AND b.LatestEPSReport > 0
+                    THEN b.SR_TTMNetProfit * b.LatestEPSReport / b.LatestNetProfitAmount
+                ELSE NULL
+            END,
+            CASE
+                WHEN b.TTMNetProfit IS NOT NULL AND b.LatestEPSReport > 0 AND b.LatestNetProfitCum > 0
+                    THEN b.TTMNetProfit * b.LatestEPSReport / b.LatestNetProfitCum
+                ELSE NULL
+            END
+        ) AS TTMEPS,
+
+        -- P/E بر مبنای EPS دوازدهماهه (اصلاح v3)
+        CASE
+            WHEN b.LatestPrice IS NOT NULL AND b.LatestPrice > 0
+             AND b.SR_TTMNetProfit IS NOT NULL
+             AND b.LatestNetProfitAmount IS NOT NULL AND b.LatestNetProfitAmount > 0
+             AND b.LatestEPSReport > 0
+                THEN b.LatestPrice / (b.SR_TTMNetProfit * b.LatestEPSReport / b.LatestNetProfitAmount)
+            WHEN b.LatestPrice IS NOT NULL AND b.LatestPrice > 0
+             AND b.TTMNetProfit IS NOT NULL AND b.LatestEPSReport > 0 AND b.LatestNetProfitCum > 0
+             AND b.TTMNetProfit * b.LatestEPSReport / b.LatestNetProfitCum > 0
+                THEN b.LatestPrice / (b.TTMNetProfit * b.LatestEPSReport / b.LatestNetProfitCum)
+            ELSE NULL
+        END AS PEApprox,
+
+        -- EPS عملیاتی دوازده‌ماهه (نمایشی)
+        CASE
+            WHEN b.TTMOperatingProfit IS NOT NULL AND b.LatestEPSReport > 0 AND b.LatestNetProfitCum > 0
+                THEN b.TTMOperatingProfit * b.LatestEPSReport / b.LatestNetProfitCum
+            ELSE NULL
+        END AS TTMOperatingEPS
     FROM BaseMetrics b
+),
+
+-- ---------------------------------------------------------------------------
+--  رتبه‌بندی مقطعی (صدکی) با کراپ مقادیر افراطی — v3.1
+--
+--  اصل مهم: صدکِ هر فاکتور فقط بین شرکت‌هایی محاسبه می‌شود که برای آن فاکتور
+--  «داده دارند»؛ شرکت‌های بدون داده از مخرج توزیع حذف می‌شوند و رتبه‌ی خنثی
+--  می‌گیرند (قبلاً ردیف‌های NULL در توزیع می‌نشستند و رتبه‌ی شرکت‌های واقعی
+--  را منحرف می‌کردند — مثلاً بهترین کیفیت سود رتبه‌ی ۲۴٪ می‌گرفت!).
+--
+--  فرمول صدک (مدل strictly-below با مدیریت tie):
+--      pct = تعداد داده‌های کوچک‌تر / (تعداد داده − ۱)
+--      مقدار مساوی (tie) هم‌رتبه‌اند؛ گروهِ بهترین مقدار → صدک ۰ → رتبه ۱۰۰٪
+--  فاکتورهایی که «کمتر بهتر» است (P/E، P/S، غیرعملیاتی، نوسان) معکوس می‌شوند.
+--
+--  NULL ساختاری → رتبه‌ی خنثی 0.30 (پوشش بهره/کیفیت سود نامعلوم: 0.50)
+--  مقدار نامعتبر (P/E نامعتبر و…) → بدترین رتبه + جریمه
+-- ---------------------------------------------------------------------------
+RankKeys AS (
+    SELECT
+        d.*,
+        COUNT(*) OVER () AS NRows,
+
+        CASE WHEN d.SalesGrowth12M IS NULL THEN NULL
+             WHEN d.SalesGrowth12M > 150 THEN 150.0
+             WHEN d.SalesGrowth12M < -150 THEN -150.0
+             ELSE d.SalesGrowth12M END AS SGKey,
+
+        CASE WHEN d.SalesGrowth3M IS NULL THEN NULL
+             WHEN d.SalesGrowth3M > 150 THEN 150.0
+             WHEN d.SalesGrowth3M < -150 THEN -150.0
+             ELSE d.SalesGrowth3M END AS SG3Key,
+
+        CASE WHEN d.NetProfitGrowthTTM IS NULL THEN NULL
+             WHEN d.NetProfitGrowthTTM > 300 THEN 300.0
+             WHEN d.NetProfitGrowthTTM < -300 THEN -300.0
+             ELSE d.NetProfitGrowthTTM END AS NPGKey,
+
+        CASE WHEN d.OperatingProfitGrowthTTM IS NULL THEN NULL
+             WHEN d.OperatingProfitGrowthTTM > 250 THEN 250.0
+             WHEN d.OperatingProfitGrowthTTM < -250 THEN -250.0
+             ELSE d.OperatingProfitGrowthTTM END AS OPGKey,
+
+        CASE WHEN d.RevenueGrowthYoY IS NULL THEN NULL
+             WHEN d.RevenueGrowthYoY > 200 THEN 200.0
+             WHEN d.RevenueGrowthYoY < -200 THEN -200.0
+             ELSE d.RevenueGrowthYoY END AS RGKey,
+
+        CASE WHEN d.OperatingMargin12M IS NULL THEN NULL
+             WHEN d.OperatingMargin12M > 80 THEN 80.0
+             WHEN d.OperatingMargin12M < -80 THEN -80.0
+             ELSE d.OperatingMargin12M END AS OMKey,
+
+        CASE WHEN d.NetProfitMargin12M IS NULL THEN NULL
+             WHEN d.NetProfitMargin12M > 60 THEN 60.0
+             WHEN d.NetProfitMargin12M < -60 THEN -60.0
+             ELSE d.NetProfitMargin12M END AS NMKey,
+
+        CASE WHEN d.OperatingMarginTrend IS NULL THEN NULL
+             WHEN d.OperatingMarginTrend > 25 THEN 25.0
+             WHEN d.OperatingMarginTrend < -25 THEN -25.0
+             ELSE d.OperatingMarginTrend END AS MTKey,
+
+        -- پوشش بهره: نامعلوم → NULL | زیر صفر → بدترین | بالای ۲۰× سقف
+        CASE WHEN d.InterestCoverage IS NULL THEN NULL
+             WHEN d.InterestCoverage <= 0 THEN -999999.0
+             WHEN d.InterestCoverage > 20 THEN 20.0
+             ELSE d.InterestCoverage END AS ICKey,
+
+        -- سهم غیرعملیاتی (قدرمطلق؛ کمتر = سود باکیفیت‌تر)
+        CASE WHEN d.NonOperatingPct IS NULL THEN NULL
+             WHEN ABS(d.NonOperatingPct) > 150 THEN 150.0
+             ELSE ABS(d.NonOperatingPct) END AS EQKey,
+
+        -- P/E فقط در بازه‌ی (۰، ۶۰] معتبر؛ خارج از آن بدترین کلید
+        CASE WHEN d.PEApprox IS NOT NULL AND d.PEApprox > 0 AND d.PEApprox <= 60
+             THEN d.PEApprox ELSE 999999.0 END AS PEKey,
+
+        -- P/S = P/E × حاشیه خالص؛ فقط وقتی هر دو معتبرند
+        CASE WHEN d.PEApprox IS NOT NULL AND d.PEApprox > 0 AND d.PEApprox <= 60
+              AND d.NetProfitMargin12M IS NOT NULL AND d.NetProfitMargin12M > 0
+             THEN d.PEApprox * (d.NetProfitMargin12M / 100.0)
+             ELSE 999999.0 END AS PSKey,
+
+        d.AvgTradeValue30D AS LQKey,
+        d.SalesStability AS STKey,
+        d.Volatility30D AS LVKey,
+
+        -- مومنتوم کراپ‌شده
+        CASE WHEN d.PriceReturn30D IS NULL THEN NULL
+             WHEN d.PriceReturn30D > 40 THEN 40.0
+             WHEN d.PriceReturn30D < -50 THEN -50.0
+             ELSE d.PriceReturn30D END AS MOKey,
+
+        -- ===== فاکتورهای v3.2 =====
+        -- ROE (کراپ ±۱۵۰٪)
+        CASE WHEN d.ROE IS NULL THEN NULL
+             WHEN d.ROE > 150 THEN 150.0
+             WHEN d.ROE < -150 THEN -150.0
+             ELSE d.ROE END AS ROEKey,
+
+        -- اهرم مالی: کمتر بهتر → معکوس (کراپ ۵۰)
+        CASE WHEN d.FinancialLeverage IS NULL THEN NULL
+             WHEN d.FinancialLeverage > 50 THEN 50.0
+             ELSE d.FinancialLeverage END AS LEVKey,
+
+        -- نسبت جاری (کراپ ۱۵)
+        CASE WHEN d.CurrentRatio IS NULL THEN NULL
+             WHEN d.CurrentRatio > 15 THEN 15.0
+             ELSE d.CurrentRatio END AS CRKey,
+
+        -- کیفیت نقدی سود (کراپ −۲..۵) — بالاتر بهتر
+        CASE WHEN d.CashConversion IS NULL THEN NULL
+             WHEN d.CashConversion > 5 THEN 5.0
+             WHEN d.CashConversion < -2 THEN -2.0
+             ELSE d.CashConversion END AS CCKey,
+
+        -- P/B = P/E × ROE فقط وقتی هر دو معتبرند (سقف معتبر ۳۰)
+        CASE WHEN d.PEApprox IS NOT NULL AND d.PEApprox > 0 AND d.PEApprox <= 60
+              AND d.ROE IS NOT NULL AND d.ROE > 0
+              AND d.PEApprox * d.ROE / 100.0 <= 30.0
+             THEN d.PEApprox * d.ROE / 100.0
+             ELSE 999999.0 END AS PBKey
+    FROM Derived d
+),
+
+RankDists AS (
+    SELECT
+        k.*,
+        RANK() OVER (ORDER BY k.SGKey)  AS SGRnk,  COUNT(k.SGKey)  OVER () AS SGCnt,
+        RANK() OVER (ORDER BY k.SG3Key) AS SG3Rnk, COUNT(k.SG3Key) OVER () AS SG3Cnt,
+        RANK() OVER (ORDER BY k.NPGKey) AS NPGRnk, COUNT(k.NPGKey) OVER () AS NPGCnt,
+        RANK() OVER (ORDER BY k.OPGKey) AS OPGRnk, COUNT(k.OPGKey) OVER () AS OPGCnt,
+        RANK() OVER (ORDER BY k.RGKey)  AS RGRnk,  COUNT(k.RGKey)  OVER () AS RGCnt,
+        RANK() OVER (ORDER BY k.OMKey)  AS OMRnk,  COUNT(k.OMKey)  OVER () AS OMCnt,
+        RANK() OVER (ORDER BY k.NMKey)  AS NMRnk,  COUNT(k.NMKey)  OVER () AS NMCnt,
+        RANK() OVER (ORDER BY k.MTKey)  AS MTRnk,  COUNT(k.MTKey)  OVER () AS MTCnt,
+        RANK() OVER (ORDER BY k.ICKey)  AS ICRnk,  COUNT(k.ICKey)  OVER () AS ICCnt,
+        RANK() OVER (ORDER BY k.EQKey)  AS EQRnk,  COUNT(k.EQKey)  OVER () AS EQCnt,
+        RANK() OVER (ORDER BY k.PEKey)  AS PERnk,  COUNT(k.PEKey)  OVER () AS PECnt,
+        RANK() OVER (ORDER BY k.PSKey)  AS PSRnk,  COUNT(k.PSKey)  OVER () AS PSCnt,
+        RANK() OVER (ORDER BY k.LQKey)  AS LQRnk,  COUNT(k.LQKey)  OVER () AS LQCnt,
+        RANK() OVER (ORDER BY k.STKey)  AS STRnk,  COUNT(k.STKey)  OVER () AS STCnt,
+        RANK() OVER (ORDER BY k.LVKey)  AS LVRnk,  COUNT(k.LVKey)  OVER () AS LVCnt,
+        RANK() OVER (ORDER BY k.MOKey)  AS MORnk,  COUNT(k.MOKey)  OVER () AS MOCnt,
+        RANK() OVER (ORDER BY k.ROEKey) AS ROERnk, COUNT(k.ROEKey) OVER () AS ROECnt,
+        RANK() OVER (ORDER BY k.LEVKey) AS LEVRnk, COUNT(k.LEVKey) OVER () AS LEVCnt,
+        RANK() OVER (ORDER BY k.CRKey)  AS CRRnk,  COUNT(k.CRKey)  OVER () AS CRCnt,
+        RANK() OVER (ORDER BY k.CCKey)  AS CCRnk,  COUNT(k.CCKey)  OVER () AS CCCnt,
+        RANK() OVER (ORDER BY k.PBKey)  AS PBRnk,  COUNT(k.PBKey)  OVER () AS PBCnt,
+
+        -- اندازه‌ی گروه هم‌ارزش (tie) برای صدکِ میانی
+        COUNT(*) OVER (PARTITION BY k.SGKey)  AS SGTie,
+        COUNT(*) OVER (PARTITION BY k.SG3Key) AS SG3Tie,
+        COUNT(*) OVER (PARTITION BY k.NPGKey) AS NPGTie,
+        COUNT(*) OVER (PARTITION BY k.OPGKey) AS OPGTie,
+        COUNT(*) OVER (PARTITION BY k.RGKey)  AS RGTie,
+        COUNT(*) OVER (PARTITION BY k.OMKey)  AS OMTie,
+        COUNT(*) OVER (PARTITION BY k.NMKey)  AS NMTie,
+        COUNT(*) OVER (PARTITION BY k.MTKey)  AS MTTie,
+        COUNT(*) OVER (PARTITION BY k.ICKey)  AS ICTie,
+        COUNT(*) OVER (PARTITION BY k.EQKey)  AS EQTie,
+        COUNT(*) OVER (PARTITION BY k.PEKey)  AS PETie,
+        COUNT(*) OVER (PARTITION BY k.PSKey)  AS PSTie,
+        COUNT(*) OVER (PARTITION BY k.LQKey)  AS LQTie,
+        COUNT(*) OVER (PARTITION BY k.STKey)  AS STTie,
+        COUNT(*) OVER (PARTITION BY k.LVKey)  AS LVTie,
+        COUNT(*) OVER (PARTITION BY k.MOKey)  AS MOTie,
+        COUNT(*) OVER (PARTITION BY k.ROEKey) AS ROETie,
+        COUNT(*) OVER (PARTITION BY k.LEVKey) AS LEVTie,
+        COUNT(*) OVER (PARTITION BY k.CRKey)  AS CRTie,
+        COUNT(*) OVER (PARTITION BY k.CCKey)  AS CCTie,
+        COUNT(*) OVER (PARTITION BY k.PBKey)  AS PBTie
+    FROM RankKeys k
+),
+
+-- صدک میانی (midrank): مقدار هم‌رتبه به جای «کل زیر گروه»، میانگین جایگاه گروه را می‌گیرد
+--   pct = (2×تعداد_کوچک‌تر_اکید + تعداد_هم‌ارزش − 1) / (2×(تعداد داده − 1))
+Ranked AS (
+    SELECT
+        r.*,
+
+        CASE WHEN r.SGKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.SGRnk - 1 - (r.NRows - r.SGCnt)) + (r.SGTie - 1)) * 1.0 / NULLIF(2*(r.SGCnt - 1), 0), 0.5) END AS SalesGrowthRank,
+
+        CASE WHEN r.SG3Key IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.SG3Rnk - 1 - (r.NRows - r.SG3Cnt)) + (r.SG3Tie - 1)) * 1.0 / NULLIF(2*(r.SG3Cnt - 1), 0), 0.5) END AS SalesGrowth3MRank,
+
+        CASE WHEN r.NPGKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.NPGRnk - 1 - (r.NRows - r.NPGCnt)) + (r.NPGTie - 1)) * 1.0 / NULLIF(2*(r.NPGCnt - 1), 0), 0.5) END AS NetProfitGrowthRank,
+
+        CASE WHEN r.OPGKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.OPGRnk - 1 - (r.NRows - r.OPGCnt)) + (r.OPGTie - 1)) * 1.0 / NULLIF(2*(r.OPGCnt - 1), 0), 0.5) END AS OperatingProfitGrowthRank,
+
+        CASE WHEN r.RGKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.RGRnk - 1 - (r.NRows - r.RGCnt)) + (r.RGTie - 1)) * 1.0 / NULLIF(2*(r.RGCnt - 1), 0), 0.5) END AS RevenueGrowthRank,
+
+        CASE WHEN r.OMKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.OMRnk - 1 - (r.NRows - r.OMCnt)) + (r.OMTie - 1)) * 1.0 / NULLIF(2*(r.OMCnt - 1), 0), 0.5) END AS OperatingMarginRank,
+
+        CASE WHEN r.NMKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.NMRnk - 1 - (r.NRows - r.NMCnt)) + (r.NMTie - 1)) * 1.0 / NULLIF(2*(r.NMCnt - 1), 0), 0.5) END AS NetMarginRank,
+
+        CASE WHEN r.MTKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.MTRnk - 1 - (r.NRows - r.MTCnt)) + (r.MTTie - 1)) * 1.0 / NULLIF(2*(r.MTCnt - 1), 0), 0.5) END AS MarginTrendRank,
+
+        CASE WHEN r.ICKey IS NULL THEN 0.50
+             ELSE COALESCE((2*(r.ICRnk - 1 - (r.NRows - r.ICCnt)) + (r.ICTie - 1)) * 1.0 / NULLIF(2*(r.ICCnt - 1), 0), 0.5) END AS InterestCoverageRank,
+
+        -- کیفیت سود: کمتر بهتر → معکوس
+        CASE WHEN r.EQKey IS NULL THEN 0.50
+             ELSE COALESCE(1.0 - (2*(r.EQRnk - 1 - (r.NRows - r.EQCnt)) + (r.EQTie - 1)) * 1.0 / NULLIF(2*(r.EQCnt - 1), 0), 0.5) END AS EarningsQualityRank,
+
+        -- P/E: کمتر بهتر → معکوس؛ نامعتبر (کلید 999999) → صفر
+        CASE WHEN r.PEKey >= 999999.0 THEN 0.0
+             ELSE COALESCE(1.0 - (2*(r.PERnk - 1 - (r.NRows - r.PECnt)) + (r.PETie - 1)) * 1.0 / NULLIF(2*(r.PECnt - 1), 0), 0.5) END AS PERank,
+
+        CASE WHEN r.PSKey >= 999999.0 THEN 0.0
+             ELSE COALESCE(1.0 - (2*(r.PSRnk - 1 - (r.NRows - r.PSCnt)) + (r.PSTie - 1)) * 1.0 / NULLIF(2*(r.PSCnt - 1), 0), 0.5) END AS PSRank,
+
+        -- نقدشوندگی: بدون داده = بدترین (قابل معامله نیست)؛ خنثی ندارد
+        CASE WHEN r.LQKey IS NULL THEN 0.0
+             ELSE COALESCE((2*(r.LQRnk - 1 - (r.NRows - r.LQCnt)) + (r.LQTie - 1)) * 1.0 / NULLIF(2*(r.LQCnt - 1), 0), 0.5) END AS LiquidityRank,
+
+        CASE WHEN r.STKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.STRnk - 1 - (r.NRows - r.STCnt)) + (r.STTie - 1)) * 1.0 / NULLIF(2*(r.STCnt - 1), 0), 0.5) END AS StabilityRank,
+
+        -- نوسان کم بهتر → معکوس
+        CASE WHEN r.LVKey IS NULL THEN 0.30
+             ELSE COALESCE(1.0 - (2*(r.LVRnk - 1 - (r.NRows - r.LVCnt)) + (r.LVTie - 1)) * 1.0 / NULLIF(2*(r.LVCnt - 1), 0), 0.5) END AS LowVolatilityRank,
+
+        CASE WHEN r.MOKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.MORnk - 1 - (r.NRows - r.MOCnt)) + (r.MOTie - 1)) * 1.0 / NULLIF(2*(r.MOCnt - 1), 0), 0.5) END AS MomentumRank,
+
+        -- ===== رتبه‌های v3.2 =====
+        CASE WHEN r.ROEKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.ROERnk - 1 - (r.NRows - r.ROECnt)) + (r.ROETie - 1)) * 1.0 / NULLIF(2*(r.ROECnt - 1), 0), 0.5) END AS ROERank,
+
+        -- اهرم کمتر بهتر → معکوس
+        CASE WHEN r.LEVKey IS NULL THEN 0.30
+             ELSE COALESCE(1.0 - (2*(r.LEVRnk - 1 - (r.NRows - r.LEVCnt)) + (r.LEVTie - 1)) * 1.0 / NULLIF(2*(r.LEVCnt - 1), 0), 0.5) END AS LeverageRank,
+
+        CASE WHEN r.CRKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.CRRnk - 1 - (r.NRows - r.CRCnt)) + (r.CRTie - 1)) * 1.0 / NULLIF(2*(r.CRCnt - 1), 0), 0.5) END AS CurrentRatioRank,
+
+        CASE WHEN r.CCKey IS NULL THEN 0.30
+             ELSE COALESCE((2*(r.CCRnk - 1 - (r.NRows - r.CCCnt)) + (r.CCTie - 1)) * 1.0 / NULLIF(2*(r.CCCnt - 1), 0), 0.5) END AS CashConversionRank,
+
+        -- P/B کمتر بهتر؛ نامعتبر (کلید 999999) → صفر
+        CASE WHEN r.PBKey >= 999999.0 THEN 0.0
+             ELSE COALESCE(1.0 - (2*(r.PBRnk - 1 - (r.NRows - r.PBCnt)) + (r.PBTie - 1)) * 1.0 / NULLIF(2*(r.PBCnt - 1), 0), 0.5) END AS PBRank
+    FROM RankDists r
+),
+
+Penalized AS (
+    SELECT
+        r.*,
+
+        -- جریمه‌های رشد (از ۴۰ امتیاز دسته)
+        ( 6.0 * CASE WHEN r.SalesGrowth12M IS NOT NULL AND r.SalesGrowth12M < -20 THEN 1 ELSE 0 END
+        + 5.0 * CASE WHEN r.OperatingProfitGrowthTTM IS NOT NULL AND r.OperatingProfitGrowthTTM < -25 THEN 1 ELSE 0 END
+        ) AS GrowthPenalty,
+
+        -- جریمه‌های سودآوری (از ۲۴ امتیاز دسته)
+        ( 10.0 * CASE WHEN r.TTMNetProfit IS NOT NULL AND r.TTMNetProfit < 0 THEN 1 ELSE 0 END
+        + 4.0 * CASE WHEN r.InterestCoverage IS NOT NULL AND r.InterestCoverage < 1.5 THEN 1 ELSE 0 END
+        + 3.0 * CASE WHEN r.OperatingMarginTrend IS NOT NULL AND r.OperatingMarginTrend < -2 THEN 1 ELSE 0 END
+        + CASE
+            WHEN r.NonOperatingPct IS NULL THEN 0.0
+            WHEN r.NonOperatingPct <= 20 THEN 0.0
+            WHEN r.NonOperatingPct >= 100 THEN 8.0
+            ELSE (r.NonOperatingPct - 20.0) / 80.0 * 8.0
+          END
+        ) AS ProfitabilityPenalty,
+
+        -- جریمه‌ی ارزش‌گذاری (از ۱۶ امتیاز دسته)
+        ( 8.0 * CASE WHEN r.PEApprox IS NULL OR r.PEApprox <= 0 OR r.PEApprox > 60 THEN 1 ELSE 0 END
+        ) AS ValuationPenalty,
+
+        -- جریمه‌های بازار/داده (از ۲۰ امتیاز دسته)
+        ( 4.0 * CASE WHEN r.MarketDataAgeDays IS NOT NULL AND r.MarketDataAgeDays > 14 THEN 1 ELSE 0 END
+        + 3.0 * CASE WHEN r.ProfitReportAgeMonths IS NOT NULL AND r.ProfitReportAgeMonths > 8 THEN 1 ELSE 0 END
+        ) AS MarketPenalty
+    FROM Ranked r
 )
 
 SELECT
@@ -584,13 +1172,20 @@ SELECT
     ROUND(SalesGrowth3M, 2) AS SalesGrowth3M,
     ROUND(SalesStability, 4) AS SalesStability,
 
-    ROUND(LatestEPS, 2) AS LatestEPS,
-    ROUND(LatestOperatingEPS, 2) AS LatestOperatingEPS,
-    ROUND(LatestOperatingProfit, 2) AS LatestOperatingProfit,
-    ROUND(LatestOperatingProfitLastYear, 2) AS LatestOperatingProfitLastYear,
-    ROUND(NetProfitGrowth4Reports, 2) AS NetProfitGrowth4Reports,
-    ROUND(OperatingProfitGrowthYoY, 2) AS OperatingProfitGrowthYoY,
-    ROUND(OperatingProfitGrowth4Reports, 2) AS OperatingProfitGrowth4Reports,
+    ROUND(TTMEPS, 2) AS LatestEPS,
+    ROUND(TTMOperatingEPS, 2) AS LatestOperatingEPS,
+    ROUND(LatestOpAbs, 2) AS LatestOperatingProfit,
+    ROUND(LatestOpLYAbs, 2) AS LatestOperatingProfitLastYear,
+    -- نمایش رشدها با کراپ (رتبه‌بندی جداگانه کراپ شده؛ این فقط برای نمایش تمیز است)
+    ROUND(CASE WHEN NetProfitGrowthTTM > 1000 THEN 1000.0
+               WHEN NetProfitGrowthTTM < -100 THEN -100.0
+               ELSE NetProfitGrowthTTM END, 2) AS NetProfitGrowth4Reports,
+    ROUND(CASE WHEN OperatingProfitGrowthTTM > 1000 THEN 1000.0
+               WHEN OperatingProfitGrowthTTM < -100 THEN -100.0
+               ELSE OperatingProfitGrowthTTM END, 2) AS OperatingProfitGrowthYoY,
+    ROUND(CASE WHEN OperatingProfitGrowthTTM > 1000 THEN 1000.0
+               WHEN OperatingProfitGrowthTTM < -100 THEN -100.0
+               ELSE OperatingProfitGrowthTTM END, 2) AS OperatingProfitGrowth4Reports,
 
     ROUND(LatestPrice, 2) AS LatestPrice,
     ROUND(LatestClosingPrice, 2) AS LatestClosingPrice,
@@ -621,7 +1216,7 @@ SELECT
 
     CAST(
         CASE
-            WHEN PEApprox IS NULL OR PEApprox <= 0 OR PEApprox > 80 THEN 1
+            WHEN PEApprox IS NULL OR PEApprox <= 0 OR PEApprox > 60 THEN 1
             ELSE 0
         END
     AS BIT) AS BadPEFlag,
@@ -635,7 +1230,7 @@ SELECT
 
     CAST(
         CASE
-            WHEN OperatingProfitGrowthYoY IS NOT NULL AND OperatingProfitGrowthYoY < -20 THEN 1
+            WHEN OperatingProfitGrowthTTM IS NOT NULL AND OperatingProfitGrowthTTM < -25 THEN 1
             ELSE 0
         END
     AS BIT) AS WeakOperatingProfitFlag,
@@ -647,28 +1242,13 @@ SELECT
         END
     AS BIT) AS WeakLiquidityFlag,
 
-    -- NEW: ستون‌های جدید - در انتهای SELECT برای حفظ سازگاری با کد Go
-    ROUND(NetProfitMargin12M, 2) AS NetProfitMargin12M,
-    ROUND(OperatingMargin12M, 2) AS OperatingMargin12M,
-    ROUND(OperatingMarginTrend, 2) AS OperatingMarginTrend,
-    ROUND(PSRatio, 2) AS PSRatio,
-
-    -- NEW v2: معیارهای دقیق از داده‌ی هم‌منبع (RevenueNew از همان گزارش)
-    ROUND(OperatingMarginLatest, 2) AS OperatingMarginLatest,
-    ROUND(NetMarginLatest, 2) AS NetMarginLatest,
-    ROUND(RevenueGrowthYoY, 2) AS RevenueGrowthYoY,
-    ROUND(InterestCoverage, 2) AS InterestCoverage,
-    ROUND(NonOperatingPct, 2) AS NonOperatingPct,
-
     CAST(
         CASE
-            WHEN NetProfitLast4Reports IS NULL OR NetProfitLast4Reports < 0 THEN 1
+            WHEN TTMNetProfit IS NOT NULL AND TTMNetProfit < 0 THEN 1
             ELSE 0
         END
     AS BIT) AS LossMakerFlag,
 
-    -- NEW v2: پرچم پوشش بهره ضعیف (Interest Coverage < 1.5)
-    -- یعنی سود عملیاتی به‌سختی هزینه مالی رو پوشش می‌ده
     CAST(
         CASE
             WHEN InterestCoverage IS NOT NULL AND InterestCoverage < 1.5 THEN 1
@@ -676,8 +1256,6 @@ SELECT
         END
     AS BIT) AS WeakCoverageFlag,
 
-    -- NEW v2: پرچم انقباض حاشیه عملیاتی (حاشیه امسال < سال قبل)
-    -- نشانه‌ی کاهش بهره‌وری
     CAST(
         CASE
             WHEN OperatingMarginTrend IS NOT NULL AND OperatingMarginTrend < -2 THEN 1
@@ -685,105 +1263,162 @@ SELECT
         END
     AS BIT) AS MarginContractionFlag,
 
-    -- ----------------------------------------------------------------------
-    --  QuantScore نهایی (نسخه‌ی v2 با استفاده از دیتای هم‌منبع)
-    --
-    --  محاسبه‌ی وزن رتبه‌ها (مجموع وزن‌ها = 1.00):
-    --
-    --   0.11  SalesGrowthRank         رشد فروش سالانه
-    --   0.05  SalesGrowth3MRank        رشد فروش 3 ماهه
-    --   0.09  RevenueGrowthRank        رشد درآمد دقیق YoY
-    --   0.11  OperatingProfitRank      رشد سود عملیاتی YoY
-    --   0.07  NetProfitRank            رشد سود خالص 4 گزارش
-    --   0.07  OperatingMarginLatestRank حاشیه عملیاتی دقیق
-    --   0.05  NetMarginRank            حاشیه سود خالص 12M
-    --   0.05  MarginTrendRank          روند تغییر حاشیه
-    --   0.05  InterestCoverageRank     پوشش بهره
-    --   0.06  EarningsQualityRank      کیفیت سود (سهم غیرعملیاتی)  (NEW v2)
-    --   0.09  PERank                   ارزانی P/E
-    --   0.04  PSRank                   ارزانی P/S
-    --   0.06  StabilityRank            ثبات فروش
-    --   0.06  LiquidityRank            نقدشوندگی
-    --   0.02  LowVolatilityRank        نوسان پایین
-    --   0.02  HealthyMomentumRank      مومنتوم قیمت
-    --   -----  + ----------
-    --   1.00
-    --
-    --  جریمه‌ها (جمعی، با کف 0.50):
-    --   -15%  اگر P/E نامعتبر (NULL، <=0 یا >80)
-    --   -10%  اگر رشد فروش سالانه < -20%
-    --   -10%  اگر رشد سود عملیاتی YoY < -20%
-    --   -15%  اگر شرکت زیان‌ده (سود خالص 4 گزارشه منفی)
-    --   -08%  اگر پوشش بهره ضعیف (< 1.5)
-    --   -05%  اگر انقباض حاشیه عملیاتی (> -2%)
-    --   -08%  اگر سهم غیرعملیاتی بالا (> 30%)                 (NEW v2)
-    -- ----------------------------------------------------------------------
+    ROUND(NetProfitMargin12M, 2) AS NetProfitMargin12M,
+    ROUND(OperatingMargin12M, 2) AS OperatingMargin12M,
+    ROUND(OperatingMarginTrend, 2) AS OperatingMarginTrend,
+
+    -- P/S = P/E × حاشیه خالص (هم‌ارزی بدون واحد؛ فقط با داده‌ی معتبر و سقف ۱۰۰)
     ROUND(
-        100.0 *
-        (
-            0.11 * SalesGrowthRank
-            + 0.05 * SalesGrowth3MRank
-            + 0.09 * RevenueGrowthRank
-            + 0.11 * OperatingProfitRank
-            + 0.07 * NetProfitRank
-            + 0.07 * OperatingMarginLatestRank
-            + 0.05 * NetMarginRank
-            + 0.05 * MarginTrendRank
-            + 0.05 * InterestCoverageRank
-            + 0.06 * EarningsQualityRank
-            + 0.09 * PERank
-            + 0.04 * PSRank
-            + 0.06 * StabilityRank
-            + 0.06 * LiquidityRank
-            + 0.02 * LowVolatilityRank
-            + 0.02 * HealthyMomentumRank
-        )
-        * DataQualityScore
-        * (
-            1.0
-            - 0.15 * CASE WHEN PEApprox IS NULL OR PEApprox <= 0 OR PEApprox > 80 THEN 1 ELSE 0 END
-            - 0.10 * CASE WHEN SalesGrowth12M IS NOT NULL AND SalesGrowth12M < -20 THEN 1 ELSE 0 END
-            - 0.10 * CASE WHEN OperatingProfitGrowthYoY IS NOT NULL AND OperatingProfitGrowthYoY < -20 THEN 1 ELSE 0 END
-            - 0.15 * CASE WHEN NetProfitLast4Reports IS NULL OR NetProfitLast4Reports < 0 THEN 1 ELSE 0 END
-            - 0.08 * CASE WHEN InterestCoverage IS NOT NULL AND InterestCoverage < 1.5 THEN 1 ELSE 0 END
-            - 0.05 * CASE WHEN OperatingMarginTrend IS NOT NULL AND OperatingMarginTrend < -2 THEN 1 ELSE 0 END
-            - CASE
-                -- جریمه‌ی پله‌ای کیفیت سود: از ۲۰٪ شروع، خطی تا ۸۰٪، سقف ۱۵٪
-                WHEN NonOperatingPct IS NULL THEN 0
-                WHEN NonOperatingPct <= 20 THEN 0
-                WHEN NonOperatingPct >= 80 THEN 0.15
-                ELSE (NonOperatingPct - 20.0) / 60.0 * 0.15
+        CASE WHEN PEApprox IS NOT NULL AND PEApprox > 0 AND PEApprox <= 60
+              AND NetProfitMargin12M IS NOT NULL AND NetProfitMargin12M > 0
+              AND PEApprox * (NetProfitMargin12M / 100.0) <= 100.0
+            THEN PEApprox * (NetProfitMargin12M / 100.0)
+            ELSE NULL END
+    , 2) AS PSRatio,
+
+    ROUND(OperatingMarginLatest, 2) AS OperatingMarginLatest,
+    ROUND(NetMarginLatest, 2) AS NetMarginLatest,
+    ROUND(CASE WHEN RevenueGrowthYoY > 1000 THEN 1000.0
+               WHEN RevenueGrowthYoY < -100 THEN -100.0
+               ELSE RevenueGrowthYoY END, 2) AS RevenueGrowthYoY,
+    ROUND(InterestCoverage, 2) AS InterestCoverage,
+    ROUND(NonOperatingPct, 2) AS NonOperatingPct,
+
+    -- فاکتورهای v3.2 (ترازنامه و جریان نقدی)
+    ROUND(ROE, 2) AS ROE,
+    ROUND(FinancialLeverage, 2) AS FinancialLeverage,
+    ROUND(CurrentRatio, 2) AS CurrentRatio,
+    ROUND(CashConversion, 3) AS CashConversion,
+    ROUND(CASE WHEN PEApprox IS NOT NULL AND PEApprox > 0 AND PEApprox <= 60
+              AND ROE IS NOT NULL AND ROE > 0
+              AND PEApprox * ROE / 100.0 <= 30.0
+            THEN PEApprox * ROE / 100.0 ELSE NULL END, 2) AS PBRatio,
+
+    -- ----------------------------------------------------------------------
+    --  زیرامتیاز دسته‌ها (وزن × رتبه − جریمه، با کف صفر)
+    --
+    --  رشد ۴۰:   فروش سالانه 10 | فروش ۳ماهه 4 | درآمد 6 | عملیاتی 8 | خالص 12
+    --  سودآوری ۲۴: حاشیه عملیاتی 6 | حاشیه خالص 4 | روند حاشیه 4 | پوشش بهره 4 | کیفیت سود 6
+    --  ارزش‌گذاری ۱۶: P/E 12 | P/S 4
+    --  بازار ۲۰:  نقدشوندگی 7 | ثبات فروش 5 | نوسان کم 4 | مومنتوم 4
+    --
+    --  QuantScore = DataQualityScore × مجموع چهار دسته (سازگار با تجزیه‌وتحلیل فرانت)
+    -- ----------------------------------------------------------------------
+    -- امتیاز خام هر دسته = مجموع (وزن × رتبه)؛ وزن‌ها بر حسب امتیازند
+    -- رشد: 10+4+6+8+12=40 | سودآوری: 6+4+4+4+6=24 | ارزش: 12+4=16 | بازار: 7+5+4+4=20
+    ROUND(
+        CASE WHEN (9.0*SalesGrowthRank + 4.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
+                   + 8.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty < 0
+             THEN 0
+             ELSE (9.0*SalesGrowthRank + 4.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
+                   + 8.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty
+        END, 1) AS GrowthScore,
+
+    ROUND(
+        CASE WHEN (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
+                   + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty < 0
+             THEN 0
+             ELSE (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
+                   + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty
+        END, 1) AS ProfitabilityScore,
+
+    ROUND(
+        CASE WHEN (10.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty < 0
+             THEN 0
+             ELSE (10.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty
+        END, 1) AS ValuationScore,
+
+    ROUND(
+        CASE WHEN (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 3.0*StabilityRank
+                   + 3.0*LowVolatilityRank + 3.0*MomentumRank) - MarketPenalty < 0
+             THEN 0
+             ELSE (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 3.0*StabilityRank
+                   + 3.0*LowVolatilityRank + 3.0*MomentumRank) - MarketPenalty
+        END, 1) AS MarketScore,
+
+    ROUND(
+        DataQualityScore * (
+            CASE WHEN (9.0*SalesGrowthRank + 4.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
+                       + 8.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty < 0
+                 THEN 0
+                 ELSE (9.0*SalesGrowthRank + 4.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
+                       + 8.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty
+            END
+            + CASE WHEN (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
+                         + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty < 0
+                 THEN 0
+                 ELSE (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
+                       + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty
               END
-        )
-    , 2) AS QuantScore,
+            + CASE WHEN (10.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty < 0
+                 THEN 0
+                 ELSE (10.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty
+              END
+            + CASE WHEN (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 3.0*StabilityRank
+                         + 3.0*LowVolatilityRank + 3.0*MomentumRank) - MarketPenalty < 0
+                 THEN 0
+                 ELSE (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 3.0*StabilityRank
+                       + 3.0*LowVolatilityRank + 3.0*MomentumRank) - MarketPenalty
+              END
+        ), 2) AS QuantScore,
 
-    -- زیر‌امتیاز هر دسته (مقیاس ۰ تا حداکثر وزن دسته)
-    ROUND(100.0 * (
-        0.11 * SalesGrowthRank
-        + 0.05 * SalesGrowth3MRank
-        + 0.09 * RevenueGrowthRank
-        + 0.11 * OperatingProfitRank
-        + 0.07 * NetProfitRank
-    ), 1) AS GrowthScore,
+    -- ----------------------------------------------------------------------
+    --  ستون‌های جدید v3 (شفافیت و عیب‌یابی)
+    -- ----------------------------------------------------------------------
+    ProfitReportAgeMonths,
+    MarketDataAgeDays,
 
-    ROUND(100.0 * (
-        0.07 * OperatingMarginLatestRank
-        + 0.05 * NetMarginRank
-        + 0.05 * MarginTrendRank
-        + 0.05 * InterestCoverageRank
-        + 0.06 * EarningsQualityRank
-    ), 1) AS ProfitabilityScore,
+    CAST(
+        CASE
+            WHEN (ProfitReportAgeMonths IS NOT NULL AND ProfitReportAgeMonths > 8)
+              OR (MarketDataAgeDays IS NOT NULL AND MarketDataAgeDays > 14)
+                THEN 1
+            ELSE 0
+        END
+    AS BIT) AS StaleDataFlag,
 
-    ROUND(100.0 * (
-        0.09 * PERank
-        + 0.04 * PSRank
-    ), 1) AS ValuationScore,
+    ROUND(GrowthPenalty, 1) AS GrowthPenalty,
+    ROUND(ProfitabilityPenalty, 1) AS ProfitabilityPenalty,
+    ROUND(ValuationPenalty, 1) AS ValuationPenalty,
+    ROUND(MarketPenalty, 1) AS MarketPenalty,
 
-    ROUND(100.0 * (
-        0.06 * LiquidityRank
-        + 0.06 * StabilityRank
-        + 0.02 * LowVolatilityRank
-        + 0.02 * HealthyMomentumRank
-    ), 1) AS MarketScore
-FROM Ranked;
+    ROUND(TTMNetProfit, 2) AS TTMNetProfit,
+    ROUND(TTMEPS, 2) AS TTMEPS,
+
+    ROUND(ImpliedShares, 0) AS ImpliedShares,
+
+    N'v3.2' AS ScoreVersion,
+
+    -- ----------------------------------------------------------------------
+    --  رتبه‌ی درصدی هر فاکتور بین کل بازار (CUME_DIST؛ برای شفافیت کامل در UI)
+    --  عددی بین ۰ و ۱؛ مثلاً ۰.۸۵ یعنی بهتر از ۸۵٪ شرکت‌ها در آن فاکتور.
+    --  فاکتور بدونِ داده = ۰.۳۰ (خنثی) | نامعتبر = ~۰ (بدترین)
+    -- ----------------------------------------------------------------------
+    ROUND(SalesGrowthRank, 4) AS SalesGrowthRank,
+    ROUND(SalesGrowth3MRank, 4) AS SalesGrowth3MRank,
+    ROUND(RevenueGrowthRank, 4) AS RevenueGrowthRank,
+    ROUND(OperatingProfitGrowthRank, 4) AS OperatingProfitGrowthRank,
+    ROUND(NetProfitGrowthRank, 4) AS NetProfitGrowthRank,
+
+    ROUND(OperatingMarginRank, 4) AS OperatingMarginRank,
+    ROUND(NetMarginRank, 4) AS NetMarginRank,
+    ROUND(MarginTrendRank, 4) AS MarginTrendRank,
+    ROUND(InterestCoverageRank, 4) AS InterestCoverageRank,
+    ROUND(EarningsQualityRank, 4) AS EarningsQualityRank,
+
+    ROUND(PERank, 4) AS PERank,
+    ROUND(PSRank, 4) AS PSRank,
+
+    ROUND(LiquidityRank, 4) AS LiquidityRank,
+    ROUND(StabilityRank, 4) AS StabilityRank,
+    ROUND(LowVolatilityRank, 4) AS LowVolatilityRank,
+    ROUND(MomentumRank, 4) AS MomentumRank,
+
+    -- رتبه‌های فاکتورهای v3.2
+    ROUND(ROERank, 4) AS ROERank,
+    ROUND(LeverageRank, 4) AS LeverageRank,
+    ROUND(CurrentRatioRank, 4) AS CurrentRatioRank,
+    ROUND(CashConversionRank, 4) AS CashConversionRank,
+    ROUND(PBRank, 4) AS PBRank
+FROM Penalized;
 GO
