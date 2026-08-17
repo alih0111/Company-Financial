@@ -1,45 +1,17 @@
-import React, { useMemo, useState } from "react";
-import { useTable, useSortBy, useGlobalFilter } from "react-table";
-import { FaSort, FaSortUp, FaSortDown, FaSearch } from "react-icons/fa";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import { useMemo, useState } from "react";
+import { useTable, useSortBy, useGlobalFilter, type Column } from "react-table";
+import { FaSort, FaSortUp, FaSortDown, FaSearch, FaCheck, FaTimes } from "react-icons/fa";
 import { addViewedItem } from "../utils/api";
-
-const API_BASE = "http://rfa_back.systemgroup.net/api";
-
-const fmt = (v: number | null | undefined, digits = 2) => {
-  if (v === null || v === undefined || Number.isNaN(v)) return "--";
-  return v.toFixed(digits);
-};
-
-const pct = (v: number | null | undefined) => {
-  if (v === null || v === undefined || Number.isNaN(v)) return "--";
-  return `${v.toFixed(2)}%`;
-};
 
 const getStableValue = (row: DataRow): boolean | null => {
   return row.stable ?? row.Stable ?? null;
 };
 
-const getRisks = (row: DataRow): string => {
-  return [
-    row.bad_pe_flag ? "P/E" : "",
-    row.weak_sales_flag ? "فروش" : "",
-    row.weak_operating_profit_flag ? "سود عملیاتی" : "",
-    row.weak_liquidity_flag ? "نقدشوندگی" : "",
-    row.loss_maker_flag ? "زیان‌ده" : "",
-    row.weak_coverage_flag ? "بهره" : "",
-    row.margin_contraction_flag ? "انقباض حاشیه" : "",
-  ]
-    .filter(Boolean)
-    .join("، ");
-};
-
 // مرتب‌سازی عددی با مدیریت null
 // nullها همیشه آخر (چه صعودی چه نزولی)
 const numericSort = (
-  rowA: any,
-  rowB: any,
+  rowA: { values: Record<string, unknown> },
+  rowB: { values: Record<string, unknown> },
   columnId: string,
   desc?: boolean,
 ) => {
@@ -58,38 +30,11 @@ const numericSort = (
 
   if (a === null && b === null) return 0;
 
-  // react-table نتیجه را در حالت desc معکوس می‌کند؛
-  // بنابراین اینجا باید جهت را لحاظ کنیم تا null همیشه آخر بماند.
   if (a === null) return desc ? -1 : 1;
   if (b === null) return desc ? 1 : -1;
 
   return a - b;
 };
-// const numericSort = (
-//   rowA: any,
-//   rowB: any,
-//   columnId: string,
-//   desc?: boolean,
-// ) => {
-//   const a = rowA.values[columnId];
-//   const b = rowB.values[columnId];
-
-//   const aVal =
-//     a == null || a === "" || Number.isNaN(Number(a)) ? null : Number(a);
-//   const bVal =
-//     b == null || b === "" || Number.isNaN(Number(b)) ? null : Number(b);
-
-//   // هر دو null
-//   if (aVal == null && bVal == null) return 0;
-//   // null همیشه آخر (جهت‌مستقل)
-//   if (aVal == null) return 1;
-//   if (bVal == null) return -1;
-
-//   // مقادیر واقعی
-//   if (aVal === bVal) return 0;
-//   // صعودی: a > b یعنی a بعد (1)
-//   return aVal > bVal ? 1 : -1;
-// };
 
 interface DataRow {
   company_id: string;
@@ -126,18 +71,57 @@ interface DataRow {
 
 interface Props {
   data: DataRow[];
-  selectedCompany: string;
-  onCompanyChange: (name: string) => void;
+  _selectedCompany: string;
+  _onCompanyChange: (name: string) => void;
 }
+
+// Score badge styling
+const scoreBadge = (value: number | null | undefined) => {
+  if (value == null || !Number.isFinite(value)) {
+    return "bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400";
+  }
+  if (value >= 70) return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20";
+  if (value >= 55) return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/15";
+  if (value >= 40) return "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20";
+  if (value >= 25) return "bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20";
+  return "bg-red-500/15 text-red-600 dark:text-red-400 ring-1 ring-red-500/20";
+};
+
+// Non-operating badge styling
+const nonOpBadge = (value: number | null | undefined) => {
+  if (value == null || !Number.isFinite(value)) return "text-gray-400";
+  if (value < 5) return "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10";
+  if (value < 15) return "text-amber-600 dark:text-amber-400 bg-amber-500/10";
+  if (value < 30) return "text-orange-600 dark:text-orange-400 bg-orange-500/10";
+  return "text-red-600 dark:text-red-400 bg-red-500/10 font-semibold";
+};
+
+// Growth badge
+const growthBadge = (value: number | null | undefined) => {
+  if (value == null || !Number.isFinite(value)) return "text-gray-400";
+  if (value > 30) return "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 font-semibold";
+  if (value < -10) return "text-red-600 dark:text-red-400 bg-red-500/10 font-semibold";
+  return "text-gray-600 dark:text-gray-300";
+};
+
+// Row left border color based on score
+const rowBorderColor = (score: number | null | undefined) => {
+  if (score == null || !Number.isFinite(score)) return "border-l-gray-300 dark:border-l-gray-700";
+  if (score >= 70) return "border-l-emerald-500/60";
+  if (score >= 55) return "border-l-emerald-400/40";
+  if (score >= 40) return "border-l-indigo-500/50";
+  if (score >= 25) return "border-l-amber-400/50";
+  return "border-l-red-400/50";
+};
 
 const BigDataTable: React.FC<Props> = ({
   data,
-  selectedCompany,
-  onCompanyChange,
+  _selectedCompany,
+  _onCompanyChange,
 }) => {
   const [globalFilter, setGlobalFilter] = useState("");
 
-  const columns = useMemo(
+  const columns = useMemo<Column<DataRow>[]>(
     () => [
       {
         Header: "Score",
@@ -146,7 +130,7 @@ const BigDataTable: React.FC<Props> = ({
         accessor: (row: DataRow) => {
           const value = row.quant_score;
 
-          if (value === null || value === undefined || value === "") {
+          if (value === null || value === undefined) {
             return null;
           }
 
@@ -158,31 +142,11 @@ const BigDataTable: React.FC<Props> = ({
         sortDescFirst: true,
         className: "w-28",
 
-        Cell: ({ value }: { value: number | null | undefined }) => {
-          let colorClass = "";
-
-          if (value != null) {
-            if (value >= 70) {
-              colorClass = "text-green-600 dark:text-green-400 font-bold";
-            } else if (value >= 55) {
-              colorClass = "text-green-600 dark:text-green-400 font-semibold";
-            } else if (value >= 40) {
-              colorClass = "text-indigo-600 dark:text-indigo-400 font-semibold";
-            } else if (value >= 25) {
-              colorClass = "text-yellow-600 dark:text-yellow-400";
-            } else {
-              colorClass = "text-red-600 dark:text-red-400 font-semibold";
-            }
-          }
-
-          return (
-            <span className={colorClass}>
-              {value != null && Number.isFinite(value)
-                ? value.toFixed(2)
-                : "--"}
-            </span>
-          );
-        },
+        Cell: ({ value }: { value: number | null | undefined }) => (
+          <span className={`inline-flex items-center justify-center min-w-[3.5rem] px-3 py-1 rounded-full text-sm font-bold tabular-nums ${scoreBadge(value)}`}>
+            {value != null && Number.isFinite(value) ? value.toFixed(2) : "--"}
+          </span>
+        ),
       },
       {
         Header: "Stable",
@@ -191,18 +155,21 @@ const BigDataTable: React.FC<Props> = ({
         sortType: "basic",
         className: "w-16",
         Cell: ({ value }: { value: boolean | null | undefined }) => {
-          let colorClass = "";
           if (value === true) {
-            colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          } else if (value === false) {
-            colorClass = "text-red-700 dark:text-red-400 font-semibold";
+            return (
+              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/25">
+                <FaCheck className="text-emerald-600 dark:text-emerald-400 text-xs" />
+              </span>
+            );
           }
-
-          return (
-            <span className={colorClass}>
-              {value === true ? "Yes" : value === false ? "No" : "--"}
-            </span>
-          );
+          if (value === false) {
+            return (
+              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-500/15 ring-1 ring-red-500/25">
+                <FaTimes className="text-red-500 dark:text-red-400 text-xs" />
+              </span>
+            );
+          }
+          return <span className="text-gray-400">--</span>;
         },
       },
       {
@@ -210,125 +177,40 @@ const BigDataTable: React.FC<Props> = ({
         accessor: "non_operating_pct",
         sortType: "numericSort",
         className: "w-32",
-        Cell: ({ value }: { value: number | null | undefined }) => {
-          let colorClass = "";
-
-          if (value != null && Number.isFinite(value)) {
-            if (value < 5) {
-              colorClass = "text-green-600 dark:text-green-400";
-            } else if (value < 15) {
-              colorClass = "text-yellow-600 dark:text-yellow-400";
-            } else if (value < 30) {
-              colorClass = "text-orange-600 dark:text-orange-400";
-            } else {
-              colorClass = "text-red-600 dark:text-red-400 font-semibold";
-            }
-          }
-
-          return (
-            <span className={colorClass}>
-              {value != null && Number.isFinite(value)
-                ? value.toFixed(2) + "%"
-                : "--"}
-            </span>
-          );
-        },
+        Cell: ({ value }: { value: number | null | undefined }) => (
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${nonOpBadge(value)}`}>
+            {value != null && Number.isFinite(value) ? value.toFixed(2) + "%" : "--"}
+          </span>
+        ),
       },
-      // {
-      //   Header: "حاشیه عملیاتی",
-      //   accessor: "operation",
-      //   sortType: "basic",
-      //   className: "w-32",
-      //   Cell: ({ value }: { value: number | null | undefined }) => {
-      //     let colorClass = "";
-
-      //     if (value != null) {
-      //       if (value >= 25) {
-      //         colorClass = "text-green-600 dark:text-green-400 font-bold";
-      //       } else if (value >= 15) {
-      //         colorClass = "text-green-600 dark:text-green-400 font-medium";
-      //       } else if (value >= 10) {
-      //         colorClass = "text-lime-600 dark:text-lime-400";
-      //       } else if (value >= 5) {
-      //         colorClass = "text-yellow-600 dark:text-yellow-400";
-      //       } else if (value > 0) {
-      //         colorClass = "text-orange-600 dark:text-orange-400";
-      //       } else {
-      //         colorClass = "text-red-600 dark:text-red-400 font-semibold";
-      //       }
-      //     }
-
-      //     return (
-      //       <span className={colorClass}>
-      //         {value != null ? value.toFixed(2) + "%" : "--"}
-      //       </span>
-      //     );
-      //   },
-      // },
-
       {
         Header: "EPS Growth",
         accessor: "eps_growth",
         sortType: "basic",
         className: "w-32",
-        Cell: ({ value }: { value: number }) => {
-          let colorClass = "";
-          if (value != null && value > 30)
-            colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          else if (value != null && value < -10)
-            colorClass = "text-red-600 dark:text-red-400 font-semibold";
-
-          return (
-            <span className={colorClass}>
-              {value != null ? value.toFixed(2) + "%" : "--"}
-            </span>
-          );
-        },
+        Cell: ({ value }: { value: number }) => (
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${growthBadge(value)}`}>
+            {value != null ? value.toFixed(2) + "%" : "--"}
+          </span>
+        ),
       },
       {
         Header: "Sales Growth",
         accessor: "sales_growth",
         sortType: "basic",
         className: "w-32",
-        Cell: ({ value }: { value: number }) => {
-          let colorClass = "";
-          if (value != null && value > 50)
-            colorClass = "text-green-600 dark:text-green-400 font-semibold";
-          else if (value != null && value < -10)
-            colorClass = "text-red-600 dark:text-red-400 font-semibold";
-
-          return (
-            <span className={colorClass}>
-              {value != null ? value.toFixed(2) + "%" : "--"}
-            </span>
-          );
-        },
+        Cell: ({ value }: { value: number }) => (
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${growthBadge(value)}`}>
+            {value != null ? value.toFixed(2) + "%" : "--"}
+          </span>
+        ),
       },
-      // {
-      //   Header: "P/E",
-      //   accessor: "pe",
-      //   sortType: "basic",
-      //   className: "w-28",
-      //   Cell: ({ value }: { value: number }) => {
-      //     let colorClass = "";
-      //     if (value != null && value < 6 && value > 0)
-      //       colorClass = "text-green-600 dark:text-green-400 font-semibold";
-      //     else if (value != null && (value <= 0 || value > 80))
-      //       colorClass = "text-red-600 dark:text-red-400 font-semibold";
-
-      //     return (
-      //       <span className={colorClass}>
-      //         {value != null ? value.toFixed(2) : "--"}
-      //       </span>
-      //     );
-      //   },
-      // },
       {
         Header: "Company",
         accessor: "company_name",
         className: "w-32",
         Cell: ({ value }: { value: string }) => (
-          <span className="font-medium text-gray-900 dark:text-gray-100">
+          <span className="font-bold text-gray-800 dark:text-white text-sm">
             {value}
           </span>
         ),
@@ -363,216 +245,116 @@ const BigDataTable: React.FC<Props> = ({
     headerGroups,
     rows,
     prepareRow,
-    setGlobalFilter: setFilter,
-    setSortBy,
   } = tableInstance;
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value || "";
     setGlobalFilter(value);
-    setFilter(value);
+    // Plugin-added method from useGlobalFilter
+    (tableInstance as Record<string, (v: string) => void>).setGlobalFilter(value);
   };
 
-  const exportFullScoresCSV = () => {
-    const token = localStorage.getItem("token");
-    const url = `${API_BASE}/export/scores?limit=1000`;
-    fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("خطا در دریافت فایل");
-        return res.blob();
-      })
-      .then((blob) => {
-        const today = new Date().toISOString().slice(0, 10);
-        saveAs(blob, `stock_scores_${today}.csv`);
-      })
-      .catch((err) => alert(err.message));
-  };
-
-  const exportToExcel = () => {
-    const exportData = data.map((row, index) => ({
-      ردیف: index + 1,
-      "Company Name": row.company_name,
-      Stable:
-        getStableValue(row) === true
-          ? "Yes"
-          : getStableValue(row) === false
-            ? "No"
-            : "--",
-      "AI Score": fmt(row.quant_score),
-      غیرعملیاتی: pct(row.non_operating_pct),
-      "حاشیه عملیاتی": pct(row.operation),
-      "EPS Growth (%)":
-        row.eps_growth != null ? row.eps_growth.toFixed(2) + "%" : "--",
-      "Sales Growth (%)":
-        row.sales_growth != null ? row.sales_growth.toFixed(2) + "%" : "--",
-      "P/E": row.pe != null ? row.pe.toFixed(2) : "--",
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
-
-    const dataBlob = new Blob([excelBuffer], {
-      type: "application/octet-stream",
-    });
-
-    const today = new Date();
-    const dateStr = today.toISOString().split("T")[0];
-
-    saveAs(dataBlob, `RFADataTable_${dateStr}.xlsx`);
+  const handleSortBy = (sorts: { id: string; desc: boolean }[]) => {
+    // Plugin-added method from useSortBy
+    (tableInstance as Record<string, (s: { id: string; desc: boolean }[]) => void>).setSortBy(sorts);
   };
 
   return (
-    <div className="shadow-lg backdrop-blur-lg rounded-3xl border border-gray-200 dark:border-gray-700 py-[10px] px-[25px] ">
-      <div className="flex justify-start">
-        <div className="relative mb-2 max-w-md mx-auto text-md ml-0">
-          <FaSearch className="absolute top-1/2 left-3 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+    <div className="animate-fade-in-up glass-border glass-border-active rounded-3xl border border-gray-200/80 dark:border-gray-700/60 bg-white/70 dark:bg-gray-800/50 backdrop-blur-xl shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 py-4 px-6">
+      {/* ── Toolbar ── */}
+      <div className="flex items-center gap-3 mb-4 flex-wrap">
+        {/* Search */}
+        <div className="relative flex-1 max-w-md">
+          <FaSearch className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm" />
           <input
             type="text"
             value={globalFilter}
             onChange={handleSearch}
             placeholder="جستجوی شرکت..."
             dir="rtl"
-            className="p-2 w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            className="w-full py-2.5 pr-4 pl-10 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-900 dark:text-gray-100 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400 transition-all duration-300 shadow-sm focus:shadow-md focus:shadow-indigo-500/10"
           />
         </div>
-        <div className="mb-2 mr-2 flex justify-center gap-3">
-          <button
-            onClick={() =>
-              setSortBy([
-                { id: "Stable", desc: true },
-                { id: "eps_growth", desc: true },
-              ])
-            }
-            className="
-      rounded-xl border border-slate-300
-      bg-gradient-to-br from-slate-100 via-slate-300 to-slate-400
-      px-4 py-2 font-semibold text-slate-800
-      shadow-md transition-all duration-200
-      hover:-translate-y-0.5 hover:from-slate-200 hover:to-slate-500
-      hover:shadow-lg
-      focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2
-    "
-          >
-            ◇ Silver
-          </button>
 
-          {/* <button
-            onClick={() => setSortBy([{ id: "quant_score", desc: true }])}
-            className="
-              rounded-xl border border-amber-400
-              bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-500
-              px-4 py-2 font-semibold text-amber-950
-              shadow-md transition-all duration-200
-              hover:-translate-y-0.5 hover:from-amber-400 hover:to-orange-500
-              hover:shadow-lg
-              focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2
-            "
-          >
-            ★ Golden
-          </button> */}
-        </div>
-        <div className="mb-2 mr-2 flex justify-center gap-2">
-          {/* <button
-            onClick={exportToExcel}
-            className="
-      inline-flex items-center gap-2
-      rounded-xl border border-emerald-500
-      bg-gradient-to-br from-emerald-400 via-emerald-500 to-green-600
-      px-4 py-2 font-semibold text-white
-      shadow-md transition-all duration-200
-      hover:-translate-y-0.5 hover:from-emerald-500 hover:to-green-700
-      hover:shadow-lg
-      active:translate-y-0 active:shadow-md
-      focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2
-    "
-          >
-            <span aria-hidden="true">📊</span>
-            Export
-          </button> */}
-
-          {/* <button
-            onClick={exportFullScoresCSV}
-            className="
-      inline-flex items-center gap-2
-      rounded-xl border border-indigo-500
-      bg-gradient-to-br from-indigo-400 via-indigo-500 to-purple-600
-      px-4 py-2 font-semibold text-white
-      shadow-md transition-all duration-200
-      hover:-translate-y-0.5 hover:from-indigo-500 hover:to-purple-700
-      hover:shadow-lg
-      active:translate-y-0 active:shadow-md
-      focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
-    "
-          >
-            <span aria-hidden="true">🧠</span>
-            امتیازات
-          </button> */}
-        </div>
+        {/* Silver filter button */}
+        <button
+          onClick={() =>
+            handleSortBy([
+              { id: "Stable", desc: true },
+              { id: "eps_growth", desc: true },
+            ])
+          }
+          className="px-5 py-2.5 rounded-2xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 text-gray-700 dark:text-gray-200 text-sm font-semibold shadow-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-400/20 dark:hover:shadow-gray-900/40 transition-all duration-200 active:translate-y-0"
+        >
+          ◇ Silver
+        </button>
       </div>
-      <div className=" overflow-auto max-h-[82vh]">
+
+      {/* ── Table ── */}
+      <div className="overflow-auto max-h-[82vh] rounded-2xl">
         <table
           {...getTableProps()}
-          className="min-w-full text-sm border-collapse rounded-xl overflow-auto max-h-[82vh]"
+          className="min-w-full text-sm border-collapse"
           style={{ borderSpacing: 0 }}
         >
-          <thead className="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
-            {headerGroups.map((headerGroup) => (
-              <tr
-                {...headerGroup.getHeaderGroupProps()}
-                key={headerGroup.getHeaderGroupProps().key}
-              >
-                {headerGroup.headers.map((column) => (
-                  <th
-                    {...column.getHeaderProps(column.getSortByToggleProps())}
-                    key={column.getHeaderProps().key}
-                    className={`p-4 text-center text-gray-700 dark:text-gray-300 font-semibold select-none cursor-pointer ${
-                      column.className || ""
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <span>{column.render("Header")}</span>
-                      <span className="flex items-center text-indigo-500">
-                        {column.isSorted ? (
-                          column.isSortedDesc ? (
-                            <FaSortDown />
-                          ) : (
-                            <FaSortUp />
-                          )
-                        ) : (
-                          <FaSort className="opacity-40" />
-                        )}
-                      </span>
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            ))}
+          {/* Header */}
+          <thead className="sticky top-0 z-10">
+            {headerGroups.map((headerGroup) => {
+              const hgProps = headerGroup.getHeaderGroupProps();
+              return (
+                <tr
+                  {...hgProps}
+                  key={hgProps.key}
+                  className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/25"
+                >
+                  {headerGroup.headers.map((column) => {
+                    const col = column as Record<string, unknown>;
+                    const getSortProps = col.getSortByToggleProps as (() => Record<string, unknown>) | undefined;
+                    const sortProps = getSortProps ? getSortProps() : {};
+                    const headerProps = column.getHeaderProps(sortProps);
+                    return (
+                      <th
+                        {...headerProps}
+                        key={headerProps.key}
+                        className={`p-4 text-center text-white/95 font-semibold text-xs uppercase tracking-wider select-none cursor-pointer hover:bg-white/10 transition-colors duration-200 ${
+                          (col.className as string) || ""
+                        }`}
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <span>{column.render("Header")}</span>
+                          <span className="flex items-center text-white/60">
+                            {col.isSorted ? (
+                              col.isSortedDesc ? (
+                                <FaSortDown className="text-white/90" />
+                              ) : (
+                                <FaSortUp className="text-white/90" />
+                              )
+                            ) : (
+                              <FaSort className="opacity-30" />
+                            )}
+                          </span>
+                        </div>
+                      </th>
+                    );
+                  })}
+                </tr>
+              );
+            })}
           </thead>
 
+          {/* Body */}
           <tbody
             {...getTableBodyProps()}
-            className="divide-y divide-gray-200 dark:divide-gray-700"
+            className="divide-y divide-gray-100 dark:divide-gray-800/80"
           >
             {rows.map((row, rowIndex) => {
               prepareRow(row);
-              const rowCompanyName = row.original.company_name;
+              const score = row.original.quant_score;
 
               return (
                 <tr
                   {...row.getRowProps()}
                   key={row.getRowProps().key}
-                  // onClick={() => {
-                  //   const url = `http://rfa.systemgroup.net?companyname=${row.original.company_name}`;
-                  //   window.open(url, "_blank");
-                  // }}
                   onClick={async () => {
                     const companyName = row.original.company_name;
 
@@ -588,18 +370,28 @@ const BigDataTable: React.FC<Props> = ({
 
                     window.open(url, "_blank");
                   }}
-                  className="cursor-pointer transition-colors duration-300 hover:bg-indigo-50 dark:hover:bg-gray-800"
+                  className={`
+                    cursor-pointer transition-all duration-200 ease-out
+                    border-l-[3px] ${rowBorderColor(score)}
+                    hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30
+                    hover:shadow-lg hover:shadow-indigo-500/5
+                    hover:-translate-y-[1px]
+                    ${rowIndex % 2 === 0
+                      ? "bg-white/40 dark:bg-gray-900/20"
+                      : "bg-gray-50/40 dark:bg-gray-800/20"
+                    }
+                  `}
                 >
                   {row.cells.map((cell) => (
                     <td
                       {...cell.getCellProps()}
                       key={cell.getCellProps().key}
-                      className={`p-2 text-center text-gray-700 dark:text-gray-300 ${
-                        cell.column.className || ""
+                      className={`p-3 text-center text-gray-600 dark:text-gray-300 ${
+                        (cell.column as Record<string, unknown>).className as string || ""
                       }`}
                     >
                       {cell.column.id === "row_number" ? (
-                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                        <span className="font-medium text-gray-400 dark:text-gray-500 text-xs tabular-nums">
                           {rowIndex + 1}
                         </span>
                       ) : (
@@ -615,7 +407,7 @@ const BigDataTable: React.FC<Props> = ({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className="text-center p-6 text-gray-500 dark:text-gray-400"
+                  className="text-center p-10 text-gray-400 dark:text-gray-500"
                 >
                   داده‌ای یافت نشد
                 </td>

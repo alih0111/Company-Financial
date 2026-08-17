@@ -62,6 +62,18 @@ AS
 --  ۹) فاکتورهای بدونِ داده‌ی ساختاری (مثل فروش ماهانه برای بانک‌ها) به جای
 --     بدترین رتبه، رتبه‌ی خنثی (۰.۳) می‌گیرند؛ مقادیر «نامعتبرِ واقعی»
 --     (مثل P/E منفی) همچنان بدترین رتبه + جریمه دارند.
+--
+--  اصلاح v3.3 — باگ ناسازگاری واحد در رشد سود خالص:
+--     TTM گزارش آخر (ستون‌های مبلغی v3.2) با TTM سال قبل (ستون Product1)
+--     مستقیماً مقایسه می‌شد؛ این دو ستون در برخی شرکت‌ها ۱۰۰۰ برابر اختلاف
+--     واحد دارند و رشدهای کاذب ~−۱۰۰٪ تولید می‌کرد. اکنون:
+--       ۱) ضریب واحد NPUnitRatio (توان صحیح ۱۰، از لنگرهای هم‌کمیت دو منبع)
+--          محاسبه و TTM سال قبل هم‌واحد می‌شود؛
+--       ۲) اگر لنگر معتبر نباشد، هر دو طرف از Product1 ساخته می‌شوند
+--          (TTMNetProfitP1 در برابر TTMNetProfitPrev).
+--     همچنین (v3.3): NetMarginLatest اولویتاً از NetProfitAmount (هم‌واحد با
+--     RevenueNew) ساخته می‌شود و OperatingMarginLatest/Trend گارد ±۲۰۰٪ گرفتند،
+--     چون Product1 (ریال) و RevenueNew/mahane (هزار ریال) هم‌خانواده‌ی واحد نیستند.
 -- ============================================================================
 
 WITH CompanyList AS (
@@ -474,6 +486,40 @@ BaseMetrics AS (
             ELSE NULL
         END AS TTMNetProfitPrev,
 
+        -- TTM بین‌گزارشی صرفاً از Product1 — هم‌واحد تضمینی با TTMNetProfitPrev (v3.3)
+        CASE
+            WHEN p.LatestJMonth = 12 THEN p.LatestNetProfitCum
+            WHEN p.FYPrevNetProfit IS NOT NULL AND p.LYPNetProfit IS NOT NULL
+                THEN p.LatestNetProfitCum + p.FYPrevNetProfit - p.LYPNetProfit
+            ELSE NULL
+        END AS TTMNetProfitP1,
+
+        -- ضریب تبدیل واحد: Product1 → ستون‌های مبلغی v3.2 (v3.3)
+        -- از لنگرهایی که «یک کمیت» را در هر دو منبع دارند (سود دوره‌ی مشابه،
+        -- سپس سود تجمعی گزارش آخر). فقط توان‌های صحیح ۱۰ با تلورانس
+        -- log₁₀ ≤ 0.1 پذیرفته می‌شوند؛ هر نسبت دیگر یعنی خطای داده/تجدیدعرضه
+        -- و باید به مسیر Product1-only برگردیم.
+        COALESCE(
+            CASE
+                WHEN p.LatestNetProfitAmountLY IS NOT NULL
+                 AND ABS(p.LYPNetProfit) > 0
+                 AND p.LatestNetProfitAmountLY * p.LYPNetProfit > 0
+                 AND ABS(LOG10(ABS(p.LatestNetProfitAmountLY) / ABS(p.LYPNetProfit))
+                        - ROUND(LOG10(ABS(p.LatestNetProfitAmountLY) / ABS(p.LYPNetProfit)), 0)) <= 0.1
+                    THEN POWER(10.0E0, ROUND(LOG10(ABS(p.LatestNetProfitAmountLY) / ABS(p.LYPNetProfit)), 0))
+                ELSE NULL
+            END,
+            CASE
+                WHEN p.LatestNetProfitAmount IS NOT NULL
+                 AND ABS(p.LatestNetProfitCum) > 0
+                 AND p.LatestNetProfitAmount * p.LatestNetProfitCum > 0
+                 AND ABS(LOG10(ABS(p.LatestNetProfitAmount) / ABS(p.LatestNetProfitCum))
+                        - ROUND(LOG10(ABS(p.LatestNetProfitAmount) / ABS(p.LatestNetProfitCum)), 0)) <= 0.1
+                    THEN POWER(10.0E0, ROUND(LOG10(ABS(p.LatestNetProfitAmount) / ABS(p.LatestNetProfitCum)), 0))
+                ELSE NULL
+            END
+        ) AS NPUnitRatio,
+
         -- سود عملیاتی ۱۲ماهه
         -- گارد سازگاری مقیاس: اگر اجزاء (گزارش آخر، س سال قبل، دوره‌ی مشابه)
         -- بیش از ۱۰۰ برابر اختلاف magnitude داشته باشند یعنی واحدها در گزارش‌های
@@ -664,11 +710,23 @@ Derived AS (
     SELECT
         b.*,
 
-        -- رشد سود خالص: TTM در اولویت، در غیر این صورت رشد دوره‌ی مشابه سال قبل
+        -- رشد سود خالص (v3.3): فقط جفت‌های هم‌واحد مقایسه می‌شوند
+        -- ۱) TTM تک‌گزارشی (ستون‌های مبلغی v3.2) در برابر TTM سال قبل × ضریب واحد
+        -- ۲) TTM بین‌گزارشی Product1 در برابر TTM سال قبل Product1
+        -- ۳) fallback: رشد دوره‌ی مشابه سال قبل (هر دو Product1)
         COALESCE(
             CASE
-                WHEN b.TTMNetProfitPrev IS NOT NULL AND ABS(b.TTMNetProfitPrev) > 0
-                    THEN ((b.TTMNetProfit - b.TTMNetProfitPrev) / ABS(b.TTMNetProfitPrev)) * 100.0
+                WHEN b.SR_TTMNetProfit IS NOT NULL
+                 AND b.NPUnitRatio IS NOT NULL
+                 AND b.TTMNetProfitPrev IS NOT NULL AND ABS(b.TTMNetProfitPrev) > 0
+                    THEN ((b.SR_TTMNetProfit - b.TTMNetProfitPrev * b.NPUnitRatio)
+                          / ABS(b.TTMNetProfitPrev * b.NPUnitRatio)) * 100.0
+                ELSE NULL
+            END,
+            CASE
+                WHEN b.TTMNetProfitP1 IS NOT NULL
+                 AND b.TTMNetProfitPrev IS NOT NULL AND ABS(b.TTMNetProfitPrev) > 0
+                    THEN ((b.TTMNetProfitP1 - b.TTMNetProfitPrev) / ABS(b.TTMNetProfitPrev)) * 100.0
                 ELSE NULL
             END,
             CASE
@@ -732,24 +790,38 @@ Derived AS (
         END AS NetProfitMargin12M,
 
         -- حاشیه‌های گزارش آخر (هم‌منبع؛ نسبت است پس طول دوره خنثی می‌شود)
+        -- v3.3: گارد ±۲۰۰٪ — Product1 (ریال) و RevenueNew (هزار ریال) هم‌خانواده نیستند؛
+        -- حاشیه‌ی بیرون از ±۲۰۰٪ تقریباً همیشه خطای واحد است → NULL
         CASE
             WHEN b.LatestOpAbs IS NOT NULL AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
+             AND ABS(b.LatestOpAbs / ABS(b.LatestRevenueCum) * 100.0) <= 200.0
                 THEN (b.LatestOpAbs / ABS(b.LatestRevenueCum)) * 100.0
             ELSE NULL
         END AS OperatingMarginLatest,
 
+        -- v3.3: اولویت با NetProfitAmount (هم‌واحد با RevenueNew)؛
+        -- fallback فقط با گارد ±۲۰۰٪ (Product1 ریالی ÷ درآمد هزارریالی = ۱۰۰۰ برابر خطا)
         CASE
-            WHEN b.LatestNetProfitCum IS NOT NULL AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
+            WHEN b.LatestNetProfitAmount IS NOT NULL
+             AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
+                THEN (b.LatestNetProfitAmount / ABS(b.LatestRevenueCum)) * 100.0
+            WHEN b.LatestNetProfitCum IS NOT NULL
+             AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
+             AND ABS(b.LatestNetProfitCum / ABS(b.LatestRevenueCum) * 100.0) <= 200.0
                 THEN (b.LatestNetProfitCum / ABS(b.LatestRevenueCum)) * 100.0
             ELSE NULL
         END AS NetMarginLatest,
 
         -- روند حاشیه عملیاتی: هم‌منبع در اولویت
+        -- v3.3: هر دو سمت باید |حاشیه| ≤ ۲۰۰٪ داشته باشند؛ در غیر این صورت
+        -- اختلاف واحدها (OpAbs ریالی/هزارریالی در دو دوره) مقدار را خراب می‌کند
         COALESCE(
             CASE
                 WHEN b.LatestOpAbs IS NOT NULL AND b.LatestOpLYAbs IS NOT NULL
                  AND b.LatestRevenueCum IS NOT NULL AND b.LatestRevenueLYCum IS NOT NULL
                  AND ABS(b.LatestRevenueCum) > 0 AND ABS(b.LatestRevenueLYCum) > 0
+                 AND ABS(b.LatestOpAbs / ABS(b.LatestRevenueCum) * 100.0) <= 200.0
+                 AND ABS(b.LatestOpLYAbs / ABS(b.LatestRevenueLYCum) * 100.0) <= 200.0
                     THEN (b.LatestOpAbs / ABS(b.LatestRevenueCum)) * 100.0
                        - (b.LatestOpLYAbs / ABS(b.LatestRevenueLYCum)) * 100.0
                 ELSE NULL
@@ -758,6 +830,8 @@ Derived AS (
                 WHEN b.TTMOperatingProfitPrev IS NOT NULL
                  AND b.SalesPrev12M IS NOT NULL AND ABS(b.SalesPrev12M) > 0
                  AND ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) > 0
+                 AND ABS(b.TTMOperatingProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) * 100.0) <= 200.0
+                 AND ABS(b.TTMOperatingProfitPrev / ABS(b.SalesPrev12M) * 100.0) <= 200.0
                     THEN (b.TTMOperatingProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M))) * 100.0
                        - (b.TTMOperatingProfitPrev / ABS(b.SalesPrev12M)) * 100.0
                 ELSE NULL
@@ -1383,11 +1457,13 @@ SELECT
     ROUND(MarketPenalty, 1) AS MarketPenalty,
 
     ROUND(TTMNetProfit, 2) AS TTMNetProfit,
+    ROUND(TTMNetProfitP1, 2) AS TTMNetProfitP1,
+    ROUND(NPUnitRatio, 8) AS NPUnitRatio,
     ROUND(TTMEPS, 2) AS TTMEPS,
 
     ROUND(ImpliedShares, 0) AS ImpliedShares,
 
-    N'v3.2' AS ScoreVersion,
+    N'v3.3' AS ScoreVersion,
 
     -- ----------------------------------------------------------------------
     --  رتبه‌ی درصدی هر فاکتور بین کل بازار (CUME_DIST؛ برای شفافیت کامل در UI)

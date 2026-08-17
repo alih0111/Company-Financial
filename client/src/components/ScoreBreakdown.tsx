@@ -18,12 +18,10 @@ type Factor = {
   hint: string;
   value: number | null | undefined;
   display: string;
-  weight: number; // حداکثر امتیاز فاکتور (بر حسب امتیاز، نه درصد)
-  rank: number | null | undefined; // رتبه‌ی درصدی بین کل بازار (۰ تا ۱)
+  weight: number;
+  rank: number | null | undefined;
   good: boolean | null;
-  // داده‌ی فاکتور موجود نیست → موتور رتبه‌ی خنثی (۰.۳ یا ۰.۵) داده
   neutralWhenNull?: boolean;
-  // مقدار نامعتبر است (مثل P/E منفی) → بدترین رتبه
   invalid?: boolean;
   note?: string;
 };
@@ -36,6 +34,8 @@ type Category = {
   penalty: number | undefined;
   penaltyReasons: string[];
   factors: Factor[];
+  accentColor: string; // Tailwind border color class
+  accentBg: string;    // Tailwind bg color class
 };
 
 const pct = (v: number | null | undefined) =>
@@ -57,11 +57,10 @@ const compact = (v: number | null | undefined) => {
 const ratingColor = (good: boolean | null) => {
   if (good === null) return "text-gray-400";
   return good
-    ? "text-green-600 dark:text-green-400"
+    ? "text-emerald-600 dark:text-emerald-400"
     : "text-red-600 dark:text-red-400";
 };
 
-// رنگ رتبه‌ی درصدی: بالا = سبز، متوسط = کهربایی، پایین = قرمز
 const rankColor = (rank: number) => {
   if (rank >= 0.7) return "#10b981";
   if (rank >= 0.4) return "#f59e0b";
@@ -74,8 +73,7 @@ const FactorRow: React.FC<{ f: Factor; dark: boolean }> = ({ f, dark }) => {
   const earned = rank != null ? f.weight * rank : null;
 
   return (
-    <div className="py-1.5 border-b border-gray-100 dark:border-gray-800 last:border-0">
-      {/* ردیف اول: نام فاکتور + وزن + مقدار خام */}
+    <div className="py-1.5 border-b border-gray-50 dark:border-gray-800/60 last:border-0">
       <div className="flex items-center gap-2">
         <span
           className="text-xs text-gray-600 dark:text-gray-300 truncate cursor-help"
@@ -83,35 +81,33 @@ const FactorRow: React.FC<{ f: Factor; dark: boolean }> = ({ f, dark }) => {
         >
           {f.label}
         </span>
-        <span className="text-[10px] text-gray-400 shrink-0">
-          ({f.weight} امتیاز)
+        <span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0">
+          ({f.weight})
         </span>
         <span
-          className={`mr-auto text-xs font-semibold shrink-0 ${ratingColor(f.good)}`}
+          className={`mr-auto text-xs font-bold shrink-0 tabular-nums ${ratingColor(f.good)}`}
         >
           {f.display}
         </span>
       </div>
 
-      {/* ردیف دوم: رتبه‌ی بازار + امتیاز کسب‌شده */}
-      <div className="flex items-center gap-2 mt-1">
+      <div className="flex items-center gap-2 mt-1.5">
         <div
-          className={`h-1.5 rounded-full flex-1 ${
-            dark ? "bg-gray-700" : "bg-gray-200"
+          className={`h-2 rounded-full flex-1 overflow-hidden ${
+            dark ? "bg-gray-700/60" : "bg-gray-100"
           }`}
           title="رتبه‌ی درصدی این شرکت در این فاکتور نسبت به کل بازار"
         >
           {rank != null && (
             <div
-              className="h-full rounded-full transition-all"
+              className="h-full rounded-full transition-all duration-700 ease-out"
               style={{
                 width: `${Math.min(100, rank * 100)}%`,
-                backgroundColor:
-                  f.invalid || (!hasData && f.neutralWhenNull)
-                    ? dark
-                      ? "#4b5563"
-                      : "#9ca3af"
-                    : rankColor(rank),
+                background: f.invalid || (!hasData && f.neutralWhenNull)
+                  ? dark
+                    ? "#374151"
+                    : "#d1d5db"
+                  : `linear-gradient(90deg, ${rankColor(rank)}, ${rankColor(rank)}dd)`,
               }}
             />
           )}
@@ -119,19 +115,19 @@ const FactorRow: React.FC<{ f: Factor; dark: boolean }> = ({ f, dark }) => {
 
         {f.invalid ? (
           <span className="text-[10px] text-red-500 font-medium shrink-0 w-24 text-left">
-            نامعتبر → رتبه ۰
+            نامعتبر → 0
           </span>
         ) : !hasData && f.neutralWhenNull ? (
           <span className="text-[10px] text-gray-400 shrink-0 w-24 text-left">
-            بدون داده → خنثی {(rank != null ? rank * 100 : 0).toFixed(0)}٪
+            بدون داده → {(rank != null ? rank * 100 : 0).toFixed(0)}%
           </span>
         ) : (
-          <span className="text-[10px] text-gray-500 dark:text-gray-400 shrink-0 w-24 text-left">
-            رتبه {rank != null ? (rank * 100).toFixed(0) : "؟"}٪
+          <span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0 w-24 text-left tabular-nums">
+            رتبه {rank != null ? (rank * 100).toFixed(0) : "؟"}%
           </span>
         )}
 
-        <span className="text-[11px] font-bold text-gray-700 dark:text-gray-200 shrink-0 w-16 text-left tabular-nums">
+        <span className="text-[11px] font-bold text-gray-600 dark:text-gray-200 shrink-0 w-16 text-left tabular-nums">
           {earned != null ? `${earned.toFixed(1)}/${f.weight}` : "--"}
         </span>
       </div>
@@ -167,12 +163,18 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
   const scoreColor =
     score >= 60 ? "#10b981" : score >= 40 ? "#f59e0b" : "#ef4444";
 
+  const scoreGlow =
+    score >= 60
+      ? "glow-emerald"
+      : score >= 40
+        ? "glow-amber"
+        : "glow-red";
+
   const peInvalid =
     metric.pe_approx == null || metric.pe_approx <= 0 || metric.pe_approx > 60;
   const psInvalid =
     metric.ps_ratio == null || metric.ps_ratio <= 0;
 
-  // ---- دسته‌بندی فاکتورها (وزن‌ها = امتیاز، مطابق موتور v3) ----
   const categories: Category[] = [
     {
       title: "رشد",
@@ -188,6 +190,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           ? ["رشد سود عملیاتی < −۲۵٪ (−۵)"]
           : []),
       ],
+      accentColor: "border-l-emerald-500",
+      accentBg: "bg-emerald-500/5 dark:bg-emerald-500/5",
       factors: [
         {
           label: "رشد فروش سالانه",
@@ -274,6 +278,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
             ]
           : []),
       ],
+      accentColor: "border-l-blue-500",
+      accentBg: "bg-blue-500/5 dark:bg-blue-500/5",
       factors: [
         {
           label: "حاشیه عملیاتی (۱۲ماه)",
@@ -380,6 +386,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
       actualScore: metric.valuation_score,
       penalty: metric.valuation_penalty,
       penaltyReasons: peInvalid ? ["P/E نامعتبر یا خارج از بازه (−۸)"] : [],
+      accentColor: "border-l-purple-500",
+      accentBg: "bg-purple-500/5 dark:bg-purple-500/5",
       factors: [
         {
           label: "P/E (TTM)",
@@ -438,6 +446,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           ? [`گزارش سود ${metric.profit_report_age_months} ماه قدیم (−۳)`]
           : []),
       ],
+      accentColor: "border-l-cyan-500",
+      accentBg: "bg-cyan-500/5 dark:bg-cyan-500/5",
       factors: [
         {
           label: "نقدشوندگی (۳۰روز)",
@@ -510,16 +520,13 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           weight: 3,
           rank: metric.momentum_rank,
           good:
-            metric.price_return_30d == null
-              ? null
-              : metric.price_return_30d > 0 && metric.price_return_30d < 30,
+            metric.price_return_30d == null ? null : metric.price_return_30d > 0 && metric.price_return_30d < 30,
           neutralWhenNull: true,
         },
       ],
     },
   ];
 
-  // ---- فرمول کلی با اعداد واقعی ----
   const dq = metric.data_quality_score ?? 0;
   const rawTotal =
     (metric.growth_score ?? 0) +
@@ -528,28 +535,32 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
     (metric.market_score ?? 0);
   const totalPenalty = categories.reduce((s, c) => s + (c.penalty ?? 0), 0);
 
-  const cardCls = `rounded-2xl border p-4 ${
-    dark ? "bg-gray-800/60 border-gray-700" : "bg-white/70 border-gray-200"
-  }`;
+  const cardCls = `rounded-2xl border p-5 ${
+    dark ? "bg-gray-800/50 border-gray-700/60" : "bg-white/60 border-gray-200/60"
+  } backdrop-blur-sm`;
 
   return (
     <div className={cardCls}>
-      <h3 className="font-semibold text-gray-800 dark:text-white mb-1 flex items-center gap-2">
+      {/* ── Header ── */}
+      <h3 className="font-bold text-gray-800 dark:text-white mb-1 flex items-center gap-2 text-sm">
+        <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-indigo-500/10 text-indigo-500">
+          <FaExclamationTriangle className="text-[10px]" />
+        </span>
         تجزیه‌ی امتیاز
         {metric.score_version && (
-          <span className="text-[10px] font-normal text-gray-400">
-            موتور {metric.score_version}
+          <span className="text-[10px] font-normal text-gray-400 bg-gray-100 dark:bg-gray-700/50 px-2 py-0.5 rounded-full">
+            v{metric.score_version}
           </span>
         )}
       </h3>
 
-      {/* راهنمای روش محاسبه (باز/بسته شونده) */}
-      <details className="mb-3 group">
-        <summary className="flex items-center gap-1.5 text-[11px] text-indigo-500 cursor-pointer select-none">
+      {/* ── How it's calculated ── */}
+      <details className="mb-4 group">
+        <summary className="flex items-center gap-1.5 text-[11px] text-indigo-500 cursor-pointer select-none hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
           <FaInfoCircle className="text-[10px]" />
           این امتیاز چطور محاسبه می‌شود؟
         </summary>
-        <div className="mt-2 p-3 rounded-xl bg-gray-50 dark:bg-gray-900/60 text-[11px] leading-6 text-gray-600 dark:text-gray-300 space-y-1">
+        <div className="mt-2 p-4 rounded-xl bg-gray-50/80 dark:bg-gray-900/60 text-[11px] leading-6 text-gray-600 dark:text-gray-300 space-y-1 border border-gray-100 dark:border-gray-800">
           <p>
             ۱. هر فاکتورِ مالی (رشد، حاشیه، P/E و…) ابتدا برای همه‌ی شرکت‌های
             بازار محاسبه می‌شود؛ سپس <b>رتبه‌ی درصدی</b> شرکت در آن فاکتور
@@ -560,105 +571,99 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
             ۱۲ و رتبه‌ی ۸۵٪ معادل ۱۰٫۲ امتیاز است.
           </p>
           <p>
-            ۳. اگر داده‌ی یک فاکتور موجود نباشد (مثل فروش ماهانه برای
-            بانک‌ها) رتبه‌ی <b>خنثی ۳۰٪</b> داده می‌شود؛ اگر مقدار
-            <b> نامعتبر</b> باشد (مثل P/E منفی) بدترین رتبه + جریمه دارد.
+            ۳. اگر داده‌ی یک فاکتور موجود نباشد رتبه‌ی <b>خنثی ۳۰٪</b> داده
+            می‌شود؛ اگر مقدار <b> نامعتبر</b> باشد بدترین رتبه + جریمه دارد.
           </p>
           <p>
             ۴. امتیاز هر دسته = مجموع امتیاز فاکتورها <b>− جریمه‌های همان
-            دسته</b> (زیان‌دهی، P/E نامعتبر، داده‌ی کهنه و…).
+            دسته</b>.
           </p>
           <p>
-            ۵. امتیاز نهایی = <b>کیفیت داده × مجموع چهار دسته</b>. کیفیت داده
-            خودش از کفایت تاریخچه (فروش/سود/قیمت) و <b>تازگی داده</b> ساخته
-            می‌شود.
+            ۵. امتیاز نهایی = <b>کیفیت داده × مجموع چهار دسته</b>.
           </p>
         </div>
       </details>
 
-      {/* امتیاز کلی + فرمول */}
-      <div className="flex items-center gap-4 mb-3">
-        <div className="relative w-24 h-24 shrink-0">
+      {/* ── Score Circle + Formula ── */}
+      <div className="flex items-center gap-5 mb-4">
+        <div className={`relative w-28 h-28 shrink-0 ${scoreGlow}`}>
           <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
             <circle
-              cx="50"
-              cy="50"
-              r="42"
+              cx="50" cy="50" r="42"
               fill="none"
-              stroke={dark ? "#374151" : "#e5e7eb"}
-              strokeWidth="8"
+              stroke={dark ? "rgba(55,65,81,0.5)" : "rgba(229,231,235,0.8)"}
+              strokeWidth="7"
             />
             <circle
-              cx="50"
-              cy="50"
-              r="42"
+              cx="50" cy="50" r="42"
               fill="none"
               stroke={scoreColor}
-              strokeWidth="8"
+              strokeWidth="7"
               strokeLinecap="round"
               strokeDasharray={`${(score / 100) * 264} 264`}
-              className="transition-all duration-700"
+              className="transition-all duration-1000 ease-out"
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-2xl font-bold" style={{ color: scoreColor }}>
+            <span className="text-3xl font-extrabold tabular-nums" style={{ color: scoreColor }}>
               {score.toFixed(0)}
             </span>
-            <span className="text-[10px] text-gray-400">از ۱۰۰</span>
+            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">از ۱۰۰</span>
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
-          {/* فرمول با اعداد واقعی */}
-          <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-[11px] text-gray-600 dark:text-gray-300 tabular-nums">
-            <span>(</span>
-            <span className="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 font-semibold">
+          {/* Formula */}
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-[11px] text-gray-600 dark:text-gray-300 tabular-nums">
+            <span className="text-gray-400">(</span>
+            <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 ring-1 ring-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold">
               رشد {(metric.growth_score ?? 0).toFixed(1)}
             </span>
-            <span>+</span>
-            <span className="px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 font-semibold">
+            <span className="text-gray-400">+</span>
+            <span className="px-2 py-0.5 rounded-lg bg-blue-500/10 ring-1 ring-blue-500/20 text-blue-700 dark:text-blue-300 font-bold">
               سودآوری {(metric.profitability_score ?? 0).toFixed(1)}
             </span>
-            <span>+</span>
-            <span className="px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 font-semibold">
+            <span className="text-gray-400">+</span>
+            <span className="px-2 py-0.5 rounded-lg bg-purple-500/10 ring-1 ring-purple-500/20 text-purple-700 dark:text-purple-300 font-bold">
               ارزش {(metric.valuation_score ?? 0).toFixed(1)}
             </span>
-            <span>+</span>
-            <span className="px-1.5 py-0.5 rounded bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300 font-semibold">
+            <span className="text-gray-400">+</span>
+            <span className="px-2 py-0.5 rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/20 text-cyan-700 dark:text-cyan-300 font-bold">
               بازار {(metric.market_score ?? 0).toFixed(1)}
             </span>
-            <span>)</span>
+            <span className="text-gray-400">)</span>
             {totalPenalty > 0 && (
-              <span className="text-red-500 font-semibold">
-                (شامل −{totalPenalty.toFixed(1)} جریمه)
+              <span className="text-red-500 font-bold">
+                (−{totalPenalty.toFixed(1)})
               </span>
             )}
-            <span>× کیفیت داده {dq.toFixed(2)}</span>
-            <span className="font-bold text-gray-800 dark:text-white">
-              = {score.toFixed(1)}
+            <span className="text-gray-400">×</span>
+            <span className="text-indigo-600 dark:text-indigo-400 font-medium">کیفیت {dq.toFixed(2)}</span>
+            <span className="text-gray-400">=</span>
+            <span className="font-extrabold text-gray-800 dark:text-white text-base">
+              {score.toFixed(1)}
             </span>
           </div>
 
-          {/* کیفیت داده */}
-          <div className="mt-2">
+          {/* Data Quality Bar */}
+          <div className="mt-3">
             <div className="flex items-center gap-2">
               <div
-                className={`h-2 rounded-full flex-1 ${
-                  dark ? "bg-gray-700" : "bg-gray-200"
+                className={`h-2 rounded-full flex-1 overflow-hidden ${
+                  dark ? "bg-gray-700/60" : "bg-gray-100"
                 }`}
-                title="کیفیت داده از کفایت تاریخچه‌ی فروش/سود/قیمت و تازگی گزارش‌ها ساخته می‌شود"
               >
                 <div
-                  className="h-full rounded-full bg-indigo-500 transition-all"
+                  className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-700 ease-out"
                   style={{ width: `${dq * 100}%` }}
                 />
               </div>
-              <span className="text-xs font-semibold text-gray-600 dark:text-gray-300">
+              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 tabular-nums">
                 {(dq * 100).toFixed(0)}%
               </span>
             </div>
-            <div className="mt-1 text-[10px] text-gray-400 flex flex-wrap gap-x-3">
-              <span>مجموع خام دسته‌ها: {rawTotal.toFixed(1)}</span>
+            <div className="mt-1.5 text-[10px] text-gray-400 flex flex-wrap gap-x-3">
+              <span>مجموع خام: {rawTotal.toFixed(1)}</span>
               {metric.profit_report_age_months > 0 && (
                 <span>گزارش سود: {metric.profit_report_age_months} ماه پیش</span>
               )}
@@ -673,39 +678,44 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
         </div>
       </div>
 
-      {/* دسته‌بندی‌ها */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+      {/* ── Categories Grid ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {categories.map((cat) => {
           const earned = cat.actualScore ?? 0;
           const ratio = cat.maxScore > 0 ? earned / cat.maxScore : 0;
           const catScoreColor =
             ratio >= 0.7
-              ? "text-green-600 dark:text-green-400"
+              ? "text-emerald-600 dark:text-emerald-400"
               : ratio >= 0.4
                 ? "text-amber-500"
                 : "text-red-600 dark:text-red-400";
 
           return (
-            <div key={cat.title}>
-              <div className="flex items-center gap-2 mb-1 pb-1 border-b border-gray-200 dark:border-gray-700">
-                {cat.icon}
+            <div
+              key={cat.title}
+              className={`rounded-xl border border-gray-100 dark:border-gray-800/60 ${cat.accentBg} border-l-[3px] ${cat.accentColor} p-3 hover:shadow-md transition-all duration-200`}
+            >
+              <div className="flex items-center gap-2 mb-2 pb-1.5 border-b border-gray-100 dark:border-gray-800/60">
+                <span className="flex items-center justify-center w-6 h-6 rounded-md bg-gray-100 dark:bg-gray-700/50">
+                  {cat.icon}
+                </span>
                 <span className="text-xs font-bold text-gray-700 dark:text-gray-200">
                   {cat.title}
                 </span>
                 {(cat.penalty ?? 0) > 0 && (
-                  <span className="text-[10px] text-red-500 font-medium">
-                    −{(cat.penalty ?? 0).toFixed(1)} جریمه
+                  <span className="text-[10px] text-red-500 font-medium bg-red-500/10 px-1.5 py-0.5 rounded-md">
+                    −{(cat.penalty ?? 0).toFixed(1)}
                   </span>
                 )}
                 <span
-                  className={`text-xs font-bold mr-auto ${catScoreColor}`}
+                  className={`text-xs font-bold mr-auto tabular-nums ${catScoreColor}`}
                   title={
                     (cat.penalty ?? 0) > 0
                       ? `خام ${(earned + (cat.penalty ?? 0)).toFixed(1)} − جریمه ${(cat.penalty ?? 0).toFixed(1)} = ${earned.toFixed(1)}`
                       : undefined
                   }
                 >
-                  {earned.toFixed(1)} / {cat.maxScore}
+                  {earned.toFixed(1)}<span className="text-gray-400 dark:text-gray-500 font-normal">/{cat.maxScore}</span>
                 </span>
               </div>
 
@@ -714,11 +724,11 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
               ))}
 
               {(cat.penalty ?? 0) > 0 && cat.penaltyReasons.length > 0 && (
-                <div className="mt-1.5 flex flex-col gap-1">
+                <div className="mt-2 flex flex-col gap-1">
                   {cat.penaltyReasons.map((r, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-1.5 text-[10px] text-red-500"
+                      className="flex items-center gap-1.5 text-[10px] text-red-500 bg-red-500/5 px-2 py-1 rounded-lg"
                     >
                       <FaExclamationTriangle className="text-[9px]" />
                       <span>{r}</span>
@@ -731,12 +741,11 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
         })}
       </div>
 
-      {/* راهنمای ستون‌ها */}
-      <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-700 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-gray-400">
+      {/* ── Legend ── */}
+      <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800/60 flex flex-wrap gap-x-4 gap-y-1 text-[10px] text-gray-400">
         <span>مقدار خام در راست هر فاکتور</span>
         <span>نوار = رتبه‌ی درصدی در بازار</span>
         <span>عدد انتهایی = امتیاز کسب‌شده از حداکثر وزن</span>
-        <span>برای توضیح هر فاکتور، نشانگر را روی نامش نگه دارید</span>
       </div>
     </div>
   );

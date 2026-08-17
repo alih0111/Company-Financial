@@ -27,7 +27,6 @@ type ChartComponentProps = {
   data: DataPoint[];
 };
 
-// بازه‌ی محور Y با کمی padding
 const useDomain = (data: DataPoint[]): [number, number] => {
   if (!data.length) return [0, 10];
   const vals = data.map((d) => d.percentage);
@@ -41,7 +40,6 @@ const useDomain = (data: DataPoint[]): [number, number] => {
   return [Math.min(min - pad, 0), max + pad];
 };
 
-// محاسبه‌ی خطوط راهنمای «نسبی» — هم سمت مثبت (نسبت به max) و هم سمت منفی (نسبت به min)
 const useGuideLines = (data: DataPoint[]) => {
   return useMemo(() => {
     if (!data.length) return [];
@@ -51,7 +49,6 @@ const useGuideLines = (data: DataPoint[]) => {
 
     const lines: { value: number; label: string; side: "pos" | "neg" }[] = [];
 
-    // خطوط مثبت (نسبت به بیشترین مقدار مثبت)
     if (max > 0) {
       lines.push({ value: max, label: "max", side: "pos" });
       lines.push({ value: (max * 3) / 4, label: "¾ max", side: "pos" });
@@ -59,9 +56,7 @@ const useGuideLines = (data: DataPoint[]) => {
       lines.push({ value: max / 4, label: "¼ max", side: "pos" });
     }
 
-    // خطوط منفی (نسبت به کمترین مقدار منفی)
     if (min < 0) {
-      // min منفی‌ترین مقداره؛ خطوط: min، ¾min، ½min، ¼min (همه منفی)
       lines.push({ value: min, label: "min", side: "neg" });
       lines.push({ value: (min * 3) / 4, label: "¾ min", side: "neg" });
       lines.push({ value: min / 2, label: "½ min", side: "neg" });
@@ -119,10 +114,10 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
 
   return (
     <div
-      className={`relative rounded-2xl p-3 ${
-        dark ? "bg-gray-800/40" : "bg-white/40"
-      } backdrop-blur-sm border ${
-        dark ? "border-gray-700/50" : "border-gray-200/60"
+      className={`relative rounded-2xl p-3 backdrop-blur-sm border ${
+        dark
+          ? "bg-gray-800/40 border-gray-700/40"
+          : "bg-white/50 border-gray-200/50"
       }`}
     >
       <ResponsiveContainer width="100%" height={300}>
@@ -140,10 +135,10 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
             >
               <feDropShadow
                 dx="0"
-                dy="2"
-                stdDeviation="3"
-                floodColor="#0f172a"
-                floodOpacity={0.25}
+                dy="1"
+                stdDeviation="2"
+                floodColor="#6366f1"
+                floodOpacity={0.15}
               />
             </filter>
           </defs>
@@ -169,7 +164,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
           />
           <Tooltip
             cursor={{
-              fill: dark ? "rgba(99,102,241,0.08)" : "rgba(99,102,241,0.06)",
+              fill: dark ? "rgba(99,102,241,0.06)" : "rgba(99,102,241,0.04)",
             }}
             content={<CustomTooltip dark={dark} />}
           />
@@ -179,49 +174,31 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
             strokeWidth={1.5}
           />
 
-          {/* خطوط راهنمای نسبی (خط‌چین با لیبل عددی) */}
-          {guides.map((g, i) => {
-            const isMain = g.label === "max" || g.label === "min";
-            return (
-              <ReferenceLine
-                key={i}
-                y={g.value}
-                // stroke={
-                //   g.side === "pos"
-                //     ? isMain
-                //       ? dark
-                //         ? "#6366f1"
-                //         : "#a5b4fc"
-                //       : chartPalette.axisStroke(dark)
-                //     : isMain
-                //       ? dark
-                //         ? "#ef4444"
-                //         : "#fca5a5"
-                //       : chartPalette.axisStroke(dark)
-                // }
-                strokeDasharray={"2 4"}
-                strokeWidth={1}
-                ifOverflow="extendDomain"
-                label={{
-                  value: fmtShort(g.value),
-                  position:
-                    g.side === "pos" ? "insideTopLeft" : "insideBottomLeft",
-                  fontSize: 10,
-                  fontWeight: 600,
-                  fill: dark ? "#94a3b8" : "#64748b",
-                }}
-              />
-            );
-          })}
+          {guides.map((g, i) => (
+            <ReferenceLine
+              key={i}
+              y={g.value}
+              strokeDasharray={"2 4"}
+              strokeWidth={1}
+              ifOverflow="extendDomain"
+              label={{
+                value: fmtShort(g.value),
+                position:
+                  g.side === "pos" ? "insideTopLeft" : "insideBottomLeft",
+                fontSize: 10,
+                fontWeight: 600,
+                fill: dark ? "#94a3b8" : "#64748b",
+              }}
+            />
+          ))}
 
-          {/* bar اصلی */}
           <Bar
             dataKey="percentage"
-            radius={[6, 6, 0, 0]}
+            radius={[8, 8, 0, 0]}
             maxBarSize={46}
             filter="url(#barShadow2)"
             isAnimationActive
-            animationDuration={650}
+            animationDuration={700}
             animationEasing="ease-out"
           >
             {data.map((entry, index) => (

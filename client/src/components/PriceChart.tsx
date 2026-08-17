@@ -40,7 +40,7 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
   const [data, setData] = useState<PriceHistoryRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [rangeIdx, setRangeIdx] = useState(2); // پیش‌فرض: ۶ ماه
+  const [rangeIdx, setRangeIdx] = useState(2);
   const [fetching, setFetching] = useState(false);
   const [fetchMsg, setFetchMsg] = useState<string | null>(null);
   const [logScale, setLogScale] = useState(true);
@@ -68,7 +68,6 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
     try {
       await collectBrsPrices("backfill", { symbol: companyName, raw: true, limit: 0 });
       setFetchMsg("قیمت‌ها جمع شد ✓");
-      // ریلود داده بعد از ۲ ثانیه
       setTimeout(() => {
         loadData();
         setFetchMsg(null);
@@ -101,11 +100,11 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
     return { latest, max, min, totalReturn };
   }, [chartData]);
 
-  const cardCls = `rounded-2xl border p-4 ${
+  const cardCls = `rounded-2xl border p-5 ${
     dark
-      ? "bg-gray-800/60 border-gray-700"
-      : "bg-white/70 border-gray-200"
-  }`;
+      ? "bg-gray-800/50 border-gray-700/60"
+      : "bg-white/60 border-gray-200/60"
+  } backdrop-blur-sm`;
 
   const priceFmt = (n: number) =>
     n.toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -142,40 +141,45 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
 
   return (
     <div className={cardCls}>
-      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div className="flex items-center gap-2">
-          <FaChartLine className="text-indigo-500" />
-          <h3 className="font-semibold text-gray-800 dark:text-white">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-500">
+            <FaChartLine className="text-sm" />
+          </span>
+          <h3 className="font-bold text-gray-800 dark:text-white text-sm">
             نمودار قیمت
           </h3>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex gap-1">
+          {/* Range pills */}
+          <div className="flex gap-0.5 p-0.5 rounded-xl bg-gray-100 dark:bg-gray-700/40">
             {RANGES.map((r, i) => (
               <button
                 key={i}
                 onClick={() => setRangeIdx(i)}
-                className={`px-2 py-1 rounded-lg text-xs font-medium transition ${
+                className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all duration-200 ${
                   i === rangeIdx
-                    ? "bg-indigo-600 text-white"
+                    ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/25"
                     : dark
-                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      ? "text-gray-400 hover:text-gray-200 hover:bg-gray-600/40"
+                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/60"
                 }`}
               >
                 {r.label}
               </button>
             ))}
           </div>
+          {/* Log/Linear toggle */}
           <button
             onClick={() => setLogScale(!logScale)}
             title="تغییر مقیاس نمودار"
-            className={`px-2 py-1 rounded-lg text-xs font-medium transition ${
+            className={`px-3 py-1.5 rounded-xl text-[11px] font-medium transition-all duration-200 ${
               logScale
-                ? "bg-purple-600 text-white"
+                ? "bg-purple-600 text-white shadow-sm shadow-purple-500/25"
                 : dark
-                  ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-gray-700/60 text-gray-400 hover:text-gray-200"
+                  : "bg-gray-100 text-gray-500 hover:text-gray-700"
             }`}
           >
             {logScale ? "Log" : "Linear"}
@@ -183,61 +187,68 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
         </div>
       </div>
 
+      {/* ── Stats Cards ── */}
       {stats && (
-        <div className="flex gap-4 mb-3 text-xs flex-wrap">
-          <div>
-            <span className="text-gray-500 dark:text-gray-400">قیمت: </span>
-            <span className="font-bold text-gray-800 dark:text-white">
+        <div className="grid grid-cols-4 gap-2 mb-4">
+          <div className="rounded-xl bg-gray-50 dark:bg-gray-800/40 p-2.5 text-center border border-gray-100 dark:border-gray-700/40">
+            <div className="text-[10px] text-gray-400 dark:text-gray-500 font-medium mb-0.5">قیمت</div>
+            <div className="text-sm font-bold text-gray-800 dark:text-white tabular-nums">
               {priceFmt(stats.latest)}
-            </span>
+            </div>
           </div>
-          <div>
-            <span className="text-gray-500 dark:text-gray-400">سقف: </span>
-            <span className="font-semibold text-green-600 dark:text-green-400">
+          <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/15 p-2.5 text-center border border-emerald-100 dark:border-emerald-900/30">
+            <div className="text-[10px] text-emerald-600 dark:text-emerald-400/70 font-medium mb-0.5">سقف</div>
+            <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
               {priceFmt(stats.max)}
-            </span>
+            </div>
           </div>
-          <div>
-            <span className="text-gray-500 dark:text-gray-400">کف: </span>
-            <span className="font-semibold text-red-600 dark:text-red-400">
+          <div className="rounded-xl bg-red-50 dark:bg-red-900/15 p-2.5 text-center border border-red-100 dark:border-red-900/30">
+            <div className="text-[10px] text-red-500 dark:text-red-400/70 font-medium mb-0.5">کف</div>
+            <div className="text-sm font-bold text-red-500 dark:text-red-400 tabular-nums">
               {priceFmt(stats.min)}
-            </span>
+            </div>
           </div>
-          <div>
-            <span className="text-gray-500 dark:text-gray-400">بازده: </span>
-            <span
-              className={`font-bold ${
-                stats.totalReturn >= 0
-                  ? "text-green-600 dark:text-green-400"
-                  : "text-red-600 dark:text-red-400"
-              }`}
-            >
+          <div className={`rounded-xl p-2.5 text-center border ${
+            stats.totalReturn >= 0
+              ? "bg-emerald-50 dark:bg-emerald-900/15 border-emerald-100 dark:border-emerald-900/30"
+              : "bg-red-50 dark:bg-red-900/15 border-red-100 dark:border-red-900/30"
+          }`}>
+            <div className={`text-[10px] font-medium mb-0.5 ${
+              stats.totalReturn >= 0
+                ? "text-emerald-600 dark:text-emerald-400/70"
+                : "text-red-500 dark:text-red-400/70"
+            }`}>بازده</div>
+            <div className={`text-sm font-bold tabular-nums ${
+              stats.totalReturn >= 0
+                ? "text-emerald-600 dark:text-emerald-400"
+                : "text-red-500 dark:text-red-400"
+            }`}>
               {stats.totalReturn >= 0 ? "+" : ""}
               {stats.totalReturn.toFixed(1)}%
-            </span>
+            </div>
           </div>
         </div>
       )}
 
       {loading ? (
-        <p className="text-center text-gray-500 dark:text-gray-300 py-10">
+        <p className="text-center text-gray-400 dark:text-gray-500 py-10">
           در حال بارگذاری نمودار...
         </p>
       ) : error ? (
         <p className="text-center text-red-500 py-10">{error}</p>
       ) : chartData.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-gray-500 dark:text-gray-300 mb-4">
+          <p className="text-gray-400 dark:text-gray-500 mb-4">
             داده‌ای برای این نماد موجود نیست
           </p>
           {isAdmin && (
             <button
               onClick={handleFetchPrices}
               disabled={fetching}
-              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-white text-sm shadow-lg transition-all ${
+              className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white text-sm shadow-lg transition-all duration-200 ${
                 fetching
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700"
+                  : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/20"
               }`}
             >
               {fetching ? (
@@ -254,14 +265,7 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
             </button>
           )}
           {fetchMsg && (
-            <p className="mt-3 text-xs text-gray-600 dark:text-gray-300">
-              {fetchMsg}
-            </p>
-          )}
-          {!isAdmin && (
-            <p className="mt-2 text-xs text-gray-400">
-              (فقط ادمین می‌تواند قیمت جمع کند)
-            </p>
+            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">{fetchMsg}</p>
           )}
         </div>
       ) : (
@@ -275,7 +279,7 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
                 <stop
                   offset="0%"
                   stopColor={chartPalette.series[0]}
-                  stopOpacity={0.3}
+                  stopOpacity={0.25}
                 />
                 <stop
                   offset="100%"
@@ -319,7 +323,7 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
               type="monotone"
               dataKey="close"
               stroke={chartPalette.series[0]}
-              strokeWidth={2}
+              strokeWidth={2.5}
               fill="url(#priceGrad)"
               isAnimationActive
               animationDuration={600}
