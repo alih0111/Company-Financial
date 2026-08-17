@@ -74,6 +74,19 @@ AS
 --     همچنین (v3.3): NetMarginLatest اولویتاً از NetProfitAmount (هم‌واحد با
 --     RevenueNew) ساخته می‌شود و OperatingMarginLatest/Trend گارد ±۲۰۰٪ گرفتند،
 --     چون Product1 (ریال) و RevenueNew/mahane (هزار ریال) هم‌خانواده‌ی واحد نیستند.
+--
+--  اصلاح v3.4 — بازتنظیم وزن‌ها بر اساس بک‌تست ۶۱ماهه (۱۳۹۹/۰۱-۱۴۰۴/۱۲،
+--     point-in-time با تأخیر ۴۵ روزه انتشار، py/backtest.py + backtest_weights.py):
+--       • IC فاکتورها: رشد فروش۱۲م 0.127(t=7.4) | رشد فروش۳م 0.117(t=8.1) |
+--         رشد خالص 0.109(t=4.9) | P/Eوارونه −0.090(t=−5.4) | نوسان‌کم |
+--         رشد عملیاتی ضعیف 0.045 | مومنتوم بی‌معنا t=1.8 | ثبات فروش IC≈0
+--       • تغییرات: فروش۱۲م 9→10، فروش۳م 4→6، عملیاتی 8→5، P/E 10→11،
+--         ثبات فروش 3→1، نوسان‌کم 3→5، مومنتوم 3→1
+--       • جریمه‌ی کهنگی داده از دسته‌ی بازار حذف شد (دوگانه با ضریب DQ؛
+--         پرچم StaleDataFlag برای شفافیت باقی است)
+--       • اعتبارسنجی: درون‌نمونه ۹۹-۰۲ IC: 0.108→0.129 | برون‌نمونه ۰۳-۰۴
+--         IC: 0.214→0.219 و پرتفوی بدون افت | کل دوره Top20-۶ماهه:
+--         اضافه‌بازده 5.0→5.8٪/ماه، نرخ برد 74→85٪
 -- ============================================================================
 
 WITH CompanyList AS (
@@ -1220,10 +1233,9 @@ Penalized AS (
         ( 8.0 * CASE WHEN r.PEApprox IS NULL OR r.PEApprox <= 0 OR r.PEApprox > 60 THEN 1 ELSE 0 END
         ) AS ValuationPenalty,
 
-        -- جریمه‌های بازار/داده (از ۲۰ امتیاز دسته)
-        ( 4.0 * CASE WHEN r.MarketDataAgeDays IS NOT NULL AND r.MarketDataAgeDays > 14 THEN 1 ELSE 0 END
-        + 3.0 * CASE WHEN r.ProfitReportAgeMonths IS NOT NULL AND r.ProfitReportAgeMonths > 8 THEN 1 ELSE 0 END
-        ) AS MarketPenalty
+        -- v3.4: جریمه‌ی کهنگی از دسته‌ی بازار حذف شد — همین ریسک در ضریب
+        -- DataQualityScore (تازگی گزارش/قیمت) اعمال می‌شود و دوبار جریمه نوفه می‌ساخت
+        0.0 AS MarketPenalty
     FROM Ranked r
 )
 
@@ -1369,23 +1381,24 @@ SELECT
             THEN PEApprox * ROE / 100.0 ELSE NULL END, 2) AS PBRatio,
 
     -- ----------------------------------------------------------------------
-    --  زیرامتیاز دسته‌ها (وزن × رتبه − جریمه، با کف صفر)
+    --  زیرامتیاز دسته‌ها (وزن × رتبه − جریمه، با کف صفر) — وزن‌های v3.4
+    --  (بازتنظیم‌شده با بک‌تست point-in-time؛ جزئیات در کامنت ابتدای فایل)
     --
-    --  رشد ۴۰:   فروش سالانه 10 | فروش ۳ماهه 4 | درآمد 6 | عملیاتی 8 | خالص 12
-    --  سودآوری ۲۴: حاشیه عملیاتی 6 | حاشیه خالص 4 | روند حاشیه 4 | پوشش بهره 4 | کیفیت سود 6
-    --  ارزش‌گذاری ۱۶: P/E 12 | P/S 4
-    --  بازار ۲۰:  نقدشوندگی 7 | ثبات فروش 5 | نوسان کم 4 | مومنتوم 4
+    --  رشد ۳۶:    فروش سالانه 10 | فروش ۳ماهه 6 | درآمد 5 | عملیاتی 5 | خالص 10
+    --  سودآوری ۲۶: حاشیه عملیاتی 4 | حاشیه خالص 3 | ROE 5 | روند حاشیه 3 | پوشش بهره 3 | کیفیت نقدی 4 | کیفیت سود 4
+    --  ارزش‌گذاری ۱۷: P/E 11 | P/S 3 | P/B 3
+    --  بازار ۲۰:  نقدشوندگی 6 | اهرم 4 | نسبت جاری 3 | ثبات فروش 1 | نوسان کم 5 | مومنتوم 1
     --
     --  QuantScore = DataQualityScore × مجموع چهار دسته (سازگار با تجزیه‌وتحلیل فرانت)
     -- ----------------------------------------------------------------------
     -- امتیاز خام هر دسته = مجموع (وزن × رتبه)؛ وزن‌ها بر حسب امتیازند
-    -- رشد: 10+4+6+8+12=40 | سودآوری: 6+4+4+4+6=24 | ارزش: 12+4=16 | بازار: 7+5+4+4=20
+    -- رشد: 10+6+5+5+10=36 | سودآوری: 4+3+5+3+3+4+4=26 | ارزش: 11+3+3=17 | بازار: 6+4+3+1+5+1=20
     ROUND(
-        CASE WHEN (9.0*SalesGrowthRank + 4.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
-                   + 8.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty < 0
+        CASE WHEN (10.0*SalesGrowthRank + 6.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
+                   + 5.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty < 0
              THEN 0
-             ELSE (9.0*SalesGrowthRank + 4.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
-                   + 8.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty
+             ELSE (10.0*SalesGrowthRank + 6.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
+                   + 5.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty
         END, 1) AS GrowthScore,
 
     ROUND(
@@ -1397,26 +1410,26 @@ SELECT
         END, 1) AS ProfitabilityScore,
 
     ROUND(
-        CASE WHEN (10.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty < 0
+        CASE WHEN (11.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty < 0
              THEN 0
-             ELSE (10.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty
+             ELSE (11.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty
         END, 1) AS ValuationScore,
 
     ROUND(
-        CASE WHEN (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 3.0*StabilityRank
-                   + 3.0*LowVolatilityRank + 3.0*MomentumRank) - MarketPenalty < 0
+        CASE WHEN (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 1.0*StabilityRank
+                   + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty < 0
              THEN 0
-             ELSE (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 3.0*StabilityRank
-                   + 3.0*LowVolatilityRank + 3.0*MomentumRank) - MarketPenalty
+             ELSE (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 1.0*StabilityRank
+                   + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty
         END, 1) AS MarketScore,
 
     ROUND(
         DataQualityScore * (
-            CASE WHEN (9.0*SalesGrowthRank + 4.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
-                       + 8.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty < 0
+            CASE WHEN (10.0*SalesGrowthRank + 6.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
+                       + 5.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty < 0
                  THEN 0
-                 ELSE (9.0*SalesGrowthRank + 4.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
-                       + 8.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty
+                 ELSE (10.0*SalesGrowthRank + 6.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
+                       + 5.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty
             END
             + CASE WHEN (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
                          + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty < 0
@@ -1424,15 +1437,15 @@ SELECT
                  ELSE (4.0*OperatingMarginRank + 3.0*NetMarginRank + 5.0*ROERank + 3.0*MarginTrendRank
                        + 3.0*InterestCoverageRank + 4.0*CashConversionRank + 4.0*EarningsQualityRank) - ProfitabilityPenalty
               END
-            + CASE WHEN (10.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty < 0
+            + CASE WHEN (11.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty < 0
                  THEN 0
-                 ELSE (10.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty
+                 ELSE (11.0*PERank + 3.0*PSRank + 3.0*PBRank) - ValuationPenalty
               END
-            + CASE WHEN (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 3.0*StabilityRank
-                         + 3.0*LowVolatilityRank + 3.0*MomentumRank) - MarketPenalty < 0
+            + CASE WHEN (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 1.0*StabilityRank
+                         + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty < 0
                  THEN 0
-                 ELSE (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 3.0*StabilityRank
-                       + 3.0*LowVolatilityRank + 3.0*MomentumRank) - MarketPenalty
+                 ELSE (6.0*LiquidityRank + 4.0*LeverageRank + 3.0*CurrentRatioRank + 1.0*StabilityRank
+                       + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty
               END
         ), 2) AS QuantScore,
 
@@ -1463,7 +1476,7 @@ SELECT
 
     ROUND(ImpliedShares, 0) AS ImpliedShares,
 
-    N'v3.3' AS ScoreVersion,
+    N'v3.4' AS ScoreVersion,
 
     -- ----------------------------------------------------------------------
     --  رتبه‌ی درصدی هر فاکتور بین کل بازار (CUME_DIST؛ برای شفافیت کامل در UI)
