@@ -14,7 +14,7 @@ import {
   FaBullseye,
 } from "react-icons/fa";
 import DonutChartComponent from "./components/DonutChartComponent";
-import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { useSearchParams } from "react-router-dom";
 import ScriptFullModal from "./components/ScriptFullModal";
 import Login from "./components/Login";
@@ -25,6 +25,7 @@ import { getAuthStatus } from "./hooks/useGetUser";
 import { useEffect, useMemo, useState } from "react";
 import AIStockTable from "./components/AIStockTable";
 import Portfolio from "./components/Portfolio";
+import FamilyAssets from "./components/FamilyAssets";
 import {
   getAIStockSummary,
   collectBrsPrices,
@@ -96,6 +97,8 @@ const App = () => {
       document.title = "RFA | Table";
     } else if (location.pathname === "/portfolio") {
       document.title = "RFA | Portfolio";
+    } else if (location.pathname === "/assets") {
+      document.title = "RFA | Family Assets";
     } else {
       document.title = selectedCompany ? `RFA | ${selectedCompany}` : "RFA";
     }
@@ -365,6 +368,18 @@ const App = () => {
                 <ProtectedRoute>
                   <Portfolio />
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/assets"
+              element={
+                isAdmin ? (
+                  <ProtectedRoute>
+                    <FamilyAssets />
+                  </ProtectedRoute>
+                ) : (
+                  <Navigate to="/" replace />
+                )
               }
             />
           </Routes>

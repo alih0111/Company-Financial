@@ -3,6 +3,7 @@ package main
 import (
 	"go-app/handlers"
 	"go-app/middleware"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -60,7 +61,25 @@ func main() {
 		protected.GET("/portfolio", handlers.GetPortfolio)
 		protected.POST("/portfolio", handlers.UpsertHolding)
 		protected.DELETE("/portfolio/:company_id", handlers.DeleteHolding)
+
+		// دارایی خانواده (فقط ادمین) → جایگزین اکسل «دارایی»
+		protected.GET("/family/assets", handlers.GetFamilyAssets)
+		protected.POST("/family/assets", handlers.CreateFamilyAsset)
+		protected.POST("/family/people", handlers.CreateFamilyPerson)
+		protected.POST("/family/prices", handlers.SaveFamilyPrices)
+		protected.POST("/family/sync-prices", handlers.SyncFamilyPrices)
+		protected.PUT("/family/holdings", handlers.UpsertFamilyHolding)
+		protected.DELETE("/family/holdings", handlers.DeleteFamilyHolding)
+		protected.PUT("/family/account", handlers.UpdateFamilyAccount)
+		protected.GET("/family/cashflows", handlers.GetFamilyCashFlows)
+		protected.POST("/family/cashflows", handlers.AddFamilyCashFlow)
+		protected.DELETE("/family/cashflows/:id", handlers.DeleteFamilyCashFlow)
+		protected.GET("/family/history", handlers.GetFamilyHistory)
 	}
 
-	r.Run(":5000")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
+	}
+	r.Run(":" + port)
 }

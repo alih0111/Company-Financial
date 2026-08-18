@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Select from "react-select";
+import { useNavigate } from "react-router-dom";
 import NavigationButton from "./NavigationButton";
 import { addViewedItem, collectBrsPrices, fetchFullPE } from "../utils/api";
 
@@ -42,6 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [loadingBrsBackfill, setLoadingBrsBackfill] = useState(false);
   const [loadingBrsSync, setLoadingBrsSync] = useState(false);
   const [brsMsg, setBrsMsg] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const fullPE = async () => {
     setLoadingFullPE(true);
@@ -99,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="max-h-[97vh] m-4 mb-0 mr-0 w-72 p-6 bg-white/70 dark:bg-gray-800/50 backdrop-blur-xl shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 rounded-3xl border border-gray-200/80 dark:border-gray-700/60 flex flex-col gap-3 transition-all duration-300 ease-in-out sticky top-4 glass-border glass-border-active">
+    <aside className="sticky top-4 max-h-[97vh] m-4 mb-0 mr-0 w-72 p-6 bg-white/70 dark:bg-gray-800/50 backdrop-blur-xl shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 rounded-3xl border border-gray-200/80 dark:border-gray-700/60 flex flex-col gap-3 transition-all duration-300 ease-in-out glass-border glass-border-active">
       <div className="pb-2 flex justify-between items-center">
         <h2 className="text-xl font-bold text-gradient-indigo tracking-tight">
           Company Insights
@@ -156,7 +158,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             menu: (base) => ({
               ...base,
               borderRadius: "0.75rem",
-              boxShadow: "0 10px 40px -10px rgba(99,102,241,0.15), 0 4px 12px -2px rgba(0,0,0,0.08)",
+              boxShadow:
+                "0 10px 40px -10px rgba(99,102,241,0.15), 0 4px 12px -2px rgba(0,0,0,0.08)",
               textAlign: "right",
               zIndex: 50,
               border: "1px solid rgba(99,102,241,0.1)",
@@ -187,6 +190,12 @@ const Sidebar: React.FC<SidebarProps> = ({
               </h3>
             </div>
             <div className="flex flex-col gap-2">
+              <button
+                onClick={() => navigate("/assets")}
+                className="w-full h-9 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-amber-500/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                دارایی خانواده
+              </button>
               <button
                 onClick={() => openModalForScript("script1")}
                 disabled={runningScripts.script1}
@@ -307,8 +316,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       colorClass =
                         "text-emerald-600 dark:text-emerald-400 font-bold";
                     } else if (eps < -10) {
-                      colorClass =
-                        "text-red-600 dark:text-red-400 font-bold";
+                      colorClass = "text-red-600 dark:text-red-400 font-bold";
                     }
 
                     const isSelected = company.company_name === selectedCompany;
@@ -323,10 +331,14 @@ const Sidebar: React.FC<SidebarProps> = ({
                           handleCompanySelect(company.company_name)
                         }
                       >
-                        <span className={`font-semibold tabular-nums ${colorClass}`}>
+                        <span
+                          className={`font-semibold tabular-nums ${colorClass}`}
+                        >
                           {eps != null ? eps.toFixed(2) + "%" : "--"}
                         </span>
-                        <span className="font-medium">{company.company_name}</span>
+                        <span className="font-medium">
+                          {company.company_name}
+                        </span>
                       </li>
                     );
                   })}

@@ -107,7 +107,7 @@
 
     /* Gradient border wrapper */
     .glass-border {
-        position: relative;
+        /* position: relative; */
     }
     .glass-border::before {
         content: "";

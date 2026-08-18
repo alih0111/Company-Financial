@@ -452,3 +452,184 @@ export async function collectBrsPrices(
 
   return res.json();
 }
+
+// ----------------------------- Family Assets -----------------------------
+
+export interface FamilyHolding {
+  asset_id: number;
+  asset_name: string;
+  quantity: number;
+  cost_basis: number;
+  value: number;
+  profit: number;
+  profit_pct: number;
+  weight: number;
+}
+
+export interface FamilyPerson {
+  person_id: number;
+  name: string;
+  sort_order: number;
+  cash_balance: number;
+  holdings: FamilyHolding[];
+  holdings_value: number;
+  total_value: number;
+  total_cost: number;
+  profit: number;
+  profit_pct: number;
+  share_of_total: number;
+}
+
+export interface FamilyAsset {
+  asset_id: number;
+  name: string;
+  symbol: string;
+  category: string;
+  commission_rate: number;
+  sort_order: number;
+  latest_price: number;
+  price_date: string;
+  total_quantity: number;
+  total_cost: number;
+  total_value: number;
+  total_profit: number;
+  profit_pct: number;
+  weight: number;
+}
+
+export interface FamilySummary {
+  latest_datekey: string;
+  holdings_value: number;
+  total_cash: number;
+  grand_total: number;
+  total_cost: number;
+  total_profit: number;
+  total_profit_pct: number;
+  best_tomorrow: number;
+  worst_tomorrow: number;
+  stocks_total: number;
+  gold_total: number;
+  dollar_total: number;
+}
+
+export interface FamilyState {
+  today_datekey: string;
+  assets: FamilyAsset[];
+  people: FamilyPerson[];
+  summary: FamilySummary;
+}
+
+export interface FamilyHistoryRow {
+  date_key: string;
+  total: number;
+  has_total: boolean;
+  people: Record<string, number>;
+}
+
+export interface FamilyCashFlow {
+  id: number;
+  date_key: string;
+  amount: number;
+  direction: string;
+  note: string;
+}
+
+async function familyFetch<T>(
+  path: string,
+  init?: RequestInit
+): Promise<T> {
+  const res = await fetch(`${API_BASE}/family${path}`, {
+    ...init,
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || `Family API failed: ${res.status}`);
+  }
+  return res.json();
+}
+
+export const getFamilyAssets = () => familyFetch<FamilyState>("/assets");
+
+export const saveFamilyPrices = (dateKey: string, prices: { asset_id: number; price: number }[]) =>
+  familyFetch<{ message: string; date_key: string; total_value: number }>("/prices", {
+    method: "POST",
+    body: JSON.stringify({ date_key: dateKey, prices }),
+  });
+
+export interface FamilySyncResult {
+  updated: {
+    asset_id: number;
+    name: string;
+    symbol: string;
+    date_key: string;
+    price: number;
+  }[];
+  missing: string[];
+}
+
+export const syncFamilyPrices = (backfill = false) =>
+  familyFetch<FamilySyncResult>("/sync-prices", {
+    method: "POST",
+    body: JSON.stringify({ backfill }),
+  });
+
+export const upsertFamilyHolding = (payload: {
+  person_id: number;
+  asset_id: number;
+  quantity: number;
+  cost_basis: number;
+}) =>
+  familyFetch<{ message: string }>("/holdings", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+
+export const deleteFamilyHolding = (personId: number, assetId: number) =>
+  familyFetch<{ message: string }>(
+    `/holdings?person_id=${personId}&asset_id=${assetId}`,
+    { method: "DELETE" }
+  );
+
+export const createFamilyPerson = (name: string) =>
+  familyFetch<{ message: string; person_id: number }>("/people", {
+    method: "POST",
+    body: JSON.stringify({ name }),
+  });
+
+export const createFamilyAsset = (
+  name: string,
+  category: string
+) =>
+  familyFetch<{ message: string; asset_id: number }>("/assets", {
+    method: "POST",
+    body: JSON.stringify({ name, category }),
+  });
+
+export const updateFamilyAccount = (personId: number, cashBalance: number) =>
+  familyFetch<{ message: string }>("/account", {
+    method: "PUT",
+    body: JSON.stringify({ person_id: personId, cash_balance: cashBalance }),
+  });
+
+export const getFamilyCashFlows = (limit = 200) =>
+  familyFetch<FamilyCashFlow[]>(`/cashflows?limit=${limit}`);
+
+export const addFamilyCashFlow = (payload: {
+  date_key: string;
+  amount: number;
+  direction: string;
+  note: string;
+}) =>
+  familyFetch<{ message: string; id: number }>("/cashflows", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const deleteFamilyCashFlow = (id: number) =>
+  familyFetch<{ message: string }>(`/cashflows/${id}`, {
+    method: "DELETE",
+  });
+
+export const getFamilyHistory = () =>
+  familyFetch<FamilyHistoryRow[]>("/history");
