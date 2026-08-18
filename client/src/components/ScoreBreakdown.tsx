@@ -198,7 +198,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "مقایسه‌ی مجموع فروش ۱۲ ماه اخیر با ۱۲ ماه قبل از آن (از گزارش‌های ماهانه)",
           value: metric.sales_growth_12m,
           display: pct(metric.sales_growth_12m),
-          weight: 9,
+          weight: 10,
           rank: metric.sales_growth_rank,
           good:
             metric.sales_growth_12m == null
@@ -211,7 +211,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "مقایسه‌ی فروش ۳ ماه اخیر با ۳ ماه قبل از آن (کراپ در ±۱۵۰٪)",
           value: metric.sales_growth_3m,
           display: pct(metric.sales_growth_3m),
-          weight: 4,
+          weight: 6,
           rank: metric.sales_growth_3m_rank,
           good:
             metric.sales_growth_3m == null ? null : metric.sales_growth_3m > 10,
@@ -235,7 +235,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "رشد سود عملیاتی ۱۲ماهه (ساخته‌شده از گزارش‌های تجمعی) نسبت به ۱۲ ماه قبل",
           value: metric.operating_profit_growth_yoy,
           display: pct(metric.operating_profit_growth_yoy),
-          weight: 8,
+          weight: 5,
           rank: metric.operating_profit_growth_rank,
           good:
             metric.operating_profit_growth_yoy == null
@@ -299,7 +299,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "سود خالص ۱۲ماهه تقسیم بر فروش/درآمد ۱۲ماهه",
           value: metric.net_profit_margin_12m,
           display: pct(metric.net_profit_margin_12m),
-          weight: 3,
+          weight: 4,
           rank: metric.net_margin_rank,
           good:
             metric.net_profit_margin_12m == null
@@ -312,7 +312,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "سود خالص ۱۲ماهه تقسیم بر حقوق مالکانه — مهم‌ترین سنجه‌ی سودآوری برای مقایسه‌ی شرکت‌ها؛ از ترازنامه‌ی CODAL",
           value: metric.roe,
           display: pct(metric.roe),
-          weight: 5,
+          weight: 6,
           rank: metric.roe_rank,
           good: metric.roe == null ? null : metric.roe > 20,
           neutralWhenNull: true,
@@ -355,7 +355,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
             metric.cash_conversion == null
               ? "--"
               : `${metric.cash_conversion.toFixed(2)}×`,
-          weight: 4,
+          weight: 2,
           rank: metric.cash_conversion_rank,
           good:
             metric.cash_conversion == null
@@ -394,7 +394,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "قیمت ÷ سود هر سهم ۱۲ماهه — فقط بین ۰ تا ۶۰ معتبر است؛ خارج از آن بدترین رتبه + جریمه",
           value: metric.pe_approx,
           display: num(metric.pe_approx, 1),
-          weight: 10,
+          weight: 11,
           rank: metric.pe_rank,
           good:
             metric.pe_approx == null
@@ -421,7 +421,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "قیمت به ارزش دفتری — هم‌ارز P/E × ROE؛ پایین‌تر = ارزان‌تر نسبت به ارزش دفتری",
           value: metric.pb_ratio,
           display: num(metric.pb_ratio, 2),
-          weight: 3,
+          weight: 2,
           rank: metric.pb_rank,
           good:
             metric.pb_ratio == null
@@ -435,38 +435,31 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
     {
       title: "بازار و ریسک",
       icon: <FaArrowUp className="text-cyan-500" />,
-      maxScore: 22,
+      maxScore: 11,
       actualScore: metric.market_score,
       penalty: metric.market_penalty,
-      penaltyReasons: [
-        ...(metric.market_data_age_days > 14
-          ? [`داده‌ی قیمت ${metric.market_data_age_days} روز قدیم (−۴)`]
-          : []),
-        ...(metric.profit_report_age_months > 8
-          ? [`گزارش سود ${metric.profit_report_age_months} ماه قدیم (−۳)`]
-          : []),
-      ],
+      penaltyReasons: [],
       accentColor: "border-l-cyan-500",
       accentBg: "bg-cyan-500/5 dark:bg-cyan-500/5",
       factors: [
         {
           label: "نقدشوندگی (۳۰روز)",
-          hint: "میانگین ارزش معاملات روزانه در ۳۰ روز اخیر — بدون داده‌ی معاملات، بدترین رتبه",
+          hint: "میانگین ارزش معاملات روزانه در ۳۰ روز اخیر — سبز/قرمز بر اساس آستانه‌ی مطلق (بالای ۵۰ میلیارد ریال روزانه = نقد کافی)، نوار = رتبه‌ی نسبی در بازار",
           value: metric.avg_trade_value_30d,
           display: compact(metric.avg_trade_value_30d),
-          weight: 6,
+          weight: 3,
           rank: metric.liquidity_rank,
           good:
             metric.avg_trade_value_30d == null
               ? null
-              : metric.avg_trade_value_30d > 1e9,
+              : metric.avg_trade_value_30d > 5e10,
         },
         {
           label: "ثبات فروش",
           hint: "۱ منهای ضریب تغییرات فروش ماهانه‌ی ۱۲ ماه اخیر — نزدیک ۱ یعنی فروش یکنواخت",
           value: metric.sales_stability,
           display: num(metric.sales_stability, 2),
-          weight: 3,
+          weight: 1,
           rank: metric.stability_rank,
           good:
             metric.sales_stability == null
@@ -479,7 +472,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "جمع بدهی‌ها تقسیم بر حقوق مالکانه — کمتر = ریسک مالی پایین‌تر؛ از ترازنامه‌ی CODAL",
           value: metric.financial_leverage,
           display: num(metric.financial_leverage, 2),
-          weight: 4,
+          weight: 2,
           rank: metric.leverage_rank,
           good:
             metric.financial_leverage == null
@@ -492,7 +485,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "دارایی‌های جاری تقسیم بر بدهی‌های جاری — بالای ۱٫۲ یعنی توان پرداخت تعهدات کوتاه‌مدت",
           value: metric.current_ratio,
           display: num(metric.current_ratio, 2),
-          weight: 3,
+          weight: 2,
           rank: metric.current_ratio_rank,
           good:
             metric.current_ratio == null
@@ -503,10 +496,10 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
 
         {
           label: "نوسان (۳۰روز)",
-          hint: "انحراف معیار بازده‌ی روزانه در ۳۰ روز اخیر — پایین‌تر = کم‌ریسک‌تر",
+          hint: "انحراف معیار بازده‌ی روزانه‌ی قیمت پایانی در ۳۰ روز اخیر (محاسبه از خود قیمت‌ها) — پایین‌تر = کم‌ریسک‌تر",
           value: metric.volatility_30d,
           display: pct(metric.volatility_30d),
-          weight: 3,
+          weight: 2,
           rank: metric.low_volatility_rank,
           good:
             metric.volatility_30d == null ? null : metric.volatility_30d < 3,
@@ -517,7 +510,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           hint: "بازده‌ی قیمت ۳۰ روز اخیر با سقف +۴۰٪ و کف −۵۰٪ (رشد انفجاری دیگر جریمه نمی‌شود)",
           value: metric.price_return_30d,
           display: pct(metric.price_return_30d),
-          weight: 3,
+          weight: 1,
           rank: metric.momentum_rank,
           good:
             metric.price_return_30d == null ? null : metric.price_return_30d > 0 && metric.price_return_30d < 30,
@@ -568,7 +561,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           </p>
           <p>
             ۲. امتیاز هر فاکتور = <b>وزن × رتبه</b>. مثلاً رشد سود خالص با وزن
-            ۱۲ و رتبه‌ی ۸۵٪ معادل ۱۰٫۲ امتیاز است.
+            ۱۰ و رتبه‌ی ۸۵٪ معادل ۸٫۵ امتیاز است.
           </p>
           <p>
             ۳. اگر داده‌ی یک فاکتور موجود نباشد رتبه‌ی <b>خنثی ۳۰٪</b> داده

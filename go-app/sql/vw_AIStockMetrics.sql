@@ -98,6 +98,17 @@ AS
 --         510→765٪ (بنچمارک 446٪) | ۶ماهه 261→459٪ (بنچمارک 343٪)
 --       • محدودیت: مقطع فقط ۱۰ نماد — وزن‌ها محافظه‌کارانه (نه صفر) تعدیل
 --         شدند؛ بعد از بک‌فیل نمادهای بیشتر بازبینی مجدد شود
+--
+--  اصلاح v3.6 — اصلاح سنجه‌ی نوسان + کاهش وزن فاکتورهای بازار:
+--       • نوسان ۳۰روزه قبلاً STDEV ستون ClosingChangePercent منبع بود؛ بررسی
+--         ۷۶۵۰ ردیف اخیر کل بازار نشان داد این ستون با بازده‌ی واقعی قیمت
+--         پایانی سازگار نیست (تطابق بزرگی ۲.۴٪، هم‌علامتی ۳۹٪ — احتمالاً
+--         تغییرِ «آخرین قیمت» است). اکنون بازده از خود ClosingPriceهای متوالی
+--         ساخته می‌شود (MarketWithReturn).
+--       • وزن نقدشوندگی 6→3 و نوسان‌کم 5→2 (تصمیم محصول: فاکتورهای بازار
+--         کم‌اهمیت‌تر شوند؛ رتبه‌ی درصدی نوسان به‌دلیل فشرده‌بودن توزیع
+--         (چارک‌ها در بازه‌ی ~۰.۳۵ واحد) نویزمحور بود). مومنتوم روی ۱ ماند.
+--       • دسته‌ی بازار ۱۷→۱۱ و سقف QuantScore 95→89.
 -- ============================================================================
 
 WITH CompanyList AS (
@@ -370,6 +381,33 @@ MarketRanked AS (
     FROM MarketRaw
 ),
 
+-- بازده‌ی روزانه از خود قیمت‌های پایانی (v3.6)
+-- ستون ClosingChangePercent منبع با بازده‌ی واقعی قیمت پایانی سازگار نیست
+-- (بررسی ۷۶۵۰ ردیف اخیر کل بازار: تطابق بزرگی فقط ۲.۴٪، هم‌علامتی ۳۹٪)؛
+-- نوسان باید از قیمت‌ها ساخته شود نه از ستون تغییرِ اسکرپ‌شده.
+MarketWithReturn AS (
+    SELECT
+        mr.*,
+        CASE
+            WHEN mr.ClosingPrice > 0
+             AND LAG(mr.ClosingPrice) OVER (
+                     PARTITION BY mr.CompanyID
+                     ORDER BY mr.GDate DESC, mr.CollectedAt DESC
+                 ) > 0
+                THEN (mr.ClosingPrice
+                      - LAG(mr.ClosingPrice) OVER (
+                             PARTITION BY mr.CompanyID
+                             ORDER BY mr.GDate DESC, mr.CollectedAt DESC
+                         )) * 100.0
+                     / LAG(mr.ClosingPrice) OVER (
+                             PARTITION BY mr.CompanyID
+                             ORDER BY mr.GDate DESC, mr.CollectedAt DESC
+                         )
+            ELSE NULL
+        END AS DailyCloseReturnPct
+    FROM MarketRanked mr
+),
+
 MarketAgg AS (
     SELECT
         CompanyID,
@@ -391,11 +429,11 @@ MarketAgg AS (
         AVG(CASE WHEN rn BETWEEN 1 AND 30 THEN Volume END) AS AvgVolume30D,
         AVG(CASE WHEN rn BETWEEN 1 AND 30 THEN TradeCount END) AS AvgTradeCount30D,
 
-        STDEV(CASE WHEN rn BETWEEN 1 AND 30 THEN ClosingChangePercent END) AS Volatility30D,
+        STDEV(CASE WHEN rn BETWEEN 1 AND 30 THEN DailyCloseReturnPct END) AS Volatility30D,
 
         MAX(CASE WHEN rn BETWEEN 1 AND 90 THEN HighPrice END) AS HighPrice90D,
         MIN(CASE WHEN rn BETWEEN 1 AND 90 THEN LowPrice END) AS LowPrice90D
-    FROM MarketRanked
+    FROM MarketWithReturn
     GROUP BY CompanyID
 ),
 
@@ -1392,18 +1430,18 @@ SELECT
             THEN PEApprox * ROE / 100.0 ELSE NULL END, 2) AS PBRatio,
 
     -- ----------------------------------------------------------------------
-    --  زیرامتیاز دسته‌ها (وزن × رتبه − جریمه، با کف صفر) — وزن‌های v3.5
-    --  (رشد/ارزش/بازار از بک‌تست فاز ۱؛ فاکتورهای v3.2 از فاز ۲)
+    --  زیرامتیاز دسته‌ها (وزن × رتبه − جریمه، با کف صفر) — وزن‌های v3.6
+    --  (رشد/ارزش از بک‌تست فاز ۱؛ فاکتورهای v3.2 از فاز ۲؛ بازار: تصمیم v3.6)
     --
     --  رشد ۳۶:    فروش سالانه 10 | فروش ۳ماهه 6 | درآمد 5 | عملیاتی 5 | خالص 10
     --  سودآوری ۲۶: حاشیه عملیاتی 4 | حاشیه خالص 4 | ROE 6 | روند حاشیه 3 | پوشش بهره 3 | کیفیت نقدی 2 | کیفیت سود 4
     --  ارزش‌گذاری ۱۶: P/E 11 | P/S 3 | P/B 2
-    --  بازار ۱۷:  نقدشوندگی 6 | اهرم 2 | نسبت جاری 2 | ثبات فروش 1 | نوسان کم 5 | مومنتوم 1
+    --  بازار ۱۱:  نقدشوندگی 3 | اهرم 2 | نسبت جاری 2 | ثبات فروش 1 | نوسان کم 2 | مومنتوم 1
     --
     --  QuantScore = DataQualityScore × مجموع چهار دسته (سازگار با تجزیه‌وتحلیل فرانت)
     -- ----------------------------------------------------------------------
     -- امتیاز خام هر دسته = مجموع (وزن × رتبه)؛ وزن‌ها بر حسب امتیازند
-    -- رشد: 10+6+5+5+10=36 | سودآوری: 4+4+6+3+3+2+4=26 | ارزش: 11+3+2=16 | بازار: 6+2+2+1+5+1=17
+    -- رشد: 10+6+5+5+10=36 | سودآوری: 4+4+6+3+3+2+4=26 | ارزش: 11+3+2=16 | بازار: 3+2+2+1+2+1=11
     ROUND(
         CASE WHEN (10.0*SalesGrowthRank + 6.0*SalesGrowth3MRank + 5.0*RevenueGrowthRank
                    + 5.0*OperatingProfitGrowthRank + 10.0*NetProfitGrowthRank) - GrowthPenalty < 0
@@ -1427,11 +1465,11 @@ SELECT
         END, 1) AS ValuationScore,
 
     ROUND(
-        CASE WHEN (6.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
-                   + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty < 0
+        CASE WHEN (3.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
+                   + 2.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty < 0
              THEN 0
-             ELSE (6.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
-                   + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty
+             ELSE (3.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
+                   + 2.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty
         END, 1) AS MarketScore,
 
     ROUND(
@@ -1452,11 +1490,11 @@ SELECT
                  THEN 0
                  ELSE (11.0*PERank + 3.0*PSRank + 2.0*PBRank) - ValuationPenalty
               END
-            + CASE WHEN (6.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
-                         + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty < 0
+            + CASE WHEN (3.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
+                         + 2.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty < 0
                  THEN 0
-                 ELSE (6.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
-                       + 5.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty
+                 ELSE (3.0*LiquidityRank + 2.0*LeverageRank + 2.0*CurrentRatioRank + 1.0*StabilityRank
+                       + 2.0*LowVolatilityRank + 1.0*MomentumRank) - MarketPenalty
               END
         ), 2) AS QuantScore,
 
@@ -1487,7 +1525,7 @@ SELECT
 
     ROUND(ImpliedShares, 0) AS ImpliedShares,
 
-    N'v3.5' AS ScoreVersion,
+    N'v3.6' AS ScoreVersion,
 
     -- ----------------------------------------------------------------------
     --  رتبه‌ی درصدی هر فاکتور بین کل بازار (CUME_DIST؛ برای شفافیت کامل در UI)

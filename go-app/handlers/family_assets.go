@@ -1256,9 +1256,9 @@ func GetFamilyHistory(c *gin.Context) {
 		return
 	}
 
-	// همه قیمت‌های تاریخی هر دارایی (مرتب بر اساس تاریخ)
+	// همه قیمت‌های تاریخی هر دارایی (مرتب بر اساس تاریخ) — فقط برای
+	// بازسازی ارزش اشخاص؛ محور تاریخ چارت = تاریخ‌های واقعی تاریخچه است.
 	assetPrices := map[int][]familyPricePoint{}
-	dateSet := map[string]bool{}
 	priceRows, err := db.Query(`
 		SELECT AssetID, DateKey, Price
 		FROM dbo.FamilyPrices
@@ -1277,7 +1277,6 @@ func GetFamilyHistory(c *gin.Context) {
 			return
 		}
 		assetPrices[id] = append(assetPrices[id], pt)
-		dateSet[pt.DateKey] = true
 	}
 	priceRows.Close()
 	if err := priceRows.Err(); err != nil {
@@ -1285,6 +1284,10 @@ func GetFamilyHistory(c *gin.Context) {
 		return
 	}
 
+	// فقط تاریخ‌های دارای جمع کل واقعی (اکسل/سایت) ردیف می‌شوند؛
+	// تاریخ‌های صرفاً قیمت‌دارِ سهام باعث زیگزاگ کاذب بین مقدار واقعی
+	// و بازسازی می‌شدند (خصوصاً قبل از ۱۴۰۰ که اکسل هفتگی است).
+	dateSet := map[string]bool{}
 	for dk := range totalByDate {
 		dateSet[dk] = true
 	}
