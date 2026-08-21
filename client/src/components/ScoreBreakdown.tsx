@@ -123,7 +123,7 @@ const FactorRow: React.FC<{ f: Factor; dark: boolean }> = ({ f, dark }) => {
           </span>
         ) : (
           <span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0 w-24 text-left tabular-nums">
-            رتبه {rank != null ? (rank * 100).toFixed(0) : "؟"}%
+             {rank != null ? (rank * 100).toFixed(0) : "؟"}%
           </span>
         )}
 
