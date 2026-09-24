@@ -1,0 +1,430 @@
+{
+  "generated_at": "2026-09-24T20:53:53",
+  "schemas": [
+    [
+      "dbo",
+      1,
+      23
+    ],
+    [
+      "guest",
+      2,
+      0
+    ],
+    [
+      "INFORMATION_SCHEMA",
+      3,
+      0
+    ],
+    [
+      "sys",
+      4,
+      0
+    ],
+    [
+      "db_owner",
+      16384,
+      0
+    ],
+    [
+      "db_accessadmin",
+      16385,
+      0
+    ],
+    [
+      "db_securityadmin",
+      16386,
+      0
+    ],
+    [
+      "db_ddladmin",
+      16387,
+      0
+    ],
+    [
+      "db_backupoperator",
+      16389,
+      0
+    ],
+    [
+      "db_datareader",
+      16390,
+      0
+    ],
+    [
+      "db_datawriter",
+      16391,
+      0
+    ],
+    [
+      "db_denydatareader",
+      16392,
+      0
+    ],
+    [
+      "db_denydatawriter",
+      16393,
+      0
+    ]
+  ],
+  "tables": [
+    {
+      "schema": "dbo",
+      "name": "CodalReports",
+      "object_id": 994102582,
+      "create_date": "2026-09-24 16:59:54.900000",
+      "modify_date": "2026-09-24 16:59:55.450000",
+      "row_count": 48
+    },
+    {
+      "schema": "dbo",
+      "name": "CodalSyncState",
+      "object_id": 1122103038,
+      "create_date": "2026-09-24 20:18:44.983000",
+      "modify_date": "2026-09-24 20:18:44.983000",
+      "row_count": 2
+    },
+    {
+      "schema": "dbo",
+      "name": "FamilyAccounts",
+      "object_id": 722101613,
+      "create_date": "2026-08-18 00:48:59.313000",
+      "modify_date": "2026-08-18 00:48:59.313000",
+      "row_count": 7
+    },
+    {
+      "schema": "dbo",
+      "name": "FamilyAssets",
+      "object_id": 546100986,
+      "create_date": "2026-08-18 00:48:59.267000",
+      "modify_date": "2026-08-18 01:17:11.287000",
+      "row_count": 12
+    },
+    {
+      "schema": "dbo",
+      "name": "FamilyCashFlows",
+      "object_id": 770101784,
+      "create_date": "2026-08-18 00:48:59.337000",
+      "modify_date": "2026-08-18 00:48:59.337000",
+      "row_count": 168
+    },
+    {
+      "schema": "dbo",
+      "name": "FamilyHistory",
+      "object_id": 802101898,
+      "create_date": "2026-08-18 00:48:59.340000",
+      "modify_date": "2026-08-18 00:48:59.340000",
+      "row_count": 1113
+    },
+    {
+      "schema": "dbo",
+      "name": "FamilyHoldings",
+      "object_id": 626101271,
+      "create_date": "2026-08-18 00:48:59.277000",
+      "modify_date": "2026-08-18 00:48:59.277000",
+      "row_count": 18
+    },
+    {
+      "schema": "dbo",
+      "name": "FamilyPeople",
+      "object_id": 482100758,
+      "create_date": "2026-08-18 00:48:59.060000",
+      "modify_date": "2026-08-18 00:48:59.060000",
+      "row_count": 7
+    },
+    {
+      "schema": "dbo",
+      "name": "FamilyPrices",
+      "object_id": 690101499,
+      "create_date": "2026-08-18 00:48:59.313000",
+      "modify_date": "2026-08-18 00:48:59.313000",
+      "row_count": 15302
+    },
+    {
+      "schema": "dbo",
+      "name": "FullPE",
+      "object_id": 901578250,
+      "create_date": "2025-07-03 22:45:51.827000",
+      "modify_date": "2025-07-03 22:45:51.827000",
+      "row_count": 244
+    },
+    {
+      "schema": "dbo",
+      "name": "mahane",
+      "object_id": 933578364,
+      "create_date": "2025-07-03 22:45:51.833000",
+      "modify_date": "2026-07-04 23:24:01.533000",
+      "row_count": 12122
+    },
+    {
+      "schema": "dbo",
+      "name": "MarketPriceHistory",
+      "object_id": 1525580473,
+      "create_date": "2026-06-26 13:51:32.130000",
+      "modify_date": "2026-07-30 21:07:01.763000",
+      "row_count": 705812
+    },
+    {
+      "schema": "dbo",
+      "name": "miandore",
+      "object_id": 965578478,
+      "create_date": "2025-07-03 22:45:51.837000",
+      "modify_date": "2025-07-03 22:45:51.837000",
+      "row_count": 679
+    },
+    {
+      "schema": "dbo",
+      "name": "miandore2",
+      "object_id": 1205579333,
+      "create_date": "2025-12-04 14:13:47.550000",
+      "modify_date": "2026-08-16 22:36:53.147000",
+      "row_count": 6864
+    },
+    {
+      "schema": "dbo",
+      "name": "statements",
+      "object_id": 18099105,
+      "create_date": "2026-07-24 15:19:45.547000",
+      "modify_date": "2026-07-24 15:19:45.547000",
+      "row_count": 5920
+    },
+    {
+      "schema": "dbo",
+      "name": "StockData",
+      "object_id": 1029578706,
+      "create_date": "2025-07-03 22:45:51.843000",
+      "modify_date": "2025-07-03 22:45:51.843000",
+      "row_count": 32958
+    },
+    {
+      "schema": "dbo",
+      "name": "StockPrices",
+      "object_id": 1061578820,
+      "create_date": "2025-07-03 22:45:51.847000",
+      "modify_date": "2025-07-03 22:45:51.847000",
+      "row_count": 277
+    },
+    {
+      "schema": "dbo",
+      "name": "TrackedTickers",
+      "object_id": 1058102810,
+      "create_date": "2026-09-24 17:36:33.807000",
+      "modify_date": "2026-09-24 17:36:33.807000",
+      "row_count": 282
+    },
+    {
+      "schema": "dbo",
+      "name": "Users",
+      "object_id": 1093578934,
+      "create_date": "2025-07-03 22:45:51.850000",
+      "modify_date": "2026-07-30 16:46:31.247000",
+      "row_count": 4
+    }
+  ],
+  "column_count": 190,
+  "fk_count": 0,
+  "index_count": 24,
+  "view_count": 3,
+  "proc_count": 0,
+  "func_count": 1,
+  "trigger_count": 0,
+  "sequence_count": 0,
+  "synonym_count": 0,
+  "check_count": 0,
+  "dependency_edges": 12,
+  "samples": {
+    "dbo.CodalReports": {
+      "row_count": 48,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.CodalSyncState": {
+      "row_count": 2,
+      "masked_columns": [],
+      "rows": 2
+    },
+    "dbo.FamilyAccounts": {
+      "row_count": 7,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.FamilyAssets": {
+      "row_count": 12,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.FamilyCashFlows": {
+      "row_count": 168,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.FamilyHistory": {
+      "row_count": 1113,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.FamilyHoldings": {
+      "row_count": 18,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.FamilyPeople": {
+      "row_count": 7,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.FamilyPrices": {
+      "row_count": 15302,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.FullPE": {
+      "row_count": 244,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.mahane": {
+      "row_count": 12122,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.MarketPriceHistory": {
+      "row_count": 705812,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.miandore": {
+      "row_count": 679,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.miandore2": {
+      "row_count": 6864,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.statements": {
+      "row_count": 5920,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.StockData": {
+      "row_count": 32958,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.StockPrices": {
+      "row_count": 277,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.TrackedTickers": {
+      "row_count": 282,
+      "masked_columns": [],
+      "rows": 5
+    },
+    "dbo.Users": {
+      "row_count": 4,
+      "masked_columns": [
+        "Email",
+        "Password",
+        "Token"
+      ],
+      "rows": 4
+    }
+  },
+  "source_usage_counts": {
+    "CodalReports": {
+      "hits": 4,
+      "files": 2
+    },
+    "CodalSyncState": {
+      "hits": 2,
+      "files": 1
+    },
+    "FamilyAccounts": {
+      "hits": 10,
+      "files": 2
+    },
+    "FamilyAssets": {
+      "hits": 20,
+      "files": 2
+    },
+    "FamilyCashFlows": {
+      "hits": 9,
+      "files": 2
+    },
+    "FamilyHistory": {
+      "hits": 12,
+      "files": 2
+    },
+    "FamilyHoldings": {
+      "hits": 12,
+      "files": 2
+    },
+    "FamilyPeople": {
+      "hits": 8,
+      "files": 2
+    },
+    "FamilyPrices": {
+      "hits": 15,
+      "files": 2
+    },
+    "FullPE": {
+      "hits": 12,
+      "files": 6
+    },
+    "mahane": {
+      "hits": 20,
+      "files": 13
+    },
+    "miandore": {
+      "hits": 0,
+      "files": 0
+    },
+    "miandore2": {
+      "hits": 74,
+      "files": 19
+    },
+    "statements": {
+      "hits": 2,
+      "files": 1
+    },
+    "StockData": {
+      "hits": 1,
+      "files": 1
+    },
+    "StockPrices": {
+      "hits": 0,
+      "files": 0
+    },
+    "TrackedTickers": {
+      "hits": 4,
+      "files": 2
+    },
+    "Users": {
+      "hits": 18,
+      "files": 9
+    },
+    "MarketPriceHistory": {
+      "hits": 35,
+      "files": 9
+    },
+    "vw_AIStockMetrics": {
+      "hits": 14,
+      "files": 6
+    },
+    "vw_AIStockMetrics2": {
+      "hits": 0,
+      "files": 0
+    },
+    "vw_AIStockMetrics3": {
+      "hits": 0,
+      "files": 0
+    },
+    "fn_JalaliKey": {
+      "hits": 10,
+      "files": 2
+    }
+  }
+}

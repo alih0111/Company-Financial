@@ -1,0 +1,1 @@
+(empty — no user-defined tables/views before schema creation)

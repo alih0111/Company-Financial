@@ -1,0 +1,498 @@
+# Schema Introspection (PHASE E)
+
+- database: company_financial_test_v121
+
+## Schemas
+analytics, auth, core, fundamentals, ingestion, market, portfolio, raw
+
+## Tables (33)
+- analytics.company_scores
+- analytics.factor_scores
+- analytics.metric_snapshots
+- analytics.score_runs
+- auth.user_view_events
+- auth.users
+- core.companies
+- core.legacy_entity_map
+- core.securities
+- core.security_aliases
+- fundamentals.financial_facts
+- fundamentals.financial_statements
+- fundamentals.metric_definitions
+- fundamentals.monthly_activities
+- ingestion.data_quality_issues
+- ingestion.parse_runs
+- ingestion.report_versions
+- ingestion.reports
+- ingestion.runs
+- ingestion.sync_state
+- ingestion.tracked_securities
+- market.corporate_actions
+- market.price_observations
+- market.vendor_snapshots
+- portfolio.accounts
+- portfolio.asset_price_snapshots
+- portfolio.assets
+- portfolio.participants
+- portfolio.portfolios
+- portfolio.positions
+- portfolio.transactions
+- portfolio.valuation_snapshots
+- raw.report_payloads
+
+## Views (4)
+- ingestion.current_report_versions
+- market.daily_prices
+- portfolio.assets_resolved
+- portfolio.effective_transactions
+
+## Functions (14)
+- analytics.enforce_score_run_lifecycle [f]
+- analytics.prevent_output_mutation [f]
+- analytics.protect_score_run_identity [f]
+- core.set_updated_at [f]
+- fundamentals.prevent_mutation [f]
+- ingestion.check_supersede_cycle [f]
+- ingestion.enforce_parse_run_lifecycle [f]
+- ingestion.prevent_report_identity_change [f]
+- ingestion.prevent_row_mutation [f]
+- ingestion.protect_parse_run_identity [f]
+- market.prevent_observation_mutation [f]
+- portfolio.apply_reversal [f]
+- portfolio.prevent_transaction_mutation [f]
+- raw.prevent_mutation [f]
+
+## Triggers (28)
+- analytics.company_scores :: trg_company_scores_immutable
+- analytics.factor_scores :: trg_factor_scores_immutable
+- analytics.metric_snapshots :: trg_metric_snapshots_immutable
+- analytics.score_runs :: trg_score_runs_identity
+- analytics.score_runs :: trg_score_runs_lifecycle
+- auth.users :: trg_users_updated_at
+- core.companies :: trg_companies_updated_at
+- core.securities :: trg_securities_updated_at
+- fundamentals.financial_facts :: trg_financial_facts_immutable
+- fundamentals.financial_statements :: trg_financial_statements_immutable
+- fundamentals.metric_definitions :: trg_metric_definitions_updated_at
+- fundamentals.monthly_activities :: trg_monthly_activities_immutable
+- ingestion.parse_runs :: trg_parse_runs_identity
+- ingestion.parse_runs :: trg_parse_runs_lifecycle
+- ingestion.report_versions :: trg_report_versions_immutable
+- ingestion.reports :: trg_reports_identity_immutable
+- ingestion.reports :: trg_reports_supersede_cycle
+- ingestion.reports :: trg_reports_updated_at
+- ingestion.sync_state :: trg_sync_state_updated_at
+- ingestion.tracked_securities :: trg_tracked_securities_updated_at
+- market.price_observations :: trg_price_observations_immutable
+- portfolio.accounts :: trg_accounts_updated_at
+- portfolio.assets :: trg_assets_updated_at
+- portfolio.participants :: trg_participants_updated_at
+- portfolio.portfolios :: trg_portfolios_updated_at
+- portfolio.transactions :: trg_transactions_apply_reversal
+- portfolio.transactions :: trg_transactions_immutable
+- raw.report_payloads :: trg_report_payloads_immutable
+
+## Indexes per schema
+
+- analytics: 16
+- auth: 6
+- core: 20
+- fundamentals: 18
+- ingestion: 33
+- market: 11
+- portfolio: 25
+- raw: 3
+
+## Primary keys (33)
+- analytics.company_scores :: company_scores_pkey
+- analytics.factor_scores :: factor_scores_pkey
+- analytics.metric_snapshots :: metric_snapshots_pkey
+- analytics.score_runs :: score_runs_pkey
+- auth.user_view_events :: user_view_events_pkey
+- auth.users :: users_pkey
+- core.companies :: companies_pkey
+- core.legacy_entity_map :: legacy_entity_map_pkey
+- core.securities :: securities_pkey
+- core.security_aliases :: security_aliases_pkey
+- fundamentals.financial_facts :: financial_facts_pkey
+- fundamentals.financial_statements :: financial_statements_pkey
+- fundamentals.metric_definitions :: metric_definitions_pkey
+- fundamentals.monthly_activities :: monthly_activities_pkey
+- ingestion.data_quality_issues :: data_quality_issues_pkey
+- ingestion.parse_runs :: parse_runs_pkey
+- ingestion.report_versions :: report_versions_pkey
+- ingestion.reports :: reports_pkey
+- ingestion.runs :: runs_pkey
+- ingestion.sync_state :: sync_state_pkey
+- ingestion.tracked_securities :: tracked_securities_pkey
+- market.corporate_actions :: corporate_actions_pkey
+- market.price_observations :: price_observations_pkey
+- market.vendor_snapshots :: vendor_snapshots_pkey
+- portfolio.accounts :: accounts_pkey
+- portfolio.asset_price_snapshots :: asset_price_snapshots_pkey
+- portfolio.assets :: assets_pkey
+- portfolio.participants :: participants_pkey
+- portfolio.portfolios :: portfolios_pkey
+- portfolio.positions :: positions_pk
+- portfolio.transactions :: transactions_pkey
+- portfolio.valuation_snapshots :: valuation_snapshots_pkey
+- raw.report_payloads :: report_payloads_pkey
+
+## Foreign keys (50)
+- analytics.company_scores :: company_scores_company_id_fkey
+- analytics.company_scores :: company_scores_security_company_fk
+- analytics.company_scores :: company_scores_run_id_fkey
+- analytics.factor_scores :: factor_scores_company_id_fkey
+- analytics.factor_scores :: factor_scores_run_id_fkey
+- analytics.metric_snapshots :: metric_snapshots_security_company_fk
+- analytics.metric_snapshots :: metric_snapshots_company_id_fkey
+- auth.user_view_events :: user_view_events_user_id_fkey
+- auth.user_view_events :: user_view_events_security_id_fkey
+- core.securities :: securities_company_id_fkey
+- core.security_aliases :: security_aliases_security_id_fkey
+- fundamentals.financial_facts :: financial_facts_statement_id_fkey
+- fundamentals.financial_facts :: financial_facts_metric_code_fkey
+- fundamentals.financial_statements :: financial_statements_report_id_fkey
+- fundamentals.financial_statements :: financial_statements_parse_version_fk
+- fundamentals.financial_statements :: financial_statements_report_company_fk
+- fundamentals.financial_statements :: financial_statements_company_id_fkey
+- fundamentals.financial_statements :: financial_statements_version_report_fk
+- fundamentals.monthly_activities :: monthly_activities_parse_version_fk
+- fundamentals.monthly_activities :: monthly_activities_company_id_fkey
+- fundamentals.monthly_activities :: monthly_activities_report_id_fkey
+- fundamentals.monthly_activities :: monthly_activities_version_report_fk
+- fundamentals.monthly_activities :: monthly_activities_security_company_fk
+- fundamentals.monthly_activities :: monthly_activities_report_company_fk
+- ingestion.parse_runs :: parse_runs_report_version_id_fkey
+- ingestion.report_versions :: report_versions_report_id_fkey
+- ingestion.reports :: reports_company_id_fkey
+- ingestion.reports :: reports_supersedes_report_id_fkey
+- ingestion.reports :: reports_security_company_fk
+- ingestion.tracked_securities :: tracked_securities_security_id_fkey
+- market.corporate_actions :: corporate_actions_security_id_fkey
+- market.price_observations :: price_observations_security_id_fkey
+- market.vendor_snapshots :: vendor_snapshots_security_company_fk
+- market.vendor_snapshots :: vendor_snapshots_company_fk
+- portfolio.accounts :: accounts_participant_portfolio_fk
+- portfolio.accounts :: accounts_portfolio_id_fkey
+- portfolio.asset_price_snapshots :: asset_price_snapshots_asset_id_fkey
+- portfolio.assets :: assets_security_id_fkey
+- portfolio.participants :: participants_portfolio_id_fkey
+- portfolio.participants :: participants_user_id_fkey
+- portfolio.portfolios :: portfolios_user_id_fkey
+- portfolio.positions :: positions_portfolio_id_fkey
+- portfolio.positions :: positions_asset_id_fkey
+- portfolio.transactions :: transactions_account_portfolio_fk
+- portfolio.transactions :: transactions_participant_portfolio_fk
+- portfolio.transactions :: transactions_reverses_portfolio_fk
+- portfolio.transactions :: transactions_portfolio_id_fkey
+- portfolio.transactions :: transactions_asset_id_fkey
+- portfolio.valuation_snapshots :: valuation_snapshots_portfolio_id_fkey
+- raw.report_payloads :: report_payloads_report_version_id_fkey
+
+## Unique constraints (10)
+- core.securities :: securities_id_company_key
+- ingestion.parse_runs :: parse_runs_id_report_version_key
+- ingestion.report_versions :: report_versions_id_report_key
+- ingestion.reports :: reports_id_company_key
+- portfolio.accounts :: accounts_id_portfolio_key
+- portfolio.asset_price_snapshots :: asset_price_unique
+- portfolio.assets :: assets_security_key
+- portfolio.participants :: participants_id_portfolio_key
+- portfolio.transactions :: transactions_id_portfolio_key
+- portfolio.valuation_snapshots :: valuation_snapshots_unique
+
+## Check constraints (275)
+- analytics.company_scores :: company_scores_id_not_null
+- analytics.company_scores :: company_scores_created_at_not_null
+- analytics.company_scores :: company_scores_details_not_null
+- analytics.company_scores :: company_scores_company_id_not_null
+- analytics.company_scores :: company_scores_run_id_not_null
+- analytics.factor_scores :: factor_scores_metadata_not_null
+- analytics.factor_scores :: factor_scores_id_not_null
+- analytics.factor_scores :: factor_scores_run_id_not_null
+- analytics.factor_scores :: factor_scores_company_id_not_null
+- analytics.factor_scores :: factor_scores_factor_code_not_null
+- analytics.factor_scores :: factor_scores_created_at_not_null
+- analytics.metric_snapshots :: metric_snapshots_company_id_not_null
+- analytics.metric_snapshots :: metric_snapshots_as_of_date_not_null
+- analytics.metric_snapshots :: metric_snapshots_id_not_null
+- analytics.metric_snapshots :: metric_snapshots_source_cutoff_at_not_null
+- analytics.metric_snapshots :: metric_snapshots_details_not_null
+- analytics.metric_snapshots :: metric_snapshots_created_at_not_null
+- analytics.metric_snapshots :: metric_snapshots_calculation_version_not_null
+- analytics.metric_snapshots :: metric_snapshots_metric_code_not_null
+- analytics.score_runs :: score_runs_id_not_null
+- analytics.score_runs :: score_runs_status_not_null
+- analytics.score_runs :: score_runs_parameters_not_null
+- analytics.score_runs :: score_runs_started_at_not_null
+- analytics.score_runs :: score_runs_source_cutoff_at_not_null
+- analytics.score_runs :: score_runs_as_of_date_not_null
+- analytics.score_runs :: score_runs_score_version_not_null
+- analytics.score_runs :: score_runs_status_chk
+- analytics.score_runs :: score_runs_created_at_not_null
+- auth.user_view_events :: user_view_events_user_id_not_null
+- auth.user_view_events :: user_view_events_id_not_null
+- auth.user_view_events :: user_view_events_metadata_not_null
+- auth.user_view_events :: user_view_events_viewed_at_not_null
+- auth.users :: users_username_not_blank
+- auth.users :: users_is_active_not_null
+- auth.users :: users_is_admin_not_null
+- auth.users :: users_password_hash_not_null
+- auth.users :: users_username_not_null
+- auth.users :: users_id_not_null
+- auth.users :: users_updated_at_not_null
+- auth.users :: users_created_at_not_null
+- core.companies :: companies_display_name_not_blank
+- core.companies :: companies_id_not_null
+- core.companies :: companies_normalized_name_not_blank
+- core.companies :: companies_updated_at_not_null
+- core.companies :: companies_created_at_not_null
+- core.companies :: companies_is_active_not_null
+- core.companies :: companies_normalized_name_not_null
+- core.companies :: companies_display_name_not_null
+- core.legacy_entity_map :: legacy_entity_map_confidence_chk
+- core.legacy_entity_map :: legacy_entity_map_entity_type_chk
+- core.legacy_entity_map :: legacy_entity_map_id_not_null
+- core.legacy_entity_map :: legacy_entity_map_source_system_not_null
+- core.legacy_entity_map :: legacy_entity_map_source_table_not_null
+- core.legacy_entity_map :: legacy_entity_map_legacy_key_not_null
+- core.legacy_entity_map :: legacy_entity_map_entity_type_not_null
+- core.legacy_entity_map :: legacy_entity_map_target_uuid_not_null
+- core.legacy_entity_map :: legacy_entity_map_created_at_not_null
+- core.securities :: securities_id_not_null
+- core.securities :: securities_validity_chk
+- core.securities :: securities_type_chk
+- core.securities :: securities_security_type_not_null
+- core.securities :: securities_is_primary_not_null
+- core.securities :: securities_is_active_not_null
+- core.securities :: securities_created_at_not_null
+- core.securities :: securities_updated_at_not_null
+- core.securities :: securities_company_id_not_null
+- core.security_aliases :: security_aliases_security_id_not_null
+- core.security_aliases :: security_aliases_alias_type_not_null
+- core.security_aliases :: security_aliases_alias_value_not_null
+- core.security_aliases :: security_aliases_created_at_not_null
+- core.security_aliases :: security_aliases_type_chk
+- core.security_aliases :: security_aliases_validity_chk
+- core.security_aliases :: security_aliases_id_not_null
+- fundamentals.financial_facts :: financial_facts_metadata_not_null
+- fundamentals.financial_facts :: financial_facts_period_order_not_null
+- fundamentals.financial_facts :: financial_facts_is_derived_from_source_not_null
+- fundamentals.financial_facts :: financial_facts_metric_code_not_null
+- fundamentals.financial_facts :: financial_facts_statement_id_not_null
+- fundamentals.financial_facts :: financial_facts_id_not_null
+- fundamentals.financial_facts :: financial_facts_comparison_type_chk
+- fundamentals.financial_facts :: financial_facts_period_order_chk
+- fundamentals.financial_facts :: financial_facts_created_at_not_null
+- fundamentals.financial_statements :: financial_statements_report_version_id_not_null
+- fundamentals.financial_statements :: financial_statements_fiscal_month_chk
+- fundamentals.financial_statements :: financial_statements_period_end_date_not_null
+- fundamentals.financial_statements :: financial_statements_is_restated_not_null
+- fundamentals.financial_statements :: financial_statements_created_at_not_null
+- fundamentals.financial_statements :: financial_statements_statement_type_not_null
+- fundamentals.financial_statements :: financial_statements_type_chk
+- fundamentals.financial_statements :: financial_statements_duration_chk
+- fundamentals.financial_statements :: financial_statements_period_chk
+- fundamentals.financial_statements :: financial_statements_id_not_null
+- fundamentals.financial_statements :: financial_statements_company_id_not_null
+- fundamentals.financial_statements :: financial_statements_report_id_not_null
+- fundamentals.financial_statements :: financial_statements_parse_run_id_not_null
+- fundamentals.metric_definitions :: metric_definitions_created_at_not_null
+- fundamentals.metric_definitions :: metric_definitions_is_active_not_null
+- fundamentals.metric_definitions :: metric_definitions_updated_at_not_null
+- fundamentals.metric_definitions :: metric_definitions_statement_type_chk
+- fundamentals.metric_definitions :: metric_definitions_metric_code_not_null
+- fundamentals.metric_definitions :: metric_definitions_canonical_name_not_null
+- fundamentals.monthly_activities :: monthly_activities_multiplier_chk
+- fundamentals.monthly_activities :: monthly_activities_id_not_null
+- fundamentals.monthly_activities :: monthly_activities_company_id_not_null
+- fundamentals.monthly_activities :: monthly_activities_report_id_not_null
+- fundamentals.monthly_activities :: monthly_activities_report_version_id_not_null
+- fundamentals.monthly_activities :: monthly_activities_parse_run_id_not_null
+- fundamentals.monthly_activities :: monthly_activities_period_end_date_not_null
+- fundamentals.monthly_activities :: monthly_activities_created_at_not_null
+- fundamentals.monthly_activities :: monthly_activities_fiscal_month_chk
+- fundamentals.monthly_activities :: monthly_activities_currency_unit_chk
+- ingestion.data_quality_issues :: data_quality_issues_severity_not_null
+- ingestion.data_quality_issues :: data_quality_issues_entity_type_not_null
+- ingestion.data_quality_issues :: data_quality_issues_id_not_null
+- ingestion.data_quality_issues :: dq_issue_code_chk
+- ingestion.data_quality_issues :: dq_severity_chk
+- ingestion.data_quality_issues :: data_quality_issues_details_not_null
+- ingestion.data_quality_issues :: data_quality_issues_detected_at_not_null
+- ingestion.data_quality_issues :: data_quality_issues_issue_code_not_null
+- ingestion.parse_runs :: parse_runs_parser_name_not_null
+- ingestion.parse_runs :: parse_runs_parser_version_not_null
+- ingestion.parse_runs :: parse_runs_started_at_not_null
+- ingestion.parse_runs :: parse_runs_status_not_null
+- ingestion.parse_runs :: parse_runs_parameters_not_null
+- ingestion.parse_runs :: parse_runs_created_at_not_null
+- ingestion.parse_runs :: parse_runs_report_version_id_not_null
+- ingestion.parse_runs :: parse_runs_id_not_null
+- ingestion.parse_runs :: parse_runs_finished_chk
+- ingestion.parse_runs :: parse_runs_status_chk
+- ingestion.report_versions :: report_versions_report_id_not_null
+- ingestion.report_versions :: report_versions_version_no_not_null
+- ingestion.report_versions :: report_versions_content_hash_not_null
+- ingestion.report_versions :: report_versions_collected_at_not_null
+- ingestion.report_versions :: report_versions_id_not_null
+- ingestion.report_versions :: report_versions_created_at_not_null
+- ingestion.report_versions :: report_versions_no_chk
+- ingestion.reports :: reports_updated_at_not_null
+- ingestion.reports :: reports_status_chk
+- ingestion.reports :: reports_retry_nonneg
+- ingestion.reports :: reports_fiscal_month_chk
+- ingestion.reports :: reports_no_self_supersede
+- ingestion.reports :: reports_id_not_null
+- ingestion.reports :: reports_company_id_not_null
+- ingestion.reports :: reports_source_not_null
+- ingestion.reports :: reports_source_report_id_not_null
+- ingestion.reports :: reports_discovered_at_not_null
+- ingestion.reports :: reports_processing_status_not_null
+- ingestion.reports :: reports_retry_count_not_null
+- ingestion.reports :: reports_created_at_not_null
+- ingestion.runs :: runs_created_at_not_null
+- ingestion.runs :: runs_items_failed_not_null
+- ingestion.runs :: runs_items_updated_not_null
+- ingestion.runs :: runs_items_inserted_not_null
+- ingestion.runs :: runs_items_seen_not_null
+- ingestion.runs :: runs_status_not_null
+- ingestion.runs :: runs_metadata_not_null
+- ingestion.runs :: runs_status_chk
+- ingestion.runs :: runs_counts_nonneg
+- ingestion.runs :: runs_id_not_null
+- ingestion.runs :: runs_source_not_null
+- ingestion.runs :: runs_job_type_not_null
+- ingestion.runs :: runs_started_at_not_null
+- ingestion.sync_state :: sync_state_id_not_null
+- ingestion.sync_state :: sync_state_created_at_not_null
+- ingestion.sync_state :: sync_state_updated_at_not_null
+- ingestion.sync_state :: sync_state_stream_not_null
+- ingestion.sync_state :: sync_state_source_not_null
+- ingestion.tracked_securities :: tracked_securities_id_not_null
+- ingestion.tracked_securities :: tracked_securities_security_id_not_null
+- ingestion.tracked_securities :: tracked_securities_is_active_not_null
+- ingestion.tracked_securities :: tracked_securities_created_at_not_null
+- ingestion.tracked_securities :: tracked_securities_updated_at_not_null
+- market.corporate_actions :: corporate_actions_type_chk
+- market.corporate_actions :: corporate_actions_created_at_not_null
+- market.corporate_actions :: corporate_actions_action_date_not_null
+- market.corporate_actions :: corporate_actions_security_id_not_null
+- market.corporate_actions :: corporate_actions_id_not_null
+- market.corporate_actions :: corporate_actions_factor_chk
+- market.corporate_actions :: corporate_actions_action_type_not_null
+- market.corporate_actions :: corporate_actions_is_confirmed_not_null
+- market.corporate_actions :: corporate_actions_detected_heuristically_not_null
+- market.corporate_actions :: corporate_actions_metadata_not_null
+- market.price_observations :: price_observations_id_not_null
+- market.price_observations :: price_obs_method_chk
+- market.price_observations :: price_obs_series_chk
+- market.price_observations :: price_obs_high_low_chk
+- market.price_observations :: price_obs_trade_value_chk
+- market.price_observations :: price_obs_trade_count_chk
+- market.price_observations :: price_observations_provenance_not_null
+- market.price_observations :: price_observations_source_not_null
+- market.price_observations :: price_observations_collected_at_not_null
+- market.price_observations :: price_observations_observation_hash_not_null
+- market.price_observations :: price_observations_created_at_not_null
+- market.price_observations :: price_obs_volume_chk
+- market.price_observations :: price_observations_is_adjusted_not_null
+- market.price_observations :: price_observations_price_series_not_null
+- market.price_observations :: price_observations_trade_date_not_null
+- market.price_observations :: price_observations_security_id_not_null
+- market.vendor_snapshots :: vendor_snapshots_captured_at_not_null
+- market.vendor_snapshots :: vendor_snapshots_target_chk
+- market.vendor_snapshots :: vendor_snapshots_security_implies_company
+- market.vendor_snapshots :: vendor_snapshots_id_not_null
+- market.vendor_snapshots :: vendor_snapshots_vendor_not_null
+- market.vendor_snapshots :: vendor_snapshots_metric_code_not_null
+- market.vendor_snapshots :: vendor_snapshots_raw_payload_not_null
+- market.vendor_snapshots :: vendor_snapshots_created_at_not_null
+- portfolio.accounts :: accounts_created_at_not_null
+- portfolio.accounts :: accounts_portfolio_id_not_null
+- portfolio.accounts :: accounts_id_not_null
+- portfolio.accounts :: accounts_type_chk
+- portfolio.accounts :: accounts_updated_at_not_null
+- portfolio.accounts :: accounts_is_active_not_null
+- portfolio.accounts :: accounts_account_type_not_null
+- portfolio.asset_price_snapshots :: asset_price_snapshots_created_at_not_null
+- portfolio.asset_price_snapshots :: asset_price_snapshots_price_rial_not_null
+- portfolio.asset_price_snapshots :: asset_price_snapshots_price_date_not_null
+- portfolio.asset_price_snapshots :: asset_price_snapshots_asset_id_not_null
+- portfolio.asset_price_snapshots :: asset_price_snapshots_id_not_null
+- portfolio.assets :: assets_is_active_not_null
+- portfolio.assets :: assets_type_chk
+- portfolio.assets :: assets_name_chk
+- portfolio.assets :: assets_id_not_null
+- portfolio.assets :: assets_asset_type_not_null
+- portfolio.assets :: assets_created_at_not_null
+- portfolio.assets :: assets_updated_at_not_null
+- portfolio.participants :: participants_created_at_not_null
+- portfolio.participants :: participants_updated_at_not_null
+- portfolio.participants :: participants_id_not_null
+- portfolio.participants :: participants_portfolio_id_not_null
+- portfolio.participants :: participants_sort_order_not_null
+- portfolio.participants :: participants_is_active_not_null
+- portfolio.participants :: participants_name_not_null
+- portfolio.participants :: participants_name_not_blank
+- portfolio.portfolios :: portfolios_base_currency_not_null
+- portfolio.portfolios :: portfolios_created_at_not_null
+- portfolio.portfolios :: portfolios_id_not_null
+- portfolio.portfolios :: portfolios_updated_at_not_null
+- portfolio.portfolios :: portfolios_type_chk
+- portfolio.portfolios :: portfolios_name_not_blank
+- portfolio.portfolios :: portfolios_portfolio_type_not_null
+- portfolio.portfolios :: portfolios_name_not_null
+- portfolio.portfolios :: portfolios_is_active_not_null
+- portfolio.positions :: positions_portfolio_id_not_null
+- portfolio.positions :: positions_asset_id_not_null
+- portfolio.positions :: positions_computed_from_tx_count_not_null
+- portfolio.positions :: positions_quantity_not_null
+- portfolio.positions :: positions_as_of_at_not_null
+- portfolio.transactions :: transactions_effective_date_not_null
+- portfolio.transactions :: transactions_type_chk
+- portfolio.transactions :: transactions_trade_date_chk
+- portfolio.transactions :: transactions_target_chk
+- portfolio.transactions :: transactions_opening_cost_chk
+- portfolio.transactions :: transactions_sign_chk
+- portfolio.transactions :: transactions_no_self_reverse
+- portfolio.transactions :: transactions_id_not_null
+- portfolio.transactions :: transactions_portfolio_id_not_null
+- portfolio.transactions :: transactions_account_id_not_null
+- portfolio.transactions :: transactions_transaction_type_not_null
+- portfolio.transactions :: transactions_quantity_delta_not_null
+- portfolio.transactions :: transactions_cash_delta_rial_not_null
+- portfolio.transactions :: transactions_metadata_not_null
+- portfolio.transactions :: transactions_created_at_not_null
+- portfolio.valuation_snapshots :: valuation_snapshots_calculated_at_not_null
+- portfolio.valuation_snapshots :: valuation_snapshots_valuation_date_not_null
+- portfolio.valuation_snapshots :: valuation_snapshots_portfolio_id_not_null
+- portfolio.valuation_snapshots :: valuation_snapshots_id_not_null
+- raw.report_payloads :: report_payloads_created_at_not_null
+- raw.report_payloads :: report_payloads_collected_at_not_null
+- raw.report_payloads :: report_payloads_content_hash_not_null
+- raw.report_payloads :: report_payloads_payload_type_not_null
+- raw.report_payloads :: report_payloads_report_version_id_not_null
+- raw.report_payloads :: report_payloads_id_not_null
+- raw.report_payloads :: report_payloads_byte_size_chk
+- raw.report_payloads :: report_payloads_at_least_one_source
+- raw.report_payloads :: report_payloads_type_chk
+
+## Generated columns (1)
+- portfolio.transactions.quantity = abs(quantity_delta)
+
+## Static vs catalog counts
+
+| object | static (preflight) | catalog | note |
+| --- | --- | --- | --- |
+| tables | 33 | 33 | equal if 33 |
+| views | 4 | 4 | 33? expected 4 |
+| functions | 14 | 14 | +trigger functions included |
+| triggers | 28 | 28 | user triggers only |
+| explicit indexes (static) | 89 | 132 (catalog total) | catalog adds PK/UNIQUE constraint indexes |
+
+> Catalog index count is larger than the static CREATE INDEX count because
+> PRIMARY KEY and UNIQUE constraints also create backing indexes, which are
+> not written as explicit `CREATE INDEX` statements in the DDL.
+

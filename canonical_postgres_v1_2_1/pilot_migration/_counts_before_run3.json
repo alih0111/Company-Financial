@@ -1,0 +1,1 @@
+{"core.companies": 8, "core.securities": 8, "core.security_aliases": 17, "core.legacy_entity_map": 52, "ingestion.reports": 826, "ingestion.report_versions": 826, "ingestion.parse_runs": 826, "fundamentals.monthly_activities": 594, "fundamentals.financial_statements": 236, "fundamentals.financial_facts": 2110, "market.price_observations": 26595}

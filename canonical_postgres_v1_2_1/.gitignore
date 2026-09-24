@@ -1,0 +1,6 @@
+# Test-only local artifacts (never commit secrets or venvs)
+.env
+.env.*
+.venv_test/
+__pycache__/
+.pytest_cache/

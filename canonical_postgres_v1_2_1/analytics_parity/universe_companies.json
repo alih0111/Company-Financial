@@ -1,0 +1,2776 @@
+{
+  "note": "auto-generated from TrackedTickers + MarketPriceHistory",
+  "companies": [
+    {
+      "label": "زگلدشت",
+      "symbol": "زگلدشت",
+      "company_ids": [
+        "959eac0c9aaf26d5f523b9008fb87bdf"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پسهند",
+      "symbol": "پسهند",
+      "company_ids": [
+        "eccaf93842ab5f9e3d79fae98027bde1"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کربن",
+      "symbol": "کربن",
+      "company_ids": [
+        "0859d2221e900c47ebd6555e399b010c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دسینا",
+      "symbol": "دسینا",
+      "company_ids": [
+        "b694bdef08321e4aa9a9324af55183a3"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شپاکسا",
+      "symbol": "شپاکسا",
+      "company_ids": [
+        "30098073127320ec11c2c84dc7dd7dd5"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سرود",
+      "symbol": "سرود",
+      "company_ids": [
+        "caeb12747085d21bf8331e09cbac141e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "چدن",
+      "symbol": "چدن",
+      "company_ids": [
+        "6a68f93c59cc3f3e981255fe2b2eedc1"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "داسوه",
+      "symbol": "داسوه",
+      "company_ids": [
+        "358139e1070f075fd27c39f77c4047e4"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پخش",
+      "symbol": "پخش",
+      "company_ids": [
+        "7083cfdfe2c268113f647360403b3778"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بهپاک",
+      "symbol": "بهپاک",
+      "company_ids": [
+        "72d8be1259190fb1b5c8726381e27f71"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سصوفی",
+      "symbol": "سصوفی",
+      "company_ids": [
+        "32cddf0dc9b06053a765b4c371dfe764"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زاگرس",
+      "symbol": "زاگرس",
+      "company_ids": [
+        "d481c7823a747032cbe08b189a6f03c0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "درهآور",
+      "symbol": "درهآور",
+      "company_ids": [
+        "8b5fc1bfef84c4c6f8b652747c0c50f7"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "حسیر",
+      "symbol": "حسیر",
+      "company_ids": [
+        "58a5a4af2867c8c00cd83c908b224228"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "رانیز",
+      "symbol": "رانیز",
+      "company_ids": [
+        "cca4110448d6de510f0d72a5270ddc77"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "اسیاتک",
+      "symbol": "اسیاتک",
+      "company_ids": [
+        "f8449f411289fa0775dc1618a83c922b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سنیر",
+      "symbol": "سنیر",
+      "company_ids": [
+        "94bbf9d3a165ab493a448d205002268e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "یاقوت",
+      "symbol": "یاقوت",
+      "company_ids": [
+        "af2a3b7ebae57928431cbe19b30f7929"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کیمیا",
+      "symbol": "کیمیا",
+      "company_ids": [
+        "be2e68f612059a7c256315b91e2aba36"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ثبهساز",
+      "symbol": "ثبهساز",
+      "company_ids": [
+        "f8dfbe7ae5669ddbcb0fa22d6d3e7a5c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فولای",
+      "symbol": "فولای",
+      "company_ids": [
+        "64e35e12a7959fcfbd10cb6036ed7693"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "قزوین",
+      "symbol": "قزوین",
+      "company_ids": [
+        "7f547bf2c0a3ff2919c50d8c899abc3d"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سکرما",
+      "symbol": "سکرما",
+      "company_ids": [
+        "60de37b0434d9b34ee753646b12c46f3"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "مادیرا",
+      "symbol": "مادیرا",
+      "company_ids": [
+        "ae5db37d89e694987912ff20ca952bcd"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ساروم",
+      "symbol": "ساروم",
+      "company_ids": [
+        "1b64f3e77238bc8dc5e3277587374ecf"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "حسینا",
+      "symbol": "حسینا",
+      "company_ids": [
+        "f165f6d8af88d6563894b42f26df2b45"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کخاک",
+      "symbol": "کخاک",
+      "company_ids": [
+        "ff114137fa42e84bc683b7b9b4aecee9"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غفارس",
+      "symbol": "غفارس",
+      "company_ids": [
+        "162bcc9b9c97c9f3510c1bd06b5ae8c0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ثالوند",
+      "symbol": "ثالوند",
+      "company_ids": [
+        "357e4606a3bb0ad48f3dc109ffc246d0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شاملا",
+      "symbol": "شاملا",
+      "company_ids": [
+        "7bb1956b5377b9485a7db8de8b55a434"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غبهنوش",
+      "symbol": "غبهنوش",
+      "company_ids": [
+        "5273ccc375234a373922892e70dffc5d"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خمهر",
+      "symbol": "خمهر",
+      "company_ids": [
+        "057f29e2cbb5f0df740b951b2669799f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خنصیر",
+      "symbol": "خنصیر",
+      "company_ids": [
+        "bbb81179fce8ad6deb0c746c9ed1d951"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کچاد",
+      "symbol": "کچاد",
+      "company_ids": [
+        "29d7795e06a8fe30d0a386ed95c8f445"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کلر",
+      "symbol": "کلر",
+      "company_ids": [
+        "3dc6ca7296ff7c957aa13a1bf9e28347"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دفرا",
+      "symbol": "دفرا",
+      "company_ids": [
+        "68e6f82aede2360869ceea7a3ea76d08"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غپینو",
+      "symbol": "غپینو",
+      "company_ids": [
+        "980b075e10e0e4da4ae747bc7b6c3825"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "نوری",
+      "symbol": "نوری",
+      "company_ids": [
+        "7951d684c53fd22e89f5777201bf7453"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "تایرا",
+      "symbol": "تایرا",
+      "company_ids": [
+        "2fe468d2d5a13b43ee3bc672d1fc2c6c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کنور",
+      "symbol": "کنور",
+      "company_ids": [
+        "0ab048f709cfd236a0ad7aaf542a990c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شپدیس",
+      "symbol": "شپدیس",
+      "company_ids": [
+        "f014eb1a1c5399dfedbc5d53791ad9ac"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فاراک",
+      "symbol": "فاراک",
+      "company_ids": [
+        "a274374c43fbb39b5ca1f9afddfea99a"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ثتران",
+      "symbol": "ثتران",
+      "company_ids": [
+        "257905140790bc29dc5bf9fb900ab7ff"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شغدیر",
+      "symbol": "شغدیر",
+      "company_ids": [
+        "f204dcb930e5f3c8891436b434ca7ef8"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بموتو",
+      "symbol": "بموتو",
+      "company_ids": [
+        "3f3bb26af4a9adedd8678ad845720830"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "وپست",
+      "symbol": "وپست",
+      "company_ids": [
+        "046559f7fcc4efeb9b20ea57995da789"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "درازک",
+      "symbol": "درازک",
+      "company_ids": [
+        "32b0b479f11a3f7399ab159f7f643370"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "حتوکا",
+      "symbol": "حتوکا",
+      "company_ids": [
+        "4b42ff856fa2a4996c5843f6bf85ef50"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غگل",
+      "symbol": "غگل",
+      "company_ids": [
+        "ca5267d5258e0569e8890f5e68c841e1"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غدام",
+      "symbol": "غدام",
+      "company_ids": [
+        "e62877018de8682af3ad516f752ad9bb"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شبهرن",
+      "symbol": "شبهرن",
+      "company_ids": [
+        "067ba4a186448d230d296b1ce604d32f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کپرور",
+      "symbol": "کپرور",
+      "company_ids": [
+        "63a5bb96ab3f48206ee3e201f4ac9d85"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خودکفا",
+      "symbol": "خودکفا",
+      "company_ids": [
+        "2f418d231f33b1c2a4dd596f18096bc7"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خصدرا",
+      "symbol": "خصدرا",
+      "company_ids": [
+        "e863456493cc72d8dc255c72551f3c26"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پکرمان",
+      "symbol": "پکرمان",
+      "company_ids": [
+        "7f03a704085688ac90d02018a42c8162"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "وسپه",
+      "symbol": "وسپه",
+      "company_ids": [
+        "8ae97b44c2d9568e972acecf665519f7"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "تاصیکو",
+      "symbol": "تاصیکو",
+      "company_ids": [
+        "6dd3fb203bb12fdd017e1f59fc61b9c6"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پارسان",
+      "symbol": "پارسان",
+      "company_ids": [
+        "8fb84e957a6f7f5f8c85bfea0a6625fc"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کفرا",
+      "symbol": "کفرا",
+      "company_ids": [
+        "0d19caedc1f47bfbce6949cc9fd54846"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شستا",
+      "symbol": "شستا",
+      "company_ids": [
+        "7545952cb53929c1c7836fa12c77de87"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زدشت",
+      "symbol": "زدشت",
+      "company_ids": [
+        "02d0fb54342c0cc17bc1062d7d88f448"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خزامیا",
+      "symbol": "خزامیا",
+      "company_ids": [
+        "9bd78c98b11a21d9cff6e5172cad1d14"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شلیا",
+      "symbol": "شلیا",
+      "company_ids": [
+        "6e0ae81a60f8c7f6c7f0ba5597f87225"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زشگزا",
+      "symbol": "زشگزا",
+      "company_ids": [
+        "2dcd8b1b42da502813fb5b275d5e288e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خبهمن",
+      "symbol": "خبهمن",
+      "company_ids": [
+        "9699d9e476a96e2efa79e1d55f75a297"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سشرق",
+      "symbol": "سشرق",
+      "company_ids": [
+        "e60b29bf5ce7f167ddc4039487210d2f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "جم پیلن",
+      "symbol": "جم پیلن",
+      "company_ids": [
+        "fa2e3267b28da291dc990ba6910786d0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فاسمین",
+      "symbol": "فاسمین",
+      "company_ids": [
+        "8234d415920c271fcb0300725ce4c7fd"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سدور",
+      "symbol": "سدور",
+      "company_ids": [
+        "79f7b5d9782896e63356e2feba1a41c2"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شکربن",
+      "symbol": "شکربن",
+      "company_ids": [
+        "2dc3ef3ab0a0505e8859b5400fc35e95"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "مبین",
+      "symbol": "مبین",
+      "company_ids": [
+        "4178bc367d0410e207d6a86524bf3878"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شمواد",
+      "symbol": "شمواد",
+      "company_ids": [
+        "9b6c775a14118735ecb3d0efbf6b7a8e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کزغال",
+      "symbol": "کزغال",
+      "company_ids": [
+        "905b8289d77d9927c13119c6a7cff9e1"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "وبصادر",
+      "symbol": "وبصادر",
+      "company_ids": [
+        "e2d1f5c5d5e4d6849d80511b5f035099"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کساپا",
+      "symbol": "کساپا",
+      "company_ids": [
+        "916d608d7850e7faf40d8efeb0d236a0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کاسپین",
+      "symbol": "کاسپین",
+      "company_ids": [
+        "7386c9d3264a07cdaacbdba2e1941d42"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سیمرغ",
+      "symbol": "سیمرغ",
+      "company_ids": [
+        "5d9142cab82acfbf6d12ef1824abd59b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "حفاری",
+      "symbol": "حفاری",
+      "company_ids": [
+        "4548be3fe5c878a9dbda1bd95501aa64"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شپلی",
+      "symbol": "شپلی",
+      "company_ids": [
+        "0839a7cf2afa34a4cc6cb908eaf9cb4f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فخوز",
+      "symbol": "فخوز",
+      "company_ids": [
+        "05a68769d3006e107f5b7e02c9eca4fd"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "چکاپا",
+      "symbol": "چکاپا",
+      "company_ids": [
+        "799566aa607bcd4a8ce4fed470c7d2b0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دلقما",
+      "symbol": "دلقما",
+      "company_ids": [
+        "7a54ec15d779b9ac2ed7963ef98f7d2e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سپیدار",
+      "symbol": "سپیدار",
+      "company_ids": [
+        "36f23676eaffd388df63219008589dec"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سهرمز",
+      "symbol": "سهرمز",
+      "company_ids": [
+        "0875c9b59ace28c22babd5e711c141da"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بزاگرس",
+      "symbol": "بزاگرس",
+      "company_ids": [
+        "1b8e0f2acf626d841e62b7b091e025b7"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "های وب3",
+      "symbol": "های وب3",
+      "company_ids": [
+        "62475be81f64f0f74b0f1f4a798dd2c5"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "تکمبا",
+      "symbol": "تکمبا",
+      "company_ids": [
+        "fe84a7e68ba30f83fd0f09d141ee51dd"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ستران",
+      "symbol": "ستران",
+      "company_ids": [
+        "a207ae2effa153c9cd7977e7399b33d9"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غشان",
+      "symbol": "غشان",
+      "company_ids": [
+        "5275e513e2842a3b390ae43faa530d06"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کحافظ",
+      "symbol": "کحافظ",
+      "company_ids": [
+        "e6f5fb278dab95af4b0dede9cbdd4f34"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ساوه",
+      "symbol": "ساوه",
+      "company_ids": [
+        "486253dea70fdfaa0ad435e871f1ac01"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "مثقال",
+      "symbol": "مثقال",
+      "company_ids": [
+        "99bbab977f4ac9e3c941b8b862922e33"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کلوند",
+      "symbol": "کلوند",
+      "company_ids": [
+        "100d9b545dbca1cb4b62ecc648741665"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پیزد",
+      "symbol": "پیزد",
+      "company_ids": [
+        "6f7820e83627a1b5cd580bbcbb338ef3"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دجابر",
+      "symbol": "دجابر",
+      "company_ids": [
+        "4abec9db6376c2f7c79a759d64220c72"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زپارس",
+      "symbol": "زپارس",
+      "company_ids": [
+        "9bef79cc77bbecdafa3e66106bb8253b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غشهداب",
+      "symbol": "غشهداب",
+      "company_ids": [
+        "4c72588412aab6f0a0e6d2469d9b1491"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بجهرم",
+      "symbol": "بجهرم",
+      "company_ids": [
+        "16c5adc0ecd89c732f53b66f1b794505"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خچرخش",
+      "symbol": "خچرخش",
+      "company_ids": [
+        "611f456315ab832044ca3f40c5f81b25"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سمازن",
+      "symbol": "سمازن",
+      "company_ids": [
+        "1d619a84cd8a88c3ecda4e61e9339167"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غپاک",
+      "symbol": "غپاک",
+      "company_ids": [
+        "76022dd3c77edb744eeef72f3d54483a"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "عالیس",
+      "symbol": "عالیس",
+      "company_ids": [
+        "a80a3880494d31e82b13fd0d040e0f72"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "قاسم",
+      "symbol": "قاسم",
+      "company_ids": [
+        "b88121029d7e973410b008320f8fe378"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "برکت",
+      "symbol": "برکت",
+      "company_ids": [
+        "fa35570c95ed00ea371c6fca0da91641"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دتماد",
+      "symbol": "دتماد",
+      "company_ids": [
+        "a7e6b6cc7c33c4988937ed9c579b01fa"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ساربیل",
+      "symbol": "ساربیل",
+      "company_ids": [
+        "a6ad819831020eba3d6400887affac3f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غدیس",
+      "symbol": "غدیس",
+      "company_ids": [
+        "72b4d79585406feb5160a555339cce54"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شوینده",
+      "symbol": "شوینده",
+      "company_ids": [
+        "15658d3f9297a112771a62658b4269d3"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غاذر",
+      "symbol": "غاذر",
+      "company_ids": [
+        "d94c1c91ade00de4b90a351ebd762517"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شبندر",
+      "symbol": "شبندر",
+      "company_ids": [
+        "57ec56ad0fe574fcb2cee0f550320934"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "حفارس",
+      "symbol": "حفارس",
+      "company_ids": [
+        "9ae2b0971dcfcf7effbe2ee13d292a7b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فملی",
+      "symbol": "فملی",
+      "company_ids": [
+        "bde997b478a960687f241894a21e4fdb"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "تاتمس",
+      "symbol": "تاتمس",
+      "company_ids": [
+        "47cec2efd2813e405cd4d975fb2df1a2"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کگل",
+      "symbol": "کگل",
+      "company_ids": [
+        "efbd08e291c09108c086ad170e7026ef"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شیران",
+      "symbol": "شیران",
+      "company_ids": [
+        "85b841e113a9981a56d7137b3e926c4a"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سرچشمه",
+      "symbol": "سرچشمه",
+      "company_ids": [
+        "4e35602375bf56d08f1acbbff336611c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "قشکر",
+      "symbol": "قشکر",
+      "company_ids": [
+        "79c05aa1cc2e5430ef253e0d28ef62af"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زفجر",
+      "symbol": "زفجر",
+      "company_ids": [
+        "bcd063af0a3b800fe8afeecd6fe37b47"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "حتاید",
+      "symbol": "حتاید",
+      "company_ids": [
+        "c830a9da03fc01d31766b115fa297d6c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فسبزوار",
+      "symbol": "فسبزوار",
+      "company_ids": [
+        "eb385d3905217941c6bb9e2caf44b537"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "توریل",
+      "symbol": "توریل",
+      "company_ids": [
+        "4c198075a5599a736ed1cb88eb36b7cd"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سیمرغ3",
+      "symbol": "سیمرغ3",
+      "company_ids": [
+        "5d9142cab82acfbf6d12ef1824abd59b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غویتا",
+      "symbol": "غویتا",
+      "company_ids": [
+        "19b9ef8150577a94e1ec98c012006fa9"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خدیزل",
+      "symbol": "خدیزل",
+      "company_ids": [
+        "fb2ff05e8a5b71f6d43905f74f59cec6"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "تپسی",
+      "symbol": "تپسی",
+      "company_ids": [
+        "0e16759f2d662dc8bc10d9604b5c3a7e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کرماشا",
+      "symbol": "کرماشا",
+      "company_ids": [
+        "c373c2297b48b0838e26f18bf2419ddb"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فاذر",
+      "symbol": "فاذر",
+      "company_ids": [
+        "add4a2f41440b06319f3e7d8d553f2e4"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شیراز",
+      "symbol": "شیراز",
+      "company_ids": [
+        "1843493e1f47856f9ed240017217d5bf"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خمحرکه",
+      "symbol": "خمحرکه",
+      "company_ids": [
+        "219f43aab6fb90530570bd54a78db3f4"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "قرن",
+      "symbol": "قرن",
+      "company_ids": [
+        "8c179073bc41ee6b95d603feda98dafa"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بمپنا",
+      "symbol": "بمپنا",
+      "company_ids": [
+        "1818f78f177b8c9343ce20a08ca3cf40"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کیمیاتک",
+      "symbol": "کیمیاتک",
+      "company_ids": [
+        "13a0bcb602f4d54dab681986defb249d"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دروز",
+      "symbol": "دروز",
+      "company_ids": [
+        "de970c1c2991b9b3e1e5b18f4f361700"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "قصفها",
+      "symbol": "قصفها",
+      "company_ids": [
+        "881f485833e35685213e8f387e534bf7"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "رانفور",
+      "symbol": "رانفور",
+      "company_ids": [
+        "efb86e9938a9c7351b51280587d898dc"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شدوص",
+      "symbol": "شدوص",
+      "company_ids": [
+        "d5d20f20215dafb1d4d773897c34e2b5"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فولاژ",
+      "symbol": "فولاژ",
+      "company_ids": [
+        "9a36b759bdba7d3f32786da29cb90020"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فرآور",
+      "symbol": "فرآور",
+      "company_ids": [
+        "a9e76ebf3cf2f1c17cdfa0b9442e427c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "چخزر",
+      "symbol": "چخزر",
+      "company_ids": [
+        "83063f85d3b40da6b49c458abcb31423"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سهگمت",
+      "symbol": "سهگمت",
+      "company_ids": [
+        "03892a92148b9665bbb3713469826e29"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فجر",
+      "symbol": "فجر",
+      "company_ids": [
+        "8fd34057fd7ca66b3cbf6590fabf6582"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فبستم",
+      "symbol": "فبستم",
+      "company_ids": [
+        "981b4b3afa1c7f609640ac1af6445bfc"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "تلیسه",
+      "symbol": "تلیسه",
+      "company_ids": [
+        "1712cd6b0f7a77388a2c072ad6694a89"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پتایر",
+      "symbol": "پتایر",
+      "company_ids": [
+        "94e5dd63557afa43251119cb808facf2"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سخوز",
+      "symbol": "سخوز",
+      "company_ids": [
+        "3d93905f5d86c52a214cb21d71fbe704"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غبشهر",
+      "symbol": "غبشهر",
+      "company_ids": [
+        "dd5d864e79f2bd6bd432e4b67295eda0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کصدف",
+      "symbol": "کصدف",
+      "company_ids": [
+        "213d9e3501b775d1751c699f0b6915ed"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "تپمپی",
+      "symbol": "تپمپی",
+      "company_ids": [
+        "0b933179128a75d133acc7cac85b4662"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کبافق",
+      "symbol": "کبافق",
+      "company_ids": [
+        "b752d7f753da4d90eb35269ac20f29b9"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "های وب",
+      "symbol": "های وب",
+      "company_ids": [
+        "62475be81f64f0f74b0f1f4a798dd2c5"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دزاگرس",
+      "symbol": "دزاگرس",
+      "company_ids": [
+        "ba1603db6572b46274d398e9882a95ea"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خراسان",
+      "symbol": "خراسان",
+      "company_ids": [
+        "003aeed095825b208ba109440c6a6431"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دسبحا",
+      "symbol": "دسبحا",
+      "company_ids": [
+        "bd0ee973f3ff87b60181493e77d55264"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شرانل",
+      "symbol": "شرانل",
+      "company_ids": [
+        "39c493c82f878ca7ed0a347493f150b6"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شگل",
+      "symbol": "شگل",
+      "company_ids": [
+        "88f79bf4cbb7f64d7bb74b1c01d3388a"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کالا",
+      "symbol": "کالا",
+      "company_ids": [
+        "4d8273e8e35e83a73ef9b5bca072c95c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "قثابت",
+      "symbol": "قثابت",
+      "company_ids": [
+        "c2ef7e2898d4f65377c112a6be867fd4"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سفانو",
+      "symbol": "سفانو",
+      "company_ids": [
+        "1e14ece10fa50f96266e53a6d2ce83a1"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سپید",
+      "symbol": "سپید",
+      "company_ids": [
+        "a2affb7dd71d9fab5ed7047d8e8f9a93"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کسرا",
+      "symbol": "کسرا",
+      "company_ids": [
+        "4ccc9664a47539eaff4b6b34fbfc0931",
+        "7e41b7fd7ba1c353199eba22667db254"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بفجر",
+      "symbol": "بفجر",
+      "company_ids": [
+        "42c343943444522671018f6ce8d2c2a1"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فولاد",
+      "symbol": "فولاد",
+      "company_ids": [
+        "d07ff5df6784e3a6d9d9eabdb65794ba"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بکهنوج",
+      "symbol": "بکهنوج",
+      "company_ids": [
+        "081486afb8ec3b6088ff61e17ed1e666"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بترانس",
+      "symbol": "بترانس",
+      "company_ids": [
+        "5846976e3619ada1281f076ebdce9055"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دقاضی",
+      "symbol": "دقاضی",
+      "company_ids": [
+        "fd32ba6ce155b8809f2066377e9eeccc"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فخاس",
+      "symbol": "فخاس",
+      "company_ids": [
+        "731166bbfc773bf6a75a4bb795177b44"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "وخاور",
+      "symbol": "وخاور",
+      "company_ids": [
+        "3dee3148d7752fbf747804eae2347c51"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سیستم",
+      "symbol": "سیستم",
+      "company_ids": [
+        "1ddbed63fff24fa4ad4fc82f1d695219"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بیوتیک",
+      "symbol": "بیوتیک",
+      "company_ids": [
+        "8cf8f7ebb7a81d1f00229c19692d4f69"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بمولد",
+      "symbol": "بمولد",
+      "company_ids": [
+        "0e1074b193f3c2c8dec3a7743d83b13b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دانا",
+      "symbol": "دانا",
+      "company_ids": [
+        "5a47be702a11b42d75ea4fc8a0003e05"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غنوش",
+      "symbol": "غنوش",
+      "company_ids": [
+        "74a98ddff0b1430c48e8cfc83fa56408"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زهلال",
+      "symbol": "زهلال",
+      "company_ids": [
+        "f08b706dfe1ab6bc864806ce40729675"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شبریز",
+      "symbol": "شبریز",
+      "company_ids": [
+        "32f230090775786229c664bc8cb52dba"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دعبید",
+      "symbol": "دعبید",
+      "company_ids": [
+        "8bfd141901eaba0211578f174767f175"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شسپا",
+      "symbol": "شسپا",
+      "company_ids": [
+        "b1cd84e33ebd60a436db5a07c0afd700"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کاذر",
+      "symbol": "کاذر",
+      "company_ids": [
+        "99775fd5c264517e465c66d684aefc15"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فبیرا",
+      "symbol": "فبیرا",
+      "company_ids": [
+        "5d15c985370d5c69364f396ffec4e0d7"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کاما",
+      "symbol": "کاما",
+      "company_ids": [
+        "54e663798b0e261d5e3fef1f8da6430e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "افق",
+      "symbol": "افق",
+      "company_ids": [
+        "3eed9ad615c315d96a80b4ed8599772d"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "انرژی",
+      "symbol": "انرژی",
+      "company_ids": [
+        "9a98774de11b0af3874a6f2b69db1b58"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دامین",
+      "symbol": "دامین",
+      "company_ids": [
+        "2ebfd20c4a8b98cdd3e425bf2d0a48cf"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بوعلی",
+      "symbol": "بوعلی",
+      "company_ids": [
+        "62a63aab5e5f97d82fe87b1c3a34f7f2"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کمنگنز",
+      "symbol": "کمنگنز",
+      "company_ids": [
+        "f26e919a7e723cb5fb35be3a34b11035"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زمگسا",
+      "symbol": "زمگسا",
+      "company_ids": [
+        "6def03d39ddc41e22cacb552bcb94ee0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "جم پیلن2",
+      "symbol": "جم پیلن2",
+      "company_ids": [
+        "fa2e3267b28da291dc990ba6910786d0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غشوکو",
+      "symbol": "غشوکو",
+      "company_ids": [
+        "d36c687f0cd3a20f5e0c5c1ae507ae3f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شتران",
+      "symbol": "شتران",
+      "company_ids": [
+        "4f8054584021b10a15fe091d8973bf6f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سغرب",
+      "symbol": "سغرب",
+      "company_ids": [
+        "5d5c836b94dd5814744b8f6f549c51e8"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دکپسول",
+      "symbol": "دکپسول",
+      "company_ids": [
+        "d4ba95c595b08e7a8441a997f29f4427"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "چکارن",
+      "symbol": "چکارن",
+      "company_ids": [
+        "b4d2079975271890006b2f38412d761d"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "هجرت",
+      "symbol": "هجرت",
+      "company_ids": [
+        "34f99deab827071c31069cb575b6aeeb"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غانیزان",
+      "symbol": "غانیزان",
+      "company_ids": [
+        "22299b7657a300fc6056ba1b0e6532dd"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فسرب",
+      "symbol": "فسرب",
+      "company_ids": [
+        "adf177e179510f1d911eeb2ff2905d2c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زفکا",
+      "symbol": "زفکا",
+      "company_ids": [
+        "04234a593ca4912aa015a1dea99da781"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زبینا",
+      "symbol": "زبینا",
+      "company_ids": [
+        "876ac8a92de3ccb30dc55ce3d7ac189a"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بنو",
+      "symbol": "بنو",
+      "company_ids": [
+        "18aeb706c9868c500cbb5e6128c038ae"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "وتوشه",
+      "symbol": "وتوشه",
+      "company_ids": [
+        "ebcee98ad7dedd38d7be45b541349ffa"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "آریا",
+      "symbol": "آریا",
+      "company_ids": [
+        "a0a860bea50008bf8d2189168b782225"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غمینو",
+      "symbol": "غمینو",
+      "company_ids": [
+        "c629b0270c5a5e7f60f68d0cb34f55df"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "حریل",
+      "symbol": "حریل",
+      "company_ids": [
+        "9f5edea13cb3cb346e5895e3fb55faf7"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فنورد",
+      "symbol": "فنورد",
+      "company_ids": [
+        "ad2a49a7dc0223ba81462651415c6507"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دفارا",
+      "symbol": "دفارا",
+      "company_ids": [
+        "c5e041913a67a3bdb2f7bfe5bba20bd8"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "قلرست",
+      "symbol": "قلرست",
+      "company_ids": [
+        "e4f51cddab83abe24e70280c9f7240b3"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کرازی",
+      "symbol": "کرازی",
+      "company_ids": [
+        "39232c8d2f1231a8f681e77185a0a39e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خموتور",
+      "symbol": "خموتور",
+      "company_ids": [
+        "4a1adc39de6b1615bf5bf9b656a3030f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غگیلا",
+      "symbol": "غگیلا",
+      "company_ids": [
+        "801acf9315859c07fc1aca9cb877c22b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کپشیر",
+      "symbol": "کپشیر",
+      "company_ids": [
+        "dec2e66cbc6ff178a8ee0240a9fc017e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فنوال",
+      "symbol": "فنوال",
+      "company_ids": [
+        "7d537ec96a4dfdbd270698d08661b4b4"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "اروند",
+      "symbol": "اروند",
+      "company_ids": [
+        "cb507b89faf6ddf31e16ba5ea8f669d0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دسبحان",
+      "symbol": "دسبحان",
+      "company_ids": [
+        "bb3afe19f992a47dab8ed0efba9f15db"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ارفع",
+      "symbol": "ارفع",
+      "company_ids": [
+        "9f4709224be63e56349d1cc368e5f005"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غمایه",
+      "symbol": "غمایه",
+      "company_ids": [
+        "6bd4aac18107335caeba964fd9804250"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شمس",
+      "symbol": "شمس",
+      "company_ids": [
+        "c219bd90953f64ecb6ff2dbf5f96ee33"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پرداخت",
+      "symbol": "پرداخت",
+      "company_ids": [
+        "1025955b553ca1fa9153eea469591cb1"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شگویا",
+      "symbol": "شگویا",
+      "company_ids": [
+        "bda1926ec65a0bac619855e021b6b61c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غشاذر",
+      "symbol": "غشاذر",
+      "company_ids": [
+        "968fb3437a7e5a62ca7b18a26e303df1"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شاوان",
+      "symbol": "شاوان",
+      "company_ids": [
+        "bf951d5a241fb38b5504e5206704d0d8"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کاوه",
+      "symbol": "کاوه",
+      "company_ids": [
+        "8a664764ba757925c6545b1f6148a41d"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دالبر",
+      "symbol": "دالبر",
+      "company_ids": [
+        "db1cb723021652b16b2b07e88b595bb0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "حکشتی",
+      "symbol": "حکشتی",
+      "company_ids": [
+        "a36b1b9ab2e49cbbd170e60080fa4676"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سقاین",
+      "symbol": "سقاین",
+      "company_ids": [
+        "8bbc5bbccde546656d599555b9be64d9"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پارس",
+      "symbol": "پارس",
+      "company_ids": [
+        "4e74a398d885cd61dfd07383641eb05f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شپارس",
+      "symbol": "شپارس",
+      "company_ids": [
+        "508279539a385693bd947ea986985bb4"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سبزوا",
+      "symbol": "سبزوا",
+      "company_ids": [
+        "14e17dd0b0b3c62c333dd4aa6c71f8ff"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سباقر",
+      "symbol": "سباقر",
+      "company_ids": [
+        "b992f8cd4c1b548e42482525505c9ea7"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غمهرا",
+      "symbol": "غمهرا",
+      "company_ids": [
+        "d591b0ffa863888077d0146ba8cd4e66"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دابور",
+      "symbol": "دابور",
+      "company_ids": [
+        "b3cd7f653dc0d5fd0e3a6dca3ddedf1b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غشصفا",
+      "symbol": "غشصفا",
+      "company_ids": [
+        "2c7e998dc9b612c1fd643b991c0dc3cc"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کگاز",
+      "symbol": "کگاز",
+      "company_ids": [
+        "56187148c4031e89830f329dd299e701"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غکورش",
+      "symbol": "غکورش",
+      "company_ids": [
+        "bbcfae1712205951bfbb99d634742ad8"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پاکشو",
+      "symbol": "پاکشو",
+      "company_ids": [
+        "6b88726e82dff2001540bb7b87e2d9be"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "قنیشا",
+      "symbol": "قنیشا",
+      "company_ids": [
+        "07589f30e28ffd0a131f9c4157417d59"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پاسا",
+      "symbol": "پاسا",
+      "company_ids": [
+        "c5978431f5fc7f58270049f2352c5a00"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بپیوند",
+      "symbol": "بپیوند",
+      "company_ids": [
+        "ff4c38ddc4d5a2b3d58437c8708fa6cb"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "غگلستا",
+      "symbol": "غگلستا",
+      "company_ids": [
+        "26ee5c2c59a374815a759f4990eb7c29"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فایرا",
+      "symbol": "فایرا",
+      "company_ids": [
+        "f785e696c04d1a51b6e88f62deefacb3"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سکرد",
+      "symbol": "سکرد",
+      "company_ids": [
+        "701858157df331969ad61c12b4abe861"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "خودرو",
+      "symbol": "خودرو",
+      "company_ids": [
+        "8f0d3b9ed3bb17e93db23268de21bd69"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سبجنو",
+      "symbol": "سبجنو",
+      "company_ids": [
+        "25594bcbd879ef25ca250052162de693"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دتوزیع",
+      "symbol": "دتوزیع",
+      "company_ids": [
+        "1b3136d2227d59961e470887dc900c4d"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فباهنر",
+      "symbol": "فباهنر",
+      "company_ids": [
+        "a7c92003e95722cea2d38ba5306603b9"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "رمپنا",
+      "symbol": "رمپنا",
+      "company_ids": [
+        "25aafd0fbcf94aed7458b9d9f32852d8"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کهمدا",
+      "symbol": "کهمدا",
+      "company_ids": [
+        "713aa98887c6fda78002e405bfbec00e"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سشمال",
+      "symbol": "سشمال",
+      "company_ids": [
+        "251c0169be640916c76cf3d978482145"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "جم پیلن3",
+      "symbol": "جم پیلن3",
+      "company_ids": [
+        "fa2e3267b28da291dc990ba6910786d0"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کماسه",
+      "symbol": "کماسه",
+      "company_ids": [
+        "86753ad1b296713ec2fe34094b7b1d88"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دارو",
+      "symbol": "دارو",
+      "company_ids": [
+        "d01ad6f1e6afd1225f55ef45468e0c84"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فپنتا",
+      "symbol": "فپنتا",
+      "company_ids": [
+        "a4c5e155e0d31a9e8e3eaf65bf32f899"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شبصیر",
+      "symbol": "شبصیر",
+      "company_ids": [
+        "8ecb7116a860463b6dee7ca13dcf73ea"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دیران",
+      "symbol": "دیران",
+      "company_ids": [
+        "77ec0ce2270f5a3e04f8fa6313cf5201"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شکام",
+      "symbol": "شکام",
+      "company_ids": [
+        "a09b97e4613ee9786a2d838cfdde6353"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بشهاب",
+      "symbol": "بشهاب",
+      "company_ids": [
+        "d9386a2d4a04ecbff28884606d66eda3"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ددانا",
+      "symbol": "ددانا",
+      "company_ids": [
+        "0e3a6731bfe6da581d9c4190b9b9707b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کروی",
+      "symbol": "کروی",
+      "company_ids": [
+        "9690eb40ea60e7030a8c95d739fc573c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "گشان",
+      "symbol": "گشان",
+      "company_ids": [
+        "8f5d6dbbead24fee9802a92474c4ead8"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دپارس",
+      "symbol": "دپارس",
+      "company_ids": [
+        "5ba7eb50b25bd20543e42f9cc50394ed"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "سآبیک",
+      "symbol": "سآبیک",
+      "company_ids": [
+        "549b1892b8d2c12be65851e10d9d9253"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "بگیلان",
+      "symbol": "بگیلان",
+      "company_ids": [
+        "20579374fedaf42bb5e2e72dd734e793"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زقیام",
+      "symbol": "زقیام",
+      "company_ids": [
+        "c948737bdfc349d67b85aee1855d53b9"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "ذوب",
+      "symbol": "ذوب",
+      "company_ids": [
+        "c72d6744160ed4ab4dd2ea41ac2b3c63"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دبالک",
+      "symbol": "دبالک",
+      "company_ids": [
+        "d108002c1966bd34137074461c1193bc"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "پکویر",
+      "symbol": "پکویر",
+      "company_ids": [
+        "99739597e0be8c49abb1092f02513a19"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "زکشت",
+      "symbol": "زکشت",
+      "company_ids": [
+        "9014071d39f25d22b48f82c550918f60"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "وخارزم",
+      "symbol": "وخارزم",
+      "company_ids": [
+        "32bc989812a6997ee475737a30528c3b"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شاراک",
+      "symbol": "شاراک",
+      "company_ids": [
+        "36d852f81798b4c4f57827151acb1e86"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "شپنا",
+      "symbol": "شپنا",
+      "company_ids": [
+        "85287a8fa516fef95aa0d2185f916071"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "وبملت",
+      "symbol": "وبملت",
+      "company_ids": [
+        "f29a3223edeee237a7b7664f7bb172ff"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "نان",
+      "symbol": "نان",
+      "company_ids": [
+        "002c39c907ffac34a1ee6c5b55cefd23"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فزر",
+      "symbol": "فزر",
+      "company_ids": [
+        "8a93d99f4ddd3225214f5c0e83dd513f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فگستر",
+      "symbol": "فگستر",
+      "company_ids": [
+        "835a058978f7d07fa0f0286893ac885a"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "دزهراوی",
+      "symbol": "دزهراوی",
+      "company_ids": [
+        "70b8796676033dbf81f6977819d3871d"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کطبس",
+      "symbol": "کطبس",
+      "company_ids": [
+        "c45bd2f33db1b2f949e77b9db3b4ec72"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "فسپا",
+      "symbol": "فسپا",
+      "company_ids": [
+        "dfe07aa2c9a5a27265431f60ae868b8c"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "حپارسا",
+      "symbol": "حپارسا",
+      "company_ids": [
+        "9b49ee65d0f95a940c84528303ae18e9"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "کپارس",
+      "symbol": "کپارس",
+      "company_ids": [
+        "8fd65ccbe666396e87271af7cc74b33f"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    },
+    {
+      "label": "آردینه",
+      "symbol": "آردینه",
+      "company_ids": [
+        "04596c0c8cd003eca6202bb9351d3d5d"
+      ],
+      "criteria": [
+        "universe"
+      ]
+    }
+  ]
+}

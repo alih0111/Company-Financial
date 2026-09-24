@@ -1,0 +1,12 @@
+# dbo.mahane
+
+Row count (approx): 12122
+Masked columns: (none)
+
+| ID | CompanyID | CompanyName | ReportDate | Value1 | Value2 | Value3 | Url | LastModificationDate |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 12196 | 002c39c907ffac34a1ee6c5b55cefd23 | نان | 1402/01/31 | 0.0 | 0.0 | 1552046.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D9%86%D8%A7%D9%86&LetterType=58&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000000&name=%D8%B5%D9%86%D8%A7%DB%8C%D8%B9%20%D8%BA%D8%B0%D8%A7%DB%8C%DB%8C%20%D8%B1%D8%B6%D9%88%DB... | NULL |
+| 12195 | 002c39c907ffac34a1ee6c5b55cefd23 | نان | 1402/02/31 | 0.0 | 0.0 | 1935375.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D9%86%D8%A7%D9%86&LetterType=58&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000000&name=%D8%B5%D9%86%D8%A7%DB%8C%D8%B9%20%D8%BA%D8%B0%D8%A7%DB%8C%DB%8C%20%D8%B1%D8%B6%D9%88%DB... | NULL |
+| 12194 | 002c39c907ffac34a1ee6c5b55cefd23 | نان | 1402/03/31 | 0.0 | 0.0 | 2004682.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D9%86%D8%A7%D9%86&LetterType=58&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000000&name=%D8%B5%D9%86%D8%A7%DB%8C%D8%B9%20%D8%BA%D8%B0%D8%A7%DB%8C%DB%8C%20%D8%B1%D8%B6%D9%88%DB... | NULL |
+| 12193 | 002c39c907ffac34a1ee6c5b55cefd23 | نان | 1402/04/31 | 0.0 | 0.0 | 1861772.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D9%86%D8%A7%D9%86&LetterType=58&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000000&name=%D8%B5%D9%86%D8%A7%DB%8C%D8%B9%20%D8%BA%D8%B0%D8%A7%DB%8C%DB%8C%20%D8%B1%D8%B6%D9%88%DB... | NULL |
+| 12192 | 002c39c907ffac34a1ee6c5b55cefd23 | نان | 1402/05/31 | 0.0 | 0.0 | 2034058.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D9%86%D8%A7%D9%86&LetterType=58&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000000&name=%D8%B5%D9%86%D8%A7%DB%8C%D8%B9%20%D8%BA%D8%B0%D8%A7%DB%8C%DB%8C%20%D8%B1%D8%B6%D9%88%DB... | NULL |

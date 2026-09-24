@@ -1,0 +1,53 @@
+{
+  "note": "Pilot sample: 8 heterogeneous companies. company_ids are legacy SQL Server CompanyID (md5 of name).",
+  "companies": [
+    {
+      "label": "khodro",
+      "symbol": "خودرو",
+      "company_ids": ["8f0d3b9ed3bb17e93db23268de21bd69"],
+      "criteria": ["simple identity", "long price history (~5288)", "non-null financials"]
+    },
+    {
+      "label": "dekpesol",
+      "symbol": "دکپسول",
+      "company_ids": ["d4ba95c595b08e7a8441a997f29f4427"],
+      "criteria": ["max mahane history (~79)"]
+    },
+    {
+      "label": "chekapa",
+      "symbol": "چکاپا",
+      "company_ids": ["799566aa607bcd4a8ce4fed470c7d2b0"],
+      "criteria": ["max miandore2 rows (~30)", "non-null financials"]
+    },
+    {
+      "label": "erafo",
+      "symbol": "ارفع",
+      "company_ids": ["9f4709224be63e56349d1cc368e5f005"],
+      "criteria": ["rich financials (assets/equity/cash flow)", "multiple statements"]
+    },
+    {
+      "label": "shekarbn",
+      "symbol": "شکربن",
+      "company_ids": ["2dc3ef3ab0a0505e8859b5400fc35e95"],
+      "criteria": ["long price history (~5306)", "NULL data-quality case (financials null)"]
+    },
+    {
+      "label": "betrans",
+      "symbol": "بترانس",
+      "company_ids": ["5846976e3619ada1281f076ebdce9055"],
+      "criteria": ["CodalReports with 7 reports (correction candidate)"]
+    },
+    {
+      "label": "ofoq",
+      "symbol": "افق",
+      "company_ids": ["3eed9ad615c315d96a80b4ed8599772d"],
+      "criteria": ["large mahane history (~77)", "non-null financials"]
+    },
+    {
+      "label": "kastra",
+      "symbol": "کسرا",
+      "company_ids": ["4ccc9664a47539eaff4b6b34fbfc0931", "7e41b7fd7ba1c353199eba22667db254"],
+      "criteria": ["KNOWN IDENTITY CONFLICT: two legacy CompanyID share InstrumentCode 4614779520007780"]
+    }
+  ]
+}

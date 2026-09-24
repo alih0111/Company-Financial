@@ -1,0 +1,212 @@
+{
+  "SalesLast12M": {
+    "compared": 276,
+    "exact": 276,
+    "within": 0,
+    "mismatch": 0,
+    "max_abs": 0.0
+  },
+  "SalesPrev12M": {
+    "compared": 276,
+    "exact": 276,
+    "within": 0,
+    "mismatch": 0,
+    "max_abs": 0.0
+  },
+  "SalesGrowth12M": {
+    "compared": 276,
+    "exact": 91,
+    "within": 185,
+    "mismatch": 0,
+    "max_abs": 0.004982489676478963
+  },
+  "TTMNetProfit": {
+    "compared": 276,
+    "exact": 276,
+    "within": 0,
+    "mismatch": 0,
+    "max_abs": 0.0
+  },
+  "PEApprox": {
+    "compared": 276,
+    "exact": 39,
+    "within": 237,
+    "mismatch": 0,
+    "max_abs": 0.005000000000000782
+  },
+  "QuantScore": {
+    "compared": 276,
+    "exact": 276,
+    "within": 0,
+    "mismatch": 0,
+    "max_abs": 0.0
+  },
+  "OperatingMargin12M": {
+    "compared": 276,
+    "exact": 132,
+    "within": 144,
+    "mismatch": 0,
+    "max_abs": 0.004941242547836566
+  },
+  "NetProfitMargin12M": {
+    "compared": 276,
+    "exact": 172,
+    "within": 104,
+    "mismatch": 0,
+    "max_abs": 0.00499958050171756
+  },
+  "ROE": {
+    "compared": 276,
+    "exact": 174,
+    "within": 102,
+    "mismatch": 0,
+    "max_abs": 0.004974377210324121
+  },
+  "CashConversionRank": {
+    "compared": 276,
+    "exact": 196,
+    "within": 80,
+    "mismatch": 0,
+    "max_abs": 5.000000000000143e-05
+  },
+  "CurrentRatioRank": {
+    "compared": 276,
+    "exact": 174,
+    "within": 102,
+    "mismatch": 0,
+    "max_abs": 4.951456310686719e-05
+  },
+  "EarningsQualityRank": {
+    "compared": 276,
+    "exact": 142,
+    "within": 134,
+    "mismatch": 0,
+    "max_abs": 4.962406015041054e-05
+  },
+  "InterestCoverageRank": {
+    "compared": 276,
+    "exact": 162,
+    "within": 114,
+    "mismatch": 0,
+    "max_abs": 4.827586206898604e-05
+  },
+  "LeverageRank": {
+    "compared": 276,
+    "exact": 180,
+    "within": 96,
+    "mismatch": 0,
+    "max_abs": 4.615384615386242e-05
+  },
+  "LiquidityRank": {
+    "compared": 276,
+    "exact": 16,
+    "within": 260,
+    "mismatch": 0,
+    "max_abs": 4.814814814818602e-05
+  },
+  "LowVolatilityRank": {
+    "compared": 276,
+    "exact": 12,
+    "within": 264,
+    "mismatch": 0,
+    "max_abs": 4.962406015041054e-05
+  },
+  "MarginTrendRank": {
+    "compared": 276,
+    "exact": 134,
+    "within": 142,
+    "mismatch": 0,
+    "max_abs": 4.9645390070934825e-05
+  },
+  "MomentumRank": {
+    "compared": 276,
+    "exact": 19,
+    "within": 257,
+    "mismatch": 0,
+    "max_abs": 4.980544747085203e-05
+  },
+  "NetMarginRank": {
+    "compared": 276,
+    "exact": 173,
+    "within": 103,
+    "mismatch": 0,
+    "max_abs": 4.951456310686719e-05
+  },
+  "NetProfitGrowthRank": {
+    "compared": 276,
+    "exact": 16,
+    "within": 260,
+    "mismatch": 0,
+    "max_abs": 4.9806949807051915e-05
+  },
+  "OperatingMarginRank": {
+    "compared": 276,
+    "exact": 133,
+    "within": 143,
+    "mismatch": 0,
+    "max_abs": 4.96503496503764e-05
+  },
+  "OperatingProfitGrowthRank": {
+    "compared": 276,
+    "exact": 16,
+    "within": 260,
+    "mismatch": 0,
+    "max_abs": 4.848484848485324e-05
+  },
+  "PBRank": {
+    "compared": 276,
+    "exact": 192,
+    "within": 84,
+    "mismatch": 0,
+    "max_abs": 4.545454545457073e-05
+  },
+  "PERank": {
+    "compared": 276,
+    "exact": 58,
+    "within": 218,
+    "mismatch": 0,
+    "max_abs": 4.545454545459848e-05
+  },
+  "PSRank": {
+    "compared": 276,
+    "exact": 188,
+    "within": 88,
+    "mismatch": 0,
+    "max_abs": 4.545454545457073e-05
+  },
+  "ROERank": {
+    "compared": 276,
+    "exact": 175,
+    "within": 101,
+    "mismatch": 0,
+    "max_abs": 4.950495049504955e-05
+  },
+  "RevenueGrowthRank": {
+    "compared": 276,
+    "exact": 151,
+    "within": 125,
+    "mismatch": 0,
+    "max_abs": 4.920634920635436e-05
+  },
+  "SalesGrowth3MRank": {
+    "compared": 276,
+    "exact": 99,
+    "within": 177,
+    "mismatch": 0,
+    "max_abs": 4.7826086956526126e-05
+  },
+  "SalesGrowthRank": {
+    "compared": 276,
+    "exact": 99,
+    "within": 177,
+    "mismatch": 0,
+    "max_abs": 4.7826086956526126e-05
+  },
+  "StabilityRank": {
+    "compared": 276,
+    "exact": 99,
+    "within": 177,
+    "mismatch": 0,
+    "max_abs": 5.000000000000143e-05
+  }
+}

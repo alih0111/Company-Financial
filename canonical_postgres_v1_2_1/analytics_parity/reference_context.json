@@ -1,0 +1,20 @@
+{
+  "captured_at_utc": "2026-09-24T20:41:02+00:00",
+  "analysis_cutoff_at_utc": "2026-09-24T20:41:02+00:00",
+  "analysis_as_of_date": "2026-09-24",
+  "sqlserver_database": "codal",
+  "production_view": "dbo.vw_AIStockMetrics",
+  "production_view_score_version": "v3.7",
+  "reference_row_count": 276,
+  "tracked_tickers_count": 282,
+  "v37_snapshot_columns": 94,
+  "source_watermarks": {
+    "max_mph_gregorian": "2026-09-24",
+    "max_mph_collected_at": "2026-09-24 17:01:10.652363",
+    "max_miandore2_reportdate": "1405/05/31",
+    "max_mahane_reportdate": "1405/06/31",
+    "max_codal_published": "2026-09-24 17:03:32"
+  },
+  "view_definition_snapshot": "canonical_design_inputs/sql/vw_AIStockMetrics_production.sql",
+  "note": "All PG v3.7-compat computations MUST use analysis_cutoff_at and must not read data collected after it."
+}

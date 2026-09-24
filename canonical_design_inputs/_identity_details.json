@@ -1,0 +1,189 @@
+{
+  "symbol_collision": [
+    {
+      "Symbol": "کسرا",
+      "CompanyID": "4ccc9664a47539eaff4b6b34fbfc0931",
+      "CompanyName": "کاتالیست‌های ‌صنعتی‌ آریا",
+      "InstrumentCode": "4614779520007780",
+      "n": 3643,
+      "mn": "2004-07-03",
+      "mx": "2026-08-19"
+    },
+    {
+      "Symbol": "کسرا",
+      "CompanyID": "7e41b7fd7ba1c353199eba22667db254",
+      "CompanyName": "کسرا",
+      "InstrumentCode": "4614779520007780",
+      "n": 17,
+      "mn": "2026-07-30",
+      "mx": "2026-09-23"
+    }
+  ],
+  "multi_symbol_ids": [
+    {
+      "CompanyID": "5d9142cab82acfbf6d12ef1824abd59b",
+      "Symbol": "سیمرغ",
+      "n": 1619,
+      "mn": "2019-06-23",
+      "mx": "2026-09-24"
+    },
+    {
+      "CompanyID": "5d9142cab82acfbf6d12ef1824abd59b",
+      "Symbol": "سیمرغ3",
+      "n": 34,
+      "mn": "2026-06-06",
+      "mx": "2026-09-24"
+    },
+    {
+      "CompanyID": "62475be81f64f0f74b0f1f4a798dd2c5",
+      "Symbol": "های وب",
+      "n": 1672,
+      "mn": "2017-09-13",
+      "mx": "2026-09-24"
+    },
+    {
+      "CompanyID": "62475be81f64f0f74b0f1f4a798dd2c5",
+      "Symbol": "های وب3",
+      "n": 54,
+      "mn": "2026-06-07",
+      "mx": "2026-09-24"
+    },
+    {
+      "CompanyID": "fa2e3267b28da291dc990ba6910786d0",
+      "Symbol": "جم پیلن",
+      "n": 1579,
+      "mn": "2019-06-17",
+      "mx": "2026-09-24"
+    },
+    {
+      "CompanyID": "fa2e3267b28da291dc990ba6910786d0",
+      "Symbol": "جم پیلن3",
+      "n": 38,
+      "mn": "2026-06-22",
+      "mx": "2026-09-24"
+    },
+    {
+      "CompanyID": "fa2e3267b28da291dc990ba6910786d0",
+      "Symbol": "جم پیلن2",
+      "n": 1,
+      "mn": "2026-08-23",
+      "mx": "2026-08-23"
+    }
+  ],
+  "tracked_sources": [
+    {
+      "Source": "mahane",
+      "n": 6,
+      "active": 6
+    },
+    {
+      "Source": "market_price_history",
+      "n": 273,
+      "active": 273
+    },
+    {
+      "Source": "miandore2",
+      "n": 3,
+      "active": 3
+    }
+  ],
+  "codalreports_status": [
+    {
+      "LetterType": 6,
+      "Status": "completed",
+      "n": 15
+    },
+    {
+      "LetterType": 6,
+      "Status": "failed",
+      "n": 1
+    },
+    {
+      "LetterType": 58,
+      "Status": "completed",
+      "n": 17
+    },
+    {
+      "LetterType": 58,
+      "Status": "failed",
+      "n": 1
+    },
+    {
+      "LetterType": 58,
+      "Status": "unsupported",
+      "n": 14
+    }
+  ],
+  "instrument_examples": [
+    {
+      "CompanyID": "04596c0c8cd003eca6202bb9351d3d5d",
+      "name": "آردینه",
+      "symbol": "آردینه",
+      "ic": "9956888831468521",
+      "icount": 1
+    },
+    {
+      "CompanyID": "a0a860bea50008bf8d2189168b782225",
+      "name": "آریا",
+      "symbol": "آریا",
+      "ic": "55127657985997520",
+      "icount": 1
+    },
+    {
+      "CompanyID": "9f4709224be63e56349d1cc368e5f005",
+      "name": "ارفع",
+      "symbol": "ارفع",
+      "ic": "59266699437480384",
+      "icount": 1
+    },
+    {
+      "CompanyID": "cb507b89faf6ddf31e16ba5ea8f669d0",
+      "name": "اروند",
+      "symbol": "اروند",
+      "ic": "58356374066358100",
+      "icount": 1
+    },
+    {
+      "CompanyID": "f8449f411289fa0775dc1618a83c922b",
+      "name": "اسیاتک",
+      "symbol": "اسیاتک",
+      "ic": "14079693677610396",
+      "icount": 1
+    },
+    {
+      "CompanyID": "3eed9ad615c315d96a80b4ed8599772d",
+      "name": "افق",
+      "symbol": "افق",
+      "ic": "49502666250908008",
+      "icount": 1
+    },
+    {
+      "CompanyID": "9a98774de11b0af3874a6f2b69db1b58",
+      "name": "انرژی",
+      "symbol": "انرژی",
+      "ic": "49641108336531623",
+      "icount": 1
+    },
+    {
+      "CompanyID": "ff4c38ddc4d5a2b3d58437c8708fa6cb",
+      "name": "بپیوند",
+      "symbol": "بپیوند",
+      "ic": "64619251116188373",
+      "icount": 1
+    },
+    {
+      "CompanyID": "5846976e3619ada1281f076ebdce9055",
+      "name": "بترانس",
+      "symbol": "بترانس",
+      "ic": "46752599569017089",
+      "icount": 1
+    },
+    {
+      "CompanyID": "16c5adc0ecd89c732f53b66f1b794505",
+      "name": "بجهرم",
+      "symbol": "بجهرم",
+      "ic": "33629260529503413",
+      "icount": 1
+    }
+  ]
+}

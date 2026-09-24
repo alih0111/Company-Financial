@@ -1,0 +1,65 @@
+{
+  "SalesLast12M": {
+    "compared": 273,
+    "exact": 171,
+    "within": 86,
+    "mismatch": 16,
+    "max_abs": 2813.5779020492555
+  },
+  "SalesPrev12M": {
+    "compared": 273,
+    "exact": 171,
+    "within": 86,
+    "mismatch": 16,
+    "max_abs": 2813.5779020492555
+  },
+  "SalesGrowth12M": {
+    "compared": 273,
+    "exact": 171,
+    "within": 86,
+    "mismatch": 16,
+    "max_abs": 2813.5779020492555
+  },
+  "TTMNetProfit": {
+    "compared": 273,
+    "exact": 171,
+    "within": 86,
+    "mismatch": 16,
+    "max_abs": 2813.5779020492555
+  },
+  "PEApprox": {
+    "compared": 273,
+    "exact": 171,
+    "within": 86,
+    "mismatch": 16,
+    "max_abs": 2813.5779020492555
+  },
+  "QuantScore": {
+    "compared": 273,
+    "exact": 171,
+    "within": 86,
+    "mismatch": 16,
+    "max_abs": 2813.5779020492555
+  },
+  "OperatingMargin12M": {
+    "compared": 273,
+    "exact": 171,
+    "within": 86,
+    "mismatch": 16,
+    "max_abs": 2813.5779020492555
+  },
+  "NetProfitMargin12M": {
+    "compared": 273,
+    "exact": 171,
+    "within": 86,
+    "mismatch": 16,
+    "max_abs": 2813.5779020492555
+  },
+  "ROE": {
+    "compared": 273,
+    "exact": 171,
+    "within": 86,
+    "mismatch": 16,
+    "max_abs": 2813.5779020492555
+  }
+}

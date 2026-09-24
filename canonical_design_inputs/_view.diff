@@ -1,0 +1,287 @@
+--- repo_v3.6
++++ production_v3.7
+@@ -1,13 +1,3 @@
+-﻿USE [codal]
+-GO
+-/****** Object:  View [dbo].[vw_AIStockMetrics]    Script Date: 7/24/2026 ******/
+-SET ANSI_NULLS ON
+-GO
+-SET QUOTED_IDENTIFIER ON
+-GO
+-IF OBJECT_ID(N'dbo.vw_AIStockMetrics', N'V') IS NOT NULL
+-DROP VIEW dbo.vw_AIStockMetrics
+-GO
+ CREATE VIEW [dbo].[vw_AIStockMetrics]
+ AS
+ -- ============================================================================
+@@ -103,6 +93,27 @@
+ --         کم‌اهمیت‌تر شوند؛ رتبه‌ی درصدی نوسان به‌دلیل فشرده‌بودن توزیع
+ --         (چارک‌ها در بازه‌ی ~۰.۳۵ واحد) نویزمحور بود). مومنتوم روی ۱ ماند.
+ --       • دسته‌ی بازار ۱۷→۱۱ و سقف QuantScore 95→89.
++--
++--  اصلاح v3.7 — تفکیک «سود عملیاتی بی‌مقیاس» از «سود عملیاتی هم‌واحد»:
++--       • مسئله: OpAbs برای گزارش‌های per-share با ضریب Product1 (= EPS ×
++--         سرمایه، مقیاس ریال) نرمال می‌شد، نه با واحد مبلغی گزارش. در نسبت‌های
++--         بی‌مقیاس مثل رشد سود عملیاتی بی‌اشکال است، ولی هر نسبتی که OpAbs را
++--         با درآمد/هزینه‌ی مالی/غیرعملیاتی ترکیب کند ~۱۰۰۰ برابر خطا داشت.
++--         خطرناک‌ترش جایی بود که گارد معقولیت جلوی عدد غلط را نمی‌گرفت:
++--           – InterestCoverage: ~۱۰۰۰ برابر بزرگ، سقف گارد ۱۰۰۰۰ ⇒ رد می‌شد
++--             و شرکت را در صدر فاکتوری با وزن ۳ می‌نشاند.
++--           – NonOperatingPct: مخرج ~۱۰۰۰ برابر بزرگ ⇒ ~۰٪ ⇒ بهترین رتبه‌ی
++--             ممکن در فاکتور کیفیت سود با وزن ۴.
++--           – SR_TTMOperatingProfit از OpRaw خام ساخته می‌شد ⇒ تقسیم بر
++--             SR_TTMRevenue حاشیه‌ی ~۰٪ می‌داد که از گارد ±۲۰۰٪ رد می‌شد.
++--         یعنی ۱۱ واحد وزن نه «خالی»، بلکه «غلط» بود.
++--       • راه‌حل: ستون‌های OpAmt/OpLYAmt/OpFYPrevAmt با ضریب واحدِ درست
++--         (NetProfitAmount ÷ EPS = تعداد سهم ÷ ضریب واحد) ساخته می‌شوند و
++--         اگر تبدیل ایمن نباشد NULL می‌مانند. OpAbs دست‌نخورده و فقط برای
++--         نسبت‌های بی‌مقیاس (رشد) باقی می‌ماند تا پوشش رشد کم نشود.
++--       • لایه‌ی دوم هم‌واحد برای OperatingMargin12M و NetProfitMargin12M
++--         اضافه شد (حاشیه‌ی دوره‌ی تجمعی گزارش آخر) تا شرکت‌های بدون ستون سال
++--         مالی قبل، جای رتبه‌ی خنثای ۰.۳، حاشیه‌ی واقعی بگیرند.
+ -- ============================================================================
+ WITH CompanyList AS (
+ SELECT CompanyID, MAX(CompanyName) AS CompanyName
+@@ -204,6 +215,44 @@
+ ROW_NUMBER() OVER (PARTITION BY CompanyID ORDER BY ReportKey DESC) AS rn
+ FROM ProfitRaw p
+ ),
++-- v3.7: ضریب تبدیل سود عملیاتی به «واحد مبلغیِ همان گزارش»
++-- ---------------------------------------------------------------------------
++-- OpAbs/OpLYAbs (پایین‌تر) با ضریب Product1 (= EPS × سرمایه، مقیاس ریال)
++-- نرمال می‌شوند. برای نسبت‌های بی‌مقیاس مثل «رشد سود عملیاتی» بی‌اشکال است
++-- (ضریب در صورت و مخرج حذف می‌شود) اما با ستون‌های مبلغی همان گزارش
++-- (RevenueNew، FinanceCostsNew، OtherNonOpNew، NetProfitAmount) هم‌واحد نیست
++-- و هر نسبتی که OpAbs را با آن‌ها ترکیب کند ~۱۰۰۰ برابر خطا دارد.
++--
++-- ضریب درست، از دو معلومِ خودِ گزارش به‌دست می‌آید:
++--     NetProfitAmount = سود خالص ریالی ÷ U   (U = ضریب واحد گزارش)
++--     EPS             = سود خالص ریالی ÷ تعداد سهم
++--   ⇒ NetProfitAmount ÷ EPS = تعداد سهم ÷ U
++--   ⇒ سود عملیاتی مبلغی = سود عملیاتی هر سهم × (NetProfitAmount ÷ EPS)
++--
++-- تشخیص per-share بودن: مقدار باید هم نسبت به سود خالص مبلغی و هم (اگر موجود
++-- است) نسبت به درآمد سه مرتبه‌ی بزرگی کوچک‌تر باشد. اگر per-share باشد ولی
++-- NetProfitAmount نداشته باشیم OpK = NULL می‌شود؛ نبودِ داده بهتر از عددِ غلط
++-- است، چون عدد غلط از گاردهای معقولیت رد می‌شود و رتبه را خراب می‌کند.
++ProfitUnits AS (
++SELECT
++p.*,
++CASE
++WHEN p.OpRaw IS NULL OR p.EPS IS NULL OR p.EPS = 0 THEN 1.0
++-- per-share با تبدیل ایمن
++WHEN p.NetProfitAmount IS NOT NULL AND ABS(p.NetProfitAmount) > 0
++AND ABS(p.OpRaw) < 0.001 * ABS(p.NetProfitAmount)
++AND (p.Revenue IS NULL OR ABS(p.Revenue) = 0
++OR ABS(p.OpRaw) < 0.001 * ABS(p.Revenue))
++THEN p.NetProfitAmount / p.EPS
++-- per-share ولی بدون ستون مبلغیِ سود خالص → تبدیل ایمن نداریم
++WHEN p.NetProfitAmount IS NULL
++AND p.Revenue IS NOT NULL AND ABS(p.Revenue) > 0
++AND ABS(p.OpRaw) < 0.001 * ABS(p.Revenue)
++THEN NULL
++ELSE 1.0
++END AS OpK
++FROM ProfitDedup p
++),
+ -- یک ردیف به‌ازای (شرکت، سال، ماه) با واحد یکسان
+ -- تشخیص واحد سود عملیاتی (مطلق یا per-share) به این ترتیب:
+ --   ۱) اگر درآمدِ همان سطر موجود باشد: هرگاه سود عملیاتی به‌مراتب کوچک‌تر از
+@@ -249,8 +298,30 @@
+ AND ABS(OpLYRaw) >= 0.05 * EPS
+ THEN OpLYRaw * NetProfit / EPS
+ ELSE OpLYRaw
+-END AS OpLYAbs
+-FROM ProfitDedup
++END AS OpLYAbs,
++-- v3.7: سود عملیاتی در «واحد مبلغی گزارش» — هم‌واحد با Revenue،
++-- FinanceCosts، OtherNonOp و NetProfitAmount. تنها ستونی که مجاز است
++-- در نسبت با آن‌ها استفاده شود. گارد آخر: پس از تبدیل، سود عملیاتی
++-- نمی‌تواند بیش از ۳ برابر درآمد همان دوره باشد (تشخیص اشتباه) → NULL
++CASE
++WHEN OpK IS NULL OR OpRaw IS NULL THEN NULL
++WHEN Revenue IS NOT NULL AND ABS(Revenue) > 0
++AND ABS(OpRaw * OpK) > 3.0 * ABS(Revenue) THEN NULL
++ELSE OpRaw * OpK
++END AS OpAmt,
++CASE
++WHEN OpK IS NULL OR OpLYRaw IS NULL THEN NULL
++WHEN RevenueLY IS NOT NULL AND ABS(RevenueLY) > 0
++AND ABS(OpLYRaw * OpK) > 3.0 * ABS(RevenueLY) THEN NULL
++ELSE OpLYRaw * OpK
++END AS OpLYAmt,
++CASE
++WHEN OpK IS NULL OR OperatingProfitFYPrev IS NULL THEN NULL
++WHEN RevenueFYPrev IS NOT NULL AND ABS(RevenueFYPrev) > 0
++AND ABS(OperatingProfitFYPrev * OpK) > 3.0 * ABS(RevenueFYPrev) THEN NULL
++ELSE OperatingProfitFYPrev * OpK
++END AS OpFYPrevAmt
++FROM ProfitUnits
+ WHERE drn = 1
+ ),
+ -- اتصال آخرین گزارش به گزارش‌های سال قبل برای ساخت TTM
+@@ -286,6 +357,10 @@
+ a.TotalEquity AS LatestTotalEquity,
+ a.OpRaw AS LatestOpRaw,
+ a.OpLYRaw AS LatestOpLYRaw,
++-- v3.7: سود عملیاتی هم‌واحد با ستون‌های مبلغی گزارش
++a.OpAmt AS LatestOpAmt,
++a.OpLYAmt AS LatestOpLYAmt,
++a.OpFYPrevAmt AS LatestOpFYPrevAmt,
+ b.NetProfit AS FYPrevNetProfit,     -- س کل سال قبل
+ b.OpAbs AS FYPrevOpAbs,
+ b.Revenue AS FYPrevRevenue,
+@@ -458,13 +533,16 @@
+ THEN p.LatestNetProfitAmount + p.LatestNetProfitAmountFYPrev - p.LatestNetProfitAmountLY
+ ELSE NULL
+ END AS SR_TTMNetProfit,
+-CASE
+-WHEN p.LatestJMonth = 12 AND p.LatestOpRaw IS NOT NULL
+-THEN p.LatestOpRaw
+-WHEN p.LatestOpRaw IS NOT NULL
+-AND p.LatestOperatingProfitFYPrev IS NOT NULL
+-AND p.LatestOpLYRaw IS NOT NULL
+-THEN p.LatestOpRaw + p.LatestOperatingProfitFYPrev - p.LatestOpLYRaw
++-- v3.7: با ستون‌های هم‌واحدِ مبلغی ساخته می‌شود (قبلاً OpRaw خام بود؛
++-- برای گزارش‌های per-share نسبت به SR_TTMRevenue حاشیه‌ی ~۰٪ می‌داد
++-- که از گارد ±۲۰۰٪ رد می‌شد و بی‌صدا وارد رتبه‌بندی می‌شد)
++CASE
++WHEN p.LatestJMonth = 12 AND p.LatestOpAmt IS NOT NULL
++THEN p.LatestOpAmt
++WHEN p.LatestOpAmt IS NOT NULL
++AND p.LatestOpFYPrevAmt IS NOT NULL
++AND p.LatestOpLYAmt IS NOT NULL
++THEN p.LatestOpAmt + p.LatestOpFYPrevAmt - p.LatestOpLYAmt
+ ELSE NULL
+ END AS SR_TTMOperatingProfit,
+ CASE
+@@ -570,6 +648,8 @@
+ p.LatestNetProfitCum,
+ p.LatestOpAbs,
+ p.LatestOpLYAbs,
++p.LatestOpAmt,       -- v3.7 هم‌واحد با ستون‌های مبلغی
++p.LatestOpLYAmt,
+ p.LatestRevenueCum,
+ p.LatestRevenueLYCum,
+ p.LatestFinanceCosts,
+@@ -757,6 +837,14 @@
+ AND ABS(b.SR_TTMRevenue) > 0
+ AND ABS(b.SR_TTMOperatingProfit / ABS(b.SR_TTMRevenue) * 100.0) <= 200.0
+ THEN (b.SR_TTMOperatingProfit / ABS(b.SR_TTMRevenue)) * 100.0
++-- v3.7 لایه‌ی دوم هم‌واحد: حاشیه‌ی دوره‌ی تجمعی گزارش آخر.
++-- TTM نیست، اما نسبت است و طول دوره تقریباً خنثی می‌شود؛ برای
++-- شرکت‌هایی که ستون سال مالی قبل (FYPrev) ندارند تنها گزینه‌ی
++-- بی‌خطای واحد است و جای رتبه‌ی خنثای ۰.۳ را می‌گیرد
++WHEN b.LatestOpAmt IS NOT NULL
++AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
++AND ABS(b.LatestOpAmt / ABS(b.LatestRevenueCum) * 100.0) <= 200.0
++THEN (b.LatestOpAmt / ABS(b.LatestRevenueCum)) * 100.0
+ WHEN b.TTMOperatingProfit IS NOT NULL AND ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) > 0
+ AND ABS(b.TTMOperatingProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) * 100.0) <= 200.0
+ THEN (b.TTMOperatingProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M))) * 100.0
+@@ -767,6 +855,12 @@
+ AND ABS(b.SR_TTMRevenue) > 0
+ AND ABS(b.SR_TTMNetProfit / ABS(b.SR_TTMRevenue) * 100.0) <= 200.0
+ THEN (b.SR_TTMNetProfit / ABS(b.SR_TTMRevenue)) * 100.0
++-- v3.7 لایه‌ی دوم هم‌واحد (NetProfitAmount و RevenueNew از یک جدول
++-- و یک گزارش‌اند، پس نسبتشان بی‌واحد است)
++WHEN b.LatestNetProfitAmount IS NOT NULL
++AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
++AND ABS(b.LatestNetProfitAmount / ABS(b.LatestRevenueCum) * 100.0) <= 200.0
++THEN (b.LatestNetProfitAmount / ABS(b.LatestRevenueCum)) * 100.0
+ WHEN b.TTMNetProfit IS NOT NULL AND ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) > 0
+ AND ABS(b.TTMNetProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M)) * 100.0) <= 200.0
+ THEN (b.TTMNetProfit / ABS(COALESCE(b.TTMRevenue, b.SalesLast12M))) * 100.0
+@@ -776,9 +870,9 @@
+ -- v3.3: گارد ±۲۰۰٪ — Product1 (ریال) و RevenueNew (هزار ریال) هم‌خانواده نیستند؛
+ -- حاشیه‌ی بیرون از ±۲۰۰٪ تقریباً همیشه خطای واحد است → NULL
+ CASE
+-WHEN b.LatestOpAbs IS NOT NULL AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
+-AND ABS(b.LatestOpAbs / ABS(b.LatestRevenueCum) * 100.0) <= 200.0
+-THEN (b.LatestOpAbs / ABS(b.LatestRevenueCum)) * 100.0
++WHEN b.LatestOpAmt IS NOT NULL AND b.LatestRevenueCum IS NOT NULL AND ABS(b.LatestRevenueCum) > 0
++AND ABS(b.LatestOpAmt / ABS(b.LatestRevenueCum) * 100.0) <= 200.0
++THEN (b.LatestOpAmt / ABS(b.LatestRevenueCum)) * 100.0
+ ELSE NULL
+ END AS OperatingMarginLatest,
+ -- v3.3: اولویت با NetProfitAmount (هم‌واحد با RevenueNew)؛
+@@ -798,13 +892,13 @@
+ -- اختلاف واحدها (OpAbs ریالی/هزارریالی در دو دوره) مقدار را خراب می‌کند
+ COALESCE(
+ CASE
+-WHEN b.LatestOpAbs IS NOT NULL AND b.LatestOpLYAbs IS NOT NULL
++WHEN b.LatestOpAmt IS NOT NULL AND b.LatestOpLYAmt IS NOT NULL
+ AND b.LatestRevenueCum IS NOT NULL AND b.LatestRevenueLYCum IS NOT NULL
+ AND ABS(b.LatestRevenueCum) > 0 AND ABS(b.LatestRevenueLYCum) > 0
+-AND ABS(b.LatestOpAbs / ABS(b.LatestRevenueCum) * 100.0) <= 200.0
+-AND ABS(b.LatestOpLYAbs / ABS(b.LatestRevenueLYCum) * 100.0) <= 200.0
+-THEN (b.LatestOpAbs / ABS(b.LatestRevenueCum)) * 100.0
+-- (b.LatestOpLYAbs / ABS(b.LatestRevenueLYCum)) * 100.0
++AND ABS(b.LatestOpAmt / ABS(b.LatestRevenueCum) * 100.0) <= 200.0
++AND ABS(b.LatestOpLYAmt / ABS(b.LatestRevenueLYCum) * 100.0) <= 200.0
++THEN (b.LatestOpAmt / ABS(b.LatestRevenueCum)) * 100.0
++- (b.LatestOpLYAmt / ABS(b.LatestRevenueLYCum)) * 100.0
+ ELSE NULL
+ END,
+ CASE
+@@ -826,19 +920,24 @@
+ ELSE NULL
+ END AS RevenueGrowthYoY,
+ -- پوشش هزینه‌ی مالی (هم‌منبع)؛ خارج از بازه‌ی معقول (۰, ۱۰۰۰۰] → NULL
+-CASE
+-WHEN b.LatestOpAbs IS NOT NULL AND b.LatestFinanceCosts IS NOT NULL
++-- v3.7: با OpAmt. قبلاً OpAbs بود و برای گزارش‌های per-share مقدار را
++-- ~۱۰۰۰ برابر بزرگ می‌کرد؛ چون سقف گارد ۱۰۰۰۰ است عدد غلط رد می‌شد و
++-- شرکت را بی‌دلیل در صدر یک فاکتور با وزن ۳ می‌نشاند
++CASE
++WHEN b.LatestOpAmt IS NOT NULL AND b.LatestFinanceCosts IS NOT NULL
+ AND ABS(b.LatestFinanceCosts) > 0
+-AND b.LatestOpAbs / ABS(b.LatestFinanceCosts) > 0
+-AND b.LatestOpAbs / ABS(b.LatestFinanceCosts) <= 10000.0
+-THEN b.LatestOpAbs / ABS(b.LatestFinanceCosts)
++AND b.LatestOpAmt / ABS(b.LatestFinanceCosts) > 0
++AND b.LatestOpAmt / ABS(b.LatestFinanceCosts) <= 10000.0
++THEN b.LatestOpAmt / ABS(b.LatestFinanceCosts)
+ ELSE NULL
+ END AS InterestCoverage,
+ -- سهم غیرعملیاتی از سود عملیاتی (هم‌منبع؛ قدرمطلق چون وابستگی ملاک است)
+-CASE
+-WHEN b.LatestOtherNonOp IS NOT NULL AND b.LatestOpAbs IS NOT NULL
+-AND ABS(b.LatestOpAbs) > 0
+-THEN (ABS(b.LatestOtherNonOp) / ABS(b.LatestOpAbs)) * 100.0
++-- v3.7: با OpAmt. قبلاً OpAbs بود و مخرجِ ~۱۰۰۰ برابر بزرگ نسبت را به
++-- ~۰٪ می‌رساند؛ یعنی بهترین رتبه‌ی ممکن در فاکتور کیفیت سود با وزن ۴
++CASE
++WHEN b.LatestOtherNonOp IS NOT NULL AND b.LatestOpAmt IS NOT NULL
++AND ABS(b.LatestOpAmt) > 0
++THEN (ABS(b.LatestOtherNonOp) / ABS(b.LatestOpAmt)) * 100.0
+ ELSE NULL
+ END AS NonOperatingPct,
+ -- ============ فاکتورهای v3.2 از ترازنامه و جریان نقدی ============
+@@ -1164,8 +1263,10 @@
+ ROUND(SalesStability, 4) AS SalesStability,
+ ROUND(TTMEPS, 2) AS LatestEPS,
+ ROUND(TTMOperatingEPS, 2) AS LatestOperatingEPS,
+-ROUND(LatestOpAbs, 2) AS LatestOperatingProfit,
+-ROUND(LatestOpLYAbs, 2) AS LatestOperatingProfitLastYear,
++-- v3.7 نمایش: اولویت با مقدار هم‌واحدِ مبلغی تا در کنار درآمد و سود خالص
++-- قابل مقایسه باشد؛ اگر تبدیل ایمن نداشتیم به رفتار قبلی برمی‌گردیم
++ROUND(COALESCE(LatestOpAmt, LatestOpAbs), 2) AS LatestOperatingProfit,
++ROUND(COALESCE(LatestOpLYAmt, LatestOpLYAbs), 2) AS LatestOperatingProfitLastYear,
+ -- نمایش رشدها با کراپ (رتبه‌بندی جداگانه کراپ شده؛ این فقط برای نمایش تمیز است)
+ ROUND(CASE WHEN NetProfitGrowthTTM > 1000 THEN 1000.0
+ WHEN NetProfitGrowthTTM < -100 THEN -100.0
+@@ -1353,7 +1454,7 @@
+ ROUND(NPUnitRatio, 8) AS NPUnitRatio,
+ ROUND(TTMEPS, 2) AS TTMEPS,
+ ROUND(ImpliedShares, 0) AS ImpliedShares,
+-N'v3.6' AS ScoreVersion,
++N'v3.7' AS ScoreVersion,
+ -- ----------------------------------------------------------------------
+ --  رتبه‌ی درصدی هر فاکتور بین کل بازار (CUME_DIST؛ برای شفافیت کامل در UI)
+ --  عددی بین ۰ و ۱؛ مثلاً ۰.۸۵ یعنی بهتر از ۸۵٪ شرکت‌ها در آن فاکتور.
+@@ -1382,4 +1483,3 @@
+ ROUND(CashConversionRank, 4) AS CashConversionRank,
+ ROUND(PBRank, 4) AS PBRank
+ FROM Penalized;
+-GO

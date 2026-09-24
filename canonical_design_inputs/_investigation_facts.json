@@ -1,0 +1,8381 @@
+{
+  "mahane_id_name_count": [
+    {
+      "CompanyID": "002c39c907ffac34a1ee6c5b55cefd23",
+      "name_count": 1,
+      "rows": 39,
+      "sample_name": "نان"
+    },
+    {
+      "CompanyID": "003aeed095825b208ba109440c6a6431",
+      "name_count": 1,
+      "rows": 69,
+      "sample_name": "خراسان"
+    },
+    {
+      "CompanyID": "02d0fb54342c0cc17bc1062d7d88f448",
+      "name_count": 1,
+      "rows": 52,
+      "sample_name": "زدشت"
+    },
+    {
+      "CompanyID": "03892a92148b9665bbb3713469826e29",
+      "name_count": 1,
+      "rows": 70,
+      "sample_name": "سهگمت"
+    },
+    {
+      "CompanyID": "04234a593ca4912aa015a1dea99da781",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "زفکا"
+    },
+    {
+      "CompanyID": "04596c0c8cd003eca6202bb9351d3d5d",
+      "name_count": 1,
+      "rows": 41,
+      "sample_name": "آردینه"
+    },
+    {
+      "CompanyID": "05a68769d3006e107f5b7e02c9eca4fd",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "فخوز"
+    },
+    {
+      "CompanyID": "067ba4a186448d230d296b1ce604d32f",
+      "name_count": 1,
+      "rows": 71,
+      "sample_name": "شبهرن"
+    },
+    {
+      "CompanyID": "07589f30e28ffd0a131f9c4157417d59",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "قنیشا"
+    },
+    {
+      "CompanyID": "0875c9b59ace28c22babd5e711c141da",
+      "name_count": 1,
+      "rows": 60,
+      "sample_name": "سهرمز"
+    },
+    {
+      "CompanyID": "09029850a7825c34a7c8958a08fcdf26",
+      "name_count": 1,
+      "rows": 2,
+      "sample_name": "خبهن"
+    },
+    {
+      "CompanyID": "0ab048f709cfd236a0ad7aaf542a990c",
+      "name_count": 1,
+      "rows": 70,
+      "sample_name": "کنور"
+    },
+    {
+      "CompanyID": "0d19caedc1f47bfbce6949cc9fd54846",
+      "name_count": 1,
+      "rows": 60,
+      "sample_name": "کفرا"
+    },
+    {
+      "CompanyID": "0e1074b193f3c2c8dec3a7743d83b13b",
+      "name_count": 1,
+      "rows": 1,
+      "sample_name": "بمولد"
+    },
+    {
+      "CompanyID": "0e16759f2d662dc8bc10d9604b5c3a7e",
+      "name_count": 1,
+      "rows": 53,
+      "sample_name": "تپسی"
+    },
+    {
+      "CompanyID": "0e3a6731bfe6da581d9c4190b9b9707b",
+      "name_count": 1,
+      "rows": 40,
+      "sample_name": "ددانا"
+    },
+    {
+      "CompanyID": "100d9b545dbca1cb4b62ecc648741665",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "کلوند"
+    },
+    {
+      "CompanyID": "1025955b553ca1fa9153eea469591cb1",
+      "name_count": 1,
+      "rows": 70,
+      "sample_name": "پرداخت"
+    },
+    {
+      "CompanyID": "13a0bcb602f4d54dab681986defb249d",
+      "name_count": 1,
+      "rows": 69,
+      "sample_name": "کیمیاتک"
+    },
+    {
+      "CompanyID": "162bcc9b9c97c9f3510c1bd06b5ae8c0",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "غفارس"
+    },
+    {
+      "CompanyID": "16c5adc0ecd89c732f53b66f1b794505",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "بجهرم"
+    },
+    {
+      "CompanyID": "1712cd6b0f7a77388a2c072ad6694a89",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "تلیسه"
+    },
+    {
+      "CompanyID": "1818f78f177b8c9343ce20a08ca3cf40",
+      "name_count": 1,
+      "rows": 62,
+      "sample_name": "بمپنا"
+    },
+    {
+      "CompanyID": "1843493e1f47856f9ed240017217d5bf",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "شیراز"
+    },
+    {
+      "CompanyID": "19b9ef8150577a94e1ec98c012006fa9",
+      "name_count": 1,
+      "rows": 67,
+      "sample_name": "غویتا"
+    },
+    {
+      "CompanyID": "1b64f3e77238bc8dc5e3277587374ecf",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "ساروم"
+    },
+    {
+      "CompanyID": "1b8e0f2acf626d841e62b7b091e025b7",
+      "name_count": 1,
+      "rows": 66,
+      "sample_name": "بزاگرس"
+    },
+    {
+      "CompanyID": "1d619a84cd8a88c3ecda4e61e9339167",
+      "name_count": 1,
+      "rows": 66,
+      "sample_name": "سمازن"
+    },
+    {
+      "CompanyID": "1ddbed63fff24fa4ad4fc82f1d695219",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "سیستم"
+    },
+    {
+      "CompanyID": "1e14ece10fa50f96266e53a6d2ce83a1",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "سفانو"
+    },
+    {
+      "CompanyID": "20579374fedaf42bb5e2e72dd734e793",
+      "name_count": 1,
+      "rows": 68,
+      "sample_name": "بگیلان"
+    },
+    {
+      "CompanyID": "219f43aab6fb90530570bd54a78db3f4",
+      "name_count": 1,
+      "rows": 66,
+      "sample_name": "خمحرکه"
+    },
+    {
+      "CompanyID": "25594bcbd879ef25ca250052162de693",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "سبجنو"
+    },
+    {
+      "CompanyID": "25aafd0fbcf94aed7458b9d9f32852d8",
+      "name_count": 1,
+      "rows": 68,
+      "sample_name": "رمپنا"
+    },
+    {
+      "CompanyID": "29d7795e06a8fe30d0a386ed95c8f445",
+      "name_count": 1,
+      "rows": 40,
+      "sample_name": "کچاد"
+    },
+    {
+      "CompanyID": "2c7e998dc9b612c1fd643b991c0dc3cc",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "غشصفا"
+    },
+    {
+      "CompanyID": "2dc3ef3ab0a0505e8859b5400fc35e95",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "شکربن"
+    },
+    {
+      "CompanyID": "2dcd8b1b42da502813fb5b275d5e288e",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "زشگزا"
+    },
+    {
+      "CompanyID": "2fe468d2d5a13b43ee3bc672d1fc2c6c",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "تایرا"
+    },
+    {
+      "CompanyID": "30098073127320ec11c2c84dc7dd7dd5",
+      "name_count": 1,
+      "rows": 67,
+      "sample_name": "شپاکسا"
+    },
+    {
+      "CompanyID": "32b0b479f11a3f7399ab159f7f643370",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "درازک"
+    },
+    {
+      "CompanyID": "32cddf0dc9b06053a765b4c371dfe764",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "سصوفی"
+    },
+    {
+      "CompanyID": "32f230090775786229c664bc8cb52dba",
+      "name_count": 1,
+      "rows": 32,
+      "sample_name": "شبریز"
+    },
+    {
+      "CompanyID": "34f99deab827071c31069cb575b6aeeb",
+      "name_count": 1,
+      "rows": 78,
+      "sample_name": "هجرت"
+    },
+    {
+      "CompanyID": "357e4606a3bb0ad48f3dc109ffc246d0",
+      "name_count": 1,
+      "rows": 1,
+      "sample_name": "ثالوند"
+    },
+    {
+      "CompanyID": "358139e1070f075fd27c39f77c4047e4",
+      "name_count": 1,
+      "rows": 55,
+      "sample_name": "داسوه"
+    },
+    {
+      "CompanyID": "36d852f81798b4c4f57827151acb1e86",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "شاراک"
+    },
+    {
+      "CompanyID": "36f23676eaffd388df63219008589dec",
+      "name_count": 1,
+      "rows": 54,
+      "sample_name": "سپیدار"
+    },
+    {
+      "CompanyID": "39232c8d2f1231a8f681e77185a0a39e",
+      "name_count": 1,
+      "rows": 57,
+      "sample_name": "کرازی"
+    },
+    {
+      "CompanyID": "39c493c82f878ca7ed0a347493f150b6",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "شرانل"
+    },
+    {
+      "CompanyID": "3dc6ca7296ff7c957aa13a1bf9e28347",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "کلر"
+    },
+    {
+      "CompanyID": "3eed9ad615c315d96a80b4ed8599772d",
+      "name_count": 1,
+      "rows": 77,
+      "sample_name": "افق"
+    },
+    {
+      "CompanyID": "3f3bb26af4a9adedd8678ad845720830",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "بموتو"
+    },
+    {
+      "CompanyID": "4178bc367d0410e207d6a86524bf3878",
+      "name_count": 1,
+      "rows": 60,
+      "sample_name": "مبین"
+    },
+    {
+      "CompanyID": "47cec2efd2813e405cd4d975fb2df1a2",
+      "name_count": 1,
+      "rows": 1,
+      "sample_name": "تاتمس"
+    },
+    {
+      "CompanyID": "4a1adc39de6b1615bf5bf9b656a3030f",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "خموتور"
+    },
+    {
+      "CompanyID": "4abec9db6376c2f7c79a759d64220c72",
+      "name_count": 1,
+      "rows": 68,
+      "sample_name": "دجابر"
+    },
+    {
+      "CompanyID": "4b42ff856fa2a4996c5843f6bf85ef50",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "حتوکا"
+    },
+    {
+      "CompanyID": "4c72588412aab6f0a0e6d2469d9b1491",
+      "name_count": 1,
+      "rows": 45,
+      "sample_name": "غشهداب"
+    },
+    {
+      "CompanyID": "4d8273e8e35e83a73ef9b5bca072c95c",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "کالا"
+    },
+    {
+      "CompanyID": "4e74a398d885cd61dfd07383641eb05f",
+      "name_count": 1,
+      "rows": 19,
+      "sample_name": "پارس"
+    },
+    {
+      "CompanyID": "4f8054584021b10a15fe091d8973bf6f",
+      "name_count": 1,
+      "rows": 36,
+      "sample_name": "شتران"
+    },
+    {
+      "CompanyID": "508279539a385693bd947ea986985bb4",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "شپارس"
+    },
+    {
+      "CompanyID": "5275e513e2842a3b390ae43faa530d06",
+      "name_count": 1,
+      "rows": 53,
+      "sample_name": "غشان"
+    },
+    {
+      "CompanyID": "549b1892b8d2c12be65851e10d9d9253",
+      "name_count": 1,
+      "rows": 53,
+      "sample_name": "سآبیک"
+    },
+    {
+      "CompanyID": "54e663798b0e261d5e3fef1f8da6430e",
+      "name_count": 1,
+      "rows": 40,
+      "sample_name": "کاما"
+    },
+    {
+      "CompanyID": "57ec56ad0fe574fcb2cee0f550320934",
+      "name_count": 1,
+      "rows": 49,
+      "sample_name": "شبندر"
+    },
+    {
+      "CompanyID": "5846976e3619ada1281f076ebdce9055",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "بترانس"
+    },
+    {
+      "CompanyID": "5ba7eb50b25bd20543e42f9cc50394ed",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "دپارس"
+    },
+    {
+      "CompanyID": "5d5c836b94dd5814744b8f6f549c51e8",
+      "name_count": 1,
+      "rows": 67,
+      "sample_name": "سغرب"
+    },
+    {
+      "CompanyID": "5d9142cab82acfbf6d12ef1824abd59b",
+      "name_count": 1,
+      "rows": 34,
+      "sample_name": "سیمرغ"
+    },
+    {
+      "CompanyID": "62475be81f64f0f74b0f1f4a798dd2c5",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "های وب"
+    },
+    {
+      "CompanyID": "62a63aab5e5f97d82fe87b1c3a34f7f2",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "بوعلی"
+    },
+    {
+      "CompanyID": "63a5bb96ab3f48206ee3e201f4ac9d85",
+      "name_count": 1,
+      "rows": 49,
+      "sample_name": "کپرور"
+    },
+    {
+      "CompanyID": "68e6f82aede2360869ceea7a3ea76d08",
+      "name_count": 1,
+      "rows": 77,
+      "sample_name": "دفرا"
+    },
+    {
+      "CompanyID": "6a68f93c59cc3f3e981255fe2b2eedc1",
+      "name_count": 1,
+      "rows": 63,
+      "sample_name": "چدن"
+    },
+    {
+      "CompanyID": "6b88726e82dff2001540bb7b87e2d9be",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "پاکشو"
+    },
+    {
+      "CompanyID": "6bd4aac18107335caeba964fd9804250",
+      "name_count": 1,
+      "rows": 52,
+      "sample_name": "غمایه"
+    },
+    {
+      "CompanyID": "6def03d39ddc41e22cacb552bcb94ee0",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "زمگسا"
+    },
+    {
+      "CompanyID": "6f7820e83627a1b5cd580bbcbb338ef3",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "پیزد"
+    },
+    {
+      "CompanyID": "701858157df331969ad61c12b4abe861",
+      "name_count": 1,
+      "rows": 65,
+      "sample_name": "سکرد"
+    },
+    {
+      "CompanyID": "7083cfdfe2c268113f647360403b3778",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "پخش"
+    },
+    {
+      "CompanyID": "70b8796676033dbf81f6977819d3871d",
+      "name_count": 1,
+      "rows": 68,
+      "sample_name": "دزهراوی"
+    },
+    {
+      "CompanyID": "713aa98887c6fda78002e405bfbec00e",
+      "name_count": 1,
+      "rows": 77,
+      "sample_name": "کهمدا"
+    },
+    {
+      "CompanyID": "72b4d79585406feb5160a555339cce54",
+      "name_count": 1,
+      "rows": 66,
+      "sample_name": "غدیس"
+    },
+    {
+      "CompanyID": "72d8be1259190fb1b5c8726381e27f71",
+      "name_count": 1,
+      "rows": 60,
+      "sample_name": "بهپاک"
+    },
+    {
+      "CompanyID": "7386c9d3264a07cdaacbdba2e1941d42",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "کاسپین"
+    },
+    {
+      "CompanyID": "74a98ddff0b1430c48e8cfc83fa56408",
+      "name_count": 1,
+      "rows": 49,
+      "sample_name": "غنوش"
+    },
+    {
+      "CompanyID": "76022dd3c77edb744eeef72f3d54483a",
+      "name_count": 1,
+      "rows": 1,
+      "sample_name": "غپاک"
+    },
+    {
+      "CompanyID": "77ec0ce2270f5a3e04f8fa6313cf5201",
+      "name_count": 1,
+      "rows": 60,
+      "sample_name": "دیران"
+    },
+    {
+      "CompanyID": "7951d684c53fd22e89f5777201bf7453",
+      "name_count": 1,
+      "rows": 64,
+      "sample_name": "نوری"
+    },
+    {
+      "CompanyID": "799566aa607bcd4a8ce4fed470c7d2b0",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "چکاپا"
+    },
+    {
+      "CompanyID": "7a54ec15d779b9ac2ed7963ef98f7d2e",
+      "name_count": 1,
+      "rows": 68,
+      "sample_name": "دلقما"
+    },
+    {
+      "CompanyID": "7bb1956b5377b9485a7db8de8b55a434",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "شاملا"
+    },
+    {
+      "CompanyID": "7d537ec96a4dfdbd270698d08661b4b4",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "فنوال"
+    },
+    {
+      "CompanyID": "7e41b7fd7ba1c353199eba22667db254",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "کسرا"
+    },
+    {
+      "CompanyID": "7f03a704085688ac90d02018a42c8162",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "پکرمان"
+    },
+    {
+      "CompanyID": "7f547bf2c0a3ff2919c50d8c899abc3d",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "قزوین"
+    },
+    {
+      "CompanyID": "83063f85d3b40da6b49c458abcb31423",
+      "name_count": 1,
+      "rows": 1,
+      "sample_name": "چخزر"
+    },
+    {
+      "CompanyID": "835a058978f7d07fa0f0286893ac885a",
+      "name_count": 1,
+      "rows": 70,
+      "sample_name": "فگستر"
+    },
+    {
+      "CompanyID": "85287a8fa516fef95aa0d2185f916071",
+      "name_count": 1,
+      "rows": 47,
+      "sample_name": "شپنا"
+    },
+    {
+      "CompanyID": "857898d4f504279f0355b95477392169",
+      "name_count": 1,
+      "rows": 1,
+      "sample_name": "ولشرق"
+    },
+    {
+      "CompanyID": "85b841e113a9981a56d7137b3e926c4a",
+      "name_count": 1,
+      "rows": 65,
+      "sample_name": "شیران"
+    },
+    {
+      "CompanyID": "86753ad1b296713ec2fe34094b7b1d88",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "کماسه"
+    },
+    {
+      "CompanyID": "876ac8a92de3ccb30dc55ce3d7ac189a",
+      "name_count": 1,
+      "rows": 59,
+      "sample_name": "زبینا"
+    },
+    {
+      "CompanyID": "881f485833e35685213e8f387e534bf7",
+      "name_count": 1,
+      "rows": 62,
+      "sample_name": "قصفها"
+    },
+    {
+      "CompanyID": "88f79bf4cbb7f64d7bb74b1c01d3388a",
+      "name_count": 1,
+      "rows": 66,
+      "sample_name": "شگل"
+    },
+    {
+      "CompanyID": "8bbc5bbccde546656d599555b9be64d9",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "سقاین"
+    },
+    {
+      "CompanyID": "8bfd141901eaba0211578f174767f175",
+      "name_count": 1,
+      "rows": 67,
+      "sample_name": "دعبید"
+    },
+    {
+      "CompanyID": "8c179073bc41ee6b95d603feda98dafa",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "قرن"
+    },
+    {
+      "CompanyID": "8cf8f7ebb7a81d1f00229c19692d4f69",
+      "name_count": 1,
+      "rows": 65,
+      "sample_name": "بیوتیک"
+    },
+    {
+      "CompanyID": "8ecb7116a860463b6dee7ca13dcf73ea",
+      "name_count": 1,
+      "rows": 77,
+      "sample_name": "شبصیر"
+    },
+    {
+      "CompanyID": "8f0d3b9ed3bb17e93db23268de21bd69",
+      "name_count": 1,
+      "rows": 62,
+      "sample_name": "خودرو"
+    },
+    {
+      "CompanyID": "8fd34057fd7ca66b3cbf6590fabf6582",
+      "name_count": 1,
+      "rows": 66,
+      "sample_name": "فجر"
+    },
+    {
+      "CompanyID": "8fd65ccbe666396e87271af7cc74b33f",
+      "name_count": 1,
+      "rows": 68,
+      "sample_name": "کپارس"
+    },
+    {
+      "CompanyID": "9014071d39f25d22b48f82c550918f60",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "زکشت"
+    },
+    {
+      "CompanyID": "94e5dd63557afa43251119cb808facf2",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "پتایر"
+    },
+    {
+      "CompanyID": "959eac0c9aaf26d5f523b9008fb87bdf",
+      "name_count": 1,
+      "rows": 71,
+      "sample_name": "زگلدشت"
+    },
+    {
+      "CompanyID": "968fb3437a7e5a62ca7b18a26e303df1",
+      "name_count": 1,
+      "rows": 67,
+      "sample_name": "غشاذر"
+    },
+    {
+      "CompanyID": "980b075e10e0e4da4ae747bc7b6c3825",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "غپینو"
+    },
+    {
+      "CompanyID": "981b4b3afa1c7f609640ac1af6445bfc",
+      "name_count": 1,
+      "rows": 2,
+      "sample_name": "فبستم"
+    },
+    {
+      "CompanyID": "99739597e0be8c49abb1092f02513a19",
+      "name_count": 1,
+      "rows": 67,
+      "sample_name": "پکویر"
+    },
+    {
+      "CompanyID": "99775fd5c264517e465c66d684aefc15",
+      "name_count": 1,
+      "rows": 53,
+      "sample_name": "کاذر"
+    },
+    {
+      "CompanyID": "9a98774de11b0af3874a6f2b69db1b58",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "انرژی"
+    },
+    {
+      "CompanyID": "9ae2b0971dcfcf7effbe2ee13d292a7b",
+      "name_count": 1,
+      "rows": 70,
+      "sample_name": "حفارس"
+    },
+    {
+      "CompanyID": "9b49ee65d0f95a940c84528303ae18e9",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "حپارسا"
+    },
+    {
+      "CompanyID": "9b6c775a14118735ecb3d0efbf6b7a8e",
+      "name_count": 1,
+      "rows": 52,
+      "sample_name": "شمواد"
+    },
+    {
+      "CompanyID": "9bd78c98b11a21d9cff6e5172cad1d14",
+      "name_count": 1,
+      "rows": 70,
+      "sample_name": "خزامیا"
+    },
+    {
+      "CompanyID": "9bef79cc77bbecdafa3e66106bb8253b",
+      "name_count": 1,
+      "rows": 54,
+      "sample_name": "زپارس"
+    },
+    {
+      "CompanyID": "9ec90a47014c21843c4239f7a99a76f1",
+      "name_count": 1,
+      "rows": 44,
+      "sample_name": "شخارک"
+    },
+    {
+      "CompanyID": "9f4709224be63e56349d1cc368e5f005",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "ارفع"
+    },
+    {
+      "CompanyID": "a09b97e4613ee9786a2d838cfdde6353",
+      "name_count": 1,
+      "rows": 63,
+      "sample_name": "شکام"
+    },
+    {
+      "CompanyID": "a0a860bea50008bf8d2189168b782225",
+      "name_count": 1,
+      "rows": 77,
+      "sample_name": "آریا"
+    },
+    {
+      "CompanyID": "a274374c43fbb39b5ca1f9afddfea99a",
+      "name_count": 1,
+      "rows": 68,
+      "sample_name": "فاراک"
+    },
+    {
+      "CompanyID": "a6ad819831020eba3d6400887affac3f",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "ساربیل"
+    },
+    {
+      "CompanyID": "a7c92003e95722cea2d38ba5306603b9",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "فباهنر"
+    },
+    {
+      "CompanyID": "a80a3880494d31e82b13fd0d040e0f72",
+      "name_count": 1,
+      "rows": 35,
+      "sample_name": "عالیس"
+    },
+    {
+      "CompanyID": "adf177e179510f1d911eeb2ff2905d2c",
+      "name_count": 1,
+      "rows": 68,
+      "sample_name": "فسرب"
+    },
+    {
+      "CompanyID": "b1cd84e33ebd60a436db5a07c0afd700",
+      "name_count": 1,
+      "rows": 65,
+      "sample_name": "شسپا"
+    },
+    {
+      "CompanyID": "b3cd7f653dc0d5fd0e3a6dca3ddedf1b",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "دابور"
+    },
+    {
+      "CompanyID": "b4d2079975271890006b2f38412d761d",
+      "name_count": 1,
+      "rows": 68,
+      "sample_name": "چکارن"
+    },
+    {
+      "CompanyID": "b694bdef08321e4aa9a9324af55183a3",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "دسینا"
+    },
+    {
+      "CompanyID": "b88121029d7e973410b008320f8fe378",
+      "name_count": 1,
+      "rows": 58,
+      "sample_name": "قاسم"
+    },
+    {
+      "CompanyID": "b992f8cd4c1b548e42482525505c9ea7",
+      "name_count": 1,
+      "rows": 63,
+      "sample_name": "سباقر"
+    },
+    {
+      "CompanyID": "ba1603db6572b46274d398e9882a95ea",
+      "name_count": 1,
+      "rows": 40,
+      "sample_name": "دزاگرس"
+    },
+    {
+      "CompanyID": "bbb81179fce8ad6deb0c746c9ed1d951",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "خنصیر"
+    },
+    {
+      "CompanyID": "bbcfae1712205951bfbb99d634742ad8",
+      "name_count": 1,
+      "rows": 61,
+      "sample_name": "غکورش"
+    },
+    {
+      "CompanyID": "bda1926ec65a0bac619855e021b6b61c",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "شگویا"
+    },
+    {
+      "CompanyID": "bde997b478a960687f241894a21e4fdb",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "فملی"
+    },
+    {
+      "CompanyID": "be2e68f612059a7c256315b91e2aba36",
+      "name_count": 1,
+      "rows": 58,
+      "sample_name": "کیمیا"
+    },
+    {
+      "CompanyID": "bf951d5a241fb38b5504e5206704d0d8",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "شاوان"
+    },
+    {
+      "CompanyID": "c219bd90953f64ecb6ff2dbf5f96ee33",
+      "name_count": 1,
+      "rows": 40,
+      "sample_name": "شمس"
+    },
+    {
+      "CompanyID": "c2ef7e2898d4f65377c112a6be867fd4",
+      "name_count": 1,
+      "rows": 60,
+      "sample_name": "قثابت"
+    },
+    {
+      "CompanyID": "c373c2297b48b0838e26f18bf2419ddb",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "کرماشا"
+    },
+    {
+      "CompanyID": "c45bd2f33db1b2f949e77b9db3b4ec72",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "کطبس"
+    },
+    {
+      "CompanyID": "c5978431f5fc7f58270049f2352c5a00",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "پاسا"
+    },
+    {
+      "CompanyID": "c629b0270c5a5e7f60f68d0cb34f55df",
+      "name_count": 1,
+      "rows": 77,
+      "sample_name": "غمینو"
+    },
+    {
+      "CompanyID": "c72d6744160ed4ab4dd2ea41ac2b3c63",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "ذوب"
+    },
+    {
+      "CompanyID": "c830a9da03fc01d31766b115fa297d6c",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "حتاید"
+    },
+    {
+      "CompanyID": "c948737bdfc349d67b85aee1855d53b9",
+      "name_count": 1,
+      "rows": 77,
+      "sample_name": "زقیام"
+    },
+    {
+      "CompanyID": "ca5267d5258e0569e8890f5e68c841e1",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "غگل"
+    },
+    {
+      "CompanyID": "caeb12747085d21bf8331e09cbac141e",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "سرود"
+    },
+    {
+      "CompanyID": "cb507b89faf6ddf31e16ba5ea8f669d0",
+      "name_count": 1,
+      "rows": 47,
+      "sample_name": "اروند"
+    },
+    {
+      "CompanyID": "d01ad6f1e6afd1225f55ef45468e0c84",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "دارو"
+    },
+    {
+      "CompanyID": "d07ff5df6784e3a6d9d9eabdb65794ba",
+      "name_count": 1,
+      "rows": 70,
+      "sample_name": "فولاد"
+    },
+    {
+      "CompanyID": "d108002c1966bd34137074461c1193bc",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "دبالک"
+    },
+    {
+      "CompanyID": "d36c687f0cd3a20f5e0c5c1ae507ae3f",
+      "name_count": 1,
+      "rows": 15,
+      "sample_name": "غشوکو"
+    },
+    {
+      "CompanyID": "d481c7823a747032cbe08b189a6f03c0",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "زاگرس"
+    },
+    {
+      "CompanyID": "d4ba95c595b08e7a8441a997f29f4427",
+      "name_count": 1,
+      "rows": 79,
+      "sample_name": "دکپسول"
+    },
+    {
+      "CompanyID": "d591b0ffa863888077d0146ba8cd4e66",
+      "name_count": 1,
+      "rows": 59,
+      "sample_name": "غمهرا"
+    },
+    {
+      "CompanyID": "d5d20f20215dafb1d4d773897c34e2b5",
+      "name_count": 1,
+      "rows": 75,
+      "sample_name": "شدوص"
+    },
+    {
+      "CompanyID": "d9386a2d4a04ecbff28884606d66eda3",
+      "name_count": 1,
+      "rows": 62,
+      "sample_name": "بشهاب"
+    },
+    {
+      "CompanyID": "d94c1c91ade00de4b90a351ebd762517",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "غاذر"
+    },
+    {
+      "CompanyID": "dd5d864e79f2bd6bd432e4b67295eda0",
+      "name_count": 1,
+      "rows": 59,
+      "sample_name": "غبشهر"
+    },
+    {
+      "CompanyID": "dec2e66cbc6ff178a8ee0240a9fc017e",
+      "name_count": 1,
+      "rows": 67,
+      "sample_name": "کپشیر"
+    },
+    {
+      "CompanyID": "dfe07aa2c9a5a27265431f60ae868b8c",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "فسپا"
+    },
+    {
+      "CompanyID": "e4f51cddab83abe24e70280c9f7240b3",
+      "name_count": 1,
+      "rows": 67,
+      "sample_name": "قلرست"
+    },
+    {
+      "CompanyID": "e60b29bf5ce7f167ddc4039487210d2f",
+      "name_count": 1,
+      "rows": 70,
+      "sample_name": "سشرق"
+    },
+    {
+      "CompanyID": "e62877018de8682af3ad516f752ad9bb",
+      "name_count": 1,
+      "rows": 54,
+      "sample_name": "غدام"
+    },
+    {
+      "CompanyID": "e6f5fb278dab95af4b0dede9cbdd4f34",
+      "name_count": 1,
+      "rows": 71,
+      "sample_name": "کحافظ"
+    },
+    {
+      "CompanyID": "eccaf93842ab5f9e3d79fae98027bde1",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "پسهند"
+    },
+    {
+      "CompanyID": "efb86e9938a9c7351b51280587d898dc",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "رانفور"
+    },
+    {
+      "CompanyID": "efbd08e291c09108c086ad170e7026ef",
+      "name_count": 1,
+      "rows": 65,
+      "sample_name": "کگل"
+    },
+    {
+      "CompanyID": "f014eb1a1c5399dfedbc5d53791ad9ac",
+      "name_count": 1,
+      "rows": 73,
+      "sample_name": "شپدیس"
+    },
+    {
+      "CompanyID": "f165f6d8af88d6563894b42f26df2b45",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "حسینا"
+    },
+    {
+      "CompanyID": "f204dcb930e5f3c8891436b434ca7ef8",
+      "name_count": 1,
+      "rows": 72,
+      "sample_name": "شغدیر"
+    },
+    {
+      "CompanyID": "f26e919a7e723cb5fb35be3a34b11035",
+      "name_count": 1,
+      "rows": 76,
+      "sample_name": "کمنگنز"
+    },
+    {
+      "CompanyID": "f785e696c04d1a51b6e88f62deefacb3",
+      "name_count": 1,
+      "rows": 50,
+      "sample_name": "فایرا"
+    },
+    {
+      "CompanyID": "f8449f411289fa0775dc1618a83c922b",
+      "name_count": 1,
+      "rows": 64,
+      "sample_name": "اسیاتک"
+    },
+    {
+      "CompanyID": "fa2e3267b28da291dc990ba6910786d0",
+      "name_count": 1,
+      "rows": 60,
+      "sample_name": "جم پیلن"
+    },
+    {
+      "CompanyID": "fd32ba6ce155b8809f2066377e9eeccc",
+      "name_count": 1,
+      "rows": 53,
+      "sample_name": "دقاضی"
+    },
+    {
+      "CompanyID": "ff114137fa42e84bc683b7b9b4aecee9",
+      "name_count": 1,
+      "rows": 65,
+      "sample_name": "کخاک"
+    },
+    {
+      "CompanyID": "ff4c38ddc4d5a2b3d58437c8708fa6cb",
+      "name_count": 1,
+      "rows": 74,
+      "sample_name": "بپیوند"
+    }
+  ],
+  "miandore2_id_name_count": [
+    {
+      "CompanyID": "002c39c907ffac34a1ee6c5b55cefd23",
+      "name_count": 1,
+      "rows": 11,
+      "sample_name": "نان"
+    },
+    {
+      "CompanyID": "003aeed095825b208ba109440c6a6431",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "خراسان"
+    },
+    {
+      "CompanyID": "02d0fb54342c0cc17bc1062d7d88f448",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "زدشت"
+    },
+    {
+      "CompanyID": "03892a92148b9665bbb3713469826e29",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "سهگمت"
+    },
+    {
+      "CompanyID": "04234a593ca4912aa015a1dea99da781",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "زفکا"
+    },
+    {
+      "CompanyID": "04596c0c8cd003eca6202bb9351d3d5d",
+      "name_count": 1,
+      "rows": 12,
+      "sample_name": "آردینه"
+    },
+    {
+      "CompanyID": "046559f7fcc4efeb9b20ea57995da789",
+      "name_count": 1,
+      "rows": 19,
+      "sample_name": "وپست"
+    },
+    {
+      "CompanyID": "057f29e2cbb5f0df740b951b2669799f",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "خمهر"
+    },
+    {
+      "CompanyID": "05a68769d3006e107f5b7e02c9eca4fd",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "فخوز"
+    },
+    {
+      "CompanyID": "067ba4a186448d230d296b1ce604d32f",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "شبهرن"
+    },
+    {
+      "CompanyID": "07589f30e28ffd0a131f9c4157417d59",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "قنیشا"
+    },
+    {
+      "CompanyID": "081486afb8ec3b6088ff61e17ed1e666",
+      "name_count": 1,
+      "rows": 24,
+      "sample_name": "بکهنوج"
+    },
+    {
+      "CompanyID": "0839a7cf2afa34a4cc6cb908eaf9cb4f",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "شپلی"
+    },
+    {
+      "CompanyID": "0859d2221e900c47ebd6555e399b010c",
+      "name_count": 1,
+      "rows": 10,
+      "sample_name": "کربن"
+    },
+    {
+      "CompanyID": "0875c9b59ace28c22babd5e711c141da",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "سهرمز"
+    },
+    {
+      "CompanyID": "0ab048f709cfd236a0ad7aaf542a990c",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کنور"
+    },
+    {
+      "CompanyID": "0b933179128a75d133acc7cac85b4662",
+      "name_count": 1,
+      "rows": 9,
+      "sample_name": "تپمپی"
+    },
+    {
+      "CompanyID": "0d19caedc1f47bfbce6949cc9fd54846",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کفرا"
+    },
+    {
+      "CompanyID": "0e16759f2d662dc8bc10d9604b5c3a7e",
+      "name_count": 1,
+      "rows": 19,
+      "sample_name": "تپسی"
+    },
+    {
+      "CompanyID": "0e3a6731bfe6da581d9c4190b9b9707b",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "ددانا"
+    },
+    {
+      "CompanyID": "100d9b545dbca1cb4b62ecc648741665",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کلوند"
+    },
+    {
+      "CompanyID": "1025955b553ca1fa9153eea469591cb1",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "پرداخت"
+    },
+    {
+      "CompanyID": "13a0bcb602f4d54dab681986defb249d",
+      "name_count": 1,
+      "rows": 24,
+      "sample_name": "کیمیاتک"
+    },
+    {
+      "CompanyID": "14e17dd0b0b3c62c333dd4aa6c71f8ff",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "سبزوا"
+    },
+    {
+      "CompanyID": "15658d3f9297a112771a62658b4269d3",
+      "name_count": 1,
+      "rows": 7,
+      "sample_name": "شوینده"
+    },
+    {
+      "CompanyID": "162bcc9b9c97c9f3510c1bd06b5ae8c0",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غفارس"
+    },
+    {
+      "CompanyID": "16c5adc0ecd89c732f53b66f1b794505",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "بجهرم"
+    },
+    {
+      "CompanyID": "1712cd6b0f7a77388a2c072ad6694a89",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "تلیسه"
+    },
+    {
+      "CompanyID": "1818f78f177b8c9343ce20a08ca3cf40",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "بمپنا"
+    },
+    {
+      "CompanyID": "1843493e1f47856f9ed240017217d5bf",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شیراز"
+    },
+    {
+      "CompanyID": "18aeb706c9868c500cbb5e6128c038ae",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "بنو"
+    },
+    {
+      "CompanyID": "19b9ef8150577a94e1ec98c012006fa9",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "غویتا"
+    },
+    {
+      "CompanyID": "1b3136d2227d59961e470887dc900c4d",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "دتوزیع"
+    },
+    {
+      "CompanyID": "1b64f3e77238bc8dc5e3277587374ecf",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "ساروم"
+    },
+    {
+      "CompanyID": "1b8e0f2acf626d841e62b7b091e025b7",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "بزاگرس"
+    },
+    {
+      "CompanyID": "1d619a84cd8a88c3ecda4e61e9339167",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "سمازن"
+    },
+    {
+      "CompanyID": "1ddbed63fff24fa4ad4fc82f1d695219",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "سیستم"
+    },
+    {
+      "CompanyID": "1e14ece10fa50f96266e53a6d2ce83a1",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "سفانو"
+    },
+    {
+      "CompanyID": "20579374fedaf42bb5e2e72dd734e793",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "بگیلان"
+    },
+    {
+      "CompanyID": "213d9e3501b775d1751c699f0b6915ed",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "کصدف"
+    },
+    {
+      "CompanyID": "219f43aab6fb90530570bd54a78db3f4",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "خمحرکه"
+    },
+    {
+      "CompanyID": "22299b7657a300fc6056ba1b0e6532dd",
+      "name_count": 1,
+      "rows": 9,
+      "sample_name": "غانیزان"
+    },
+    {
+      "CompanyID": "251c0169be640916c76cf3d978482145",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "سشمال"
+    },
+    {
+      "CompanyID": "25594bcbd879ef25ca250052162de693",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "سبجنو"
+    },
+    {
+      "CompanyID": "257905140790bc29dc5bf9fb900ab7ff",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "ثتران"
+    },
+    {
+      "CompanyID": "26ee5c2c59a374815a759f4990eb7c29",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غگلستا"
+    },
+    {
+      "CompanyID": "29d7795e06a8fe30d0a386ed95c8f445",
+      "name_count": 1,
+      "rows": 24,
+      "sample_name": "کچاد"
+    },
+    {
+      "CompanyID": "2c7e998dc9b612c1fd643b991c0dc3cc",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غشصفا"
+    },
+    {
+      "CompanyID": "2dc3ef3ab0a0505e8859b5400fc35e95",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "شکربن"
+    },
+    {
+      "CompanyID": "2dcd8b1b42da502813fb5b275d5e288e",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "زشگزا"
+    },
+    {
+      "CompanyID": "2ebfd20c4a8b98cdd3e425bf2d0a48cf",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دامین"
+    },
+    {
+      "CompanyID": "2f418d231f33b1c2a4dd596f18096bc7",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "خودکفا"
+    },
+    {
+      "CompanyID": "2fe468d2d5a13b43ee3bc672d1fc2c6c",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "تایرا"
+    },
+    {
+      "CompanyID": "30098073127320ec11c2c84dc7dd7dd5",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شپاکسا"
+    },
+    {
+      "CompanyID": "326f53e9133b7e24c3b9ffec1e73fa18",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "خاهن"
+    },
+    {
+      "CompanyID": "32b0b479f11a3f7399ab159f7f643370",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "درازک"
+    },
+    {
+      "CompanyID": "32bc989812a6997ee475737a30528c3b",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "وخارزم"
+    },
+    {
+      "CompanyID": "32cddf0dc9b06053a765b4c371dfe764",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "سصوفی"
+    },
+    {
+      "CompanyID": "32f230090775786229c664bc8cb52dba",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شبریز"
+    },
+    {
+      "CompanyID": "34f99deab827071c31069cb575b6aeeb",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "هجرت"
+    },
+    {
+      "CompanyID": "358139e1070f075fd27c39f77c4047e4",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "داسوه"
+    },
+    {
+      "CompanyID": "36d852f81798b4c4f57827151acb1e86",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "شاراک"
+    },
+    {
+      "CompanyID": "36f23676eaffd388df63219008589dec",
+      "name_count": 1,
+      "rows": 21,
+      "sample_name": "سپیدار"
+    },
+    {
+      "CompanyID": "39232c8d2f1231a8f681e77185a0a39e",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "کرازی"
+    },
+    {
+      "CompanyID": "39c493c82f878ca7ed0a347493f150b6",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "شرانل"
+    },
+    {
+      "CompanyID": "3d93905f5d86c52a214cb21d71fbe704",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "سخوز"
+    },
+    {
+      "CompanyID": "3dc6ca7296ff7c957aa13a1bf9e28347",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "کلر"
+    },
+    {
+      "CompanyID": "3dee3148d7752fbf747804eae2347c51",
+      "name_count": 1,
+      "rows": 21,
+      "sample_name": "وخاور"
+    },
+    {
+      "CompanyID": "3eed9ad615c315d96a80b4ed8599772d",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "افق"
+    },
+    {
+      "CompanyID": "3f3bb26af4a9adedd8678ad845720830",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "بموتو"
+    },
+    {
+      "CompanyID": "4178bc367d0410e207d6a86524bf3878",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "مبین"
+    },
+    {
+      "CompanyID": "42c343943444522671018f6ce8d2c2a1",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "بفجر"
+    },
+    {
+      "CompanyID": "4548be3fe5c878a9dbda1bd95501aa64",
+      "name_count": 1,
+      "rows": 20,
+      "sample_name": "حفاری"
+    },
+    {
+      "CompanyID": "486253dea70fdfaa0ad435e871f1ac01",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "ساوه"
+    },
+    {
+      "CompanyID": "4a1adc39de6b1615bf5bf9b656a3030f",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "خموتور"
+    },
+    {
+      "CompanyID": "4abec9db6376c2f7c79a759d64220c72",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دجابر"
+    },
+    {
+      "CompanyID": "4b42ff856fa2a4996c5843f6bf85ef50",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "حتوکا"
+    },
+    {
+      "CompanyID": "4c198075a5599a736ed1cb88eb36b7cd",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "توریل"
+    },
+    {
+      "CompanyID": "4c72588412aab6f0a0e6d2469d9b1491",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غشهداب"
+    },
+    {
+      "CompanyID": "4d8273e8e35e83a73ef9b5bca072c95c",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "کالا"
+    },
+    {
+      "CompanyID": "4e35602375bf56d08f1acbbff336611c",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "سرچشمه"
+    },
+    {
+      "CompanyID": "4e74a398d885cd61dfd07383641eb05f",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "پارس"
+    },
+    {
+      "CompanyID": "4f8054584021b10a15fe091d8973bf6f",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "شتران"
+    },
+    {
+      "CompanyID": "508279539a385693bd947ea986985bb4",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شپارس"
+    },
+    {
+      "CompanyID": "5273ccc375234a373922892e70dffc5d",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غبهنوش"
+    },
+    {
+      "CompanyID": "5275e513e2842a3b390ae43faa530d06",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "غشان"
+    },
+    {
+      "CompanyID": "549b1892b8d2c12be65851e10d9d9253",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "سآبیک"
+    },
+    {
+      "CompanyID": "54e663798b0e261d5e3fef1f8da6430e",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کاما"
+    },
+    {
+      "CompanyID": "56187148c4031e89830f329dd299e701",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کگاز"
+    },
+    {
+      "CompanyID": "57ec56ad0fe574fcb2cee0f550320934",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شبندر"
+    },
+    {
+      "CompanyID": "5846976e3619ada1281f076ebdce9055",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "بترانس"
+    },
+    {
+      "CompanyID": "58a5a4af2867c8c00cd83c908b224228",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "حسیر"
+    },
+    {
+      "CompanyID": "5a47be702a11b42d75ea4fc8a0003e05",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دانا"
+    },
+    {
+      "CompanyID": "5ba7eb50b25bd20543e42f9cc50394ed",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "دپارس"
+    },
+    {
+      "CompanyID": "5d15c985370d5c69364f396ffec4e0d7",
+      "name_count": 1,
+      "rows": 22,
+      "sample_name": "فبیرا"
+    },
+    {
+      "CompanyID": "5d5c836b94dd5814744b8f6f549c51e8",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "سغرب"
+    },
+    {
+      "CompanyID": "5d9142cab82acfbf6d12ef1824abd59b",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "سیمرغ"
+    },
+    {
+      "CompanyID": "6081d3f368b7889ba242435db91b5b2f",
+      "name_count": 1,
+      "rows": 3,
+      "sample_name": "شکیمیا"
+    },
+    {
+      "CompanyID": "60de37b0434d9b34ee753646b12c46f3",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "سکرما"
+    },
+    {
+      "CompanyID": "611f456315ab832044ca3f40c5f81b25",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "خچرخش"
+    },
+    {
+      "CompanyID": "62475be81f64f0f74b0f1f4a798dd2c5",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "های وب"
+    },
+    {
+      "CompanyID": "62a63aab5e5f97d82fe87b1c3a34f7f2",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "بوعلی"
+    },
+    {
+      "CompanyID": "63a5bb96ab3f48206ee3e201f4ac9d85",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کپرور"
+    },
+    {
+      "CompanyID": "64e35e12a7959fcfbd10cb6036ed7693",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "فولای"
+    },
+    {
+      "CompanyID": "68e6f82aede2360869ceea7a3ea76d08",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "دفرا"
+    },
+    {
+      "CompanyID": "6a68f93c59cc3f3e981255fe2b2eedc1",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "چدن"
+    },
+    {
+      "CompanyID": "6b88726e82dff2001540bb7b87e2d9be",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "پاکشو"
+    },
+    {
+      "CompanyID": "6bd4aac18107335caeba964fd9804250",
+      "name_count": 1,
+      "rows": 15,
+      "sample_name": "غمایه"
+    },
+    {
+      "CompanyID": "6dd3fb203bb12fdd017e1f59fc61b9c6",
+      "name_count": 1,
+      "rows": 20,
+      "sample_name": "تاصیکو"
+    },
+    {
+      "CompanyID": "6def03d39ddc41e22cacb552bcb94ee0",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "زمگسا"
+    },
+    {
+      "CompanyID": "6e0ae81a60f8c7f6c7f0ba5597f87225",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شلیا"
+    },
+    {
+      "CompanyID": "6f7820e83627a1b5cd580bbcbb338ef3",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "پیزد"
+    },
+    {
+      "CompanyID": "701858157df331969ad61c12b4abe861",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "سکرد"
+    },
+    {
+      "CompanyID": "7083cfdfe2c268113f647360403b3778",
+      "name_count": 1,
+      "rows": 20,
+      "sample_name": "پخش"
+    },
+    {
+      "CompanyID": "713aa98887c6fda78002e405bfbec00e",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کهمدا"
+    },
+    {
+      "CompanyID": "72b4d79585406feb5160a555339cce54",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "غدیس"
+    },
+    {
+      "CompanyID": "72d8be1259190fb1b5c8726381e27f71",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "بهپاک"
+    },
+    {
+      "CompanyID": "731166bbfc773bf6a75a4bb795177b44",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "فخاس"
+    },
+    {
+      "CompanyID": "7386c9d3264a07cdaacbdba2e1941d42",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "کاسپین"
+    },
+    {
+      "CompanyID": "74a98ddff0b1430c48e8cfc83fa56408",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "غنوش"
+    },
+    {
+      "CompanyID": "7545952cb53929c1c7836fa12c77de87",
+      "name_count": 1,
+      "rows": 24,
+      "sample_name": "شستا"
+    },
+    {
+      "CompanyID": "76022dd3c77edb744eeef72f3d54483a",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غپاک"
+    },
+    {
+      "CompanyID": "77ec0ce2270f5a3e04f8fa6313cf5201",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "دیران"
+    },
+    {
+      "CompanyID": "7951d684c53fd22e89f5777201bf7453",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "نوری"
+    },
+    {
+      "CompanyID": "799566aa607bcd4a8ce4fed470c7d2b0",
+      "name_count": 1,
+      "rows": 30,
+      "sample_name": "چکاپا"
+    },
+    {
+      "CompanyID": "79c05aa1cc2e5430ef253e0d28ef62af",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "قشکر"
+    },
+    {
+      "CompanyID": "79f7b5d9782896e63356e2feba1a41c2",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "سدور"
+    },
+    {
+      "CompanyID": "7a54ec15d779b9ac2ed7963ef98f7d2e",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "دلقما"
+    },
+    {
+      "CompanyID": "7bb1956b5377b9485a7db8de8b55a434",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "شاملا"
+    },
+    {
+      "CompanyID": "7d537ec96a4dfdbd270698d08661b4b4",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "فنوال"
+    },
+    {
+      "CompanyID": "7e41b7fd7ba1c353199eba22667db254",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کسرا"
+    },
+    {
+      "CompanyID": "7f03a704085688ac90d02018a42c8162",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "پکرمان"
+    },
+    {
+      "CompanyID": "7f547bf2c0a3ff2919c50d8c899abc3d",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "قزوین"
+    },
+    {
+      "CompanyID": "801acf9315859c07fc1aca9cb877c22b",
+      "name_count": 1,
+      "rows": 30,
+      "sample_name": "غگیلا"
+    },
+    {
+      "CompanyID": "8234d415920c271fcb0300725ce4c7fd",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "فاسمین"
+    },
+    {
+      "CompanyID": "83063f85d3b40da6b49c458abcb31423",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "چخزر"
+    },
+    {
+      "CompanyID": "835a058978f7d07fa0f0286893ac885a",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "فگستر"
+    },
+    {
+      "CompanyID": "85287a8fa516fef95aa0d2185f916071",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شپنا"
+    },
+    {
+      "CompanyID": "85b841e113a9981a56d7137b3e926c4a",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شیران"
+    },
+    {
+      "CompanyID": "86753ad1b296713ec2fe34094b7b1d88",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کماسه"
+    },
+    {
+      "CompanyID": "876ac8a92de3ccb30dc55ce3d7ac189a",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "زبینا"
+    },
+    {
+      "CompanyID": "881f485833e35685213e8f387e534bf7",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "قصفها"
+    },
+    {
+      "CompanyID": "88f79bf4cbb7f64d7bb74b1c01d3388a",
+      "name_count": 1,
+      "rows": 22,
+      "sample_name": "شگل"
+    },
+    {
+      "CompanyID": "8a664764ba757925c6545b1f6148a41d",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "کاوه"
+    },
+    {
+      "CompanyID": "8a93d99f4ddd3225214f5c0e83dd513f",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "فزر"
+    },
+    {
+      "CompanyID": "8ae97b44c2d9568e972acecf665519f7",
+      "name_count": 1,
+      "rows": 21,
+      "sample_name": "وسپه"
+    },
+    {
+      "CompanyID": "8b5fc1bfef84c4c6f8b652747c0c50f7",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "درهآور"
+    },
+    {
+      "CompanyID": "8bbc5bbccde546656d599555b9be64d9",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "سقاین"
+    },
+    {
+      "CompanyID": "8bfd141901eaba0211578f174767f175",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دعبید"
+    },
+    {
+      "CompanyID": "8c179073bc41ee6b95d603feda98dafa",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "قرن"
+    },
+    {
+      "CompanyID": "8cf8f7ebb7a81d1f00229c19692d4f69",
+      "name_count": 1,
+      "rows": 21,
+      "sample_name": "بیوتیک"
+    },
+    {
+      "CompanyID": "8ecb7116a860463b6dee7ca13dcf73ea",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شبصیر"
+    },
+    {
+      "CompanyID": "8f0d3b9ed3bb17e93db23268de21bd69",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "خودرو"
+    },
+    {
+      "CompanyID": "8f5d6dbbead24fee9802a92474c4ead8",
+      "name_count": 1,
+      "rows": 24,
+      "sample_name": "گشان"
+    },
+    {
+      "CompanyID": "8fb84e957a6f7f5f8c85bfea0a6625fc",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "پارسان"
+    },
+    {
+      "CompanyID": "8fd34057fd7ca66b3cbf6590fabf6582",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "فجر"
+    },
+    {
+      "CompanyID": "8fd65ccbe666396e87271af7cc74b33f",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "کپارس"
+    },
+    {
+      "CompanyID": "9014071d39f25d22b48f82c550918f60",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "زکشت"
+    },
+    {
+      "CompanyID": "905b8289d77d9927c13119c6a7cff9e1",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "کزغال"
+    },
+    {
+      "CompanyID": "916d608d7850e7faf40d8efeb0d236a0",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "کساپا"
+    },
+    {
+      "CompanyID": "94bbf9d3a165ab493a448d205002268e",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "سنیر"
+    },
+    {
+      "CompanyID": "94e5dd63557afa43251119cb808facf2",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "پتایر"
+    },
+    {
+      "CompanyID": "959eac0c9aaf26d5f523b9008fb87bdf",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "زگلدشت"
+    },
+    {
+      "CompanyID": "968fb3437a7e5a62ca7b18a26e303df1",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "غشاذر"
+    },
+    {
+      "CompanyID": "9690eb40ea60e7030a8c95d739fc573c",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "کروی"
+    },
+    {
+      "CompanyID": "9699d9e476a96e2efa79e1d55f75a297",
+      "name_count": 1,
+      "rows": 7,
+      "sample_name": "خبهمن"
+    },
+    {
+      "CompanyID": "980b075e10e0e4da4ae747bc7b6c3825",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غپینو"
+    },
+    {
+      "CompanyID": "99739597e0be8c49abb1092f02513a19",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "پکویر"
+    },
+    {
+      "CompanyID": "99775fd5c264517e465c66d684aefc15",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کاذر"
+    },
+    {
+      "CompanyID": "9a36b759bdba7d3f32786da29cb90020",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "فولاژ"
+    },
+    {
+      "CompanyID": "9a98774de11b0af3874a6f2b69db1b58",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "انرژی"
+    },
+    {
+      "CompanyID": "9ae2b0971dcfcf7effbe2ee13d292a7b",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "حفارس"
+    },
+    {
+      "CompanyID": "9b49ee65d0f95a940c84528303ae18e9",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "حپارسا"
+    },
+    {
+      "CompanyID": "9b6c775a14118735ecb3d0efbf6b7a8e",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شمواد"
+    },
+    {
+      "CompanyID": "9bd78c98b11a21d9cff6e5172cad1d14",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "خزامیا"
+    },
+    {
+      "CompanyID": "9bef79cc77bbecdafa3e66106bb8253b",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "زپارس"
+    },
+    {
+      "CompanyID": "9ec90a47014c21843c4239f7a99a76f1",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شخارک"
+    },
+    {
+      "CompanyID": "9f4709224be63e56349d1cc368e5f005",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "ارفع"
+    },
+    {
+      "CompanyID": "9f5edea13cb3cb346e5895e3fb55faf7",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "حریل"
+    },
+    {
+      "CompanyID": "a09b97e4613ee9786a2d838cfdde6353",
+      "name_count": 1,
+      "rows": 21,
+      "sample_name": "شکام"
+    },
+    {
+      "CompanyID": "a0a860bea50008bf8d2189168b782225",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "آریا"
+    },
+    {
+      "CompanyID": "a207ae2effa153c9cd7977e7399b33d9",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "ستران"
+    },
+    {
+      "CompanyID": "a274374c43fbb39b5ca1f9afddfea99a",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "فاراک"
+    },
+    {
+      "CompanyID": "a2affb7dd71d9fab5ed7047d8e8f9a93",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "سپید"
+    },
+    {
+      "CompanyID": "a36b1b9ab2e49cbbd170e60080fa4676",
+      "name_count": 1,
+      "rows": 24,
+      "sample_name": "حکشتی"
+    },
+    {
+      "CompanyID": "a4c5e155e0d31a9e8e3eaf65bf32f899",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "فپنتا"
+    },
+    {
+      "CompanyID": "a6ad819831020eba3d6400887affac3f",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "ساربیل"
+    },
+    {
+      "CompanyID": "a7c92003e95722cea2d38ba5306603b9",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "فباهنر"
+    },
+    {
+      "CompanyID": "a7e6b6cc7c33c4988937ed9c579b01fa",
+      "name_count": 1,
+      "rows": 16,
+      "sample_name": "دتماد"
+    },
+    {
+      "CompanyID": "a80a3880494d31e82b13fd0d040e0f72",
+      "name_count": 1,
+      "rows": 18,
+      "sample_name": "عالیس"
+    },
+    {
+      "CompanyID": "a9e76ebf3cf2f1c17cdfa0b9442e427c",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "فرآور"
+    },
+    {
+      "CompanyID": "ad2a49a7dc0223ba81462651415c6507",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "فنورد"
+    },
+    {
+      "CompanyID": "add4a2f41440b06319f3e7d8d553f2e4",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "فاذر"
+    },
+    {
+      "CompanyID": "adf177e179510f1d911eeb2ff2905d2c",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "فسرب"
+    },
+    {
+      "CompanyID": "ae5db37d89e694987912ff20ca952bcd",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "مادیرا"
+    },
+    {
+      "CompanyID": "b1cd84e33ebd60a436db5a07c0afd700",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "شسپا"
+    },
+    {
+      "CompanyID": "b3cd7f653dc0d5fd0e3a6dca3ddedf1b",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دابور"
+    },
+    {
+      "CompanyID": "b4d2079975271890006b2f38412d761d",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "چکارن"
+    },
+    {
+      "CompanyID": "b694bdef08321e4aa9a9324af55183a3",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "دسینا"
+    },
+    {
+      "CompanyID": "b752d7f753da4d90eb35269ac20f29b9",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "کبافق"
+    },
+    {
+      "CompanyID": "b88121029d7e973410b008320f8fe378",
+      "name_count": 1,
+      "rows": 24,
+      "sample_name": "قاسم"
+    },
+    {
+      "CompanyID": "b992f8cd4c1b548e42482525505c9ea7",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "سباقر"
+    },
+    {
+      "CompanyID": "ba1603db6572b46274d398e9882a95ea",
+      "name_count": 1,
+      "rows": 16,
+      "sample_name": "دزاگرس"
+    },
+    {
+      "CompanyID": "bb3afe19f992a47dab8ed0efba9f15db",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دسبحان"
+    },
+    {
+      "CompanyID": "bbb81179fce8ad6deb0c746c9ed1d951",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "خنصیر"
+    },
+    {
+      "CompanyID": "bbcfae1712205951bfbb99d634742ad8",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غکورش"
+    },
+    {
+      "CompanyID": "bcd063af0a3b800fe8afeecd6fe37b47",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "زفجر"
+    },
+    {
+      "CompanyID": "bd0ee973f3ff87b60181493e77d55264",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "دسبحا"
+    },
+    {
+      "CompanyID": "bda1926ec65a0bac619855e021b6b61c",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "شگویا"
+    },
+    {
+      "CompanyID": "bde997b478a960687f241894a21e4fdb",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "فملی"
+    },
+    {
+      "CompanyID": "be2e68f612059a7c256315b91e2aba36",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "کیمیا"
+    },
+    {
+      "CompanyID": "bf951d5a241fb38b5504e5206704d0d8",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شاوان"
+    },
+    {
+      "CompanyID": "c219bd90953f64ecb6ff2dbf5f96ee33",
+      "name_count": 1,
+      "rows": 9,
+      "sample_name": "شمس"
+    },
+    {
+      "CompanyID": "c2ef7e2898d4f65377c112a6be867fd4",
+      "name_count": 1,
+      "rows": 24,
+      "sample_name": "قثابت"
+    },
+    {
+      "CompanyID": "c373c2297b48b0838e26f18bf2419ddb",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "کرماشا"
+    },
+    {
+      "CompanyID": "c45bd2f33db1b2f949e77b9db3b4ec72",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "کطبس"
+    },
+    {
+      "CompanyID": "c5978431f5fc7f58270049f2352c5a00",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "پاسا"
+    },
+    {
+      "CompanyID": "c5e041913a67a3bdb2f7bfe5bba20bd8",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دفارا"
+    },
+    {
+      "CompanyID": "c629b0270c5a5e7f60f68d0cb34f55df",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غمینو"
+    },
+    {
+      "CompanyID": "c72d6744160ed4ab4dd2ea41ac2b3c63",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "ذوب"
+    },
+    {
+      "CompanyID": "c830a9da03fc01d31766b115fa297d6c",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "حتاید"
+    },
+    {
+      "CompanyID": "c948737bdfc349d67b85aee1855d53b9",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "زقیام"
+    },
+    {
+      "CompanyID": "ca5267d5258e0569e8890f5e68c841e1",
+      "name_count": 1,
+      "rows": 29,
+      "sample_name": "غگل"
+    },
+    {
+      "CompanyID": "caeb12747085d21bf8331e09cbac141e",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "سرود"
+    },
+    {
+      "CompanyID": "cb507b89faf6ddf31e16ba5ea8f669d0",
+      "name_count": 1,
+      "rows": 12,
+      "sample_name": "اروند"
+    },
+    {
+      "CompanyID": "cca4110448d6de510f0d72a5270ddc77",
+      "name_count": 1,
+      "rows": 7,
+      "sample_name": "رانیز"
+    },
+    {
+      "CompanyID": "d01ad6f1e6afd1225f55ef45468e0c84",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "دارو"
+    },
+    {
+      "CompanyID": "d07ff5df6784e3a6d9d9eabdb65794ba",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "فولاد"
+    },
+    {
+      "CompanyID": "d108002c1966bd34137074461c1193bc",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دبالک"
+    },
+    {
+      "CompanyID": "d36c687f0cd3a20f5e0c5c1ae507ae3f",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غشوکو"
+    },
+    {
+      "CompanyID": "d481c7823a747032cbe08b189a6f03c0",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "زاگرس"
+    },
+    {
+      "CompanyID": "d4ba95c595b08e7a8441a997f29f4427",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دکپسول"
+    },
+    {
+      "CompanyID": "d591b0ffa863888077d0146ba8cd4e66",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غمهرا"
+    },
+    {
+      "CompanyID": "d5d20f20215dafb1d4d773897c34e2b5",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "شدوص"
+    },
+    {
+      "CompanyID": "d9386a2d4a04ecbff28884606d66eda3",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "بشهاب"
+    },
+    {
+      "CompanyID": "d94c1c91ade00de4b90a351ebd762517",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غاذر"
+    },
+    {
+      "CompanyID": "db1cb723021652b16b2b07e88b595bb0",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "دالبر"
+    },
+    {
+      "CompanyID": "dd5d864e79f2bd6bd432e4b67295eda0",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "غبشهر"
+    },
+    {
+      "CompanyID": "de970c1c2991b9b3e1e5b18f4f361700",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "دروز"
+    },
+    {
+      "CompanyID": "dec2e66cbc6ff178a8ee0240a9fc017e",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "کپشیر"
+    },
+    {
+      "CompanyID": "dfe07aa2c9a5a27265431f60ae868b8c",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "فسپا"
+    },
+    {
+      "CompanyID": "e2d1f5c5d5e4d6849d80511b5f035099",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "وبصادر"
+    },
+    {
+      "CompanyID": "e4f51cddab83abe24e70280c9f7240b3",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "قلرست"
+    },
+    {
+      "CompanyID": "e60b29bf5ce7f167ddc4039487210d2f",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "سشرق"
+    },
+    {
+      "CompanyID": "e6f5fb278dab95af4b0dede9cbdd4f34",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کحافظ"
+    },
+    {
+      "CompanyID": "e863456493cc72d8dc255c72551f3c26",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "خصدرا"
+    },
+    {
+      "CompanyID": "eb385d3905217941c6bb9e2caf44b537",
+      "name_count": 1,
+      "rows": 22,
+      "sample_name": "فسبزوار"
+    },
+    {
+      "CompanyID": "ebcee98ad7dedd38d7be45b541349ffa",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "وتوشه"
+    },
+    {
+      "CompanyID": "eccaf93842ab5f9e3d79fae98027bde1",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "پسهند"
+    },
+    {
+      "CompanyID": "efb86e9938a9c7351b51280587d898dc",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "رانفور"
+    },
+    {
+      "CompanyID": "efbd08e291c09108c086ad170e7026ef",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کگل"
+    },
+    {
+      "CompanyID": "f014eb1a1c5399dfedbc5d53791ad9ac",
+      "name_count": 1,
+      "rows": 25,
+      "sample_name": "شپدیس"
+    },
+    {
+      "CompanyID": "f08b706dfe1ab6bc864806ce40729675",
+      "name_count": 1,
+      "rows": 17,
+      "sample_name": "زهلال"
+    },
+    {
+      "CompanyID": "f165f6d8af88d6563894b42f26df2b45",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "حسینا"
+    },
+    {
+      "CompanyID": "f204dcb930e5f3c8891436b434ca7ef8",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "شغدیر"
+    },
+    {
+      "CompanyID": "f26e919a7e723cb5fb35be3a34b11035",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "کمنگنز"
+    },
+    {
+      "CompanyID": "f29a3223edeee237a7b7664f7bb172ff",
+      "name_count": 1,
+      "rows": 20,
+      "sample_name": "وبملت"
+    },
+    {
+      "CompanyID": "f785e696c04d1a51b6e88f62deefacb3",
+      "name_count": 1,
+      "rows": 28,
+      "sample_name": "فایرا"
+    },
+    {
+      "CompanyID": "f8449f411289fa0775dc1618a83c922b",
+      "name_count": 1,
+      "rows": 20,
+      "sample_name": "اسیاتک"
+    },
+    {
+      "CompanyID": "f8dfbe7ae5669ddbcb0fa22d6d3e7a5c",
+      "name_count": 1,
+      "rows": 24,
+      "sample_name": "ثبهساز"
+    },
+    {
+      "CompanyID": "fa2e3267b28da291dc990ba6910786d0",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "جم پیلن"
+    },
+    {
+      "CompanyID": "fa35570c95ed00ea371c6fca0da91641",
+      "name_count": 1,
+      "rows": 23,
+      "sample_name": "برکت"
+    },
+    {
+      "CompanyID": "fb2ff05e8a5b71f6d43905f74f59cec6",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "خدیزل"
+    },
+    {
+      "CompanyID": "fd32ba6ce155b8809f2066377e9eeccc",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "دقاضی"
+    },
+    {
+      "CompanyID": "fe84a7e68ba30f83fd0f09d141ee51dd",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "تکمبا"
+    },
+    {
+      "CompanyID": "ff114137fa42e84bc683b7b9b4aecee9",
+      "name_count": 1,
+      "rows": 26,
+      "sample_name": "کخاک"
+    },
+    {
+      "CompanyID": "ff4c38ddc4d5a2b3d58437c8708fa6cb",
+      "name_count": 1,
+      "rows": 27,
+      "sample_name": "بپیوند"
+    }
+  ],
+  "name_multi_id_union": [],
+  "mph_symbol_multi_id": [
+    {
+      "Symbol": "کسرا",
+      "id_count": 2
+    }
+  ],
+  "mph_id_multi_symbol": [
+    {
+      "CompanyID": "fa2e3267b28da291dc990ba6910786d0",
+      "symbol_count": 3
+    },
+    {
+      "CompanyID": "5d9142cab82acfbf6d12ef1824abd59b",
+      "symbol_count": 2
+    },
+    {
+      "CompanyID": "62475be81f64f0f74b0f1f4a798dd2c5",
+      "symbol_count": 2
+    }
+  ],
+  "mph_instrument_multi": [
+    {
+      "InstrumentCode": "4614779520007780",
+      "symbols": 1,
+      "ids": 2,
+      "rows": 3660
+    }
+  ],
+  "mph_id_multi_instrument": [
+    {
+      "CompanyID": "fa2e3267b28da291dc990ba6910786d0",
+      "instruments": 3
+    },
+    {
+      "CompanyID": "5d9142cab82acfbf6d12ef1824abd59b",
+      "instruments": 2
+    },
+    {
+      "CompanyID": "62475be81f64f0f74b0f1f4a798dd2c5",
+      "instruments": 2
+    }
+  ],
+  "tracked_tickers": [
+    {
+      "Symbol": "آردینه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "آریا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ارفع",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "اروند",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "اسیاتک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "افق",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "انرژی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بپیوند",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بترانس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بجهرم",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "برکت",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بزاگرس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بشهاب",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بفجر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بگیلان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بمپنا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بموتو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بمولد",
+      "Source": "mahane",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بنو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بهپاک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بوعلی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بکهنوج",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "بیوتیک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پارس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پارسان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پاسا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پاکشو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پتایر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پخش",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پرداخت",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پسهند",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پکرمان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پکویر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "پیزد",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "تاتمس",
+      "Source": "mahane",
+      "IsActive": true
+    },
+    {
+      "Symbol": "تاصیکو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "تایرا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "تپسی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "تپمپی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "تلیسه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "توریل",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "تکمبا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ثالوند",
+      "Source": "mahane",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ثبهساز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ثتران",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "جم پیلن",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "جم پیلن2",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "جم پیلن3",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "چخزر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "چدن",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "چکاپا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "چکارن",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "حپارسا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "حتاید",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "حتوکا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "حریل",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "حسیر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "حسینا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "حفارس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "حفاری",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "حکشتی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خاهن",
+      "Source": "miandore2",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خبهمن",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خبهن",
+      "Source": "mahane",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خچرخش",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خدیزل",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خراسان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خزامیا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خصدرا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خمحرکه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خمهر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خموتور",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خنصیر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خودرو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "خودکفا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دابور",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دارو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "داسوه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دالبر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دامین",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دانا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دبالک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دپارس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دتماد",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دتوزیع",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دجابر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ددانا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "درازک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "درهآور",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دروز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دزاگرس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دزهراوی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دسبحا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دسبحان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دسینا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دعبید",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دفارا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دفرا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دقاضی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دلقما",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دکپسول",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "دیران",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ذوب",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "رانفور",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "رانیز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "رمپنا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زاگرس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زبینا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زپارس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زدشت",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زشگزا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زفجر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زفکا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زقیام",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زگلدشت",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زمگسا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زهلال",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "زکشت",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سآبیک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ساربیل",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ساروم",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ساوه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سباقر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سبجنو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سبزوا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سپید",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سپیدار",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ستران",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سخوز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سدور",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سرچشمه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سرود",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سشرق",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سشمال",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سصوفی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سغرب",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سفانو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سقاین",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سمازن",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سنیر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سهرمز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سهگمت",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سکرد",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سکرما",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سیستم",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سیمرغ",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "سیمرغ3",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شاراک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شاملا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شاوان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شبریز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شبصیر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شبندر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شبهرن",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شپارس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شپاکسا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شپدیس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شپلی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شپنا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شتران",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شخارک",
+      "Source": "miandore2",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شدوص",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شرانل",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شسپا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شستا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شغدیر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شگل",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شگویا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شلیا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شمس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شمواد",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شوینده",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شکام",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شکربن",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شکیمیا",
+      "Source": "miandore2",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شیراز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "شیران",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "عالیس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غاذر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غانیزان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غبشهر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غبهنوش",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غپاک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غپینو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غدام",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غدیس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غشاذر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غشان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غشصفا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غشهداب",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غشوکو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غفارس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غگل",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غگلستا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غگیلا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غمایه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غمهرا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غمینو",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غنوش",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غویتا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "غکورش",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فاذر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فاراک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فاسمین",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فایرا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فباهنر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فبستم",
+      "Source": "mahane",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فبیرا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فپنتا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فجر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فخاس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فخوز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فرآور",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فزر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فسبزوار",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فسپا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فسرب",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فگستر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فملی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فنوال",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فنورد",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فولاد",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فولاژ",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "فولای",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "قاسم",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "قثابت",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "قرن",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "قزوین",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "قشکر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "قصفها",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "قلرست",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "قنیشا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "گشان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "مادیرا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "مبین",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "مثقال",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "نان",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "نوری",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "های وب",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "های وب3",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "هجرت",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "وبصادر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "وبملت",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "وپست",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "وتوشه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "وخارزم",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "وخاور",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "وسپه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "ولشرق",
+      "Source": "mahane",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کاذر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کاسپین",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کالا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کاما",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کاوه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کبافق",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کپارس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کپرور",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کپشیر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کچاد",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کحافظ",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کخاک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کرازی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کربن",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کرماشا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کروی",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کزغال",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کساپا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کسرا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کصدف",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کطبس",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کفرا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کگاز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کگل",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کلر",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کلوند",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کماسه",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کمنگنز",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کنور",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کهمدا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کیمیا",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "کیمیاتک",
+      "Source": "market_price_history",
+      "IsActive": true
+    },
+    {
+      "Symbol": "یاقوت",
+      "Source": "market_price_history",
+      "IsActive": true
+    }
+  ],
+  "fullpe_names": [
+    {
+      "CompanyName": "آردینه",
+      "PE": 6.58,
+      "Price": 30520.0
+    },
+    {
+      "CompanyName": "آریا",
+      "PE": 6.83,
+      "Price": 32850.0
+    },
+    {
+      "CompanyName": "اروند",
+      "PE": 15.36,
+      "Price": 49150.0
+    },
+    {
+      "CompanyName": "اسیاتک",
+      "PE": 4.07,
+      "Price": 3970.0
+    },
+    {
+      "CompanyName": "افق",
+      "PE": 13.53,
+      "Price": 69580.0
+    },
+    {
+      "CompanyName": "انرژی",
+      "PE": 47.74,
+      "Price": 24260.0
+    },
+    {
+      "CompanyName": "بپیوند",
+      "PE": 10.42,
+      "Price": 17800.0
+    },
+    {
+      "CompanyName": "بترانس",
+      "PE": 4.27,
+      "Price": 3150.0
+    },
+    {
+      "CompanyName": "بجهرم",
+      "PE": 9.49,
+      "Price": 3080.0
+    },
+    {
+      "CompanyName": "برکت",
+      "PE": 102.34,
+      "Price": 4740.0
+    },
+    {
+      "CompanyName": "بزاگرس",
+      "PE": 17.42,
+      "Price": 7790.0
+    },
+    {
+      "CompanyName": "بشهاب",
+      "PE": 6.52,
+      "Price": 7930.0
+    },
+    {
+      "CompanyName": "بگیلان",
+      "PE": 10.7,
+      "Price": 25310.0
+    },
+    {
+      "CompanyName": "بمپنا",
+      "PE": 13.0,
+      "Price": 7460.0
+    },
+    {
+      "CompanyName": "بموتو",
+      "PE": 6.92,
+      "Price": 3350.0
+    },
+    {
+      "CompanyName": "بنو",
+      "PE": 8.37,
+      "Price": 1949.0
+    },
+    {
+      "CompanyName": "بهپاک",
+      "PE": 4.35,
+      "Price": 16000.0
+    },
+    {
+      "CompanyName": "بوعلی",
+      "PE": 5.38,
+      "Price": 44000.0
+    },
+    {
+      "CompanyName": "بیوتیک",
+      "PE": 22.51,
+      "Price": 32200.0
+    },
+    {
+      "CompanyName": "پارس",
+      "PE": 4.57,
+      "Price": 2211.0
+    },
+    {
+      "CompanyName": "پارسان",
+      "PE": 9.52,
+      "Price": 32340.0
+    },
+    {
+      "CompanyName": "پاسا",
+      "PE": 4.93,
+      "Price": 9700.0
+    },
+    {
+      "CompanyName": "پاکشو",
+      "PE": 10.48,
+      "Price": 11390.0
+    },
+    {
+      "CompanyName": "پتایر",
+      "PE": 7.17,
+      "Price": 2774.0
+    },
+    {
+      "CompanyName": "پخش",
+      "PE": 6.53,
+      "Price": 12910.0
+    },
+    {
+      "CompanyName": "پرداخت",
+      "PE": 14.26,
+      "Price": 6860.0
+    },
+    {
+      "CompanyName": "پسهند",
+      "PE": 15.5,
+      "Price": 22260.0
+    },
+    {
+      "CompanyName": "پکرمان",
+      "PE": 7.21,
+      "Price": 6800.0
+    },
+    {
+      "CompanyName": "پکویر",
+      "PE": 5.37,
+      "Price": 7120.0
+    },
+    {
+      "CompanyName": "پیزد",
+      "PE": 5.65,
+      "Price": 9040.0
+    },
+    {
+      "CompanyName": "تاصیکو",
+      "PE": 52.03,
+      "Price": 22840.0
+    },
+    {
+      "CompanyName": "تایرا",
+      "PE": 3.87,
+      "Price": 2820.0
+    },
+    {
+      "CompanyName": "تپسی",
+      "PE": -13.14,
+      "Price": 20350.0
+    },
+    {
+      "CompanyName": "تپمپی",
+      "PE": 8.86,
+      "Price": 6850.0
+    },
+    {
+      "CompanyName": "تلیسه",
+      "PE": 7.84,
+      "Price": 9760.0
+    },
+    {
+      "CompanyName": "توریل",
+      "PE": 5.42,
+      "Price": 3280.0
+    },
+    {
+      "CompanyName": "تکمبا",
+      "PE": 9.84,
+      "Price": 7760.0
+    },
+    {
+      "CompanyName": "ثبهساز",
+      "PE": 2.98,
+      "Price": 1916.0
+    },
+    {
+      "CompanyName": "ثتران",
+      "PE": -20.12,
+      "Price": 8220.0
+    },
+    {
+      "CompanyName": "جم پیلن",
+      "PE": 6.11,
+      "Price": 255900.0
+    },
+    {
+      "CompanyName": "چخزر",
+      "PE": 9.36,
+      "Price": 192200.0
+    },
+    {
+      "CompanyName": "چدن",
+      "PE": 6.34,
+      "Price": 3320.0
+    },
+    {
+      "CompanyName": "چکاپا",
+      "PE": -5.48,
+      "Price": 1579.0
+    },
+    {
+      "CompanyName": "چکارن",
+      "PE": 9.54,
+      "Price": 4500.0
+    },
+    {
+      "CompanyName": "حپارسا",
+      "PE": 7.63,
+      "Price": 18640.0
+    },
+    {
+      "CompanyName": "حتاید",
+      "PE": 5.79,
+      "Price": 7750.0
+    },
+    {
+      "CompanyName": "حتوکا",
+      "PE": 7.58,
+      "Price": 2354.0
+    },
+    {
+      "CompanyName": "حریل",
+      "PE": 9.18,
+      "Price": 2702.0
+    },
+    {
+      "CompanyName": "حسیر",
+      "PE": 9.09,
+      "Price": 6580.0
+    },
+    {
+      "CompanyName": "حسینا",
+      "PE": 7.58,
+      "Price": 15690.0
+    },
+    {
+      "CompanyName": "حفارس",
+      "PE": 47.52,
+      "Price": 7050.0
+    },
+    {
+      "CompanyName": "حفاری",
+      "PE": 2.2,
+      "Price": 5350.0
+    },
+    {
+      "CompanyName": "حکشتی",
+      "PE": 6.12,
+      "Price": 8780.0
+    },
+    {
+      "CompanyName": "خبهمن",
+      "PE": 4.83,
+      "Price": 2640.0
+    },
+    {
+      "CompanyName": "خچرخش",
+      "PE": 8.6,
+      "Price": 19990.0
+    },
+    {
+      "CompanyName": "خدیزل",
+      "PE": 4.96,
+      "Price": 1664.0
+    },
+    {
+      "CompanyName": "خراسان",
+      "PE": 7.98,
+      "Price": 53860.0
+    },
+    {
+      "CompanyName": "خزامیا",
+      "PE": 19.6,
+      "Price": 1627.0
+    },
+    {
+      "CompanyName": "خمحرکه",
+      "PE": 46.46,
+      "Price": 5880.0
+    },
+    {
+      "CompanyName": "خمهر",
+      "PE": 29.62,
+      "Price": 3120.0
+    },
+    {
+      "CompanyName": "خموتور",
+      "PE": 5.89,
+      "Price": 2216.0
+    },
+    {
+      "CompanyName": "خنصیر",
+      "PE": 8.99,
+      "Price": 4200.0
+    },
+    {
+      "CompanyName": "خودرو",
+      "PE": -14.53,
+      "Price": 692.0
+    },
+    {
+      "CompanyName": "دابور",
+      "PE": 9.01,
+      "Price": 57130.0
+    },
+    {
+      "CompanyName": "دارو",
+      "PE": 9.83,
+      "Price": 8020.0
+    },
+    {
+      "CompanyName": "داسوه",
+      "PE": 14.36,
+      "Price": 92920.0
+    },
+    {
+      "CompanyName": "دالبر",
+      "PE": 8.17,
+      "Price": 14080.0
+    },
+    {
+      "CompanyName": "دامین",
+      "PE": 39.23,
+      "Price": 14330.0
+    },
+    {
+      "CompanyName": "دانا",
+      "PE": -1.35,
+      "Price": 2403.0
+    },
+    {
+      "CompanyName": "دبالک",
+      "PE": 13.97,
+      "Price": 15130.0
+    },
+    {
+      "CompanyName": "دپارس",
+      "PE": 12.79,
+      "Price": 59000.0
+    },
+    {
+      "CompanyName": "دتماد",
+      "PE": 10.17,
+      "Price": 56000.0
+    },
+    {
+      "CompanyName": "دتوزیع",
+      "PE": 8.4,
+      "Price": 5990.0
+    },
+    {
+      "CompanyName": "دجابر",
+      "PE": 11.22,
+      "Price": 46960.0
+    },
+    {
+      "CompanyName": "ددانا",
+      "PE": 8.06,
+      "Price": 20150.0
+    },
+    {
+      "CompanyName": "درازک",
+      "PE": 9.93,
+      "Price": 4350.0
+    },
+    {
+      "CompanyName": "درهآور",
+      "PE": 8.79,
+      "Price": 15620.0
+    },
+    {
+      "CompanyName": "دروز",
+      "PE": 126.95,
+      "Price": 21190.0
+    },
+    {
+      "CompanyName": "دزاگرس",
+      "PE": 8.04,
+      "Price": 23860.0
+    },
+    {
+      "CompanyName": "دسبحا",
+      "PE": 35.4,
+      "Price": 6550.0
+    },
+    {
+      "CompanyName": "دسبحان",
+      "PE": 9.63,
+      "Price": 13820.0
+    },
+    {
+      "CompanyName": "دسینا",
+      "PE": 9.12,
+      "Price": 83990.0
+    },
+    {
+      "CompanyName": "دعبید",
+      "PE": 14.25,
+      "Price": 20950.0
+    },
+    {
+      "CompanyName": "دفارا",
+      "PE": 8.88,
+      "Price": 16740.0
+    },
+    {
+      "CompanyName": "دفرا",
+      "PE": 15.89,
+      "Price": 52620.0
+    },
+    {
+      "CompanyName": "دقاضی",
+      "PE": 8.77,
+      "Price": 20790.0
+    },
+    {
+      "CompanyName": "دلقما",
+      "PE": 8.84,
+      "Price": 9640.0
+    },
+    {
+      "CompanyName": "دکپسول",
+      "PE": 8.85,
+      "Price": 177600.0
+    },
+    {
+      "CompanyName": "دیران",
+      "PE": 10.09,
+      "Price": 15460.0
+    },
+    {
+      "CompanyName": "ذوب",
+      "PE": 49.33,
+      "Price": 592.0
+    },
+    {
+      "CompanyName": "رانفور",
+      "PE": 35.06,
+      "Price": 5250.0
+    },
+    {
+      "CompanyName": "رانیز",
+      "PE": 5.29,
+      "Price": 18200.0
+    },
+    {
+      "CompanyName": "زاگرس",
+      "PE": 15.38,
+      "Price": 137700.0
+    },
+    {
+      "CompanyName": "زبینا",
+      "PE": 7.24,
+      "Price": 13300.0
+    },
+    {
+      "CompanyName": "زپارس",
+      "PE": 8.48,
+      "Price": 39140.0
+    },
+    {
+      "CompanyName": "زدشت",
+      "PE": 9.31,
+      "Price": 9160.0
+    },
+    {
+      "CompanyName": "زشگزا",
+      "PE": 6.6,
+      "Price": 30820.0
+    },
+    {
+      "CompanyName": "زفجر",
+      "PE": 6.24,
+      "Price": 48710.0
+    },
+    {
+      "CompanyName": "زفکا",
+      "PE": 8.62,
+      "Price": 7700.0
+    },
+    {
+      "CompanyName": "زقیام",
+      "PE": 7.73,
+      "Price": 10680.0
+    },
+    {
+      "CompanyName": "زگلدشت",
+      "PE": 8.68,
+      "Price": 10490.0
+    },
+    {
+      "CompanyName": "زمگسا",
+      "PE": 7.45,
+      "Price": 90400.0
+    },
+    {
+      "CompanyName": "زهلال",
+      "PE": 7.78,
+      "Price": 48430.0
+    },
+    {
+      "CompanyName": "زکشت",
+      "PE": 6.57,
+      "Price": 22490.0
+    },
+    {
+      "CompanyName": "سآبیک",
+      "PE": 7.18,
+      "Price": 71650.0
+    },
+    {
+      "CompanyName": "ساربیل",
+      "PE": 7.97,
+      "Price": 89960.0
+    },
+    {
+      "CompanyName": "ساروم",
+      "PE": 5.59,
+      "Price": 189400.0
+    },
+    {
+      "CompanyName": "ساوه",
+      "PE": 6.9,
+      "Price": 10040.0
+    },
+    {
+      "CompanyName": "سباقر",
+      "PE": 7.39,
+      "Price": 321800.0
+    },
+    {
+      "CompanyName": "سبجنو",
+      "PE": 5.7,
+      "Price": 48820.0
+    },
+    {
+      "CompanyName": "سبزوا",
+      "PE": 14.47,
+      "Price": 8750.0
+    },
+    {
+      "CompanyName": "سپید",
+      "PE": 4.97,
+      "Price": 43650.0
+    },
+    {
+      "CompanyName": "سپیدار",
+      "PE": 10.64,
+      "Price": 8700.0
+    },
+    {
+      "CompanyName": "ستران",
+      "PE": 7.19,
+      "Price": 13190.0
+    },
+    {
+      "CompanyName": "سخوز",
+      "PE": 6.05,
+      "Price": 92060.0
+    },
+    {
+      "CompanyName": "سدور",
+      "PE": -9.15,
+      "Price": 27640.0
+    },
+    {
+      "CompanyName": "سرچشمه",
+      "PE": 4.85,
+      "Price": 5970.0
+    },
+    {
+      "CompanyName": "سرود",
+      "PE": 7.11,
+      "Price": 16760.0
+    },
+    {
+      "CompanyName": "سشرق",
+      "PE": 7.73,
+      "Price": 22860.0
+    },
+    {
+      "CompanyName": "سشمال",
+      "PE": 7.04,
+      "Price": 16490.0
+    },
+    {
+      "CompanyName": "سصوفی",
+      "PE": 5.37,
+      "Price": 163200.0
+    },
+    {
+      "CompanyName": "سغرب",
+      "PE": 6.72,
+      "Price": 8020.0
+    },
+    {
+      "CompanyName": "سفانو",
+      "PE": 6.32,
+      "Price": 51830.0
+    },
+    {
+      "CompanyName": "سقاین",
+      "PE": 7.19,
+      "Price": 26230.0
+    },
+    {
+      "CompanyName": "سمازن",
+      "PE": 6.97,
+      "Price": 80130.0
+    },
+    {
+      "CompanyName": "سنیر",
+      "PE": 7.18,
+      "Price": 6720.0
+    },
+    {
+      "CompanyName": "سهرمز",
+      "PE": 18.73,
+      "Price": 20750.0
+    },
+    {
+      "CompanyName": "سهگمت",
+      "PE": 5.04,
+      "Price": 135000.0
+    },
+    {
+      "CompanyName": "سکرد",
+      "PE": 6.7,
+      "Price": 13300.0
+    },
+    {
+      "CompanyName": "سکرما",
+      "PE": 5.57,
+      "Price": 63800.0
+    },
+    {
+      "CompanyName": "سیستم",
+      "PE": 14.59,
+      "Price": 52650.0
+    },
+    {
+      "CompanyName": "سیمرغ",
+      "PE": 9.71,
+      "Price": 5000.0
+    },
+    {
+      "CompanyName": "شاراک",
+      "PE": 5.8,
+      "Price": 22500.0
+    },
+    {
+      "CompanyName": "شاملا",
+      "PE": 8.8,
+      "Price": 37200.0
+    },
+    {
+      "CompanyName": "شاوان",
+      "PE": 5.92,
+      "Price": 36370.0
+    },
+    {
+      "CompanyName": "شبریز",
+      "PE": 5.31,
+      "Price": 49600.0
+    },
+    {
+      "CompanyName": "شبصیر",
+      "PE": 4.49,
+      "Price": 12590.0
+    },
+    {
+      "CompanyName": "شبندر",
+      "PE": 5.23,
+      "Price": 12980.0
+    },
+    {
+      "CompanyName": "شبهرن",
+      "PE": 8.71,
+      "Price": 36620.0
+    },
+    {
+      "CompanyName": "شپارس",
+      "PE": 6.38,
+      "Price": 2284.0
+    },
+    {
+      "CompanyName": "شپاکسا",
+      "PE": 7.59,
+      "Price": 2416.0
+    },
+    {
+      "CompanyName": "شپدیس",
+      "PE": 6.37,
+      "Price": 11560.0
+    },
+    {
+      "CompanyName": "شپنا",
+      "PE": 7.1,
+      "Price": 12510.0
+    },
+    {
+      "CompanyName": "شتران",
+      "PE": 4.63,
+      "Price": 5560.0
+    },
+    {
+      "CompanyName": "شدوص",
+      "PE": 6.64,
+      "Price": 6810.0
+    },
+    {
+      "CompanyName": "شرانل",
+      "PE": 7.23,
+      "Price": 95020.0
+    },
+    {
+      "CompanyName": "شسپا",
+      "PE": 5.05,
+      "Price": 18430.0
+    },
+    {
+      "CompanyName": "شستا",
+      "PE": 15.29,
+      "Price": 2876.0
+    },
+    {
+      "CompanyName": "شغدیر",
+      "PE": 5.54,
+      "Price": 67240.0
+    },
+    {
+      "CompanyName": "شگل",
+      "PE": 8.24,
+      "Price": 2694.0
+    },
+    {
+      "CompanyName": "شگویا",
+      "PE": 8.46,
+      "Price": 9310.0
+    },
+    {
+      "CompanyName": "شمس",
+      "PE": 12.97,
+      "Price": 11500.0
+    },
+    {
+      "CompanyName": "شوینده",
+      "PE": 21.64,
+      "Price": 36820.0
+    },
+    {
+      "CompanyName": "شکام",
+      "PE": 7.56,
+      "Price": 9550.0
+    },
+    {
+      "CompanyName": "شکربن",
+      "PE": 5.76,
+      "Price": 8430.0
+    },
+    {
+      "CompanyName": "شیراز",
+      "PE": 6.96,
+      "Price": 65260.0
+    },
+    {
+      "CompanyName": "شیران",
+      "PE": 8.43,
+      "Price": 11270.0
+    },
+    {
+      "CompanyName": "عالیس",
+      "PE": 5.66,
+      "Price": 5630.0
+    },
+    {
+      "CompanyName": "غانیزان",
+      "PE": 10.23,
+      "Price": 7930.0
+    },
+    {
+      "CompanyName": "غبشهر",
+      "PE": 7.8,
+      "Price": 15780.0
+    },
+    {
+      "CompanyName": "غپاک",
+      "PE": 16.4,
+      "Price": 2106.0
+    },
+    {
+      "CompanyName": "غپینو",
+      "PE": 6.87,
+      "Price": 1836.0
+    },
+    {
+      "CompanyName": "غدیس",
+      "PE": 6.53,
+      "Price": 11700.0
+    },
+    {
+      "CompanyName": "غشاذر",
+      "PE": 6.63,
+      "Price": 18000.0
+    },
+    {
+      "CompanyName": "غشان",
+      "PE": 10.23,
+      "Price": 14810.0
+    },
+    {
+      "CompanyName": "غشصفا",
+      "PE": 5.69,
+      "Price": 21010.0
+    },
+    {
+      "CompanyName": "غشهداب",
+      "PE": 7.97,
+      "Price": 2275.0
+    },
+    {
+      "CompanyName": "غفارس",
+      "PE": 11.41,
+      "Price": 22500.0
+    },
+    {
+      "CompanyName": "غگل",
+      "PE": 9.72,
+      "Price": 6670.0
+    },
+    {
+      "CompanyName": "غگلستا",
+      "PE": 9.06,
+      "Price": 14700.0
+    },
+    {
+      "CompanyName": "غگیلا",
+      "PE": 20.35,
+      "Price": 25700.0
+    },
+    {
+      "CompanyName": "غمایه",
+      "PE": 7.72,
+      "Price": 21530.0
+    },
+    {
+      "CompanyName": "غمهرا",
+      "PE": 6.94,
+      "Price": 17330.0
+    },
+    {
+      "CompanyName": "غمینو",
+      "PE": 6.34,
+      "Price": 7800.0
+    },
+    {
+      "CompanyName": "غنوش",
+      "PE": 36.04,
+      "Price": 16900.0
+    },
+    {
+      "CompanyName": "غویتا",
+      "PE": 4.11,
+      "Price": 5340.0
+    },
+    {
+      "CompanyName": "غکورش",
+      "PE": 7.68,
+      "Price": 22390.0
+    },
+    {
+      "CompanyName": "فاذر",
+      "PE": 24.95,
+      "Price": 1469.0
+    },
+    {
+      "CompanyName": "فاراک",
+      "PE": 6.81,
+      "Price": 2800.0
+    },
+    {
+      "CompanyName": "فایرا",
+      "PE": 5.65,
+      "Price": 13600.0
+    },
+    {
+      "CompanyName": "فباهنر",
+      "PE": 10.84,
+      "Price": 11220.0
+    },
+    {
+      "CompanyName": "فپنتا",
+      "PE": 9.46,
+      "Price": 37590.0
+    },
+    {
+      "CompanyName": "فجر",
+      "PE": 5.56,
+      "Price": 5730.0
+    },
+    {
+      "CompanyName": "فخاس",
+      "PE": 8.2,
+      "Price": 2870.0
+    },
+    {
+      "CompanyName": "فزر",
+      "PE": 25.32,
+      "Price": 239600.0
+    },
+    {
+      "CompanyName": "فسبزوار",
+      "PE": 4.63,
+      "Price": 65160.0
+    },
+    {
+      "CompanyName": "فسپا",
+      "PE": 4.83,
+      "Price": 5890.0
+    },
+    {
+      "CompanyName": "فسرب",
+      "PE": -42.67,
+      "Price": 2278.0
+    },
+    {
+      "CompanyName": "فگستر",
+      "PE": 4.97,
+      "Price": 9460.0
+    },
+    {
+      "CompanyName": "فملی",
+      "PE": 15.25,
+      "Price": 21410.0
+    },
+    {
+      "CompanyName": "فنوال",
+      "PE": 7.84,
+      "Price": 12360.0
+    },
+    {
+      "CompanyName": "فنورد",
+      "PE": 7.45,
+      "Price": 11090.0
+    },
+    {
+      "CompanyName": "فولاد",
+      "PE": 5.31,
+      "Price": 2689.0
+    },
+    {
+      "CompanyName": "فولاژ",
+      "PE": 11.22,
+      "Price": 5990.0
+    },
+    {
+      "CompanyName": "فولای",
+      "PE": 10.81,
+      "Price": 4100.0
+    },
+    {
+      "CompanyName": "قاسم",
+      "PE": 6.8,
+      "Price": 2328.0
+    },
+    {
+      "CompanyName": "قثابت",
+      "PE": 26.67,
+      "Price": 3940.0
+    },
+    {
+      "CompanyName": "قرن",
+      "PE": 9.1,
+      "Price": 21340.0
+    },
+    {
+      "CompanyName": "قزوین",
+      "PE": 7.86,
+      "Price": 10890.0
+    },
+    {
+      "CompanyName": "قشکر",
+      "PE": -10.72,
+      "Price": 4960.0
+    },
+    {
+      "CompanyName": "قصفها",
+      "PE": 8.28,
+      "Price": 2133.0
+    },
+    {
+      "CompanyName": "قلرست",
+      "PE": 9.04,
+      "Price": 27630.0
+    },
+    {
+      "CompanyName": "قنیشا",
+      "PE": 25.77,
+      "Price": 2971.0
+    },
+    {
+      "CompanyName": "مادیرا",
+      "PE": 10.5,
+      "Price": 2823.0
+    },
+    {
+      "CompanyName": "نان",
+      "PE": 6.86,
+      "Price": 6250.0
+    },
+    {
+      "CompanyName": "نوری",
+      "PE": 9.47,
+      "Price": 34730.0
+    },
+    {
+      "CompanyName": "هجرت",
+      "PE": 9.53,
+      "Price": 8290.0
+    },
+    {
+      "CompanyName": "وبصادر",
+      "PE": 210.8,
+      "Price": 1014.0
+    },
+    {
+      "CompanyName": "وبملت",
+      "PE": 3.45,
+      "Price": 1508.0
+    },
+    {
+      "CompanyName": "وپست",
+      "PE": 4.99,
+      "Price": 9910.0
+    },
+    {
+      "CompanyName": "وتوشه",
+      "PE": 4.06,
+      "Price": 8170.0
+    },
+    {
+      "CompanyName": "وخارزم",
+      "PE": 14.89,
+      "Price": 7810.0
+    },
+    {
+      "CompanyName": "وخاور",
+      "PE": 5.89,
+      "Price": 6090.0
+    },
+    {
+      "CompanyName": "وسپه",
+      "PE": 5.09,
+      "Price": 6190.0
+    },
+    {
+      "CompanyName": "کاذر",
+      "PE": 7.73,
+      "Price": 4750.0
+    },
+    {
+      "CompanyName": "کاسپین",
+      "PE": 8.52,
+      "Price": 32080.0
+    },
+    {
+      "CompanyName": "کالا",
+      "PE": 10.56,
+      "Price": 9140.0
+    },
+    {
+      "CompanyName": "کاما",
+      "PE": 6.98,
+      "Price": 5460.0
+    },
+    {
+      "CompanyName": "کاوه",
+      "PE": 16.98,
+      "Price": 6400.0
+    },
+    {
+      "CompanyName": "کبافق",
+      "PE": 25.45,
+      "Price": 38680.0
+    },
+    {
+      "CompanyName": "کپارس",
+      "PE": 5.99,
+      "Price": 15550.0
+    },
+    {
+      "CompanyName": "کپرور",
+      "PE": 7.69,
+      "Price": 19360.0
+    },
+    {
+      "CompanyName": "کپشیر",
+      "PE": 14.71,
+      "Price": 22350.0
+    },
+    {
+      "CompanyName": "کچاد",
+      "PE": 9.48,
+      "Price": 2683.0
+    },
+    {
+      "CompanyName": "کحافظ",
+      "PE": 6.34,
+      "Price": 2434.0
+    },
+    {
+      "CompanyName": "کخاک",
+      "PE": 12.36,
+      "Price": 49150.0
+    },
+    {
+      "CompanyName": "کرازی",
+      "PE": 7.95,
+      "Price": 1759.0
+    },
+    {
+      "CompanyName": "کربن",
+      "PE": 7.26,
+      "Price": 10520.0
+    },
+    {
+      "CompanyName": "کرماشا",
+      "PE": 7.85,
+      "Price": 25850.0
+    },
+    {
+      "CompanyName": "کزغال",
+      "PE": 37.4,
+      "Price": 5770.0
+    },
+    {
+      "CompanyName": "کساپا",
+      "PE": -37.98,
+      "Price": 3510.0
+    },
+    {
+      "CompanyName": "کسرا",
+      "PE": 11.46,
+      "Price": 6410.0
+    },
+    {
+      "CompanyName": "کطبس",
+      "PE": 9.07,
+      "Price": 16690.0
+    },
+    {
+      "CompanyName": "کفرا",
+      "PE": -58.43,
+      "Price": 4200.0
+    },
+    {
+      "CompanyName": "کگاز",
+      "PE": 8.57,
+      "Price": 43300.0
+    },
+    {
+      "CompanyName": "کگل",
+      "PE": 12.05,
+      "Price": 2874.0
+    },
+    {
+      "CompanyName": "کلر",
+      "PE": 7.3,
+      "Price": 10890.0
+    },
+    {
+      "CompanyName": "کلوند",
+      "PE": 7.49,
+      "Price": 6830.0
+    },
+    {
+      "CompanyName": "کماسه",
+      "PE": 21.39,
+      "Price": 4340.0
+    },
+    {
+      "CompanyName": "کمنگنز",
+      "PE": 6.92,
+      "Price": 8890.0
+    },
+    {
+      "CompanyName": "کنور",
+      "PE": 7.6,
+      "Price": 5670.0
+    },
+    {
+      "CompanyName": "کهمدا",
+      "PE": 5.43,
+      "Price": 5230.0
+    },
+    {
+      "CompanyName": "کیمیا",
+      "PE": 5.72,
+      "Price": 5260.0
+    },
+    {
+      "CompanyName": "کیمیاتک",
+      "PE": 8.88,
+      "Price": 17500.0
+    }
+  ],
+  "codalreports_tickers": [
+    {
+      "Ticker": "بترانس",
+      "CompanyName": "ایران ترانسفو"
+    },
+    {
+      "Ticker": "برکت",
+      "CompanyName": "گروه دارویی برکت"
+    },
+    {
+      "Ticker": "بمولد",
+      "CompanyName": "مولد نیروگاهی تجارت فارس"
+    },
+    {
+      "Ticker": "بمیلا",
+      "CompanyName": "توسعه سرمایه گذاری میلاد پارس"
+    },
+    {
+      "Ticker": "تاتمس",
+      "CompanyName": "کارخانجات صنعتی و تولیدی اتمسفر"
+    },
+    {
+      "Ticker": "تاصیکو",
+      "CompanyName": "سرمایه گذاری صدر تامین"
+    },
+    {
+      "Ticker": "ثالوند",
+      "CompanyName": "سرمایه گذاری مسکن الوند"
+    },
+    {
+      "Ticker": "چخزر",
+      "CompanyName": "صنایع چوب خزر کاسپین"
+    },
+    {
+      "Ticker": "چکاپا",
+      "CompanyName": "گروه صنایع کاغذ پارس"
+    },
+    {
+      "Ticker": "دجابر",
+      "CompanyName": "داروسازی جابر ابن حیان"
+    },
+    {
+      "Ticker": "زاگرس",
+      "CompanyName": "پتروشیمی زاگرس"
+    },
+    {
+      "Ticker": "سرچشمه",
+      "CompanyName": "سرمایه گذاری مس سرچشمه"
+    },
+    {
+      "Ticker": "سیتا",
+      "CompanyName": "سرمایه گذاری سیمان تامین"
+    },
+    {
+      "Ticker": "شپدیس",
+      "CompanyName": "پترو شیمی پردیس"
+    },
+    {
+      "Ticker": "شپنا",
+      "CompanyName": "پالایش نفت اصفهان"
+    },
+    {
+      "Ticker": "شستا",
+      "CompanyName": "سرمایه گذاری تأمین اجتماعی"
+    },
+    {
+      "Ticker": "شگویا",
+      "CompanyName": "پتروشیمی تندگویان"
+    },
+    {
+      "Ticker": "شکیمیا",
+      "CompanyName": "کیمیا پلی استر قم"
+    },
+    {
+      "Ticker": "غپاک",
+      "CompanyName": "لبنیات پاستوریزه پاک"
+    },
+    {
+      "Ticker": "غنوش",
+      "CompanyName": "نوش مازندران"
+    },
+    {
+      "Ticker": "فبستم",
+      "CompanyName": "صنایع بسته بندی مشهد"
+    },
+    {
+      "Ticker": "فجر",
+      "CompanyName": "فولاد امیر کبیر کاشان"
+    },
+    {
+      "Ticker": "قاسم",
+      "CompanyName": "قاسم ایران"
+    },
+    {
+      "Ticker": "گوهران",
+      "CompanyName": "سرمایه گذاری توسعه گوهران امید"
+    },
+    {
+      "Ticker": "مدار",
+      "CompanyName": "سرمایه گذاری مدیریت سرمایه مدار"
+    },
+    {
+      "Ticker": "وتوشه",
+      "CompanyName": "سرمایه گذاری پارس توشه"
+    },
+    {
+      "Ticker": "وزرین",
+      "CompanyName": "سرمایه گذاری زرین پرشیا"
+    },
+    {
+      "Ticker": "وسزنجان",
+      "CompanyName": "سرمایه گذاری استان زنجان"
+    },
+    {
+      "Ticker": "وسنا",
+      "CompanyName": "سرمایه گذاری نیروگاهی ایران- سنا"
+    },
+    {
+      "Ticker": "ولشرق",
+      "CompanyName": "لیزینگ ایران و شرق"
+    },
+    {
+      "Ticker": "ومهان",
+      "CompanyName": "گروه توسعه مالی مهر آیندگان"
+    },
+    {
+      "Ticker": "ونوین",
+      "CompanyName": "بانک اقتصاد نوین"
+    },
+    {
+      "Ticker": "کچاد",
+      "CompanyName": "معدنی و صنعتی چادرملو"
+    },
+    {
+      "Ticker": "کروی",
+      "CompanyName": "توسعه معادن روی ایران"
+    }
+  ],
+  "codalreports_summary": [
+    {
+      "LetterType": 6,
+      "Status": "completed",
+      "n": 15
+    },
+    {
+      "LetterType": 6,
+      "Status": "failed",
+      "n": 1
+    },
+    {
+      "LetterType": 58,
+      "Status": "completed",
+      "n": 17
+    },
+    {
+      "LetterType": 58,
+      "Status": "failed",
+      "n": 1
+    },
+    {
+      "LetterType": 58,
+      "Status": "unsupported",
+      "n": 14
+    }
+  ],
+  "codalreports_url_sample": [
+    {
+      "CodalReportId": "1603166",
+      "Ticker": "کروی",
+      "CompanyName": "توسعه معادن روی ایران",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=xOOObOOOHIi3R88OOObOOOpmsKqyLLHEnA%3d%3d&rt=2&let=8&ct=0&ft=-1"
+    },
+    {
+      "CodalReportId": "1599315",
+      "Ticker": "تاتمس",
+      "CompanyName": "کارخانجات صنعتی و تولیدی اتمسفر",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=3uFZlZliYoUk41ABsFqTBg%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CodalReportId": "1603112",
+      "Ticker": "ونوین",
+      "CompanyName": "بانک اقتصاد نوین",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=CIoV2t9UX9WwKoufRGxkYQ%3d%3d&rt=3&let=58&ct=0&ft=-1"
+    },
+    {
+      "CodalReportId": "1603151",
+      "Ticker": "فبستم",
+      "CompanyName": "صنایع بسته بندی مشهد",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=bsYhsKIGpy1ZCsI2IJMB5A%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CodalReportId": "1603140",
+      "Ticker": "ثالوند",
+      "CompanyName": "سرمایه گذاری مسکن الوند",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=a2WrAuaxGrPwthhxMFUkiA%3d%3d&rt=1&let=58&ct=0&ft=-1"
+    },
+    {
+      "CodalReportId": "1603093",
+      "Ticker": "وزرین",
+      "CompanyName": "سرمایه گذاری زرین پرشیا",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=h33o0Rs16EdvDhVueu2yWg%3d%3d&rt=2&let=8&ct=2&ft=-1"
+    },
+    {
+      "CodalReportId": "1603105",
+      "Ticker": "بمولد",
+      "CompanyName": "مولد نیروگاهی تجارت فارس",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=uGa09QmclQQQaQQQZLROOObOOO5fG3TZdA%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CodalReportId": "1602058",
+      "Ticker": "گوهران",
+      "CompanyName": "سرمایه گذاری توسعه گوهران امید",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=KD24gNA6aMoj4YbVZLsh5A%3d%3d&rt=2&let=8&ct=0&ft=-1"
+    },
+    {
+      "CodalReportId": "1602819",
+      "Ticker": "چخزر",
+      "CompanyName": "صنایع چوب خزر کاسپین",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=auFY0XHG8ANh63SKjXdl3g%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CodalReportId": "1599546",
+      "Ticker": "ومهان",
+      "CompanyName": "گروه توسعه مالی مهر آیندگان",
+      "SourceUrl": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=STerKhNJdNOLDF0kRQQQaQQQwNDA%3d%3d&rt=2&let=8&ct=0&ft=-1"
+    }
+  ],
+  "coverage": [
+    {
+      "monthly_ids": 193,
+      "financial_ids": 267,
+      "price_ids": 274,
+      "monthly_and_financial": 184,
+      "financial_and_price": 264,
+      "monthly_and_price": 190
+    }
+  ],
+  "statements_units": [
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_0240325602e90a1e42fc.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 52494.0,
+      "max_v": 11776365.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_0b1e8aa589dfe60081e0.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_0c7faae1c088b048ee8e.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 6679.0,
+      "max_v": 10517098.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_15d147afaba75ee3554a.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 29292.0,
+      "max_v": 106761.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_1ba97ca25527ef629f8e.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_1cf001cf8782a7ea83ab.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 3133752.0,
+      "max_v": 89565999.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_217f43f528b75258ce08.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 32152.0,
+      "max_v": 4639174.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_23e5cebca1f25ad77dc3.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 3001076.0,
+      "max_v": 59890323.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_26da9632fcd8d798941e.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 11510.0,
+      "max_v": 203951.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_2bfb2b185627cd670590.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_2da52d39f714fa11f244.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 995814.0,
+      "max_v": 9327934.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_4500b961fdc268dd0bd8.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 281240.0,
+      "max_v": 38164287.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_45e67fefd0d59cffb3a7.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 40000.0,
+      "max_v": 5904732.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_4b94764462f56d9c79d0.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_51d421a7c11928edb9ae.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 2204829.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_5803bba379c729fc2e0f.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_5a5032608ac4a1ca8a34.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 45631.0,
+      "max_v": 773968.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_63066fe7ab42198ba34f.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_6682141b8481e6744c74.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 3300000.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_6799ab5260faed459a7d.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 4798.0,
+      "max_v": 190380.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_6b1c19e43e68cc5569d1.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 45631.0,
+      "max_v": 5783627.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_8b484269867c496e7577.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": -1429169.0,
+      "max_v": -30783.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_8cf81e128b56f5cd99ef.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 5494844.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_8d2076b3666b5f15525e.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_96aaf1aeb3f5b8708b96.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 1155472.0,
+      "max_v": 24748116.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_a1f66a17755fdd16aace.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 3685357.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_a3abaa52d1e6d9f94c63.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 1201103.0,
+      "max_v": 29293417.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_aba797ab0994f4e550a2.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 902215.0,
+      "max_v": 45025147.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_b20bd5ce487e9b758a0d.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 363347.0,
+      "max_v": 43587261.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_b22cd12d08dd4dc229e4.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 542877.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_b87a567bf89ab977b7c7.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 4334855.0,
+      "max_v": 118859416.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_b98b9bd7d084f920e1a0.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 4334855.0,
+      "max_v": 118859416.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_bdc3c6a70b0e23fc6774.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_ccfe71f21ecc89613f18.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 31696.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_d23d713aebe194e460e0.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 450.0,
+      "max_v": 13740079.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_d89b2e371501e30d1220.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 1860000.0,
+      "max_v": 29000000.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_dc288e26b77bf18855b6.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 3971508.0,
+      "max_v": 75272155.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_dd7d3ad1129e89383c75.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 179059.0,
+      "max_v": 2900000.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_de27587dae6636fa7e53.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 775180.0,
+      "max_v": 9389732.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_e92065b69fa3b8095a4e.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_f92763f8723ca48c9712.1",
+      "UnitCode": "unknown",
+      "n": 36,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_fa95d45be2691df8ad0f.1",
+      "UnitCode": "unknown",
+      "n": 36,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_0b75dadb440ddc4ed4b2.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 817479.0,
+      "max_v": 29134667.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_13f46d1b878420cde4dc.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 91117.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_1d7a16adab455e3cbf46.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 1208150.0,
+      "max_v": 9389732.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_1e4514c9fae747e1f76f.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_204bd8ce862987d7b8bf.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -5167980.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_2a2fb7f761f6c9da487a.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_2cd1b38ec7fe25b1aae6.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 103741290.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_34bf4b9ce411b82b50f6.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 6450000.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_36ddfe9f6e662f21be46.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 953.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_384cf85a9dc79c38c974.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_42974ccac97de536fe83.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -125154308.0,
+      "max_v": -1167164.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_439c4a710f6d0ca0815a.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_479ce5cac09753ab9cd0.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_4e75760a1b0c4d8699eb.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_509b4ff6049ca76c50c2.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 240736.0,
+      "max_v": 11058067.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_50cef97e3b8bd1c8c1c5.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -436075.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_51e02853ed9aaa61adf4.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -2435992.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_567fac84ccf14d990b73.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 8927.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_578df6eac18bbf952b42.1",
+      "UnitCode": "unknown",
+      "n": 33,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_67df47b2ec0f513d1747.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_6e624f0ab732c716cfc5.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -13189666.0,
+      "max_v": -8490.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_72e203b2ebb3675f5bf3.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 440134.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_7b6b4452256350a3fe04.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -1510446.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_9514a52f764842928116.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 17788.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_955fcf2d0fc3ed8653db.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 817479.0,
+      "max_v": 31486885.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_956bc29f19df495a9495.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_9aa0f6bdbf8261503ae6.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 114999.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_9ba12aa3dbdd109ba531.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -2352218.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_a581b3d7ddee45c70b93.1",
+      "UnitCode": "unknown",
+      "n": 33,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_aba458e3c63a9a66a509.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -1226726.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_ad14aa5aae94c1daf4e6.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -6354542.0,
+      "max_v": 4278739.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_ae8d23600d9383f9a4c0.1",
+      "UnitCode": "unknown",
+      "n": 19,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_b18912227bce704ecce6.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 2156635.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_b1e58a823aea65284cb5.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -148739.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_b7737059fe77f43eb512.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_b7ed4bcb4b4c44c09975.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_bb58018b8d6395fc3f9a.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_c2f302a3722aa0b39cd2.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -8402084.0,
+      "max_v": 6946348.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_c71ebc8b261b866b4bef.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_cc29fef20aebbdb3e747.1",
+      "UnitCode": "unknown",
+      "n": 19,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_e2c51dfccca5694e10ba.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -4123345.0,
+      "max_v": 2762781.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_e5afdb8da1de3f128bc2.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_e71f5add80511b277e52.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": -24283207.0,
+      "max_v": -239337.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_f079b75b3dd90ba6bcf9.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "cash_flow",
+      "MetricCode": "cash_flow.m_ff04a19495c627cf01ca.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 775180.0,
+      "max_v": 6625341.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_1d73099770de1dcbadef.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 853950.0,
+      "max_v": 43670446.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_332f6134db90812c025e.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 853950.0,
+      "max_v": 43670446.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_383925ed46cf9007c9c7.1",
+      "UnitCode": "unknown",
+      "n": 33,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_383925ed46cf9007c9c7.2",
+      "UnitCode": "unknown",
+      "n": 33,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_4e4eec0098a50284c1a0.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_73889f505e985741301d.1",
+      "UnitCode": "unknown",
+      "n": 33,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_73889f505e985741301d.2",
+      "UnitCode": "unknown",
+      "n": 33,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_740bdcaf376267eeb52a.1",
+      "UnitCode": "unknown",
+      "n": 19,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_adb9fe379ebb1bfcbbe2.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_bdc3c6a70b0e23fc6774.1",
+      "UnitCode": "unknown",
+      "n": 52,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_d97719c9b5c9707bf982.1",
+      "UnitCode": "unknown",
+      "n": 33,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "comprehensive_income",
+      "MetricCode": "comprehensive_income.m_d97719c9b5c9707bf982.2",
+      "UnitCode": "unknown",
+      "n": 33,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_0466c4c2dfa3d0a12fdd.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 8300000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_04752d1052f021bdf056.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_09f8fb58c6deae3469bf.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 22000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_0aa557ef94bc87629ae5.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 29000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_0b6b531c17ff8647b8a1.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 13600000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_0e41faeed68327735c74.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 22000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_14ba341f58c0b7a355de.1",
+      "UnitCode": "unknown",
+      "n": 36,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_16ee1bdecf4422c97ab0.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 22000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_183b4a95b6e3b6ae139c.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 22000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_18b1fa882869c44ab05b.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 5000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_1e047c9c85815654756a.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 29000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_28755a669cf703ae6a0f.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 22000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_2afd9c51ad9785b0f989.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_2d5bfdb0ddcbc9857125.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 8300000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_37657d18a983683dd711.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 8300000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_382b78a61f7e37e7ac46.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 5000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_4371cddf9e284a8730cf.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 5000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_4cca26baf06bb7a487a8.1",
+      "UnitCode": "unknown",
+      "n": 6,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_4d3c1425e31997c5fb84.1",
+      "UnitCode": "unknown",
+      "n": 9,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_529ef0f72b40f1c14fe8.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 5000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_58fc764e8b50c94b09b4.1",
+      "UnitCode": "unknown",
+      "n": 6,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_594d3821760748b94ad0.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 5000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_5b88e822fc42c3f2ebf4.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 13600000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_5f057d434313f31ed563.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_5f057d434313f31ed563.2",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_610aacabcd13462ea5ba.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 5000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_62310320ba29f0c97ac4.1",
+      "UnitCode": "unknown",
+      "n": 6,
+      "min_v": 0.0,
+      "max_v": 1860000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_63ce02cc413cbb764d75.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 13600000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_6682141b8481e6744c74.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_6682141b8481e6744c74.2",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 3300000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_6e71cd18caa83f6c7530.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 13600000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_6fbeff5860210c32bfc1.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 8400000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_6fbeff5860210c32bfc1.2",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 8400000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_7a64dead418937cc3f7d.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_7c82cf5159ea07dc9d3c.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 2500000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_858e8b19dc3125f5c66b.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_875b016e89948528a4b2.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 29000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_88cc80d31797c4c80c75.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_8bfffd9933fc0e983a58.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 8300000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_90400176e4c871b6051d.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_a18ed40c56040dab31eb.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_a22c5dfcc5b050b3b4bc.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 29000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_a7c9009efa44b5875c9e.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_a8ec4c9f53c3771b3eea.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_ae476d2f64a3819a2cbd.1",
+      "UnitCode": "unknown",
+      "n": 9,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_aecd72c65968d5026258.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 5000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_b54bef36d796a046cf08.1",
+      "UnitCode": "unknown",
+      "n": 6,
+      "min_v": 0.0,
+      "max_v": 2500000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_b67c8b0ddd8abef964f2.1",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_b67c8b0ddd8abef964f2.2",
+      "UnitCode": "unknown",
+      "n": 57,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_b69a2c960081b8ac4d0e.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 13600000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_cee93d14aa5b608bad24.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 8300000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_d389d06e53b2523fd4d7.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_d4924d06047dc2279d30.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 13600000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_d4fa8a74c385820577d3.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_d672cabbde2f45601c64.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 8300000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_d7950fb354e3062e9abb.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_e17dc9a7519a4ddecf25.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_e2fcb15c5d3a47dbb491.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 29000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_e8476dd8cdaa063ec8bd.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 22000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_eb9580e0f04a089114ec.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_ec29984ca74c0d73057d.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 22000000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_ec4c1a127ce46de9a938.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_eeb021a4fe49fdcbffb6.1",
+      "UnitCode": "unknown",
+      "n": 12,
+      "min_v": 0.0,
+      "max_v": 2500000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_f21bebc567ebe148b07b.1",
+      "UnitCode": "unknown",
+      "n": 6,
+      "min_v": 0.0,
+      "max_v": 1860000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_f39cc58bbbb3740ed6ba.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_f43507a714dc7f699f79.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 13600000.0
+    },
+    {
+      "StatementType": "equity_changes",
+      "MetricCode": "equity_changes.m_f7bd3aea5a1045b3f6e2.1",
+      "UnitCode": "unknown",
+      "n": 3,
+      "min_v": 0.0,
+      "max_v": 0.0
+    }
+  ],
+  "statements_periodheaders": [
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_4500b961fdc268dd0bd8.1",
+      "PeriodHeader": "دوره منتهی به 1400/09/30 | حسابرسی نشده",
+      "RowTitle": "داراییهای ثابت مشهود",
+      "Value": 2889161.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_4500b961fdc268dd0bd8.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/12/30 | حسابرسی شده",
+      "RowTitle": "داراییهای ثابت مشهود",
+      "Value": 2863526.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_4500b961fdc268dd0bd8.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/01/01 | حسابرسی شده",
+      "RowTitle": "داراییهای ثابت مشهود",
+      "Value": 281240.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_5803bba379c729fc2e0f.1",
+      "PeriodHeader": "دوره منتهی به 1400/09/30 | حسابرسی نشده",
+      "RowTitle": "سرمایهگذاری در املاک",
+      "Value": 0.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_5803bba379c729fc2e0f.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/12/30 | حسابرسی شده",
+      "RowTitle": "سرمایهگذاری در املاک",
+      "Value": 0.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_5803bba379c729fc2e0f.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/01/01 | حسابرسی شده",
+      "RowTitle": "سرمایهگذاری در املاک",
+      "Value": 0.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_26da9632fcd8d798941e.1",
+      "PeriodHeader": "دوره منتهی به 1400/09/30 | حسابرسی نشده",
+      "RowTitle": "داراییهای نامشهود",
+      "Value": 19101.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_26da9632fcd8d798941e.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/12/30 | حسابرسی شده",
+      "RowTitle": "داراییهای نامشهود",
+      "Value": 19484.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_26da9632fcd8d798941e.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/01/01 | حسابرسی شده",
+      "RowTitle": "داراییهای نامشهود",
+      "Value": 11510.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_15d147afaba75ee3554a.1",
+      "PeriodHeader": "دوره منتهی به 1400/09/30 | حسابرسی نشده",
+      "RowTitle": "سرمایهگذاریهای بلندمدت",
+      "Value": 29292.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_15d147afaba75ee3554a.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/12/30 | حسابرسی شده",
+      "RowTitle": "سرمایهگذاریهای بلندمدت",
+      "Value": 29292.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_15d147afaba75ee3554a.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/01/01 | حسابرسی شده",
+      "RowTitle": "سرمایهگذاریهای بلندمدت",
+      "Value": 30597.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_1ba97ca25527ef629f8e.1",
+      "PeriodHeader": "دوره منتهی به 1400/09/30 | حسابرسی نشده",
+      "RowTitle": "دریافتنیهای بلندمدت",
+      "Value": 0.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_1ba97ca25527ef629f8e.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/12/30 | حسابرسی شده",
+      "RowTitle": "دریافتنیهای بلندمدت",
+      "Value": 0.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_1ba97ca25527ef629f8e.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/01/01 | حسابرسی شده",
+      "RowTitle": "دریافتنیهای بلندمدت",
+      "Value": 0.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_45e67fefd0d59cffb3a7.1",
+      "PeriodHeader": "دوره منتهی به 1400/09/30 | حسابرسی نشده",
+      "RowTitle": "سایر داراییها",
+      "Value": 484075.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_45e67fefd0d59cffb3a7.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/12/30 | حسابرسی شده",
+      "RowTitle": "سایر داراییها",
+      "Value": 50000.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_45e67fefd0d59cffb3a7.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/01/01 | حسابرسی شده",
+      "RowTitle": "سایر داراییها",
+      "Value": 40000.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_b20bd5ce487e9b758a0d.1",
+      "PeriodHeader": "دوره منتهی به 1400/09/30 | حسابرسی نشده",
+      "RowTitle": "جمع داراییهای غیرجاری",
+      "Value": 3421629.0,
+      "UnitCode": "unknown"
+    },
+    {
+      "StatementType": "balance_sheet",
+      "MetricCode": "balance_sheet.m_b20bd5ce487e9b758a0d.1",
+      "PeriodHeader": "تجدید ارائه شده دوره منتهی به 1399/12/30 | حسابرسی شده",
+      "RowTitle": "جمع داراییهای غیرجاری",
+      "Value": 2962302.0,
+      "UnitCode": "unknown"
+    }
+  ],
+  "miandore2_sample10": [
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1405/03/31",
+      "EPS": 1493.0,
+      "Capital": 2000000.0,
+      "Product1": 2986000000.0,
+      "NetProfitAmount": 2986850.0,
+      "RevenueNew": 6235493.0,
+      "OperatingProfitNew": 3476914.0,
+      "FinanceCostsNew": -179033.0,
+      "TotalAssets": 19147792.0,
+      "TotalEquity": 13395635.0
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1404/12/29",
+      "EPS": 3898.0,
+      "Capital": 2000000.0,
+      "Product1": 7796000000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 10414735.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1404/09/30",
+      "EPS": 1563.0,
+      "Capital": 2000000.0,
+      "Product1": 3126000000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 1552.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1404/06/31",
+      "EPS": 1321.0,
+      "Capital": 2000000.0,
+      "Product1": 2642000000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 870.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1404/03/31",
+      "EPS": 632.0,
+      "Capital": 2000000.0,
+      "Product1": 1264000000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 564.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1403/12/30",
+      "EPS": 1939.0,
+      "Capital": 2000000.0,
+      "Product1": 3878000000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 1923.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1403/09/30",
+      "EPS": 792.0,
+      "Capital": 2000000.0,
+      "Product1": 1584000000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 785.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1403/06/31",
+      "EPS": 478.0,
+      "Capital": 2000000.0,
+      "Product1": 956000000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 4712.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1403/03/31",
+      "EPS": 315.0,
+      "Capital": 2000000.0,
+      "Product1": 630000000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 265.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1402/12/29",
+      "EPS": 7968.0,
+      "Capital": 400000.0,
+      "Product1": 3187200000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 7320.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1402/09/30",
+      "EPS": 5169.0,
+      "Capital": 400000.0,
+      "Product1": 2067600000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 5162.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1402/03/31",
+      "EPS": 1748.0,
+      "Capital": 400000.0,
+      "Product1": 699200000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 1744.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آریا",
+      "ReportDate": "1405/03/31",
+      "EPS": 350.0,
+      "Capital": 34378800.0,
+      "Product1": 12032580000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 15518624.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آریا",
+      "ReportDate": "1404/12/29",
+      "EPS": 5255.0,
+      "Capital": 34378800.0,
+      "Product1": 180660594000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": -1.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    },
+    {
+      "CompanyName": "آریا",
+      "ReportDate": "1404/09/30",
+      "EPS": 2615.0,
+      "Capital": 34378800.0,
+      "Product1": 89900562000.0,
+      "NetProfitAmount": null,
+      "RevenueNew": null,
+      "OperatingProfitNew": 1.0,
+      "FinanceCostsNew": null,
+      "TotalAssets": null,
+      "TotalEquity": null
+    }
+  ],
+  "miandore2_ratio_stats": [
+    {
+      "n": 367,
+      "avg_log10_np_over_p1": -2.9899473441169553,
+      "min_log10": -6.187071736539327,
+      "max_log10": -2.168730744611865
+    }
+  ],
+  "miandore2_ratio_histogram": [
+    {
+      "log10_bucket": -6.0,
+      "n": 1
+    },
+    {
+      "log10_bucket": -3.0,
+      "n": 360
+    },
+    {
+      "log10_bucket": -2.0,
+      "n": 6
+    }
+  ],
+  "miandore2_eps_vs_np": [
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1405/03/31",
+      "EPS": 1493.0,
+      "Capital": 2000000.0,
+      "NetProfitAmount": 2986850.0,
+      "RevenueNew": 6235493.0,
+      "implied_shares_x_unit": 2000.569323509712
+    },
+    {
+      "CompanyName": "ارفع",
+      "ReportDate": "1405/03/31",
+      "EPS": 1216.0,
+      "Capital": 32000000.0,
+      "NetProfitAmount": 38899526.0,
+      "RevenueNew": 140547858.0,
+      "implied_shares_x_unit": 31989.74177631579
+    },
+    {
+      "CompanyName": "اروند",
+      "ReportDate": "1405/03/31",
+      "EPS": 505.0,
+      "Capital": 12000000.0,
+      "NetProfitAmount": 6063966.0,
+      "RevenueNew": 43998765.0,
+      "implied_shares_x_unit": 12007.853465346534
+    },
+    {
+      "CompanyName": "اسیاتک",
+      "ReportDate": "1405/03/31",
+      "EPS": 486.0,
+      "Capital": 11500000.0,
+      "NetProfitAmount": 5584765.0,
+      "RevenueNew": 10360028.0,
+      "implied_shares_x_unit": 11491.286008230452
+    },
+    {
+      "CompanyName": "افق",
+      "ReportDate": "1405/03/31",
+      "EPS": 1339.0,
+      "Capital": 30000000.0,
+      "NetProfitAmount": 40175980.0,
+      "RevenueNew": 872495896.0,
+      "implied_shares_x_unit": 30004.466019417476
+    },
+    {
+      "CompanyName": "انرژی",
+      "ReportDate": "1405/03/31",
+      "EPS": 224.0,
+      "Capital": 4050000.0,
+      "NetProfitAmount": 908342.0,
+      "RevenueNew": 989395.0,
+      "implied_shares_x_unit": 4055.098214285714
+    },
+    {
+      "CompanyName": "بترانس",
+      "ReportDate": "1405/04/31",
+      "EPS": 119.0,
+      "Capital": 1200000.0,
+      "NetProfitAmount": 142882.0,
+      "RevenueNew": 216011.0,
+      "implied_shares_x_unit": 1200.689075630252
+    },
+    {
+      "CompanyName": "بجهرم",
+      "ReportDate": "1405/03/31",
+      "EPS": 102.0,
+      "Capital": 36545332.0,
+      "NetProfitAmount": 3718949.0,
+      "RevenueNew": 7228876.0,
+      "implied_shares_x_unit": 36460.28431372549
+    },
+    {
+      "CompanyName": "برکت",
+      "ReportDate": "1405/03/31",
+      "EPS": -24.0,
+      "Capital": 17340000.0,
+      "NetProfitAmount": 326287.0,
+      "RevenueNew": 0.0,
+      "implied_shares_x_unit": -13595.291666666666
+    },
+    {
+      "CompanyName": "بفجر",
+      "ReportDate": "1404/12/29",
+      "EPS": 2580.0,
+      "Capital": 39000000.0,
+      "NetProfitAmount": 100605498.0,
+      "RevenueNew": 339611947.0,
+      "implied_shares_x_unit": 38994.37906976744
+    },
+    {
+      "CompanyName": "بهپاک",
+      "ReportDate": "1405/03/31",
+      "EPS": 1549.0,
+      "Capital": 5332000.0,
+      "NetProfitAmount": 8256976.0,
+      "RevenueNew": 74282411.0,
+      "implied_shares_x_unit": 5330.520335700452
+    },
+    {
+      "CompanyName": "بوعلی",
+      "ReportDate": "1405/03/31",
+      "EPS": 4715.0,
+      "Capital": 14350000.0,
+      "NetProfitAmount": 67653438.0,
+      "RevenueNew": 250729366.0,
+      "implied_shares_x_unit": 14348.555249204666
+    },
+    {
+      "CompanyName": "پتایر",
+      "ReportDate": "1405/03/31",
+      "EPS": 166.0,
+      "Capital": 18800000.0,
+      "NetProfitAmount": 3128620.0,
+      "RevenueNew": 18030800.0,
+      "implied_shares_x_unit": 18847.10843373494
+    },
+    {
+      "CompanyName": "پکویر",
+      "ReportDate": "1405/03/31",
+      "EPS": 753.0,
+      "Capital": 13668828.0,
+      "NetProfitAmount": 10296803.0,
+      "RevenueNew": 59017068.0,
+      "implied_shares_x_unit": 13674.373173970784
+    },
+    {
+      "CompanyName": "پیزد",
+      "ReportDate": "1405/03/31",
+      "EPS": 1067.0,
+      "Capital": 9395000.0,
+      "NetProfitAmount": 10025964.0,
+      "RevenueNew": 39754579.0,
+      "implied_shares_x_unit": 9396.404873477039
+    }
+  ],
+  "mahane_value_stats": [
+    {
+      "n": 12122,
+      "min_v1": 0.0,
+      "avg_v1": 37390342.66729253,
+      "max_v1": 3315356109.0,
+      "min_v3": 0.0,
+      "avg_v3": 14815220.34414948,
+      "max_v3": 2023871451.0
+    }
+  ],
+  "mahane_sample10": [
+    {
+      "CompanyName": "ثالوند",
+      "ReportDate": "1405/06/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 419313.0,
+      "Url": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=a2WrAuaxGrPwthhxMFUkiA%3d%3d&rt=1&let=58&ct=0&ft=-1"
+    },
+    {
+      "CompanyName": "تاتمس",
+      "ReportDate": "1405/06/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 347941.0,
+      "Url": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=3uFZlZliYoUk41ABsFqTBg%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CompanyName": "دجابر",
+      "ReportDate": "1405/06/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 7211823.0,
+      "Url": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=tFfPJlRPqjIqHLOtiJ32NA%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CompanyName": "غنوش",
+      "ReportDate": "1405/06/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 358671.0,
+      "Url": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=FuFQ0c8nMe7gN0sichafww%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CompanyName": "چخزر",
+      "ReportDate": "1405/06/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 4005898.0,
+      "Url": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=auFY0XHG8ANh63SKjXdl3g%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CompanyName": "ولشرق",
+      "ReportDate": "1405/06/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 258165.0,
+      "Url": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=zlFoes1eI4vwTcOOObOOOJOWsw0g%3d%3d&rt=4&let=58&ct=0&ft=-1"
+    },
+    {
+      "CompanyName": "فبستم",
+      "ReportDate": "1405/06/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 20790.0,
+      "Url": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=bsYhsKIGpy1ZCsI2IJMB5A%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CompanyName": "قاسم",
+      "ReportDate": "1405/06/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 54742204.0,
+      "Url": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=toq0faP8crRRu6jLtNP2rA%3d%3d&rt=5&let=58&ct=0&ft=-1"
+    },
+    {
+      "CompanyName": "زاگرس",
+      "ReportDate": "1405/06/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 52899348.0,
+      "Url": "https://www.codal.ir/Reports/Decision.aspx?LetterSerial=pBMxeIEFTqS0IQaU9GRIqA%3d%3d&rt=0&let=58&ct=0&ft=-1"
+    },
+    {
+      "CompanyName": "خراسان",
+      "ReportDate": "1405/05/31",
+      "Value1": 0.0,
+      "Value2": 0.0,
+      "Value3": 32149298.0,
+      "Url": "https://www.codal.ir/ReportList.aspx?search&Symbol=%D8%AE%D8%B1%D8%A7%D8%B3%D8%A7%D9%86&LetterType=58&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=0&ReportingType=1000000&name=%D9%BE%D8%AA%D8%B1%D9%88%D8%B4%DB%8C%D9%85%DB%8C%20%D8%AE%D8%B1%D8%A7%D8%B3%D8%A7%D9%86&Category=-1&CompanyType=1&Consolidatable&NotConsolidatable&Name=%D9%BE%D8%AA%D8%B1%D9%88%D8%B4%DB%8C%D9%85%DB%8C%20%D8%AE%D8%B1%D8%A7%D8%B3%D8%A7%D9%86&IndustryGroup=44"
+    }
+  ],
+  "mph_overall": [
+    {
+      "rows": 705812,
+      "instruments": 277,
+      "ids": 274,
+      "symbols": 277,
+      "min_date": "1991-11-20",
+      "max_date": "2026-09-24"
+    }
+  ],
+  "stockdata_overall": {
+    "error": "('42000', \"[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Incorrect syntax near the keyword 'Close'. (156) (SQLExecDirectW)\")"
+  },
+  "stockprices_overall": [
+    {
+      "rows": 277,
+      "names": 3,
+      "min_date": null,
+      "max_date": null
+    }
+  ],
+  "mph_top20": [
+    {
+      "Symbol": "وسپه",
+      "InstrumentCode": "2328862017676109",
+      "CompanyID": "8ae97b44c2d9568e972acecf665519f7",
+      "CompanyName": "وسپه",
+      "rows": 5548,
+      "min_date": "2001-03-27",
+      "max_date": "2026-09-24",
+      "min_close": 8,
+      "max_close": 7550,
+      "avg_close": 509.6414924297044
+    },
+    {
+      "Symbol": "دجابر",
+      "InstrumentCode": "33406621820337161",
+      "CompanyID": "4abec9db6376c2f7c79a759d64220c72",
+      "CompanyName": "دجابر",
+      "rows": 5488,
+      "min_date": "2001-03-25",
+      "max_date": "2026-09-24",
+      "min_close": 62,
+      "max_close": 48410,
+      "avg_close": 3187.5317055393584
+    },
+    {
+      "Symbol": "شاراک",
+      "InstrumentCode": "7711282667602555",
+      "CompanyID": "36d852f81798b4c4f57827151acb1e86",
+      "CompanyName": "شاراک",
+      "rows": 5453,
+      "min_date": "2001-03-27",
+      "max_date": "2026-09-24",
+      "min_close": 23,
+      "max_close": 28870,
+      "avg_close": 3162.968090959105
+    },
+    {
+      "Symbol": "خبهمن",
+      "InstrumentCode": "26824673819862694",
+      "CompanyID": "9699d9e476a96e2efa79e1d55f75a297",
+      "CompanyName": "خبهمن",
+      "rows": 5412,
+      "min_date": "2001-04-07",
+      "max_date": "2026-09-24",
+      "min_close": 5,
+      "max_close": 2801,
+      "avg_close": 391.03935698447896
+    },
+    {
+      "Symbol": "شکربن",
+      "InstrumentCode": "27308217070238237",
+      "CompanyID": "2dc3ef3ab0a0505e8859b5400fc35e95",
+      "CompanyName": "شکربن",
+      "rows": 5306,
+      "min_date": "2001-03-25",
+      "max_date": "2026-09-24",
+      "min_close": 6,
+      "max_close": 10020,
+      "avg_close": 1031.989634376178
+    },
+    {
+      "Symbol": "ستران",
+      "InstrumentCode": "30829203706095076",
+      "CompanyID": "a207ae2effa153c9cd7977e7399b33d9",
+      "CompanyName": "ستران",
+      "rows": 5300,
+      "min_date": "2001-03-25",
+      "max_date": "2026-09-24",
+      "min_close": 24,
+      "max_close": 15790,
+      "avg_close": 1240.1081132075471
+    },
+    {
+      "Symbol": "خودرو",
+      "InstrumentCode": "65883838195688438",
+      "CompanyID": "8f0d3b9ed3bb17e93db23268de21bd69",
+      "CompanyName": "خودرو",
+      "rows": 5288,
+      "min_date": "2001-03-25",
+      "max_date": "2026-09-24",
+      "min_close": 3,
+      "max_close": 882,
+      "avg_close": 100.45083207261725
+    },
+    {
+      "Symbol": "خمحرکه",
+      "InstrumentCode": "39436183727126211",
+      "CompanyID": "219f43aab6fb90530570bd54a78db3f4",
+      "CompanyName": "خمحرکه",
+      "rows": 5267,
+      "min_date": "2001-04-17",
+      "max_date": "2026-09-24",
+      "min_close": 26,
+      "max_close": 23772,
+      "avg_close": 1666.0892348585533
+    },
+    {
+      "Symbol": "تپمپی",
+      "InstrumentCode": "43062880954780884",
+      "CompanyID": "0b933179128a75d133acc7cac85b4662",
+      "CompanyName": "تپمپی",
+      "rows": 5252,
+      "min_date": "1991-11-20",
+      "max_date": "2026-09-24",
+      "min_close": 1,
+      "max_close": 7740,
+      "avg_close": 634.6915460776847
+    },
+    {
+      "Symbol": "شبهرن",
+      "InstrumentCode": "22667016906590506",
+      "CompanyID": "067ba4a186448d230d296b1ce604d32f",
+      "CompanyName": "شبهرن",
+      "rows": 5231,
+      "min_date": "2001-04-16",
+      "max_date": "2026-09-12",
+      "min_close": 37,
+      "max_close": 42990,
+      "avg_close": 2899.946090613649
+    },
+    {
+      "Symbol": "خزامیا",
+      "InstrumentCode": "2589887561569709",
+      "CompanyID": "9bd78c98b11a21d9cff6e5172cad1d14",
+      "CompanyName": "خزامیا",
+      "rows": 5226,
+      "min_date": "2001-04-08",
+      "max_date": "2026-09-24",
+      "min_close": 8,
+      "max_close": 2299,
+      "avg_close": 305.5177956371986
+    },
+    {
+      "Symbol": "سشرق",
+      "InstrumentCode": "26997316501080743",
+      "CompanyID": "e60b29bf5ce7f167ddc4039487210d2f",
+      "CompanyName": "سشرق",
+      "rows": 5102,
+      "min_date": "2001-03-26",
+      "max_date": "2026-09-24",
+      "min_close": 92,
+      "max_close": 27030,
+      "avg_close": 1793.4809878479027
+    },
+    {
+      "Symbol": "بموتو",
+      "InstrumentCode": "22086876724551482",
+      "CompanyID": "3f3bb26af4a9adedd8678ad845720830",
+      "CompanyName": "بموتو",
+      "rows": 5088,
+      "min_date": "2001-03-26",
+      "max_date": "2026-09-24",
+      "min_close": 2,
+      "max_close": 3780,
+      "avg_close": 431.2537342767296
+    },
+    {
+      "Symbol": "فباهنر",
+      "InstrumentCode": "66772024744156373",
+      "CompanyID": "a7c92003e95722cea2d38ba5306603b9",
+      "CompanyName": "فباهنر",
+      "rows": 5006,
+      "min_date": "2001-04-15",
+      "max_date": "2026-09-24",
+      "min_close": 4,
+      "max_close": 14030,
+      "avg_close": 1048.5287654814224
+    },
+    {
+      "Symbol": "وتوشه",
+      "InstrumentCode": "54676885047867737",
+      "CompanyID": "ebcee98ad7dedd38d7be45b541349ffa",
+      "CompanyName": "وتوشه",
+      "rows": 4995,
+      "min_date": "2001-08-19",
+      "max_date": "2026-09-24",
+      "min_close": 8,
+      "max_close": 8600,
+      "avg_close": 1067.5935935935936
+    },
+    {
+      "Symbol": "دلقما",
+      "InstrumentCode": "29247915161590165",
+      "CompanyID": "7a54ec15d779b9ac2ed7963ef98f7d2e",
+      "CompanyName": "دلقما",
+      "rows": 4985,
+      "min_date": "1994-02-19",
+      "max_date": "2026-09-24",
+      "min_close": 1,
+      "max_close": 11310,
+      "avg_close": 517.9652958876629
+    },
+    {
+      "Symbol": "داسوه",
+      "InstrumentCode": "12387472624849835",
+      "CompanyID": "358139e1070f075fd27c39f77c4047e4",
+      "CompanyName": "داسوه",
+      "rows": 4981,
+      "min_date": "2001-03-25",
+      "max_date": "2026-09-24",
+      "min_close": 205,
+      "max_close": 105980,
+      "avg_close": 10824.815097370007
+    },
+    {
+      "Symbol": "بترانس",
+      "InstrumentCode": "46752599569017089",
+      "CompanyID": "5846976e3619ada1281f076ebdce9055",
+      "CompanyName": "بترانس",
+      "rows": 4964,
+      "min_date": "2001-04-10",
+      "max_date": "2026-09-24",
+      "min_close": 4,
+      "max_close": 3640,
+      "avg_close": 418.56083803384365
+    },
+    {
+      "Symbol": "دسینا",
+      "InstrumentCode": "11432067920374603",
+      "CompanyID": "b694bdef08321e4aa9a9324af55183a3",
+      "CompanyName": "دسینا",
+      "rows": 4945,
+      "min_date": "1996-03-18",
+      "max_date": "2026-09-24",
+      "min_close": 1,
+      "max_close": 93340,
+      "avg_close": 5011.318907987867
+    },
+    {
+      "Symbol": "دسبحا",
+      "InstrumentCode": "43622578471330344",
+      "CompanyID": "bd0ee973f3ff87b60181493e77d55264",
+      "CompanyName": "دسبحا",
+      "rows": 4928,
+      "min_date": "2003-02-04",
+      "max_date": "2026-09-24",
+      "min_close": 7,
+      "max_close": 7230,
+      "avg_close": 1183.8378652597403
+    }
+  ],
+  "mph_dup_symbol_date": [
+    {
+      "dup_groups": 0
+    }
+  ],
+  "mph_dup_id_date": [
+    {
+      "dup_groups": 126
+    }
+  ],
+  "price_compare_overall": [
+    {
+      "symbol": "بترانس",
+      "overlap_rows": 4719,
+      "avg_stockdata_close": 557.188283534647,
+      "avg_mph_close": 319.97965670692946,
+      "avg_ratio": 0.5745995025748396
+    },
+    {
+      "symbol": "خموتور",
+      "overlap_rows": 4157,
+      "avg_stockdata_close": 734.0082655761363,
+      "avg_mph_close": 417.6230454654799,
+      "avg_ratio": 0.578196886468493
+    },
+    {
+      "symbol": "سهگمت",
+      "overlap_rows": 4042,
+      "avg_stockdata_close": 10887.384497773372,
+      "avg_mph_close": 9585.790202869866,
+      "avg_ratio": 0.881950175801402
+    },
+    {
+      "symbol": "پخش",
+      "overlap_rows": 2729,
+      "avg_stockdata_close": 2161.041029681202,
+      "avg_mph_close": 1722.3580065958226,
+      "avg_ratio": 0.7755479458753379
+    },
+    {
+      "symbol": "حسینا",
+      "overlap_rows": 2412,
+      "avg_stockdata_close": 2642.754564676615,
+      "avg_mph_close": 2383.342039800995,
+      "avg_ratio": 0.8947538990714653
+    },
+    {
+      "symbol": "سیستم",
+      "overlap_rows": 1946,
+      "avg_stockdata_close": 7692.560745118189,
+      "avg_mph_close": 6582.808324768756,
+      "avg_ratio": 0.8471799452556933
+    },
+    {
+      "symbol": "کالا",
+      "overlap_rows": 1392,
+      "avg_stockdata_close": 5207.330955459769,
+      "avg_mph_close": 1710.5725574712644,
+      "avg_ratio": 0.3282585246070269
+    },
+    {
+      "symbol": "غویتا",
+      "overlap_rows": 1343,
+      "avg_stockdata_close": 3902.0351898734184,
+      "avg_mph_close": 3587.080416976917,
+      "avg_ratio": 0.9277471428953611
+    },
+    {
+      "symbol": "تپسی",
+      "overlap_rows": 587,
+      "avg_stockdata_close": 8848.179352640544,
+      "avg_mph_close": 8785.843270868825,
+      "avg_ratio": 0.9912852025728736
+    }
+  ],
+  "price_ratio_buckets": [
+    {
+      "ratio": 0.32,
+      "n": 255
+    },
+    {
+      "ratio": 0.33,
+      "n": 1010
+    },
+    {
+      "ratio": 0.55,
+      "n": 434
+    },
+    {
+      "ratio": 0.56,
+      "n": 1148
+    },
+    {
+      "ratio": 0.57,
+      "n": 2432
+    },
+    {
+      "ratio": 0.58,
+      "n": 2890
+    },
+    {
+      "ratio": 0.59,
+      "n": 1348
+    },
+    {
+      "ratio": 0.6,
+      "n": 448
+    },
+    {
+      "ratio": 0.61,
+      "n": 144
+    },
+    {
+      "ratio": 0.78,
+      "n": 180
+    },
+    {
+      "ratio": 0.79,
+      "n": 527
+    },
+    {
+      "ratio": 0.8,
+      "n": 1000
+    },
+    {
+      "ratio": 0.81,
+      "n": 479
+    },
+    {
+      "ratio": 0.82,
+      "n": 241
+    },
+    {
+      "ratio": 0.83,
+      "n": 226
+    },
+    {
+      "ratio": 0.84,
+      "n": 590
+    },
+    {
+      "ratio": 0.85,
+      "n": 663
+    },
+    {
+      "ratio": 0.86,
+      "n": 729
+    },
+    {
+      "ratio": 0.87,
+      "n": 695
+    },
+    {
+      "ratio": 0.88,
+      "n": 993
+    },
+    {
+      "ratio": 0.89,
+      "n": 1771
+    },
+    {
+      "ratio": 0.9,
+      "n": 1395
+    },
+    {
+      "ratio": 0.91,
+      "n": 1277
+    },
+    {
+      "ratio": 0.92,
+      "n": 530
+    },
+    {
+      "ratio": 0.93,
+      "n": 150
+    },
+    {
+      "ratio": 0.95,
+      "n": 114
+    },
+    {
+      "ratio": 0.96,
+      "n": 233
+    },
+    {
+      "ratio": 0.97,
+      "n": 175
+    },
+    {
+      "ratio": 0.99,
+      "n": 130
+    },
+    {
+      "ratio": 1.0,
+      "n": 233
+    }
+  ],
+  "fullpe_vs_mph": [
+    {
+      "CompanyName": "آردینه",
+      "PE": 6.58,
+      "fullpe_price": 30520.0,
+      "Symbol": "آردینه",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 32490,
+      "mph_last": 32640
+    },
+    {
+      "CompanyName": "آریا",
+      "PE": 6.83,
+      "fullpe_price": 32850.0,
+      "Symbol": "آریا",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 45800,
+      "mph_last": 45800
+    },
+    {
+      "CompanyName": "اروند",
+      "PE": 15.36,
+      "fullpe_price": 49150.0,
+      "Symbol": "اروند",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 54590,
+      "mph_last": 54600
+    },
+    {
+      "CompanyName": "اسیاتک",
+      "PE": 4.07,
+      "fullpe_price": 3970.0,
+      "Symbol": "اسیاتک",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 4230,
+      "mph_last": 4230
+    },
+    {
+      "CompanyName": "افق",
+      "PE": 13.53,
+      "fullpe_price": 69580.0,
+      "Symbol": "افق",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 68100,
+      "mph_last": 68390
+    },
+    {
+      "CompanyName": "انرژی",
+      "PE": 47.74,
+      "fullpe_price": 24260.0,
+      "Symbol": "انرژی",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 22130,
+      "mph_last": 21930
+    },
+    {
+      "CompanyName": "بپیوند",
+      "PE": 10.42,
+      "fullpe_price": 17800.0,
+      "Symbol": "بپیوند",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 18150,
+      "mph_last": 18120
+    },
+    {
+      "CompanyName": "بترانس",
+      "PE": 4.27,
+      "fullpe_price": 3150.0,
+      "Symbol": "بترانس",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 3640,
+      "mph_last": 3650
+    },
+    {
+      "CompanyName": "بجهرم",
+      "PE": 9.49,
+      "fullpe_price": 3080.0,
+      "Symbol": "بجهرم",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 3070,
+      "mph_last": 3070
+    },
+    {
+      "CompanyName": "برکت",
+      "PE": 102.34,
+      "fullpe_price": 4740.0,
+      "Symbol": "برکت",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 4790,
+      "mph_last": 4790
+    },
+    {
+      "CompanyName": "بزاگرس",
+      "PE": 17.42,
+      "fullpe_price": 7790.0,
+      "Symbol": "بزاگرس",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 7640,
+      "mph_last": 7730
+    },
+    {
+      "CompanyName": "بگیلان",
+      "PE": 10.7,
+      "fullpe_price": 25310.0,
+      "Symbol": "بگیلان",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 26240,
+      "mph_last": 26540
+    },
+    {
+      "CompanyName": "بمپنا",
+      "PE": 13.0,
+      "fullpe_price": 7460.0,
+      "Symbol": "بمپنا",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 7980,
+      "mph_last": 8060
+    },
+    {
+      "CompanyName": "بموتو",
+      "PE": 6.92,
+      "fullpe_price": 3350.0,
+      "Symbol": "بموتو",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 3240,
+      "mph_last": 3260
+    },
+    {
+      "CompanyName": "بنو",
+      "PE": 8.37,
+      "fullpe_price": 1949.0,
+      "Symbol": "بنو",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 1889,
+      "mph_last": 1889
+    },
+    {
+      "CompanyName": "بهپاک",
+      "PE": 4.35,
+      "fullpe_price": 16000.0,
+      "Symbol": "بهپاک",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 15590,
+      "mph_last": 15590
+    },
+    {
+      "CompanyName": "بوعلی",
+      "PE": 5.38,
+      "fullpe_price": 44000.0,
+      "Symbol": "بوعلی",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 61290,
+      "mph_last": 61290
+    },
+    {
+      "CompanyName": "بیوتیک",
+      "PE": 22.51,
+      "fullpe_price": 32200.0,
+      "Symbol": "بیوتیک",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 32020,
+      "mph_last": 32000
+    },
+    {
+      "CompanyName": "پارس",
+      "PE": 4.57,
+      "fullpe_price": 2211.0,
+      "Symbol": "پارس",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 2840,
+      "mph_last": 2840
+    },
+    {
+      "CompanyName": "پارسان",
+      "PE": 9.52,
+      "fullpe_price": 32340.0,
+      "Symbol": "پارسان",
+      "GregorianDate": "2026-09-24",
+      "mph_close": 34200,
+      "mph_last": 34280
+    }
+  ],
+  "date_naive_check": [
+    {
+      "mph_max_greg": "2026-09-24",
+      "mph_max_collected": "2026-09-24 17:01:10.652363",
+      "codal_max_published": "2026-09-24 17:03:32",
+      "codal_max_discovered": "2026-09-24 14:32:32.282430",
+      "codal_max_processed": "2026-09-24 14:35:08.079588"
+    }
+  ],
+  "family_recordedat": [
+    {
+      "DateKey": "1405/07/02",
+      "RecordedAt": "2026-09-24 20:31:11.533000"
+    },
+    {
+      "DateKey": "1405/07/01",
+      "RecordedAt": "2026-09-23 07:24:16.833000"
+    },
+    {
+      "DateKey": "1405/06/31",
+      "RecordedAt": "2026-09-22 22:27:23.077000"
+    },
+    {
+      "DateKey": "1405/06/29",
+      "RecordedAt": "2026-09-20 12:01:47.423000"
+    },
+    {
+      "DateKey": "1405/06/28",
+      "RecordedAt": "2026-09-19 18:49:06.307000"
+    }
+  ],
+  "reportdate_formats": [
+    {
+      "CompanyName": "تاصیکو",
+      "ReportDate": "1405/05/31"
+    },
+    {
+      "CompanyName": "چکاپا",
+      "ReportDate": "1405/05/31"
+    },
+    {
+      "CompanyName": "سهگمت",
+      "ReportDate": "1405/04/31"
+    },
+    {
+      "CompanyName": "بترانس",
+      "ReportDate": "1405/04/31"
+    },
+    {
+      "CompanyName": "کپارس",
+      "ReportDate": "1405/04/31"
+    },
+    {
+      "CompanyName": "خراسان",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "زدشت",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "زفکا",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "آردینه",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "وپست",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "خمهر",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "فخوز",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "شبهرن",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "قنیشا",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "شپلی",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "کربن",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "کنور",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "کفرا",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "تپسی",
+      "ReportDate": "1405/03/31"
+    },
+    {
+      "CompanyName": "ددانا",
+      "ReportDate": "1405/03/31"
+    }
+  ],
+  "reportdate_bad": [
+    {
+      "bad": 0
+    }
+  ]
+}

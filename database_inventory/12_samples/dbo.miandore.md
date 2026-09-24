@@ -1,0 +1,12 @@
+# dbo.miandore
+
+Row count (approx): 679
+Masked columns: (none)
+
+| ID | CompanyID | CompanyName | ReportDate | Value1 | Value2 | Value3 | Url | Sarmaye |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| 702 | 02d0fb54342c0cc17bc1062d7d88f448 | زدشت | 1398/06/31 | 187680000.0 | 58650000.0 | 221490000.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D8%B2%D8%AF%D8%B4%D8%AA&LetterType=6&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000008&name=%D9%85%D8%AC%D8%AA%D9%85%D8%B9%20%DA%A9%D8%B4%D8%AA%20%D9%88%20%D8%B5%D9%86%D8%B9%... | NULL |
+| 701 | 02d0fb54342c0cc17bc1062d7d88f448 | زدشت | 1398/09/30 | 337410000.0 | 140070000.0 | 221490000.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D8%B2%D8%AF%D8%B4%D8%AA&LetterType=6&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000008&name=%D9%85%D8%AC%D8%AA%D9%85%D8%B9%20%DA%A9%D8%B4%D8%AA%20%D9%88%20%D8%B5%D9%86%D8%B9%... | NULL |
+| 700 | 02d0fb54342c0cc17bc1062d7d88f448 | زدشت | 1398/12/29 | 384330000.0 | 0.0 | 221490000.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D8%B2%D8%AF%D8%B4%D8%AA&LetterType=6&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000008&name=%D9%85%D8%AC%D8%AA%D9%85%D8%B9%20%DA%A9%D8%B4%D8%AA%20%D9%88%20%D8%B5%D9%86%D8%B9%... | NULL |
+| 699 | 02d0fb54342c0cc17bc1062d7d88f448 | زدشت | 1399/03/31 | 55200000.0 | 79350000.0 | 384330000.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D8%B2%D8%AF%D8%B4%D8%AA&LetterType=6&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000008&name=%D9%85%D8%AC%D8%AA%D9%85%D8%B9%20%DA%A9%D8%B4%D8%AA%20%D9%88%20%D8%B5%D9%86%D8%B9%... | NULL |
+| 698 | 02d0fb54342c0cc17bc1062d7d88f448 | زدشت | 1399/06/31 | 203550000.0 | 187680000.0 | 384330000.0 | https://www.codal.ir/ReportList.aspx?search&Symbol=%D8%B2%D8%AF%D8%B4%D8%AA&LetterType=6&AuditorRef=-1&Audited=false&NotAudited&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=1&ReportingType=1000008&name=%D9%85%D8%AC%D8%AA%D9%85%D8%B9%20%DA%A9%D8%B4%D8%AA%20%D9%88%20%D8%B5%D9%86%D8%B9%... | NULL |
