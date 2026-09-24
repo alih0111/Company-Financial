@@ -194,7 +194,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => navigate("/assets")}
                 className="w-full h-9 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-amber-500/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
-                assets
+                Assets
               </button>
               <button
                 onClick={() => openModalForScript("script1")}

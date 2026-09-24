@@ -661,7 +661,7 @@ const FamilyAssets = () => {
   return (
     <div className="flex flex-col gap-4" dir="rtl">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white">دارایی خانواده</h2>
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Assets</h2>
         <div className="flex gap-1 rounded-xl bg-gray-100 dark:bg-gray-800 p-1">
           {tabs.map((t) => (
             <button
@@ -744,7 +744,7 @@ const FamilyAssets = () => {
               </div>
             </div>
             <div className={cardCls}>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">سهام / طلا</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">طلا / سهام</div>
               <div className="text-sm font-bold text-gray-800 dark:text-white tabular-nums">
                 <span title="سهام">{fmtCompact(summary?.stocks_total)}</span>
                 <span className="text-gray-400 mx-1">/</span>
@@ -829,7 +829,7 @@ const FamilyAssets = () => {
 
               {/* ── جدول دارایی‌ها مثل Sheet1 ── */}
               <div className={panelCls + " overflow-auto"}>
-                <h3 className="font-semibold text-gray-800 dark:text-white mb-3">پرتفوی کل خانواده</h3>
+                <h3 className="font-semibold text-gray-800 dark:text-white mb-3">پرتفوی کل</h3>
                 <table className="w-full text-sm text-right">
                   <thead>
                     <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
