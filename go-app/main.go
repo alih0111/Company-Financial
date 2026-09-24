@@ -54,6 +54,9 @@ func main() {
 		// کالکتور قیمت BRS (فقط ادمین) → py/brs_prices.py
 		protected.POST("/brs/collect", handlers.RunBrsCollector)
 
+		// sync مبتنی بر discovery کدال (فقط ادمین) → py/sync_codal.py
+		protected.POST("/sync-codal", handlers.RunSyncCodal)
+
 		protected.GET("/summary", handlers.GetAIStockSummary)
 		protected.GET("/detail", handlers.GetAIStockDetail)
 		protected.POST("/analyze", handlers.AnalyzeTopStocksWithAI)

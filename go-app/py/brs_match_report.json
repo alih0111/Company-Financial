@@ -1,150 +1,150 @@
 {
   "summary": {
-    "total_brs_symbols": 951,
-    "matched": 257,
-    "unmatched": 694,
+    "total_brs_symbols": 1608,
+    "matched": 267,
+    "unmatched": 1341,
     "match_breakdown": {
-      "symbol-equals-name": 254,
-      "stored-symbol": 2,
-      "exact-name": 1
+      "stored-symbol": 4,
+      "symbol-equals-name": 261,
+      "exact-name": 2
     },
-    "codal_names_in_index": 270
+    "codal_names_in_index": 276
   },
   "brs_raw_sample": {
     "_comment": "ساختار واقعی پاسخ BRS برای عیب‌یابی فیلدها",
     "first_item": {
-      "time": "06:10:45",
-      "l18": "وسپهر",
-      "l30": "گروه سرمایه گذاری سپهر صادرات",
-      "isin": "IRO3SAIZ0001",
-      "id": 114312662654155,
-      "cs": "شرکت‌های چند رشته‌ای صنعتی",
-      "cs_id": 39,
-      "z": 75000000000,
+      "time": "12:30:01",
+      "l18": "تابان",
+      "l30": "گروه پتروشیمی تابان فردا",
+      "isin": "IRO1TBAN0001",
+      "id": 30714151942396396,
+      "cs": "محصولات شیمیایی",
+      "cs_id": 44,
+      "z": 300000000000,
       "bvol": 1,
-      "mv": 338250000000000,
-      "eps": 1149,
-      "pe": 3.9,
-      "tmin": 4380,
-      "tmax": 4640,
-      "pmin": 0,
-      "pmax": 0,
-      "py": 4510,
-      "pf": 0,
-      "pl": 4500,
-      "plc": 0,
-      "plp": 0,
-      "pc": 4510,
-      "pcc": 0,
-      "pcp": 0,
-      "tno": 0,
-      "tvol": 0,
-      "tval": 0,
-      "Buy_CountI": 270,
-      "Buy_CountN": 3,
-      "Sell_CountI": 517,
-      "Sell_CountN": 1,
-      "Buy_I_Volume": 12996895,
-      "Buy_N_Volume": 7225000,
-      "Sell_I_Volume": 20220990,
-      "Sell_N_Volume": 905,
-      "zd1": 1,
-      "qd1": 1500,
-      "pd1": 4390,
-      "po1": 4750,
-      "qo1": 11655,
-      "zo1": 4,
+      "mv": 6171000000000000,
+      "eps": 908,
+      "pe": 22.7,
+      "tmin": 19810,
+      "tmax": 21030,
+      "pmin": 19810,
+      "pmax": 21030,
+      "py": 18660,
+      "pf": 20420,
+      "pl": 21010,
+      "plc": 2350,
+      "plp": 12.59,
+      "pc": 20570,
+      "pcc": 1910,
+      "pcp": 10.24,
+      "tno": 291993,
+      "tvol": 2487861594,
+      "tval": 51165793262850,
+      "Buy_CountI": 30166,
+      "Buy_CountN": 132,
+      "Sell_CountI": 204172,
+      "Sell_CountN": 253,
+      "Buy_I_Volume": 1850766126,
+      "Buy_N_Volume": 637095468,
+      "Sell_I_Volume": 1839449745,
+      "Sell_N_Volume": 648411849,
+      "zd1": 2,
+      "qd1": 118170,
+      "pd1": 21030,
+      "po1": 21030,
+      "qo1": 1027448,
+      "zo1": 270,
       "zd2": 1,
-      "qd2": 2500,
-      "pd2": 4330,
-      "po2": 4800,
-      "qo2": 1600,
-      "zo2": 2,
-      "zd3": 0,
-      "qd3": 0,
-      "pd3": 0,
-      "po3": 4810,
-      "qo3": 32333,
-      "zo3": 5,
-      "zd4": 0,
-      "qd4": 0,
-      "pd4": 0,
-      "po4": 4900,
-      "qo4": 1100,
+      "qd2": 1303,
+      "pd2": 21020,
+      "po2": 21060,
+      "qo2": 1520,
+      "zo2": 1,
+      "zd3": 4,
+      "qd3": 61514,
+      "pd3": 21010,
+      "po3": 21100,
+      "qo3": 28080,
+      "zo3": 4,
+      "zd4": 15,
+      "qd4": 59709,
+      "pd4": 21000,
+      "po4": 21120,
+      "qo4": 239,
       "zo4": 1,
-      "zd5": 0,
-      "qd5": 0,
-      "pd5": 0,
-      "po5": 4950,
-      "qo5": 8042,
-      "zo5": 4
+      "zd5": 21,
+      "qd5": 239382,
+      "pd5": 20990,
+      "po5": 21200,
+      "qo5": 2732,
+      "zo5": 1
     },
     "first_matched_raw": {
-      "time": "06:10:30",
-      "l18": "فرآور",
-      "l30": "فرآوری‌موادمعدنی‌ایران",
-      "isin": "IRO1FRVR0001",
-      "id": 408934423224097,
-      "cs": "فلزات اساسی",
-      "cs_id": 27,
-      "z": 5000000000,
+      "time": "15:23:56",
+      "l18": "یاقوت",
+      "l30": "صندوق س یاقوت آگاه-ثابت",
+      "isin": "IRT1YGHT0001",
+      "id": 1438514795814416,
+      "cs": "صندوق سرمایه‌گذاری قابل معامله",
+      "cs_id": 68,
+      "z": 14000000000,
       "bvol": 1,
-      "mv": 38000000000000,
-      "eps": 456,
-      "pe": 16.7,
-      "tmin": 7380,
-      "tmax": 7820,
-      "pmin": 0,
-      "pmax": 0,
-      "py": 7600,
-      "pf": 0,
-      "pl": 7600,
-      "plc": 0,
-      "plp": 0,
-      "pc": 7600,
-      "pcc": 0,
-      "pcp": 0,
-      "tno": 0,
-      "tvol": 0,
-      "tval": 0,
-      "Buy_CountI": 110,
-      "Buy_CountN": 2,
-      "Sell_CountI": 83,
-      "Sell_CountN": 4,
-      "Buy_I_Volume": 29650458,
-      "Buy_N_Volume": 600000,
-      "Sell_I_Volume": 4797758,
-      "Sell_N_Volume": 25452700,
-      "zd1": 4,
-      "qd1": 331359,
-      "pd1": 7600,
-      "po1": 0,
-      "qo1": 0,
-      "zo1": 0,
-      "zd2": 2,
-      "qd2": 260000,
-      "pd2": 7380,
-      "po2": 0,
-      "qo2": 0,
-      "zo2": 0,
-      "zd3": 1,
-      "qd3": 100000,
-      "pd3": 7170,
-      "po3": 0,
-      "qo3": 0,
-      "zo3": 0,
-      "zd4": 1,
-      "qd4": 14000,
-      "pd4": 7150,
-      "po4": 0,
-      "qo4": 0,
-      "zo4": 0,
-      "zd5": 1,
-      "qd5": 7148,
-      "pd5": 6970,
-      "po5": 0,
-      "qo5": 0,
-      "zo5": 0
+      "mv": 659764000000000,
+      "eps": null,
+      "pe": null,
+      "tmin": 45655,
+      "tmax": 48477,
+      "pmin": 47125,
+      "pmax": 47127,
+      "py": 47066,
+      "pf": 47125,
+      "pl": 47126,
+      "plc": 60,
+      "plp": 0.13,
+      "pc": 47126,
+      "pcc": 60,
+      "pcp": 0.13,
+      "tno": 109161,
+      "tvol": 624324920,
+      "tval": 29421871798311,
+      "Buy_CountI": 14160,
+      "Buy_CountN": 49,
+      "Sell_CountI": 91135,
+      "Sell_CountN": 88,
+      "Buy_I_Volume": 396641916,
+      "Buy_N_Volume": 227683004,
+      "Sell_I_Volume": 312783846,
+      "Sell_N_Volume": 311541074,
+      "zd1": 334,
+      "qd1": 300721298,
+      "pd1": 47125,
+      "po1": 47126,
+      "qo1": 73268,
+      "zo1": 1,
+      "zd2": 17,
+      "qd2": 10080541,
+      "pd2": 47124,
+      "po2": 47127,
+      "qo2": 19822664,
+      "zo2": 20,
+      "zd3": 10,
+      "qd3": 10000000,
+      "pd3": 47123,
+      "po3": 47128,
+      "qo3": 1000022,
+      "zo3": 2,
+      "zd4": 15,
+      "qd4": 10019352,
+      "pd4": 47122,
+      "po4": 47129,
+      "qo4": 1000175,
+      "zo4": 3,
+      "zd5": 15,
+      "qd5": 10213678,
+      "pd5": 47121,
+      "po5": 47130,
+      "qo5": 1048329,
+      "zo5": 9
     },
     "first_item_keys": [
       "Buy_CountI",
@@ -216,8 +216,8 @@
   },
   "unmatched_sample": [
     {
-      "symbol": "لپارس",
-      "brs_name": "پارس‌ الکتریک",
+      "symbol": "خپارس",
+      "brs_name": "پارس خودرو",
       "best_candidate": "پارس",
       "best_score": 0.5
     },
@@ -228,15 +228,9 @@
       "best_score": 0.5
     },
     {
-      "symbol": "درازی",
-      "brs_name": "پخش رازی",
-      "best_candidate": "پخش",
-      "best_score": 0.5
-    },
-    {
-      "symbol": "کسرام",
-      "brs_name": "پارس‌ سرام",
-      "best_candidate": "پارس",
+      "symbol": "فرود",
+      "brs_name": "فولاد شاهرود",
+      "best_candidate": "فولاد",
       "best_score": 0.5
     },
     {
@@ -246,33 +240,9 @@
       "best_score": 0.5
     },
     {
-      "symbol": "خپارس",
-      "brs_name": "پارس خودرو",
+      "symbol": "لپارس",
+      "brs_name": "پارس‌ الکتریک",
       "best_candidate": "پارس",
-      "best_score": 0.5
-    },
-    {
-      "symbol": "فنر",
-      "brs_name": "پارس فنر",
-      "best_candidate": "پارس",
-      "best_score": 0.5
-    },
-    {
-      "symbol": "فرود",
-      "brs_name": "فولاد شاهرود",
-      "best_candidate": "فولاد",
-      "best_score": 0.5
-    },
-    {
-      "symbol": "دشیری",
-      "brs_name": "شیرین دارو",
-      "best_candidate": "دارو",
-      "best_score": 0.5
-    },
-    {
-      "symbol": "کقزوی",
-      "brs_name": "شیشه‌ قزوین",
-      "best_candidate": "قزوین",
       "best_score": 0.5
     },
     {
@@ -288,15 +258,183 @@
       "best_score": 0.5
     },
     {
-      "symbol": "سیسکو",
-      "brs_name": "فولاد سیرجان ایرانیان",
+      "symbol": "فنر",
+      "brs_name": "پارس فنر",
+      "best_candidate": "پارس",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "کسرام",
+      "brs_name": "پارس‌ سرام",
+      "best_candidate": "پارس",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "کقزوی",
+      "brs_name": "شیشه‌ قزوین",
+      "best_candidate": "قزوین",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "درازی",
+      "brs_name": "پخش رازی",
+      "best_candidate": "پخش",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "خودرو3",
+      "brs_name": "ایران‌ خودرو",
+      "best_candidate": "خودرو",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "دشیری",
+      "brs_name": "شیرین دارو",
+      "best_candidate": "دارو",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "اروند3",
+      "brs_name": "پتروشیمی اروند",
+      "best_candidate": "اروند",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "غپینو3",
+      "brs_name": "پارس‌ مینو",
+      "best_candidate": "پارس",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "نوری3",
+      "brs_name": "پتروشیمی نوری",
+      "best_candidate": "نوری",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "پخش3",
+      "brs_name": "پخش البرز",
+      "best_candidate": "پخش",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "ساوه3",
+      "brs_name": "سیمان ساوه",
+      "best_candidate": "ساوه",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "زاگرس3",
+      "brs_name": "پتروشیمی زاگرس",
+      "best_candidate": "زاگرس",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "دانا3",
+      "brs_name": "بیمه دانا",
+      "best_candidate": "دانا",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "سپید3",
+      "brs_name": "سپید ماکیان",
+      "best_candidate": "سپید",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "فخوز3",
+      "brs_name": "فولاد  خوزستان",
       "best_candidate": "فولاد",
-      "best_score": 0.333
+      "best_score": 0.5
+    },
+    {
+      "symbol": "بهپاک3",
+      "brs_name": "صنعتی بهپاک",
+      "best_candidate": "بهپاک",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "کپارس3",
+      "brs_name": "کاشی‌ پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "فرود3",
+      "brs_name": "فولاد شاهرود",
+      "best_candidate": "فولاد",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "لخزر3",
+      "brs_name": "پارس‌ خزر",
+      "best_candidate": "پارس",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "فخوز2",
+      "brs_name": "فولاد  خوزستان",
+      "best_candidate": "فولاد",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "اخشان3",
+      "brs_name": "اخشان خراسان",
+      "best_candidate": "خراسان",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "لپارس3",
+      "brs_name": "پارس‌ الکتریک",
+      "best_candidate": "پارس",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "شنفت3",
+      "brs_name": "نفت‌ پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "سیستم3",
+      "brs_name": "همکاران سیستم",
+      "best_candidate": "سیستم",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "شکربن3",
+      "brs_name": "کربن‌ ایران",
+      "best_candidate": "کربن",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "فخاس3",
+      "brs_name": "فولاد خراسان",
+      "best_candidate": "خراسان",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "دپارس3",
+      "brs_name": "پارس‌ دارو",
+      "best_candidate": "پارس",
+      "best_score": 0.5
+    },
+    {
+      "symbol": "حفاری3",
+      "brs_name": "حفاری شمال",
+      "best_candidate": "حفاری",
+      "best_score": 0.5
     },
     {
       "symbol": "داروند",
       "brs_name": "زیست اروند فارمد",
       "best_candidate": "اروند",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "خاور",
+      "brs_name": "ایران خودرو دیزل",
+      "best_candidate": "خودرو",
       "best_score": 0.333
     },
     {
@@ -306,9 +444,33 @@
       "best_score": 0.333
     },
     {
-      "symbol": "دتولید",
-      "brs_name": "داروسازی تولید دارو",
-      "best_candidate": "دارو",
+      "symbol": "هرمز",
+      "brs_name": "فولاد هرمزگان جنوب",
+      "best_candidate": "فولاد",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "فطلوع",
+      "brs_name": "طلوع فولاد پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "سیسکو",
+      "brs_name": "فولاد سیرجان ایرانیان",
+      "best_candidate": "فولاد",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "کیمازی",
+      "brs_name": "کیمیا کالای رازی",
+      "best_candidate": "کیمیا",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "فروی",
+      "brs_name": "ذوب روی اصفهان",
+      "best_candidate": "ذوب",
       "best_score": 0.333
     },
     {
@@ -324,45 +486,15 @@
       "best_score": 0.333
     },
     {
-      "symbol": "فطلوع",
-      "brs_name": "طلوع فولاد پارس",
-      "best_candidate": "پارس",
-      "best_score": 0.333
-    },
-    {
-      "symbol": "پی پاد",
-      "brs_name": "پرداخت الکترونیک پاسارگاد",
-      "best_candidate": "پرداخت",
-      "best_score": 0.333
-    },
-    {
-      "symbol": "فروی",
-      "brs_name": "ذوب روی اصفهان",
-      "best_candidate": "ذوب",
-      "best_score": 0.333
-    },
-    {
-      "symbol": "جم",
-      "brs_name": "پتروشیمی جم",
-      "best_candidate": "جم پیلن",
-      "best_score": 0.333
-    },
-    {
       "symbol": "فجهان",
       "brs_name": "جهان فولاد سیرجان",
       "best_candidate": "فولاد",
       "best_score": 0.333
     },
     {
-      "symbol": "خاور",
-      "brs_name": "ایران خودرو دیزل",
-      "best_candidate": "خودرو",
-      "best_score": 0.333
-    },
-    {
-      "symbol": "واحصا",
-      "brs_name": "احیاء صنایع خراسان",
-      "best_candidate": "خراسان",
+      "symbol": "جم",
+      "brs_name": "پتروشیمی جم",
+      "best_candidate": "جم پیلن",
       "best_score": 0.333
     },
     {
@@ -378,44 +510,200 @@
       "best_score": 0.333
     },
     {
+      "symbol": "پی پاد",
+      "brs_name": "پرداخت الکترونیک پاسارگاد",
+      "best_candidate": "پرداخت",
+      "best_score": 0.333
+    },
+    {
       "symbol": "اوان",
       "brs_name": "مبین وان کیش",
       "best_candidate": "مبین",
       "best_score": 0.333
     },
     {
-      "symbol": "هرمز",
+      "symbol": "ولانا",
+      "brs_name": "شرکت لیزینگ آریا دانا",
+      "best_candidate": "آریا",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "دتولید",
+      "brs_name": "داروسازی تولید دارو",
+      "best_candidate": "دارو",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "پاکشو3",
+      "brs_name": "گروه صنعتی پاکشو",
+      "best_candidate": "پاکشو",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "واحصا",
+      "brs_name": "احیاء صنایع خراسان",
+      "best_candidate": "خراسان",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "ذوب3",
+      "brs_name": "ذوب آهن اصفهان",
+      "best_candidate": "ذوب",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "فروی3",
+      "brs_name": "ذوب روی اصفهان",
+      "best_candidate": "ذوب",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "شراز3",
+      "brs_name": "پالایش نفت شیراز",
+      "best_candidate": "شیراز",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "انرژی3",
+      "brs_name": "بورس انرژی ایران",
+      "best_candidate": "انرژی",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "سپیدار3",
+      "brs_name": "سپیدار سیستم آسیا",
+      "best_candidate": "سپیدار",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "فولاد3",
+      "brs_name": "فولاد مبارکه اصفهان",
+      "best_candidate": "فولاد",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "کیمازی3",
+      "brs_name": "کیمیا کالای رازی",
+      "best_candidate": "کیمیا",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "سیسکو3",
+      "brs_name": "فولاد سیرجان ایرانیان",
+      "best_candidate": "فولاد",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "برکت3",
+      "brs_name": "گروه دارویی برکت",
+      "best_candidate": "برکت",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "خیمن3",
+      "brs_name": "ایمن خودرو شرق",
+      "best_candidate": "خودرو",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "قثابت3",
+      "brs_name": "قند ثابت‌ خراسان",
+      "best_candidate": "خراسان",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "قرن3",
+      "brs_name": "پدیده شیمی قرن",
+      "best_candidate": "قرن",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "بوعلی3",
+      "brs_name": "پتروشیمی بوعلی سینا",
+      "best_candidate": "بوعلی",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "هرمز3",
       "brs_name": "فولاد هرمزگان جنوب",
       "best_candidate": "فولاد",
       "best_score": 0.333
     },
     {
-      "symbol": "ثقزوی",
-      "brs_name": "شرکت عمران و سازندگی قزوین",
-      "best_candidate": "قزوین",
-      "best_score": 0.25
+      "symbol": "فسبزوار3",
+      "brs_name": "پارس فولاد سبزوار",
+      "best_candidate": "پارس",
+      "best_score": 0.333
     },
     {
-      "symbol": "آواپارس",
-      "brs_name": "بیمه اتکایی آوای پارس",
+      "symbol": "کیمیاتک3",
+      "brs_name": "آریان کیمیا تک",
+      "best_candidate": "کیمیا",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "کربن3",
+      "brs_name": "کانی کربن طبس",
+      "best_candidate": "کربن",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "سیسکو2",
+      "brs_name": "فولاد سیرجان ایرانیان",
+      "best_candidate": "فولاد",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "فولاژ3",
+      "brs_name": "فولاد آلیاژی ایران",
+      "best_candidate": "فولاد",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "پرداخت3",
+      "brs_name": "به پرداخت ملت",
+      "best_candidate": "پرداخت",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "قزوین3",
+      "brs_name": "کارخانجات‌ قند قزوین",
+      "best_candidate": "قزوین",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "آپ3",
+      "brs_name": "آسان پرداخت پرشین",
+      "best_candidate": "پرداخت",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "شدوص3",
+      "brs_name": "دوده‌ صنعتی‌ پارس",
       "best_candidate": "پارس",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "چدن3",
+      "brs_name": "تولیدی چدن سازان",
+      "best_candidate": "چدن",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "جم3",
+      "brs_name": "پتروشیمی جم",
+      "best_candidate": "جم پیلن",
+      "best_score": 0.333
+    },
+    {
+      "symbol": "فنقره",
+      "brs_name": "ذوب گران رنگین فلز",
+      "best_candidate": "ذوب",
       "best_score": 0.25
     },
     {
       "symbol": "احیا",
       "brs_name": "احیا استیل فولاد بافت",
-      "best_candidate": "فولاد",
-      "best_score": 0.25
-    },
-    {
-      "symbol": "فافق",
-      "brs_name": "صنایع مس افق کرمان",
-      "best_candidate": "افق",
-      "best_score": 0.25
-    },
-    {
-      "symbol": "فصبا",
-      "brs_name": "صبا فولاد خلیج فارس",
       "best_candidate": "فولاد",
       "best_score": 0.25
     },
@@ -426,8 +714,14 @@
       "best_score": 0.25
     },
     {
-      "symbol": "آریان",
-      "brs_name": "سرمایه گذاری پارس آریان",
+      "symbol": "فصبا",
+      "brs_name": "صبا فولاد خلیج فارس",
+      "best_candidate": "فولاد",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "ددام",
+      "brs_name": "داروسازی زاگرس فارمد پارس",
       "best_candidate": "پارس",
       "best_score": 0.25
     },
@@ -438,21 +732,63 @@
       "best_score": 0.25
     },
     {
-      "symbol": "شتوکا",
-      "brs_name": "توکا رنگ فولاد سپاهان",
-      "best_candidate": "فولاد",
-      "best_score": 0.25
-    },
-    {
       "symbol": "حشکوه",
       "brs_name": "دلیجان طلایی شکوه پارس",
       "best_candidate": "پارس",
       "best_score": 0.25
     },
     {
-      "symbol": "ددام",
-      "brs_name": "داروسازی زاگرس فارمد پارس",
+      "symbol": "یارا",
+      "brs_name": "صندوق س. آریا-د",
+      "best_candidate": "آریا",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "فافق",
+      "brs_name": "صنایع مس افق کرمان",
+      "best_candidate": "افق",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "آریان",
+      "brs_name": "سرمایه گذاری پارس آریان",
       "best_candidate": "پارس",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "شتوکا",
+      "brs_name": "توکا رنگ فولاد سپاهان",
+      "best_candidate": "فولاد",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "آردینه3",
+      "brs_name": "نشاسته و گلوکز آردینه",
+      "best_candidate": "آردینه",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "گپارس",
+      "brs_name": "امور رفاهی کارگزاران پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "آواپارس",
+      "brs_name": "بیمه اتکایی آوای پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "احیا3",
+      "brs_name": "احیا استیل فولاد بافت",
+      "best_candidate": "فولاد",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "بیوتیک3",
+      "brs_name": "آنتی بیوتیک سازی ایران",
+      "best_candidate": "بیوتیک",
       "best_score": 0.25
     },
     {
@@ -462,40 +798,82 @@
       "best_score": 0.25
     },
     {
-      "symbol": "اپال",
-      "brs_name": "فرآوری معدنی اپال کانی پارس",
-      "best_candidate": "پارس",
-      "best_score": 0.2
+      "symbol": "ارفع3",
+      "brs_name": "شرکت آهن و فولاد ارفع",
+      "best_candidate": "ارفع",
+      "best_score": 0.25
     },
     {
-      "symbol": "بمیلا",
-      "brs_name": "توسعه سرمایه گذاری میلاد پارس",
-      "best_candidate": "پارس",
-      "best_score": 0.2
+      "symbol": "ثقزوی",
+      "brs_name": "شرکت عمران و سازندگی قزوین",
+      "best_candidate": "قزوین",
+      "best_score": 0.25
     },
     {
-      "symbol": "آینده",
-      "brs_name": "بازرگانی آینده سازان بهشت پارس",
-      "best_candidate": "پارس",
-      "best_score": 0.2
+      "symbol": "سرچشمه3",
+      "brs_name": "سرمایه گذاری مس سرچشمه",
+      "best_candidate": "سرچشمه",
+      "best_score": 0.25
     },
     {
-      "symbol": "رونق",
-      "brs_name": "صندوق س.رونق کسرا-سهام",
-      "best_candidate": "کسرا",
-      "best_score": 0.2
+      "symbol": "مبین3",
+      "brs_name": "مبین انرژی خلیج فارس",
+      "best_candidate": "انرژی",
+      "best_score": 0.25
     },
     {
-      "symbol": "فغدیر",
-      "brs_name": "آهن و فولاد غدیر ایرانیان",
+      "symbol": "بفجر3",
+      "brs_name": "فجر انرژی خلیج فارس",
+      "best_candidate": "انرژی",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "فصبا3",
+      "brs_name": "صبا فولاد خلیج فارس",
       "best_candidate": "فولاد",
-      "best_score": 0.2
+      "best_score": 0.25
     },
     {
-      "symbol": "ثزاگرس",
-      "brs_name": "سرمایه گذاری توسعه عمران زاگرس",
-      "best_candidate": "زاگرس",
-      "best_score": 0.2
+      "symbol": "عالیس3",
+      "brs_name": "بهار رز عالیس چناران",
+      "best_candidate": "عالیس",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "شپارس3",
+      "brs_name": "بین‌ المللی‌ محصولات‌  پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "چخزر3",
+      "brs_name": "صنایع چوب خزر کاسپین",
+      "best_candidate": "کاسپین",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "وتوشه3",
+      "brs_name": "سرمایه‌ گذاری‌ پارس‌ توشه",
+      "best_candidate": "پارس",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "ددام3",
+      "brs_name": "داروسازی زاگرس فارمد پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "آریان2",
+      "brs_name": "سرمایه گذاری پارس آریان",
+      "best_candidate": "پارس",
+      "best_score": 0.25
+    },
+    {
+      "symbol": "کفرا3",
+      "brs_name": "فراورده‌ های‌ نسوزایران",
+      "best_candidate": "های وب",
+      "best_score": 0.25
     },
     {
       "symbol": "جواهر",
@@ -507,24 +885,6 @@
       "symbol": "کویر",
       "brs_name": "تولیدی فولاد سپید فراب کویر",
       "best_candidate": "فولاد",
-      "best_score": 0.2
-    },
-    {
-      "symbol": "نخریس",
-      "brs_name": "نخریسی و نساجی خسروی خراسان",
-      "best_candidate": "خراسان",
-      "best_score": 0.2
-    },
-    {
-      "symbol": "لازما",
-      "brs_name": "کارخانه های صنعتی آزمایش",
-      "best_candidate": "های وب",
-      "best_score": 0.2
-    },
-    {
-      "symbol": "معیار",
-      "brs_name": "سرمایه گذاری معیار صنعت پارس",
-      "best_candidate": "پارس",
       "best_score": 0.2
     },
     {
@@ -540,9 +900,57 @@
       "best_score": 0.2
     },
     {
+      "symbol": "غبهار",
+      "brs_name": "کشت وصنعت بهاران گلبهار خراسان",
+      "best_candidate": "خراسان",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "بمیلا",
+      "brs_name": "توسعه سرمایه گذاری میلاد پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.2
+    },
+    {
       "symbol": "سولار",
       "brs_name": "صندوق راهبرد انرژی فردا-پروژه",
       "best_candidate": "انرژی",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "نخریس",
+      "brs_name": "نخریسی و نساجی خسروی خراسان",
+      "best_candidate": "خراسان",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "شیلد",
+      "brs_name": "صندوق س مشترک پارس-مختلط",
+      "best_candidate": "پارس",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "اپال",
+      "brs_name": "فرآوری معدنی اپال کانی پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "لازما",
+      "brs_name": "کارخانه های صنعتی آزمایش",
+      "best_candidate": "های وب",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "معیار",
+      "brs_name": "سرمایه گذاری معیار صنعت پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "سپیدما",
+      "brs_name": "صندوق س. سپید دماوند-د",
+      "best_candidate": "سپید",
       "best_score": 0.2
     },
     {
@@ -552,27 +960,105 @@
       "best_score": 0.2
     },
     {
-      "symbol": "غبهار",
-      "brs_name": "کشت وصنعت بهاران گلبهار خراسان",
+      "symbol": "فغدیر",
+      "brs_name": "آهن و فولاد غدیر ایرانیان",
+      "best_candidate": "فولاد",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "ثزاگرس",
+      "brs_name": "سرمایه گذاری توسعه عمران زاگرس",
+      "best_candidate": "زاگرس",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "آینده",
+      "brs_name": "بازرگانی آینده سازان بهشت پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "رونق",
+      "brs_name": "صندوق س.رونق کسرا-سهام",
+      "best_candidate": "کسرا",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "آبنوس",
+      "brs_name": "صندوق س.سهامی سهام نگر کیمیا-س",
+      "best_candidate": "کیمیا",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "اسیاتک3",
+      "brs_name": "انتقال داده های آسیاتک",
+      "best_candidate": "های وب",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "بیوتیکح",
+      "brs_name": "ح .آنتی بیوتیک سازی ایران",
+      "best_candidate": "بیوتیک",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "سپیدما2",
+      "brs_name": "صندوق س. سپید دماوند-د",
+      "best_candidate": "سپید",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "شمس3",
+      "brs_name": "تولید انرژی برق شمس پاسارگاد",
+      "best_candidate": "انرژی",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "جواهر2",
+      "brs_name": "صندوق س.کالای دنای زاگرس",
+      "best_candidate": "زاگرس",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "افق3",
+      "brs_name": "فروشگاههای زنجیره ای افق کوروش",
+      "best_candidate": "افق",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "زفجر3",
+      "brs_name": "کشاورزی و دامپروری فجر اصفهان",
+      "best_candidate": "فجر",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "نخریس3",
+      "brs_name": "نخریسی و نساجی خسروی خراسان",
       "best_candidate": "خراسان",
       "best_score": 0.2
     },
     {
-      "symbol": "بلوط",
-      "brs_name": "صندوق س شکوه بامداد زاگرس-ثابت",
-      "best_candidate": "زاگرس",
-      "best_score": 0.167
-    },
-    {
-      "symbol": "غدانه",
-      "brs_name": "پنبه و دانه های روغنی خراسان",
-      "best_candidate": "خراسان",
-      "best_score": 0.167
-    },
-    {
-      "symbol": "افق ملت",
-      "brs_name": "صندوق س در سهام افق ملت",
+      "symbol": "افق2",
+      "brs_name": "فروشگاههای زنجیره ای افق کوروش",
       "best_candidate": "افق",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "اپال3",
+      "brs_name": "فرآوری معدنی اپال کانی پارس",
+      "best_candidate": "پارس",
+      "best_score": 0.2
+    },
+    {
+      "symbol": "رابین",
+      "brs_name": "صندوق س. توسعه افق رابین-د",
+      "best_candidate": "افق",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "اونیکس",
+      "brs_name": "ص.س.درآمد ثابت کیمیا-د",
+      "best_candidate": "کیمیا",
       "best_score": 0.167
     },
     {
@@ -582,8 +1068,20 @@
       "best_score": 0.167
     },
     {
-      "symbol": "اونیکس",
-      "brs_name": "ص.س.درآمد ثابت کیمیا-د",
+      "symbol": "غدانه",
+      "brs_name": "پنبه و دانه های روغنی خراسان",
+      "best_candidate": "خراسان",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "فردا",
+      "brs_name": "صندوق س آوای فردای زاگرس-ثابت",
+      "best_candidate": "زاگرس",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "آذرین",
+      "brs_name": "صندوق س.بخشی فلزات کیمیا-ب",
       "best_candidate": "کیمیا",
       "best_score": 0.167
     },
@@ -594,15 +1092,87 @@
       "best_score": 0.167
     },
     {
-      "symbol": "رابین",
+      "symbol": "افق ملت",
+      "brs_name": "صندوق س در سهام افق ملت",
+      "best_candidate": "افق",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "بلوط",
+      "brs_name": "صندوق س شکوه بامداد زاگرس-ثابت",
+      "best_candidate": "زاگرس",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "نارین",
+      "brs_name": "صندوق س ارزش آفرین فولاد-سهام",
+      "best_candidate": "فولاد",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "پتروما",
+      "brs_name": "ص.س.بخشی افق دماوند1-ب",
+      "best_candidate": "افق",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "تاراز",
+      "brs_name": "صندوق س آوای تاراز زاگرس-سهام",
+      "best_candidate": "زاگرس",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "سها",
+      "brs_name": "صندوق س مشترک مبین سرمایه-سهام",
+      "best_candidate": "مبین",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "چاپ3",
+      "brs_name": "ص.چاپ وبسته بندی آسان قزوین",
+      "best_candidate": "قزوین",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "غانیزان3",
+      "brs_name": "فرآورده های دامی ولبنی دالاهو",
+      "best_candidate": "های وب",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "غشهداب3",
+      "brs_name": "کشت و صنعت شهداب ناب خراسان",
+      "best_candidate": "خراسان",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "بلوط2",
+      "brs_name": "صندوق س شکوه بامداد زاگرس-ثابت",
+      "best_candidate": "زاگرس",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "شوینده3",
+      "brs_name": "مدیریت صنعت شوینده ت.ص.بهشهر",
+      "best_candidate": "شوینده",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "رابین2",
       "brs_name": "صندوق س. توسعه افق رابین-د",
       "best_candidate": "افق",
       "best_score": 0.167
     },
     {
-      "symbol": "فردا",
-      "brs_name": "صندوق س آوای فردای زاگرس-ثابت",
+      "symbol": "تاراز2",
+      "brs_name": "صندوق س آوای تاراز زاگرس-سهام",
       "best_candidate": "زاگرس",
+      "best_score": 0.167
+    },
+    {
+      "symbol": "زپارس3",
+      "brs_name": "ملی کشت و صنعت و دامپروری پارس",
+      "best_candidate": "پارس",
       "best_score": 0.167
     },
     {
@@ -618,368 +1188,20 @@
       "best_score": 0.143
     },
     {
-      "symbol": "وسپهر",
-      "brs_name": "گروه سرمایه گذاری سپهر صادرات",
+      "symbol": "تابان",
+      "brs_name": "گروه پتروشیمی تابان فردا",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "چتر",
-      "brs_name": "صندوق س.بخشی گستره فیروزه2-ب",
+      "symbol": "عیار",
+      "brs_name": "صندوق طلای عیار مفید",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "شصدف",
-      "brs_name": "صنعتی دوده فام",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "فسا",
-      "brs_name": "پتروشیمی فسا",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "الکتروماد",
-      "brs_name": "صنایع الکترونیک مادیران",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "لپیام",
-      "brs_name": "گسترش صنایع پیام",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ثنام",
-      "brs_name": "س ساختمانی ب نام آوران مهندسی",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "شگامرن",
-      "brs_name": "مجتمع پترو صنعت گامرون",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "تجلی",
-      "brs_name": "تجلی توسعه معادن و فلزات",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وآذر",
-      "brs_name": "سرمایه‌گذاری‌توسعه‌آذربایجان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "تکپاد",
-      "brs_name": "صندوق س. مشترک آریان-س",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "پتروداریوش",
-      "brs_name": "صندوق س. بخشی داریوش1-ب",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وفیروزه",
-      "brs_name": "گروه توسعه مالی فیروزه",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "غدشت",
-      "brs_name": "دشت‌ مرغاب",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وتوصا",
-      "brs_name": "گروه س توسعه صنعتی ایران",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "قنقش",
-      "brs_name": "قند نقش جهان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وایران",
-      "brs_name": "لیزینگ ایرانیان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "شستان",
-      "brs_name": "پتروشیمی شهید رئیسی گلستان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "شاروم",
-      "brs_name": "پتروشیمی ارومیه",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "کیا",
-      "brs_name": "کیا الکترود شرق",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "کدما",
-      "brs_name": "معدنی‌ دماوند",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "تکنو",
-      "brs_name": "تکنوتار",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "افران",
-      "brs_name": "صندوق س افرا نماد پایدار-ثابت",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ثمسکن",
-      "brs_name": "سرمایه‌گذاری‌ مسکن",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وطوبی",
-      "brs_name": "سرمایه گذاری اقتصاد شهر طوبی",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "تراست",
-      "brs_name": "صندوق س صنایع پیشرفت صبا1-بخشی",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "رشدی کیان",
-      "brs_name": "صندوق س آوای سهام کیان-سهام",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "مفاخر",
-      "brs_name": "توسعه فناوری اطلاعات خوارزمی",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "قیستو",
-      "brs_name": "شرکت قند بیستون",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "بزندگی",
-      "brs_name": "بیمه زندگی آگاه",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "غزر",
-      "brs_name": "صنعتی زر ماکارون",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وامین",
-      "brs_name": "سرمایه گذاری امین مهرگان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "دلر",
-      "brs_name": "داروسازی‌ اکسیر",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "سخاش",
-      "brs_name": "سیمان‌خاش",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "زماهان",
-      "brs_name": "مجتمع تولید گوشت مرغ ماهان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ثپهران",
-      "brs_name": "توسعه ساختمان سپهر تهران",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ساراب",
-      "brs_name": "سیمان‌ داراب",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "نفیس",
-      "brs_name": "صندوق س.کالای صبا",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "حپرتو",
-      "brs_name": "پرتو بار فرابر خلیج فارس",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "بانکپاد",
-      "brs_name": "صندوق س صنایع پاسارگاد1-بخشی",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وحافظ",
-      "brs_name": "بیمه حافظ",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "داوه",
-      "brs_name": "داروسازی آوه سینا",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "بخاور",
-      "brs_name": "بیمه زندگی خاورمیانه",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وتعاون",
-      "brs_name": "بیمه تعاون",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ولنوین",
-      "brs_name": "لیزینگ اقتصاد نوین",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ثشرق",
-      "brs_name": "سرمایه گذاری مسکن شمال شرق",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "شجم",
-      "brs_name": "صنایع پتروشیمی تخت جمشید",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "پتوسعه",
-      "brs_name": "س. و توسعه صنایع لاستیک",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "قیراط",
-      "brs_name": "صندوق س.کالای درفش دماوند",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "اتوآگاه",
-      "brs_name": "صندوق س صنایع آگاه2-بخشی",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "لیان",
-      "brs_name": "صندوق س.کالای دیبای معیار",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ریشمک",
-      "brs_name": "تولید و صادرات ریشمک",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ومعلم",
-      "brs_name": "بیمه معلم",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "رپویا",
-      "brs_name": "پویا",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "آرامش",
-      "brs_name": "صندوق سرمایه گذاری آرامش-ثابت",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "زریران",
-      "brs_name": "صندوق س. کالای داریوش",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وپخش",
-      "brs_name": "داروپخش‌ (هلدینگ",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "لذیذ",
-      "brs_name": "صندوق س صنایع سینا1-بخشی",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ورنا",
-      "brs_name": "سرمایه‌گذاری‌ رنا(هلدینگ",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "خمحور",
-      "brs_name": "تولیدمحورخودرو",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ممسنی",
-      "brs_name": "پتروشیمی ممسنی",
+      "symbol": "اهرم",
+      "brs_name": "صندوق س سهامی کاریزما- اهرمی",
       "best_candidate": "",
       "best_score": 0.0
     },
@@ -990,74 +1212,62 @@
       "best_score": 0.0
     },
     {
-      "symbol": "کارآمد",
-      "brs_name": "صندوق س.درآمد ثابت کارآمد-د",
+      "symbol": "منجیل",
+      "brs_name": "تولید نیروی برق سبز منجیل",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "نبات",
-      "brs_name": "صندوق س. بخشی صنایع دانایان1-ب",
+      "symbol": "طلا",
+      "brs_name": "صندوق س. کالای پارسیان",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "سیلوا",
-      "brs_name": "صندوق س.کالای پاداش1",
+      "symbol": "زرگر",
+      "brs_name": "صندوق س.کالای کارآمد",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "یوتیلیتی",
-      "brs_name": "صندوق س. بخشی کیان2-ب",
+      "symbol": "دوایکس",
+      "brs_name": "ص.س.اهرمی شاخصی کیان-س",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "بنکوداریوش",
-      "brs_name": "صندوق س.بخشی داریوش3-ب",
+      "symbol": "توان",
+      "brs_name": "صندوق س. اهرمی توان مفید-س",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "نقرابی",
-      "brs_name": "صندوق س.کالای کهکشان فیروزه1",
+      "symbol": "گنج",
+      "brs_name": "صندوق س. سیمای کاردان",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "بالاس",
-      "brs_name": "مهندسی ساختمان تاسیسات راه آهن",
+      "symbol": "ومعادن",
+      "brs_name": "توسعه‌معادن‌وفلزات",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "تابش",
-      "brs_name": "صندوق س.کالای تابان تمدن",
+      "symbol": "خگستر",
+      "brs_name": "گسترش‌سرمایه‌گذاری‌ایران‌خودرو",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "شهر",
-      "brs_name": "گروه مالی شهر",
+      "symbol": "فارس",
+      "brs_name": "صنایع پتروشیمی خلیج فارس",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "زفارس",
-      "brs_name": "کشت وصنعت و دامپروری پگاه فارس",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "هوشیار",
-      "brs_name": "صندوق س.هوش تصمیم -س",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "پارسیان",
-      "brs_name": "بیمه پارسیان",
+      "symbol": "کهربا",
+      "brs_name": "صندوق س. کالای کهربا",
       "best_candidate": "",
       "best_score": 0.0
     },
@@ -1068,242 +1278,80 @@
       "best_score": 0.0
     },
     {
-      "symbol": "درپاد",
-      "brs_name": "گروه صنعتی درپاد تبریز",
+      "symbol": "افران",
+      "brs_name": "صندوق س افرا نماد پایدار-ثابت",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "وملت",
-      "brs_name": "سرمایه گذاری ملت",
+      "symbol": "موج",
+      "brs_name": "ص.س.اهرمی موج فیروزه-س",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "آس",
-      "brs_name": "صندوق س. گنجینه ارمغان الماس-س",
+      "symbol": "آوند",
+      "brs_name": "صندوق س. آوند مفید-د",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "سیگلو",
-      "brs_name": "صندوق س.کالای آشنای1",
+      "symbol": "سمهریز",
+      "brs_name": "صنعتی معدنی سیمان تجارت مهریز",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "گدنا",
-      "brs_name": "تهیه توزیع غذای دنا آفرین فدک",
+      "symbol": "نارنج اهرم",
+      "brs_name": "ص.س. اهرمی نارنج-س",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "سیتا",
-      "brs_name": "سرمایه گذاری سیمان تامین",
+      "symbol": "سینرژی",
+      "brs_name": "ص.س. مبتنی بر کالای فارابی",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "انتخاب",
-      "brs_name": "گروه انتخاب الکترونیک آرمان",
+      "symbol": "لبخند",
+      "brs_name": "صندوق س. لبخند فارابی-د",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "ناما",
-      "brs_name": "تولیدی مخازن گازطبیعی آسیاناما",
+      "symbol": "دارا یکم",
+      "brs_name": "صندوق واسطه گری مالی یکم-سهام",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "ماهور",
-      "brs_name": "صندوق سرمایه گذاری ماهور-ثابت",
+      "symbol": "خساپا",
+      "brs_name": "سایپا",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "آلکان",
-      "brs_name": "صندوق راهبرصنایع مهرگان1-بخشی",
+      "symbol": "پاسارگاد",
+      "brs_name": "صندوق س.درآمد ثابت پاسارگاد-د",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "پتروپاداش",
-      "brs_name": "صندوق س.بخشی صنایع پاداش1-ب",
+      "symbol": "نقرابی",
+      "brs_name": "صندوق س.کالای کهکشان فیروزه1",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "فیروزا",
-      "brs_name": "صندوق ارمغان فیروزه آسیا-ثابت",
+      "symbol": "غزنجان",
+      "brs_name": "شیر پاستوریزه پگاه زنجان",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "قاروم",
-      "brs_name": "قند ارومیه",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "نبروج",
-      "brs_name": "نساجی بروجرد",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "کوچین",
-      "brs_name": "تولیدی کوچین",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "تملت",
-      "brs_name": "تامین سرمایه بانک ملت",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وسکاب",
-      "brs_name": "س.ص.بازنشستگی کارکنان بانکها",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "شفام",
-      "brs_name": "تولیدی و صنعتی گوهرفام",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "اطلس",
-      "brs_name": "صندوق س.توسعه اطلس مفید-س",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وپسا",
-      "brs_name": "گ.س.پتروشیمی ساختمان خلیج فارس",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "چاشنی",
-      "brs_name": "صندوق س صنایع ویستا2-بخشی",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وبیمه",
-      "brs_name": "سرمایه‌ گذاری‌ صنعت‌ بیمه",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "داترا",
-      "brs_name": "آترا زیست آرای",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "خریختح",
-      "brs_name": "ح . صنایع‌ریخته‌گری‌ایران",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "زنجان",
-      "brs_name": "صنایع کشاورزی وکود زنجان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "گوهر",
-      "brs_name": "صندوق س.کالای کیان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "مدیریت",
-      "brs_name": "س. و خدمات مدیریت صند. ب کشوری",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "نقرین",
-      "brs_name": "صندوق س.کالای نوویرا1",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ارکیده",
-      "brs_name": "صندوق سرمایه گذاری ارکیده-ثابت",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ولتاژ",
-      "brs_name": "صندوق س. بخشی صنایع گندم1-ب",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "خریخت",
-      "brs_name": "صنایع‌ریخته‌گری‌ایران",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وحکمت",
-      "brs_name": "بیمه حکمت صبا",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "فلزا",
-      "brs_name": "صندوق س.بخشی صنایع پاداش2-ب",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "فسازان",
-      "brs_name": "غلتک سازان سپاهان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "نهال",
-      "brs_name": "صندوق س.کالای نوویرا",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "دفینه",
-      "brs_name": "صندوق س.کالای سینا",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "قتربت",
-      "brs_name": "قند تربت حیدریه",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ملت",
-      "brs_name": "بیمه ملت",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "فراز",
-      "brs_name": "صندوق س.سهام فراز داریک-س",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "وبشهر",
-      "brs_name": "توسعه‌ صنایع‌ بهشهر(هلدینگ",
+      "symbol": "آکو",
+      "brs_name": "آکو باتری ایرانیان",
       "best_candidate": "",
       "best_score": 0.0
     },
@@ -1314,104 +1362,56 @@
       "best_score": 0.0
     },
     {
-      "symbol": "آرام",
-      "brs_name": "صندوق س شاخصی آرام مفید",
+      "symbol": "بیدار",
+      "brs_name": "صندوق س سهامی بیدار-اهرمی",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "سمتاز",
-      "brs_name": "سیمان ممتازان کرمان",
+      "symbol": "تاپیکو",
+      "brs_name": "س. نفت و گاز و پتروشیمی تأمین",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "غگلپا",
-      "brs_name": "شیر پاستوریزه پگاه گلپایگان",
+      "symbol": "صنهال",
+      "brs_name": "صندوق س. نهال ایرانیان-ثابت",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "قهکمت",
-      "brs_name": "قندهکمتان",
+      "symbol": "شتاب",
+      "brs_name": "صندوق س سهامی شتاب آگاه-اهرمی",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "سیلام",
-      "brs_name": "سیمان‌ ایلام",
+      "symbol": "کیان",
+      "brs_name": "صندوق س. با درآمد ثابت کیان",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "آوان",
-      "brs_name": "صندوق س.آوان ژرف آگاه-س",
+      "symbol": "خگلپا",
+      "brs_name": "فنرسازی زر گلپایگان",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "زملارد",
-      "brs_name": "کشاورزی و دامپروری ملارد شیر",
+      "symbol": "پالایش",
+      "brs_name": "صندوق پالایشی یکم-بخشی",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "خلنت",
-      "brs_name": "لنت‌ ترمزایران",
+      "symbol": "رز ترنج",
+      "brs_name": "صندوق س.کالای ترنج",
       "best_candidate": "",
       "best_score": 0.0
     },
     {
-      "symbol": "پردیس",
-      "brs_name": "سرمایه گذاری پردیس",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "رویش",
-      "brs_name": "ص.س.جسورانه رویش لوتوس",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ثمر",
-      "brs_name": "صندوق س ثمرگندم-ثابت",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "نفتوداریوش",
-      "brs_name": "صندوق س.بخشی داریوش4-ب",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "همای",
-      "brs_name": "صندوق س همای آگاه-ثابت",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "سفارس",
-      "brs_name": "سیمان فارس و خوزستان",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "ثعمرا",
-      "brs_name": "عمران و توسعه شاهد",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "یاس",
-      "brs_name": "صندوق س.کالای ترنج1",
-      "best_candidate": "",
-      "best_score": 0.0
-    },
-    {
-      "symbol": "سبزآبنوس",
-      "brs_name": "صندوق س مسیرسبزآبنوس-سهام",
+      "symbol": "فیروزا",
+      "brs_name": "صندوق ارمغان فیروزه آسیا-ثابت",
       "best_candidate": "",
       "best_score": 0.0
     }

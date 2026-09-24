@@ -633,3 +633,79 @@ export const deleteFamilyCashFlow = (id: number) =>
 
 export const getFamilyHistory = () =>
   familyFetch<FamilyHistoryRow[]>("/history");
+
+// ----------------------------- Quick Codal Sync -----------------------------
+// جمع‌آوری سریع: فقط گزارش‌های جدید کدال برای نمادهای tracked.
+
+export type SyncCodalMode = "all" | "financial" | "monthly";
+
+export interface SyncCodalFeedSummary {
+  letter_type: number;
+  pages: number;
+  scanned: number;
+  skipped_unknown_ticker: number;
+  skipped_unsupported_type: number;
+  skipped_missing_metadata: number;
+  already: number;
+  new: number;
+  fetched: number;
+  processed: number;
+  completed: number;
+  failed: number;
+  unsupported: number;
+  errors: { report_id: string; error: string | null }[];
+}
+
+export interface SyncCodalTotal {
+  scanned: number;
+  skipped_unknown_ticker: number;
+  skipped_unsupported_type: number;
+  skipped_missing_metadata: number;
+  already: number;
+  new: number;
+  fetched: number;
+  completed: number;
+  failed: number;
+  unsupported: number;
+}
+
+export interface SyncCodalSummary {
+  success: boolean;
+  dry_run: boolean;
+  financial?: SyncCodalFeedSummary;
+  monthly?: SyncCodalFeedSummary;
+  total: SyncCodalTotal;
+  error?: string;
+  output?: string;
+}
+
+export interface SyncCodalPayload {
+  mode?: SyncCodalMode;
+  dry_run?: boolean;
+  max_pages?: number;
+  limit?: number;
+}
+
+export async function syncCodal(
+  payload: SyncCodalPayload = {}
+): Promise<SyncCodalSummary> {
+  const res = await fetch(`${API_BASE}/sync-codal`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({
+      mode: payload.mode ?? "all",
+      dry_run: payload.dry_run ?? false,
+      ...(payload.max_pages ? { max_pages: payload.max_pages } : {}),
+      ...(payload.limit ? { limit: payload.limit } : {}),
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(
+      err?.error || err?.output || `Quick sync failed: ${res.status}`
+    );
+  }
+
+  return res.json();
+}

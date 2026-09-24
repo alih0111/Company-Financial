@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 import NavigationButton from "./NavigationButton";
+import QuickSyncModal from "./QuickSyncModal";
 import { addViewedItem, collectBrsPrices, fetchFullPE } from "../utils/api";
 
 interface SidebarProps {
@@ -43,6 +44,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [loadingBrsBackfill, setLoadingBrsBackfill] = useState(false);
   const [loadingBrsSync, setLoadingBrsSync] = useState(false);
   const [brsMsg, setBrsMsg] = useState<string | null>(null);
+  const [quickSyncOpen, setQuickSyncOpen] = useState(false);
+  const [quickSyncing, setQuickSyncing] = useState(false);
   const navigate = useNavigate();
 
   const fullPE = async () => {
@@ -233,6 +236,20 @@ const Sidebar: React.FC<SidebarProps> = ({
                 {runningScripts.stockPrices ? "Running..." : "Gathering Prices"}
               </button>
 
+              <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
+                <button
+                  onClick={() => setQuickSyncOpen(true)}
+                  disabled={quickSyncing}
+                  className={`w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200 ${
+                    quickSyncing
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                  }`}
+                >
+                  {quickSyncing ? "در حال بررسی..." : "⚡ جمع‌آوری سریع"}
+                </button>
+              </div>
+
               <button
                 onClick={() => openModalForScript("full")}
                 disabled={runningScripts.full}
@@ -360,6 +377,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
       </div>
+
+      <QuickSyncModal
+        visible={quickSyncOpen}
+        onClose={() => setQuickSyncOpen(false)}
+        onRunningChange={setQuickSyncing}
+      />
     </aside>
   );
 };
