@@ -1,0 +1,48 @@
+dependency_id,layer,file,symbol,route,operation,tables,classification,selected_phase1,notes
+GO-001,go,go-app/config/db.go,init/GetDB,-,connection,bootstrap,sqlserver;codal,LEGACY_READ,no,SQL Server connection string from DB_* env; unchanged
+GO-002,go,go-app/handlers/auth.go,Login,POST /api/login,read+write,Users,LEGACY_WRITE,no,Auth writes; out of scope
+GO-003,go,go-app/handlers/auth.go,Register,POST /api/register,write,Users,LEGACY_WRITE,no,Auth writes; out of scope
+GO-004,go,go-app/handlers/auth.go,SendVerificationCode,POST /api/register/send-code,none,-,OUT_OF_SCOPE,no,Email only
+GO-005,go,go-app/handlers/userViewed.go,AddViewedItem,POST /api/users/get-items,read+write,Users,LEGACY_WRITE,no,User mutation; out of scope
+GO-006,go,go-app/handlers/sales_data.go,GetSalesData,GET /api/SalesData,read,miandore2,CANONICAL_READ_CANDIDATE,yes,SELECTED Phase 2: fundamentals.financial_facts mapped metrics; Product1/2/3 legacy heuristics not mapped
+GO-008,go,go-app/handlers/sales_data.go,GetCompanyNames,GET /api/CompanyNames,read,miandore2,CANONICAL_READ_CANDIDATE,yes,SELECTED: canonical core.companies identity
+GO-009,go,go-app/handlers/sales_data.go,GetURL,POST /api/GetUrl,read,miandore2,CANONICAL_READ_CANDIDATE,no,Report source_url; Phase 2
+GO-010,go,go-app/handlers/sales_data2.go,GetSalesData2,GET /api/SalesData2,read,mahane,CANONICAL_READ_CANDIDATE,yes,SELECTED Phase 2: fundamentals.monthly_activities
+GO-011,go,go-app/handlers/sales_data2.go,GetURL2,POST /api/GetUrl2,read,mahane,CANONICAL_READ_CANDIDATE,no,Report source_url
+GO-012,go,go-app/handlers/score_handler.go,GetCompanyScores,GET /api/AllCompanyScores,read+compute,mahane;miandore2;FullPE,NOT_READY_FOR_MIGRATION,no,Legacy in-Go scoring with legacy heuristics
+GO-013,go,go-app/handlers/company_score.go,GetCompanyScores2,GET /api/CompanyScores,read+compute,mahane;miandore2;FullPE,NOT_READY_FOR_MIGRATION,no,Legacy in-Go scoring
+GO-014,go,go-app/handlers/stock_analysis.go,StockPriceScore,GET /api/StockPriceScore,read,StockData,NOT_READY_FOR_MIGRATION,no,StockData not migrated to canonical
+GO-015,go,go-app/handlers/price_history.go,GetPriceHistory,GET /api/price-history,read,MarketPriceHistory,CANONICAL_READ_CANDIDATE,yes,SELECTED: canonical market.daily_prices
+GO-016,go,go-app/handlers/export.go,ExportScoresCSV,GET /api/export/scores,read,vw_AIStockMetrics,CANONICAL_READ_CANDIDATE,no,Analytics consumption; Phase 2
+GO-017,go,go-app/handlers/ai_stock_handler.go,GetAIStockSummary,GET /api/summary,read,vw_AIStockMetrics,CANONICAL_READ_CANDIDATE,yes,SELECTED: canonical-v1 company_scores
+GO-018,go,go-app/handlers/ai_stock_handler.go,GetAIStockDetail,GET /api/detail,read,vw_AIStockMetrics;mahane;miandore2;MarketPriceHistory,NOT_READY_FOR_MIGRATION,no,Route lacks :companyID param; effectively broken
+GO-019,go,go-app/handlers/ai_stock_handler.go,AnalyzeTopStocksWithAI,POST /api/analyze,read+external,vw_AIStockMetrics,NOT_READY_FOR_MIGRATION,no,External AI call + analytics
+GO-020,go,go-app/handlers/portfolio.go,GetPortfolio/Upsert/Delete,GET|POST|DELETE /api/portfolio,read+write,Users.Portfolio;vw_AIStockMetrics,LEGACY_WRITE,no,Portfolio accounting writes; out of scope
+GO-021,go,go-app/handlers/family_assets.go,all family handlers,GET|POST|PUT|DELETE /api/family/*,read+write+DDL,Family* ,LEGACY_WRITE,no,Family ledger writes; out of scope
+GO-022,go,go-app/handlers/run_script.go,RunScript,POST /api/run-script,exec python,miandore2,OUT_OF_SCOPE,no,Ingestion trigger (Phase 3)
+GO-023,go,go-app/handlers/run_script2.go,RunScript2,POST /api/run-script2,exec python,mahane,OUT_OF_SCOPE,no,Ingestion trigger (Phase 3)
+GO-024,go,go-app/handlers/full_run_scripts.go,BulkFetch,POST /api/fetchAllData,exec python,miandore2;mahane,OUT_OF_SCOPE,no,Bulk ingestion
+GO-025,go,go-app/handlers/run_script_pe.go,RunScriptPE,GET /api/FetchFullPE,exec python,FullPE,OUT_OF_SCOPE,no,FullPE ingestion
+GO-026,go,go-app/handlers/brs_prices.go,RunBrsCollector,POST /api/brs/collect,exec python,MarketPriceHistory;Family*,OUT_OF_SCOPE,no,BRS price ingestion
+GO-027,go,go-app/handlers/sync_codal.go,RunSyncCodal,POST /api/sync-codal,exec python,CodalReports;miandore2;mahane,OUT_OF_SCOPE,no,Codal ingestion
+GO-028,go,go-app/integration/*,-,GET /api/health/shadow,read,pgx;canonical,LEGACY_READ,no,NEW: canonical PG connection + shadow comparator
+GO-029,go,go-app/integration/canonical.go,MonthlyActivitiesByLegacyCompanyID,-,shadow read,fundamentals.monthly_activities,CANONICAL_READ_CANDIDATE,yes,NEW Phase 2: monthly activities by legacy CompanyID
+GO-030,go,go-app/integration/canonical.go,FinancialMetricsByLegacyCompanyID,-,shadow read,fundamentals.financial_facts;financial_statements;ingestion.reports,CANONICAL_READ_CANDIDATE,yes,NEW Phase 2: income-statement metrics pivoted per Jalali period
+GO-031,go,go-app/integration/canonical.go,PriceHistory,-,shadow read,market.price_observations,CANONICAL_READ_CANDIDATE,yes,Phase 2 optimized: resolve security once + direct observations (no view expansion)
+PY-001,py,go-app/py/MianSql.py,main_scraper,-,read+write,miandore2,LEGACY_WRITE,no,Financial statement scraper; untouched
+PY-002,py,go-app/py/MianSql2.py,main_scraper2,-,read+write,mahane,LEGACY_WRITE,no,Monthly scraper; untouched
+PY-003,py,go-app/py/brs_prices.py,-,-,read+write,MarketPriceHistory,LEGACY_WRITE,no,Price collector; untouched
+PY-004,py,go-app/py/scraperFullPE.py,-,-,read+write,FullPE;miandore2,LEGACY_WRITE,no,PE scraper; untouched
+PY-005,py,go-app/py/sync_codal.py,-,POST /api/sync-codal (invoked),read+write,CodalReports;CodalSyncState;TrackedTickers,LEGACY_WRITE,no,Discovery/sync orchestrator
+PY-006,py,go-app/py/codal_*.py,-,-,read+write,CodalReports;CodalSyncState;TrackedTickers,LEGACY_WRITE,no,Codal registry/universe modules
+PY-007,py,go-app/py/codal_processor.py,-,-,read+write,miandore2;mahane,LEGACY_WRITE,no,Parser dispatch
+PY-008,py,go-app/py/price.py,-,-,read+write,MarketPriceHistory,LEGACY_WRITE,no,Superseded price collector; not Go-invoked
+PY-009,py,go-app/py/family_import.py,-,-,read+write,Family*,LEGACY_WRITE,no,One-off Excel import
+PY-010,py,go-app/py/backfill_history.py,_backfill_v32.py,-,-,read+write,miandore2,LEGACY_WRITE,no,Manual backfill
+PY-011,py,go-app/py/backtest*.py,-,-,read,-,miandore2;mahane;MarketPriceHistory,LEGACY_READ,no,Legacy analytics consumer; file outputs
+PY-012,py,go-app/py/_apply_view.py,-,-,DDL+read,vw_AIStockMetrics,LEGACY_WRITE,no,Applies view SQL; not Go-invoked
+PY-013,py,go-app/py/tests/*,-,-,none,-,OUT_OF_SCOPE,no,Existing unittest tests
+PY-014,py,go-app/py2/src/codal_ingestor/db.py/models.py/repository.py,-,-,read+write,PG: companies;reports;report_versions;monthly_activities;financial_facts,OUT_OF_SCOPE,no,Separate PG ingestion stack; not Go-integrated
+PY-015,py,go-app/py2/scraper.py,scraper2.py,-,-,read+write,PG: see PY-014,OUT_OF_SCOPE,no,Go-compatible wrappers; not currently invoked by Go
+PY-016,py,go-app/py2/tests/test_domain.py,-,-,none,-,OUT_OF_SCOPE,no,Pure domain tests
+PY-017,py,go-app/Stock/python-scripts/import_facts.py,-,-,read+write,FinancialFacts;FinancialReports;Companies,LEGACY_WRITE,no,Separate Stock subtree; not main app

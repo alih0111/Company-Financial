@@ -1,0 +1,68 @@
+{
+  "generated_at": "2026-09-25T15:34:04.124072+00:00",
+  "authority": "CANONICAL",
+  "cycles": [
+    {
+      "cycle": 1,
+      "started_at": "2026-09-25T15:33:52.124752+00:00",
+      "finished_at": "2026-09-25T15:33:52.990974+00:00",
+      "rows": 4,
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY",
+      "retry_backlog": 1
+    },
+    {
+      "cycle": 2,
+      "started_at": "2026-09-25T15:33:55.584486+00:00",
+      "finished_at": "2026-09-25T15:33:56.516017+00:00",
+      "rows": 4,
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY",
+      "retry_backlog": 1
+    },
+    {
+      "cycle": 3,
+      "started_at": "2026-09-25T15:33:58.985528+00:00",
+      "finished_at": "2026-09-25T15:33:59.731360+00:00",
+      "rows": 4,
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY",
+      "retry_backlog": 1
+    }
+  ],
+  "reconciliation": {
+    "EXACT_EQUIVALENT": 4
+  },
+  "failure_injection": {
+    "canonical_unavailable": {
+      "outcome": "CANONICAL_FAILED_LEGACY_FALLBACK_USED",
+      "legacy_mirror_status": "fallback_success"
+    },
+    "legacy_mirror_failure": {
+      "outcome": "CANONICAL_SUCCESS_LEGACY_MIRROR_FAILED",
+      "legacy_mirror_status": "failed: RuntimeError",
+      "canonical_status": "success"
+    }
+  },
+  "freshness": {
+    "domain": "MARKET_PRICE",
+    "authority": "CANONICAL",
+    "latest_source_collection_time": "2026-09-25 15:34:02.664067",
+    "latest_source_trade_date": "2026-09-25",
+    "latest_canonical_observation_time": "2026-09-25 17:59:42.645458+03:30",
+    "latest_canonical_trade_date": "2026-09-25",
+    "canonical_rows": 706054,
+    "retry_backlog": 2,
+    "health": "CANONICAL_BEHIND",
+    "generated_at": "2026-09-25T15:34:04.123950+00:00"
+  }
+}

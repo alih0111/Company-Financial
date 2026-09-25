@@ -4,19 +4,34 @@ import (
 	"database/sql"
 	"net/http"
 	"strings"
+	"time"
 
 	"go-app/config"
+	"go-app/integration"
 	"go-app/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetSalesData(c *gin.Context) {
+	start := time.Now()
+
 	db := config.GetDB()
 	defer db.Close()
 
 	companyName := c.Query("companyName")
-	query := "SELECT CompanyName, CompanyID, ReportDate, Product1, Product2, Product3 FROM miandore2"
+
+	// In LEGACY mode the exact original query runs. The mapped metric columns are
+	// only added when a fundamentals shadow comparison is actually enabled, so
+	// default production behavior (rows, columns, order, response) is unchanged.
+	sh := integration.Default()
+	shadowOn := sh.Enabled() && sh.Mode(integration.EndpointSalesData) != integration.ModeLegacy
+
+	columns := "CompanyName, CompanyID, ReportDate, Product1, Product2, Product3"
+	if shadowOn {
+		columns += ", RevenueNew, OperatingProfitNew, NetProfitAmount, Num1_Value1, Num2_Value1"
+	}
+	query := "SELECT " + columns + " FROM miandore2"
 
 	var rows *sql.Rows
 	var err error
@@ -35,11 +50,17 @@ func GetSalesData(c *gin.Context) {
 	defer rows.Close()
 
 	var data []models.SalesData
+	var shadowRows []integration.FinancialInputRow
 	for rows.Next() {
 		var s models.SalesData
 		var p1, p2, p3 sql.NullFloat64
+		var revenue, opProfit, netProfit, eps, capital sql.NullFloat64
 
-		if err := rows.Scan(&s.CompanyName, &s.CompanyID, &s.ReportDate, &p1, &p2, &p3); err != nil {
+		targets := []any{&s.CompanyName, &s.CompanyID, &s.ReportDate, &p1, &p2, &p3}
+		if shadowOn {
+			targets = append(targets, &revenue, &opProfit, &netProfit, &eps, &capital)
+		}
+		if err := rows.Scan(targets...); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
@@ -47,6 +68,20 @@ func GetSalesData(c *gin.Context) {
 		s.Product1 = nullToFloat(p1)
 		s.Product2 = nullToFloat(p2)
 		s.Product3 = nullToFloat(p3)
+
+		if shadowOn {
+			// Shadow comparison row from mapped legacy metrics only. Product1/2/3
+			// are legacy derived heuristics and are never mapped to canonical.
+			shadowRows = append(shadowRows, integration.FinancialInputRow{
+				LegacyCompanyID: s.CompanyID,
+				ReportDate:      s.ReportDate,
+				EPS:             nullToFloat(eps),
+				Revenue:         nullToFloat(revenue),
+				OperatingProfit: nullToFloat(opProfit),
+				NetProfit:       nullToFloat(netProfit),
+				Capital:         nullToFloat(capital),
+			})
+		}
 
 		if s.Product1 == 0 {
 			continue
@@ -66,10 +101,18 @@ func GetSalesData(c *gin.Context) {
 		data = append(data, s)
 	}
 
+	// SHADOW: compare mapped income-statement metrics against canonical facts.
+	// The legacy response data above is authoritative and unchanged.
+	if shadowOn {
+		sh.CompareSalesData(c.Request.Context(), shadowRows, time.Since(start))
+	}
+
 	c.JSON(http.StatusOK, data)
 }
 
 func GetCompanyNames(c *gin.Context) {
+	start := time.Now()
+
 	db := config.GetDB()
 	defer db.Close()
 
@@ -89,6 +132,12 @@ func GetCompanyNames(c *gin.Context) {
 			return
 		}
 		names = append(names, name)
+	}
+
+	// SHADOW: compare against canonical core.companies names. The legacy
+	// response below is authoritative and is never replaced.
+	if sh := integration.Default(); sh.Enabled() {
+		sh.CompareCompanyNames(c.Request.Context(), names, time.Since(start))
 	}
 
 	c.JSON(http.StatusOK, names)

@@ -1,0 +1,12 @@
+id,domain,entrypoint,source,legacy_sqlserver_tables,canonical_destination,py2_equivalent,canonical_mapping_proven,dual_write_implemented,shadow_write_safe,notes
+M1,MONTHLY_ACTIVITY,go-app/py/MianSql2.py (scraper2.py/codal_processor.py),Codal monthly activity report,mahane,fundamentals.monthly_activities,py2 monthly_activities (separate schema),yes,yes,yes,Value1/2 qty; Value3 million_rial -> sales_amount_rial x1e6
+F1,FINANCIAL_STATEMENT,go-app/py/MianSql.py (scraper.py/codal_processor.py),Codal financial statements,miandore2,fundamentals.financial_statements + fundamentals.financial_facts,py2 financial_facts (separate schema),yes,yes,yes,FACT_MAP only; no Product1/2/3
+R1,CODAL_REPORT,go-app/py/sync_codal.py + codal_feed/codal_registry/codal_processor,Codal search API,CodalReports/CodalSyncState,TrackedTickers,ingestion.reports + report_versions + parse_runs + raw.report_payloads,py2 reports/report_versions (separate schema),partial,yes,yes,writer implemented; not yet wired into sync_codal
+K1,MARKET_PRICE,go-app/py/brs_prices.py (price.py),BRS / TSETMC API,MarketPriceHistory,market.price_observations,py2 none,yes,yes,yes,append-only; collected_at preserved from source CollectedAt
+I1,IDENTITY_METADATA,go-app/py/codal_universe.py + migration_tools,Codal/TrackedTickers/source ids,TrackedTickers + source ins codes,core.companies + core.securities + core.security_aliases + core.legacy_entity_map,py2 companies (separate schema),yes,resolution-only,yes,explicit legacy map + ins_code; no name-hash identity
+O1,OTHER,go-app/py/scraperFullPE.py,TSETMC,FullPE,none,pending heuristic,n/a,no,no,OUT_OF_SCOPE legacy heuristic
+O2,OTHER,go-app/py/family_import.py,Excel,Family*,portfolio.*,no,n/a,no,no,OUT_OF_SCOPE
+O3,OTHER,go-app/py/backfill_history.py/_backfill_v32.py,_apply_view.py,manual,miandore2/vw_AIStockMetrics,none,n/a,no,no,manual tooling
+P1,MONTHLY_ACTIVITY,go-app/py2/src/codal_ingestor (separate stack),Codal,PG companies/reports/report_versions/monthly_activities/financial_facts,NOT canonical schema,itself,no,no,no,Phase 3 reconciliation decision
+G1,CODAL_REPORT,Go os/exec triggers (run-script/run-script2/fetchAllData/sync-codal),Codal,via py scripts,via canonical_ingest (future),n/a,partial,no,no,see GO_INGESTION_TRIGGER_PLAN.md
+G2,MARKET_PRICE,Go os/exec triggers (brs/collect),BRS,via py scripts,via canonical_ingest (future),n/a,yes,no,no,see GO_INGESTION_TRIGGER_PLAN.md

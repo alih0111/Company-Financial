@@ -1,0 +1,29 @@
+{
+  "generated_at": "2026-09-25T16:31:37.166297+00:00",
+  "domains": {
+    "MARKET_PRICE": {
+      "authority": "CANONICAL",
+      "retry_backlog": 0,
+      "quarantine_count": 0,
+      "health": "HEALTHY"
+    },
+    "MONTHLY_ACTIVITY": {
+      "authority": "CANONICAL",
+      "retry_backlog": 0,
+      "quarantine_count": 16,
+      "health": "HEALTHY"
+    },
+    "FINANCIAL_STATEMENT": {
+      "authority": "CANONICAL",
+      "retry_backlog": 0,
+      "quarantine_count": 24,
+      "health": "HEALTHY"
+    },
+    "CODAL": {
+      "authority": "CANONICAL",
+      "retry_backlog": 0,
+      "quarantine_count": 13,
+      "health": "HEALTHY"
+    }
+  }
+}

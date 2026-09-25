@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"go-app/config"
+	"go-app/integration"
 	"go-app/models"
 
 	"github.com/gin-gonic/gin"
@@ -378,6 +379,8 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 }
 
 func GetAIStockSummary(c *gin.Context) {
+	start := time.Now()
+
 	db := config.GetDB()
 	defer db.Close()
 
@@ -519,11 +522,39 @@ func GetAIStockSummary(c *gin.Context) {
 		return
 	}
 
+	// SHADOW: compare canonical-v1 analytics scores against the legacy v3.7
+	// metrics. The legacy response below is authoritative and unchanged.
+	if sh := integration.Default(); sh.Enabled() {
+		sh.CompareScores(c.Request.Context(), toScoreInputs(result), time.Since(start))
+	}
+
 	c.JSON(http.StatusOK, result)
 }
+
+// toScoreInputs adapts legacy AIStockMetric rows to the integration comparison
+// shape. Only fields with a defined canonical counterpart are carried.
+func toScoreInputs(rows []models.AIStockMetric) []integration.ScoreInputRow {
+	out := make([]integration.ScoreInputRow, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, integration.ScoreInputRow{
+			LegacyCompanyID:    r.CompanyID,
+			Symbol:             r.Symbol,
+			CompanyName:        r.CompanyName,
+			QuantScore:         r.QuantScore,
+			DataQualityScore:   r.DataQualityScore,
+			GrowthScore:        r.GrowthScore,
+			ProfitabilityScore: r.ProfitabilityScore,
+			ValuationScore:     r.ValuationScore,
+			MarketScore:        r.MarketScore,
+			ScoreVersion:       r.ScoreVersion,
+		})
+	}
+	return out
+}
+
 func getOneSummaryByCompanyID(db *sql.DB, companyID string) (models.AIStockMetric, error) {
 	query := `
-        SELECT TOP 1
+        SELECT TOP (@limit)
             CompanyID,
             Symbol,
             CompanyName,

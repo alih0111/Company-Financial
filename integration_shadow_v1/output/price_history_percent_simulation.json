@@ -1,0 +1,57 @@
+{
+  "hash": "fnv1a-32 mod 100",
+  "percents": {
+    "1": {
+      "deterministic": true,
+      "guard_forced_legacy": 0,
+      "percent": 1,
+      "raw_hash_matches_all_universe": 4,
+      "safe_fraction": "4/272",
+      "safe_selected": 4,
+      "unsafe_canonical_served": 0,
+      "unsafe_hash_matched": 0
+    },
+    "10": {
+      "deterministic": true,
+      "guard_forced_legacy": 1,
+      "percent": 10,
+      "raw_hash_matches_all_universe": 31,
+      "safe_fraction": "30/272",
+      "safe_selected": 30,
+      "unsafe_canonical_served": 0,
+      "unsafe_hash_matched": 1
+    },
+    "100": {
+      "deterministic": true,
+      "guard_forced_legacy": 13,
+      "percent": 100,
+      "raw_hash_matches_all_universe": 285,
+      "safe_fraction": "272/272",
+      "safe_selected": 272,
+      "unsafe_canonical_served": 0,
+      "unsafe_hash_matched": 13
+    },
+    "25": {
+      "deterministic": true,
+      "guard_forced_legacy": 1,
+      "percent": 25,
+      "raw_hash_matches_all_universe": 75,
+      "safe_fraction": "74/272",
+      "safe_selected": 74,
+      "unsafe_canonical_served": 0,
+      "unsafe_hash_matched": 1
+    },
+    "5": {
+      "deterministic": true,
+      "guard_forced_legacy": 1,
+      "percent": 5,
+      "raw_hash_matches_all_universe": 15,
+      "safe_fraction": "14/272",
+      "safe_selected": 14,
+      "unsafe_canonical_served": 0,
+      "unsafe_hash_matched": 1
+    }
+  },
+  "safe_total": 272,
+  "unsafe_total": 13
+}

@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-09-25T12:07:29Z",
+  "enabled": true,
+  "symbol_count": 6,
+  "percent": 0,
+  "verify": true,
+  "timeout_ms": 1500,
+  "counters": {
+    "canary_fallback": 3,
+    "canary_selected": 9,
+    "canary_success": 6,
+    "canonical_errors": 3,
+    "comparison_exact": 1260,
+    "comparison_expected": 0,
+    "comparison_unexpected": 0,
+    "legacy_fallback_errors": 1,
+    "total_requests": 9
+  },
+  "latency": {
+    "canonical_median_ms": 1.401,
+    "canonical_p95_ms": 1.713,
+    "legacy_median_ms": 55.754,
+    "legacy_p95_ms": 71.043,
+    "fallback_median_ms": 56.732,
+    "fallback_p95_ms": 56.732
+  },
+  "sample_count": 9,
+  "unexpected_differences": 0,
+  "canonical_errors": 3
+}

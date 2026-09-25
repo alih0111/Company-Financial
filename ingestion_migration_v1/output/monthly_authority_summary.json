@@ -1,0 +1,183 @@
+{
+  "generated_at": "2026-09-25T16:01:04.451797+00:00",
+  "authority": "CANONICAL",
+  "cycles": [
+    {
+      "cycle": 1,
+      "company": "قاسم",
+      "kind": "repeated",
+      "period": "1405/06/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "قاسم",
+      "kind": "repeated",
+      "period": "1405/04/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/04/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/03/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "قاسم",
+      "kind": "repeated",
+      "period": "1405/06/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "قاسم",
+      "kind": "repeated",
+      "period": "1405/04/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/04/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/03/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 3,
+      "company": "قاسم",
+      "kind": "repeated",
+      "period": "1405/06/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 3,
+      "company": "قاسم",
+      "kind": "repeated",
+      "period": "1405/04/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 3,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/04/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 3,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/03/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "canonical_inserted": 0,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    }
+  ],
+  "canonical_inserted": 0,
+  "canonical_skipped": 48,
+  "reconciliation": {
+    "EXPECTED_UNIT_CONVERSION": 4
+  },
+  "failure_injection": {
+    "canonical_unavailable": {
+      "outcome": "CANONICAL_FAILED_LEGACY_FALLBACK_USED",
+      "mirror": "fallback_success"
+    },
+    "legacy_mirror_failure": {
+      "outcome": "CANONICAL_SUCCESS_LEGACY_MIRROR_FAILED",
+      "mirror": "failed: RuntimeError"
+    },
+    "unresolved_identity": {
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "status": "quarantined",
+      "health": "IDENTITY_QUARANTINE"
+    }
+  },
+  "retry_replayed": 4,
+  "freshness": {
+    "domain": "MONTHLY_ACTIVITY",
+    "authority": "CANONICAL",
+    "latest_source_period": "1405/06/31",
+    "latest_canonical_period": "2026-09-22",
+    "canonical_rows": 12075,
+    "quarantine_count": 15,
+    "legacy_mirror_state": "active",
+    "retry_backlog": 0,
+    "health": "IDENTITY_QUARANTINE",
+    "generated_at": "2026-09-25T16:01:04.451704+00:00"
+  }
+}

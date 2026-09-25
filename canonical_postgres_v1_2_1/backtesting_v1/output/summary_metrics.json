@@ -1,0 +1,163 @@
+{
+  "config": {
+    "start_date": "2021-01-01",
+    "end_date": "2026-06-30",
+    "rebalance_freq": "M",
+    "signal_convention": "close_of_signal_date_as_of",
+    "execution_convention": "next_trading_day_close",
+    "return_convention": "raw_price_return",
+    "horizons": [
+      5,
+      21,
+      63
+    ],
+    "portfolio_mode": "top_n",
+    "top_n": 20,
+    "top_pct": 0.1,
+    "weighting": "equal",
+    "cost_bps_per_side": 10.0,
+    "benchmark": "equal_weight_tradable_universe",
+    "quantile_buckets": 5,
+    "coverage_buckets": [
+      7,
+      14
+    ],
+    "min_tradable_signals": 5
+  },
+  "frozen_model": {
+    "score_version": "canonical-v1-dev",
+    "implementation_revision": "report-chain-ttm-v1",
+    "metric_spec_hash": "c00a231fb357477aaf124920d81752759935bf0416da6beeab69eb5a141af39e",
+    "report_chain_spec_hash": "dc8b1d25f81ed90b718c6f68d16fbd346521bfa4aca246a7164732f435d4d659",
+    "factor_review_hash": "6fe57ebf6889c5345eca40098813d90baea9fa7829aea49e4484b0a7f348953f",
+    "missing_data_contract_hash": "bb5b9d939b6eda47c78bd3346e8f9833ca2b7e444eb7867b45c138da4edc96e2",
+    "weights_validated": false,
+    "baseline_weights_note": "NOT VALIDATED FOR CANONICAL V1 (prototype baseline)"
+  },
+  "date_range": {
+    "start": "2021-01-01",
+    "end": "2026-06-30",
+    "actual_first_rebalance": "2021-01-31",
+    "actual_last_rebalance": "2026-06-30"
+  },
+  "n_rebalance_dates": 66,
+  "n_signal_observations": 13303,
+  "ic": {
+    "mean_ic": 0.10879117154948027,
+    "median_ic": 0.09489353751750713,
+    "ic_std": 0.1333677167553458,
+    "ic_hit_rate": 0.7903225806451613,
+    "n_periods": 62
+  },
+  "quantile": {
+    "mean_top_minus_bottom": 0.027314583725585987,
+    "top_minus_bottom_hit_rate": 0.7580645161290323
+  },
+  "missingness": {
+    "pearson_quant_score_vs_n_factors": 0.5814992262966393
+  },
+  "factor_coverage_distribution": {
+    "2": 59,
+    "3": 1223,
+    "4": 3584,
+    "5": 933,
+    "6": 1637,
+    "7": 5066,
+    "8": 47,
+    "9": 81,
+    "10": 12,
+    "11": 10,
+    "12": 47,
+    "13": 1,
+    "14": 3,
+    "15": 11,
+    "16": 9,
+    "17": 61,
+    "18": 59,
+    "19": 161,
+    "20": 299
+  },
+  "dq_flag_counts": {
+    "missing_comparable_period": 12521,
+    "missing_monthly_activity": 4422,
+    "missing_current_financials": 178,
+    "missing_price": 1
+  },
+  "report_chain_signals": 8630,
+  "low_coverage_signals": 12502,
+  "portfolio": {
+    "n_periods": 65,
+    "portfolio": {
+      "n": 61,
+      "cumulative_return": 7.214283551333301,
+      "mean_period_return": 0.039796532438977926,
+      "volatility": 0.10124628517128084,
+      "annualized_return": 0.5132662593884001,
+      "max_drawdown": -0.23181531096554164,
+      "sharpe_like": 1.3616226221586856,
+      "hit_rate": 0.639344262295082
+    },
+    "portfolio_net": {
+      "n": 61,
+      "cumulative_return": 6.906984061601301,
+      "mean_period_return": 0.03914899145537137,
+      "volatility": 0.10119333390370487,
+      "annualized_return": 0.5019582985188034,
+      "max_drawdown": -0.23410289046136779,
+      "sharpe_like": 1.3401681642450654,
+      "hit_rate": 0.6065573770491803
+    },
+    "benchmark": {
+      "n": 61,
+      "cumulative_return": 2.4961995967174793,
+      "mean_period_return": 0.025234800637073722,
+      "volatility": 0.09828468802019515,
+      "annualized_return": 0.279195612010954,
+      "max_drawdown": -0.3109480739952075,
+      "sharpe_like": 0.8894153850964501,
+      "hit_rate": 0.5081967213114754
+    },
+    "mean_turnover": 0.3061538461538461
+  },
+  "time_segments": [
+    {
+      "year": "2021",
+      "mean_ic": 0.06661328678539004,
+      "n": 12
+    },
+    {
+      "year": "2022",
+      "mean_ic": 0.04448061210666686,
+      "n": 12
+    },
+    {
+      "year": "2023",
+      "mean_ic": 0.03772796020025984,
+      "n": 12
+    },
+    {
+      "year": "2024",
+      "mean_ic": 0.1963710504529582,
+      "n": 12
+    },
+    {
+      "year": "2025",
+      "mean_ic": 0.1655024247256474,
+      "n": 12
+    },
+    {
+      "year": "2026",
+      "mean_ic": 0.30835431240835426,
+      "n": 2
+    }
+  ],
+  "return_convention": "raw_price_return",
+  "corporate_actions_available": false,
+  "hashes": {
+    "signal_snapshot": "e9fae3246f6b3d8f6d955a557515c5f76edb8a512094dd9fb9b9795504ad4f05",
+    "forward_returns": "53530187f923f7f150b056150403c81731566e69dda3418a0b3b0b2f7745aa29",
+    "portfolio_path": "a5cd74c448660aaf0f6a34b76dcf10a48ad6e38cbcbbc26952f463b192da2cb6",
+    "config": "a65808face918ae9c7bb4c8c5a3d0d67d420c84fcd2392d59cd1aac032015885",
+    "summary": "4a628e7d730ccb090bc8b04a7558086bc50ef62e213837cd2556c85d48bbad29"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "generated_at": "2026-09-25T16:09:51.130537+00:00",
+  "authority": "CANONICAL",
+  "cycles": 16,
+  "canonical_inserted": 0,
+  "canonical_skipped": 64,
+  "reconciliation": {
+    "EXPECTED_UNIT_CONVERSION": 4
+  },
+  "freshness": {
+    "domain": "MONTHLY_ACTIVITY",
+    "authority": "CANONICAL",
+    "latest_source_period": "1405/06/31",
+    "latest_canonical_period": "2026-09-22",
+    "canonical_rows": 12075,
+    "retry_backlog": 0,
+    "health": "HEALTHY",
+    "generated_at": "2026-09-25T16:09:51.130445+00:00"
+  }
+}

@@ -1,0 +1,109 @@
+{
+  "schema_version": "1",
+  "generated_at": "2026-09-25T12:07:12Z",
+  "comparison_rules_version": "shadow-compare-v1",
+  "endpoints": [
+    {
+      "endpoint": "GET /api/CompanyNames",
+      "read_mode": "shadow",
+      "legacy_row_count": 267,
+      "canonical_row_count": 273,
+      "match_count": 263,
+      "exact_match_count": 263,
+      "expected_diff_count": 14,
+      "unexpected_diff_count": 0,
+      "error_count": 0,
+      "order_only_difference": false,
+      "classifications": {
+        "CANONICAL_ONLY": 10,
+        "EXACT_MATCH": 263,
+        "LEGACY_ONLY": 4
+      },
+      "latency_legacy_ms": 32.27,
+      "latency_canonical_ms": 5.182,
+      "latency_combined_ms": 37.453,
+      "updated_at": "2026-09-25T12:07:07Z"
+    },
+    {
+      "endpoint": "GET /api/summary",
+      "read_mode": "shadow",
+      "legacy_row_count": 20,
+      "canonical_row_count": 20,
+      "match_count": 20,
+      "exact_match_count": 77,
+      "expected_diff_count": 84,
+      "unexpected_diff_count": 0,
+      "error_count": 0,
+      "order_only_difference": true,
+      "classifications": {
+        "EXACT_MATCH": 77,
+        "EXPECTED_CANONICAL_SEMANTIC_CHANGE": 83,
+        "ORDER_ONLY_DIFFERENCE": 1
+      },
+      "latency_legacy_ms": 4122.502,
+      "latency_canonical_ms": 21.745,
+      "latency_combined_ms": 4144.248,
+      "updated_at": "2026-09-25T12:07:11Z"
+    },
+    {
+      "endpoint": "GET /api/price-history",
+      "read_mode": "shadow",
+      "legacy_row_count": 180,
+      "canonical_row_count": 180,
+      "match_count": 180,
+      "exact_match_count": 1260,
+      "expected_diff_count": 0,
+      "unexpected_diff_count": 0,
+      "error_count": 0,
+      "order_only_difference": false,
+      "classifications": {
+        "EXACT_MATCH": 1260
+      },
+      "latency_legacy_ms": 332.463,
+      "latency_canonical_ms": 20.580000000000002,
+      "latency_combined_ms": 353.045,
+      "updated_at": "2026-09-25T12:07:12Z"
+    },
+    {
+      "endpoint": "GET /api/SalesData2",
+      "read_mode": "shadow",
+      "legacy_row_count": 428,
+      "canonical_row_count": 384,
+      "match_count": 384,
+      "exact_match_count": 1536,
+      "expected_diff_count": 428,
+      "unexpected_diff_count": 0,
+      "error_count": 0,
+      "order_only_difference": false,
+      "classifications": {
+        "EXACT_MATCH": 1536,
+        "EXPECTED_UNIT_PRESENTATION": 384,
+        "LEGACY_ONLY": 44
+      },
+      "latency_legacy_ms": 47.651,
+      "latency_canonical_ms": 17.593,
+      "latency_combined_ms": 65.24600000000001,
+      "updated_at": "2026-09-25T12:07:12Z"
+    },
+    {
+      "endpoint": "GET /api/SalesData",
+      "read_mode": "shadow",
+      "legacy_row_count": 310,
+      "canonical_row_count": 252,
+      "match_count": 252,
+      "exact_match_count": 1512,
+      "expected_diff_count": 58,
+      "unexpected_diff_count": 0,
+      "error_count": 0,
+      "order_only_difference": false,
+      "classifications": {
+        "EXACT_MATCH": 1512,
+        "LEGACY_ONLY": 58
+      },
+      "latency_legacy_ms": 120.88299999999998,
+      "latency_canonical_ms": 34.59799999999999,
+      "latency_combined_ms": 155.48499999999999,
+      "updated_at": "2026-09-25T12:07:12Z"
+    }
+  ]
+}

@@ -1,0 +1,198 @@
+{
+  "spec_version": "canonical-v1",
+  "score_version": "canonical-v1-dev",
+  "flow_types": {
+    "FLOW_CUMULATIVE": ["revenue", "net_profit", "operating_profit", "operating_cash_flow", "eps"],
+    "STOCK_POINT_IN_TIME": ["total_assets", "current_assets", "total_liabilities", "current_liabilities", "total_equity"],
+    "DIRECT_ONLY": ["finance_cost", "other_non_operating"],
+    "REPORT_CHAIN_TTM": {"allowed_for": ["revenue", "net_profit", "operating_profit", "operating_cash_flow", "eps"],
+                         "forbidden_for": ["total_assets", "current_assets", "total_liabilities", "current_liabilities", "total_equity"]},
+    "resolution_order": ["DIRECT_CANONICAL", "REPORT_CHAIN_TTM", "NULL"]
+  },
+  "units_contract": {
+    "monetary": "IRR",
+    "eps": "rial_per_share",
+    "ratios": "dimensionless",
+    "percentages": {"suffix_pct": "percent (15.0 == 15%)", "suffix_ratio": "fraction (0.15)"},
+    "scale_detection": "FORBIDDEN",
+    "on_bad_unit": "emit data-quality issue; set metric NULL; do not guess"
+  },
+  "metrics": [
+    {
+      "metric_code": "sales_ttm",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["fundamentals.monthly_activities.sales_amount_rial", "period_end_date"],
+      "formula": "sum of the 12 most recent distinct monthly period_end_date sales_amount_rial",
+      "canonical_unit": "IRR",
+      "null_behavior": "NULL if < min_history rows",
+      "min_history": 6,
+      "pit_requirements": "monthly rows visible at source_cutoff_at"
+    },
+    {
+      "metric_code": "sales_growth_12m",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["sales_ttm(current 12m)", "sales_ttm(previous 12m)"],
+      "formula": "(sales_last12 - sales_prev12) / abs(sales_prev12) * 100",
+      "canonical_unit": "pct",
+      "null_behavior": "NULL if prev12 is NULL or 0, or < 24 records",
+      "min_history": 24,
+      "pit_requirements": "monthly rows visible at cutoff"
+    },
+    {
+      "metric_code": "revenue_ttm",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["financial_facts(metric_code=revenue, period_order 1/2/3)"],
+      "formula": "ttm(revenue) per ttm_spec.md",
+      "canonical_unit": "IRR",
+      "null_behavior": "NULL if required periods missing",
+      "min_history": 1,
+      "pit_requirements": "latest eligible report at cutoff"
+    },
+    {
+      "metric_code": "net_profit_ttm",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["financial_facts(metric_code=net_profit, period_order 1/2/3)"],
+      "formula": "ttm(net_profit) per ttm_spec.md",
+      "canonical_unit": "IRR",
+      "null_behavior": "NULL if required periods missing (NO Product1 fallback)",
+      "min_history": 1,
+      "pit_requirements": "latest eligible report at cutoff"
+    },
+    {
+      "metric_code": "operating_profit_ttm",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["financial_facts(metric_code=operating_profit, period_order 1/2/3)"],
+      "formula": "ttm(operating_profit) per ttm_spec.md",
+      "canonical_unit": "IRR",
+      "null_behavior": "NULL if required periods missing",
+      "min_history": 1,
+      "pit_requirements": "latest eligible report at cutoff"
+    },
+    {
+      "metric_code": "eps_ttm",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["eps current", "eps prior_fiscal_year", "eps prior_year_same_period"],
+      "formula": "ttm(eps) per ttm_spec.md",
+      "canonical_unit": "rial_per_share",
+      "null_behavior": "NULL if required periods missing",
+      "min_history": 1,
+      "pit_requirements": "latest eligible report at cutoff"
+    },
+    {
+      "metric_code": "net_margin",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["net_profit_ttm", "revenue_ttm"],
+      "formula": "net_profit_ttm / abs(revenue_ttm) * 100",
+      "canonical_unit": "pct",
+      "null_behavior": "NULL if either missing or revenue 0",
+      "min_history": 1,
+      "pit_requirements": "same report basis"
+    },
+    {
+      "metric_code": "operating_margin",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["operating_profit_ttm", "revenue_ttm"],
+      "formula": "operating_profit_ttm / abs(revenue_ttm) * 100",
+      "canonical_unit": "pct",
+      "null_behavior": "NULL if either missing or revenue 0",
+      "min_history": 1,
+      "pit_requirements": "same report basis"
+    },
+    {
+      "metric_code": "roe",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["net_profit_ttm", "financial_facts(total_equity, period_order 1)"],
+      "formula": "net_profit_ttm / total_equity * 100",
+      "canonical_unit": "pct",
+      "null_behavior": "NULL if equity missing or <= 0",
+      "min_history": 1,
+      "pit_requirements": "latest eligible report at cutoff"
+    },
+    {
+      "metric_code": "current_ratio",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["current_assets", "current_liabilities"],
+      "formula": "current_assets / current_liabilities",
+      "canonical_unit": "ratio",
+      "null_behavior": "NULL if liabilities missing or <= 0",
+      "min_history": 1,
+      "pit_requirements": "latest eligible report at cutoff"
+    },
+    {
+      "metric_code": "debt_ratio",
+      "domain": "fundamentals",
+      "level": "company",
+      "inputs": ["total_liabilities", "total_assets"],
+      "formula": "total_liabilities / total_assets",
+      "canonical_unit": "ratio",
+      "null_behavior": "NULL if assets missing or <= 0",
+      "min_history": 1,
+      "pit_requirements": "latest eligible report at cutoff"
+    },
+    {
+      "metric_code": "pe",
+      "domain": "market",
+      "level": "security",
+      "inputs": ["latest_price_rial", "eps_ttm"],
+      "formula": "latest_price_rial / eps_ttm ; valid only for 0 < pe <= 60",
+      "canonical_unit": "ratio",
+      "null_behavior": "NULL if eps_ttm missing/<=0 or price missing",
+      "min_history": 1,
+      "pit_requirements": "price collected_at <= cutoff; eps from PIT report"
+    },
+    {
+      "metric_code": "ps",
+      "domain": "market",
+      "level": "security",
+      "inputs": ["pe", "net_margin"],
+      "formula": "pe * (net_margin / 100) ; valid only for valid pe and net_margin > 0",
+      "canonical_unit": "ratio",
+      "null_behavior": "NULL if pe or net_margin invalid",
+      "min_history": 1,
+      "pit_requirements": "same basis as inputs"
+    },
+    {
+      "metric_code": "price_momentum_30d",
+      "domain": "market",
+      "level": "security",
+      "inputs": ["closing_price_rial latest", "closing_price_rial 30 rows back"],
+      "formula": "(latest_close - close_30d) / abs(close_30d) * 100",
+      "canonical_unit": "pct",
+      "null_behavior": "NULL if < 30 observations",
+      "min_history": 30,
+      "pit_requirements": "observations collected_at <= cutoff"
+    },
+    {
+      "metric_code": "volatility_30d",
+      "domain": "market",
+      "level": "security",
+      "inputs": ["closing_price_rial sequence (30 observations)"],
+      "formula": "sample stdev of daily close returns (%) over the 30 most recent observations",
+      "canonical_unit": "pct",
+      "null_behavior": "NULL if < 3 returns",
+      "min_history": 30,
+      "pit_requirements": "observations collected_at <= cutoff"
+    },
+    {
+      "metric_code": "avg_trade_value_30d",
+      "domain": "market",
+      "level": "security",
+      "inputs": ["trade_value_rial (30 observations)"],
+      "formula": "mean trade_value_rial over the 30 most recent observations",
+      "canonical_unit": "IRR",
+      "null_behavior": "NULL if no trade_value_rial",
+      "min_history": 1,
+      "pit_requirements": "observations collected_at <= cutoff"
+    }
+  ]
+}

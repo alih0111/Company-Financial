@@ -1,0 +1,14 @@
+﻿metric_code,eligible_companies,companies_with_source_data,companies_insufficient_periods,companies_no_canonical_fact,missing_pct,latest_available_period,source_column
+revenue,267,124,25,143,62.9,2026-08-22,RevenueNew
+net_profit,267,102,3,165,62.9,2026-08-22,NetProfitAmount
+operating_profit,267,264,136,3,52.1,2026-08-22,OperatingProfitNew
+eps,267,264,6,3,3.4,2026-08-22,Num1_Value1
+capital,267,264,0,3,1.1,2026-08-22,Num2_Value1
+total_assets,267,102,0,165,61.8,2026-08-22,TotalAssets
+current_assets,267,102,0,165,61.8,2026-08-22,CurrentAssets
+total_liabilities,267,102,0,165,61.8,2026-08-22,TotalLiabilities
+current_liabilities,267,102,0,165,61.8,2026-08-22,CurrentLiabilities
+total_equity,267,102,0,165,61.8,2026-08-22,TotalEquity
+operating_cash_flow,267,102,2,165,62.5,2026-08-22,OperatingCashFlow
+finance_cost,267,131,0,136,50.9,2026-08-22,FinanceCostsNew
+other_non_operating,267,131,0,136,50.9,2026-08-22,OtherNonOpNew

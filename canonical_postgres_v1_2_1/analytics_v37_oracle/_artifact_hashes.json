@@ -1,0 +1,12 @@
+{
+  "canonical_postgres_v1_2_1/analytics_parity/reference/v37_full_snapshot.csv": "57e80b3f802d00aa51a9485068127e22641608a35c58be632acf1ccfc838bbd9",
+  "canonical_postgres_v1_2_1/analytics_parity/reference_context.json": "f347525f04a317588d20b44ef5ab7a986676298f9f075e35f0324891f26ef1f5",
+  "canonical_postgres_v1_2_1/analytics_parity_debug/v37_scoring_subjects.csv": "f84cb95b292880b21287d611f8819ccfa27f7f6ee02e13f5607936b3755a17c8",
+  "canonical_postgres_v1_2_1/analytics_parity_debug/reference/legacy_v37_financial_inputs.csv": "1142065ee5a4a1d1a07d48fda29f58b077dc8676a18f84ae4fe3b5dd164461a6",
+  "canonical_postgres_v1_2_1/analytics_parity_debug/reference/legacy_v37_monthly_inputs.csv": "5b84023614134d4538098179d2bcd660527acb9f44f594c5c5bd4832041998c5",
+  "canonical_postgres_v1_2_1/analytics_parity_debug/reference/legacy_v37_market_inputs.csv": "74eb3a607430f86e1bd218422da9cd2a2bc43661312602a8a041fbd9e21355ec",
+  "canonical_postgres_v1_2_1/analytics_v37_compat/compute_v37_faithful.py": "ff4b9b79c34fdacf3c5842582032f30b84618f183a7e730733ea449e95b757a6",
+  "canonical_postgres_v1_2_1/analytics_v37_compat/compute_v37_legacy_full.py": "74a4f9ef5c27c3cd6cf63467312ab827e4a6903cfb4f11aa57b67de9dd54b943",
+  "golden_hash": "849a4efd49711101eb5e29c719d8c233efa0d7e6c928d47b21882540cbbac264",
+  "subject_count": 276
+}

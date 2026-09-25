@@ -1,0 +1,112 @@
+{
+  "generated_at": "2026-09-25T14:42:44.713125+00:00",
+  "mode": "dual_write",
+  "cycles": 15,
+  "market_cycles": 3,
+  "monthly_cycles": 6,
+  "financial_cycles": 6,
+  "canonical_inserted": 6,
+  "canonical_skipped": 378,
+  "canonical_errors": 0,
+  "quarantined": 0,
+  "codal": {
+    "letters": [
+      {
+        "tracing_no": "1603147",
+        "run1": {
+          "status": "quarantined",
+          "inserted": 0,
+          "skipped": 0,
+          "tracing_no": "1603147",
+          "has_raw": false,
+          "ids": {}
+        },
+        "run2": {
+          "status": "quarantined",
+          "inserted": 0,
+          "skipped": 0,
+          "tracing_no": "1603147",
+          "has_raw": false,
+          "ids": {}
+        }
+      },
+      {
+        "tracing_no": "1602429",
+        "run1": {
+          "status": "quarantined",
+          "inserted": 0,
+          "skipped": 0,
+          "tracing_no": "1602429",
+          "has_raw": false,
+          "ids": {}
+        },
+        "run2": {
+          "status": "quarantined",
+          "inserted": 0,
+          "skipped": 0,
+          "tracing_no": "1602429",
+          "has_raw": false,
+          "ids": {}
+        }
+      },
+      {
+        "tracing_no": "1602865",
+        "run1": {
+          "status": "quarantined",
+          "inserted": 0,
+          "skipped": 0,
+          "tracing_no": "1602865",
+          "has_raw": false,
+          "ids": {}
+        },
+        "run2": {
+          "status": "quarantined",
+          "inserted": 0,
+          "skipped": 0,
+          "tracing_no": "1602865",
+          "has_raw": false,
+          "ids": {}
+        }
+      }
+    ],
+    "version_semantics": {
+      "tracing_no": "1603147",
+      "identical_content_inserted": 0,
+      "changed_content_inserted": 0
+    }
+  },
+  "quarantine_cases": 33,
+  "quarantine_classes": {
+    "EXPECTED_SCOPE_EXCLUSION": 28,
+    "TRANSIENT_ERROR": 5
+  },
+  "freshness": {
+    "generated_at": "2026-09-25T14:42:42.972497+00:00",
+    "market": {
+      "legacy_latest_date": "2026-09-25",
+      "canonical_rows": 706054,
+      "canonical_last_write": "2026-09-25 17:59:42.765663+03:30"
+    },
+    "monthly_activity": {
+      "legacy_latest_period": "1405/06/31",
+      "canonical_rows": 12075,
+      "canonical_last_write": "2026-09-25 00:22:53.352956+03:30"
+    },
+    "financial_statement": {
+      "legacy_latest_period": "1405/05/31",
+      "canonical_facts": 71361,
+      "canonical_last_write": "2026-09-25 00:22:53.352956+03:30"
+    },
+    "reports": 18990,
+    "raw_payloads": 0,
+    "open_identity_quarantines": 33,
+    "analytics_score_runs_unchanged": 4,
+    "mode": "dual_write"
+  },
+  "analytics_visibility": {
+    "market_daily_prices_rows": 705689,
+    "monthly_rows_recent_period": 8,
+    "financial_facts_rows": 71361,
+    "analytics_company_scores_rows": 1074
+  }
+}

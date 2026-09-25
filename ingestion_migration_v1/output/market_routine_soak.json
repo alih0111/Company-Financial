@@ -1,0 +1,80 @@
+{
+  "generated_at": "2026-09-25T15:55:18.178520+00:00",
+  "authority": "CANONICAL",
+  "cycles": [
+    {
+      "cycle": 1,
+      "started_at": "2026-09-25T15:55:03.519219+00:00",
+      "finished_at": "2026-09-25T15:55:03.519295+00:00",
+      "rows": 5,
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_inserted": 1,
+      "canonical_skipped": 4,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY",
+      "retry_backlog": 0
+    },
+    {
+      "cycle": 2,
+      "started_at": "2026-09-25T15:55:07.176332+00:00",
+      "finished_at": "2026-09-25T15:55:07.176355+00:00",
+      "rows": 5,
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_inserted": 0,
+      "canonical_skipped": 5,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY",
+      "retry_backlog": 0
+    },
+    {
+      "cycle": 3,
+      "started_at": "2026-09-25T15:55:10.641585+00:00",
+      "finished_at": "2026-09-25T15:55:10.641601+00:00",
+      "rows": 5,
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_inserted": 0,
+      "canonical_skipped": 5,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY",
+      "retry_backlog": 0
+    },
+    {
+      "cycle": 4,
+      "started_at": "2026-09-25T15:55:14.181358+00:00",
+      "finished_at": "2026-09-25T15:55:14.181382+00:00",
+      "rows": 5,
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_inserted": 0,
+      "canonical_skipped": 5,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY",
+      "retry_backlog": 0
+    },
+    {
+      "cycle": 5,
+      "started_at": "2026-09-25T15:55:17.673333+00:00",
+      "finished_at": "2026-09-25T15:55:17.673347+00:00",
+      "rows": 5,
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_inserted": 0,
+      "canonical_skipped": 5,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY",
+      "retry_backlog": 0
+    }
+  ],
+  "total_new_observations": 1,
+  "reconciliation": {
+    "EXACT_EQUIVALENT": 25
+  },
+  "freshness": {
+    "domain": "MARKET_PRICE",
+    "authority": "CANONICAL",
+    "latest_canonical_observation_time": "2026-09-25 19:25:02.583652+03:30",
+    "latest_canonical_trade_date": "2026-09-25",
+    "canonical_rows": 706058,
+    "retry_backlog": 0,
+    "health": "HEALTHY",
+    "generated_at": "2026-09-25T15:55:18.178364+00:00"
+  }
+}

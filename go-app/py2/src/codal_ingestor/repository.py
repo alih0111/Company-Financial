@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 
 from sqlalchemy import delete, select
@@ -32,6 +33,11 @@ class SaveResult:
 
 class ReportRepository:
     def __init__(self, session: Session) -> None:
+        warnings.warn(
+            "codal_ingestor.ReportRepository targets a NON-CANONICAL schema and is "
+            "deprecated for canonical writes. Use canonical_ingest (canonical v1.2.1).",
+            DeprecationWarning, stacklevel=2,
+        )
         self.session = session
 
     def save_monthly(self, data: MonthlyReportData) -> SaveResult:

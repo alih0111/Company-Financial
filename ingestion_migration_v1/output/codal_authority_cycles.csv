@@ -1,0 +1,6 @@
+tracing_no,symbol,company,outcome,status,quarantine_class,has_raw
+1603208,زشک,تولیدی حسنانو,QUARANTINED_IDENTITY,quarantined,EXPECTED_SCOPE_EXCLUSION,False
+1603147,زشک,تولیدی حسنانو,QUARANTINED_IDENTITY,quarantined,EXPECTED_SCOPE_EXCLUSION,False
+1602429,شکیمیا,کیمیا پلی استر قم,QUARANTINED_IDENTITY,quarantined,ALIAS_MAPPING_REQUIRED,False
+1602865,فساپ,سازه پوشش ماموت,QUARANTINED_IDENTITY,quarantined,EXPECTED_SCOPE_EXCLUSION,False
+1602820,توسعه تمدن بازار,صندوق سرمایه گذاری اختصاصی بازارگردانی توسعه بازار تمدن,QUARANTINED_IDENTITY,quarantined,EXPECTED_SCOPE_EXCLUSION,False

@@ -1,0 +1,16 @@
+run_id,domain,legacy_rows,inserted,skipped,EXACT_EQUIVALENT,mismatch
+market_price--c1,market_price,3,0,3,3,0
+market_price--c2,market_price,3,0,3,3,0
+market_price--c3,market_price,3,0,3,3,0
+monthly_activity-قاسم-c1,monthly_activity,2,0,8,8,0
+monthly_activity-چکاپا-c1,monthly_activity,2,6,2,8,0
+monthly_activity-قاسم-c2,monthly_activity,2,0,8,8,0
+monthly_activity-چکاپا-c2,monthly_activity,2,0,8,8,0
+monthly_activity-قاسم-c3,monthly_activity,2,0,8,8,0
+monthly_activity-چکاپا-c3,monthly_activity,2,0,8,8,0
+financial_statement-تاصیکو-c1,financial_statement,50,0,56,56,0
+financial_statement-قاسم-c1,financial_statement,47,0,53,53,0
+financial_statement-تاصیکو-c2,financial_statement,50,0,56,56,0
+financial_statement-قاسم-c2,financial_statement,47,0,53,53,0
+financial_statement-تاصیکو-c3,financial_statement,50,0,56,56,0
+financial_statement-قاسم-c3,financial_statement,47,0,53,53,0

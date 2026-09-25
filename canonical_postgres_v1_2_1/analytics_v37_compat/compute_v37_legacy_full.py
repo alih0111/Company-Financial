@@ -1,21 +1,21 @@
 """Full v3.7 compatibility computation over the exact 276 legacy scoring subjects.
 
-COMPATIBILITY_ONLY_NOT_CANONICAL.
+COMPATIBILITY_ONLY_NOT_CANONICAL. FROZEN as Golden Regression Oracle.
 
-Inputs:
-  * analytics_parity_debug/v37_scoring_subjects.csv               (population)
-  * analytics_parity_debug/reference/legacy_v37_financial_inputs.csv (frozen, read-only)
+Inputs (all frozen, no SQL Server at runtime):
+  * analytics_parity_debug/v37_scoring_subjects.csv
+  * analytics_parity_debug/reference/legacy_v37_financial_inputs.csv
   * analytics_parity_debug/reference/legacy_v37_monthly_inputs.csv
-  * canonical market.price_observations (mapped subjects only)
+  * analytics_parity_debug/reference/legacy_v37_market_inputs.csv
 
-Reuses the ported pipeline in compute_v37_faithful (build_report/compute_company/
-rank_all/scores). Legacy Product1 is taken from the frozen snapshot rather than
-reconstructed. No canonical fact is read for Product1 and nothing is written back.
+Reuses the ported pipeline in compute_v37_faithful. Legacy Product1 is taken
+from the frozen snapshot (exact), never reconstructed in production canonical facts.
 """
 
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -26,15 +26,11 @@ sys.path.insert(0, str(BASE / "migration_tools"))
 sys.path.insert(0, str(HERE))
 
 import compute_v37_faithful as C  # noqa: E402
-from common import pg_pilot_conn  # noqa: E402
 
 OUT = BASE / "analytics_parity_debug"
 REFDIR = OUT / "reference"
 PARITY = BASE / "analytics_parity"
-CTX = json.loads((PARITY / "reference_context.json").read_text(encoding="utf-8"))
-CUTOFF = CTX["analysis_cutoff_at_utc"]
 
-# legacy column -> (metric, period_order)
 FIELD_MAP = {
     "Num1_Value1": ("eps", 1), "Num1_Value2": ("eps", 2), "Num1_Value3": ("eps", 3),
     "Num2_Value1": ("capital", 1), "Num2_Value2": ("capital", 2), "Num2_Value3": ("capital", 3),
@@ -55,6 +51,32 @@ FIELD_MAP = {
     "TotalEquity": ("total_equity", 1),
 }
 
+# Golden output surface (ordered subject IDs + metrics + factors + penalties + QuantScore).
+GOLDEN_FIELDS = [
+    "SalesLast12M", "SalesPrev12M", "SalesGrowth12M", "SalesGrowth3M", "SalesStability",
+    "TTMNetProfit", "TTMNetProfitP1", "TTMNetProfitPrev", "SR_TTMNetProfit", "NPUnitRatio",
+    "LatestOperatingProfit", "LatestOperatingProfitLastYear",
+    "OperatingMargin12M", "OperatingMarginLatest", "NetProfitMargin12M",
+    "OperatingMarginTrend", "RevenueGrowthYoY", "InterestCoverage", "NonOperatingPct",
+    "ROE", "FinancialLeverage", "CurrentRatio", "CashConversion",
+    "LatestPrice", "PEApprox", "TTMEPS", "PriceReturn7D", "PriceReturn30D", "PriceReturn90D",
+    "AvgTradeValue30D", "Volatility30D",
+    "NetProfitGrowthTTM", "OperatingProfitGrowthTTM",
+    "GrowthScore", "ProfitabilityScore", "ValuationScore", "MarketScore", "DataQualityScore",
+    "GrowthPenalty", "ProfitabilityPenalty", "ValuationPenalty", "MarketPenalty",
+    "QuantScore",
+]
+# 21 factor rank columns
+GOLDEN_FIELDS += sorted([
+    "SalesGrowthRank", "SalesGrowth3MRank", "RevenueGrowthRank", "OperatingProfitGrowthRank",
+    "NetProfitGrowthRank", "OperatingMarginRank", "NetMarginRank", "MarginTrendRank",
+    "InterestCoverageRank", "EarningsQualityRank", "PERank", "PSRank", "LiquidityRank",
+    "StabilityRank", "LowVolatilityRank", "MomentumRank", "ROERank", "LeverageRank",
+    "CurrentRatioRank", "CashConversionRank", "PBRank",
+])
+
+FACTOR_RANKS = [f for f in GOLDEN_FIELDS if f.endswith("Rank")]
+
 
 def fnum(x):
     if x is None or x == "":
@@ -70,13 +92,10 @@ def jkey(rd):
     return y * 10000 + m * 100 + d, y, m
 
 
-def main() -> int:
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "comparison_data").mkdir(parents=True, exist_ok=True)
-
+def build_metrics() -> dict:
+    """Compute the frozen v3.7 compat metrics for all 276 subjects."""
     subjects = list(csv.DictReader(open(OUT / "v37_scoring_subjects.csv", encoding="utf-8-sig")))
-    # legacy financial inputs -> per company, per (year,month)
+
     fin_by = {}
     for r in csv.DictReader(open(REFDIR / "legacy_v37_financial_inputs.csv", encoding="utf-8-sig")):
         cid = r["legacy_company_id"]
@@ -86,24 +105,20 @@ def main() -> int:
             v = fnum(r.get(col))
             if v is not None:
                 facts.setdefault(metric, {})[order] = v
-        p1 = fnum(r.get("Product1"))
-        fin_by.setdefault(cid, []).append((k, y, m, facts, p1))
+        fin_by.setdefault(cid, []).append((k, y, m, facts, fnum(r.get("Product1"))))
 
-    report = {}      # cid -> (y,mo) -> build_report
+    report = {}
     for cid, rows in fin_by.items():
         rows.sort(key=lambda t: t[0])
         for k, y, m, facts, p1 in rows:
             report.setdefault(cid, {})[(y, m)] = C.build_report(facts, product1_override=p1)
 
-    # monthly legacy inputs -> distinct (ReportDate, Value3)
     monthly_by = {}
     for r in csv.DictReader(open(REFDIR / "legacy_v37_monthly_inputs.csv", encoding="utf-8-sig")):
         v = fnum(r.get("Value3"))
-        if v is None:
-            continue
-        monthly_by.setdefault(r["legacy_company_id"], set()).add((r["ReportDate"], v))
+        if v is not None:
+            monthly_by.setdefault(r["legacy_company_id"], set()).add((r["ReportDate"], v))
 
-    # frozen legacy market inputs (per legacy CompanyID) — exact v3.7 semantics
     import datetime as _dt
     px_by = {}
     for r in csv.DictReader(open(REFDIR / "legacy_v37_market_inputs.csv", encoding="utf-8-sig")):
@@ -126,7 +141,6 @@ def main() -> int:
     for s in subjects:
         cid = s["legacy_company_id"]
         sym = s["symbol"] or cid
-        sec_id = s["canonical_security_id"] or None
         periods = report.get(cid, {})
         msales = sorted(monthly_by.get(cid, set()), key=lambda t: t[0], reverse=True)
         mpx = px_by.get(cid, [])
@@ -137,18 +151,34 @@ def main() -> int:
         else:
             y = mo = None
             info = C.empty_report()
-        metrics[cid] = C.compute_company(sym, cid, sec_id, y, mo, {}, info, periods, msales, mpx)
+        metrics[cid] = C.compute_company(sym, cid, s["canonical_security_id"] or None,
+                                         y, mo, {}, info, periods, msales, mpx)
         metrics[cid]["legacy_subject_id"] = s["legacy_subject_id"]
 
     C.rank_all(metrics)
     for m in metrics.values():
         C.scores(m)
+    return metrics
 
-    # ---- comparison keyed by legacy CompanyID ----
+
+def golden_payload(metrics: dict) -> dict:
+    return {cid: {f: metrics[cid].get(f) for f in GOLDEN_FIELDS}
+            for cid in sorted(metrics.keys())}
+
+
+def golden_hash(metrics: dict) -> str:
+    return hashlib.sha256(json.dumps(golden_payload(metrics), sort_keys=True, default=str).encode()).hexdigest()
+
+
+def main() -> int:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT / "comparison_data").mkdir(parents=True, exist_ok=True)
+    metrics = build_metrics()
+
     ref_rows = list(csv.DictReader(open(PARITY / "reference" / "v37_full_snapshot.csv", encoding="utf-8-sig")))
     ref = {r["CompanyID"]: r for r in ref_rows}
-    ref_ids = set(ref.keys())
-    met_ids = set(metrics.keys())
+    ref_ids, met_ids = set(ref), set(metrics)
     only_ref = sorted(ref_ids - met_ids)
     only_met = sorted(met_ids - ref_ids)
     (OUT / "population_exact_diff.csv").write_text(
@@ -160,9 +190,9 @@ def main() -> int:
 
     base_cols = ["SalesLast12M", "SalesPrev12M", "SalesGrowth12M", "TTMNetProfit",
                  "PEApprox", "QuantScore", "OperatingMargin12M", "NetProfitMargin12M", "ROE"]
-    rank_cols = sorted(k for k in next(iter(metrics.values())) if k.endswith("Rank"))
+    rank_cols = FACTOR_RANKS
 
-    def stats(rows, key, tol_kind):
+    def stats(key, tol_kind):
         ex = wi = mm = n = 0
         mx = 0.0
         for cid, m in metrics.items():
@@ -196,14 +226,14 @@ def main() -> int:
              "| reference column | compared | exact | within tol | mismatch | max abs |",
              "| --- | --- | --- | --- | --- | --- |"]
     for c in base_cols:
-        n, ex, wi, mm, mx = stats(metrics, c, "abs" if c in ("SalesLast12M", "SalesPrev12M", "TTMNetProfit") else "rel")
+        n, ex, wi, mm, mx = stats(c, "abs" if c in ("SalesLast12M", "SalesPrev12M", "TTMNetProfit") else "rel")
         summary[c] = {"compared": n, "exact": ex, "within": wi, "mismatch": mm, "max_abs": mx}
         lines.append(f"| {c} | {n} | {ex} | {wi} | {mm} | {mx:.6g} |")
     lines += ["", "## Rank factor parity", "",
               "| factor rank | compared | exact | within 0.01 | mismatch | max abs |",
               "| --- | --- | --- | --- | --- | --- |"]
     for c in rank_cols:
-        n, ex, wi, mm, mx = stats(metrics, c, "rel")
+        n, ex, wi, mm, mx = stats(c, "rel")
         summary[c] = {"compared": n, "exact": ex, "within": wi, "mismatch": mm, "max_abs": mx}
         lines.append(f"| {c} | {n} | {ex} | {wi} | {mm} | {mx:.4g} |")
     lines.append("")
@@ -212,22 +242,16 @@ def main() -> int:
     for ln in lines:
         print(ln)
 
-    # regression guard: summaries must not all share one metric's statistics
     sigs = {(v["exact"], v["within"], v["mismatch"]) for v in summary.values()}
     if len(sigs) < 2:
         raise SystemExit("REGRESSION: all metric summaries share identical stats — summary writer is broken")
     (OUT / "comparison_data" / "_comparison_summary_legacy_full.json").write_text(
         json.dumps(summary, indent=2), encoding="utf-8")
 
-    import hashlib
-    h = hashlib.sha256(json.dumps(
-        {cid: [m.get("QuantScore"), m.get("TTMNetProfit"),
-               m.get("SalesGrowth12M"), m.get("OperatingProfitGrowthTTM")]
-         for cid, m in sorted(metrics.items())}, default=str).encode()).hexdigest()
+    h = golden_hash(metrics)
     (OUT / "comparison_data" / "_compute_hash_legacy_full.txt").write_text(h, encoding="utf-8")
     print("output hash:", h)
 
-    # dump for debugging
     dump_cols = base_cols + ["TTMNetProfitP1", "TTMNetProfitPrev", "SR_TTMNetProfit", "NPUnitRatio",
                              "OperatingMarginTrend", "NonOperatingPct", "InterestCoverage",
                              "CashConversion", "FinancialLeverage", "CurrentRatio",
@@ -241,10 +265,8 @@ def main() -> int:
         w.writerow(["legacy_company_id", "symbol"] + [f"compat__{c}" for c in dump_cols] + [f"ref__{c}" for c in dump_cols])
         for cid, m in sorted(metrics.items()):
             r = ref.get(cid, {})
-            def rv(c):
-                x = r.get(c) if r else None
-                return x if x is not None else ""
-            w.writerow([cid, m.get("symbol")] + [m.get(c) for c in dump_cols] + [rv(c) for c in dump_cols])
+            w.writerow([cid, m.get("symbol")] + [m.get(c) for c in dump_cols]
+                       + [(r.get(c) if r.get(c) is not None else "") for c in dump_cols])
     return 0
 
 

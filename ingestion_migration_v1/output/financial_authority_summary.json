@@ -1,0 +1,331 @@
+{
+  "generated_at": "2026-09-25T16:13:59.325037+00:00",
+  "authority": "CANONICAL",
+  "cycles": [
+    {
+      "cycle": 1,
+      "company": "تاصیکو",
+      "kind": "strong",
+      "period": "1405/05/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 28,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "تاصیکو",
+      "kind": "strong",
+      "period": "1404/11/30",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 28,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "قاسم",
+      "kind": "strong",
+      "period": "1405/03/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 28,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "قاسم",
+      "kind": "strong",
+      "period": "1404/12/29",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 22,
+      "canonical_inserted": 0,
+      "canonical_skipped": 25,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "کسرا",
+      "kind": "alias",
+      "period": "1405/03/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 28,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "کسرا",
+      "kind": "alias",
+      "period": "1404/12/29",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 10,
+      "canonical_inserted": 0,
+      "canonical_skipped": 13,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/05/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 3,
+      "canonical_skipped": 25,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/02/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 10,
+      "canonical_inserted": 3,
+      "canonical_skipped": 10,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 1,
+      "company": "شکیمیا",
+      "kind": "legacy_only",
+      "period": "1405/03/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "quarantined",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 0,
+      "legacy_mirror_status": "success",
+      "health": "IDENTITY_QUARANTINE"
+    },
+    {
+      "cycle": 1,
+      "company": "شکیمیا",
+      "kind": "legacy_only",
+      "period": "1404/12/29",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "quarantined",
+      "facts": 20,
+      "canonical_inserted": 0,
+      "canonical_skipped": 0,
+      "legacy_mirror_status": "success",
+      "health": "IDENTITY_QUARANTINE"
+    },
+    {
+      "cycle": 2,
+      "company": "تاصیکو",
+      "kind": "strong",
+      "period": "1405/05/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 28,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "تاصیکو",
+      "kind": "strong",
+      "period": "1404/11/30",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 28,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "قاسم",
+      "kind": "strong",
+      "period": "1405/03/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 28,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "قاسم",
+      "kind": "strong",
+      "period": "1404/12/29",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 22,
+      "canonical_inserted": 0,
+      "canonical_skipped": 25,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "کسرا",
+      "kind": "alias",
+      "period": "1405/03/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 28,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "کسرا",
+      "kind": "alias",
+      "period": "1404/12/29",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 10,
+      "canonical_inserted": 0,
+      "canonical_skipped": 13,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/05/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 28,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "چکاپا",
+      "kind": "sparse",
+      "period": "1405/02/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "written",
+      "facts": 10,
+      "canonical_inserted": 0,
+      "canonical_skipped": 13,
+      "legacy_mirror_status": "success",
+      "health": "HEALTHY"
+    },
+    {
+      "cycle": 2,
+      "company": "شکیمیا",
+      "kind": "legacy_only",
+      "period": "1405/03/31",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "quarantined",
+      "facts": 25,
+      "canonical_inserted": 0,
+      "canonical_skipped": 0,
+      "legacy_mirror_status": "success",
+      "health": "IDENTITY_QUARANTINE"
+    },
+    {
+      "cycle": 2,
+      "company": "شکیمیا",
+      "kind": "legacy_only",
+      "period": "1404/12/29",
+      "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS",
+      "canonical_status": "quarantined",
+      "facts": 20,
+      "canonical_inserted": 0,
+      "canonical_skipped": 0,
+      "legacy_mirror_status": "success",
+      "health": "IDENTITY_QUARANTINE"
+    }
+  ],
+  "canonical_inserted": 6,
+  "canonical_skipped": 376,
+  "reconciliation": {
+    "EXACT_EQUIVALENT": 40,
+    "EXPECTED_UNIT_CONVERSION": 127
+  },
+  "failure_injection": {
+    "canonical_unavailable": {
+      "outcome": "CANONICAL_FAILED_LEGACY_FALLBACK_USED"
+    },
+    "legacy_mirror_failure": {
+      "outcome": "CANONICAL_SUCCESS_LEGACY_MIRROR_FAILED"
+    },
+    "unresolved_identity": {
+      "outcome": "CANONICAL_FAILED_LEGACY_FALLBACK_USED",
+      "status": "no_legacy_row"
+    }
+  },
+  "parser_rerun": {
+    "before": {
+      "versions": 2,
+      "parse_runs": 2
+    },
+    "after": {
+      "versions": 2,
+      "parse_runs": 2
+    },
+    "new_parse_run_without_new_version": true
+  },
+  "lineage": {
+    "statements": 7549,
+    "facts": 71361,
+    "report_versions": 19002,
+    "parse_runs": 19007,
+    "forbidden_facts": 0
+  },
+  "ttm_chain": {
+    "company_id": "020b03ab-9adc-434a-a289-a0db68763552",
+    "statement_periods": 30,
+    "metrics": {
+      "capital": 3,
+      "eps": 3,
+      "finance_cost": 2,
+      "net_profit": 3,
+      "operating_eps": 3,
+      "operating_profit": 3,
+      "other_non_operating": 2,
+      "revenue": 3
+    },
+    "report_chain_ttm_feasible": true
+  },
+  "retry_replayed": 2,
+  "freshness": {
+    "domain": "FINANCIAL_STATEMENT",
+    "authority": "CANONICAL",
+    "latest_source_report": "1405/05/31",
+    "latest_canonical_period": "2026-08-22",
+    "latest_canonical_write": "2026-09-25 00:22:53.352956+03:30",
+    "statements": 7549,
+    "legacy_mirror_state": "active",
+    "retry_backlog": 0,
+    "quarantine_count": 24,
+    "health": "IDENTITY_QUARANTINE",
+    "generated_at": "2026-09-25T16:13:59.324926+00:00"
+  }
+}

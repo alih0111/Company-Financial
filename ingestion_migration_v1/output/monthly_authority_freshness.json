@@ -1,0 +1,12 @@
+{
+  "domain": "MONTHLY_ACTIVITY",
+  "authority": "CANONICAL",
+  "latest_source_period": "1405/06/31",
+  "latest_canonical_period": "2026-09-22",
+  "canonical_rows": 12075,
+  "quarantine_count": 15,
+  "legacy_mirror_state": "active",
+  "retry_backlog": 0,
+  "health": "IDENTITY_QUARANTINE",
+  "generated_at": "2026-09-25T16:01:04.451704+00:00"
+}

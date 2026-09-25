@@ -5,14 +5,18 @@ import (
 	"math"
 	"net/http"
 	"strings"
+	"time"
 
 	"go-app/config"
+	"go-app/integration"
 	"go-app/models"
 
 	"github.com/gin-gonic/gin"
 )
 
 func GetSalesData2(c *gin.Context) {
+	start := time.Now()
+
 	db := config.GetDB()
 	defer db.Close()
 
@@ -36,6 +40,7 @@ func GetSalesData2(c *gin.Context) {
 	defer rows.Close()
 
 	var data []models.SalesData2
+	var shadowRows []integration.MonthlyInputRow
 	for rows.Next() {
 		var s models.SalesData2
 		var v1, v2, v3 sql.NullFloat64
@@ -48,6 +53,19 @@ func GetSalesData2(c *gin.Context) {
 		s.Value1 = nullToFloat(v1)
 		s.Value2 = nullToFloat(v2)
 		s.Value3 = nullToFloat(v3)
+
+		// SHADOW row uses the stored (pre-presentation) values. Value1/2 are
+		// quantities; Value3 is the reported sales amount in million_rial.
+		// The /1_000_000 division below is legacy API presentation and is not
+		// applied to the comparison.
+		shadowRows = append(shadowRows, integration.MonthlyInputRow{
+			LegacyCompanyID:     s.CompanyID,
+			ReportDate:          s.ReportDate,
+			ProductionQuantity:  s.Value1,
+			SalesQuantity:       s.Value2,
+			ReportedSalesAmount: s.Value3,
+			SalesAmountRial:     s.Value3,
+		})
 
 		// if s.Value1 == 0 {
 		// 	continue
@@ -67,6 +85,12 @@ func GetSalesData2(c *gin.Context) {
 		}
 
 		data = append(data, s)
+	}
+
+	// SHADOW: compare against canonical fundamentals.monthly_activities. The
+	// legacy response data above is authoritative and unchanged.
+	if sh := integration.Default(); sh.Enabled() {
+		sh.CompareSalesData2(c.Request.Context(), shadowRows, time.Since(start))
 	}
 
 	c.JSON(http.StatusOK, data)

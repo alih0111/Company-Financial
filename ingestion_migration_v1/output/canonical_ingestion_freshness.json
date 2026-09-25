@@ -1,0 +1,23 @@
+{
+  "generated_at": "2026-09-25T14:42:42.972497+00:00",
+  "market": {
+    "legacy_latest_date": "2026-09-25",
+    "canonical_rows": 706054,
+    "canonical_last_write": "2026-09-25 17:59:42.765663+03:30"
+  },
+  "monthly_activity": {
+    "legacy_latest_period": "1405/06/31",
+    "canonical_rows": 12075,
+    "canonical_last_write": "2026-09-25 00:22:53.352956+03:30"
+  },
+  "financial_statement": {
+    "legacy_latest_period": "1405/05/31",
+    "canonical_facts": 71361,
+    "canonical_last_write": "2026-09-25 00:22:53.352956+03:30"
+  },
+  "reports": 18990,
+  "raw_payloads": 0,
+  "open_identity_quarantines": 33,
+  "analytics_score_runs_unchanged": 4,
+  "mode": "dual_write"
+}

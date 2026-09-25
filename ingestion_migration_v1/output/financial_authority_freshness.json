@@ -1,0 +1,13 @@
+{
+  "domain": "FINANCIAL_STATEMENT",
+  "authority": "CANONICAL",
+  "latest_source_report": "1405/05/31",
+  "latest_canonical_period": "2026-08-22",
+  "latest_canonical_write": "2026-09-25 00:22:53.352956+03:30",
+  "statements": 7549,
+  "legacy_mirror_state": "active",
+  "retry_backlog": 0,
+  "quarantine_count": 24,
+  "health": "IDENTITY_QUARANTINE",
+  "generated_at": "2026-09-25T16:13:59.324926+00:00"
+}

@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-09-25T12:24:02Z",
+  "enabled": true,
+  "symbol_count": 3,
+  "symbols": [
+    "غاذر",
+    "کسرا",
+    "کیمیا"
+  ],
+  "percent": 0,
+  "verify": true,
+  "timeout_ms": 1500,
+  "counters": {
+    "canary_selected": 45,
+    "canary_success": 45,
+    "comparison_exact": 50925,
+    "comparison_expected": 0,
+    "comparison_unexpected": 0,
+    "legacy_served_requests": 6,
+    "total_requests": 51
+  },
+  "latency": {
+    "canonical_median_ms": 2.11,
+    "canonical_p95_ms": 3.426,
+    "legacy_median_ms": 66.823,
+    "legacy_p95_ms": 77.555,
+    "fallback_median_ms": 0,
+    "fallback_p95_ms": 0
+  },
+  "per_symbol": {
+    "زگلدشت": {
+      "requests": 1,
+      "canonical_served": 0,
+      "fallbacks": 0,
+      "canonical_errors": 0,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 79.82,
+      "legacy_p95_ms": 79.82
+    },
+    "سباقر": {
+      "requests": 5,
+      "canonical_served": 0,
+      "fallbacks": 0,
+      "canonical_errors": 0,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 66.823,
+      "legacy_p95_ms": 76.735
+    },
+    "غاذر": {
+      "requests": 15,
+      "canonical_served": 15,
+      "fallbacks": 0,
+      "canonical_errors": 0,
+      "comparison_exact": 16975,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 1.985,
+      "canonical_p95_ms": 2.514,
+      "legacy_median_ms": 69.366,
+      "legacy_p95_ms": 121.293
+    },
+    "کسرا": {
+      "requests": 15,
+      "canonical_served": 15,
+      "fallbacks": 0,
+      "canonical_errors": 0,
+      "comparison_exact": 16975,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 2.124,
+      "canonical_p95_ms": 2.898,
+      "legacy_median_ms": 83.713,
+      "legacy_p95_ms": 125.88
+    },
+    "کیمیا": {
+      "requests": 15,
+      "canonical_served": 15,
+      "fallbacks": 0,
+      "canonical_errors": 0,
+      "comparison_exact": 16975,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 2.434,
+      "canonical_p95_ms": 3.645,
+      "legacy_median_ms": 73.426,
+      "legacy_p95_ms": 93.974
+    }
+  },
+  "sample_count": 51,
+  "unexpected_differences": 0,
+  "canonical_errors": 0
+}

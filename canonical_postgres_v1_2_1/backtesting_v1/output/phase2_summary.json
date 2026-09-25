@@ -1,0 +1,399 @@
+{
+  "config": {
+    "start_date": "2021-01-01",
+    "end_date": "2026-06-30",
+    "rebalance_freq": "M",
+    "signal_convention": "close_of_signal_date_as_of",
+    "execution_convention": "next_trading_day_close",
+    "return_convention": "raw_price_return",
+    "horizons": [
+      5,
+      21,
+      63
+    ],
+    "portfolio_mode": "top_n",
+    "top_n": 20,
+    "top_pct": 0.1,
+    "weighting": "equal",
+    "cost_bps_per_side": 10.0,
+    "benchmark": "equal_weight_tradable_universe",
+    "quantile_buckets": 5,
+    "coverage_buckets": [
+      7,
+      14
+    ],
+    "min_tradable_signals": 5
+  },
+  "frozen_model": {
+    "score_version": "canonical-v1-dev",
+    "implementation_revision": "report-chain-ttm-v1",
+    "metric_spec_hash": "c00a231fb357477aaf124920d81752759935bf0416da6beeab69eb5a141af39e",
+    "report_chain_spec_hash": "dc8b1d25f81ed90b718c6f68d16fbd346521bfa4aca246a7164732f435d4d659",
+    "factor_review_hash": "6fe57ebf6889c5345eca40098813d90baea9fa7829aea49e4484b0a7f348953f",
+    "missing_data_contract_hash": "bb5b9d939b6eda47c78bd3346e8f9833ca2b7e444eb7867b45c138da4edc96e2",
+    "weights_validated": false,
+    "baseline_weights_note": "NOT VALIDATED FOR CANONICAL V1 (prototype baseline)"
+  },
+  "portfolio_path": {
+    "contiguous_non_overlapping": true,
+    "n_intervals": 65,
+    "n_cash_intervals": 4,
+    "cash_intervals": [
+      "2026-01-31",
+      "2026-02-25",
+      "2026-03-31",
+      "2026-04-29"
+    ],
+    "zero_tradable_dates": [
+      "2026-02-25",
+      "2026-03-31",
+      "2026-04-29"
+    ],
+    "n_missing_exit_total": 77,
+    "portfolio": {
+      "n": 65,
+      "cumulative_return": 7.214283551333301,
+      "mean_period_return": 0.037347515058117745,
+      "volatility": 0.09850395154170544,
+      "annualized_return": 0.47517531050754735,
+      "max_drawdown": -0.23181531096554164,
+      "sharpe_like": 1.3134050483186064,
+      "hit_rate": 0.6
+    },
+    "portfolio_net": {
+      "n": 65,
+      "cumulative_return": 6.904611966382821,
+      "mean_period_return": 0.036735207365810055,
+      "volatility": 0.09843945554641302,
+      "annualized_return": 0.46474682091818154,
+      "max_drawdown": -0.23410289046136779,
+      "sharpe_like": 1.2927183562928584,
+      "hit_rate": 0.5692307692307692
+    },
+    "benchmark": {
+      "n": 65,
+      "cumulative_return": 2.4961995967174793,
+      "mean_period_return": 0.023681889828638416,
+      "volatility": 0.09535978130773383,
+      "annualized_return": 0.25995845414151386,
+      "max_drawdown": -0.3109480739952075,
+      "sharpe_like": 0.8602837766601233,
+      "hit_rate": 0.47692307692307695
+    },
+    "mean_turnover": 0.3061538461538461
+  },
+  "cost_grid": [
+    {
+      "cost_bps_per_side": 0,
+      "gross_cumulative": 7.214283551333301,
+      "net_cumulative": 7.214283551333301,
+      "net_annualized": 0.47517531050754735,
+      "net_sharpe_like": 1.3134050483186064
+    },
+    {
+      "cost_bps_per_side": 10,
+      "gross_cumulative": 7.214283551333301,
+      "net_cumulative": 6.904611966382821,
+      "net_annualized": 0.46474682091818154,
+      "net_sharpe_like": 1.2927183562928584
+    },
+    {
+      "cost_bps_per_side": 25,
+      "gross_cumulative": 7.214283551333301,
+      "net_cumulative": 6.461435381614079,
+      "net_annualized": 0.4492270773468445,
+      "net_sharpe_like": 1.2616063951154874
+    },
+    {
+      "cost_bps_per_side": 50,
+      "gross_cumulative": 7.214283551333301,
+      "net_cumulative": 5.776310323569621,
+      "net_annualized": 0.42368577322660106,
+      "net_sharpe_like": 1.2095405394478367
+    }
+  ],
+  "market_revision": {
+    "total_obs": 705812,
+    "distinct_keys": 705685,
+    "conflicting_keys": 126,
+    "conflicting_pct": 0.0179
+  },
+  "corporate_actions": {
+    "rows": 0,
+    "return_convention": "raw_price_return",
+    "extreme_events": 1250,
+    "selected_extreme_exposure": 6,
+    "selected_extreme_exposure_pct": 0.484,
+    "benchmark_extreme_exposure": 21,
+    "benchmark_extreme_exposure_pct": 0.16
+  },
+  "raw_ic": {
+    "mean": 0.10879117154948027,
+    "ci_low": 0.07356174466537208,
+    "ci_high": 0.14153146530819857,
+    "n": 62
+  },
+  "coverage_controlled_ic": {
+    "low": {
+      "mean": 0.1118902890416466,
+      "ci_low": 0.07635467081896666,
+      "ci_high": 0.14399650669845052,
+      "n": 62
+    },
+    "medium": {
+      "mean": -0.07410415671285234,
+      "ci_low": -0.24223602484472045,
+      "ci_high": 0.09689440993788818,
+      "n": 46
+    },
+    "high": {
+      "mean": 0.15468351929949403,
+      "ci_low": 0.057507845510917026,
+      "ci_high": 0.25019201228878646,
+      "n": 62
+    }
+  },
+  "coverage_neutralized_ic": {
+    "mean": 0.12386654778750782,
+    "ci_low": 0.0857153100716882,
+    "ci_high": 0.15685517318754977,
+    "n": 62,
+    "label": "DIAGNOSTIC_ONLY_NOT_MODEL"
+  },
+  "partial_association": {
+    "pooled_intercept": -0.014549352388699737,
+    "pooled_score_coef": 0.0015550867848771978,
+    "pooled_n_factors_coef": 0.00022129124469420254,
+    "per_date_score_coef_mean": 0.0015820110894423992,
+    "per_date_n_factors_coef_mean": -0.0019635264894558723,
+    "n_dates": 62
+  },
+  "pearson_score_vs_n_factors": 0.5814992262966393,
+  "horizon_diagnostics": [
+    {
+      "horizon_days": 5,
+      "mean": 0.033493968426974274,
+      "ci_low": 0.011517819891290871,
+      "ci_high": 0.056823495900712916,
+      "n": 63,
+      "target": "quant_score"
+    },
+    {
+      "horizon_days": 21,
+      "mean": 0.10879117154948027,
+      "ci_low": 0.07356174466537208,
+      "ci_high": 0.14153146530819857,
+      "n": 62,
+      "target": "quant_score"
+    },
+    {
+      "horizon_days": 63,
+      "mean": 0.15190583725120438,
+      "ci_low": 0.12181438200676253,
+      "ci_high": 0.18439187625118741,
+      "n": 60,
+      "target": "quant_score"
+    }
+  ],
+  "time_robustness": {
+    "2021": {
+      "mean_ic": 0.06661328678539004,
+      "n": 12
+    },
+    "2022": {
+      "mean_ic": 0.044480612106666866,
+      "n": 12
+    },
+    "2023": {
+      "mean_ic": 0.03772796020025984,
+      "n": 12
+    },
+    "2024": {
+      "mean_ic": 0.1963710504529582,
+      "n": 12
+    },
+    "2025": {
+      "mean_ic": 0.1655024247256474,
+      "n": 12
+    },
+    "2026": {
+      "mean_ic": 0.30835431240835426,
+      "n": 2,
+      "flag": "INSUFFICIENT_PERIOD_COUNT_FOR_YEARLY_INFERENCE"
+    },
+    "2021-2023": {
+      "mean_ic": 0.04960728636410558,
+      "n": 36
+    },
+    "2024-2025": {
+      "mean_ic": 0.18093673758930282,
+      "n": 24
+    }
+  },
+  "liquidity_corr_score_vs_liquidity_rank": {
+    "n": 13303,
+    "spearman": null,
+    "note": "LiquidityRank constant historically: canonical trade_value_rial is populated only in 2026 (9,382/705,812 rows), so liquidity is neutral (0.0) for all historical signals; not measurable."
+  },
+  "corr_score_vs_market_score": {
+    "n": 13303,
+    "spearman": 0.29399268354712077
+  },
+  "matched_benchmark": {
+    "strategy_mean": 0.039796532438977926,
+    "matched_control_mean": 0.022823932625311568,
+    "strategy_minus_matched": 0.016972599813666354,
+    "n_periods": 63
+  },
+  "category_coverage": [
+    {
+      "category": "growth",
+      "coverage": "available",
+      "pooled_ic": 0.08879020809381247,
+      "n_obs": 11282
+    },
+    {
+      "category": "growth",
+      "coverage": "unavailable",
+      "pooled_ic": 0.0811920710984002,
+      "n_obs": 1130
+    },
+    {
+      "category": "profitability",
+      "coverage": "available",
+      "pooled_ic": 0.14708607120068726,
+      "n_obs": 781
+    },
+    {
+      "category": "profitability",
+      "coverage": "unavailable",
+      "pooled_ic": 0.08333338594978416,
+      "n_obs": 11631
+    },
+    {
+      "category": "valuation",
+      "coverage": "available",
+      "pooled_ic": 0.08871766894899351,
+      "n_obs": 12118
+    },
+    {
+      "category": "valuation",
+      "coverage": "unavailable",
+      "pooled_ic": 0.10743011950548659,
+      "n_obs": 294
+    },
+    {
+      "category": "market",
+      "coverage": "available",
+      "pooled_ic": 0.08855250831498523,
+      "n_obs": 12412
+    },
+    {
+      "category": "market",
+      "coverage": "unavailable",
+      "pooled_ic": null,
+      "n_obs": 0
+    }
+  ],
+  "concentration": {
+    "top5_companies": [
+      [
+        "3da407a7-55cd-41fb-b5bb-aadad01e6908",
+        0.11946148667357792
+      ],
+      [
+        "d3e54010-744b-4177-966a-8b5706b07309",
+        0.1022886850615885
+      ],
+      [
+        "45761726-5a5b-48ab-ae64-d8cad1de4bb3",
+        0.09180120961114055
+      ],
+      [
+        "3bc882ec-42f3-4aa6-9ff8-6ca689c91a1a",
+        0.08570269331824537
+      ],
+      [
+        "79c598a6-429c-4e12-94e6-c5b9b51e9cee",
+        0.0845798401120648
+      ]
+    ],
+    "top10_companies": [
+      [
+        "3da407a7-55cd-41fb-b5bb-aadad01e6908",
+        0.11946148667357792
+      ],
+      [
+        "d3e54010-744b-4177-966a-8b5706b07309",
+        0.1022886850615885
+      ],
+      [
+        "45761726-5a5b-48ab-ae64-d8cad1de4bb3",
+        0.09180120961114055
+      ],
+      [
+        "3bc882ec-42f3-4aa6-9ff8-6ca689c91a1a",
+        0.08570269331824537
+      ],
+      [
+        "79c598a6-429c-4e12-94e6-c5b9b51e9cee",
+        0.0845798401120648
+      ],
+      [
+        "3d594732-5172-49ca-b8c5-7b684189196d",
+        0.08163719660677787
+      ],
+      [
+        "9ff6a23c-5ade-4c8a-a72e-ab0449b274c1",
+        0.0719295429063354
+      ],
+      [
+        "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+        0.071199609456951
+      ],
+      [
+        "0bba31f6-1723-4fd0-90c1-462dc0e5857a",
+        0.06717192282970301
+      ],
+      [
+        "c5a432d6-bd29-4dbf-b63b-64ab36c80baf",
+        0.06542296573966624
+      ]
+    ],
+    "top5_periods": [
+      [
+        "2026-05-31",
+        0.36603190706083827
+      ],
+      [
+        "2023-03-29",
+        0.2837094169464004
+      ],
+      [
+        "2025-11-30",
+        0.25728535114674733
+      ],
+      [
+        "2025-09-30",
+        0.20817579797131847
+      ],
+      [
+        "2023-02-28",
+        0.20809453777324102
+      ]
+    ],
+    "share_of_positive_pnl_best_10pct_periods": 0.41198757923306384,
+    "n_periods": 65,
+    "n_companies_traded": 118
+  },
+  "hashes": {
+    "snapshots": "3c00733791dd857e7899db8f7678739a41ea7e2ced72739922adcdde9a95b7d4",
+    "portfolio_path": "01c4d8e79c19e804d63d841a9ca99ab33367ae225c9082b592403b37579aa47f",
+    "coverage_ic": "f13fe8fbeca5ba68261f0663d15d3109f012b369790b710853d5b70474976377",
+    "coverage_matrix": "4e0526621437d97a8c7dff73b1af6745c6fed8300782b96a6473811ce7033577",
+    "matched_benchmark": "4010fd83817c2f2da7acc021f9328f6fed4ae5a068755f269e0651a25af7b81f",
+    "market_revision": "0f832276b3b9be3c3c6a6fbe2bfb1cae2ed1eb5cfacad8cb6d5a27396e04d49f",
+    "raw_discontinuities": "c96cebf46c7fddf6196953027ae8193fe4788c3f567106cc0b4ee0b90fb161cf",
+    "summary": "777e4b7ea2bc6db07999fef89fd35dfd9c6dc71b73df1885f89e66299297ee17"
+  }
+}

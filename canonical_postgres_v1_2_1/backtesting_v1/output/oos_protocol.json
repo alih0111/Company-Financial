@@ -1,0 +1,27 @@
+{
+  "protocol": "chronological",
+  "development": [
+    "2021",
+    "2022",
+    "2023"
+  ],
+  "validation": [
+    "2024"
+  ],
+  "holdout": [
+    "2025"
+  ],
+  "forward_monitoring": [
+    "2026"
+  ],
+  "holdout_used_for_selection": false,
+  "rules": [
+    "no hyperparameter/weight selection on holdout",
+    "model selection only on development+validation",
+    "holdout evaluated once per experiment version",
+    "2026 treated as monitoring only (n=2 in-sample here)"
+  ],
+  "return_convention": "raw_price_return",
+  "rebalance": "M",
+  "frozen": true
+}

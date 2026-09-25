@@ -1,0 +1,220 @@
+{
+  "baseline": {
+    "score_version": "canonical-v1-dev",
+    "implementation_revision": "report-chain-ttm-v1",
+    "metric_spec_hash": "c00a231fb357477aaf124920d81752759935bf0416da6beeab69eb5a141af39e",
+    "report_chain_spec_hash": "dc8b1d25f81ed90b718c6f68d16fbd346521bfa4aca246a7164732f435d4d659",
+    "factor_review_hash": "6fe57ebf6889c5345eca40098813d90baea9fa7829aea49e4484b0a7f348953f",
+    "missing_data_contract_hash": "bb5b9d939b6eda47c78bd3346e8f9833ca2b7e444eb7867b45c138da4edc96e2",
+    "weights_validated": false,
+    "baseline_weights_note": "NOT VALIDATED FOR CANONICAL V1 (prototype baseline)"
+  },
+  "n_signals": 13303,
+  "n_dates": 63,
+  "classification_counts": {
+    "INSUFFICIENT_DATA": 9,
+    "TIME_UNSTABLE": 2,
+    "WEAK_BUT_CONSISTENT": 2,
+    "DIRECTION_UNSTABLE": 3,
+    "ROBUST_SIGNAL": 4,
+    "NO_MEASURABLE_SIGNAL": 1
+  },
+  "direction_review_required": [
+    "OperatingProfitGrowthRank",
+    "StabilityRank",
+    "MomentumRank",
+    "LeverageRank",
+    "CurrentRatioRank",
+    "CashConversionRank"
+  ],
+  "top_redundant_pairs": [
+    {
+      "factor_a": "PSRank",
+      "factor_b": "PBRank",
+      "rank_corr": 0.8388046332260578,
+      "n": 599
+    },
+    {
+      "factor_a": "LeverageRank",
+      "factor_b": "CurrentRatioRank",
+      "rank_corr": 0.7928376447700237,
+      "n": 610
+    },
+    {
+      "factor_a": "PERank",
+      "factor_b": "PSRank",
+      "rank_corr": 0.7342458921047168,
+      "n": 600
+    },
+    {
+      "factor_a": "SalesGrowthRank",
+      "factor_b": "RevenueGrowthRank",
+      "rank_corr": 0.6951666878377735,
+      "n": 438
+    },
+    {
+      "factor_a": "PERank",
+      "factor_b": "PBRank",
+      "rank_corr": 0.6540234117844183,
+      "n": 599
+    },
+    {
+      "factor_a": "NetMarginRank",
+      "factor_b": "PSRank",
+      "rank_corr": -0.6250664606042882,
+      "n": 600
+    },
+    {
+      "factor_a": "OperatingMarginRank",
+      "factor_b": "InterestCoverageRank",
+      "rank_corr": 0.5743266500589215,
+      "n": 742
+    },
+    {
+      "factor_a": "NetMarginRank",
+      "factor_b": "CurrentRatioRank",
+      "rank_corr": 0.5435735426615762,
+      "n": 604
+    },
+    {
+      "factor_a": "NetMarginRank",
+      "factor_b": "LeverageRank",
+      "rank_corr": 0.5178151201276407,
+      "n": 604
+    },
+    {
+      "factor_a": "SalesGrowthRank",
+      "factor_b": "NetProfitGrowthRank",
+      "rank_corr": 0.5145708950671892,
+      "n": 316
+    }
+  ],
+  "baseline_diag_ic": 0.10983856863354514,
+  "category": [
+    {
+      "category": "growth",
+      "raw_ic": 0.08882659470814548,
+      "controlled_ic": 0.06781229905795558,
+      "ic_ci_low": 0.06519231902604389,
+      "ic_ci_high": 0.11386085571174524,
+      "ic_5d": 0.03662100629107203,
+      "ic_21d": 0.08882659470814548,
+      "ic_63d": 0.0981909742292131,
+      "ic_2021_2023": 0.044294826537779934,
+      "ic_2024_2025": 0.13935624657093013
+    },
+    {
+      "category": "profitability",
+      "raw_ic": 0.008741835107157913,
+      "controlled_ic": 0.03182307850568321,
+      "ic_ci_low": -0.0107080651118651,
+      "ic_ci_high": 0.0287372581655209,
+      "ic_5d": 0.000666512203318821,
+      "ic_21d": 0.008741835107157913,
+      "ic_63d": 0.015347411165376882,
+      "ic_2021_2023": -0.009159636174371575,
+      "ic_2024_2025": 0.03641229597773265
+    },
+    {
+      "category": "valuation",
+      "raw_ic": 0.11360802339639745,
+      "controlled_ic": 0.11644414628792762,
+      "ic_ci_low": 0.08352867743894601,
+      "ic_ci_high": 0.1461759367810396,
+      "ic_5d": 0.03622087490960128,
+      "ic_21d": 0.11360802339639745,
+      "ic_63d": 0.16735164703077818,
+      "ic_2021_2023": 0.07674347222673966,
+      "ic_2024_2025": 0.1569629998297187
+    },
+    {
+      "category": "market",
+      "raw_ic": 0.035707840692930155,
+      "controlled_ic": -0.005842426378144977,
+      "ic_ci_low": -0.01479683409221791,
+      "ic_ci_high": 0.08597718870235214,
+      "ic_5d": 0.02069688375370002,
+      "ic_21d": 0.035707840692930155,
+      "ic_63d": 0.07578716310749734,
+      "ic_2021_2023": 0.007346463445636254,
+      "ic_2024_2025": 0.07115101714671629
+    }
+  ],
+  "decomposition": {
+    "quant_score_ic": 0.10879117154948027,
+    "category_sum_ic": 0.12791259156690632,
+    "n_factors_ic": 0.03024199554833406,
+    "market_score_ic": 0.035707840692930155,
+    "data_quality_ic": 0.0396777934393513,
+    "note": "diagnostic decomposition; not a replacement score"
+  },
+  "oos": {
+    "protocol": "chronological",
+    "development": [
+      "2021",
+      "2022",
+      "2023"
+    ],
+    "validation": [
+      "2024"
+    ],
+    "holdout": [
+      "2025"
+    ],
+    "forward_monitoring": [
+      "2026"
+    ],
+    "holdout_used_for_selection": false,
+    "rules": [
+      "no hyperparameter/weight selection on holdout",
+      "model selection only on development+validation",
+      "holdout evaluated once per experiment version",
+      "2026 treated as monitoring only (n=2 in-sample here)"
+    ],
+    "return_convention": "raw_price_return",
+    "rebalance": "M",
+    "frozen": true
+  },
+  "v2_plan": {
+    "canonical-v2-exp-A": {
+      "hypothesis": "remove factors with NO_MEASURABLE_SIGNAL/INSUFFICIENT_DATA",
+      "drop": [
+        "NetProfitGrowthRank",
+        "OperatingMarginRank",
+        "NetMarginRank",
+        "PSRank",
+        "PBRank",
+        "LiquidityRank",
+        "ROERank",
+        "LeverageRank",
+        "CurrentRatioRank",
+        "CashConversionRank"
+      ],
+      "keep_rules": "otherwise identical to canonical-v1"
+    },
+    "canonical-v2-exp-B": {
+      "hypothesis": "reweight robust factors up / weak down (grid only on dev+val)",
+      "robust": [
+        "SalesGrowthRank",
+        "RevenueGrowthRank",
+        "PERank",
+        "LowVolatilityRank"
+      ],
+      "note": "no holdout tuning"
+    },
+    "canonical-v2-exp-C": {
+      "hypothesis": "alternative missingness policy (new model/version)",
+      "focus": [],
+      "note": "does not mutate canonical-v1"
+    }
+  },
+  "hashes": {
+    "factor_validation": "8cdc796adfe5d84d633496ab28330801805ea2a06bf642ee1f9a52ef27923b34",
+    "incremental": "8eb190c77d8f1b2605e4684b7ac8215b2076d7bdff1b69fea52f76ff33b889fc",
+    "loo": "485fcf57318e6a277b3bf838bc8a2e8b455c69572ffd62a3196b965d53a6c623",
+    "redundancy": "103370b39a8e148d982cb3a7da923352993506413bf9b371a4716f6534d9cfa4",
+    "category": "2602735ff4a687e0062dc0ccae27dd30b3d7edcb8cba392488090cc8941e442c",
+    "weight_evidence": "74c999070af079cb556c17e0ba5d6558752f5782a00a75c1d589efad5b2e49b6",
+    "summary": "9039b5694a09da4646b2b816c134056032d4e63c72b97a4b3700084abbeb9f6e"
+  }
+}

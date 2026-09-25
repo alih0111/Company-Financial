@@ -1,0 +1,49 @@
+{
+  "live_letters": [
+    {
+      "tracing_no": "1603147",
+      "company": "تولیدی حسنانو",
+      "symbol": "زشک",
+      "company_resolved": false,
+      "security_resolved": false
+    },
+    {
+      "tracing_no": "1602429",
+      "company": "کیمیا پلی استر قم",
+      "symbol": "شکیمیا",
+      "company_resolved": false,
+      "security_resolved": false
+    },
+    {
+      "tracing_no": "1602865",
+      "company": "سازه پوشش ماموت",
+      "symbol": "فساپ",
+      "company_resolved": false,
+      "security_resolved": false
+    },
+    {
+      "tracing_no": "1602820",
+      "company": "صندوق سرمایه گذاری اختصاصی بازارگردانی توسعه بازار تمدن",
+      "symbol": "توسعه تمدن بازار",
+      "company_resolved": false,
+      "security_resolved": false
+    },
+    {
+      "tracing_no": "1602848",
+      "company": "مختص اوراق دولتی کاردان",
+      "symbol": "کاردان دولتی",
+      "company_resolved": false,
+      "security_resolved": false
+    }
+  ],
+  "semantics": {
+    "resolvable_identity": "آردینه",
+    "identical_content_inserted": 0,
+    "changed_content_inserted": 3,
+    "versions": 2,
+    "max_version_no": 2,
+    "raw_payloads": 2,
+    "parse_runs": 3,
+    "parser_rerun_new_parse_run": true
+  }
+}

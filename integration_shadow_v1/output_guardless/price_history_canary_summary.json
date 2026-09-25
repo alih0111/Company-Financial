@@ -1,0 +1,92 @@
+{
+  "generated_at": "2026-09-25T13:05:38Z",
+  "enabled": true,
+  "symbol_count": 4,
+  "symbols": [
+    "جم پیلن",
+    "سیمرغ",
+    "های وب",
+    "وسپه"
+  ],
+  "percent": 0,
+  "verify": true,
+  "timeout_ms": 1500,
+  "counters": {
+    "canary_selected": 5,
+    "canary_success": 5,
+    "canonical_ineligible": 16,
+    "canonical_safe": 5,
+    "comparison_exact": 1050,
+    "comparison_expected": 0,
+    "comparison_unexpected": 0,
+    "eligibility_guard_forced_legacy": 16,
+    "legacy_identity_collision": 16,
+    "legacy_served_requests": 16,
+    "total_requests": 21
+  },
+  "latency": {
+    "canonical_median_ms": 1.811,
+    "canonical_p95_ms": 2.262,
+    "legacy_median_ms": 71.962,
+    "legacy_p95_ms": 88.691,
+    "fallback_median_ms": 0,
+    "fallback_p95_ms": 0
+  },
+  "per_symbol": {
+    "جم پیلن": {
+      "requests": 6,
+      "canonical_served": 0,
+      "fallbacks": 0,
+      "canonical_errors": 0,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 71.962,
+      "legacy_p95_ms": 76.59
+    },
+    "سیمرغ": {
+      "requests": 5,
+      "canonical_served": 0,
+      "fallbacks": 0,
+      "canonical_errors": 0,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 83.46,
+      "legacy_p95_ms": 88.691
+    },
+    "های وب": {
+      "requests": 5,
+      "canonical_served": 0,
+      "fallbacks": 0,
+      "canonical_errors": 0,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 67.757,
+      "legacy_p95_ms": 70.231
+    },
+    "وسپه": {
+      "requests": 5,
+      "canonical_served": 5,
+      "fallbacks": 0,
+      "canonical_errors": 0,
+      "comparison_exact": 1050,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 1.811,
+      "canonical_p95_ms": 2.262,
+      "legacy_median_ms": 80.475,
+      "legacy_p95_ms": 104.688
+    }
+  },
+  "sample_count": 21,
+  "unexpected_differences": 0,
+  "canonical_errors": 0
+}

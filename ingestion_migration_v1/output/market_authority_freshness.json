@@ -1,0 +1,12 @@
+{
+  "domain": "MARKET_PRICE",
+  "authority": "CANONICAL",
+  "latest_source_collection_time": "2026-09-25 15:34:02.664067",
+  "latest_source_trade_date": "2026-09-25",
+  "latest_canonical_observation_time": "2026-09-25 19:04:44.20691+03:30",
+  "latest_canonical_trade_date": "2026-09-25",
+  "canonical_rows": 706057,
+  "retry_backlog": 0,
+  "health": "HEALTHY",
+  "generated_at": "2026-09-25T15:37:39.540703+00:00"
+}

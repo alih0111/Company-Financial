@@ -1,0 +1,13 @@
+cycle,company,kind,period,outcome,canonical_status,canonical_inserted,canonical_skipped,legacy_mirror_status,health
+1,قاسم,repeated,1405/06/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+1,قاسم,repeated,1405/04/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+1,چکاپا,sparse,1405/04/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+1,چکاپا,sparse,1405/03/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+2,قاسم,repeated,1405/06/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+2,قاسم,repeated,1405/04/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+2,چکاپا,sparse,1405/04/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+2,چکاپا,sparse,1405/03/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+3,قاسم,repeated,1405/06/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+3,قاسم,repeated,1405/04/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+3,چکاپا,sparse,1405/04/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY
+3,چکاپا,sparse,1405/03/31,CANONICAL_SUCCESS_LEGACY_SUCCESS,written,0,4,success,HEALTHY

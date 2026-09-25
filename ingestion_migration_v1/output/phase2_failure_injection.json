@@ -1,0 +1,26 @@
+{
+  "legacy_only": {
+    "hook": {
+      "status": "skipped_legacy_only"
+    },
+    "before": {
+      "price_observations": 706054,
+      "monthly_activities": 12075
+    },
+    "after": {
+      "price_observations": 706054,
+      "monthly_activities": 12075
+    },
+    "zero_writes": true
+  },
+  "unresolved_identity": {
+    "status": "quarantined",
+    "inserted": 0,
+    "skipped": 0
+  },
+  "postgres_unavailable": {
+    "status": "canonical_error",
+    "inserted": 0,
+    "skipped": 0
+  }
+}

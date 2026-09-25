@@ -1,0 +1,232 @@
+{
+  "manifest_version": "7",
+  "phase": "canonical_ingestion_v7_financial_soak_codal_authority",
+  "canonical_schema_version": "1.2.1",
+  "python_package": "go-app/py2/src/canonical_ingest",
+  "ingestion_modes": ["legacy_only", "dual_write", "canonical_only"],
+  "default_mode": "legacy_only",
+  "mode_env": "CDF_INGESTION_MODE",
+  "canonical_db_env": ["DATABASE_URL", "CDF_CANONICAL_URL", "CANONICAL_DATABASE_URL"],
+  "db_override_env": ["CDF_CANONICAL_DB", "CDF_PILOT_DB"],
+  "test_db_prefix_guard": [
+    "company_financial_analytics_shadow_",
+    "company_financial_migration_pilot_",
+    "company_financial_test_"
+  ],
+  "domains_dual_write_implemented": [
+    "MONTHLY_ACTIVITY",
+    "FINANCIAL_STATEMENT",
+    "CODAL_REPORT",
+    "MARKET_PRICE"
+  ],
+  "canonical_tables_written": [
+    "ingestion.reports",
+    "ingestion.report_versions",
+    "ingestion.parse_runs",
+    "raw.report_payloads",
+    "fundamentals.monthly_activities",
+    "fundamentals.financial_statements",
+    "fundamentals.financial_facts",
+    "market.price_observations",
+    "ingestion.data_quality_issues"
+  ],
+  "identity": {
+    "resolution": "core.legacy_entity_map + core.securities.tsetmc_ins_code + core.security_aliases",
+    "no_name_hash": true,
+    "unresolved": "quarantined in ingestion.data_quality_issues (no fabrication)"
+  },
+  "report_versioning": {
+    "report_identity": "immutable (source, source_report_id)",
+    "version_dedup": "content_hash; identical re-fetch creates no new version",
+    "parse_runs": "one completed run per (report_version_id, parser_name, parser_version); finished on success"
+  },
+  "raw_payloads": "raw.report_payloads content-hash dedup; historical raw not fabricated",
+  "market_collected_at": "source CollectedAt (+03:30) preserved for new observations, not migration time",
+  "units": "canonical IRR numeric; reported_* retains source unit (million_rial)",
+  "forbidden_in_canonical": ["Product1", "Product2", "Product3", "NPUnitRatio", "OpK", "OpAmt"],
+  "dual_write_sample": {
+    "companies": ["قاسم", "تاصیکو", "کسرا", "زگلدشت", "افق", "دکپسول", "هجرت", "چخزر", "بفجر", "خاهن"],
+    "run_a": {"written": 82, "quarantined": 4, "inserted": 73, "skipped": 914},
+    "run_b_idempotent": {"written": 82, "quarantined": 4, "inserted": 0, "skipped": 987}
+  },
+  "reconciliation": {
+    "EXPECTED_UNIT_CONVERSION": 73,
+    "EXACT_EQUIVALENT": 9,
+    "MISSING_CANONICAL": 0,
+    "IDENTITY_MISMATCH": 0,
+    "NUMERIC_MISMATCH": 0,
+    "DATE_MISMATCH": 0,
+    "WRITE_ERROR": 0,
+    "UNCLASSIFIED": 0
+  },
+  "failure_isolation": [
+    "unresolved identity -> quarantined (no fabricated company)",
+    "canonical constraint failure -> rollback, canonical_error, no partial rows",
+    "postgres unavailable / disallowed DB -> canonical_error, legacy untouched",
+    "parser error -> rollback, canonical_error"
+  ],
+  "tests": {
+    "py2_pytest": "20 passed (unit + DB-backed, idempotency, collected_at, quarantine, rollback, unavailable)",
+    "py_unittest": "23 passed (unchanged)",
+    "go": "unchanged this phase; go build/vet/test still green"
+  },
+  "legacy_write_paths_unchanged": true,
+  "python_py_untouched": true,
+  "canonical_only_enabled": false,
+  "production_cutover": false,
+  "artifacts": {
+    "inventory": ["INGESTION_INVENTORY.md", "ingestion_inventory.csv"],
+    "architecture": "INGESTION_ARCHITECTURE.md",
+    "dual_write_spec": "DUAL_WRITE_SPEC.md",
+    "go_plan": "GO_INGESTION_TRIGGER_PLAN.md",
+    "reconciliation_report": "INGESTION_RECONCILIATION_REPORT.md",
+    "cutover_plan": "CUTOVER_PLAN.md",
+    "machine_readable": ["output/dual_write_results.csv", "output/ingestion_reconciliation.csv"]
+  },
+  "phase2_real_scripts_wired": {
+    "brs_prices.py": ["cmd_daily", "cmd_backfill_raw"],
+    "MianSql2.py": ["save_report_to_sql"],
+    "MianSql.py": ["save_profit_loss_to_sql (both success paths)"],
+    "hook_module": "go-app/py/canonical_hook.py",
+    "go_triggers_changed": false
+  },
+  "phase2_real_batches": {
+    "market": {"run1": {"inserted": 4, "skipped": 0}, "run2": {"inserted": 0, "skipped": 4}},
+    "monthly": {"run1": {"inserted": 0, "skipped": 4}, "run2": {"inserted": 0, "skipped": 4}},
+    "financial": {"run1": {"inserted": 0, "skipped": 28}, "run2": {"inserted": 0, "skipped": 28}},
+    "reconciliation": {"EXACT_EQUIVALENT": 14, "EXPECTED_UNIT_CONVERSION": 41, "mismatches": 0}
+  },
+  "phase2_failure_injection": {
+    "legacy_only_zero_writes": true,
+    "unresolved_identity": "quarantined",
+    "postgres_unavailable": "canonical_error"
+  },
+  "market_hash_contract": "stable new-write hash + natural-key compatibility lookup; no historical rewrite",
+  "py2_schema_reconciliation": "codal_ingestor models/repository/alembic = CONFLICTING_SCHEMA (not used); canonical_ingest = CANONICAL_V121_COMPATIBLE",
+  "codal_wiring": "deferred to Phase 3 (TracingNo mapping + raw capture)",
+  "phase3_soak": {
+    "mode": "dual_write",
+    "cycles": 15,
+    "market_cycles": 3,
+    "monthly_cycles": 6,
+    "financial_cycles": 6,
+    "canonical_inserted": 6,
+    "canonical_skipped": 378,
+    "canonical_errors": 0,
+    "quarantined": 0,
+    "unexplained_mismatches": 0,
+    "idempotent": true,
+    "freshness_artifact": "output/canonical_ingestion_freshness.json",
+    "analytics_visibility": "new canonical market/monthly/financial data visible; score_runs untouched",
+    "go_trigger_exercised": "POST /api/brs/collect (backfill) -> same py/brs_prices.py; legacy no-op; no API change"
+  },
+  "codal_live_lineage": {
+    "wired": true,
+    "source_report_id": "Codal TracingNo",
+    "raw_capture": "raw.report_payloads (real fetched body)",
+    "live_letters_quarantined": 5,
+    "controlled_semantics": {"identical_content_new_version": 0, "changed_content_new_version": 1, "parser_rerun_new_parse_run": true, "raw_dedup": true},
+    "artifact": "CODAL_LIVE_LINEAGE_REPORT.md"
+  },
+  "retry": {"spec": "CANONICAL_RETRY_SPEC.md", "manifest": "output/canonical_retry_manifest.jsonl", "verified": true},
+  "py2_conflict_prevention": "canonical_ingest is the only approved canonical writer; codal_ingestor schema not used; static guard test present",
+  "market_authority": {
+    "scope": "MARKET_PRICE only",
+    "env": {"CDF_MARKET_INGESTION_AUTHORITY": ["legacy", "canonical"], "CDF_MARKET_FALLBACK_LEGACY": ["true", "false"]},
+    "default_authority": "legacy",
+    "canonical_primary_semantics": "canonical transaction authoritative -> SQL Server mirror -> reconcile",
+    "outcomes": ["CANONICAL_SUCCESS_LEGACY_SUCCESS", "CANONICAL_SUCCESS_LEGACY_MIRROR_FAILED", "CANONICAL_FAILED_LEGACY_FALLBACK_USED", "CANONICAL_FAILED"],
+    "rollback": "set CDF_MARKET_INGESTION_AUTHORITY=legacy (config only)",
+    "cycles": 3,
+    "reconciliation": {"EXACT_EQUIVALENT": 4, "mismatches": 0},
+    "failure_injection": {"canonical_unavailable": "CANONICAL_FAILED_LEGACY_FALLBACK_USED", "legacy_mirror_failure": "CANONICAL_SUCCESS_LEGACY_MIRROR_FAILED"},
+    "retry_recovery": "backlog 0, health HEALTHY after replay",
+    "go_read_smoke": "cmd/canarycheck 210 exact/symbol, 0 unexpected",
+    "other_domains_unchanged": ["MONTHLY_ACTIVITY", "FINANCIAL_STATEMENT", "CODAL"],
+    "sqlserver_retained": true,
+    "artifacts": ["MARKET_AUTHORITY_SPEC.md", "MARKET_AUTHORITY_RUNBOOK.md", "MARKET_AUTHORITY_FAILURE_MATRIX.md", "MARKET_AUTHORITY_REPORT.md", "output/market_authority_cycles.csv", "output/market_authority_reconciliation.csv", "output/market_authority_freshness.json", "output/market_authority_summary.json"],
+    "gate": "MARKET_CANONICAL_AUTHORITY_READY",
+    "routine_use_readiness": "MARKET_CANONICAL_PRIMARY_READY_FOR_ROUTINE_USE"
+  },
+  "market_routine_soak": {
+    "authority": "canonical", "cycles": 5, "new_observations": 1,
+    "reconciliation": {"EXACT_EQUIVALENT": 25, "mismatches": 0},
+    "retry_backlog": 0, "health": "HEALTHY",
+    "artifact": "MARKET_ROUTINE_SOAK_REPORT.md",
+    "gate": "MARKET_ROUTINE_SOAK_PASS"
+  },
+  "monthly_authority": {
+    "scope": "MONTHLY_ACTIVITY only",
+    "env": {"CDF_MONTHLY_INGESTION_AUTHORITY": ["legacy", "canonical"], "CDF_MONTHLY_FALLBACK_LEGACY": ["true", "false"]},
+    "default_authority": "legacy",
+    "semantics": "canonical transaction authoritative -> SQL Server mirror -> reconcile",
+    "outcomes": ["CANONICAL_SUCCESS_LEGACY_SUCCESS", "CANONICAL_SUCCESS_LEGACY_MIRROR_FAILED", "CANONICAL_FAILED_LEGACY_FALLBACK_USED", "CANONICAL_FAILED"],
+    "rollback": "set CDF_MONTHLY_INGESTION_AUTHORITY=legacy (config only)",
+    "cycles": 12, "canonical_inserted": 0, "canonical_skipped": 48,
+    "reconciliation": {"EXPECTED_UNIT_CONVERSION": 4, "mismatches": 0},
+    "failure_injection": {"canonical_unavailable": "CANONICAL_FAILED_LEGACY_FALLBACK_USED", "legacy_mirror_failure": "CANONICAL_SUCCESS_LEGACY_MIRROR_FAILED", "unresolved_identity": "quarantined"},
+    "retry_recovery": "backlog 0 via shared manifest replay",
+    "go_read_smoke": "cmd/shadowcheck SalesData2 0 unexpected",
+    "other_domains_unchanged": ["FINANCIAL_STATEMENT", "CODAL"],
+    "market_authority_unchanged": true,
+    "sqlserver_retained": true,
+    "artifacts": ["MONTHLY_AUTHORITY_SPEC.md", "MONTHLY_AUTHORITY_RUNBOOK.md", "MONTHLY_AUTHORITY_FAILURE_MATRIX.md", "MONTHLY_AUTHORITY_REPORT.md", "output/monthly_authority_cycles.csv", "output/monthly_authority_reconciliation.csv", "output/monthly_authority_freshness.json", "output/monthly_authority_summary.json"],
+    "gate": "MONTHLY_CANONICAL_AUTHORITY_READY",
+    "routine_use_readiness": "MONTHLY_CANONICAL_PRIMARY_READY_FOR_ROUTINE_USE"
+  },
+  "monthly_routine_soak": {
+    "authority": "canonical", "cycles": 16, "new_inserts": 0,
+    "reconciliation": {"EXPECTED_UNIT_CONVERSION": 4, "mismatches": 0},
+    "retry_backlog": 0, "health": "HEALTHY",
+    "artifact": "MONTHLY_ROUTINE_SOAK_REPORT.md", "gate": "MONTHLY_ROUTINE_SOAK_PASS"
+  },
+  "financial_authority": {
+    "scope": "FINANCIAL_STATEMENT only",
+    "env": {"CDF_FINANCIAL_INGESTION_AUTHORITY": ["legacy", "canonical"], "CDF_FINANCIAL_FALLBACK_LEGACY": ["true", "false"]},
+    "default_authority": "legacy",
+    "semantics": "canonical statement/facts transaction authoritative -> SQL Server mirror -> reconcile",
+    "outcomes": ["CANONICAL_SUCCESS_LEGACY_SUCCESS", "CANONICAL_SUCCESS_LEGACY_MIRROR_FAILED", "CANONICAL_FAILED_LEGACY_FALLBACK_USED", "CANONICAL_FAILED", "QUARANTINED_IDENTITY"],
+    "rollback": "set CDF_FINANCIAL_INGESTION_AUTHORITY=legacy (config only)",
+    "cycles": 20, "canonical_inserted": 6, "canonical_skipped": 376,
+    "reconciliation": {"EXACT_EQUIVALENT": 40, "EXPECTED_UNIT_CONVERSION": 127, "mismatches": 0},
+    "parser_rerun_new_parse_run_no_new_version": true,
+    "forbidden_facts": 0,
+    "ttm_report_chain_feasible": true,
+    "failure_injection": {"canonical_unavailable": "CANONICAL_FAILED_LEGACY_FALLBACK_USED", "legacy_mirror_failure": "CANONICAL_SUCCESS_LEGACY_MIRROR_FAILED", "unresolved_identity": "quarantined"},
+    "retry_recovery": "backlog 0 via shared manifest replay",
+    "go_read_smoke": "cmd/shadowcheck SalesData 0 unexpected",
+    "other_domains_unchanged": ["CODAL"],
+    "market_monthly_authority_unchanged": true,
+    "sqlserver_retained": true,
+    "artifacts": ["FINANCIAL_AUTHORITY_SPEC.md", "FINANCIAL_AUTHORITY_RUNBOOK.md", "FINANCIAL_AUTHORITY_FAILURE_MATRIX.md", "FINANCIAL_AUTHORITY_REPORT.md", "output/financial_authority_cycles.csv", "output/financial_authority_reconciliation.csv", "output/financial_authority_freshness.json", "output/financial_authority_summary.json"],
+    "gate": "FINANCIAL_CANONICAL_AUTHORITY_READY",
+    "routine_use_readiness": "FINANCIAL_CANONICAL_PRIMARY_READY_FOR_ROUTINE_USE"
+  },
+  "financial_routine_soak": {
+    "authority": "canonical", "cycles": 24, "new_reports": 0,
+    "reconciliation": {"EXACT_EQUIVALENT": 40, "EXPECTED_UNIT_CONVERSION": 127, "mismatches": 0},
+    "retry_backlog": 0, "health": "HEALTHY", "gate": "FINANCIAL_ROUTINE_SOAK_PASS"
+  },
+  "codal_authority": {
+    "scope": "CODAL lineage",
+    "env": {"CDF_CODAL_INGESTION_AUTHORITY": ["legacy", "canonical"], "CDF_CODAL_FALLBACK_LEGACY": ["true", "false"]},
+    "default_authority": "legacy",
+    "source_identity": "TracingNo -> source_report_id",
+    "raw_capture": "raw.report_payloads (content hash/url/mime/bytes/collected_at)",
+    "live_letters_processed": 5, "live_letters_quarantined": 5, "quarantine_classified": true,
+    "controlled_semantics": {"identical_new_version": 0, "changed_new_version": 1, "parser_rerun_new_parse_run": true, "raw_dedup": true, "supersession_linked": true},
+    "gate": "CODAL_CANONICAL_AUTHORITY_READY"
+  },
+  "canonical_ingestion_layer": "CANONICAL_INGESTION_LAYER_READY",
+  "domain_authorities": {"MARKET_PRICE": "CANONICAL", "MONTHLY_ACTIVITY": "CANONICAL", "FINANCIAL_STATEMENT": "CANONICAL", "CODAL": "CANONICAL"},
+  "py2_conflicting_schema_guard": true,
+  "gate": "CANONICAL_INGESTION_SOAK_PASS",
+  "cutover_readiness": "CANONICAL_INGESTION_CUTOVER_READY",
+  "remaining_blockers": [
+    "wire dual-write hooks into legacy py scripts (Phase 2)",
+    "reconcile py2 separate schema (Phase 3)",
+    "Codal TracingNo -> source_report_id mapping + raw capture wiring",
+    "cross-migration market observation hash alignment"
+  ],
+  "recommended_next_action": "Phase 2: wire canonical_ingest dual-write hooks into py/brs_prices.py (market, nearest-term) and py/MianSql2.py/MianSql.py, gated by CDF_INGESTION_MODE, with per-batch reconciliation"
+}

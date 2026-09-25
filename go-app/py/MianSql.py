@@ -6,6 +6,11 @@ import sys
 from pathlib import Path
 from urllib.parse import urljoin
 
+try:  # canonical dual-write hook (no-op unless CDF_INGESTION_MODE=dual_write)
+    import canonical_hook  # noqa: E402
+except Exception:  # pragma: no cover
+    canonical_hook = None
+
 import pyodbc
 import jdatetime
 from bs4 import BeautifulSoup
@@ -1443,6 +1448,18 @@ def save_profit_loss_to_sql(
             )
             conn.commit()
             logging.info("🔄 Updated missing columns: %s - %s", company_name, report_date)
+
+            # Phase-2 dual-write: additive canonical write after successful legacy commit.
+            try:
+                if canonical_hook:
+                    if canonical_hook.financial_canonical_authority():
+                        canonical_hook.ingest_financial_authoritative_by_key(
+                            company_id, company_name, report_date)
+                    else:
+                        canonical_hook.dual_write_financial_by_key(company_id, company_name, report_date)
+            except Exception:
+                logging.exception("canonical dual-write hook failed (legacy write preserved)")
+
             return True
 
         cursor.execute(
@@ -1537,6 +1554,14 @@ def save_profit_loss_to_sql(
 
         conn.commit()
         logging.info("✅ Saved: %s - %s", company_name, report_date)
+
+        # Phase-2 dual-write: additive canonical write after successful legacy commit.
+        try:
+            if canonical_hook:
+                canonical_hook.dual_write_financial_by_key(company_id, company_name, report_date)
+        except Exception:
+            logging.exception("canonical dual-write hook failed (legacy write preserved)")
+
         return True
 
     except Exception as exc:

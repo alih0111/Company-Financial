@@ -1,0 +1,14 @@
+﻿key,value
+canonical_scored_population,267
+companies_with_complete_factor_coverage,9
+companies_with_partial_factor_coverage,258
+companies_with_zero_factors,0
+median_available_factors,8
+min_available_factors,4
+max_available_factors,21
+factor_count_total,21
+category_coverage,"{""growth"": {""complete"": 10, ""any"": 262, ""none"": 5, ""factors"": 5}, ""profitability"": {""complete"": 87, ""any"": 130, ""none"": 137, ""factors"": 7}, ""valuation"": {""complete"": 95, ""any"": 264, ""none"": 3, ""factors"": 3}, ""market"": {""complete"": 93, ""any"": 267, ""none"": 0, ""factors"": 6}}"
+companies_affected_by_source_absent,165
+source_absent_affected_pct,61.8
+companies_with_valid_quant_score,267
+valid_quant_score_pct,100.0

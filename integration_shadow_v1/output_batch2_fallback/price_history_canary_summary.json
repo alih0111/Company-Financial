@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-09-25T12:41:19Z",
+  "enabled": true,
+  "symbol_count": 5,
+  "symbols": [
+    "بفجر",
+    "خودرو",
+    "دزهراوی",
+    "مبین",
+    "وسپه"
+  ],
+  "percent": 0,
+  "verify": true,
+  "timeout_ms": 1,
+  "counters": {
+    "canary_fallback": 5,
+    "canary_selected": 5,
+    "canonical_errors": 5,
+    "total_requests": 5
+  },
+  "latency": {
+    "canonical_median_ms": 0,
+    "canonical_p95_ms": 0,
+    "legacy_median_ms": 0,
+    "legacy_p95_ms": 0,
+    "fallback_median_ms": 69.751,
+    "fallback_p95_ms": 87.831
+  },
+  "per_symbol": {
+    "بفجر": {
+      "requests": 1,
+      "canonical_served": 0,
+      "fallbacks": 1,
+      "canonical_errors": 1,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 0,
+      "legacy_p95_ms": 0
+    },
+    "خودرو": {
+      "requests": 1,
+      "canonical_served": 0,
+      "fallbacks": 1,
+      "canonical_errors": 1,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 0,
+      "legacy_p95_ms": 0
+    },
+    "دزهراوی": {
+      "requests": 1,
+      "canonical_served": 0,
+      "fallbacks": 1,
+      "canonical_errors": 1,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 0,
+      "legacy_p95_ms": 0
+    },
+    "مبین": {
+      "requests": 1,
+      "canonical_served": 0,
+      "fallbacks": 1,
+      "canonical_errors": 1,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 0,
+      "legacy_p95_ms": 0
+    },
+    "وسپه": {
+      "requests": 1,
+      "canonical_served": 0,
+      "fallbacks": 1,
+      "canonical_errors": 1,
+      "comparison_exact": 0,
+      "comparison_expected": 0,
+      "comparison_unexpected": 0,
+      "canonical_median_ms": 0,
+      "canonical_p95_ms": 0,
+      "legacy_median_ms": 0,
+      "legacy_p95_ms": 0
+    }
+  },
+  "sample_count": 5,
+  "unexpected_differences": 0,
+  "canonical_errors": 5
+}

@@ -1,0 +1,90 @@
+{
+  "generated_at": "2026-09-25T16:31:37.171641+00:00",
+  "codal": {
+    "letters": [
+      {
+        "tracing_no": "1603208",
+        "symbol": "زشک",
+        "company": "تولیدی حسنانو",
+        "outcome": "QUARANTINED_IDENTITY",
+        "status": "quarantined",
+        "quarantine_class": "EXPECTED_SCOPE_EXCLUSION",
+        "has_raw": false
+      },
+      {
+        "tracing_no": "1603147",
+        "symbol": "زشک",
+        "company": "تولیدی حسنانو",
+        "outcome": "QUARANTINED_IDENTITY",
+        "status": "quarantined",
+        "quarantine_class": "EXPECTED_SCOPE_EXCLUSION",
+        "has_raw": false
+      },
+      {
+        "tracing_no": "1602429",
+        "symbol": "شکیمیا",
+        "company": "کیمیا پلی استر قم",
+        "outcome": "QUARANTINED_IDENTITY",
+        "status": "quarantined",
+        "quarantine_class": "ALIAS_MAPPING_REQUIRED",
+        "has_raw": false
+      },
+      {
+        "tracing_no": "1602865",
+        "symbol": "فساپ",
+        "company": "سازه پوشش ماموت",
+        "outcome": "QUARANTINED_IDENTITY",
+        "status": "quarantined",
+        "quarantine_class": "EXPECTED_SCOPE_EXCLUSION",
+        "has_raw": false
+      },
+      {
+        "tracing_no": "1602820",
+        "symbol": "توسعه تمدن بازار",
+        "company": "صندوق سرمایه گذاری اختصاصی بازارگردانی توسعه بازار تمدن",
+        "outcome": "QUARANTINED_IDENTITY",
+        "status": "quarantined",
+        "quarantine_class": "EXPECTED_SCOPE_EXCLUSION",
+        "has_raw": false
+      }
+    ],
+    "semantics": {
+      "identical_inserted": 0,
+      "changed_inserted": 3,
+      "versions": 2,
+      "max_version_no": 2,
+      "parse_runs": 3,
+      "raw_payloads": 2,
+      "parser_rerun_new_parse_run_no_new_version": true,
+      "supersession_linked": true,
+      "superseding_inserted": 4
+    },
+    "quarantines": 5
+  },
+  "domains": {
+    "MARKET_PRICE": {
+      "authority": "CANONICAL",
+      "retry_backlog": 0,
+      "quarantine_count": 0,
+      "health": "HEALTHY"
+    },
+    "MONTHLY_ACTIVITY": {
+      "authority": "CANONICAL",
+      "retry_backlog": 0,
+      "quarantine_count": 16,
+      "health": "HEALTHY"
+    },
+    "FINANCIAL_STATEMENT": {
+      "authority": "CANONICAL",
+      "retry_backlog": 0,
+      "quarantine_count": 24,
+      "health": "HEALTHY"
+    },
+    "CODAL": {
+      "authority": "CANONICAL",
+      "retry_backlog": 0,
+      "quarantine_count": 13,
+      "health": "HEALTHY"
+    }
+  }
+}

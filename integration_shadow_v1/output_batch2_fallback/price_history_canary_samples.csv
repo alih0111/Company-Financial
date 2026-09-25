@@ -1,0 +1,18 @@
+symbol,route,result,row_count,canonical_ms,legacy_ms,total_ms,fallback,error
+\u0648\u0633\u067e\u0647,fallback,legacy,30,1.589,151.841,153.430,true,timeout: context deadline exceeded
+\u062e\u0648\u062f\u0631\u0648,fallback,legacy,30,1.089,86.741,87.831,true,"failed to connect to `user=postgres database=company_financial_analytics_shadow_v121`:
+	lookup localhost: i/o timeout
+	[::1]:5432 (localhost): dial error: timeout: context deadline exceeded
+	127.0.0.1:5432 (localhost): dial error: timeout: context deadline exceeded"
+\u0628\u0641\u062c\u0631,fallback,legacy,10,1.111,58.459,59.570,true,"failed to connect to `user=postgres database=company_financial_analytics_shadow_v121`:
+	lookup localhost: i/o timeout
+	[::1]:5432 (localhost): dial error: timeout: context deadline exceeded
+	127.0.0.1:5432 (localhost): dial error: timeout: context deadline exceeded"
+\u0645\u0628\u06cc\u0646,fallback,legacy,12,1.102,59.538,60.641,true,"failed to connect to `user=postgres database=company_financial_analytics_shadow_v121`:
+	lookup localhost: i/o timeout
+	[::1]:5432 (localhost): dial error: timeout: context deadline exceeded
+	127.0.0.1:5432 (localhost): dial error: timeout: context deadline exceeded"
+\u062f\u0632\u0647\u0631\u0627\u0648\u06cc,fallback,legacy,30,1.117,68.633,69.751,true,"failed to connect to `user=postgres database=company_financial_analytics_shadow_v121`:
+	lookup localhost: i/o timeout
+	[::1]:5432 (localhost): dial error: timeout: context deadline exceeded
+	127.0.0.1:5432 (localhost): dial error: timeout: context deadline exceeded"

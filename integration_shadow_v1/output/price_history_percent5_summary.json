@@ -1,0 +1,136 @@
+{
+  "phase": "price_history_percent5_rollout",
+  "read_mode": "legacy",
+  "canary_enabled": true,
+  "canary_percent": 5,
+  "canary_verify": true,
+  "canary_allowlist_used": false,
+  "identity_guard_active": true,
+  "cohort": {
+    "safe_total": 272,
+    "selected_count": 14,
+    "unsafe_selected": 0,
+    "selected_symbols": [
+      "خزامیا",
+      "دسبحا",
+      "زهلال",
+      "سغرب",
+      "غشوکو",
+      "فبستم",
+      "فولاد",
+      "فپنتا",
+      "نان",
+      "وخارزم",
+      "پاکشو",
+      "چدن",
+      "کبافق",
+      "کیمیاتک"
+    ],
+    "deterministic": true
+  },
+  "real_requests": {
+    "total": 115,
+    "http_200": 115,
+    "distinct_selected_symbols_exercised": 14,
+    "cohort_coverage": "14/14",
+    "by_group": {
+      "A_selected_safe": {
+        "requests": 70,
+        "http_200": 70,
+        "median_ms": 84.85,
+        "p95_ms": 105.81,
+        "contract_keys_ok": true
+      },
+      "B_nonselected_safe": {
+        "requests": 10,
+        "http_200": 10,
+        "median_ms": 69.36,
+        "p95_ms": 99.01,
+        "contract_keys_ok": true
+      },
+      "C_collision": {
+        "requests": 15,
+        "http_200": 15,
+        "median_ms": 74.76,
+        "p95_ms": 90.53,
+        "contract_keys_ok": true
+      },
+      "D_legacy_only": {
+        "requests": 9,
+        "http_200": 9,
+        "median_ms": 76.19,
+        "p95_ms": 98.56,
+        "contract_keys_ok": true
+      },
+      "E_unmapped": {
+        "requests": 3,
+        "http_200": 3,
+        "median_ms": 62.13,
+        "p95_ms": 62.13,
+        "contract_keys_ok": true
+      },
+      "F_safe_alias": {
+        "requests": 5,
+        "http_200": 5,
+        "median_ms": 69.82,
+        "p95_ms": 87.07,
+        "contract_keys_ok": true
+      },
+      "G_unknown": {
+        "requests": 3,
+        "http_200": 3,
+        "median_ms": 67.84,
+        "p95_ms": 67.84,
+        "contract_keys_ok": true
+      }
+    }
+  },
+  "routing": {
+    "canary_selected": 70,
+    "canonical_served": 70,
+    "legacy_served": 45,
+    "canonical_ineligible": 30,
+    "legacy_identity_collision": 15,
+    "legacy_only": 9,
+    "canonical_unmapped": 3,
+    "other_unsafe": 3,
+    "eligibility_guard_forced_legacy": 0,
+    "fallbacks": 0,
+    "canonical_errors": 0
+  },
+  "comparisons": {
+    "exact": 48888,
+    "expected": 0,
+    "unexpected": 0
+  },
+  "latency": {
+    "canonical_median_ms": 1.676,
+    "canonical_p95_ms": 2.994,
+    "legacy_median_ms": 62.025,
+    "legacy_p95_ms": 79.354,
+    "fallback_median_ms": 0,
+    "fallback_p95_ms": 0
+  },
+  "guard_under_hash_selection": {
+    "control": "isolated CDF_PRICE_HISTORY_CANARY_PERCENT=100 run",
+    "collisions_exercised": [
+      "جم پیلن",
+      "های وب",
+      "سیمرغ"
+    ],
+    "canonical_served_from_collisions": 0,
+    "eligibility_guard_forced_legacy": 24,
+    "canonical_ineligible": 24,
+    "note": "at 100%, only CANONICAL_SAFE symbols were canonical-served (3); all non-safe forced legacy"
+  },
+  "kill_switch_drill": {
+    "action": "CDF_PRICE_HISTORY_CANARY_ENABLED=false + restart",
+    "health_read_mode": "legacy",
+    "health_canary_enabled": false,
+    "canonical_selections": 0,
+    "all_requests_legacy": true,
+    "config_only": true
+  },
+  "gate": "PRICE_HISTORY_PERCENT5_PASS",
+  "next_step": "PRICE_HISTORY_PERCENT10_READY"
+}

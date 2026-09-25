@@ -43,6 +43,11 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+try:  # canonical dual-write hook (no-op unless CDF_INGESTION_MODE=dual_write)
+    import canonical_hook  # noqa: E402
+except Exception:  # pragma: no cover
+    canonical_hook = None
+
 try:
     import pyodbc
 except ImportError:
@@ -885,6 +890,26 @@ UPSERT_SQL = """
 """
 
 
+def _persist_market(cursor, conn, rows, table_name="MarketPriceHistory"):
+    """Write market rows honoring MARKET_PRICE authority.
+
+    legacy authority (default): legacy SQL Server write first, canonical secondary.
+    canonical authority: canonical PostgreSQL first (authoritative), then SQL Server mirror;
+    canonical failure falls back to legacy for continuity and queues a retry.
+    """
+    def legacy_write():
+        upsert_rows(cursor, rows, table_name)
+        conn.commit()
+
+    if canonical_hook and canonical_hook.market_canonical_authority():
+        return canonical_hook.ingest_market_authoritative(rows, legacy_writer=legacy_write,
+                                                          table_name=table_name)
+    legacy_write()
+    if canonical_hook:
+        canonical_hook.dual_write_market_rows(rows, table_name=table_name)
+    return {"outcome": "LEGACY_AUTHORITATIVE"}
+
+
 def upsert_rows(cursor, rows, table_name="MarketPriceHistory"):
     sql = UPSERT_SQL.format(table=safe_sql_identifier(table_name))
     for row in rows:
@@ -1053,8 +1078,7 @@ def cmd_daily(table_name="MarketPriceHistory"):
     upserted = 0
     try:
         ensure_price_history_table(cursor, table_name)
-        upsert_rows(cursor, valid_rows, table_name)
-        conn.commit()
+        _persist_market(cursor, conn, valid_rows, table_name)
         upserted = len(valid_rows)
     except Exception:
         conn.rollback()
@@ -1311,8 +1335,7 @@ def cmd_backfill_raw(symbol, table_name="MarketPriceHistory"):
             rows.append(row)
 
         if rows:
-            upsert_rows(cursor, rows, table_name)
-            conn.commit()
+            _persist_market(cursor, conn, rows, table_name)
             total = len(rows)
             log.info("✅ %s: %s ردیف ذخیره شد", sym, total)
         else:

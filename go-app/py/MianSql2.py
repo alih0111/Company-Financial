@@ -6,6 +6,11 @@ import logging
 from pathlib import Path
 from urllib.parse import urljoin
 
+try:  # canonical dual-write hook (no-op unless CDF_INGESTION_MODE=dual_write)
+    import canonical_hook  # noqa: E402
+except Exception:  # pragma: no cover
+    canonical_hook = None
+
 import pyodbc
 import jdatetime
 from bs4 import BeautifulSoup
@@ -380,40 +385,55 @@ def save_report_to_sql(
 
         exists = cursor.fetchone()[0]
 
+        def _legacy_insert():
+            cursor.execute(
+                f"""
+                INSERT INTO dbo.[{table_name}] (
+                    CompanyID, CompanyName, ReportDate,
+                    Value1, Value2, Value3, Url
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                company_id, company_name, report_date,
+                calculated_values[0], calculated_values[1], calculated_values[2], base_url,
+            )
+            conn.commit()
+
+        # Monthly canonical-authority mode: canonical PostgreSQL first (authoritative),
+        # then SQL Server mirror; canonical failure falls back to legacy + queues retry.
+        if canonical_hook and canonical_hook.monthly_canonical_authority():
+            try:
+                outcome = canonical_hook.ingest_monthly_authoritative(
+                    company_id, company_name, report_date, calculated_values,
+                    legacy_writer=(None if exists else _legacy_insert),
+                )
+                logging.info("monthly authority outcome=%s", outcome.get("outcome"))
+            except Exception:
+                logging.exception("canonical monthly authority hook failed")
+            return True
+
         if exists:
             logging.info(
                 f"⏩ Already exists: {company_name} - {report_date}"
             )
             return False
 
-        cursor.execute(
-            f"""
-            INSERT INTO dbo.[{table_name}] (
-                CompanyID,
-                CompanyName,
-                ReportDate,
-                Value1,
-                Value2,
-                Value3,
-                Url
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            company_id,
-            company_name,
-            report_date,
-            calculated_values[0],  # تعداد تولید یک‌ماهه؛ برای خدمات صفر
-            calculated_values[1],  # تعداد فروش یک‌ماهه؛ برای خدمات صفر
-            calculated_values[2],  # مبلغ فروش/درآمد شناسایی‌شده یک‌ماهه
-            base_url
-        )
-
-        conn.commit()
+        _legacy_insert()
 
         logging.info(
             f"✅ Monthly report {report_date} saved to SQL: "
             f"{calculated_values}"
         )
+
+        # Phase-2 dual-write: additive canonical write after successful legacy commit.
+        try:
+            if canonical_hook:
+                canonical_hook.dual_write_monthly_values(
+                    company_id, company_name, report_date, calculated_values
+                )
+        except Exception:
+            logging.exception("canonical dual-write hook failed (legacy write preserved)")
+
         return True
 
     except Exception as e:

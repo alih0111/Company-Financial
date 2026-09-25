@@ -1,0 +1,16 @@
+{
+  "score_version": "canonical-v1-dev",
+  "implementation_revision": "report-chain-ttm-v1",
+  "config_hash": "a65808face918ae9c7bb4c8c5a3d0d67d420c84fcd2392d59cd1aac032015885",
+  "summary_hash": "4a628e7d730ccb090bc8b04a7558086bc50ef62e213837cd2556c85d48bbad29",
+  "frozen_model": {
+    "score_version": "canonical-v1-dev",
+    "implementation_revision": "report-chain-ttm-v1",
+    "metric_spec_hash": "c00a231fb357477aaf124920d81752759935bf0416da6beeab69eb5a141af39e",
+    "report_chain_spec_hash": "dc8b1d25f81ed90b718c6f68d16fbd346521bfa4aca246a7164732f435d4d659",
+    "factor_review_hash": "6fe57ebf6889c5345eca40098813d90baea9fa7829aea49e4484b0a7f348953f",
+    "missing_data_contract_hash": "bb5b9d939b6eda47c78bd3346e8f9833ca2b7e444eb7867b45c138da4edc96e2",
+    "weights_validated": false,
+    "baseline_weights_note": "NOT VALIDATED FOR CANONICAL V1 (prototype baseline)"
+  }
+}

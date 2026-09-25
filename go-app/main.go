@@ -24,6 +24,9 @@ func main() {
 
 	api := r.Group("/api")
 
+	// Observability only: read mode + backend availability. No secrets.
+	r.GET("/api/health/shadow", handlers.GetShadowHealth)
+
 	r.POST("/api/register/send-code", handlers.SendVerificationCode)
 	r.POST("/api/register", handlers.Register)
 	api.POST("/login", handlers.Login)
