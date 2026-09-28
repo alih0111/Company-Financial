@@ -1048,8 +1048,49 @@ def resolve_matched_symbols(table_name="MarketPriceHistory"):
     return matched, unmatched
 
 
+def resolve_matched_symbols_canonical(table_name="MarketPriceHistory"):
+    """Canonical-only identity resolution: SQL Server is never contacted.
+
+    Symbol/name -> canonical legacy key via PostgreSQL (core aliases/securities).
+    """
+    data = fetch_all_symbols()
+    if not isinstance(data, list):
+        raise RuntimeError(f"AllSymbols returned non-list: {type(data).__name__}")
+    matched, unmatched = [], []
+    for item in data:
+        sym = item.get("l18")
+        name = item.get("l30")
+        key = canonical_hook.resolve_legacy_key(symbol=sym, name=name) if canonical_hook else None
+        if key:
+            matched.append({
+                "instrument_code": str(item.get("id") or item.get("isin") or sym or ""),
+                "company_id": key, "symbol": sym,
+                "company_name": name or sym, "brs_name": name or sym, "raw": item, "how": "canonical",
+            })
+        else:
+            unmatched.append(item)
+    return matched, unmatched
+
+
+def _persist_market_canonical_only(rows, table_name="MarketPriceHistory"):
+    """Write market observations canonically without any SQL Server connection."""
+    return canonical_hook.ingest_market_authoritative(rows, legacy_writer=None, table_name=table_name)
+
+
 # --------------------- Commands ---------------------
 def cmd_daily(table_name="MarketPriceHistory"):
+    # Canonical-only offline: BRS fetch -> normalize -> canonical write, no SQL Server.
+    if canonical_hook and canonical_hook.market_canonical_authority() and canonical_hook.canonical_only_offline():
+        matched, unmatched = resolve_matched_symbols_canonical(table_name)
+        rows = [build_daily_row(m["raw"], m["company_id"], m["company_name"], m["brs_name"]) for m in matched]
+        valid_rows = [r for r in rows if r["gregorian_date"]]
+        outcome = _persist_market_canonical_only(valid_rows, table_name)
+        log.info("canonical-only daily outcome=%s inserted=%s skipped=%s mirror=%s",
+                 outcome.get("outcome"), outcome.get("inserted"), outcome.get("skipped"),
+                 outcome.get("legacy_mirror_status"))
+        _print_summary("daily(canonical-only)", len(valid_rows), len(matched), len(unmatched), unmatched)
+        return
+
     matched, unmatched = resolve_matched_symbols(table_name)
 
     rows = [
@@ -1199,6 +1240,21 @@ def cmd_backfill_raw(symbol, table_name="MarketPriceHistory"):
     مناسب برای نمادهایی که در codal نیستند ولی قیمت آن‌ها لازم است.
     """
     sym_norm = normalize_persian(symbol)
+
+    # Canonical-only offline: resolve identity canonically and write canonical,
+    # with no SQL Server connection at all.
+    if canonical_hook and canonical_hook.market_canonical_authority() and canonical_hook.canonical_only_offline():
+        matched, _ = resolve_matched_symbols_canonical(table_name)
+        subset = [m for m in matched
+                  if normalize_persian(m.get("symbol")) == sym_norm
+                  or normalize_persian(m.get("company_name")) == sym_norm]
+        rows = [build_daily_row(m["raw"], m["company_id"], m["company_name"], m["brs_name"]) for m in subset]
+        valid_rows = [r for r in rows if r["gregorian_date"]]
+        outcome = _persist_market_canonical_only(valid_rows, table_name)
+        log.info("canonical-only backfill_raw symbol=%s outcome=%s inserted=%s skipped=%s mirror=%s",
+                 symbol, outcome.get("outcome"), outcome.get("inserted"), outcome.get("skipped"),
+                 outcome.get("legacy_mirror_status"))
+        return
 
     # ۱. پیدا کردن نماد در AllSymbols — چند روش جستجو
     data = fetch_all_symbols()

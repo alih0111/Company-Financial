@@ -1363,6 +1363,35 @@ def save_profit_loss_to_sql(
         )
         return False
 
+    # Canonical-only offline: normalized facts from the parser feed the canonical
+    # PostgreSQL writer directly. SQL Server is NOT contacted (no pyodbc), and is
+    # not the transport for canonical facts. Legacy mode is untouched.
+    if (canonical_hook and canonical_hook.financial_canonical_authority()
+            and canonical_hook.canonical_only_offline()):
+        try:
+            key = canonical_hook.resolve_legacy_key(name=company_name) or generate_company_id(company_name)
+            eps = values_to_insert[0] if len(values_to_insert) > 0 else None
+            capital = values_to_insert[1] if len(values_to_insert) > 1 else None
+            operating_eps = values_to_insert[2] if len(values_to_insert) > 2 else None
+            values = {
+                "eps": eps, "capital": capital, "operating_eps": operating_eps,
+                "operating_profit": operating_profit_new, "revenue": revenue_new,
+                "net_profit": net_profit_amount, "finance_cost": finance_costs_new,
+                "other_non_operating": other_non_op_new, "total_assets": total_assets,
+                "current_assets": current_assets, "total_liabilities": total_liabilities,
+                "current_liabilities": current_liabilities, "total_equity": total_equity,
+                "operating_cash_flow": operating_cash_flow,
+            }
+            facts = canonical_hook.facts_from_values(report_date=report_date, values=values)
+            outcome = canonical_hook.ingest_financial_authoritative_by_key(
+                key, company_name, report_date, legacy_writer=None, facts=facts)
+            logging.info("financial canonical-only outcome=%s facts=%s mirror=%s",
+                         outcome.get("outcome"), outcome.get("facts"), outcome.get("legacy_mirror_status"))
+            return True
+        except Exception:
+            logging.exception("canonical-only financial write failed")
+            return False
+
     conn = None
     cursor = None
 

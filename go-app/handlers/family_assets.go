@@ -302,8 +302,30 @@ func loadFamilyAccounts(db *sql.DB) (map[int]float64, error) {
 // ────────────────────────────── GET /family/assets ──────────────────────────────
 
 // GetFamilyAssets کل وضعیت دارایی‌ها را با محاسبات برمی‌گرداند (مثل Sheet1).
+// familyRetired reports (and answers) the explicit deferral of the family
+// feature in SQL Server retirement mode. Family is ACTIVE_OPTIONAL and is
+// explicitly non-blocking for core financial functionality.
+func familyRetired(c *gin.Context) bool {
+	if config.FamilyBackend() == "disabled" || config.SQLServerMode() == "offline_expected" {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"error":      "family assets deferred: SQL Server retirement mode (explicitly non-blocking)",
+			"deferred":   true,
+			"feature":    "family",
+		})
+		return true
+	}
+	return false
+}
+
 func GetFamilyAssets(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
+		return
+	}
+	if config.FamilyBackend() == "postgres" {
+		getFamilyAssetsPG(c)
+		return
+	}
+	if familyRetired(c) {
 		return
 	}
 
@@ -664,6 +686,10 @@ func SyncFamilyPrices(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
 		return
 	}
+	if config.FamilyBackend() == "postgres" {
+		syncFamilyPricesPG(c)
+		return
+	}
 
 	var req struct {
 		Backfill bool `json:"backfill"`
@@ -703,6 +729,10 @@ type saveFamilyPricesRequest struct {
 // تاریخچه (FamilyHistory) ثبت می‌کند — مثل زدن قیمت در ستون C اکسل.
 func SaveFamilyPrices(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
+		return
+	}
+	if config.FamilyBackend() == "postgres" {
+		saveFamilyPricesPG(c)
 		return
 	}
 
@@ -862,6 +892,10 @@ func UpsertFamilyHolding(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
 		return
 	}
+	if config.FamilyBackend() == "postgres" {
+		upsertFamilyHoldingPG(c)
+		return
+	}
 
 	db := config.GetDB()
 	defer db.Close()
@@ -907,6 +941,10 @@ func DeleteFamilyHolding(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
 		return
 	}
+	if config.FamilyBackend() == "postgres" {
+		deleteFamilyHoldingPG(c)
+		return
+	}
 
 	db := config.GetDB()
 	defer db.Close()
@@ -940,6 +978,10 @@ type createFamilyPersonRequest struct {
 // CreateFamilyPerson شخص جدید اضافه می‌کند.
 func CreateFamilyPerson(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
+		return
+	}
+	if config.FamilyBackend() == "postgres" {
+		createFamilyPersonPG(c)
 		return
 	}
 
@@ -979,6 +1021,10 @@ type createFamilyAssetRequest struct {
 // CreateFamilyAsset دارایی جدید (سهام/طلا/دلار) اضافه می‌کند.
 func CreateFamilyAsset(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
+		return
+	}
+	if config.FamilyBackend() == "postgres" {
+		createFamilyAssetPG(c)
 		return
 	}
 
@@ -1032,6 +1078,10 @@ func UpdateFamilyAccount(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
 		return
 	}
+	if config.FamilyBackend() == "postgres" {
+		updateFamilyAccountPG(c)
+		return
+	}
 
 	db := config.GetDB()
 	defer db.Close()
@@ -1076,6 +1126,13 @@ func GetFamilyCashFlows(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
 		return
 	}
+	if config.FamilyBackend() == "postgres" {
+		getFamilyCashFlowsPG(c)
+		return
+	}
+	if familyRetired(c) {
+		return
+	}
 
 	db := config.GetDB()
 	defer db.Close()
@@ -1116,6 +1173,10 @@ func GetFamilyCashFlows(c *gin.Context) {
 // AddFamilyCashFlow یک آورده (+) یا برداشت (−) ثبت می‌کند.
 func AddFamilyCashFlow(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
+		return
+	}
+	if config.FamilyBackend() == "postgres" {
+		addFamilyCashFlowPG(c)
 		return
 	}
 
@@ -1166,6 +1227,10 @@ func DeleteFamilyCashFlow(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
 		return
 	}
+	if config.FamilyBackend() == "postgres" {
+		deleteFamilyCashFlowPG(c)
+		return
+	}
 
 	db := config.GetDB()
 	defer db.Close()
@@ -1210,6 +1275,13 @@ func priceAtOrEarliest(pts []familyPricePoint, dateKey string) (float64, bool) {
 // واقعی (ترکیب سبد آن زمان) تفاوت داشته باشد — has_total این را تفکیک می‌کند.
 func GetFamilyHistory(c *gin.Context) {
 	if !requireFamilyAdmin(c) {
+		return
+	}
+	if config.FamilyBackend() == "postgres" {
+		getFamilyHistoryPG(c)
+		return
+	}
+	if familyRetired(c) {
 		return
 	}
 

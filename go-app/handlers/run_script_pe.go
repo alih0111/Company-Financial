@@ -4,10 +4,16 @@ import (
 	"net/http"
 	"os/exec"
 
+	"go-app/config"
+
 	"github.com/gin-gonic/gin"
 )
 
 func RunScriptPE(c *gin.Context) {
+	if config.SQLServerMode() == "offline_expected" {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "FullPE refresh retired (SQL Server only)", "reason": "sqlserver_offline_expected"})
+		return
+	}
 
 	cmd := exec.Command("python", "py/scraperFullPE.py")
 

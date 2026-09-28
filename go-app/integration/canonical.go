@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
 )
 
@@ -44,6 +45,35 @@ type ScoreVersionInfo struct {
 	RunID     string
 	CodeVer   string
 	Completed bool
+	// SourceCutoffAt is the point-in-time cutoff the run was computed from.
+	SourceCutoffAt string
+	// CompletedAt is when the run finished.
+	CompletedAt string
+}
+
+// FactorScoreInputRow is a canonical analytics factor score. Go consumes these
+// rows verbatim; it never recomputes percentile, weight or weighted score.
+type FactorScoreInputRow struct {
+	LegacyCompanyID    string
+	CanonicalCompanyID string
+	FactorCode         string
+	RawValue           float64
+	Percentile         float64
+	WeightedScore      float64
+	Weight             float64
+}
+
+// MetricSnapshotInputRow is a canonical analytics base-metric snapshot. When the
+// canonical computation does not materialize snapshots the read returns no rows
+// (explicit missing-data behaviour, never fabricated values).
+type MetricSnapshotInputRow struct {
+	LegacyCompanyID    string
+	CanonicalCompanyID string
+	MetricCode         string
+	AsOfDate           string
+	Value              float64
+	Unit               string
+	CalculationVersion string
 }
 
 // CompanyNames returns the canonical company display names.
@@ -51,10 +81,23 @@ func (p *PG) CompanyNames(ctx context.Context) ([]string, error) {
 	if p == nil || p.db == nil {
 		return nil, fmt.Errorf("canonical postgres not configured")
 	}
+	// Union company display/legal names with security aliases so that
+	// symbol-named companies match the legacy name set without changing
+	// canonical identity.
 	const q = `
-		SELECT DISTINCT COALESCE(NULLIF(BTRIM(display_name), ''), BTRIM(legal_name)) AS name
-		FROM core.companies
-		WHERE COALESCE(NULLIF(BTRIM(display_name), ''), BTRIM(legal_name)) <> ''
+		SELECT name FROM (
+			SELECT COALESCE(NULLIF(BTRIM(display_name), ''), BTRIM(legal_name)) AS name
+			FROM core.companies
+			WHERE COALESCE(NULLIF(BTRIM(display_name), ''), BTRIM(legal_name)) <> ''
+			UNION
+			SELECT COALESCE(NULLIF(BTRIM(sec.codal_symbol), ''), BTRIM(sec.brs_name)) AS name
+			FROM core.securities sec
+			WHERE COALESCE(NULLIF(BTRIM(sec.codal_symbol), ''), BTRIM(sec.brs_name)) <> ''
+			UNION
+			SELECT BTRIM(sa.alias_value) AS name
+			FROM core.security_aliases sa
+			WHERE BTRIM(sa.alias_value) <> ''
+		) t
 		ORDER BY 1`
 	rows, err := p.db.QueryContext(ctx, q)
 	if err != nil {
@@ -86,6 +129,40 @@ func (p *PG) ResolveSecurityID(ctx context.Context, symbol string) (string, erro
 		LIMIT 1`
 	var id string
 	err := p.db.QueryRowContext(ctx, q, symbol).Scan(&id)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return id, nil
+}
+
+// ResolveLegacyCompanyIDByName maps a client-visible company/symbol name to a
+// canonical legacy company key (32-hex) through company names, security symbols
+// and security aliases. Names are lookup values only; the returned key is the
+// explicit legacy mapping used by the canonical readers.
+func (p *PG) ResolveLegacyCompanyIDByName(ctx context.Context, name string) (string, error) {
+	if p == nil || p.db == nil {
+		return "", fmt.Errorf("canonical postgres not configured")
+	}
+	name = NormalizeText(name)
+	if name == "" {
+		return "", nil
+	}
+	const q = `
+		SELECT lem.legacy_key
+		FROM core.legacy_entity_map lem
+		JOIN core.companies c ON c.id = lem.target_uuid AND lem.entity_type = 'company'
+		LEFT JOIN core.securities sec ON sec.company_id = c.id
+		LEFT JOIN core.security_aliases sa ON sa.security_id = sec.id
+		WHERE lem.legacy_key ~ '^[0-9a-f]{32}$'
+		  AND (BTRIM(c.display_name) = $1 OR BTRIM(c.legal_name) = $1
+		       OR sec.codal_symbol = $1 OR sec.brs_name = $1
+		       OR sa.alias_value = $1)
+		LIMIT 1`
+	var id string
+	err := p.db.QueryRowContext(ctx, q, name).Scan(&id)
 	if err == sql.ErrNoRows {
 		return "", nil
 	}
@@ -161,14 +238,17 @@ func (p *PG) SelectScoreRun(ctx context.Context, version string) (ScoreVersionIn
 		return ScoreVersionInfo{}, fmt.Errorf("canonical postgres not configured")
 	}
 	const q = `
-		SELECT id::text, score_version, as_of_date::text, COALESCE(code_version, ''), status
+		SELECT id::text, score_version, as_of_date::text, COALESCE(code_version, ''), status,
+		       COALESCE(source_cutoff_at::text, ''), COALESCE(completed_at::text, '')
 		FROM analytics.score_runs
 		WHERE score_version = $1 AND status = 'completed'
 		ORDER BY as_of_date DESC, started_at DESC
 		LIMIT 1`
 	var info ScoreVersionInfo
 	var status string
-	err := p.db.QueryRowContext(ctx, q, version).Scan(&info.RunID, &info.Version, &info.AsOfDate, &info.CodeVer, &status)
+	err := p.db.QueryRowContext(ctx, q, version).Scan(
+		&info.RunID, &info.Version, &info.AsOfDate, &info.CodeVer, &status,
+		&info.SourceCutoffAt, &info.CompletedAt)
 	if err == sql.ErrNoRows {
 		return ScoreVersionInfo{}, nil
 	}
@@ -177,6 +257,93 @@ func (p *PG) SelectScoreRun(ctx context.Context, version string) (ScoreVersionIn
 	}
 	info.Completed = status == "completed"
 	return info, nil
+}
+
+// FactorScoresByLegacyIDs returns canonical analytics factor scores for the
+// given legacy CompanyIDs, resolved through core.legacy_entity_map. Percentile,
+// weight and weighted score are canonical stored values; Go never recomputes
+// them.
+func (p *PG) FactorScoresByLegacyIDs(ctx context.Context, version string, ids []string) ([]FactorScoreInputRow, error) {
+	if p == nil || p.db == nil {
+		return nil, fmt.Errorf("canonical postgres not configured")
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	const q = `
+		WITH run AS (
+			SELECT id FROM analytics.score_runs
+			WHERE score_version = $1 AND status = 'completed'
+			ORDER BY as_of_date DESC, started_at DESC
+			LIMIT 1
+		),
+		wanted AS (SELECT unnest(string_to_array($2, ',')) AS legacy_key)
+		SELECT DISTINCT lem.legacy_key, fs.company_id::text, fs.factor_code,
+		       COALESCE(fs.raw_value, 0), COALESCE(fs.percentile, 0),
+		       COALESCE(fs.weighted_score, 0), COALESCE(fs.weight, 0)
+		FROM analytics.factor_scores fs
+		JOIN run r ON r.id = fs.run_id
+		JOIN core.legacy_entity_map lem
+		  ON lem.entity_type = 'company'
+		 AND lem.target_uuid = fs.company_id
+		 AND lem.legacy_key ~ '^[0-9a-f]{32}$'
+		JOIN wanted w ON w.legacy_key = lem.legacy_key
+		ORDER BY lem.legacy_key, fs.factor_code`
+	rows, err := p.db.QueryContext(ctx, q, version, strings.Join(ids, ","))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := make([]FactorScoreInputRow, 0)
+	for rows.Next() {
+		var r FactorScoreInputRow
+		if err := rows.Scan(&r.LegacyCompanyID, &r.CanonicalCompanyID, &r.FactorCode,
+			&r.RawValue, &r.Percentile, &r.WeightedScore, &r.Weight); err != nil {
+			return nil, err
+		}
+		out = append(out, r)
+	}
+	return out, rows.Err()
+}
+
+// MetricSnapshotsByLegacyIDs returns canonical analytics metric snapshots for the
+// given legacy CompanyIDs. The query is version-scoped when the snapshot table
+// carries a calculation_version; absent snapshots yield no rows.
+func (p *PG) MetricSnapshotsByLegacyIDs(ctx context.Context, version string, ids []string) ([]MetricSnapshotInputRow, error) {
+	if p == nil || p.db == nil {
+		return nil, fmt.Errorf("canonical postgres not configured")
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	const q = `
+		WITH wanted AS (SELECT unnest(string_to_array($2, ',')) AS legacy_key)
+		SELECT DISTINCT lem.legacy_key, ms.company_id::text, ms.metric_code,
+		       ms.as_of_date::text, COALESCE(ms.value, 0), COALESCE(ms.unit, ''),
+		       COALESCE(ms.calculation_version, '')
+		FROM analytics.metric_snapshots ms
+		JOIN core.legacy_entity_map lem
+		  ON lem.entity_type = 'company'
+		 AND lem.target_uuid = ms.company_id
+		 AND lem.legacy_key ~ '^[0-9a-f]{32}$'
+		JOIN wanted w ON w.legacy_key = lem.legacy_key
+		WHERE ($1 = '' OR ms.calculation_version IS NULL OR ms.calculation_version = $1)
+		ORDER BY lem.legacy_key, ms.metric_code`
+	rows, err := p.db.QueryContext(ctx, q, version, strings.Join(ids, ","))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := make([]MetricSnapshotInputRow, 0)
+	for rows.Next() {
+		var r MetricSnapshotInputRow
+		if err := rows.Scan(&r.LegacyCompanyID, &r.CanonicalCompanyID, &r.MetricCode,
+			&r.AsOfDate, &r.Value, &r.Unit, &r.CalculationVersion); err != nil {
+			return nil, err
+		}
+		out = append(out, r)
+	}
+	return out, rows.Err()
 }
 
 // ScoresByLegacyIDs returns canonical company scores for the given legacy
@@ -301,6 +468,295 @@ func (p *PG) MonthlyActivitiesByLegacyCompanyID(ctx context.Context, legacyID st
 		out = append(out, r)
 	}
 	return out, rows.Err()
+}
+
+// MonthlyActivitiesByLegacyIDs is the set-based form of
+// MonthlyActivitiesByLegacyCompanyID. It resolves every requested company in a
+// single indexed query, eliminating the per-company N+1 pattern.
+func (p *PG) MonthlyActivitiesByLegacyIDs(ctx context.Context, ids []string, limit int) ([]MonthlyInputRow, error) {
+	if p == nil || p.db == nil {
+		return nil, fmt.Errorf("canonical postgres not configured")
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	if limit <= 0 || limit > 2000 {
+		limit = 240
+	}
+	const q = `
+		SELECT DISTINCT lem.legacy_key, ma.jalali_period_text,
+		       COALESCE(ma.production_quantity, 0),
+		       COALESCE(ma.sales_quantity, 0),
+		       COALESCE(ma.reported_sales_amount, 0),
+		       COALESCE(ma.sales_amount_rial, 0),
+		       ma.period_end_date
+		FROM fundamentals.monthly_activities ma
+		JOIN core.legacy_entity_map lem
+		  ON lem.entity_type = 'company'
+		 AND lem.target_uuid = ma.company_id
+		 AND lem.legacy_key = ANY(string_to_array($1, ','))
+		WHERE lem.legacy_key ~ '^[0-9a-f]{32}$'
+		ORDER BY lem.legacy_key, ma.period_end_date DESC`
+	rows, err := p.db.QueryContext(ctx, q, strings.Join(ids, ","))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := make([]MonthlyInputRow, 0)
+	perCompany := map[string]int{}
+	for rows.Next() {
+		var r MonthlyInputRow
+		var jalali sql.NullString
+		var periodEnd any
+		if err := rows.Scan(&r.LegacyCompanyID, &jalali, &r.ProductionQuantity,
+			&r.SalesQuantity, &r.ReportedSalesAmount, &r.SalesAmountRial, &periodEnd); err != nil {
+			return nil, err
+		}
+		if perCompany[r.LegacyCompanyID] >= limit {
+			continue
+		}
+		perCompany[r.LegacyCompanyID]++
+		r.ReportDate = jalali.String
+		out = append(out, r)
+	}
+	return out, rows.Err()
+}
+
+// NetProfitPeriodRow is one reported cumulative net-profit period.
+type NetProfitPeriodRow struct {
+	LegacyCompanyID string
+	JalaliPeriod    string
+	PeriodEndDate   string
+	FiscalYear      int
+	PeriodOrder     int // interim length label: 3 | 6 | 9 | 12
+	ReportedMillion float64
+	CanonicalRial   float64
+	SourceReportID  string
+}
+
+// NetProfitSeriesByLegacyCompanyID returns the reported cumulative net-profit
+// periods for a legacy company key, using the current valid statement per period
+// (period_order=1 = current period of each report). Periods where net_profit was
+// not reported are absent (never fabricated, never EPS-substituted).
+func (p *PG) NetProfitSeriesByLegacyCompanyID(ctx context.Context, legacyID string) ([]NetProfitPeriodRow, error) {
+	if p == nil || p.db == nil {
+		return nil, fmt.Errorf("canonical postgres not configured")
+	}
+	// Current-period selection: one row per (company, period), the current valid
+	// fact is the one whose report is most recent (published_at, then version).
+	// Duration semantics come from the Codal report TITLE (۳ ماهه/۶ ماهه/…), not
+	// from the calendar month, so non-Esfand fiscal years are handled correctly.
+	const q = `
+		WITH src AS (
+			SELECT fs.period_end_date,
+			       r.jalali_period_text,
+			       COALESCE(cr.title, r.title, '') AS title,
+			       COALESCE(cr.published_at, r.published_at) AS published_at,
+			       COALESCE(cr.source_report_id, r.source_report_id, '') AS source_report_id,
+			       COALESCE(f.reported_value, 0) AS reported_million,
+			       COALESCE(f.canonical_value, 0) AS canonical_rial
+			FROM fundamentals.financial_facts f
+			JOIN fundamentals.financial_statements fs ON fs.id = f.statement_id
+			JOIN ingestion.reports r ON r.id = fs.report_id
+			LEFT JOIN LATERAL (
+				SELECT cr.title, cr.published_at, cr.source_report_id
+				FROM ingestion.reports cr
+				WHERE cr.company_id = fs.company_id AND cr.source = 'codal'
+				  AND cr.period_end_date = fs.period_end_date
+				ORDER BY cr.published_at DESC NULLS LAST, cr.created_at DESC
+				LIMIT 1
+			) cr ON true
+			WHERE fs.company_id = (
+				SELECT target_uuid FROM core.legacy_entity_map
+				WHERE entity_type = 'company' AND legacy_key = $1 LIMIT 1)
+			  AND fs.statement_type = 'income_statement'
+			  AND f.metric_code = 'net_profit'
+			  AND f.period_order = 1
+		)
+		SELECT DISTINCT ON (period_end_date)
+		       jalali_period_text, published_at::text, period_end_date::text,
+		       reported_million, canonical_rial, source_report_id, title
+		FROM src
+		ORDER BY period_end_date, published_at DESC NULLS LAST`
+	rows, err := p.db.QueryContext(ctx, q, legacyID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	out := make([]NetProfitPeriodRow, 0)
+	for rows.Next() {
+		var r NetProfitPeriodRow
+		var published, title string
+		if err := rows.Scan(&r.JalaliPeriod, &published, &r.PeriodEndDate,
+			&r.ReportedMillion, &r.CanonicalRial, &r.SourceReportID, &title); err != nil {
+			return nil, err
+		}
+		r.LegacyCompanyID = legacyID
+		fy, dur := fiscalYearDurationFromTitle(title)
+		if fy == 0 {
+			r.FiscalYear = jalaliYear(r.JalaliPeriod)
+		} else {
+			r.FiscalYear = fy
+		}
+		r.PeriodOrder = dur
+		out = append(out, r)
+	}
+	return out, rows.Err()
+}
+
+// fiscalYearDurationFromTitle deterministically parses the Codal report title,
+// e.g. "... دوره ۳ ماهه منتهی به ۱۴۰۴/۰۶/۳۱ ..." -> fiscal year 1404, duration 6.
+// It never infers duration from the calendar month. Returns (0,0) when absent.
+func fiscalYearDurationFromTitle(title string) (int, int) {
+	if strings.TrimSpace(title) == "" {
+		return 0, 0
+	}
+	t := normalizePersianDigits(title)
+	dur := 0
+	for _, d := range []int{12, 9, 6, 3} {
+		if strings.Contains(t, fmt.Sprintf("%d ماهه", d)) {
+			dur = d
+			break
+		}
+	}
+	if dur == 0 && (strings.Contains(t, "سال مالی") || strings.Contains(t, "12 ماهه")) {
+		dur = 12
+	}
+	fy := 0
+	// "منتهی به 1404/06/31"
+	if i := strings.Index(t, "منتهی به"); i >= 0 {
+		rest := strings.TrimSpace(t[i+len("منتهی به"):])
+		if j := strings.Index(rest, "/"); j >= 4 {
+			if v, err := strconv.Atoi(rest[j-4 : j]); err == nil {
+				fy = v
+			}
+		}
+	}
+	return fy, dur
+}
+
+func normalizePersianDigits(s string) string {
+	repl := map[rune]rune{'۰': '0', '۱': '1', '۲': '2', '۳': '3', '۴': '4',
+		'۵': '5', '۶': '6', '۷': '7', '۸': '8', '۹': '9'}
+	var b strings.Builder
+	for _, r := range s {
+		if d, ok := repl[r]; ok {
+			b.WriteRune(d)
+		} else {
+			b.WriteRune(r)
+		}
+	}
+	return b.String()
+}
+
+func jalaliYear(period string) int {
+	parts := strings.SplitN(strings.TrimSpace(period), "/", 2)
+	if len(parts) == 0 {
+		return 0
+	}
+	y, _ := strconv.Atoi(parts[0])
+	return y
+}
+
+func jalaliMonth(period string) int {
+	parts := strings.SplitN(strings.TrimSpace(period), "/", 3)
+	if len(parts) < 2 {
+		return 0
+	}
+	m, _ := strconv.Atoi(parts[1])
+	return m
+}
+
+// periodOrderFromMonth maps a Jalali month to the conventional interim length
+// (3M/6M/9M/12M) for an Esfand-ending fiscal year. Non-standard fiscal years are
+// documented as a limitation (canonical migrated statements carry no fiscal
+// metadata).
+func periodOrderFromMonth(month int) int {
+	switch {
+	case month <= 3:
+		return 3
+	case month <= 6:
+		return 6
+	case month <= 9:
+		return 9
+	default:
+		return 12
+	}
+}
+
+// FinancialMetricsByLegacyIDs is the set-based form of
+// FinancialMetricsByLegacyCompanyID, pivoting one row per company/period in Go
+// from a single indexed query.
+func (p *PG) FinancialMetricsByLegacyIDs(ctx context.Context, ids []string, limit int) ([]FinancialInputRow, error) {
+	if p == nil || p.db == nil {
+		return nil, fmt.Errorf("canonical postgres not configured")
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	if limit <= 0 || limit > 2000 {
+		limit = 120
+	}
+	const q = `
+		SELECT DISTINCT lem.legacy_key, r.jalali_period_text, f.metric_code, COALESCE(f.reported_value, 0)
+		FROM fundamentals.financial_facts f
+		JOIN fundamentals.financial_statements fs ON fs.id = f.statement_id
+		JOIN ingestion.reports r ON r.id = fs.report_id
+		JOIN core.legacy_entity_map lem
+		  ON lem.entity_type = 'company'
+		 AND lem.target_uuid = fs.company_id
+		 AND lem.legacy_key = ANY(string_to_array($1, ','))
+		WHERE lem.legacy_key ~ '^[0-9a-f]{32}$'
+		  AND f.period_order = 1
+		  AND f.metric_code IN ('eps','revenue','operating_profit','net_profit','capital')
+		ORDER BY lem.legacy_key, r.jalali_period_text DESC`
+	rows, err := p.db.QueryContext(ctx, q, strings.Join(ids, ","))
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	byPeriod := map[string]*FinancialInputRow{}
+	order := []string{}
+	perCompany := map[string]int{}
+	for rows.Next() {
+		var legacyID, period, metric string
+		var value float64
+		if err := rows.Scan(&legacyID, &period, &metric, &value); err != nil {
+			return nil, err
+		}
+		key := legacyID + "|" + period
+		rec, ok := byPeriod[key]
+		if !ok {
+			if perCompany[legacyID] >= limit {
+				continue
+			}
+			perCompany[legacyID]++
+			rec = &FinancialInputRow{LegacyCompanyID: legacyID, ReportDate: period}
+			byPeriod[key] = rec
+			order = append(order, key)
+		}
+		switch metric {
+		case "eps":
+			rec.EPS = value
+		case "revenue":
+			rec.Revenue = value
+		case "operating_profit":
+			rec.OperatingProfit = value
+		case "net_profit":
+			rec.NetProfit = value
+		case "capital":
+			rec.Capital = value
+		}
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	out := make([]FinancialInputRow, 0, len(order))
+	for _, key := range order {
+		out = append(out, *byPeriod[key])
+	}
+	return out, nil
 }
 
 // FinancialMetricsByLegacyCompanyID returns canonical current-period

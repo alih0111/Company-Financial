@@ -43,11 +43,19 @@ type SalesData struct {
 	CompanyName string  `json:"companyName"`
 	CompanyID   string  `json:"companyID"`
 	ReportDate  string  `json:"reportDate"`
-	Product1    float64 `json:"Product1"`
-	Product2    float64 `json:"Product2"`
-	Product3    float64 `json:"Product3"`
+	Product1    float64 `json:"Product1"` // deprecated compatibility field (unused)
+	Product2    float64 `json:"Product2"` // deprecated compatibility field (unused)
+	Product3    float64 `json:"Product3"` // deprecated compatibility field (unused)
 	Percentage  float64 `json:"percentage"`
 	WoW         int     `json:"wow"`
+
+	// Explicit vNext cumulative-profit contract (additive; ignored by legacy client).
+	// The upper chart shows reported cumulative (YTD) net profit per period.
+	PeriodEndDate          string  `json:"periodEndDate,omitempty"`
+	FiscalYear             int     `json:"fiscalYear,omitempty"`
+	PeriodOrder            int     `json:"periodOrder,omitempty"` // interim length: 3|6|9|12
+	CumulativeNetProfitRial float64 `json:"cumulativeNetProfitRial,omitempty"`
+	CumulativeNetProfitMillion float64 `json:"cumulativeNetProfitMillion,omitempty"`
 }
 
 type CompanyName struct {

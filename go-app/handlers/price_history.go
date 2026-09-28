@@ -59,6 +59,19 @@ func GetPriceHistory(c *gin.Context) {
 
 	companyName = normalizePersian(companyName)
 
+	// SQL Server retired: canonical-only, with an explicit error on failure and
+	// NO legacy fallback (which would attempt an unreachable SQL Server).
+	if config.SQLServerMode() == "offline_expected" {
+		sh := integration.Default()
+		rows, err := sh.FetchPriceHistoryCanonical(c.Request.Context(), companyName, limit)
+		if err != nil {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "canonical price history unavailable", "reason": "sqlserver_offline_expected"})
+			return
+		}
+		c.JSON(http.StatusOK, toPriceHistoryRows(rows))
+		return
+	}
+
 	sh := integration.Default()
 	sh.RecordCanaryRequest()
 	// Identity eligibility is checked before any canary/percentage routing. An

@@ -15,6 +15,10 @@ import (
 // ExportScoresCSV خروجی CSV با تمام جزئیات امتیازات همه‌ی نمادها.
 // مناسب برای ارسال به هوش مصنوعی یا باز کردن در Excel.
 func ExportScoresCSV(c *gin.Context) {
+	if config.SQLServerMode() == "offline_expected" {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "score export unavailable (legacy view retired)", "reason": "sqlserver_offline_expected"})
+		return
+	}
 	limit := parseIntQuery(c, "limit", 1000)
 	if limit > 5000 {
 		limit = 5000

@@ -1,34 +1,105 @@
 package handlers
 
 import (
+	"context"
+	"database/sql"
 	"net/http"
+	"strings"
+	"time"
 
-	"go-app/integration"
-
+	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gin-gonic/gin"
+
+	"go-app/config"
+	"go-app/integration"
 )
 
-// GetShadowHealth exposes the integration read mode and backend availability.
-// It never exposes credentials or connection strings. Canonical shadow
-// availability does not affect the legacy production health semantics.
+// probeSQLServer performs a bounded ping without affecting request behavior.
+func probeSQLServer() (bool, string) {
+	cs := config.ConnectionString
+	if strings.TrimSpace(cs) == "" {
+		return false, "not configured"
+	}
+	if !strings.Contains(strings.ToLower(cs), "timeout") {
+		cs += ";Connection Timeout=2"
+	}
+	db, err := sql.Open("sqlserver", cs)
+	if err != nil {
+		return false, "open error"
+	}
+	defer db.Close()
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	if err := db.PingContext(ctx); err != nil {
+		return false, "offline"
+	}
+	return true, "reachable"
+}
+
+// GetShadowHealth exposes read mode, canonical analytics metadata and the SQL
+// Server retirement state. It never exposes credentials.
+//
+// When CDF_SQLSERVER_MODE=offline_expected, an offline SQL Server is reported as
+// RETIRED_EXPECTED and does not mark the application unhealthy.
 func GetShadowHealth(c *gin.Context) {
 	sh := integration.Default()
 	st := sh.RefreshStatus(c.Request.Context())
+
+	sqlReachable, sqlNote := probeSQLServer()
+	sqlMode := config.SQLServerMode()
+	sqlRequired := config.SQLServerRequired()
+
+	sqlStatus := "OFFLINE"
+	if sqlReachable {
+		sqlStatus = "HEALTHY"
+	} else if sqlMode == "offline_expected" {
+		sqlStatus = "RETIRED_EXPECTED"
+	}
+
+	postgresStatus := "OFFLINE"
+	if db, err := config.GetPG(); err == nil && db != nil {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		if db.PingContext(ctx) == nil {
+			postgresStatus = "HEALTHY"
+		}
+		cancel()
+	} else if err != nil && strings.Contains(err.Error(), "not configured") {
+		postgresStatus = "NOT_CONFIGURED"
+	}
+
+	overall := "HEALTHY"
+	if postgresStatus != "HEALTHY" {
+		overall = "DEGRADED"
+	}
+	if sqlRequired && !sqlReachable {
+		overall = "UNHEALTHY"
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"read_mode":            st.ReadMode,
+		"postgres_status":      postgresStatus,
 		"canonical_configured": st.CanonicalConfigured,
 		"canonical_reachable":  st.CanonicalReachable,
 		"canonical_error":      st.CanonicalError,
+		"analytics_status":     analyticsStatus(st.ScoreRunID, st.ScoreAsOf),
 		"score_version":        st.ScoreVersion,
 		"score_run_id":         st.ScoreRunID,
 		"score_as_of":          st.ScoreAsOf,
+		"data_as_of":           st.DataAsOf,
+		"score_stale":          st.ScoreStale,
+		"sqlserver_status":     sqlStatus,
+		"sqlserver_note":       sqlNote,
+		"sqlserver_required":   sqlRequired,
+		"sqlserver_mode":       sqlMode,
+		"overall":              overall,
 		"comparison_rules":     st.ComparisonRules,
 		"shadow_timeout_ms":    st.ShadowTimeoutMS,
-
-		"price_history_canary_enabled":      st.CanaryEnabled,
-		"price_history_canary_symbol_count": st.CanarySymbolCount,
-		"price_history_canary_percent":      st.CanaryPercent,
-		"price_history_canary_verify":       st.CanaryVerify,
-		"price_history_canary_timeout_ms":   st.CanaryTimeoutMS,
 	})
+}
+
+func analyticsStatus(runID, asOf string) string {
+	if runID == "" {
+		return "NO_COMPLETED_RUN"
+	}
+	return "HEALTHY"
 }

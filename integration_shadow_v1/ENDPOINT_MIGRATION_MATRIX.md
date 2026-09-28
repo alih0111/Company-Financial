@@ -1,4 +1,4 @@
-# ENDPOINT MIGRATION MATRIX — Phase 1 + Phase 2
+# ENDPOINT MIGRATION MATRIX — Phase 1 + Phase 2 + Phase 8
 
 Selected shadow endpoints are read-only, high-value, and have well-defined
 canonical semantics. Legacy response shape is unchanged.
@@ -150,6 +150,60 @@ verified equivalent. Median canonical latency 655.6 ms → 1.8 ms. See
 | `/api/portfolio/*` | write paths |
 | `/api/family/*` | write paths |
 | `/api/run-script*`, `/api/fetchAllData`, `/api/sync-codal`, `/api/brs/collect`, `/api/FetchFullPE` | ingestion writes |
+
+## Phase 8 — fundamentals/analytics read completion
+
+Gates: `CANONICAL_INGESTION_COMBINED_SOAK_PASS`, `GO_CANONICAL_READS_READY`,
+`GO_CANONICAL_READ_CANARY_NOT_READY`.
+
+| Change | Detail |
+| --- | --- |
+| Set-based fundamentals reads | `FinancialMetricsByLegacyIDs`, `MonthlyActivitiesByLegacyIDs` remove the per-company N+1 (single indexed query with `DISTINCT`); used by the SHADOW comparators |
+| Analytics factor scores | `analytics.factor_scores` read verbatim (`FactorScoresByLegacyIDs`) |
+| Analytics metric snapshots | `analytics.metric_snapshots` read (`MetricSnapshotsByLegacyIDs`); table currently empty → explicit empty, never fabricated |
+| Score-version selection | explicit `CDF_CANONICAL_SCORE_VERSION`, latest completed run |
+| Stale-score metadata | `/api/health/shadow` exposes `source_cutoff_at`, `data_as_of`, `score_stale` |
+| Symbol-page validation | `cmd/symbolvalidate` → `output/symbol_page_canonical_validation.csv` |
+| CompanyNames contract | `COMPANY_IDENTITY_API_CONTRACT.md` |
+| Legacy field audit | `LEGACY_FIELD_USAGE_AUDIT.md` (Product1/2/3 `CLIENT_UNUSED`) |
+
+Fresh SHADOW totals (2026-09-25): `EXACT_MATCH=4648`,
+`EXPECTED_UNIT_PRESENTATION=384`, `EXPECTED_CANONICAL_SEMANTIC_CHANGE=83`,
+`CANONICAL_ONLY=10`, `LEGACY_ONLY=106`, `ORDER_ONLY_DIFFERENCE=1`,
+**`UNEXPECTED=0`**, `QUERY_ERROR=0`.
+
+## Phase 9 — score endpoints + analytics refresh
+
+| Endpoint | Canonical read | SHADOW result | Canary-ready |
+| --- | --- | --- | --- |
+| AllCompanyScores | `analytics.company_scores` + `factor_scores` + latest price | 267/276 matched, 1089 expected, **0 unexpected** | yes |
+| CompanyScores | `analytics.company_scores` + `factor_scores` + metadata | 9/12 matched, 27 expected, **0 unexpected** | yes |
+| StockPriceScore | — | out of scope (technical) | no |
+| detail | — | adaptable later (route broken) | no |
+| analyze | — | LEGACY_AI_ONLY | no |
+
+Also: `SalesData2` canary-ready (presentation defined); `SalesData` not
+(presentation/Product1 decision pending); `CompanyNames` not (identity
+presentation). Analytics refresh contract + append-only orchestration delivered
+(`ANALYTICS_REFRESH_CONTRACT.md`), E2E `RUN_IF_STALE` proof passed.
+
+## Phase 10 — final bounded read canary
+
+Gate: **`FINAL_CANONICAL_READ_CANARY_PASS`**. Harness `go-app/cmd/finalcanary`
+drives the real Gin handlers via httptest with the identity guard and automatic
+legacy fallback. Details: `FINAL_READ_CANARY_REPORT.md`.
+
+| Endpoint | requests | canonical | fallbacks | unexpected | HTTP errors | p50 ms | p95 ms |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| SalesData2 | 15 | 8 | 2 | 0 | 0 | 12.9 | 13.0 |
+| AllCompanyScores | 1 | 1 | 0 | 0 | 0 | 124.9 | 136.1 |
+| CompanyScores | 15 | 10 | 0 | 0 | 0 | 39.0 | 39.4 |
+| price-history | 15 | 10 | 0 | 0 | 0 | 97.5 | 103.2 |
+
+Failure injection: PG unavailable → 31 fallbacks, HTTP 200; missing completed
+score run → score endpoints fall back, no stale score served; unsafe identities
+(collisions, legacy-only) forced to legacy. Score metadata: `canonical-v1-dev`,
+`score_as_of=2026-09-25`, `score_stale=false`.
 
 ## Comparison classification glossary
 

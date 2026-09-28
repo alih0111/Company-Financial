@@ -15,6 +15,9 @@ go-app/chromium-profile/
 go-app/chromedriver-win32/
 go-app/py/chromium-profile/
 go-app/py/chromedriver-win32/
+go-app/.runtime/
+historical_codal_backfill
+output
 
 # General
 .DS_Store

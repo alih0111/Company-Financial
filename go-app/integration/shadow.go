@@ -9,11 +9,13 @@ import (
 
 // Endpoint identifiers used across handlers and diagnostics.
 const (
-	EndpointCompanyNames = "GET /api/CompanyNames"
-	EndpointPriceHistory = "GET /api/price-history"
-	EndpointScores       = "GET /api/summary"
-	EndpointSalesData    = "GET /api/SalesData"
-	EndpointSalesData2   = "GET /api/SalesData2"
+	EndpointCompanyNames    = "GET /api/CompanyNames"
+	EndpointPriceHistory    = "GET /api/price-history"
+	EndpointScores          = "GET /api/summary"
+	EndpointSalesData       = "GET /api/SalesData"
+	EndpointSalesData2      = "GET /api/SalesData2"
+	EndpointAllCompanyScores = "GET /api/AllCompanyScores"
+	EndpointCompanyScores    = "GET /api/CompanyScores"
 )
 
 // Shadow is the central shadow-read orchestrator. Handlers call it with the
@@ -38,6 +40,9 @@ type Status struct {
 	ScoreVersion         string `json:"score_version"`
 	ScoreRunID           string `json:"score_run_id,omitempty"`
 	ScoreAsOf            string `json:"score_as_of,omitempty"`
+	SourceCutoffAt       string `json:"source_cutoff_at,omitempty"`
+	DataAsOf             string `json:"data_as_of,omitempty"`
+	ScoreStale           bool   `json:"score_stale"`
 	ComparisonRules      string `json:"comparison_rules"`
 	ShadowTimeoutMS      int    `json:"shadow_timeout_ms"`
 
@@ -155,8 +160,25 @@ func (s *Shadow) RefreshStatus(ctx context.Context) Status {
 	if info.RunID != "" {
 		s.status.ScoreRunID = info.RunID
 		s.status.ScoreAsOf = info.AsOfDate
+		s.status.SourceCutoffAt = info.SourceCutoffAt
+	}
+	if pg, ok := s.src.(*PG); ok {
+		if meta, err := pg.Metadata(ctx, s.cfg.ScoreVersion); err == nil {
+			s.status.DataAsOf = meta.FundamentalsAsOf
+			s.status.ScoreStale = meta.Stale
+		}
 	}
 	return s.status
+}
+
+// PG exposes the underlying canonical pool for read-only symbol-page tooling.
+// It returns nil when canonical reads are disabled.
+func (s *Shadow) PG() *PG {
+	if s == nil {
+		return nil
+	}
+	pg, _ := s.src.(*PG)
+	return pg
 }
 
 // Mode returns the effective read mode for an endpoint.
@@ -314,23 +336,34 @@ func (s *Shadow) CompareScores(ctx context.Context, legacy []ScoreInputRow, lega
 // heuristics (EPS x Capital, mixed scale) have no canonical counterpart and are
 // deliberately NOT compared or re-derived.
 func (s *Shadow) CompareSalesData(ctx context.Context, legacy []FinancialInputRow, legacyLatency time.Duration) EndpointResult {
+	return s.compareSalesData(ctx, legacy, legacyLatency, false)
+}
+
+// VerifySalesData compares a canary-served canonical result against the legacy
+// read unconditionally (used only for controlled canary verification).
+func (s *Shadow) VerifySalesData(ctx context.Context, legacy []FinancialInputRow, legacyLatency time.Duration) EndpointResult {
+	if s == nil || s.src == nil {
+		return EndpointResult{Endpoint: EndpointSalesData}
+	}
+	return s.compareSalesData(ctx, legacy, legacyLatency, true)
+}
+
+func (s *Shadow) compareSalesData(ctx context.Context, legacy []FinancialInputRow, legacyLatency time.Duration, force bool) EndpointResult {
 	const ep = EndpointSalesData
-	if !s.Enabled() || s.Mode(ep) == ModeLegacy {
+	if !s.Enabled() || (!force && s.Mode(ep) == ModeLegacy) {
 		return EndpointResult{Endpoint: ep}
 	}
 	ids := capIDs(financialIDs(legacy), s.cfg.MaxCompanies)
 	bounded := selectFinancial(legacy, ids)
 	start := time.Now()
 	canonRows, err := s.fetchWithTimeout(ctx, func(ctx context.Context) ([]Record, error) {
-		recs := make([]Record, 0, len(bounded))
-		for _, id := range ids {
-			rows, err := s.src.FinancialMetricsByLegacyCompanyID(ctx, id, 0)
-			if err != nil {
-				return nil, err
-			}
-			for _, r := range rows {
-				recs = append(recs, financialRecord(r))
-			}
+		rows, err := s.src.FinancialMetricsByLegacyIDs(ctx, ids, 0)
+		if err != nil {
+			return nil, err
+		}
+		recs := make([]Record, 0, len(rows))
+		for _, r := range rows {
+			recs = append(recs, financialRecord(r))
 		}
 		return recs, nil
 	})
@@ -362,23 +395,34 @@ func (s *Shadow) CompareSalesData(ctx context.Context, legacy []FinancialInputRo
 // Value3 (reported million_rial) compares exactly to reported_sales_amount and
 // is classified EXPECTED_UNIT_PRESENTATION against canonical sales_amount_rial.
 func (s *Shadow) CompareSalesData2(ctx context.Context, legacy []MonthlyInputRow, legacyLatency time.Duration) EndpointResult {
+	return s.compareSalesData2(ctx, legacy, legacyLatency, false)
+}
+
+// VerifySalesData2 compares a canary-served canonical result against the legacy
+// read unconditionally (used only for controlled canary verification).
+func (s *Shadow) VerifySalesData2(ctx context.Context, legacy []MonthlyInputRow, legacyLatency time.Duration) EndpointResult {
+	if s == nil || s.src == nil {
+		return EndpointResult{Endpoint: EndpointSalesData2}
+	}
+	return s.compareSalesData2(ctx, legacy, legacyLatency, true)
+}
+
+func (s *Shadow) compareSalesData2(ctx context.Context, legacy []MonthlyInputRow, legacyLatency time.Duration, force bool) EndpointResult {
 	const ep = EndpointSalesData2
-	if !s.Enabled() || s.Mode(ep) == ModeLegacy {
+	if !s.Enabled() || (!force && s.Mode(ep) == ModeLegacy) {
 		return EndpointResult{Endpoint: ep}
 	}
 	ids := capIDs(monthlyIDs(legacy), s.cfg.MaxCompanies)
 	bounded := selectMonthly(legacy, ids)
 	start := time.Now()
 	canonRows, err := s.fetchWithTimeout(ctx, func(ctx context.Context) ([]Record, error) {
-		recs := make([]Record, 0, len(bounded))
-		for _, id := range ids {
-			rows, err := s.src.MonthlyActivitiesByLegacyCompanyID(ctx, id, 0)
-			if err != nil {
-				return nil, err
-			}
-			for _, r := range rows {
-				recs = append(recs, monthlyRecord(r))
-			}
+		rows, err := s.src.MonthlyActivitiesByLegacyIDs(ctx, ids, 0)
+		if err != nil {
+			return nil, err
+		}
+		recs := make([]Record, 0, len(rows))
+		for _, r := range rows {
+			recs = append(recs, monthlyRecord(r))
 		}
 		return recs, nil
 	})
@@ -402,6 +446,154 @@ func (s *Shadow) CompareSalesData2(ctx context.Context, legacy []MonthlyInputRow
 	res := CompareRecords(ep, legacyRecs, canonRows, spec)
 	res = s.finish(ep, res, legacyLatency, time.Since(start), err, true)
 	return res
+}
+
+// CompareAllCompanyScores runs a shadow comparison of the all-companies score
+// list. Only fields with a defined canonical counterpart are compared; the
+// legacy `Stable` heuristic has no canonical equivalent and is omitted.
+func (s *Shadow) CompareAllCompanyScores(ctx context.Context, legacy []AllScoreInputRow, legacyLatency time.Duration) EndpointResult {
+	return s.compareAllCompanyScores(ctx, legacy, legacyLatency, false)
+}
+
+// VerifyAllCompanyScores compares a canary-served canonical result against the
+// legacy read unconditionally (used only for controlled canary verification).
+func (s *Shadow) VerifyAllCompanyScores(ctx context.Context, legacy []AllScoreInputRow, legacyLatency time.Duration) EndpointResult {
+	if s == nil || s.src == nil {
+		return EndpointResult{Endpoint: EndpointAllCompanyScores}
+	}
+	return s.compareAllCompanyScores(ctx, legacy, legacyLatency, true)
+}
+
+func (s *Shadow) compareAllCompanyScores(ctx context.Context, legacy []AllScoreInputRow, legacyLatency time.Duration, force bool) EndpointResult {
+	const ep = EndpointAllCompanyScores
+	if !s.Enabled() || (!force && s.Mode(ep) == ModeLegacy) {
+		return EndpointResult{Endpoint: ep}
+	}
+	start := time.Now()
+	canonRows, err := s.fetchWithTimeout(ctx, func(ctx context.Context) ([]Record, error) {
+		rows, err := s.src.AllScoresCanonical(ctx, s.cfg.ScoreVersion)
+		if err != nil {
+			return nil, err
+		}
+		recs := make([]Record, 0, len(rows))
+		for _, r := range rows {
+			recs = append(recs, allScoreRecord(r))
+		}
+		return recs, nil
+	})
+	legacyRecs := make([]Record, 0, len(legacy))
+	for _, r := range legacy {
+		legacyRecs = append(legacyRecs, allScoreRecord(r))
+	}
+	spec := CompareSpec{
+		KeyField:         "legacy_company_id",
+		AllowLegacyOnly:  true,
+		AllowCanonOnly:   true,
+		MaxMissingDetail: 20,
+		Fields: []FieldSpec{
+			{Name: "company_name", Kind: KindText, ExpectedSemanticChange: true},
+			{Name: "sales_growth", Kind: KindNumber, ExpectedSemanticChange: true, Tolerance: 1e-3},
+			{Name: "eps_growth", Kind: KindNumber, ExpectedSemanticChange: true, Tolerance: 1e-3},
+			{Name: "pe", Kind: KindNumber, ExpectedSemanticChange: true, Tolerance: 1e-3},
+			{Name: "price", Kind: KindNumber, Money: true, ExpectedSemanticChange: true, Tolerance: 1e-3},
+			{Name: "operation", Kind: KindNumber, ExpectedSemanticChange: true, Tolerance: 1e-3},
+		},
+	}
+	res := CompareRecords(ep, legacyRecs, canonRows, spec)
+	res = s.finish(ep, res, legacyLatency, time.Since(start), err, true)
+	return res
+}
+
+// CompareCompanyScores runs a shadow comparison of the single-company score
+// read. Canonical category/quant scores are additive and not compared against
+// legacy presentation values; only shared presentation fields are classified.
+func (s *Shadow) CompareCompanyScores(ctx context.Context, legacy CompanyScoreInputRow, legacyLatency time.Duration) EndpointResult {
+	return s.compareCompanyScores(ctx, legacy, legacyLatency, false)
+}
+
+// VerifyCompanyScores compares a canary-served canonical result against the
+// legacy read unconditionally (used only for controlled canary verification).
+func (s *Shadow) VerifyCompanyScores(ctx context.Context, legacy CompanyScoreInputRow, legacyLatency time.Duration) EndpointResult {
+	if s == nil || s.src == nil {
+		return EndpointResult{Endpoint: EndpointCompanyScores}
+	}
+	return s.compareCompanyScores(ctx, legacy, legacyLatency, true)
+}
+
+func (s *Shadow) compareCompanyScores(ctx context.Context, legacy CompanyScoreInputRow, legacyLatency time.Duration, force bool) EndpointResult {
+	const ep = EndpointCompanyScores
+	if !s.Enabled() || (!force && s.Mode(ep) == ModeLegacy) {
+		return EndpointResult{Endpoint: ep}
+	}
+	start := time.Now()
+	canonRows, err := s.fetchWithTimeout(ctx, func(ctx context.Context) ([]Record, error) {
+		b, err := s.src.CompanyScoreByLegacyID(ctx, s.cfg.ScoreVersion, legacy.LegacyCompanyID)
+		if err != nil {
+			return nil, err
+		}
+		if !b.HasScore {
+			return nil, nil
+		}
+		return []Record{companyScoreRecord(b)}, nil
+	})
+	legacyRecs := []Record{{
+		"legacy_company_id": TextValue(legacy.LegacyCompanyID),
+		"company_name":      TextValue(legacy.CompanyName),
+		"sales_growth":      NumValue(legacy.SalesGrowth),
+		"eps_growth":        NumValue(legacy.EPSGrowth),
+		"operation":         NumValue(legacy.Operation),
+		"quant_score":       NumValue(legacy.FinalScore),
+	}}
+	spec := CompareSpec{
+		KeyField:         "legacy_company_id",
+		AllowLegacyOnly:  true,
+		AllowCanonOnly:   false,
+		MaxMissingDetail: 5,
+		Fields: []FieldSpec{
+			{Name: "company_name", Kind: KindText, ExpectedSemanticChange: true},
+			{Name: "sales_growth", Kind: KindNumber, ExpectedSemanticChange: true, Tolerance: 1e-3},
+			{Name: "eps_growth", Kind: KindNumber, ExpectedSemanticChange: true, Tolerance: 1e-3},
+			{Name: "operation", Kind: KindNumber, ExpectedSemanticChange: true, Tolerance: 1e-3},
+			{Name: "quant_score", Kind: KindNumber, ExpectedSemanticChange: true, Tolerance: 1e-3},
+		},
+	}
+	res := CompareRecords(ep, legacyRecs, canonRows, spec)
+	res = s.finish(ep, res, legacyLatency, time.Since(start), err, true)
+	return res
+}
+
+func allScoreRecord(r AllScoreInputRow) Record {
+	return Record{
+		"legacy_company_id": TextValue(r.LegacyCompanyID),
+		"company_name":      TextValue(r.CompanyName),
+		"symbol":            TextValue(r.Symbol),
+		"sales_growth":      NumValue(r.SalesGrowth),
+		"eps_growth":        NumValue(r.EPSGrowth),
+		"pe":                NumValue(r.PE),
+		"price":             NumValue(r.Price),
+		"operation":         NumValue(r.Operation),
+		"quant_score":       NumValue(r.QuantScore),
+		"data_quality_score": NumValue(r.DataQualityScore),
+		"growth_score":      NumValue(r.GrowthScore),
+		"profitability_score": NumValue(r.ProfitabilityScore),
+		"valuation_score":   NumValue(r.ValuationScore),
+		"market_score":      NumValue(r.MarketScore),
+	}
+}
+
+func companyScoreRecord(b CompanyScoreBundle) Record {
+	salesGrowth, _ := b.factorValue("SalesGrowth")
+	netProfitGrowth, _ := b.factorValue("NetProfitGrowth")
+	operation, _ := b.factorValue("OperatingMargin")
+	return Record{
+		"legacy_company_id": TextValue(b.LegacyCompanyID),
+		"company_name":      TextValue(b.CompanyName),
+		"symbol":            TextValue(b.Symbol),
+		"sales_growth":      NumValue(salesGrowth),
+		"eps_growth":        NumValue(netProfitGrowth),
+		"operation":         NumValue(operation),
+		"quant_score":       NumValue(b.QuantScore),
+	}
 }
 
 func financialIDs(rows []FinancialInputRow) []string {

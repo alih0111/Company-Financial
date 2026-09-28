@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-09-25T16:31:37.166297+00:00",
+  "generated_at": "2026-09-25T17:12:00.375757+00:00",
   "domains": {
     "MARKET_PRICE": {
       "authority": "CANONICAL",
@@ -10,7 +10,7 @@
     "MONTHLY_ACTIVITY": {
       "authority": "CANONICAL",
       "retry_backlog": 0,
-      "quarantine_count": 16,
+      "quarantine_count": 18,
       "health": "HEALTHY"
     },
     "FINANCIAL_STATEMENT": {
@@ -22,7 +22,7 @@
     "CODAL": {
       "authority": "CANONICAL",
       "retry_backlog": 0,
-      "quarantine_count": 13,
+      "quarantine_count": 28,
       "health": "HEALTHY"
     }
   }

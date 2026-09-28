@@ -26,6 +26,16 @@ func StockPriceScore(c *gin.Context) {
 
 	ticker = normalizePersian(ticker)
 
+	// SQL Server retired: this endpoint is deprecated/unused by the UI. Return an
+	// explicit non-error payload instead of attempting SQL Server.
+	if config.SQLServerMode() == "offline_expected" {
+		c.JSON(http.StatusOK, gin.H{
+			"deprecated": true, "supported": false,
+			"reason": "sqlserver_offline_expected", "ticker": ticker,
+		})
+		return
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 

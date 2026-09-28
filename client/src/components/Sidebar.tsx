@@ -20,6 +20,9 @@ interface SidebarProps {
   loadingCompanies: boolean;
   isAdmin: boolean;
   username: string | null;
+  open?: boolean;
+  onClose?: () => void;
+  onDataCollected?: () => void;
   companyProfits: {
     company_name: string;
     eps_growth: number;
@@ -38,7 +41,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   companyProfits,
   isAdmin,
   username,
+  open = false,
+  onClose,
+  onDataCollected,
 }) => {
+  const [toolsOpen, setToolsOpen] = useState(true);
   const [loadingFullPE, setLoadingFullPE] = useState(false);
   const [loadingBrsDaily, setLoadingBrsDaily] = useState(false);
   const [loadingBrsBackfill, setLoadingBrsBackfill] = useState(false);
@@ -50,7 +57,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const fullPE = async () => {
     setLoadingFullPE(true);
-    const res = await fetchFullPE();
+    await fetchFullPE();
     setLoadingFullPE(false);
   };
 
@@ -60,6 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     try {
       await collectBrsPrices("daily");
       setBrsMsg("قیمت روزانه ذخیره شد ✓");
+      onDataCollected?.();
     } catch (e: any) {
       setBrsMsg(e?.message || "خطا در دریافت قیمت");
     } finally {
@@ -73,6 +81,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     try {
       await collectBrsPrices("backfill");
       setBrsMsg("تاریخچه قیمت به‌روزرسانی شد ✓");
+      onDataCollected?.();
     } catch (e: any) {
       setBrsMsg(e?.message || "خطا در backfill");
     } finally {
@@ -84,8 +93,9 @@ const Sidebar: React.FC<SidebarProps> = ({
     setLoadingBrsSync(true);
     setBrsMsg(null);
     try {
-      const res = await collectBrsPrices("sync", { limit: 30, threshold: 20 });
+      await collectBrsPrices("sync", { limit: 30, threshold: 20 });
       setBrsMsg("تعدیل قیمت‌ها انجام شد ✓");
+      onDataCollected?.();
     } catch (e: any) {
       setBrsMsg(e?.message || "خطا در sync");
     } finally {
@@ -104,12 +114,25 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside className="sticky top-4 max-h-[97vh] m-4 mb-0 mr-0 w-72 p-6 bg-white/70 dark:bg-gray-800/50 backdrop-blur-xl shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 rounded-3xl border border-gray-200/80 dark:border-gray-700/60 flex flex-col gap-3 transition-all duration-300 ease-in-out glass-border glass-border-active">
+    <aside
+      className={`fixed left-0 top-0 z-40 h-full w-72 p-6 overflow-y-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl shadow-emerald-500/5 dark:shadow-emerald-500/10 border-r border-gray-200/80 dark:border-gray-700/60 flex flex-col gap-3 transition-transform duration-300 ease-in-out lg:sticky lg:top-4 lg:h-auto lg:max-h-[97vh] lg:m-4 lg:mb-0 lg:mr-0 lg:rounded-3xl lg:border lg:translate-x-0 ${
+        open ? "translate-x-0" : "-translate-x-full"
+      }`}
+    >
       <div className="pb-2 flex justify-between items-center">
-        <h2 className="text-xl font-bold text-gradient-indigo tracking-tight">
-          Company Insights
+        <h2 className="text-xl font-bold text-gradient-emerald tracking-tight">
+          بینش شرکت‌ها
         </h2>
-        <NavigationButton />
+        <div className="flex items-center gap-1">
+          <NavigationButton />
+          <button
+            onClick={onClose}
+            aria-label="بستن منو"
+            className="lg:hidden flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition"
+          >
+            ✕
+          </button>
+        </div>
       </div>
       <div>
         <Select
@@ -120,16 +143,16 @@ const Sidebar: React.FC<SidebarProps> = ({
           }
           onChange={(option) => option && handleCompanySelect(option.value)}
           isSearchable
-          placeholder="Search or select..."
+          placeholder="جست‌وجو یا انتخاب..."
           isLoading={loadingCompanies}
           className="text-sm rtl:text-right"
           styles={{
             control: (base, state) => ({
               ...base,
               borderRadius: "0.75rem",
-              borderColor: state.isFocused ? "#6366f1" : "#e5e7eb",
+              borderColor: state.isFocused ? "#059669" : "#e5e7eb",
               boxShadow: state.isFocused
-                ? "0 0 0 3px rgba(99, 102, 241, 0.15)"
+                ? "0 0 0 3px rgba(5, 150, 105, 0.15)"
                 : "0 1px 2px rgba(0,0,0,0.05)",
               transition: "all 0.2s",
               minHeight: "2.25rem",
@@ -162,17 +185,17 @@ const Sidebar: React.FC<SidebarProps> = ({
               ...base,
               borderRadius: "0.75rem",
               boxShadow:
-                "0 10px 40px -10px rgba(99,102,241,0.15), 0 4px 12px -2px rgba(0,0,0,0.08)",
+                "0 10px 40px -10px rgba(5,150,105,0.15), 0 4px 12px -2px rgba(0,0,0,0.08)",
               textAlign: "right",
               zIndex: 50,
-              border: "1px solid rgba(99,102,241,0.1)",
+              border: "1px solid rgba(5,150,105,0.1)",
             }),
             option: (base, state) => ({
               ...base,
               backgroundColor: state.isSelected
-                ? "#6366f1"
+                ? "#059669"
                 : state.isFocused
-                  ? "#eef2ff"
+                  ? "#ecfdf5"
                   : "white",
               color: state.isSelected ? "white" : "#374151",
               padding: "0.5rem 0.75rem",
@@ -187,24 +210,33 @@ const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex flex-col justify-start h-full overflow-auto text-sm ">
         {isAdmin && (
           <>
-            <div className=" pb-2 flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
-              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                Profit Overview
-              </h3>
+            <div className="pb-2 flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
+              <button
+                onClick={() => setToolsOpen((v) => !v)}
+                className="flex items-center justify-between w-full group"
+                aria-expanded={toolsOpen}
+              >
+                <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                  ابزارهای داده
+                </h3>
+                <span className="text-gray-400 group-hover:text-emerald-500 transition text-lg leading-none">
+                  {toolsOpen ? "−" : "+"}
+                </span>
+              </button>
             </div>
-            <div className="flex flex-col gap-2 overflow-hidden">
+            <div className={`flex flex-col gap-2 overflow-hidden ${toolsOpen ? "" : "hidden"}`}>
               <button
                 onClick={() => navigate("/assets")}
                 className="w-full h-9 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-amber-500/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
-                Assets
+                دارایی خانواده
               </button>
               <button
                 onClick={() => openModalForScript("script1")}
                 disabled={runningScripts.script1}
-                className=" w-full h-9 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-indigo-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className=" w-full h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
-                {runningScripts.script1 ? "Running..." : "Gathering Profit"}
+                {runningScripts.script1 ? "در حال اجرا..." : "جمع‌آوری سود"}
               </button>
 
               <button
@@ -212,7 +244,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 disabled={runningScripts.script2}
                 className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
-                {runningScripts.script2 ? "Running..." : "Gathering Sales"}
+                {runningScripts.script2 ? "در حال اجرا..." : "جمع‌آوری فروش"}
               </button>
 
               <button
@@ -225,7 +257,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"
             }`}
               >
-                {loadingFullPE ? "Running..." : "Full P/E"}
+                {loadingFullPE ? "در حال اجرا..." : "P/E کامل"}
               </button>
 
               <button
@@ -233,7 +265,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 disabled={runningScripts.stockPrices}
                 className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
-                {runningScripts.stockPrices ? "Running..." : "Gathering Prices"}
+                {runningScripts.stockPrices ? "در حال اجرا..." : "جمع‌آوری قیمت‌ها"}
               </button>
 
               <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
@@ -260,12 +292,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                       : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"
                   }`}
               >
-                {runningScripts.full ? "Running..." : "Full Data Gathering"}
+                {runningScripts.full ? "در حال اجرا..." : "جمع‌آوری کامل داده"}
               </button>
 
               <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
                 <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                  BRS Prices
+                  قیمت‌های BRS
                 </h3>
                 <div className="flex flex-col gap-2 overflow-hidden">
                   <button
@@ -278,7 +310,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
                       }`}
                   >
-                    {loadingBrsDaily ? "Running..." : "Daily Prices"}
+                    {loadingBrsDaily ? "در حال اجرا..." : "قیمت روزانه"}
                   </button>
                   <button
                     onClick={runBrsBackfill}
@@ -290,7 +322,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 hover:shadow-md hover:shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98]"
                       }`}
                   >
-                    {loadingBrsBackfill ? "Running..." : "Backfill History"}
+                    {loadingBrsBackfill ? "در حال اجرا..." : "تاریخچه قیمت"}
                   </button>
                   <button
                     onClick={runBrsSync}
@@ -302,7 +334,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 hover:shadow-md hover:shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98]"
                       }`}
                   >
-                    {loadingBrsSync ? "Running..." : "Sync Adjustments"}
+                    {loadingBrsSync ? "در حال اجرا..." : "تعدیل قیمت‌ها"}
                   </button>
                   {brsMsg && (
                     <p className="text-xs text-center text-emerald-600 dark:text-emerald-400 font-medium">
@@ -318,7 +350,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <div className="shadow-sm mt-1 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-gray-700/40 h-4/6 flex flex-1 flex-col bg-white/40 dark:bg-gray-700/20">
             <div className="p-4 pb-2 flex justify-between items-center">
               <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                Profit Overview
+                مرور سود
               </h3>
             </div>
 

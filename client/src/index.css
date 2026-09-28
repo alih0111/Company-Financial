@@ -5,13 +5,16 @@
 @layer base {
     body {
         @apply bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900;
+        font-family: "Vazirmatn", "Segoe UI", Tahoma, system-ui, -apple-system,
+            "Helvetica Neue", Arial, sans-serif;
         font-feature-settings: "ss01", "ss03";
+        font-variant-numeric: tabular-nums;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
 
     ::selection {
-        @apply bg-indigo-500/30 text-indigo-900 dark:text-indigo-100;
+        @apply bg-emerald-500/30 text-emerald-900 dark:text-emerald-100;
     }
 }
 
@@ -155,6 +158,39 @@
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
+    }
+
+    /* Financial green/teal identity */
+    .text-gradient-emerald {
+        background: linear-gradient(135deg, #059669, #14b8a6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .glow-emerald {
+        filter: drop-shadow(0 0 8px rgba(5, 150, 105, 0.35));
+    }
+    .glow-teal {
+        filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.35));
+    }
+    .glass-border-emerald::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 1px;
+        background: linear-gradient(
+            135deg,
+            rgba(5, 150, 105, 0.45),
+            rgba(20, 184, 166, 0.28),
+            rgba(5, 150, 105, 0.15)
+        );
+        -webkit-mask:
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
     }
 }
 

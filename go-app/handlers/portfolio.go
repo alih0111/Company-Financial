@@ -117,6 +117,11 @@ func fetchLivePrices(db *sql.DB, companyIDs []string) (map[string]livePriceRow, 
 
 // GetPortfolio لیست دارایی‌های کاربر را با قیمت زنده و محاسبات برمی‌گرداند.
 func GetPortfolio(c *gin.Context) {
+	if config.PortfolioBackend() == "postgres" {
+		getPortfolioPG(c)
+		return
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 
@@ -240,6 +245,17 @@ type UpsertHoldingRequest struct {
 // UpsertHolding یک دارایی را اضافه یا به‌روز می‌کند.
 // اگر company_id موجود باشد، ردیف جایگزین می‌شود (upsert).
 func UpsertHolding(c *gin.Context) {
+	var req UpsertHoldingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
+		return
+	}
+
+	if config.PortfolioBackend() == "postgres" {
+		upsertHoldingPG(c, req)
+		return
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 
@@ -248,12 +264,6 @@ func UpsertHolding(c *gin.Context) {
 	username := c.GetString("username")
 	if username == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return
-	}
-
-	var req UpsertHoldingRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body"})
 		return
 	}
 
@@ -326,6 +336,17 @@ func UpsertHolding(c *gin.Context) {
 
 // DeleteHolding یک دارایی را بر اساس company_id حذف می‌کند.
 func DeleteHolding(c *gin.Context) {
+	companyID := strings.TrimSpace(c.Param("company_id"))
+	if companyID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "company_id is required"})
+		return
+	}
+
+	if config.PortfolioBackend() == "postgres" {
+		deleteHoldingPG(c, companyID)
+		return
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 
@@ -334,12 +355,6 @@ func DeleteHolding(c *gin.Context) {
 	username := c.GetString("username")
 	if username == "" {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-		return
-	}
-
-	companyID := strings.TrimSpace(c.Param("company_id"))
-	if companyID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "company_id is required"})
 		return
 	}
 

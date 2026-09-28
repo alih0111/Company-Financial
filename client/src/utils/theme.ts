@@ -3,7 +3,12 @@ import { useEffect, useState } from "react";
 export const useDarkMode = () => {
   const [darkMode, setDarkMode] = useState(() => {
     const stored = localStorage.getItem("darkMode");
-    return stored === "true";
+    if (stored !== null) return stored === "true";
+    // در نبود انتخاب کاربر، از ترجیح سیستم پیروی می‌کنیم.
+    return (
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-color-scheme: dark)").matches === true
+    );
   });
 
   useEffect(() => {

@@ -19,7 +19,7 @@ const Login = () => {
 
       if (res.ok) {
         localStorage.setItem("token", data.token);
-        navigate("/");
+        navigate("/dashboard");
       } else {
         setError(data.error || "Login failed");
       }

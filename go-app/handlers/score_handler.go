@@ -5,8 +5,10 @@ import (
 	"math"
 	"net/http"
 	"sort"
+	"time"
 
 	"go-app/config"
+	"go-app/integration"
 	"go-app/models"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +22,21 @@ type EPSMetrics struct {
 }
 
 func GetCompanyScores(c *gin.Context) {
+	start := time.Now()
+
+	// CANONICAL-FIRST: serve the canonical all-company score list without
+	// touching SQL Server when routed canonically.
+	sh := integration.Default()
+	if sh.AllCompanyScoresRoute() == integration.RouteCanary {
+		if rows, err := sh.FetchAllScoresCanonical(c.Request.Context()); err == nil && len(rows) > 0 {
+			c.JSON(http.StatusOK, allScoresCanonicalResponse(rows))
+			return
+		} else if config.SQLServerMode() == "offline_expected" {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "canonical scores unavailable; SQL Server is offline_expected"})
+			return
+		}
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 
@@ -288,7 +305,48 @@ func GetCompanyScores(c *gin.Context) {
 		return scores[i].EPSGrowth > scores[j].EPSGrowth
 	})
 
+	// SHADOW: compare canonical analytics against the legacy all-company score
+	// list. The legacy response below is authoritative and unchanged.
+	if sh.Enabled() {
+		legacyRows := make([]integration.AllScoreInputRow, 0, len(scores))
+		for _, s := range scores {
+			legacyRows = append(legacyRows, integration.AllScoreInputRow{
+				LegacyCompanyID: s.CompanyID,
+				CompanyName:     s.CompanyName,
+				SalesGrowth:     s.SalesGrowth,
+				EPSGrowth:       s.EPSGrowth,
+				PE:              s.PE,
+				Price:           s.Price,
+				Operation:       s.Operation,
+				Stable:          s.Stable,
+			})
+		}
+		sh.CompareAllCompanyScores(c.Request.Context(), legacyRows, time.Since(start))
+	}
+
 	c.JSON(http.StatusOK, scores)
+}
+
+// allScoresCanonicalResponse maps canonical all-company scores to the legacy
+// CompanyScore shape. Compatibility fields are populated from canonical factors
+// where a canonical meaning exists; the legacy `Stable` heuristic has no
+// canonical equivalent and is emitted as false (documented).
+func allScoresCanonicalResponse(rows []integration.AllScoreInputRow) []models.CompanyScore {
+	out := make([]models.CompanyScore, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, models.CompanyScore{
+			CompanyID:   r.LegacyCompanyID,
+			CompanyName: r.CompanyName,
+			SalesGrowth: roundFloat(r.SalesGrowth, 2),
+			EPSGrowth:   roundFloat(r.EPSGrowth, 2),
+			PE:          roundFloat(r.PE, 2),
+			Price:       roundFloat(r.Price, 2),
+			Stable:      false,
+			Operation:   roundFloat(r.Operation, 2),
+		})
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].EPSGrowth > out[j].EPSGrowth })
+	return out
 }
 
 func sum(values []float64) float64 {

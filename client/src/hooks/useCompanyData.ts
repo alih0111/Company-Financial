@@ -364,5 +364,6 @@ export default function useCompanyData() {
     setFullModalData,
     openModalForScript,
     submitMetadata,
+    refreshData: fetchData,
   };
 }

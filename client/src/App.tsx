@@ -1,4 +1,7 @@
 import Sidebar from "./components/Sidebar";
+import AppHeader from "./components/AppHeader";
+import { ToastProvider } from "./components/Toast";
+import { ConfirmProvider } from "./components/ConfirmDialog";
 import ChartComponent from "./components/ChartComponent";
 import PriceChart from "./components/PriceChart";
 import ScoreBreakdown from "./components/ScoreBreakdown";
@@ -6,8 +9,6 @@ import useCompanyData from "./hooks/useCompanyData";
 import ScriptModal from "./components/ScriptModal";
 import { useDarkMode } from "./utils/theme";
 import {
-  FaSun,
-  FaMoon,
   FaChartBar,
   FaArrowUp,
   FaArrowDown,
@@ -18,11 +19,12 @@ import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-
 import { useSearchParams } from "react-router-dom";
 import ScriptFullModal from "./components/ScriptFullModal";
 import Login from "./components/Login";
+import Landing from "./components/Landing";
 import ProtectedRoute from "./components/ProtectedRoute";
 import BigDataTable from "./components/BigDataTable";
 import Register from "./components/Register";
 import { getAuthStatus } from "./hooks/useGetUser";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AIStockTable from "./components/AIStockTable";
 import Portfolio from "./components/Portfolio";
 import FamilyAssets from "./components/FamilyAssets";
@@ -54,6 +56,7 @@ const App = () => {
     setFullModalData,
     openModalForScript,
     submitMetadata,
+    refreshData,
     ...scriptModalProps
   } = useCompanyData();
 
@@ -63,14 +66,35 @@ const App = () => {
   const handleCompanyChange = (name: string) => {
     setSelectedCompany(name);
     setSearchParams({ companyname: name });
-    navigate(`/?companyname=${encodeURIComponent(name || "")}`);
+    navigate(`/dashboard?companyname=${encodeURIComponent(name || "")}`);
   };
 
   const location = useLocation();
+  const isLanding = location.pathname === "/";
   const hideSidebar =
     location.pathname === "/login" || location.pathname === "/register";
 
   const { isAdmin, username } = getAuthStatus();
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const pageTitle =
+    location.pathname === "/Table"
+      ? "جدول داده"
+      : location.pathname === "/portfolio"
+        ? "پورتفولیو"
+        : location.pathname === "/assets"
+          ? "دارایی خانواده"
+          : selectedCompany
+            ? selectedCompany
+            : "داشبورد";
+
+  const pageSubtitle =
+    location.pathname === "/assets"
+      ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
+      : location.pathname === "/portfolio"
+        ? "دارایی‌های سهام"
+        : undefined;
 
   const [collectingPrice, setCollectingPrice] = useState(false);
   const [priceCollectMsg, setPriceCollectMsg] = useState<string | null>(null);
@@ -85,6 +109,7 @@ const App = () => {
         force: true,
       });
       setPriceCollectMsg("تاریخچه‌ی قیمت کامل شد ✓");
+      handleDataCollected();
     } catch (e: any) {
       setPriceCollectMsg(e?.message || "خطا در جمع‌آوری قیمت");
     } finally {
@@ -93,7 +118,9 @@ const App = () => {
   };
 
   useEffect(() => {
-    if (location.pathname === "/Table") {
+    if (location.pathname === "/") {
+      document.title = "RFA | بینش شرکت‌ها";
+    } else if (location.pathname === "/Table") {
       document.title = "RFA | Table";
     } else if (location.pathname === "/portfolio") {
       document.title = "RFA | Portfolio";
@@ -105,28 +132,35 @@ const App = () => {
   }, [selectedCompany, location.pathname]);
 
   const [aiRows, setAiRows] = useState<Record<string, AIStockMetric>>({});
+  const [priceRefreshTick, setPriceRefreshTick] = useState(0);
+
+  const loadAIData = useCallback(async () => {
+    try {
+      const rows = await getAIStockSummary(1000);
+
+      const rowMap: Record<string, AIStockMetric> = {};
+
+      rows.forEach((row) => {
+        if (row.company_id) {
+          rowMap[String(row.company_id)] = row;
+        }
+      });
+
+      setAiRows(rowMap);
+    } catch (err) {
+      console.error("Failed to load AI data:", err);
+    }
+  }, []);
+
+  const handleDataCollected = useCallback(() => {
+    refreshData();
+    loadAIData();
+    setPriceRefreshTick((t) => t + 1);
+  }, [refreshData, loadAIData]);
 
   useEffect(() => {
-    const loadAIData = async () => {
-      try {
-        const rows = await getAIStockSummary(1000);
-
-        const rowMap: Record<string, AIStockMetric> = {};
-
-        rows.forEach((row) => {
-          if (row.company_id) {
-            rowMap[String(row.company_id)] = row;
-          }
-        });
-
-        setAiRows(rowMap);
-      } catch (err) {
-        console.error("Failed to load AI data:", err);
-      }
-    };
-
     loadAIData();
-  }, []);
+  }, [loadAIData]);
 
   const bigTableData = useMemo(() => {
     const baseData = Array.isArray(allDataScore) ? allDataScore : [];
@@ -304,7 +338,10 @@ const App = () => {
               )}
             </div>
           )}
-          <PriceChart companyName={selectedCompany} />
+          <PriceChart
+            companyName={selectedCompany}
+            refreshTick={priceRefreshTick}
+          />
         </div>
       )}
 
@@ -317,37 +354,78 @@ const App = () => {
     </div>
   );
 
-  return (
-    <div
-      className={`min-h-screen ${
-        darkMode ? "dark" : ""
-      } bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500`}
-    >
-      <div className="flex h-full">
-        {!hideSidebar && (
-          <Sidebar
-            companyOptions={companyOptions}
-            selectedCompany={selectedCompany}
-            onCompanyChange={handleCompanyChange}
-            openModalForScript={openModalForScript}
-            runningScripts={runningScripts}
-            companyProfits={
-              allDataScore
-                ? allDataScore
-                : [{ company_name: "loading", eps_growth: 0 }]
-            }
-            {...scriptModalProps}
-            isAdmin={isAdmin}
-            username={username}
-          />
-        )}
+  if (isLanding) {
+    return (
+      <div
+        className={`min-h-screen ${
+          darkMode ? "dark" : ""
+        } bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500`}
+      >
+        <Landing darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+      </div>
+    );
+  }
 
-        <main className="flex-1 mb-3 bg-white/50 dark:bg-gray-900/40 backdrop-blur-lg mb-0 shadow-2xl shadow-indigo-500/5 transition-all duration-300 my-4 mx-[15px] p-4 rounded-3xl border border-gray-200/80 dark:border-gray-700/60">
-          <Routes>
+  return (
+    <ToastProvider>
+      <ConfirmProvider>
+        <div
+          className={`min-h-screen ${
+            darkMode ? "dark" : ""
+          } bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500`}
+        >
+          <div className="flex h-full">
+            {!hideSidebar && (
+              <Sidebar
+                companyOptions={companyOptions}
+                selectedCompany={selectedCompany}
+                onCompanyChange={handleCompanyChange}
+                openModalForScript={openModalForScript}
+                runningScripts={runningScripts}
+                companyProfits={
+                  allDataScore
+                    ? allDataScore
+                    : [{ company_name: "loading", eps_growth: 0 }]
+                }
+                {...scriptModalProps}
+                isAdmin={isAdmin}
+                username={username}
+                open={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+                onDataCollected={handleDataCollected}
+              />
+            )}
+
+            {!hideSidebar && sidebarOpen && (
+              <div
+                className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
+                onClick={() => setSidebarOpen(false)}
+              />
+            )}
+
+            <main className="flex-1 min-w-0 bg-white/50 dark:bg-gray-900/40 backdrop-blur-lg shadow-2xl shadow-emerald-500/5 transition-all duration-300 my-4 mx-[15px] p-4 rounded-3xl border border-gray-200/80 dark:border-gray-700/60">
+              {!hideSidebar && (
+                <AppHeader
+                  title={pageTitle}
+                  subtitle={pageSubtitle}
+                  darkMode={darkMode}
+                  toggleDarkMode={toggleDarkMode}
+                  username={username}
+                  isAdmin={isAdmin}
+                  onMenuClick={() => setSidebarOpen(true)}
+                />
+              )}
+              <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route
               path="/"
+              element={
+                <Landing darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+              }
+            />
+            <Route
+              path="/dashboard"
               element={<ProtectedRoute>{mainContent}</ProtectedRoute>}
             />
             <Route
@@ -378,7 +456,7 @@ const App = () => {
                     <FamilyAssets />
                   </ProtectedRoute>
                 ) : (
-                  <Navigate to="/" replace />
+                  <Navigate to="/dashboard" replace />
                 )
               }
             />
@@ -424,26 +502,17 @@ const App = () => {
         submitMetadata={() => submitMetadata("stockPrices")}
       />
 
-      <ScriptFullModal
-        modal={{ visible: scriptModalStates.full, ...fullModalData }}
-        setModal={(val) => {
-          setScriptModalStates((prev) => ({ ...prev, full: val.visible }));
-          setFullModalData(val);
-        }}
-        submitMetadata={() => submitMetadata("full")}
-      />
-
-      <button
-        onClick={toggleDarkMode}
-        className="fixed bottom-14 left-8 p-2.5 rounded-full bg-white/70 dark:bg-gray-700/70 backdrop-blur-sm shadow-lg border border-gray-200 dark:border-gray-600 hover:scale-110 transition-all duration-200"
-      >
-        {darkMode ? (
-          <FaSun className="text-amber-400" />
-        ) : (
-          <FaMoon className="text-indigo-600" />
-        )}
-      </button>
-    </div>
+          <ScriptFullModal
+            modal={{ visible: scriptModalStates.full, ...fullModalData }}
+            setModal={(val) => {
+              setScriptModalStates((prev) => ({ ...prev, full: val.visible }));
+              setFullModalData(val);
+            }}
+            submitMetadata={() => submitMetadata("full")}
+          />
+        </div>
+      </ConfirmProvider>
+    </ToastProvider>
   );
 };
 

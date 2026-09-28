@@ -381,10 +381,24 @@ func scanAIStockMetric(rows *sql.Rows) (models.AIStockMetric, error) {
 func GetAIStockSummary(c *gin.Context) {
 	start := time.Now()
 
+	limitQuery := parseIntQuery(c, "limit", 20)
+
+	// CANONICAL-FIRST: serve canonical analytics summary without SQL Server.
+	sh := integration.Default()
+	if sh.SummaryRoute() == integration.RouteCanary {
+		if rows, err := sh.FetchSummaryCanonical(c.Request.Context()); err == nil && len(rows) > 0 {
+			c.JSON(http.StatusOK, buildCanonicalSummary(rows, limitQuery))
+			return
+		} else if config.SQLServerMode() == "offline_expected" {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "canonical summary unavailable; SQL Server is offline_expected"})
+			return
+		}
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 
-	limit := parseIntQuery(c, "limit", 20)
+	limit := limitQuery
 	minAvgTradeValue30D := parseFloatQuery(c, "min_avg_trade_value_30d", 0)
 
 	if limit > 1000 {
@@ -524,7 +538,7 @@ func GetAIStockSummary(c *gin.Context) {
 
 	// SHADOW: compare canonical-v1 analytics scores against the legacy v3.7
 	// metrics. The legacy response below is authoritative and unchanged.
-	if sh := integration.Default(); sh.Enabled() {
+	if sh.Enabled() {
 		sh.CompareScores(c.Request.Context(), toScoreInputs(result), time.Since(start))
 	}
 
@@ -669,6 +683,10 @@ func getOneSummaryByCompanyID(db *sql.DB, companyID string) (models.AIStockMetri
 }
 
 func GetAIStockDetail(c *gin.Context) {
+	if config.SQLServerMode() == "offline_expected" {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "detail unavailable (legacy view retired)", "reason": "sqlserver_offline_expected"})
+		return
+	}
 	db := config.GetDB()
 	defer db.Close()
 
@@ -1052,6 +1070,10 @@ func callAI(prompt string) (string, error) {
 }
 
 func AnalyzeTopStocksWithAI(c *gin.Context) {
+	if config.SQLServerMode() == "offline_expected" {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "AI analyze unavailable (legacy view retired)", "reason": "sqlserver_offline_expected"})
+		return
+	}
 	db := config.GetDB()
 	defer db.Close()
 

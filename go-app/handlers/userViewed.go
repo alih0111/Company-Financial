@@ -20,6 +20,13 @@ type ViewedItem struct {
 }
 
 func AddViewedItem(c *gin.Context) {
+	// SQL Server retired: viewed-items is a non-critical side effect. Accept and
+	// no-op instead of attempting SQL Server.
+	if config.SQLServerMode() == "offline_expected" {
+		c.JSON(http.StatusOK, gin.H{"message": "accepted", "persisted": false, "reason": "sqlserver_offline_expected"})
+		return
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 

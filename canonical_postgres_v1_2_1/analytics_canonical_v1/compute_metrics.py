@@ -315,8 +315,9 @@ class Engine:
                 revenue_prev = rtt("revenue", *prev, "revenue_prev")
                 net_prev = rtt("net_profit", *prev, "net_profit_prev")
                 op_prev = rtt("operating_profit", *prev, "operating_profit_prev")
+                eps_prev = rtt("eps", *prev, "eps_prev")
             else:
-                revenue_prev = net_prev = op_prev = None
+                revenue_prev = net_prev = op_prev = eps_prev = None
             if latest and (net_ttm is None or revenue_ttm is None):
                 dq.add("missing_comparable_period")
             for tag, code in (("operating_profit_ttm", PROV_NO_ANNUAL),
@@ -347,6 +348,11 @@ class Engine:
                 if (g("revenue", 1) is not None and revenue_ly) else None
             op_g = ((op_ttm - op_prev) / abs(op_prev) * 100.0) if (op_ttm is not None and op_prev) else None
             np_g = ((net_ttm - net_prev) / abs(net_prev) * 100.0) if (net_ttm is not None and net_prev) else None
+            # Earnings growth fallback: canonical net_profit is materialized only
+            # for the latest report for most companies, while EPS (rial_per_share)
+            # is complete across the report chain. Derive a comparable EPS growth
+            # so the earnings-growth factor is not a constant neutral placeholder.
+            eps_g = ((eps_ttm - eps_prev) / abs(eps_prev) * 100.0) if (eps_ttm is not None and eps_prev) else None
             interest = (op_ttm / abs(finance)) if (op_ttm is not None and finance) else None
             earnings_q = (abs(other_nonop) / abs(op_ttm) * 100.0) if (other_nonop is not None and op_ttm) else None
             cash_conv = (ocf_ttm / net_ttm) if (ocf_ttm is not None and net_ttm and net_ttm > 0) else None
@@ -386,7 +392,7 @@ class Engine:
                 "sales_stability": stability,
                 "revenue_ttm": revenue_ttm, "revenue_growth": rev_g,
                 "net_profit_ttm": net_ttm, "operating_profit_ttm": op_ttm, "eps_ttm": eps_ttm,
-                "net_profit_growth": np_g, "operating_profit_growth": op_g,
+                "net_profit_growth": np_g, "operating_profit_growth": op_g, "eps_growth": eps_g,
                 "net_margin": net_margin, "operating_margin": op_margin, "margin_trend": trend,
                 "roe": roe, "current_ratio": cur_ratio, "debt_ratio": debt_ratio,
                 "interest_coverage": interest, "earnings_quality": earnings_q, "cash_conversion": cash_conv,
@@ -413,7 +419,13 @@ class Engine:
         rank("SalesGrowth3MRank", lambda v: cap(v["sales_growth_3m"], -150, 150))
         rank("RevenueGrowthRank", lambda v: cap(v["revenue_growth"], -200, 200))
         rank("OperatingProfitGrowthRank", lambda v: cap(v["operating_profit_growth"], -250, 250))
-        rank("NetProfitGrowthRank", lambda v: cap(v["net_profit_growth"], -300, 300))
+        # Earnings-growth rank: prefer net-profit growth when materialized; fall
+        # back to comparable EPS growth (complete coverage) otherwise. This keeps
+        # the NetProfitGrowth factor code stable for readers while avoiding the
+        # constant neutral 0.30 placeholder that made the EPS donut uninformative.
+        rank("NetProfitGrowthRank", lambda v: cap(
+            v["net_profit_growth"] if v["net_profit_growth"] is not None else v["eps_growth"],
+            -300, 300))
         rank("OperatingMarginRank", lambda v: cap(v["operating_margin"], -80, 80))
         rank("NetMarginRank", lambda v: cap(v["net_margin"], -60, 60))
         rank("MarginTrendRank", lambda v: cap(v["margin_trend"], -25, 25))

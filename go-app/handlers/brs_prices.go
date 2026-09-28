@@ -108,17 +108,34 @@ func RunBrsCollector(c *gin.Context) {
 		"mode":    mode,
 	}
 	if mode == "daily" || mode == "backfill" {
-		if db := config.GetDB(); db != nil {
-			updated, missing, syncErr := syncFamilyPricesFromMarket(db, false)
-			db.Close()
-			if syncErr != nil {
-				log.Printf("⚠️ family price sync failed: %v", syncErr)
-				result["family_sync"] = "failed"
-				result["family_sync_error"] = syncErr.Error()
-			} else {
-				log.Printf("👨‍👩‍👧‍👦 family prices synced: %d updated, %d manual (%v)", len(updated), len(missing), missing)
-				result["family_synced"] = len(updated)
-				result["family_manual"] = missing
+		if config.FamilyBackend() == "postgres" {
+			if db, pgErr := config.GetPG(); pgErr == nil && db != nil {
+				ctx, cancel := familyPGTimeout()
+				updated, missing, syncErr := syncFamilyPricesFromMarketPG(ctx, db, false)
+				cancel()
+				if syncErr != nil {
+					log.Printf("⚠️ family price sync failed: %v", syncErr)
+					result["family_sync"] = "failed"
+					result["family_sync_error"] = syncErr.Error()
+				} else {
+					log.Printf("👨‍👩‍👧‍👦 family prices synced: %d updated, %d manual (%v)", len(updated), len(missing), missing)
+					result["family_synced"] = len(updated)
+					result["family_manual"] = missing
+				}
+			}
+		} else if config.SQLServerMode() != "offline_expected" {
+			if db := config.GetDB(); db != nil {
+				updated, missing, syncErr := syncFamilyPricesFromMarket(db, false)
+				db.Close()
+				if syncErr != nil {
+					log.Printf("⚠️ family price sync failed: %v", syncErr)
+					result["family_sync"] = "failed"
+					result["family_sync_error"] = syncErr.Error()
+				} else {
+					log.Printf("👨‍👩‍👧‍👦 family prices synced: %d updated, %d manual (%v)", len(updated), len(missing), missing)
+					result["family_synced"] = len(updated)
+					result["family_manual"] = missing
+				}
 			}
 		}
 	}

@@ -17,10 +17,28 @@ import (
 func GetSalesData2(c *gin.Context) {
 	start := time.Now()
 
+	companyName := c.Query("companyName")
+
+	// CANONICAL-FIRST: when this company is routed canonically, serve from
+	// PostgreSQL without touching SQL Server. Only fall back to legacy when
+	// policy permits and SQL Server is not retired.
+	sh := integration.Default()
+	if companyName != "" && sh.SalesData2Route(companyName) == integration.RouteCanary {
+		canon, err := sh.FetchSalesData2Canonical(c.Request.Context(), companyName)
+		if err == nil {
+			// Empty canonical history is a valid explicit state (200 []), not an error.
+			c.JSON(http.StatusOK, monthlyCanonicalResponse(canon, companyName))
+			return
+		}
+		if config.SQLServerMode() == "offline_expected" {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "canonical monthly data unavailable", "reason": "sqlserver_offline_expected"})
+			return
+		}
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 
-	companyName := c.Query("companyName")
 	query := "SELECT CompanyName, CompanyID, ReportDate, Value1, Value2, Value3 FROM mahane "
 
 	var rows *sql.Rows
@@ -89,14 +107,42 @@ func GetSalesData2(c *gin.Context) {
 
 	// SHADOW: compare against canonical fundamentals.monthly_activities. The
 	// legacy response data above is authoritative and unchanged.
-	if sh := integration.Default(); sh.Enabled() {
+	if sh.Enabled() {
 		sh.CompareSalesData2(c.Request.Context(), shadowRows, time.Since(start))
 	}
 
 	c.JSON(http.StatusOK, data)
 }
 
+// monthlyCanonicalResponse maps canonical monthly rows to the legacy SalesData2
+// response shape at the API boundary using the documented presentation contract.
+// Product1/2/3 are not involved.
+func monthlyCanonicalResponse(rows []integration.MonthlyInputRow, companyName string) []models.SalesData2 {
+	// Input is newest-first; return oldest -> newest for the chart (left=older).
+	ordered := integration.OrderMonthlyAscending(rows)
+	out := make([]models.SalesData2, 0, len(ordered))
+	for _, r := range ordered {
+		pct, wow := integration.MonthlyPresentation(r.ProductionQuantity, r.SalesQuantity, r.SalesAmountRial)
+		out = append(out, models.SalesData2{
+			CompanyName: companyName,
+			CompanyID:   r.LegacyCompanyID,
+			ReportDate:  r.ReportDate,
+			Value1:      r.ProductionQuantity / 1_000_000,
+			Value2:      r.SalesQuantity / 1_000_000,
+			Value3:      r.ReportedSalesAmount / 1_000_000,
+			Percentage:  pct,
+			WoW:         wow,
+		})
+	}
+	return out
+}
+
+
 func GetURL2(c *gin.Context) {
+	if config.SQLServerMode() == "offline_expected" {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "report URL lookup unavailable", "reason": "sqlserver_offline_expected"})
+		return
+	}
 	db := config.GetDB()
 	defer db.Close()
 

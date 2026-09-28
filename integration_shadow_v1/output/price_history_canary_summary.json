@@ -1,30 +1,22 @@
 {
-  "generated_at": "2026-09-25T12:07:29Z",
+  "generated_at": "2026-09-28T04:42:07Z",
   "enabled": true,
-  "symbol_count": 6,
+  "symbol_count": 0,
+  "symbols": [],
   "percent": 0,
-  "verify": true,
+  "verify": false,
   "timeout_ms": 1500,
-  "counters": {
-    "canary_fallback": 3,
-    "canary_selected": 9,
-    "canary_success": 6,
-    "canonical_errors": 3,
-    "comparison_exact": 1260,
-    "comparison_expected": 0,
-    "comparison_unexpected": 0,
-    "legacy_fallback_errors": 1,
-    "total_requests": 9
-  },
+  "counters": {},
   "latency": {
-    "canonical_median_ms": 1.401,
-    "canonical_p95_ms": 1.713,
-    "legacy_median_ms": 55.754,
-    "legacy_p95_ms": 71.043,
-    "fallback_median_ms": 56.732,
-    "fallback_p95_ms": 56.732
+    "canonical_median_ms": 0,
+    "canonical_p95_ms": 0,
+    "legacy_median_ms": 0,
+    "legacy_p95_ms": 0,
+    "fallback_median_ms": 0,
+    "fallback_p95_ms": 0
   },
-  "sample_count": 9,
+  "per_symbol": {},
+  "sample_count": 0,
   "unexpected_differences": 0,
-  "canonical_errors": 3
+  "canonical_errors": 0
 }

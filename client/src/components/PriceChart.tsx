@@ -24,6 +24,7 @@ import {
 
 type Props = {
   companyName: string;
+  refreshTick?: number;
 };
 
 const RANGES = [
@@ -34,7 +35,7 @@ const RANGES = [
   { label: "همه", days: 5000 },
 ];
 
-const PriceChart: React.FC<Props> = ({ companyName }) => {
+const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
   const { darkMode } = useDarkMode();
   const dark = darkMode;
   const [data, setData] = useState<PriceHistoryRow[]>([]);
@@ -60,7 +61,7 @@ const PriceChart: React.FC<Props> = ({ companyName }) => {
 
   useEffect(() => {
     loadData();
-  }, [companyName, rangeIdx]);
+  }, [companyName, rangeIdx, refreshTick]);
 
   const handleFetchPrices = async () => {
     setFetching(true);

@@ -42,6 +42,132 @@ def dual_write_enabled() -> bool:
     return ingestion_mode() in ("dual_write", "canonical_only")
 
 
+def sqlserver_mode() -> str:
+    """active | fallback | offline_expected (default active)."""
+    m = (os.environ.get("CDF_SQLSERVER_MODE", "") or "active").strip().lower()
+    return m if m in ("active", "fallback", "offline_expected") else "active"
+
+
+def sql_connection_required() -> bool:
+    """Whether a legacy SQL Server connection must be established.
+
+    Canonical-authority domains do not require SQL Server; when the operator has
+    declared SQL Server offline, mirror/fallback must be treated as optional.
+    """
+    if sqlserver_mode() == "offline_expected":
+        return False
+    # Any domain still under legacy authority needs SQL Server.
+    return not (market_canonical_authority() and monthly_canonical_authority()
+                and financial_canonical_authority() and codal_canonical_authority())
+
+
+def canonical_only_offline() -> bool:
+    """True when canonical writes must proceed without any SQL Server connection."""
+    return sqlserver_mode() == "offline_expected" and dual_write_enabled()
+
+
+def mirror_status_for_sql() -> str:
+    """Human/machine mirror status when SQL Server is not available."""
+    return "offline_expected" if sqlserver_mode() == "offline_expected" else "unavailable"
+
+
+def resolve_legacy_key(name: str | None = None, symbol: str | None = None,
+                       ins_code: str | int | None = None) -> str | None:
+    """Resolve a canonical legacy company key (32-hex) from PostgreSQL only.
+
+    Used by canonical-only ingestion so SQL Server is not needed for identity.
+    Returns None when the entity is not in the canonical universe.
+    """
+    if not _load():
+        return None
+    from canonical_ingest.db import connect
+    try:
+        with connect() as conn:
+            cur = conn.cursor()
+            params = []
+            clauses = []
+            if ins_code not in (None, ""):
+                clauses.append("sec.tsetmc_ins_code = %s")
+                params.append(int(ins_code))
+            if symbol:
+                clauses.append("(sec.codal_symbol = %s OR sec.brs_name = %s OR sa.alias_value = %s)")
+                params.extend([symbol, symbol, symbol])
+            if name:
+                clauses.append("(c.display_name = %s OR c.legal_name = %s OR sa.alias_value = %s)")
+                params.extend([name, name, name])
+            if not clauses:
+                return None
+            sql = (
+                "SELECT lem.legacy_key FROM core.legacy_entity_map lem "
+                "JOIN core.companies c ON c.id = lem.target_uuid AND lem.entity_type='company' "
+                "LEFT JOIN core.securities sec ON sec.company_id = c.id "
+                "LEFT JOIN core.security_aliases sa ON sa.security_id = sec.id "
+                "WHERE lem.legacy_key ~ '^[0-9a-f]{32}$' AND (" + " OR ".join(clauses) + ") LIMIT 1"
+            )
+            cur.execute(sql, tuple(params))
+            row = cur.fetchone()
+            return str(row[0]) if row else None
+    except Exception:
+        return None
+
+
+def facts_from_values(*, report_date: str | None = None, values: dict | None = None) -> list:
+    """Build normalized in-memory financial facts from parsed values.
+
+    ``values`` is keyed by metric_code (eps, operating_eps, capital,
+    operating_profit, revenue, net_profit, finance_cost, other_non_operating,
+    total_assets, current_assets, total_liabilities, current_liabilities,
+    total_equity, operating_cash_flow). Money is rial; ps metrics are per-share.
+    This is the single in-memory representation feeding the canonical writer and
+    (optionally) the legacy mirror, so the two cannot diverge.
+    """
+    from decimal import Decimal
+    values = values or {}
+    ps_metrics = {"eps", "operating_eps"}
+    monetary = {"revenue", "net_profit", "operating_profit", "finance_cost",
+                "other_non_operating", "operating_cash_flow", "total_assets",
+                "current_assets", "total_liabilities", "current_liabilities",
+                "total_equity"}
+    facts = []
+    for code, val in values.items():
+        if val is None:
+            continue
+        try:
+            d = Decimal(str(val))
+        except Exception:
+            continue
+        if code in ps_metrics:
+            facts.append({"statement_type": "income_statement", "metric_code": code, "period_order": 1,
+                          "comparison_type": "current", "reported_value": d,
+                          "reported_unit": "rial_per_share", "canonical_value": d,
+                          "canonical_unit": "rial_per_share", "kind": "ps",
+                          "source_row_key": f"income_statement:{code}:1"})
+        elif code in monetary:
+            # Parser values are in million_rial (legacy convention); canonical is rial.
+            facts.append({"statement_type": "income_statement" if code in
+                          ("revenue", "net_profit", "operating_profit", "finance_cost", "other_non_operating")
+                          else "balance_sheet", "metric_code": code, "period_order": 1,
+                          "comparison_type": "current", "reported_value": d,
+                          "reported_unit": "million_rial",
+                          "canonical_value": d * Decimal(1000000), "canonical_unit": "rial",
+                          "kind": "m", "source_row_key": f"{'income_statement' if code in ('revenue','net_profit','operating_profit','finance_cost','other_non_operating') else 'balance_sheet'}:{code}:1"})
+    return facts
+
+
+def status_artifact(domain: str, outcome: str, canonical_status: str, mirror: str,
+                    attempted: int = 0, inserted: int = 0, skipped: int = 0,
+                    quarantined: int = 0) -> dict:
+    """Uniform canonical status record including offline mirror semantics."""
+    return {"domain": domain, "authority": "CANONICAL", "outcome": outcome,
+            "canonical_status": canonical_status, "legacy_mirror_status": mirror,
+            "rows_attempted": attempted, "canonical_inserted": inserted,
+            "canonical_skipped": skipped, "quarantined": quarantined,
+            "retry_backlog": retry_backlog_count({
+                "MARKET_PRICE": "market_price", "MONTHLY_ACTIVITY": "monthly_activity",
+                "FINANCIAL_STATEMENT": "financial_statement", "CODAL": "codal_report",
+            }.get(domain, "market_price"))}
+
+
 def market_authority() -> str:
     """MARKET_PRICE authority: 'legacy' (default) or 'canonical'."""
     return (os.environ.get("CDF_MARKET_INGESTION_AUTHORITY", "") or "legacy").strip().lower()
@@ -561,12 +687,16 @@ def _facts_from_db(company_id, report_date):
     return facts
 
 
-def _canonical_financial_write(company_id, report_date):
+def _canonical_financial_write(company_id, report_date, facts=None):
     if not _load():
         return {"status": "canonical_error", "error": _import_error, "inserted": 0, "skipped": 0, "facts": 0}
     canonical_ingest = _canonical["mod"]
     try:
-        facts = _facts_from_db(company_id, report_date)
+        # SQL Server is NOT the transport for canonical facts: when the parser
+        # supplies normalized in-memory facts, they are written directly. The
+        # legacy miandore2 read is only a backward-compatible fallback.
+        if facts is None:
+            facts = _facts_from_db(company_id, report_date)
         if facts is None:
             return {"status": "no_legacy_row", "inserted": 0, "skipped": 0, "facts": 0}
         if not facts:
@@ -580,12 +710,12 @@ def _canonical_financial_write(company_id, report_date):
         return {"status": "canonical_error", "inserted": 0, "skipped": 0, "facts": 0, "error": str(exc)}
 
 
-def dual_write_financial_by_key(company_id, company_name, report_date):
+def dual_write_financial_by_key(company_id, company_name, report_date, facts=None):
     """Legacy-authoritative path: canonical facts write is secondary."""
     if not dual_write_enabled():
         return {"status": "skipped_legacy_only"}
     started = _now_iso()
-    res = _canonical_financial_write(company_id, report_date)
+    res = _canonical_financial_write(company_id, report_date, facts=facts)
     if res["status"] == "canonical_error":
         _retry_record("financial_statement", {"legacy_company_id": company_id, "report_date": report_date},
                       res.get("error", "canonical_error"))
@@ -602,18 +732,23 @@ def dual_write_financial_by_key(company_id, company_name, report_date):
     return {"status": res["status"], "inserted": res["inserted"], "skipped": res["skipped"], "facts": res["facts"]}
 
 
-def ingest_financial_authoritative_by_key(company_id, company_name, report_date, legacy_writer=None):
-    """Canonical-authoritative financial ingestion (canonical first, legacy mirror)."""
+def ingest_financial_authoritative_by_key(company_id, company_name, report_date, legacy_writer=None, facts=None):
+    """Canonical-authoritative financial ingestion (canonical first, legacy mirror).
+
+    Pass ``facts`` (normalized in-memory parser output) to decouple canonical
+    ingestion from SQL Server entirely. When ``facts`` is None the legacy
+    miandore2 read is used as a backward-compatible fallback only.
+    """
     if not financial_canonical_authority():
         if legacy_writer:
             legacy_writer()
-        res = dual_write_financial_by_key(company_id, company_name, report_date)
+        res = dual_write_financial_by_key(company_id, company_name, report_date, facts=facts)
         res["outcome"] = "LEGACY_AUTHORITATIVE"
         res["authority"] = "LEGACY"
         return res
 
     started = _now_iso()
-    res = _canonical_financial_write(company_id, report_date)
+    res = _canonical_financial_write(company_id, report_date, facts=facts)
     canonical_ok = res["status"] in ("written", "quarantined") and res["status"] != "canonical_error"
 
     mirror_status = "not_attempted"

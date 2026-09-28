@@ -3,14 +3,31 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
+  Cell,
   ComposedChart,
   Line,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import { FaPlus, FaTrash, FaEdit, FaTimes, FaCheck, FaCoins } from "react-icons/fa";
+import {
+  FaPlus,
+  FaTrash,
+  FaEdit,
+  FaTimes,
+  FaCheck,
+  FaCoins,
+  FaChartPie,
+  FaWallet,
+  FaDownload,
+  FaCircleNotch,
+} from "react-icons/fa";
+import { useToast } from "./Toast";
+import { useConfirm } from "./ConfirmDialog";
+import { SkeletonCards, SkeletonTable } from "./Skeleton";
 import { useDarkMode } from "../utils/theme";
 import { glassTooltipStyle } from "../utils/chart-theme";
 import {
@@ -26,12 +43,19 @@ import {
   addFamilyCashFlow,
   deleteFamilyCashFlow,
   getFamilyHistory,
+  getFamilyBrokerAccounts,
+  saveFamilyBrokerAccount,
+  deleteFamilyBrokerAccount,
+  startFamilyBrokerSync,
+  getFamilyBrokerJob,
 } from "../utils/api";
 import type {
   FamilyState,
   FamilyPerson,
   FamilyHistoryRow,
   FamilyCashFlow,
+  FamilyBrokerAccount,
+  FamilyBrokerJob,
 } from "../utils/api";
 
 const fmtInt = (n: number | null | undefined) => {
@@ -56,7 +80,7 @@ const fmtPct = (n: number | null | undefined, digits = 1) => {
 const inputCls =
   "w-full rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 px-3 py-1.5 text-sm focus:border-indigo-500 outline-none";
 
-type Tab = "summary" | "people" | "history" | "flows";
+type Tab = "summary" | "people" | "history" | "flows" | "broker";
 
 // رنگ اختصاصی هر شخص (به ترتیب SortOrder) و گرادیان جمع کل
 const PERSON_COLORS = [
@@ -95,6 +119,8 @@ type RangeKey = (typeof RANGES)[number]["key"];
 
 const FamilyAssets = () => {
   const { darkMode } = useDarkMode();
+  const toast = useToast();
+  const confirm = useConfirm();
 
   const [state, setState] = useState<FamilyState | null>(null);
   const [history, setHistory] = useState<FamilyHistoryRow[]>([]);
@@ -135,18 +161,26 @@ const FamilyAssets = () => {
   const [flowForm, setFlowForm] = useState({ date_key: "", amount: "", direction: "in", note: "" });
   const [savingFlow, setSavingFlow] = useState(false);
 
+  const [brokerAccounts, setBrokerAccounts] = useState<FamilyBrokerAccount[]>([]);
+  const [brokerEdit, setBrokerEdit] = useState<{ personId: number; username: string; password: string } | null>(null);
+  const [savingBroker, setSavingBroker] = useState(false);
+  const [brokerJobs, setBrokerJobs] = useState<Record<number, FamilyBrokerJob>>({});
+  const [syncingPerson, setSyncingPerson] = useState<number | null>(null);
+
   const loadAll = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [st, hist, fl] = await Promise.all([
+      const [st, hist, fl, brk] = await Promise.all([
         getFamilyAssets(),
         getFamilyHistory(),
         getFamilyCashFlows(),
+        getFamilyBrokerAccounts().catch(() => [] as FamilyBrokerAccount[]),
       ]);
       setState(st);
       setHistory(hist || []);
       setFlows(fl || []);
+      setBrokerAccounts(brk || []);
       setPriceDate((prev) => prev || st.today_datekey);
       setFlowForm((f) => ({ ...f, date_key: f.date_key || st.today_datekey }));
       setPriceInputs((prev) => {
@@ -167,9 +201,29 @@ const FamilyAssets = () => {
 
   useEffect(() => {
     if (!msg) return;
+    toast.success(msg);
     const t = setTimeout(() => setMsg(null), 4000);
     return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msg]);
+
+  useEffect(() => {
+    if (!error) return;
+    toast.error(error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [error]);
+
+  // تایمر سپری‌شده‌ی سینک کارگزاری (برای انتظار کد امنیتی)
+  const [brokerElapsed, setBrokerElapsed] = useState(0);
+  useEffect(() => {
+    if (syncingPerson === null) {
+      setBrokerElapsed(0);
+      return;
+    }
+    setBrokerElapsed(0);
+    const t = setInterval(() => setBrokerElapsed((v) => v + 1), 1000);
+    return () => clearInterval(t);
+  }, [syncingPerson]);
 
   const submitPrices = async () => {
     if (!state) return;
@@ -253,7 +307,7 @@ const FamilyAssets = () => {
   };
 
   const removeHolding = async (personId: number, assetId: number, name: string) => {
-    if (!window.confirm(`حذف «${name}» از این سبد؟`)) return;
+    if (!(await confirm({ message: `حذف «${name}» از این سبد؟`, danger: true, confirmLabel: "حذف" }))) return;
     try {
       await deleteFamilyHolding(personId, assetId);
       await loadAll();
@@ -353,12 +407,93 @@ const FamilyAssets = () => {
   };
 
   const removeFlow = async (id: number) => {
-    if (!window.confirm("حذف این جریان نقدی؟")) return;
+    if (!(await confirm({ message: "حذف این جریان نقدی؟", danger: true, confirmLabel: "حذف" }))) return;
     try {
       await deleteFamilyCashFlow(id);
       await loadAll();
     } catch (e: any) {
       setError(e?.message || "حذف ناموفق بود");
+    }
+  };
+
+  const startBrokerEdit = (personId: number) => {
+    const acc = brokerAccounts.find((b) => b.person_id === personId);
+    setBrokerEdit({ personId, username: acc?.username || "", password: "" });
+  };
+
+  const saveBroker = async () => {
+    if (!brokerEdit || !brokerEdit.username.trim()) {
+      setError("نام کاربری لازم است");
+      return;
+    }
+    setSavingBroker(true);
+    setError(null);
+    try {
+      await saveFamilyBrokerAccount({
+        person_id: brokerEdit.personId,
+        username: brokerEdit.username.trim(),
+        password: brokerEdit.password || undefined,
+      });
+      setBrokerEdit(null);
+      setMsg("حساب کارگزاری ذخیره شد ✓");
+      await loadAll();
+    } catch (e: any) {
+      setError(e?.message || "ذخیره ناموفق بود");
+    } finally {
+      setSavingBroker(false);
+    }
+  };
+
+  const removeBroker = async (personId: number) => {
+    if (!(await confirm({ message: "اتصال کارگزاری این شخص حذف شود؟", danger: true, confirmLabel: "حذف" }))) return;
+    try {
+      await deleteFamilyBrokerAccount(personId);
+      await loadAll();
+    } catch (e: any) {
+      setError(e?.message || "حذف ناموفق بود");
+    }
+  };
+
+  const pollBrokerJob = async (jobId: string, personId: number): Promise<FamilyBrokerJob | null> => {
+    for (let i = 0; i < 220; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      try {
+        const cur = await getFamilyBrokerJob(jobId);
+        setBrokerJobs((prev) => ({ ...prev, [personId]: cur }));
+        if (cur.state !== "running") return cur;
+      } catch {
+        /* ادامه polling */
+      }
+    }
+    return null;
+  };
+
+  const syncBroker = async (personId?: number) => {
+    setError(null);
+    setSyncingPerson(personId ?? 0);
+    try {
+      const res = await startFamilyBrokerSync(personId ? { person_id: personId } : { all: true });
+      const jobs = res.jobs || [];
+      const next: Record<number, FamilyBrokerJob> = { ...brokerJobs };
+      jobs.forEach((j) => {
+        next[j.person_id] = j;
+      });
+      setBrokerJobs(next);
+      let failed = 0;
+      for (const j of jobs) {
+        const done = await pollBrokerJob(j.job_id, j.person_id);
+        if (!done || done.state === "error") failed++;
+      }
+      if (failed > 0) {
+        setError("سینک کارگزاری برای برخی اشخاص ناموفق بود (کد امنیتی/ساختار پنل را بررسی کنید)");
+      } else {
+        setMsg("سینک کارگزاری با موفقیت انجام شد ✓");
+      }
+      await loadAll();
+    } catch (e: any) {
+      setError(e?.message || "سینک ناموفق بود");
+    } finally {
+      setSyncingPerson(null);
     }
   };
 
@@ -440,23 +575,69 @@ const FamilyAssets = () => {
       ? "bg-gray-800/60 border-gray-700"
       : "bg-white/70 border-gray-200");
 
+  const histDelta = useMemo(() => {
+    if (history.length < 2) return null;
+    const last = history[history.length - 1].total;
+    const prev = history[history.length - 2].total;
+    if (!prev) return null;
+    return { abs: last - prev, pct: (last - prev) / prev };
+  }, [history]);
+
+  const sparkData = useMemo(
+    () => history.slice(-24).map((h) => ({ d: h.date_key, v: h.total })),
+    [history],
+  );
+
+  const allocation = useMemo(() => {
+    return [
+      { name: "سهام", value: summary?.stocks_total ?? 0, color: "#059669" },
+      { name: "طلا", value: summary?.gold_total ?? 0, color: "#f59e0b" },
+      { name: "دلار", value: summary?.dollar_total ?? 0, color: "#0ea5e9" },
+      { name: "نقد", value: summary?.total_cash ?? 0, color: "#14b8a6" },
+    ].filter((x) => x.value > 0);
+  }, [summary]);
+
+  const downloadCsv = (filename: string, rows: (string | number)[][]) => {
+    const csv = rows
+      .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
+      .join("\r\n");
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const tabs: { key: Tab; label: string }[] = [
     { key: "summary", label: "خلاصه و ثبت قیمت" },
     { key: "people", label: "سبد اشخاص" },
     { key: "history", label: "تاریخچه" },
     { key: "flows", label: "آورده / برداشت" },
+    { key: "broker", label: "کارگزاری آگاه" },
   ];
 
   const renderPersonCard = (p: FamilyPerson) => {
     const pos = p.profit >= 0;
     return (
       <div key={p.person_id} className={panelCls}>
-        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-          <div>
-            <h3 className="font-bold text-gray-800 dark:text-white text-lg">{p.name}</h3>
-            <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-              <span>ارزش سبد: <b className="text-gray-700 dark:text-gray-200">{fmtInt(p.holdings_value)}</b></span>
-              <span>سهم از کل: <b className="text-gray-700 dark:text-gray-200">{fmtPct(p.share_of_total)}</b></span>
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+          <div className="flex items-center gap-3">
+            <span
+              className="flex items-center justify-center w-11 h-11 rounded-2xl text-white font-bold text-lg shrink-0 shadow-sm"
+              style={{ background: personMeta[String(p.person_id)]?.color || "#059669" }}
+            >
+              {(p.name || "?").trim().charAt(0)}
+            </span>
+            <div>
+              <h3 className="font-bold text-gray-800 dark:text-white text-lg">{p.name}</h3>
+              <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <span>ارزش سبد: <b className="text-gray-700 dark:text-gray-200">{fmtInt(p.holdings_value)}</b></span>
+                <span>سهم از کل: <b className="text-gray-700 dark:text-gray-200">{fmtPct(p.share_of_total)}</b></span>
+              </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -485,7 +666,7 @@ const FamilyAssets = () => {
             ) : (
               <button
                 onClick={() => setCashEdit({ personId: p.person_id, value: String(p.cash_balance) })}
-                className="text-right hover:ring-2 hover:ring-indigo-500/30 rounded-xl px-3 py-1.5 transition"
+                className="text-right hover:ring-2 hover:ring-emerald-500/30 rounded-xl px-3 py-1.5 transition"
                 title="ویرایش مانده حساب"
               >
                 <div className="text-[11px] text-gray-500 dark:text-gray-400">مانده حساب</div>
@@ -493,6 +674,15 @@ const FamilyAssets = () => {
               </button>
             )}
           </div>
+        </div>
+        <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-700/60 overflow-hidden mb-3">
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{
+              width: `${Math.min(100, (p.share_of_total || 0) * 100)}%`,
+              background: personMeta[String(p.person_id)]?.color || "#059669",
+            }}
+          />
         </div>
 
         <table className="w-full text-sm text-right">
@@ -565,7 +755,7 @@ const FamilyAssets = () => {
                         <div className="flex gap-2 text-gray-500 dark:text-gray-400">
                           <button
                             onClick={() => startEdit(p.person_id, h.asset_id, h.quantity, h.cost_basis)}
-                            className="hover:text-indigo-500"
+                            className="hover:text-emerald-500"
                             title="ویرایش"
                           >
                             <FaEdit />
@@ -585,7 +775,7 @@ const FamilyAssets = () => {
               );
             })}
             {addingFor === p.person_id ? (
-              <tr className="bg-indigo-50/50 dark:bg-indigo-950/20">
+              <tr className="bg-emerald-50/50 dark:bg-emerald-950/20">
                 <td className="py-1.5">
                   <select
                     value={addForm.asset_id}
@@ -645,7 +835,7 @@ const FamilyAssets = () => {
                       setAddForm({ asset_id: "", quantity: "", cost_basis: "" });
                       setAddingFor(p.person_id);
                     }}
-                    className="text-xs flex items-center gap-1.5 text-indigo-500 hover:text-indigo-600 font-medium"
+                    className="text-xs flex items-center gap-1.5 text-emerald-500 hover:text-emerald-600 font-medium"
                   >
                     <FaPlus size={11} /> افزودن دارایی به سبد
                   </button>
@@ -660,16 +850,21 @@ const FamilyAssets = () => {
 
   return (
     <div className="flex flex-col gap-4" dir="rtl">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Assets</h2>
-        <div className="flex gap-1 rounded-xl bg-gray-100 dark:bg-gray-800 p-1">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-bold text-gradient-emerald">دارایی خانواده</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            سبد اشخاص، قیمت لحظه‌ای و اتصال کارگزاری آگاه
+          </p>
+        </div>
+        <div className="flex gap-1 rounded-xl bg-gray-100 dark:bg-gray-800 p-1 overflow-x-auto">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`px-3 h-8 rounded-lg text-sm font-semibold transition ${
+              className={`px-3 h-8 rounded-lg text-sm font-semibold transition whitespace-nowrap ${
                 tab === t.key
-                  ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow"
+                  ? "bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-300 shadow"
                   : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               }`}
             >
@@ -680,42 +875,85 @@ const FamilyAssets = () => {
       </div>
 
       {error && (
-        <div className="rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-2 text-sm">
-          {error}
-        </div>
-      )}
-      {msg && (
-        <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300 px-4 py-2 text-sm">
-          {msg}
+        <div className="rounded-xl bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 text-rose-700 dark:text-rose-300 px-4 py-2 text-sm flex items-center justify-between gap-2">
+          <span>{error}</span>
+          <button onClick={() => setError(null)} aria-label="بستن" className="opacity-60 hover:opacity-100">
+            <FaTimes size={12} />
+          </button>
         </div>
       )}
 
       {loading ? (
-        <p className="text-center text-gray-500 dark:text-gray-300 py-16">در حال بارگذاری...</p>
+        <div className="flex flex-col gap-4">
+          <SkeletonCards count={6} />
+          <SkeletonTable rows={6} cols={7} />
+        </div>
       ) : !state ? (
-        <p className="text-center text-gray-500 dark:text-gray-300 py-16">
-          داده‌ای برای نمایش نیست. ابتدا اسکریپت import را اجرا کنید.
-        </p>
+        <div className="flex flex-col items-center justify-center py-16 text-center gap-3">
+          <span className="flex items-center justify-center w-14 h-14 rounded-3xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-2xl">
+            <FaCoins />
+          </span>
+          <p className="text-gray-600 dark:text-gray-300 font-medium">هنوز داده‌ای ثبت نشده است</p>
+          <p className="text-xs text-gray-400 max-w-sm">
+            از تب «سبد اشخاص» یک شخص و دارایی اضافه کنید، یا از تب «کارگزاری آگاه» سبد را
+            مستقیم از کارگزاری بخوانید.
+          </p>
+        </div>
       ) : (
         <>
           {/* ── کارت‌های خلاصه ── */}
           <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3">
-            <div className={cardCls}>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">جمع کل</div>
+            <div className={cardCls + " animate-fade-in-up glass-border glass-border-emerald relative overflow-hidden"}>
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-xs text-gray-500 dark:text-gray-400">جمع کل</div>
+                <span className="text-emerald-600 dark:text-emerald-400 text-sm">
+                  <FaWallet />
+                </span>
+              </div>
               <div className="text-lg font-bold text-gray-800 dark:text-white tabular-nums">
                 {fmtCompact(summary?.grand_total)}
               </div>
               <div className="text-[11px] text-gray-400 tabular-nums">{fmtInt(summary?.grand_total)}</div>
+              {histDelta && (
+                <div
+                  className={`text-[11px] font-semibold tabular-nums mt-1 ${
+                    histDelta.abs >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                  }`}
+                >
+                  {histDelta.abs >= 0 ? "▲" : "▼"} {fmtCompact(Math.abs(histDelta.abs))} ({fmtPct(Math.abs(histDelta.pct))})
+                </div>
+              )}
+              {sparkData.length > 1 && (
+                <div className="h-8 -mx-1 mt-1" dir="ltr">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={sparkData}>
+                      <defs>
+                        <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#059669" stopOpacity={0.35} />
+                          <stop offset="100%" stopColor="#059669" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <Area type="monotone" dataKey="v" stroke="#059669" strokeWidth={1.5} fill="url(#spark)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
             <div className={cardCls}>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">ارزش دارایی‌ها</div>
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-xs text-gray-500 dark:text-gray-400">ارزش دارایی‌ها</div>
+                <span className="text-teal-600 dark:text-teal-400 text-sm"><FaChartPie /></span>
+              </div>
               <div className="text-lg font-bold text-gray-800 dark:text-white tabular-nums">
                 {fmtCompact(summary?.holdings_value)}
               </div>
               <div className="text-[11px] text-gray-400">مانده: {fmtCompact(summary?.total_cash)}</div>
             </div>
             <div className={cardCls}>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">سود / زیان کل</div>
+              <div className="flex items-center justify-between mb-1">
+                <div className="text-xs text-gray-500 dark:text-gray-400">سود / زیان کل</div>
+                <span className="text-sm text-gray-400"><FaCoins /></span>
+              </div>
               <div
                 className={`text-lg font-bold tabular-nums ${
                   (summary?.total_profit ?? 0) >= 0
@@ -758,6 +996,56 @@ const FamilyAssets = () => {
 
           {tab === "summary" && (
             <>
+              {/* ── تخصیص دارایی ── */}
+              {allocation.length > 0 && (
+                <div className={panelCls + " flex flex-wrap items-center gap-5"}>
+                  <div className="relative" style={{ width: 180, height: 180 }} dir="ltr">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={allocation}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={54}
+                          outerRadius={82}
+                          paddingAngle={3}
+                          stroke="none"
+                        >
+                          {allocation.map((a) => (
+                            <Cell key={a.name} fill={a.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip formatter={(v: number) => fmtInt(v)} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-[10px] text-gray-400">جمع کل</span>
+                      <span className="text-sm font-bold text-gray-700 dark:text-gray-200">
+                        {fmtCompact(summary?.grand_total)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2 flex-1 min-w-[180px]">
+                    <h3 className="font-semibold text-gray-800 dark:text-white">تخصیص دارایی</h3>
+                    {allocation.map((a) => {
+                      const total = allocation.reduce((s, x) => s + x.value, 0) || 1;
+                      return (
+                        <div key={a.name} className="flex items-center gap-2 text-sm">
+                          <span className="w-3 h-3 rounded-full shrink-0" style={{ background: a.color }} />
+                          <span className="text-gray-600 dark:text-gray-300 w-12">{a.name}</span>
+                          <div className="flex-1 h-2 rounded-full bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                            <div className="h-full rounded-full" style={{ width: `${(a.value / total) * 100}%`, background: a.color }} />
+                          </div>
+                          <span className="tabular-nums text-gray-500 dark:text-gray-400 text-xs w-24 text-left" dir="ltr">
+                            {fmtCompact(a.value)}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* ── ثبت قیمت روز ── */}
               <div className={panelCls}>
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
@@ -809,7 +1097,7 @@ const FamilyAssets = () => {
                   <button
                     onClick={submitPrices}
                     disabled={savingPrices}
-                    className="flex items-center gap-2 px-4 h-9 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold shadow-lg transition disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 h-9 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold shadow-lg transition disabled:opacity-50"
                   >
                     <FaCheck /> {savingPrices ? "در حال ذخیره..." : "ذخیره قیمت‌ها"}
                   </button>
@@ -828,19 +1116,36 @@ const FamilyAssets = () => {
               </div>
 
               {/* ── جدول دارایی‌ها مثل Sheet1 ── */}
-              <div className={panelCls + " overflow-auto"}>
-                <h3 className="font-semibold text-gray-800 dark:text-white mb-3">پرتفوی کل</h3>
+              <div className={panelCls}>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-gray-800 dark:text-white">پرتفوی کل</h3>
+                  <button
+                    onClick={() =>
+                      downloadCsv("family-assets.csv", [
+                        ["دارایی", "آخرین قیمت", "تاریخ قیمت", "تعداد کل", "بهای تمام‌شده", "ارزش", "سود/زیان", "درصد سود", "وزن"],
+                        ...state.assets.map((a) => [
+                          a.name, a.latest_price, a.price_date, a.total_quantity,
+                          a.total_cost, a.total_value, a.total_profit, a.profit_pct, a.weight,
+                        ]),
+                      ])
+                    }
+                    className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
+                  >
+                    <FaDownload size={11} /> CSV
+                  </button>
+                </div>
+                <div className="overflow-auto max-h-[70vh]">
                 <table className="w-full text-sm text-right">
                   <thead>
                     <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                      <th className="py-2 font-medium">دارایی</th>
-                      <th className="py-2 font-medium">آخرین قیمت</th>
-                      <th className="py-2 font-medium">تاریخ قیمت</th>
-                      <th className="py-2 font-medium">تعداد کل</th>
-                      <th className="py-2 font-medium">بهای تمام‌شده</th>
-                      <th className="py-2 font-medium">ارزش</th>
-                      <th className="py-2 font-medium">سود/زیان</th>
-                      <th className="py-2 font-medium">وزن</th>
+                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">دارایی</th>
+                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">آخرین قیمت</th>
+                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">تاریخ قیمت</th>
+                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">تعداد کل</th>
+                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">بهای تمام‌شده</th>
+                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">ارزش</th>
+                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">سود/زیان</th>
+                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">وزن</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -872,6 +1177,7 @@ const FamilyAssets = () => {
                     })}
                   </tbody>
                 </table>
+                </div>
               </div>
 
               {/* ── افزودن شخص / دارایی ── */}
@@ -888,7 +1194,7 @@ const FamilyAssets = () => {
                     />
                     <button
                       onClick={submitNewPerson}
-                      className="shrink-0 px-4 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow"
+                      className="shrink-0 px-4 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow"
                     >
                       <FaPlus />
                     </button>
@@ -915,7 +1221,7 @@ const FamilyAssets = () => {
                     </select>
                     <button
                       onClick={submitNewAsset}
-                      className="shrink-0 px-4 h-9 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow"
+                      className="shrink-0 px-4 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow"
                     >
                       <FaPlus />
                     </button>
@@ -941,7 +1247,7 @@ const FamilyAssets = () => {
                         onClick={() => setRangeKey(r.key)}
                         className={`px-3 h-7 rounded-lg text-xs font-semibold transition ${
                           rangeKey === r.key
-                            ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow"
+                            ? "bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-300 shadow"
                             : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                         }`}
                       >
@@ -954,7 +1260,7 @@ const FamilyAssets = () => {
                       onClick={() => setChartMode("line")}
                       className={`px-3 h-7 rounded-lg text-xs font-semibold transition ${
                         chartMode === "line"
-                          ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow"
+                          ? "bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-300 shadow"
                           : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                       }`}
                     >
@@ -964,7 +1270,7 @@ const FamilyAssets = () => {
                       onClick={() => setChartMode("stack")}
                       className={`px-3 h-7 rounded-lg text-xs font-semibold transition ${
                         chartMode === "stack"
-                          ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow"
+                          ? "bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-300 shadow"
                           : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                       }`}
                     >
@@ -976,7 +1282,7 @@ const FamilyAssets = () => {
                       onClick={() => setLogScale(false)}
                       className={`px-3 h-7 rounded-lg text-xs font-semibold transition ${
                         !logScale
-                          ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow"
+                          ? "bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-300 shadow"
                           : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                       }`}
                     >
@@ -986,7 +1292,7 @@ const FamilyAssets = () => {
                       onClick={() => setLogScale(true)}
                       className={`px-3 h-7 rounded-lg text-xs font-semibold transition ${
                         logScale
-                          ? "bg-white dark:bg-gray-700 text-indigo-600 dark:text-indigo-300 shadow"
+                          ? "bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-300 shadow"
                           : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                       }`}
                     >
@@ -994,14 +1300,30 @@ const FamilyAssets = () => {
                     </button>
                   </div>
                 </div>
-                <button
-                  onClick={backfillHistory}
-                  disabled={backfilling}
-                  className="px-3 h-8 rounded-xl text-xs font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow disabled:opacity-50 transition"
-                  title="تاریخچه کامل قیمت دارایی‌های ⚡ را از داده‌های بازار می‌گیرد (یک‌باره برای دارایی جدید)"
-                >
-                  {backfilling ? "در حال دریافت..." : "📥 تاریخچه بازار"}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() =>
+                      downloadCsv("family-history.csv", [
+                        ["تاریخ", "جمع کل", "واقعی", ...Object.values(personMeta).map((m) => m.name)],
+                        ...history.map((h) => [
+                          h.date_key, h.total, h.has_total ? 1 : 0,
+                          ...Object.keys(personMeta).map((pid) => h.people[pid] ?? 0),
+                        ]),
+                      ])
+                    }
+                    className="flex items-center gap-1.5 px-3 h-8 rounded-xl text-xs font-medium border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
+                  >
+                    <FaDownload size={11} /> CSV
+                  </button>
+                  <button
+                    onClick={backfillHistory}
+                    disabled={backfilling}
+                    className="px-3 h-8 rounded-xl text-xs font-semibold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow disabled:opacity-50 transition"
+                    title="تاریخچه کامل قیمت دارایی‌های ⚡ را از داده‌های بازار می‌گیرد (یک‌باره برای دارایی جدید)"
+                  >
+                    {backfilling ? "در حال دریافت..." : "📥 تاریخچه بازار"}
+                  </button>
+                </div>
               </div>
 
               {/* ── سری‌های قابل نمایش ── */}
@@ -1011,7 +1333,7 @@ const FamilyAssets = () => {
                   className={`flex items-center gap-2 px-3 h-8 rounded-xl border text-xs font-bold transition ${
                     hiddenSeries.has("total")
                       ? "opacity-40 border-gray-200 dark:border-gray-700"
-                      : "border-indigo-200 dark:border-indigo-800 bg-indigo-50/60 dark:bg-indigo-950/30"
+                      : "border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/30"
                   }`}
                 >
                   <span
@@ -1318,6 +1640,155 @@ const FamilyAssets = () => {
                 </table>
               </div>
             </>
+          )}
+
+          {tab === "broker" && (
+            <div className="flex flex-col gap-4">
+              <div className={panelCls + " flex flex-wrap items-center justify-between gap-3"}>
+                <div>
+                  <h3 className="font-bold text-gray-800 dark:text-white">اتصال سبد به کارگزاری آگاه</h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-6">
+                    با سینک، پنجره مرورگر روی سرور باز می‌شود؛ نام کاربری/رمز از قبل پر شده و شما فقط کد امنیتی را وارد می‌کنید.
+                    سبد و مانده نقدی هر شخص به‌صورت کامل با داده کارگزاری جایگزین می‌شود.
+                  </p>
+                </div>
+                <button
+                  onClick={() => syncBroker()}
+                  disabled={syncingPerson !== null || brokerAccounts.filter((b) => b.has_secret).length === 0}
+                  className="rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-4 py-2 text-sm font-medium"
+                >
+                  {syncingPerson === 0 ? "در حال سینک همه..." : "سینک همه از آگاه"}
+                </button>
+              </div>
+
+              {state.people.map((p) => {
+                const acc = brokerAccounts.find((b) => b.person_id === p.person_id);
+                const job = brokerJobs[p.person_id];
+                const configured = !!(acc && acc.has_secret);
+                return (
+                  <div key={p.person_id} className={panelCls}>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h3 className="font-bold text-gray-800 dark:text-white">{p.name}</h3>
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex flex-wrap gap-3">
+                          <span>
+                            کاربر: <b className="text-gray-700 dark:text-gray-200">{acc?.username || "—"}</b>
+                          </span>
+                          {acc?.last_synced_at && (
+                            <span>
+                              آخرین سینک: <b>{new Date(acc.last_synced_at).toLocaleString("fa-IR")}</b>
+                            </span>
+                          )}
+                          {acc?.last_status === "ok" && <span className="text-green-600 dark:text-green-400">موفق</span>}
+                          {acc?.last_status === "error" && <span className="text-red-500">خطا: {acc.last_error}</span>}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {brokerEdit?.personId === p.person_id ? (
+                          <div className="flex flex-wrap items-end gap-2">
+                            <input
+                              value={brokerEdit.username}
+                              onChange={(e) => setBrokerEdit({ ...brokerEdit, username: e.target.value })}
+                              placeholder="نام کاربری / کد ملی"
+                              className={inputCls + " w-44"}
+                            />
+                            <input
+                              type="password"
+                              value={brokerEdit.password}
+                              onChange={(e) => setBrokerEdit({ ...brokerEdit, password: e.target.value })}
+                              placeholder={configured ? "رمز (خالی = بدون تغییر)" : "کلمه عبور"}
+                              className={inputCls + " w-44"}
+                            />
+                            <button
+                              onClick={saveBroker}
+                              disabled={savingBroker}
+                              className="rounded-xl bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white px-3 py-1.5 text-sm"
+                            >
+                              {savingBroker ? "..." : "ذخیره"}
+                            </button>
+                            <button onClick={() => setBrokerEdit(null)} className="text-gray-400 hover:text-gray-600 px-2">
+                              <FaTimes />
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => startBrokerEdit(p.person_id)}
+                              className="rounded-xl border border-gray-300 dark:border-gray-600 px-3 py-1.5 text-sm flex items-center gap-1"
+                            >
+                              <FaEdit size={12} /> تنظیم حساب
+                            </button>
+                            {configured && (
+                              <button
+                                onClick={() => syncBroker(p.person_id)}
+                                disabled={syncingPerson !== null}
+                                className="rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-3 py-1.5 text-sm"
+                              >
+                                {syncingPerson === p.person_id ? "در حال سینک..." : "سینک از آگاه"}
+                              </button>
+                            )}
+                            {acc && (
+                              <button onClick={() => removeBroker(p.person_id)} className="text-gray-400 hover:text-red-500 px-1" title="حذف اتصال">
+                                <FaTrash />
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {job && (
+                      <div className={`mt-3 text-xs ${job.state === "error" ? "text-rose-500" : "text-gray-500 dark:text-gray-400"}`}>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          {job.state === "running" && <FaCircleNotch className="animate-spin text-emerald-500" />}
+                          <span
+                            className={`font-semibold ${
+                              job.state === "done"
+                                ? "text-emerald-600 dark:text-emerald-400"
+                                : job.state === "error"
+                                  ? "text-rose-500"
+                                  : ""
+                            }`}
+                          >
+                            {job.state === "running" ? "در حال اجرا" : job.state === "done" ? "انجام شد" : "خطا"}
+                          </span>
+                          <span>— {job.message}</span>
+                          {job.state === "running" && (
+                            <span className="tabular-nums text-gray-400" dir="ltr">
+                              ({String(Math.floor(brokerElapsed / 60)).padStart(2, "0")}:
+                              {String(brokerElapsed % 60).padStart(2, "0")})
+                            </span>
+                          )}
+                        </div>
+                        {job.state === "running" && (
+                          <>
+                            <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-1">
+                              {["باز کردن مرورگر", "انتظار کد امنیتی", "خواندن سبد", "ثبت سبد"].map((s, i) => (
+                                <div
+                                  key={s}
+                                  className={`rounded-lg px-2 py-1 text-center text-[10px] border ${
+                                    i <= 1
+                                      ? "border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300"
+                                      : "border-gray-200 dark:border-gray-700 text-gray-400"
+                                  }`}
+                                >
+                                  {s}
+                                </div>
+                              ))}
+                            </div>
+                            <p className="mt-2 text-amber-600 dark:text-amber-400">
+                              پنجره مرورگر روی سرور باز شده است؛ کد امنیتی را وارد کنید.
+                            </p>
+                          </>
+                        )}
+                        {job.result?.needs_discovery && job.result.captured?.dump_dir && (
+                          <div className="mt-1 text-amber-600 dark:text-amber-400">dump برای کشف ساختار پنل: {job.result.captured.dump_dir}</div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )}
         </>
       )}

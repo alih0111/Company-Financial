@@ -32,6 +32,8 @@ SQL_ORDER = [
     "070_portfolio.sql",
     "080_analytics.sql",
     "090_indexes.sql",
+    "100_family.sql",
+    "110_family_broker.sql",
 ]
 
 

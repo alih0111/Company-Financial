@@ -81,6 +81,13 @@ func main() {
 		protected.POST("/family/cashflows", handlers.AddFamilyCashFlow)
 		protected.DELETE("/family/cashflows/:id", handlers.DeleteFamilyCashFlow)
 		protected.GET("/family/history", handlers.GetFamilyHistory)
+
+		// اتصال سبد هر شخص به کارگزاری آگاه (فقط ادمین)
+		protected.GET("/family/broker", handlers.GetFamilyBrokerAccounts)
+		protected.PUT("/family/broker", handlers.UpsertFamilyBrokerAccount)
+		protected.DELETE("/family/broker", handlers.DeleteFamilyBrokerAccount)
+		protected.POST("/family/sync-broker", handlers.StartFamilyBrokerSync)
+		protected.GET("/family/sync-broker/status", handlers.GetFamilyBrokerJob)
 	}
 
 	port := os.Getenv("PORT")

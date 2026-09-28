@@ -22,11 +22,20 @@ type fakeSource struct {
 	financialCalls int
 	lastVersion    string
 	priceDelay     time.Duration
+	allScores      []AllScoreInputRow
+	bundle         CompanyScoreBundle
+	allScoreCalls  int
+	bundleCalls    int
+	legacyID       string
 }
 
 func (f *fakeSource) CompanyNames(context.Context) ([]string, error) {
 	f.nameCalls++
 	return f.names, f.err
+}
+
+func (f *fakeSource) ResolveLegacyCompanyIDByName(context.Context, string) (string, error) {
+	return f.legacyID, f.err
 }
 
 func (f *fakeSource) PriceHistory(ctx context.Context, _ string, _ int) ([]MarketInputRow, error) {
@@ -59,6 +68,40 @@ func (f *fakeSource) MonthlyActivitiesByLegacyCompanyID(context.Context, string,
 func (f *fakeSource) FinancialMetricsByLegacyCompanyID(context.Context, string, int) ([]FinancialInputRow, error) {
 	f.financialCalls++
 	return f.financial, f.err
+}
+
+func (f *fakeSource) NetProfitSeriesByLegacyCompanyID(context.Context, string) ([]NetProfitPeriodRow, error) {
+	return nil, f.err
+}
+
+func (f *fakeSource) MonthlyActivitiesByLegacyIDs(context.Context, []string, int) ([]MonthlyInputRow, error) {
+	f.monthlyCalls++
+	return f.monthly, f.err
+}
+
+func (f *fakeSource) FinancialMetricsByLegacyIDs(context.Context, []string, int) ([]FinancialInputRow, error) {
+	f.financialCalls++
+	return f.financial, f.err
+}
+
+func (f *fakeSource) FactorScoresByLegacyIDs(context.Context, string, []string) ([]FactorScoreInputRow, error) {
+	return nil, f.err
+}
+
+func (f *fakeSource) MetricSnapshotsByLegacyIDs(context.Context, string, []string) ([]MetricSnapshotInputRow, error) {
+	return nil, f.err
+}
+
+func (f *fakeSource) AllScoresCanonical(_ context.Context, _ string) ([]AllScoreInputRow, error) {
+	f.allScoreCalls++
+	return f.allScores, f.err
+}
+
+func (f *fakeSource) CompanyScoreByLegacyID(_ context.Context, _ string, legacyID string) (CompanyScoreBundle, error) {
+	f.bundleCalls++
+	b := f.bundle
+	b.LegacyCompanyID = legacyID
+	return b, f.err
 }
 
 func (f *fakeSource) Health(context.Context) error { return f.err }

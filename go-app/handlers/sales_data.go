@@ -16,15 +16,31 @@ import (
 func GetSalesData(c *gin.Context) {
 	start := time.Now()
 
+	companyName := c.Query("companyName")
+
+	// CANONICAL-FIRST: serve canonical income-statement presentation without
+	// touching SQL Server when routed canonically. Product1/2/3 are deprecated
+	// compatibility fields and are never derived.
+	sh := integration.Default()
+	if companyName != "" && sh.SalesDataRoute(companyName) == integration.RouteCanary {
+		rows, err := sh.FetchCumulativeProfitCanonical(c.Request.Context(), companyName)
+		if err == nil {
+			// Empty history (no reported net_profit) is a valid explicit state (200 []).
+			c.JSON(http.StatusOK, salesDataCanonicalResponse(rows, companyName))
+			return
+		}
+		if config.SQLServerMode() == "offline_expected" {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "canonical income statement unavailable", "reason": "sqlserver_offline_expected"})
+			return
+		}
+	}
+
 	db := config.GetDB()
 	defer db.Close()
-
-	companyName := c.Query("companyName")
 
 	// In LEGACY mode the exact original query runs. The mapped metric columns are
 	// only added when a fundamentals shadow comparison is actually enabled, so
 	// default production behavior (rows, columns, order, response) is unchanged.
-	sh := integration.Default()
 	shadowOn := sh.Enabled() && sh.Mode(integration.EndpointSalesData) != integration.ModeLegacy
 
 	columns := "CompanyName, CompanyID, ReportDate, Product1, Product2, Product3"
@@ -110,8 +126,66 @@ func GetSalesData(c *gin.Context) {
 	c.JSON(http.StatusOK, data)
 }
 
+// salesDataCanonicalResponse maps canonical income-statement rows to the legacy
+// SalesData response shape using the explicit canonical presentation contract.
+//
+// Presentation metric: canonical EPS (rial_per_share), which is complete across
+// the report history (unlike net_profit, which the migration materialized only
+// for the latest report for most companies). Rows are returned oldest -> newest
+// so the chart renders left=older, right=newer. Product1/2/3 are deprecated and
+// emitted as 0; the client consumes percentage/wow/reportDate/companyName.
+// The upper chart shows the reported CUMULATIVE (YTD) net profit for each
+// financial period, one point per period, oldest -> newest, resetting naturally
+// at each fiscal year (no standalone-quarter subtraction, no EPS substitution).
+// Periods where net_profit was not reported are simply absent.
+//
+// Compatibility: legacy `percentage` = cumulative net profit in million_rial
+// (presentation value for the bar height; the chart auto-scales). Explicit
+// fields `fiscalYear`, `periodOrder` (3/6/9/12), `periodEndDate`,
+// `cumulativeNetProfitRial/Million` are provided additively.
+func salesDataCanonicalResponse(rows []integration.NetProfitPeriodRow, companyName string) []models.SalesData {
+	out := make([]models.SalesData, 0, len(rows))
+	var prev float64
+	for i, r := range rows {
+		wow := 0
+		if i > 0 {
+			if r.CanonicalRial > 0 && prev < 0 {
+				wow = 1
+			} else if r.CanonicalRial < 0 && prev > 0 {
+				wow = -1
+			}
+		}
+		prev = r.CanonicalRial
+		out = append(out, models.SalesData{
+			CompanyName:                companyName,
+			CompanyID:                  r.LegacyCompanyID,
+			ReportDate:                 r.JalaliPeriod,
+			Percentage:                 roundFloat(r.ReportedMillion, 2),
+			WoW:                        wow,
+			PeriodEndDate:              r.PeriodEndDate,
+			FiscalYear:                 r.FiscalYear,
+			PeriodOrder:                r.PeriodOrder,
+			CumulativeNetProfitRial:    r.CanonicalRial,
+			CumulativeNetProfitMillion: r.ReportedMillion,
+		})
+	}
+	return out
+}
+
 func GetCompanyNames(c *gin.Context) {
 	start := time.Now()
+
+	// CANONICAL-FIRST: serve canonical company/symbol names without SQL Server.
+	sh := integration.Default()
+	if sh.CompanyNamesRoute() == integration.RouteCanary {
+		if names, err := sh.FetchCompanyNamesCanonical(c.Request.Context()); err == nil && len(names) > 0 {
+			c.JSON(http.StatusOK, names)
+			return
+		} else if config.SQLServerMode() == "offline_expected" {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "canonical company names unavailable; SQL Server is offline_expected"})
+			return
+		}
+	}
 
 	db := config.GetDB()
 	defer db.Close()
@@ -136,7 +210,7 @@ func GetCompanyNames(c *gin.Context) {
 
 	// SHADOW: compare against canonical core.companies names. The legacy
 	// response below is authoritative and is never replaced.
-	if sh := integration.Default(); sh.Enabled() {
+	if sh.Enabled() {
 		sh.CompareCompanyNames(c.Request.Context(), names, time.Since(start))
 	}
 
@@ -144,6 +218,10 @@ func GetCompanyNames(c *gin.Context) {
 }
 
 func GetURL(c *gin.Context) {
+	if config.SQLServerMode() == "offline_expected" {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "report URL lookup unavailable", "reason": "sqlserver_offline_expected"})
+		return
+	}
 	db := config.GetDB()
 	defer db.Close()
 

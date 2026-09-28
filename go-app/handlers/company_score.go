@@ -5,8 +5,10 @@ import (
 	"math"
 	"net/http"
 	"strings"
+	"time"
 
 	"go-app/config"
+	"go-app/integration"
 
 	"github.com/gin-gonic/gin"
 )
@@ -57,10 +59,32 @@ func normalize(x float64) float64 {
 }
 
 func GetCompanyScores2(c *gin.Context) {
+	start := time.Now()
+
+	companyName := strings.TrimSpace(c.Query("companyName"))
+
+	// CANONICAL-FIRST: serve the canonical per-company score without touching
+	// SQL Server when routed canonically.
+	sh := integration.Default()
+	if companyName != "" && sh.CompanyScoresRoute(companyName) == integration.RouteCanary {
+		b, err := sh.FetchCompanyScoreCanonical(c.Request.Context(), companyName)
+		if err == nil {
+			if b.HasScore {
+				c.JSON(http.StatusOK, []gin.H{companyScoreCanonicalResponse(b)})
+			} else {
+				c.JSON(http.StatusOK, []gin.H{}) // explicit no-score state
+			}
+			return
+		}
+		if config.SQLServerMode() == "offline_expected" {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "canonical score unavailable", "reason": "sqlserver_offline_expected"})
+			return
+		}
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 
-	companyName := strings.TrimSpace(c.Query("companyName"))
 	param := companyName
 
 	salesQuery := `SELECT CompanyID, CompanyName, ReportDate, Value3 FROM mahane WHERE LTRIM(RTRIM(CompanyName)) LIKE LTRIM(RTRIM(@companyName))`
@@ -131,6 +155,7 @@ func GetCompanyScores2(c *gin.Context) {
 	}
 
 	var results []gin.H
+	var legacyRows []integration.CompanyScoreInputRow
 	for id := range nameMap {
 		sales := salesMap[id]
 		eps := epsMap[id]
@@ -206,7 +231,63 @@ func GetCompanyScores2(c *gin.Context) {
 			"Price":          roundFloat(peData.Price, 2),
 			"finalScore":     roundFloat(score, 4),
 		})
+		legacyRows = append(legacyRows, integration.CompanyScoreInputRow{
+			LegacyCompanyID: id,
+			CompanyName:     name,
+			SalesGrowth:     roundFloat(salesGrowth, 2),
+			EPSGrowth:       roundFloat(epsGrowth, 2),
+			FinalScore:      roundFloat(score, 4),
+			PE:              roundFloat(peData.PE, 2),
+			Price:           roundFloat(peData.Price, 2),
+		})
+	}
+
+	// SHADOW: compare canonical analytics against the legacy per-company score
+	// read. The legacy response below is authoritative and unchanged.
+	if sh.Enabled() {
+		for _, row := range legacyRows {
+			sh.CompareCompanyScores(c.Request.Context(), row, time.Since(start))
+		}
 	}
 
 	c.JSON(http.StatusOK, results)
+}
+
+// companyScoreCanonicalResponse maps a canonical score bundle to the legacy
+// CompanyScores response shape. Category/factor values are canonical stored
+// values; Go performs no scoring arithmetic.
+func companyScoreCanonicalResponse(b integration.CompanyScoreBundle) gin.H {
+	// Growth/operation donut values are canonical factor percentiles (0..100);
+	// raw factor values are not materialized by canonical-v1, so this rank-based
+	// score is the honest presentation (documented in SYMBOL_PAGE_UI_CONTRACT.md).
+	pct := func(code string) float64 {
+		for _, f := range b.Factors {
+			if f.FactorCode == code {
+				return roundFloat(f.Percentile*100, 2)
+			}
+		}
+		return 0
+	}
+	return gin.H{
+		"companyID":      b.LegacyCompanyID,
+		"companyName":    b.CompanyName,
+		"salesGrowth":    pct("SalesGrowth"),
+		"salesStability": pct("Stability"),
+		"epsLevel":       pct("NetMargin"),
+		"epsGrowth":      pct("NetProfitGrowth"),
+		"operation":      pct("OperatingMargin"),
+		"PE":             0,
+		"Price":          roundFloat(b.LatestPrice, 2),
+		"finalScore":     roundFloat(b.QuantScore, 4),
+		"quantScore":     roundFloat(b.QuantScore, 4),
+		"growthScore":    roundFloat(b.GrowthScore, 2),
+		"profitabilityScore": roundFloat(b.ProfitabilityScore, 2),
+		"valuationScore": roundFloat(b.ValuationScore, 2),
+		"marketScore":    roundFloat(b.MarketScore, 2),
+		"dataQualityScore": roundFloat(b.DataQualityScore, 2),
+		"scoreVersion":   b.ScoreVersion,
+		"scoreAsOf":      b.Metadata.ScoreAsOf,
+		"dataAsOf":       b.Metadata.FundamentalsAsOf,
+		"scoreStale":     b.Metadata.Stale,
+	}
 }

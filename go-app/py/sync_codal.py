@@ -352,7 +352,62 @@ def process_pending(route: str, pending: list[dict], conn, stats: dict, max_atte
             stats["errors"].append({"report_id": item["report_id"], "error": str(exc)})
 
 
+def run_sync_canonical_only(args: argparse.Namespace) -> dict:
+    """Canonical-only Codal sync: fetch -> raw body -> canonical report lineage.
+
+    No SQL Server connection is created. Legacy registry/watermark state is skipped.
+    TracingNo -> source_report_id semantics are unchanged (canonical_hook uses it).
+    """
+    import canonical_hook  # lazy
+
+    letter_types = [
+        lt for lt in resolve_letter_types(args) if route_for_letter_type(lt) != "unknown"
+    ]
+    if not letter_types:
+        raise ValueError("No supported --letter-type given (only 6 and 58 are supported)")
+
+    totals = {"scanned": 0, "ingested": 0, "quarantined": 0, "errors": 0, "pages": 0,
+              "max_pages": args.max_pages, "dry_run": args.dry_run,
+              "authority": "CANONICAL", "mode": "canonical_only_offline"}
+    for lt in letter_types:
+        page_number = 1
+        while True:
+            if args.max_pages and totals["pages"] >= args.max_pages:
+                break
+            page = codal_feed.discover_reports(lt, page_number,
+                                              from_date=args.from_date, to_date=args.to_date)
+            totals["pages"] += 1
+            if not page.reports:
+                break
+            for report in page.reports:
+                totals["scanned"] += 1
+                if args.dry_run:
+                    continue
+                res = canonical_hook.ingest_codal_authoritative(report.raw, fetch_body=True)
+                status = res.get("status")
+                if status == "written":
+                    totals["ingested"] += 1
+                elif status == "quarantined":
+                    totals["quarantined"] += 1
+                elif status in ("canonical_error", "no_tracing_no"):
+                    totals["errors"] += 1
+            if page.is_last_page:
+                break
+            page_number += 1
+    logger.info("canonical-only codal sync: %s", totals)
+    return {"success": totals["errors"] == 0, "dry_run": args.dry_run, "canonical_only": True,
+            "total": totals}
+
+
 def run_sync(args: argparse.Namespace) -> dict:
+    # Canonical-only offline: never open SQL Server for the Codal path.
+    try:
+        import canonical_hook as _hook
+        if _hook.canonical_only_offline() and _hook.codal_canonical_authority():
+            return run_sync_canonical_only(args)
+    except Exception:  # noqa: BLE001 - fall through to legacy behaviour
+        pass
+
     letter_types = [
         lt for lt in resolve_letter_types(args) if route_for_letter_type(lt) != "unknown"
     ]

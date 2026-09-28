@@ -62,6 +62,9 @@ type Config struct {
 	MaxCompanies int
 	// Canary is the endpoint-level price-history canary configuration.
 	Canary CanaryConfig
+	// FundCanary is the endpoint-level fundamentals/score canary configuration
+	// (SalesData2, AllCompanyScores, CompanyScores). Same guard semantics.
+	FundCanary CanaryConfig
 	// EligibilityFile is the price-history identity-eligibility registry CSV.
 	EligibilityFile string
 }
@@ -101,6 +104,7 @@ func LoadConfig() Config {
 		MaxCompanies:  25,
 	}
 	cfg.Canary = loadCanaryConfig()
+	cfg.FundCanary = loadFundCanaryConfig()
 	cfg.EligibilityFile = strings.TrimSpace(os.Getenv(envEligibility))
 	if cfg.EligibilityFile == "" {
 		cfg.EligibilityFile = DefaultEligibilityFile
@@ -147,9 +151,20 @@ func LoadConfig() Config {
 	return cfg
 }
 
+// sqlserverOfflineExpected reports whether SQL Server has been declared
+// retired/offline. In that mode no route may resolve to LEGACY.
+func sqlserverOfflineExpected() bool {
+	return strings.EqualFold(strings.TrimSpace(os.Getenv("CDF_SQLSERVER_MODE")), "offline_expected")
+}
+
 // ModeFor returns the effective mode for an endpoint, applying per-endpoint
 // overrides. An unknown endpoint uses the global mode.
 func (c Config) ModeFor(endpoint string) ReadMode {
+	// Hard invariant: with SQL Server offline_expected, never resolve to LEGACY
+	// (which would attempt an unreachable SQL Server).
+	if sqlserverOfflineExpected() {
+		return ModeCanonical
+	}
 	ep := strings.TrimSpace(endpoint)
 	for k, m := range c.EndpointModes {
 		if strings.EqualFold(k, ep) {
@@ -168,7 +183,10 @@ func (c Config) ShadowEnabled(endpoint string) bool {
 // for non-legacy reads OR the price-history canary is enabled. When false, no
 // canonical connection is opened at all.
 func (c Config) AnyShadow() bool {
-	if c.Canary.Enabled {
+	if sqlserverOfflineExpected() {
+		return true
+	}
+	if c.Canary.Enabled || c.FundCanary.Enabled {
 		return true
 	}
 	if c.Mode != ModeLegacy {

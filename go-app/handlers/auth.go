@@ -51,6 +51,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	if config.AuthBackend() == "postgres" {
+		loginPostgres(c, creds.Username, creds.Password)
+		return
+	}
+
 	db := config.GetDB()
 	defer db.Close()
 
@@ -114,6 +119,11 @@ func Register(c *gin.Context) {
 	expectedCode, ok := verificationCodes[input.Email]
 	if !ok || expectedCode != input.Code {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired verification code"})
+		return
+	}
+
+	if config.AuthBackend() == "postgres" {
+		registerPostgres(c, input.Username, input.Email, input.Password)
 		return
 	}
 

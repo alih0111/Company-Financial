@@ -1,6 +1,7 @@
 {
-  "manifest_version": "7",
-  "phase": "integration_shadow_v7_price_history_percent5_rollout",
+  "manifest_version": "10",
+  "phase": "final_bounded_read_canary_and_model_v2_experimentation",
+  "previous_phase": "go_canonical_read_integration_complete_and_analytics_refresh_contract",
   "generated_at": "2026-09-25",
   "code_revision": "4fb0a04+integration-shadow-v3-worktree",
   "canonical_schema_version": "1.2.1",
@@ -339,6 +340,165 @@
     "ingestion (SQL Server writers in py/)",
     "analytics writers (not invoked by Go)"
   ],
+  "phase8_read_migration": {
+    "title": "fundamentals + analytics canonical read completion",
+    "combined_ingestion_soak_gate": "CANONICAL_INGESTION_COMBINED_SOAK_PASS",
+    "combined_soak_report": "../ingestion_migration_v1/COMBINED_SOAK_REPORT.md",
+    "new_canonical_reads": [
+      "analytics.factor_scores -> FactorScoresByLegacyIDs",
+      "analytics.metric_snapshots -> MetricSnapshotsByLegacyIDs (currently empty)",
+      "set-based FinancialMetricsByLegacyIDs / MonthlyActivitiesByLegacyIDs (N+1 fix)",
+      "identity/security/market symbol page -> cmd/symbolvalidate"
+    ],
+    "score_version_selection": {
+      "env": "CDF_CANONICAL_SCORE_VERSION",
+      "default": "canonical-v1-dev",
+      "selection": "latest completed run by as_of_date DESC, started_at DESC",
+      "experimental_v2_default": false
+    },
+    "stale_score_metadata": [
+      "score_version", "score_run_id", "score_as_of", "source_cutoff_at",
+      "data_as_of", "score_stale"
+    ],
+    "metadata_endpoint": "GET /api/health/shadow",
+    "shadow_totals": {
+      "exact_match": 4648,
+      "expected_unit_presentation": 384,
+      "expected_canonical_semantic_change": 83,
+      "canonical_only": 10,
+      "legacy_only": 106,
+      "order_only_difference": 1,
+      "unexpected": 0,
+      "query_error": 0
+    },
+    "artifacts": [
+      "FUNDAMENTALS_READ_MIGRATION.md",
+      "ANALYTICS_READ_MIGRATION.md",
+      "LEGACY_FIELD_USAGE_AUDIT.md",
+      "COMPANY_IDENTITY_API_CONTRACT.md",
+      "SYMBOL_PAGE_CANONICAL_REPORT.md",
+      "output/fundamentals_shadow_comparison.csv",
+      "output/analytics_shadow_comparison.csv",
+      "output/symbol_page_canonical_validation.csv",
+      "output/read_migration_summary.json"
+    ],
+    "legacy_field_audit": {
+      "Product1": "CLIENT_UNUSED",
+      "Product2": "CLIENT_UNUSED",
+      "Product3": "CLIENT_UNUSED",
+      "required_presentation": ["percentage", "wow", "reportDate"]
+    },
+    "symbol_page_sample": {
+      "size": 12,
+      "identity_present": 10,
+      "monthly_present": 7,
+      "financial_present": 5,
+      "market_present": 10,
+      "scores_present": 7,
+      "metric_snapshots_present": 0
+    }
+  },
+  "phase9_score_reads_and_refresh": {
+    "title": "score endpoint canonical reads + analytics refresh contract",
+    "new_canonical_reads": [
+      "analytics.company_scores -> AllScoresCanonical (single query + lateral price)",
+      "analytics.company_scores + factor_scores -> CompanyScoreByLegacyID",
+      "Shadow.CompareAllCompanyScores / CompareCompanyScores"
+    ],
+    "endpoint_classification": {
+      "GET /api/AllCompanyScores": "CANONICAL_READ_READY",
+      "GET /api/CompanyScores": "CANONICAL_READ_READY",
+      "GET /api/StockPriceScore": "OUT_OF_SCOPE_FOR_CURRENT_MODEL",
+      "GET /api/detail": "CANONICAL_READ_ADAPTABLE",
+      "POST /api/analyze": "LEGACY_AI_ONLY"
+    },
+    "product1_2_3": "DEPRECATED_COMPATIBILITY_ONLY_CLIENT_UNUSED",
+    "presentation_contract": "FUNDAMENTALS_PRESENTATION_CONTRACT.md",
+    "salesdata2_canary_ready": true,
+    "salesdata_canary_ready": false,
+    "companynames_canary_ready": false,
+    "analytics_refresh": {
+      "gate": "ANALYTICS_REFRESH_READY",
+      "contract": "ANALYTICS_REFRESH_CONTRACT.md",
+      "orchestrator": "canonical_postgres_v1_2_1/analytics_canonical_v1/orchestrate_refresh.py",
+      "modes": ["CHECK_ONLY", "RUN_IF_STALE", "FORCE_RUN"],
+      "routine_default": "RUN_IF_STALE",
+      "append_only": true,
+      "e2e_new_run_id": "489a6df0-2d37-44de-a0c5-ef0d5daa7191",
+      "e2e_new_run_as_of": "2026-09-25",
+      "e2e_company_scores": 267,
+      "e2e_factor_scores": 5607,
+      "score_stale_after": false,
+      "prior_run_preserved": "c6cb1579-2c28-4526-b3eb-f71d781ca4a4"
+    },
+    "artifacts": [
+      "REMAINING_READ_ENDPOINT_AUDIT.md",
+      "FUNDAMENTALS_PRESENTATION_CONTRACT.md",
+      "ANALYTICS_REFRESH_CONTRACT.md",
+      "SQLSERVER_REMAINING_DEPENDENCIES.md",
+      "output/remaining_endpoint_audit.csv",
+      "output/read_shadow_final.csv",
+      "output/analytics_refresh_summary.json",
+      "output/symbol_page_final_validation.csv",
+      "output/sqlserver_remaining_dependencies.csv",
+      "output/go_read_completion_summary.json"
+    ],
+    "post_refresh_totals": {
+      "exact_match": 5194,
+      "expected_unit_presentation": 384,
+      "expected_canonical_semantic_change": 1184,
+      "canonical_only": 11,
+      "legacy_only": 118,
+      "order_only_difference": 1,
+      "unexpected": 0,
+      "query_error": 0
+    }
+  },
+  "phase10_final_read_canary": {
+    "title": "bounded final canonical read canary (four ready endpoints)",
+    "gate": "FINAL_CANONICAL_READ_CANARY_PASS",
+    "report": "FINAL_READ_CANARY_REPORT.md",
+    "harness": "go-app/cmd/finalcanary",
+    "endpoints": ["SalesData2", "AllCompanyScores", "CompanyScores", "price-history"],
+    "results": {
+      "SalesData2": {"requests": 15, "canonical_served": 8, "fallbacks": 2, "unexpected": 0, "http_errors": 0, "p50_ms": 12.9, "p95_ms": 13.0},
+      "AllCompanyScores": {"requests": 1, "canonical_served": 1, "fallbacks": 0, "unexpected": 0, "http_errors": 0, "p50_ms": 124.9, "p95_ms": 136.1},
+      "CompanyScores": {"requests": 15, "canonical_served": 10, "fallbacks": 0, "unexpected": 0, "http_errors": 0, "p50_ms": 39.0, "p95_ms": 39.4},
+      "price-history": {"requests": 15, "canonical_served": 10, "fallbacks": 0, "unexpected": 0, "http_errors": 0, "p50_ms": 97.5, "p95_ms": 103.2}
+    },
+    "identity_guard": "unsafe collision/legacy-only identities forced to legacy; default-deny",
+    "failure_injection": {
+      "pg_unavailable": "31 attempts -> legacy fallback, HTTP 200",
+      "missing_completed_run": "score endpoints fall back; no stale score served as current",
+      "stale_score": false
+    },
+    "score_metadata": {"score_version": "canonical-v1-dev", "score_as_of": "2026-09-25", "data_as_of": "2026-09-22", "score_stale": false},
+    "artifacts": ["output/final_read_canary.csv", "output/final_read_canary_summary.json"]
+  },
+  "model_v2": {
+    "directory": "../model_v2_validation",
+    "protocol": "../model_v2_validation/MODEL_V2_PROTOCOL.md",
+    "baseline": "canonical-v1-dev (frozen, unchanged)",
+    "candidates": ["canonical-v2-exp-a", "canonical-v2-exp-b", "canonical-v2-exp-c"],
+    "selected": "canonical-v2-exp-a",
+    "selected_config_hash": "4997a85e4d6f33e72dc2c1d27286002d736f21073c377337aaac009306255364",
+    "selection_rule": "dev+validation only; holdout evaluated once; no leakage",
+    "holdout_result": "mixed vs baseline (IC comparable; baseline higher return; v2 far lower coverage bias)",
+    "gate": "MODEL_V2_VALIDATION_WEAK",
+    "signal_engine_readiness": "MODEL_V2_NOT_READY_FOR_SIGNAL_ENGINE_EVALUATION",
+    "production_replacement": false
+  },
+  "go_canonical_reads_gate": "GO_CANONICAL_READS_COMPLETE",
+  "go_canonical_read_canary_gate": "KEY_READ_ENDPOINTS_CANARY_READY",
+  "analytics_refresh_gate": "ANALYTICS_REFRESH_READY",
+  "remaining_sqlserver_read_dependencies": [
+    "GET /api/AllCompanyScores",
+    "GET /api/CompanyScores",
+    "GET /api/StockPriceScore",
+    "GET /api/detail",
+    "POST /api/analyze",
+    "auth/portfolio/family writes"
+  ],
   "production_cutover": false,
   "rollback": "set CDF_READ_MODE=legacy and CDF_PRICE_HISTORY_CANARY_ENABLED=false (defaults); config only",
   "known_expected_differences": [
@@ -358,9 +518,17 @@
   "percentage_rollout_next_step": "PRICE_HISTORY_PERCENT10_READY",
   "canary_read_readiness_global": "GLOBAL_CANARY_NOT_READY",
   "global_canary_blockers": [
-    "SalesData Product1/2/3 have no canonical equivalent",
-    "CompanyNames alias/legal-name presentation changes client-visible names",
-    "SalesData canonical N+1 latency unproven at full population"
+    "CompanyNames alias/legal-name presentation changes client-visible names (10 canonical-only / 4 legacy-only)",
+    "/api/summary, AllCompanyScores and CompanyScores intentionally differ from legacy v3.7 semantics (expected, product decision for serving)",
+    "SalesData income-statement percentage has no canonical equivalent (Product1 heuristic)"
   ],
-  "phase_gate": "SHADOW_INTEGRATION_PHASE2_READY"
+  "resolved_since_phase2": [
+    "Product1/2/3 classified CLIENT_UNUSED / deprecated compatibility-only",
+    "fundamentals N+1 replaced with set-based reads; canonical latency now <= legacy",
+    "AllCompanyScores + CompanyScores canonical reads implemented with 0 unexpected",
+    "SalesData2 percentage/wow presentation contract defined; SalesData2 canary-ready",
+    "analytics refresh orchestration + append-only score runs + stale detection delivered"
+  ],
+  "phase_gate": "SHADOW_INTEGRATION_PHASE9_READ_COMPLETE",
+  "handoff": "../SESSION_HANDOFF.md"
 }

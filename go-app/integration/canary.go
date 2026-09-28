@@ -68,6 +68,43 @@ func loadCanaryConfig() CanaryConfig {
 	return c
 }
 
+// Fundamentals/score canary env names. Kept separate from the price-history
+// canary so enabling one never implicitly enables the other.
+const (
+	envFundCanaryEnabled = "CDF_FUND_CANARY_ENABLED"
+	envFundCanarySymbols = "CDF_FUND_CANARY_COMPANIES"
+	envFundCanaryPercent = "CDF_FUND_CANARY_PERCENT"
+	envFundCanaryVerify  = "CDF_FUND_CANARY_VERIFY"
+	envFundCanaryTimeout = "CDF_FUND_CANARY_TIMEOUT_MS"
+)
+
+func loadFundCanaryConfig() CanaryConfig {
+	c := CanaryConfig{Symbols: map[string]bool{}, Timeout: 2 * time.Second}
+	c.Enabled = parseBoolEnv(os.Getenv(envFundCanaryEnabled))
+	for _, s := range strings.Split(os.Getenv(envFundCanarySymbols), ",") {
+		s = strings.TrimSpace(s)
+		if s == "" {
+			continue
+		}
+		c.Symbols[NormalizeText(s)] = true
+	}
+	if raw := strings.TrimSpace(os.Getenv(envFundCanaryPercent)); raw != "" {
+		if n, err := strconv.Atoi(raw); err == nil && n > 0 {
+			if n > 100 {
+				n = 100
+			}
+			c.Percent = n
+		}
+	}
+	c.Verify = parseBoolEnv(os.Getenv(envFundCanaryVerify))
+	if raw := strings.TrimSpace(os.Getenv(envFundCanaryTimeout)); raw != "" {
+		if ms, err := strconv.Atoi(raw); err == nil && ms > 0 {
+			c.Timeout = time.Duration(ms) * time.Millisecond
+		}
+	}
+	return c
+}
+
 func parseBoolEnv(raw string) bool {
 	switch strings.ToLower(strings.TrimSpace(raw)) {
 	case "1", "true", "yes", "on":
@@ -131,6 +168,10 @@ const (
 func (s *Shadow) PriceHistoryRoute(symbol string) PriceRoute {
 	if s == nil {
 		return RouteLegacy
+	}
+	// SQL Server retired: canonical only, never legacy fallback.
+	if sqlserverOfflineExpected() {
+		return RouteCanary
 	}
 	mode := s.Mode(EndpointPriceHistory)
 
@@ -224,11 +265,19 @@ func (s *Shadow) CanarySymbolCount() int {
 
 // FetchPriceHistoryCanonical performs the optimized canonical read under the
 // canary timeout. It never falls back itself; the caller decides.
+// offlineCanonicalTimeout is used when SQL Server is retired: canonical reads
+// are the only source, so a transiently slow first query must not 503 the page.
+const offlineCanonicalTimeout = 15 * time.Second
+
 func (s *Shadow) FetchPriceHistoryCanonical(ctx context.Context, symbol string, limit int) ([]MarketInputRow, error) {
 	if s == nil || s.src == nil {
 		return nil, fmt.Errorf("canonical source not configured")
 	}
-	tctx, cancel := context.WithTimeout(ctx, s.CanaryTimeout())
+	timeout := s.CanaryTimeout()
+	if sqlserverOfflineExpected() {
+		timeout = offlineCanonicalTimeout
+	}
+	tctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
 	return s.src.PriceHistory(tctx, symbol, limit)
 }

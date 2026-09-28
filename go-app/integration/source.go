@@ -6,10 +6,18 @@ import "context"
 // orchestrator. PG implements it; tests inject fakes.
 type canonicalSource interface {
 	CompanyNames(ctx context.Context) ([]string, error)
+	ResolveLegacyCompanyIDByName(ctx context.Context, name string) (string, error)
 	PriceHistory(ctx context.Context, symbol string, limit int) ([]MarketInputRow, error)
 	SelectScoreRun(ctx context.Context, version string) (ScoreVersionInfo, error)
 	ScoresByLegacyIDs(ctx context.Context, version string, ids []string) ([]ScoreInputRow, error)
 	MonthlyActivitiesByLegacyCompanyID(ctx context.Context, legacyID string, limit int) ([]MonthlyInputRow, error)
 	FinancialMetricsByLegacyCompanyID(ctx context.Context, legacyID string, limit int) ([]FinancialInputRow, error)
+	NetProfitSeriesByLegacyCompanyID(ctx context.Context, legacyID string) ([]NetProfitPeriodRow, error)
+	MonthlyActivitiesByLegacyIDs(ctx context.Context, ids []string, limit int) ([]MonthlyInputRow, error)
+	FinancialMetricsByLegacyIDs(ctx context.Context, ids []string, limit int) ([]FinancialInputRow, error)
+	FactorScoresByLegacyIDs(ctx context.Context, version string, ids []string) ([]FactorScoreInputRow, error)
+	MetricSnapshotsByLegacyIDs(ctx context.Context, version string, ids []string) ([]MetricSnapshotInputRow, error)
+	AllScoresCanonical(ctx context.Context, version string) ([]AllScoreInputRow, error)
+	CompanyScoreByLegacyID(ctx context.Context, version, legacyID string) (CompanyScoreBundle, error)
 	Health(ctx context.Context) error
 }

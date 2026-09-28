@@ -5,7 +5,7 @@ import { useDarkMode } from "../utils/theme";
 type PageKey = "Home" | "Table" | "Portfolio";
 
 const pages: { value: PageKey; path: string; label: string }[] = [
-  { value: "Home", path: "/", label: "Home" },
+  { value: "Home", path: "/dashboard", label: "Home" },
   { value: "Table", path: "/Table", label: "Table" },
   { value: "Portfolio", path: "/portfolio", label: "Portfolio" },
 ];
@@ -24,7 +24,7 @@ const NavigationButton = () => {
     if (!opt) return;
     navigate(
       opt.value === "Home"
-        ? `/?companyname=${encodeURIComponent(companyName || "")}`
+        ? `/dashboard?companyname=${encodeURIComponent(companyName || "")}`
         : `${opt.path}?companyname=${encodeURIComponent(companyName || "")}`
     );
   };

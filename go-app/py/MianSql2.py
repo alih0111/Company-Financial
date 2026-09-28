@@ -361,6 +361,21 @@ def save_report_to_sql(
         )
         return False
 
+    # Canonical-only offline: canonical PostgreSQL is written first and SQL Server
+    # is not contacted at all (no pyodbc connection). Legacy mode is untouched.
+    if (canonical_hook and canonical_hook.monthly_canonical_authority()
+            and canonical_hook.canonical_only_offline()):
+        try:
+            key = canonical_hook.resolve_legacy_key(name=company_name) or generate_company_id(company_name)
+            outcome = canonical_hook.ingest_monthly_authoritative(
+                key, company_name, report_date, calculated_values, legacy_writer=None)
+            logging.info("monthly canonical-only outcome=%s mirror=%s",
+                         outcome.get("outcome"), outcome.get("legacy_mirror_status"))
+            return True
+        except Exception:
+            logging.exception("canonical-only monthly write failed")
+            return False
+
     conn = None
     cursor = None
 

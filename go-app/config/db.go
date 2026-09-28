@@ -12,9 +12,9 @@ import (
 var ConnectionString string
 
 func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	if err := godotenv.Load(); err != nil {
+		// .env is optional: in production the process environment is authoritative.
+		log.Println("note: no .env file loaded:", err)
 	}
 
 	server := os.Getenv("DB_SERVER")

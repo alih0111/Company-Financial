@@ -1,6 +1,4 @@
 endpoint,read_mode,legacy_row_count,canonical_row_count,match_count,exact_match_count,expected_diff_count,unexpected_diff_count,error_count,latency_legacy_ms,latency_canonical_ms,latency_combined_ms,canonical_error
-GET /api/CompanyNames,shadow,267,273,263,263,14,0,0,32.270,5.182,37.453,
-GET /api/summary,shadow,20,20,20,77,84,0,0,4122.502,21.745,4144.248,
-GET /api/price-history,shadow,180,180,180,1260,0,0,0,332.463,20.580,353.045,
-GET /api/SalesData2,shadow,428,384,384,1536,428,0,0,47.651,17.593,65.246,
-GET /api/SalesData,shadow,310,252,252,1512,58,0,0,120.883,34.598,155.485,
+GET /api/SalesData2,legacy,565,565,565,2260,573,0,0,0.000,44.397,44.397,
+GET /api/CompanyScores,legacy,10,9,9,19,26,0,0,0.000,38.253,38.253,
+GET /api/AllCompanyScores,legacy,276,268,267,523,1089,0,0,0.000,32.341,32.341,

@@ -420,7 +420,7 @@ export async function analyzeTopStocks(limit = 20): Promise<any> {
 
 // ----------------------------- BRS Price Collector -----------------------------
 
-export type BrsCollectMode = "daily" | "backfill";
+export type BrsCollectMode = "daily" | "backfill" | "sync";
 
 export async function collectBrsPrices(
   mode: BrsCollectMode = "daily",
@@ -430,6 +430,7 @@ export async function collectBrsPrices(
     force?: boolean;
     raw?: boolean;
     threshold?: number;
+    api?: boolean;
   }
 ): Promise<any> {
   const res = await fetch(`${API_BASE}/brs/collect`, {
@@ -442,6 +443,7 @@ export async function collectBrsPrices(
       force: options?.force,
       raw: options?.raw,
       threshold: options?.threshold,
+      api: options?.api,
     }),
   });
 
@@ -633,6 +635,73 @@ export const deleteFamilyCashFlow = (id: number) =>
 
 export const getFamilyHistory = () =>
   familyFetch<FamilyHistoryRow[]>("/history");
+
+// ----------------------------- کارگزاری آگاه -----------------------------
+
+export interface FamilyBrokerAccount {
+  person_id: number;
+  person_name: string;
+  broker: string;
+  username: string;
+  has_secret: boolean;
+  is_active: boolean;
+  last_synced_at: string | null;
+  last_status: string;
+  last_error: string;
+}
+
+export interface FamilyBrokerHolding {
+  symbol: string;
+  name: string;
+  quantity: number;
+  avg_buy_price: number;
+  last_price: number;
+}
+
+export interface FamilyBrokerJob {
+  job_id: string;
+  person_id: number;
+  state: "running" | "done" | "error";
+  message: string;
+  started_at: string;
+  updated_at: string;
+  result?: {
+    ok: boolean;
+    holdings: FamilyBrokerHolding[];
+    cash: { available: number | null };
+    source?: string;
+    needs_discovery?: boolean;
+    captured?: { responses: number; dump_dir: string };
+  };
+}
+
+export const getFamilyBrokerAccounts = () =>
+  familyFetch<FamilyBrokerAccount[]>("/broker");
+
+export const saveFamilyBrokerAccount = (payload: {
+  person_id: number;
+  username: string;
+  password?: string;
+  is_active?: boolean;
+}) =>
+  familyFetch<{ message: string }>("/broker", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+
+export const deleteFamilyBrokerAccount = (personId: number) =>
+  familyFetch<{ message: string }>(`/broker?person_id=${personId}`, {
+    method: "DELETE",
+  });
+
+export const startFamilyBrokerSync = (payload: { person_id?: number; all?: boolean }) =>
+  familyFetch<{ jobs: FamilyBrokerJob[] }>("/sync-broker", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+
+export const getFamilyBrokerJob = (jobId: string) =>
+  familyFetch<FamilyBrokerJob>(`/sync-broker/status?job_id=${encodeURIComponent(jobId)}`);
 
 // ----------------------------- Quick Codal Sync -----------------------------
 // جمع‌آوری سریع: فقط گزارش‌های جدید کدال برای نمادهای tracked.
