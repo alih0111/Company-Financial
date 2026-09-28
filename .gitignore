@@ -18,6 +18,7 @@ go-app/py/chromedriver-win32/
 go-app/.runtime/
 historical_codal_backfill
 output
+integration_shadow_v1
 
 # General
 .DS_Store

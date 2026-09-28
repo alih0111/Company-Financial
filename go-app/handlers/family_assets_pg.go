@@ -25,6 +25,44 @@ func familyPGTimeout() (context.Context, context.CancelFunc) {
 	return context.WithTimeout(context.Background(), 30*time.Second)
 }
 
+// familyQuerier مشترک *sql.DB و *sql.Tx (هر دو این متدها را دارند).
+type familyQuerier interface {
+	QueryRowContext(ctx context.Context, query string, args ...any) *sql.Row
+	QueryContext(ctx context.Context, query string, args ...any) (*sql.Rows, error)
+	ExecContext(ctx context.Context, query string, args ...any) (sql.Result, error)
+}
+
+// resolveCanonicalSymbol نماد کوتاه بازار (core.securities.codal_symbol) را از
+// نماد/نامی که کارگزاری آگاه یا بازار می‌دهد پیدا می‌کند. نام کامل شرکت
+// (brs_name/display_name) و نماد کوتاه هر دو پذیرفته می‌شوند تا دارایی‌ها با
+// یک نام واحد (نماد کوتاه) تطبیق داده شوند. اگر پیدا نشد، رشته خالی.
+func resolveCanonicalSymbol(ctx context.Context, q familyQuerier, symbol, name string) (string, error) {
+	symbol = strings.TrimSpace(normalizePersian(symbol))
+	name = strings.TrimSpace(normalizePersian(name))
+	if symbol == "" && name == "" {
+		return "", nil
+	}
+
+	var out string
+	err := q.QueryRowContext(ctx, `
+		SELECT s.codal_symbol
+		FROM core.securities s
+		LEFT JOIN core.companies c ON c.id = s.company_id
+		WHERE s.is_active = true AND (
+			($1 <> '' AND (s.codal_symbol = $1 OR c.display_name = $1 OR s.brs_name = $1))
+			OR ($2 <> '' AND (s.codal_symbol = $2 OR c.display_name = $2 OR s.brs_name = $2))
+		)
+		ORDER BY (s.codal_symbol = $1) DESC, (c.display_name = $2) DESC, s.is_primary DESC, s.id
+		LIMIT 1`, symbol, name).Scan(&out)
+	if err == sql.ErrNoRows {
+		return "", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	return out, nil
+}
+
 // familyPGDB pool مشترک PostgreSQL را برمی‌گرداند؛ در صورت نبود 503 می‌دهد.
 func familyPGDB(c *gin.Context) (*sql.DB, bool) {
 	db, err := config.GetPG()
@@ -360,9 +398,15 @@ func syncFamilyPricesFromMarketPG(ctx context.Context, db *sql.DB, fullBackfill 
 	}
 
 	for _, a := range assets {
-		symbol := a.Symbol
+		symbol := strings.TrimSpace(a.Symbol)
+		name := strings.TrimSpace(a.Name)
 		if symbol == "" {
-			symbol = a.Name
+			symbol = name
+		}
+		// اگر نماد با فهرست کانونی جور نبود (مثلاً نام کامل/ISIN ذخیره شده)،
+		// نماد کوتاه بازار را از نام پیدا می‌کنیم تا قیمت روزانه درست خوانده شود.
+		if canon, cerr := resolveCanonicalSymbol(ctx, db, symbol, name); cerr == nil && canon != "" {
+			symbol = canon
 		}
 
 		type priceRow struct {
@@ -378,7 +422,7 @@ func syncFamilyPricesFromMarketPG(ctx context.Context, db *sql.DB, fullBackfill 
 				FROM market.daily_prices po
 				JOIN core.securities s ON s.id = po.security_id
 				LEFT JOIN core.companies c ON c.id = s.company_id
-				WHERE s.codal_symbol = $1 OR c.display_name = $1
+				WHERE s.codal_symbol = $1 OR c.display_name = $1 OR s.brs_name = $1
 				ORDER BY po.trade_date`, symbol)
 			if err != nil {
 				return nil, nil, err
@@ -405,7 +449,7 @@ func syncFamilyPricesFromMarketPG(ctx context.Context, db *sql.DB, fullBackfill 
 				FROM market.daily_prices po
 				JOIN core.securities s ON s.id = po.security_id
 				LEFT JOIN core.companies c ON c.id = s.company_id
-				WHERE s.codal_symbol = $1 OR c.display_name = $1
+				WHERE s.codal_symbol = $1 OR c.display_name = $1 OR s.brs_name = $1
 				ORDER BY po.trade_date DESC, po.observation_id DESC
 				LIMIT 1`, symbol).Scan(&last, &close, &tradeDate); err != nil {
 				if err == sql.ErrNoRows {
@@ -782,11 +826,21 @@ func createFamilyAssetPG(c *gin.Context) {
 	ctx, cancel := familyPGTimeout()
 	defer cancel()
 
+	// نام نمایشی و نماد همیشه نماد کوتاه بازار باشد (اگر در فهرست کانونی باشد).
+	symbol := name
+	if canon, cerr := resolveCanonicalSymbol(ctx, db, name, name); cerr == nil && canon != "" {
+		symbol = canon
+	}
+	display := name
+	if req.Category == "stock" {
+		display = symbol
+	}
+
 	var id int
 	if err := db.QueryRowContext(ctx, `
-		INSERT INTO family.assets (name, category, commission_rate, sort_order)
-		VALUES ($1, $2, $3, $4)
-		RETURNING asset_id`, name, req.Category, rate, req.SortOrder).Scan(&id); err != nil {
+		INSERT INTO family.assets (name, symbol, category, commission_rate, sort_order)
+		VALUES ($1, $2, $3, $4, $5)
+		RETURNING asset_id`, display, symbol, req.Category, rate, req.SortOrder).Scan(&id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "insert: " + err.Error()})
 		return
 	}

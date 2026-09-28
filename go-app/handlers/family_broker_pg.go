@@ -600,30 +600,74 @@ func reconcileBrokerHoldingsPG(ctx context.Context, db *sql.DB, personID int, re
 	return imported, nil
 }
 
-// resolveFamilyAssetTx دارایی family را با نماد/نام کارگزاری پیدا یا می‌سازد.
+// resolveFamilyAssetTx دارایی family را با نماد کوتاه بازار پیدا یا می‌سازد.
+// نماد/نام کارگزاری (securityTitle/companyName) ابتدا به نماد کوتاه کانونی
+// نگاشت می‌شود تا دارایی تکراری با نام کامل شرکت ساخته نشود و نام نمایشی
+// همیشه همان نماد کوتاه باشد.
 func resolveFamilyAssetTx(ctx context.Context, tx *sql.Tx, symbol, name string) (int, error) {
+	symbol = strings.TrimSpace(normalizePersian(symbol))
+	name = strings.TrimSpace(normalizePersian(name))
+
+	key, err := resolveCanonicalSymbol(ctx, tx, symbol, name)
+	if err != nil {
+		return 0, err
+	}
+	if key == "" {
+		// خارج از فهرست کانونی (صندوق/نماد بدون شرکت): نماد کارگزاری کوتاه است.
+		if symbol != "" {
+			key = symbol
+		} else {
+			key = name
+		}
+	}
+	if key == "" {
+		return 0, nil
+	}
+
 	var id int
-	err := tx.QueryRowContext(ctx, `
+	err = tx.QueryRowContext(ctx, `
 		SELECT asset_id FROM family.assets
-		WHERE (symbol = $1 OR name = $1 OR ($2 <> '' AND (symbol = $2 OR name = $2)))
-		ORDER BY is_active DESC, asset_id LIMIT 1`, symbol, name).Scan(&id)
+		WHERE symbol = $1 OR name = $1
+		ORDER BY is_active DESC, asset_id LIMIT 1`, key).Scan(&id)
 	if err == nil {
-		return id, nil
+		return id, renameFamilyAssetTx(ctx, tx, id, key)
 	}
 	if err != sql.ErrNoRows {
 		return 0, err
 	}
-	display := name
-	if display == "" {
-		display = symbol
+
+	// سازگاری با دارایی‌های قدیمی که با نام کامل/ISIN ذخیره شده‌اند:
+	// همان رکورد پیدا و به نماد کوتاه تغییرنام می‌شود (نه رکورد جدید).
+	if name != "" || symbol != "" {
+		ferr := tx.QueryRowContext(ctx, `
+			SELECT asset_id FROM family.assets
+			WHERE name = $1 OR symbol = $1 OR ($2 <> '' AND (name = $2 OR symbol = $2))
+			ORDER BY is_active DESC, asset_id LIMIT 1`, name, symbol).Scan(&id)
+		if ferr == nil {
+			return id, renameFamilyAssetTx(ctx, tx, id, key)
+		}
+		if ferr != sql.ErrNoRows {
+			return 0, ferr
+		}
 	}
+
 	if err := tx.QueryRowContext(ctx, `
 		INSERT INTO family.assets (name, symbol, category, commission_rate, sort_order)
-		VALUES ($1, $2, 'stock', $3, 100)
-		RETURNING asset_id`, display, symbol, familyDefaultCommission).Scan(&id); err != nil {
+		VALUES ($1, $1, 'stock', $2, 100)
+		RETURNING asset_id`, key, familyDefaultCommission).Scan(&id); err != nil {
 		return 0, err
 	}
 	return id, nil
+}
+
+// renameFamilyAssetTx نام نمایشی و نماد دارایی را به نماد کوتاه بازار یکسان می‌کند.
+func renameFamilyAssetTx(ctx context.Context, tx *sql.Tx, id int, key string) error {
+	if _, err := tx.ExecContext(ctx, `
+		UPDATE family.assets SET name = $1, symbol = $1
+		WHERE asset_id = $2 AND (name <> $1 OR symbol IS DISTINCT FROM $1)`, key, id); err != nil {
+		return err
+	}
+	return nil
 }
 
 func recordBrokerSnapshot(ctx context.Context, db *sql.DB, personID int, ok bool, errMsg string, payload map[string]any) error {
