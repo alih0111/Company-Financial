@@ -222,3 +222,10 @@ market_price,brs_prices,market-auth-1790374634,brs,failed: RuntimeError,success,
 market_price,brs_prices,market-auth-1790433218,brs,not_attempted,failed,0,0,0,0,0,,,1,1,2026-09-26T18:03:38.930358+03:30,2026-09-26T18:03:38.953456+03:30
 market_price,brs_prices,market-auth-1790528487,brs,not_attempted,failed,0,0,0,0,0,,,1,1,2026-09-27T20:31:27.028886+03:30,2026-09-27T20:31:27.031266+03:30
 market_price,brs_prices,market-auth-1790543636,brs,not_attempted,failed,0,0,0,0,0,,,1,1,2026-09-28T00:43:56.876082+03:30,2026-09-28T00:43:56.895738+03:30
+market_price,brs_prices,market-auth-1790572815,brs,not_attempted,failed,0,0,0,0,0,,,1,1,2026-09-28T08:50:15.885634+03:30,2026-09-28T08:50:15.889047+03:30
+market_price,brs_prices,market-auth-1790573436,brs,not_attempted,success,261,261,0,0,261,,,0,0,2026-09-28T08:59:37.396452+03:30,2026-09-28T09:00:36.199810+03:30
+market_price,brs_prices,market-auth-1790574621,brs,not_attempted,failed,0,0,0,0,0,,,1,1,2026-09-28T09:20:21.500906+03:30,2026-09-28T09:20:21.504039+03:30
+market_price,brs_prices,market-auth-1790584822,brs,not_attempted,success,266,266,0,0,266,,,0,0,2026-09-28T12:09:37.002854+03:30,2026-09-28T12:10:22.270820+03:30
+market_price,brs_prices,market-auth-1790591268,brs,not_attempted,success,269,263,6,0,269,,,0,0,2026-09-28T13:56:54.644833+03:30,2026-09-28T13:57:48.726949+03:30
+market_price,brs_prices,market-auth-1790605459,brs,not_attempted,success,270,9,261,0,270,,,0,0,2026-09-28T17:53:33.750353+03:30,2026-09-28T17:54:19.841763+03:30
+market_price,brs_prices,market-auth-1790616357,brs,not_attempted,success,270,1,269,0,270,,,0,0,2026-09-28T20:55:18.842098+03:30,2026-09-28T20:55:57.362334+03:30

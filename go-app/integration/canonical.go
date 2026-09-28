@@ -574,7 +574,8 @@ func (p *PG) NetProfitSeriesByLegacyCompanyID(ctx context.Context, legacyID stri
 			  AND f.period_order = 1
 		)
 		SELECT DISTINCT ON (period_end_date)
-		       jalali_period_text, published_at::text, period_end_date::text,
+		       COALESCE(jalali_period_text, ''), COALESCE(published_at::text, ''),
+		       COALESCE(period_end_date::text, ''),
 		       reported_million, canonical_rial, source_report_id, title
 		FROM src
 		ORDER BY period_end_date, published_at DESC NULLS LAST`

@@ -17,10 +17,11 @@ import {
   fmtShort,
 } from "../utils/chart-theme";
 
-type DataPoint = {
+export type DataPoint = {
   reportDate: string;
   percentage: number;
   wow: number;
+  companyName?: string;
 };
 
 type ChartComponentProps = {
@@ -67,17 +68,19 @@ const useGuideLines = (data: DataPoint[]) => {
   }, [data]);
 };
 
+const barColor = (p: DataPoint) =>
+  p.wow === 1
+    ? chartPalette.positive
+    : p.wow === -1
+      ? chartPalette.neutral
+      : p.percentage >= 0
+        ? chartPalette.positive
+        : chartPalette.negative;
+
 const CustomTooltip = ({ active, payload, dark }: any) => {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload as DataPoint;
-  const color =
-    p.wow === 1
-      ? chartPalette.positive
-      : p.wow === -1
-        ? chartPalette.neutral
-        : p.percentage >= 0
-          ? chartPalette.positive
-          : chartPalette.negative;
+  const color = barColor(p);
 
   return (
     <div
@@ -137,10 +140,23 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
                 dx="0"
                 dy="1"
                 stdDeviation="2"
-                floodColor="#6366f1"
+                floodColor="#10b981"
                 floodOpacity={0.15}
               />
             </filter>
+            {/* گرادیان‌های عمودی برای هر رنگ */}
+            <linearGradient id="barPosGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#34d399" />
+              <stop offset="100%" stopColor="#059669" />
+            </linearGradient>
+            <linearGradient id="barNegGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f87171" />
+              <stop offset="100%" stopColor="#dc2626" />
+            </linearGradient>
+            <linearGradient id="barNeuGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#fbbf24" />
+              <stop offset="100%" stopColor="#d97706" />
+            </linearGradient>
           </defs>
 
           <CartesianGrid
@@ -164,7 +180,7 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
           />
           <Tooltip
             cursor={{
-              fill: dark ? "rgba(99,102,241,0.06)" : "rgba(99,102,241,0.04)",
+              fill: dark ? "rgba(16,185,129,0.06)" : "rgba(16,185,129,0.04)",
             }}
             content={<CustomTooltip dark={dark} />}
           />
@@ -194,27 +210,30 @@ const ChartComponent: React.FC<ChartComponentProps> = ({ data }) => {
 
           <Bar
             dataKey="percentage"
-            radius={[8, 8, 0, 0]}
+            radius={[8, 8, 8, 8]}
             maxBarSize={46}
             filter="url(#barShadow2)"
             isAnimationActive
             animationDuration={700}
             animationEasing="ease-out"
           >
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={
-                  entry.wow === 1
-                    ? chartPalette.positive
-                    : entry.wow === -1
-                      ? chartPalette.neutral
-                      : entry.percentage >= 0
-                        ? chartPalette.positive
-                        : chartPalette.negative
-                }
-              />
-            ))}
+            {data.map((entry, index) => {
+              const color = barColor(entry);
+              const fillId =
+                color === chartPalette.neutral
+                  ? "url(#barNeuGrad)"
+                  : entry.percentage >= 0 || entry.wow === 1
+                    ? "url(#barPosGrad)"
+                    : "url(#barNegGrad)";
+              return (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={fillId}
+                  stroke={color}
+                  strokeOpacity={0.25}
+                />
+              );
+            })}
           </Bar>
         </BarChart>
       </ResponsiveContainer>

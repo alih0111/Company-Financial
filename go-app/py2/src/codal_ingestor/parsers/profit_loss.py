@@ -135,8 +135,9 @@ def parse_profit_loss_html(
         raise ValueError("profit/loss table was not found")
 
     periods = get_period_columns(table)
-    if len(periods) < 2:
-        raise ValueError("at least two financial periods are required")
+    if len(periods) < 1:
+        # A restated single-period statement is valid (one current column).
+        raise ValueError("at least one financial period is required")
     indexes = [int(item["index"]) for item in periods]
     rows = get_rows(table)
 
@@ -187,17 +188,13 @@ def parse_profit_loss_html(
         indexes=indexes,
     )
 
-    if net_eps is None or capital is None or operating_profit is None:
-        missing = [
-            name
-            for name, row in (
-                ("net_eps", net_eps),
-                ("capital", capital),
-                ("operating_profit", operating_profit),
-            )
-            if row is None
-        ]
-        raise ValueError(f"required rows were not found: {', '.join(missing)}")
+    # Metric-level extraction: metrics are extracted independently.  The only
+    # hard requirement is the recovery target (net_profit); operating_profit,
+    # capital and EPS are optional and, when absent (e.g. bank/financial-sector
+    # statements that have no operating-profit line), are simply not emitted.
+    # net_profit is never derived from EPS/capital/other lines.
+    if net_profit is None:
+        raise ValueError("required row was not found: net_profit")
 
     amount_unit = detect_currency_unit(table.get_text(" ", strip=True))
     if amount_unit == "unknown":
@@ -235,10 +232,10 @@ def parse_profit_loss_html(
     raw_payload = {
         "period_headers": [period["parts"] for period in periods],
         "matched_rows": {
-            "net_eps": net_eps.raw_title,
-            "capital": capital.raw_title,
+            "net_eps": net_eps.raw_title if net_eps else None,
+            "capital": capital.raw_title if capital else None,
             "operating_eps": operating_eps.raw_title if operating_eps else None,
-            "operating_profit": operating_profit.raw_title,
+            "operating_profit": operating_profit.raw_title if operating_profit else None,
             "net_profit": net_profit.raw_title if net_profit else None,
         },
     }

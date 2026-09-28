@@ -1,0 +1,19 @@
+{
+  "isSuccess": true,
+  "message": "عملیات با موفقیت انجام شد",
+  "errorCode": -1,
+  "data": {
+    "lastBalance": 77148,
+    "adjustedBalanceT2": 77148,
+    "tradableBalanceT1": 77148,
+    "tradableBalanceT2": 77148,
+    "payableBalanceWithAgahCreditT0": 0,
+    "payableBalanceWithAgahCreditT1": 77148,
+    "payableBalanceWithAgahCreditT2": 77148,
+    "payableBalanceWithoutAgahCreditT0": 0,
+    "block": 0,
+    "credit": 0,
+    "settlementDateT0": "2026-09-28T00:00:00+03:30"
+  },
+  "problemDetail": null
+}

@@ -11,6 +11,7 @@ import {
   runBulkScript,
   runScript,
 } from "../utils/api";
+import type { DataPoint } from "../components/ChartComponent";
 
 import { useSearchParams } from "react-router-dom";
 
@@ -52,10 +53,6 @@ interface StockDataPoint {
   Close: number;
 }
 
-interface CompanyData {
-  companyName: string;
-  [key: string]: any;
-}
 type ScriptKey = "script1" | "script2" | "full" | "stockPrices";
 
 const initialMetadata: Metadata = {
@@ -70,8 +67,8 @@ export default function useCompanyData() {
     { value: string; label: string }[]
   >([]);
   const [selectedCompany, setSelectedCompany] = useState<string>("");
-  const [data1, setData1] = useState<CompanyData[]>([]);
-  const [data2, setData2] = useState<CompanyData[]>([]);
+  const [data1, setData1] = useState<DataPoint[]>([]);
+  const [data2, setData2] = useState<DataPoint[]>([]);
   const [dataScore, setDataScore] = useState<ScoreModel[]>();
   const [allDataScore, setAllDataScore] = useState<AllScoreModel[]>();
   const [stockPriceScore, setStockPriceScore] = useState<ScoreModel[]>();
@@ -79,17 +76,6 @@ export default function useCompanyData() {
   const [loadingCompanies, setLoadingCompanies] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
   const [stockPrice, setStockPrice] = useState<StockDataPoint[]>([]);
-
-  const [modal, setModal] = useState<{
-    visible: boolean;
-    script: ScriptKey;
-    type?: "single" | "bulk";
-    companies?: string[];
-    selections?: Record<string, { script1: boolean; script2: boolean }>;
-  }>({
-    visible: false,
-    script: "script1",
-  });
 
   const [metadata, setMetadata] = useState<Metadata>(initialMetadata);
 
@@ -193,13 +179,13 @@ export default function useCompanyData() {
       ]);
 
       if (result1.status === "fulfilled") {
-        setData1(result1.value || []);
+        setData1((result1.value as DataPoint[]) || []);
       } else {
         console.error("Error fetching data1:", result1.reason);
       }
 
       if (result2.status === "fulfilled") {
-        setData2(result2.value || []);
+        setData2((result2.value as DataPoint[]) || []);
       } else {
         console.error("Error fetching data2:", result2.reason);
       }

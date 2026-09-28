@@ -88,6 +88,7 @@ func main() {
 		protected.DELETE("/family/broker", handlers.DeleteFamilyBrokerAccount)
 		protected.POST("/family/sync-broker", handlers.StartFamilyBrokerSync)
 		protected.GET("/family/sync-broker/status", handlers.GetFamilyBrokerJob)
+		protected.POST("/family/sync-broker/captcha", handlers.SubmitFamilyBrokerCaptcha)
 	}
 
 	port := os.Getenv("PORT")

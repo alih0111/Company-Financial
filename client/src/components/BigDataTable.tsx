@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTable, useSortBy, useGlobalFilter, type Column } from "react-table";
 import { FaSort, FaSortUp, FaSortDown, FaSearch, FaCheck, FaTimes } from "react-icons/fa";
 import { addViewedItem } from "../utils/api";
@@ -36,15 +37,16 @@ const numericSort = (
   return a - b;
 };
 
+// همه‌ی فیلدهای عددی اختیاری‌اند — ردیف ممکن است از merge با متریک AI نیامده باشد
 interface DataRow {
   company_id: string;
   company_name: string;
-  eps_growth: number;
-  sales_growth: number;
-  pe: number;
-  stable: boolean;
-  Stable?: boolean;
-  operation: number;
+  eps_growth?: number | null;
+  sales_growth?: number | null;
+  pe?: number | null;
+  stable?: boolean | null;
+  Stable?: boolean | null;
+  operation?: number | null;
   quant_score?: number | null;
 
   revenue_growth_yoy?: number | null;
@@ -71,8 +73,6 @@ interface DataRow {
 
 interface Props {
   data: DataRow[];
-  _selectedCompany: string;
-  _onCompanyChange: (name: string) => void;
 }
 
 // Score badge styling
@@ -114,16 +114,14 @@ const rowBorderColor = (score: number | null | undefined) => {
   return "border-l-red-400/50";
 };
 
-const BigDataTable: React.FC<Props> = ({
-  data,
-  _selectedCompany,
-  _onCompanyChange,
-}) => {
+const BigDataTable: React.FC<Props> = ({ data }) => {
   const [globalFilter, setGlobalFilter] = useState("");
+  const navigate = useNavigate();
 
-  const columns = useMemo<Column<DataRow>[]>(
-    () => [
-      {
+  const columns = useMemo(
+    () =>
+      [
+        {
         Header: "Score",
         id: "quant_score",
 
@@ -222,11 +220,11 @@ const BigDataTable: React.FC<Props> = ({
         disableSortBy: true,
         className: "w-20",
       },
-    ],
+    ] as unknown as Column<DataRow>[],
     [],
   );
 
-  const tableInstance = useTable(
+  const tableInstance = useTable<DataRow>(
     {
       columns,
       data,
@@ -234,7 +232,7 @@ const BigDataTable: React.FC<Props> = ({
       sortTypes: {
         numericSort,
       },
-    },
+    } as any,
     useGlobalFilter,
     useSortBy,
   );
@@ -251,12 +249,12 @@ const BigDataTable: React.FC<Props> = ({
     const value = e.target.value || "";
     setGlobalFilter(value);
     // Plugin-added method from useGlobalFilter
-    (tableInstance as Record<string, (v: string) => void>).setGlobalFilter(value);
+    (tableInstance as unknown as Record<string, (v: string) => void>).setGlobalFilter(value);
   };
 
   const handleSortBy = (sorts: { id: string; desc: boolean }[]) => {
     // Plugin-added method from useSortBy
-    (tableInstance as Record<string, (s: { id: string; desc: boolean }[]) => void>).setSortBy(sorts);
+    (tableInstance as unknown as Record<string, (s: { id: string; desc: boolean }[]) => void>).setSortBy(sorts);
   };
 
   return (
@@ -308,7 +306,7 @@ const BigDataTable: React.FC<Props> = ({
                   className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/25"
                 >
                   {headerGroup.headers.map((column) => {
-                    const col = column as Record<string, unknown>;
+                    const col = column as unknown as Record<string, unknown>;
                     const getSortProps = col.getSortByToggleProps as (() => Record<string, unknown>) | undefined;
                     const sortProps = getSortProps ? getSortProps() : {};
                     const headerProps = column.getHeaderProps(sortProps);
@@ -364,11 +362,8 @@ const BigDataTable: React.FC<Props> = ({
                       console.error("Failed to save viewed item:", err);
                     }
 
-                    const url = `http://rfa.systemgroup.net?companyname=${encodeURIComponent(
-                      companyName,
-                    )}`;
-
-                    window.open(url, "_blank");
+                    // ناوبری داخلی به داشبورد همان شرکت
+                    navigate(`/dashboard?companyname=${encodeURIComponent(companyName)}`);
                   }}
                   className={`
                     cursor-pointer transition-all duration-200 ease-out
@@ -387,7 +382,7 @@ const BigDataTable: React.FC<Props> = ({
                       {...cell.getCellProps()}
                       key={cell.getCellProps().key}
                       className={`p-3 text-center text-gray-600 dark:text-gray-300 ${
-                        (cell.column as Record<string, unknown>).className as string || ""
+                        (cell.column as unknown as Record<string, unknown>).className as string || ""
                       }`}
                     >
                       {cell.column.id === "row_number" ? (

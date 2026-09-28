@@ -1,14 +1,14 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { FaChartLine, FaDownload, FaSync } from "react-icons/fa";
+  createChart,
+  ColorType,
+  CrosshairMode,
+  PriceScaleMode,
+  type IChartApi,
+  type ISeriesApi,
+  type UTCTimestamp,
+} from "lightweight-charts";
+import { FaChartLine, FaDownload, FaSync, FaArrowUp, FaArrowDown } from "react-icons/fa";
 import {
   getPriceHistory,
   collectBrsPrices,
@@ -16,11 +16,6 @@ import {
 } from "../utils/api";
 import { getAuthStatus } from "../hooks/useGetUser";
 import { useDarkMode } from "../utils/theme";
-import {
-  chartPalette,
-  glassTooltipStyle,
-  fmtShort,
-} from "../utils/chart-theme";
 
 type Props = {
   companyName: string;
@@ -35,6 +30,28 @@ const RANGES = [
   { label: "همه", days: 5000 },
 ];
 
+// رنگ‌های کندل مطابق هویت سبز/قرمز مالی
+const C = {
+  up: "#10b981",
+  down: "#ef4444",
+  upFill: "rgba(16,185,129,0.55)",
+  downFill: "rgba(239,68,68,0.55)",
+};
+
+type CandlePoint = {
+  time: UTCTimestamp;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+};
+
+type VolumePoint = {
+  time: UTCTimestamp;
+  value: number;
+  color: string;
+};
+
 const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
   const { darkMode } = useDarkMode();
   const dark = darkMode;
@@ -44,8 +61,22 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
   const [rangeIdx, setRangeIdx] = useState(2);
   const [fetching, setFetching] = useState(false);
   const [fetchMsg, setFetchMsg] = useState<string | null>(null);
-  const [logScale, setLogScale] = useState(true);
+  const [logScale, setLogScale] = useState(false);
   const { isAdmin } = getAuthStatus();
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<IChartApi | null>(null);
+  const candleRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
+  const volumeRef = useRef<ISeriesApi<"Histogram"> | null>(null);
+  const [hover, setHover] = useState<{
+    date: string;
+    o: number;
+    h: number;
+    l: number;
+    c: number;
+    vol: number;
+    chg: number;
+  } | null>(null);
 
   const loadData = () => {
     if (!companyName) return;
@@ -61,6 +92,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
 
   useEffect(() => {
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyName, rangeIdx, refreshTick]);
 
   const handleFetchPrices = async () => {
@@ -80,26 +112,197 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     }
   };
 
-  const chartData = useMemo(() => {
-    return data
+  // ساخت کندل: open = قیمت پایانی روز قبل، close = آخرین معامله، high/low از داده
+  const { candles, volumes, jalaliMap } = useMemo(() => {
+    const candles: CandlePoint[] = [];
+    const volumes: VolumePoint[] = [];
+    const jalaliMap = new Map<number, { jdate: string; chg: number }>();
+
+    const clean = data
       .filter((d) => d.closing_price > 0)
-      .map((d) => ({
-        date: d.jalali_date || d.date,
-        close: d.closing_price,
-        volume: d.volume,
-      }));
+      .slice()
+      .sort((a, b) => (a.date < b.date ? -1 : 1));
+
+    let prevClose = 0;
+    const seen = new Set<string>();
+    for (const d of clean) {
+      if (seen.has(d.date)) continue;
+      seen.add(d.date);
+
+      const open = prevClose > 0 ? prevClose : d.closing_price;
+      const close = d.last_price > 0 ? d.last_price : d.closing_price;
+      const rawHigh = d.high_price > 0 ? d.high_price : Math.max(open, close);
+      const rawLow = d.low_price > 0 ? d.low_price : Math.min(open, close);
+      const high = Math.max(rawHigh, open, close);
+      const low = Math.min(rawLow, open, close);
+
+      // time به‌صورت UTC timestamp از روی رشته‌ی YYYY-MM-DD
+      const t = Math.floor(new Date(d.date + "T00:00:00Z").getTime() / 1000) as UTCTimestamp;
+
+      candles.push({ time: t, open, high, low, close });
+      volumes.push({
+        time: t,
+        value: d.volume || 0,
+        color: close >= open ? C.upFill : C.downFill,
+      });
+      jalaliMap.set(t, { jdate: d.jalali_date || d.date, chg: d.change_percent || 0 });
+      prevClose = d.closing_price;
+    }
+    return { candles, volumes, jalaliMap };
   }, [data]);
 
   const stats = useMemo(() => {
-    if (chartData.length === 0) return null;
-    const prices = chartData.map((d) => d.close);
-    const latest = prices[prices.length - 1];
-    const first = prices[0];
-    const max = Math.max(...prices);
-    const min = Math.min(...prices);
+    if (candles.length === 0) return null;
+    const closes = candles.map((c) => c.close);
+    const latest = closes[closes.length - 1];
+    const max = Math.max(...candles.map((c) => c.high));
+    const min = Math.min(...candles.map((c) => c.low));
+    const first = candles[0].open;
     const totalReturn = first > 0 ? ((latest - first) / first) * 100 : 0;
     return { latest, max, min, totalReturn };
-  }, [chartData]);
+  }, [candles]);
+
+  const priceFmt = (n: number) =>
+    n.toLocaleString("en-US", { maximumFractionDigits: 0 });
+
+  const volFmt = (n: number) => {
+    if (n >= 1e9) return (n / 1e9).toFixed(1) + "B";
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+    return String(Math.round(n));
+  };
+
+  // ── ساخت چارت — وقتی داده رسید و container در DOM قرار گرفت ──
+  const hasData = candles.length > 0;
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !hasData) return;
+
+    const chart = createChart(el, {
+      width: el.clientWidth,
+      height: 400,
+      layout: {
+        background: { type: ColorType.Solid, color: "transparent" },
+        textColor: dark ? "#94a3b8" : "#64748b",
+        fontFamily:
+          '"Vazirmatn", "Segoe UI", Tahoma, system-ui, sans-serif',
+        fontSize: 11,
+      },
+      grid: {
+        vertLines: { visible: false },
+        horzLines: {
+          color: dark ? "rgba(148,163,184,0.08)" : "rgba(100,116,139,0.1)",
+        },
+      },
+      crosshair: {
+        mode: CrosshairMode.Normal,
+        vertLine: {
+          color: dark ? "rgba(148,163,184,0.35)" : "rgba(100,116,139,0.35)",
+          width: 1,
+          style: 2,
+          labelBackgroundColor: dark ? "#334155" : "#475569",
+        },
+        horzLine: {
+          color: dark ? "rgba(148,163,184,0.35)" : "rgba(100,116,139,0.35)",
+          labelBackgroundColor: dark ? "#334155" : "#475569",
+        },
+      },
+      rightPriceScale: {
+        borderVisible: false,
+        scaleMargins: { top: 0.08, bottom: 0.26 },
+      },
+      timeScale: {
+        borderVisible: false,
+        rightOffset: 4,
+        barSpacing: 9,
+        minBarSpacing: 2,
+      },
+      handleScale: { axisPressedMouseMove: { time: true, price: false } },
+    });
+
+    const candleSeries = chart.addCandlestickSeries({
+      upColor: C.up,
+      downColor: C.down,
+      borderVisible: false,
+      wickUpColor: C.up,
+      wickDownColor: C.down,
+      priceLineColor: dark ? "rgba(148,163,184,0.5)" : "rgba(100,116,139,0.5)",
+      priceLineStyle: 3,
+    });
+
+    const volumeSeries = chart.addHistogramSeries({
+      priceFormat: { type: "volume" },
+      priceScaleId: "vol",
+      lastValueVisible: false,
+      priceLineVisible: false,
+    });
+    volumeSeries.priceScale().applyOptions({
+      scaleMargins: { top: 0.8, bottom: 0 },
+    });
+
+    chartRef.current = chart;
+    candleRef.current = candleSeries;
+    volumeRef.current = volumeSeries;
+
+    // ResizeObserver برای واکنش‌گرایی
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0]?.contentRect.width;
+      if (w && w > 0) chart.applyOptions({ width: Math.round(w) });
+    });
+    ro.observe(el);
+
+    // Crosshair → legend
+    const onMove = (param: any) => {
+      if (!param || !param.time) {
+        setHover(null);
+        return;
+      }
+      const bar = param.seriesData.get(candleSeries) as
+        | { open: number; high: number; low: number; close: number }
+        | undefined;
+      const v = param.seriesData.get(volumeSeries) as { value: number } | undefined;
+      if (!bar) {
+        setHover(null);
+        return;
+      }
+      const meta = jalaliMap.get(param.time as number);
+      setHover({
+        date: meta?.jdate || String(param.time),
+        o: bar.open,
+        h: bar.high,
+        l: bar.low,
+        c: bar.close,
+        vol: v?.value ?? 0,
+        chg: meta?.chg ?? 0,
+      });
+    };
+    chart.subscribeCrosshairMove(onMove);
+
+    return () => {
+      ro.disconnect();
+      chart.unsubscribeCrosshairMove(onMove);
+      chart.remove();
+      chartRef.current = null;
+      candleRef.current = null;
+      volumeRef.current = null;
+    };
+    // jalaliMap عمداً خارج از وابستگی‌هاست؛ legend با data جدید re-render می‌شود
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dark, hasData]);
+
+  // ── آپدیت داده‌ها و مقیاس ──
+  useEffect(() => {
+    const chart = chartRef.current;
+    if (!chart || !candleRef.current || !volumeRef.current) return;
+
+    chart.priceScale("right").applyOptions({
+      mode: logScale ? PriceScaleMode.Logarithmic : PriceScaleMode.Normal,
+    });
+    candleRef.current.setData(candles as any);
+    volumeRef.current.setData(volumes as any);
+    chart.timeScale().fitContent();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [candles, volumes, logScale]);
 
   const cardCls = `rounded-2xl border p-5 ${
     dark
@@ -107,50 +310,22 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       : "bg-white/60 border-gray-200/60"
   } backdrop-blur-sm`;
 
-  const priceFmt = (n: number) =>
-    n.toLocaleString("en-US", { maximumFractionDigits: 0 });
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload?.length) return null;
-    const p = payload[0].payload;
-    return (
-      <div
-        style={{
-          ...glassTooltipStyle(dark),
-          display: "flex",
-          flexDirection: "column",
-          gap: 4,
-          minWidth: 120,
-        }}
-      >
-        <div style={{ opacity: 0.7, fontSize: 11 }}>{p.date}</div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 3,
-              background: chartPalette.series[0],
-              display: "inline-block",
-            }}
-          />
-          <span style={{ fontWeight: 700 }}>{priceFmt(p.close)}</span>
-        </div>
-      </div>
-    );
-  };
+  const legendUp = hover ? hover.c >= hover.o : true;
 
   return (
     <div className={cardCls}>
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
         <div className="flex items-center gap-2">
-          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-500">
+          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500">
             <FaChartLine className="text-sm" />
           </span>
           <h3 className="font-bold text-gray-800 dark:text-white text-sm">
             نمودار قیمت
           </h3>
+          <span className="text-[10px] font-medium text-gray-400 bg-gray-100 dark:bg-gray-700/50 px-2 py-0.5 rounded-full">
+            کندل + حجم
+          </span>
         </div>
         <div className="flex items-center gap-2">
           {/* Range pills */}
@@ -161,7 +336,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
                 onClick={() => setRangeIdx(i)}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all duration-200 ${
                   i === rangeIdx
-                    ? "bg-indigo-600 text-white shadow-sm shadow-indigo-500/25"
+                    ? "bg-emerald-600 text-white shadow-sm shadow-emerald-500/25"
                     : dark
                       ? "text-gray-400 hover:text-gray-200 hover:bg-gray-600/40"
                       : "text-gray-500 hover:text-gray-700 hover:bg-gray-200/60"
@@ -188,11 +363,47 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         </div>
       </div>
 
+      {/* ── Legend / Crosshair readout ── */}
+      <div className="flex items-center gap-4 mb-2 px-1 text-[11px] font-semibold tabular-nums min-h-[18px]" dir="ltr">
+        {hover ? (
+          <>
+            <span className="text-gray-400">{hover.date}</span>
+            <span className="text-gray-500 dark:text-gray-400">
+              O <b className="text-gray-700 dark:text-gray-200">{priceFmt(hover.o)}</b>
+            </span>
+            <span className="text-gray-500 dark:text-gray-400">
+              H <b className="text-emerald-600 dark:text-emerald-400">{priceFmt(hover.h)}</b>
+            </span>
+            <span className="text-gray-500 dark:text-gray-400">
+              L <b className="text-red-500 dark:text-red-400">{priceFmt(hover.l)}</b>
+            </span>
+            <span className="text-gray-500 dark:text-gray-400">
+              C <b className="text-gray-700 dark:text-gray-200">{priceFmt(hover.c)}</b>
+            </span>
+            <span
+              className={
+                hover.chg >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
+              }
+            >
+              {hover.chg >= 0 ? "+" : ""}
+              {hover.chg.toFixed(2)}%
+            </span>
+            <span className="text-gray-400">Vol {volFmt(hover.vol)}</span>
+          </>
+        ) : (
+          <span className="text-gray-400 dark:text-gray-500" dir="rtl">
+            {candles.length > 0
+              ? `${candles.length} کندل — با نشانگر روی نمودار حرکت کنید`
+              : ""}
+          </span>
+        )}
+      </div>
+
       {/* ── Stats Cards ── */}
       {stats && (
         <div className="grid grid-cols-4 gap-2 mb-4">
           <div className="rounded-xl bg-gray-50 dark:bg-gray-800/40 p-2.5 text-center border border-gray-100 dark:border-gray-700/40">
-            <div className="text-[10px] text-gray-400 dark:text-gray-500 font-medium mb-0.5">قیمت</div>
+            <div className="text-[10px] text-gray-400 dark:text-gray-500 font-medium mb-0.5">آخرین قیمت</div>
             <div className="text-sm font-bold text-gray-800 dark:text-white tabular-nums">
               {priceFmt(stats.latest)}
             </div>
@@ -214,11 +425,14 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
               ? "bg-emerald-50 dark:bg-emerald-900/15 border-emerald-100 dark:border-emerald-900/30"
               : "bg-red-50 dark:bg-red-900/15 border-red-100 dark:border-red-900/30"
           }`}>
-            <div className={`text-[10px] font-medium mb-0.5 ${
+            <div className={`text-[10px] font-medium mb-0.5 flex items-center justify-center gap-1 ${
               stats.totalReturn >= 0
                 ? "text-emerald-600 dark:text-emerald-400/70"
                 : "text-red-500 dark:text-red-400/70"
-            }`}>بازده</div>
+            }`}>
+              {stats.totalReturn >= 0 ? <FaArrowUp size={8} /> : <FaArrowDown size={8} />}
+              بازده
+            </div>
             <div className={`text-sm font-bold tabular-nums ${
               stats.totalReturn >= 0
                 ? "text-emerald-600 dark:text-emerald-400"
@@ -232,12 +446,18 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       )}
 
       {loading ? (
-        <p className="text-center text-gray-400 dark:text-gray-500 py-10">
-          در حال بارگذاری نمودار...
-        </p>
+        <div className="h-[400px] flex items-center justify-center">
+          <div className="flex items-center gap-3 text-gray-400 dark:text-gray-500">
+            <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+            <span className="text-sm font-medium">در حال بارگذاری نمودار…</span>
+          </div>
+        </div>
       ) : error ? (
         <p className="text-center text-red-500 py-10">{error}</p>
-      ) : chartData.length === 0 ? (
+      ) : candles.length === 0 ? (
         <div className="text-center py-10">
           <p className="text-gray-400 dark:text-gray-500 mb-4">
             داده‌ای برای این نماد موجود نیست
@@ -249,13 +469,13 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
               className={`inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-white text-sm shadow-lg transition-all duration-200 ${
                 fetching
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 hover:shadow-xl hover:shadow-indigo-500/20"
+                  : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-xl hover:shadow-emerald-500/20"
               }`}
             >
               {fetching ? (
                 <>
                   <FaSync className="animate-spin" />
-                  در حال جمع‌آوری...
+                  در حال جمع‌آوری…
                 </>
               ) : (
                 <>
@@ -270,67 +490,12 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
           )}
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={320}>
-          <AreaChart
-            data={chartData}
-            margin={{ top: 10, right: 16, bottom: 8, left: 8 }}
-          >
-            <defs>
-              <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="0%"
-                  stopColor={chartPalette.series[0]}
-                  stopOpacity={0.25}
-                />
-                <stop
-                  offset="100%"
-                  stopColor={chartPalette.series[0]}
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            </defs>
-            <CartesianGrid
-              strokeDasharray="3 6"
-              stroke={chartPalette.gridStroke(dark)}
-              vertical={false}
-            />
-            <XAxis
-              dataKey="date"
-              tick={{ fill: chartPalette.axisTick(dark), fontSize: 10 }}
-              tickLine={{ stroke: chartPalette.axisStroke(dark) }}
-              axisLine={{ stroke: chartPalette.axisStroke(dark) }}
-              minTickGap={40}
-              dy={6}
-            />
-            <YAxis
-              tick={{ fill: chartPalette.axisTick(dark), fontSize: 10 }}
-              tickLine={false}
-              axisLine={false}
-              width={56}
-              scale={logScale ? "log" : "linear"}
-              domain={
-                logScale
-                  ? [
-                      (dataMin: number) => Math.max(dataMin * 0.9, 1),
-                      (dataMax: number) => dataMax * 1.1,
-                    ]
-                  : ["dataMin - 5%", "dataMax + 5%"]
-              }
-              allowDataOverflow
-              tickFormatter={(v) => fmtShort(Number(v), 0)}
-            />
-            <Tooltip content={<CustomTooltip />} />
-            <Area
-              type="monotone"
-              dataKey="close"
-              stroke={chartPalette.series[0]}
-              strokeWidth={2.5}
-              fill="url(#priceGrad)"
-              isAnimationActive
-              animationDuration={600}
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        <div
+          ref={containerRef}
+          dir="ltr"
+          className={`rounded-xl overflow-hidden ${legendUp ? "" : ""}`}
+          style={{ height: 400 }}
+        />
       )}
     </div>
   );

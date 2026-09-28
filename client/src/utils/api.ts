@@ -1,4 +1,4 @@
-const API_BASE = "http://rfa_back.systemgroup.net/api";
+import { API_BASE } from "../config";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("token");
@@ -665,12 +665,15 @@ export interface FamilyBrokerJob {
   message: string;
   started_at: string;
   updated_at: string;
+  needs_captcha?: boolean;
+  captcha_image?: string;
   result?: {
     ok: boolean;
     holdings: FamilyBrokerHolding[];
     cash: { available: number | null };
     source?: string;
     needs_discovery?: boolean;
+    login?: { mode?: string; attempts?: number; error?: string | null };
     captured?: { responses: number; dump_dir: string };
   };
 }
@@ -702,6 +705,12 @@ export const startFamilyBrokerSync = (payload: { person_id?: number; all?: boole
 
 export const getFamilyBrokerJob = (jobId: string) =>
   familyFetch<FamilyBrokerJob>(`/sync-broker/status?job_id=${encodeURIComponent(jobId)}`);
+
+export const submitFamilyBrokerCaptcha = (jobId: string, code: string) =>
+  familyFetch<{ message: string }>("/sync-broker/captcha", {
+    method: "POST",
+    body: JSON.stringify({ job_id: jobId, code }),
+  });
 
 // ----------------------------- Quick Codal Sync -----------------------------
 // جمع‌آوری سریع: فقط گزارش‌های جدید کدال برای نمادهای tracked.

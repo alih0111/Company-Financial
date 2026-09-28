@@ -9,7 +9,7 @@ import {
   Legend,
   Label,
 } from "recharts";
-import { FaPlus, FaTrash, FaEdit, FaTimes, FaCheck } from "react-icons/fa";
+import { FaPlus, FaTrash, FaEdit, FaTimes, FaCheck, FaWallet, FaChartPie, FaCoins, FaPercentage } from "react-icons/fa";
 import {
   getPortfolio,
   upsertHolding,
@@ -215,13 +215,11 @@ const Portfolio = () => {
   return (
     <div className="flex flex-col gap-4" dir="rtl">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gray-800 dark:text-white">
-          پورتفولیو
-        </h2>
+        <h2 className="text-xl font-bold text-gradient-emerald">پورتفولیو</h2>
         {!showForm && (
           <button
             onClick={startAdd}
-            className="flex items-center gap-2 px-4 h-9 rounded-xl bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-semibold shadow-lg transition"
+            className="flex items-center gap-2 px-4 h-9 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold shadow-lg shadow-emerald-500/20 transition hover:scale-[1.03] active:scale-[0.98]"
           >
             <FaPlus /> افزودن دارایی
           </button>
@@ -236,51 +234,89 @@ const Portfolio = () => {
 
       {/* خلاصه */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className={cardCls}>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-            ارزش هزینه (سرمایه‌گذاری)
+        <div className={`${cardCls} animate-fade-in-up`}>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-500 ring-1 ring-indigo-500/20">
+              <FaWallet size={13} />
+            </span>
+            <div className="text-[11px] text-gray-500 dark:text-gray-400">
+              ارزش هزینه
+            </div>
           </div>
-          <div className="text-lg font-bold text-gray-800 dark:text-white">
+          <div className="text-lg font-bold text-gray-800 dark:text-white tabular-nums">
             {fmtCompact(data?.total_cost)}
           </div>
+          <div className="text-[10px] text-gray-400 mt-0.5">سرمایه‌گذاری اولیه</div>
         </div>
-        <div className={cardCls}>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-            ارزش بازار
+        <div className={`${cardCls} animate-fade-in-up`} style={{ animationDelay: "60ms" }}>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 ring-1 ring-cyan-500/20">
+              <FaChartPie size={13} />
+            </span>
+            <div className="text-[11px] text-gray-500 dark:text-gray-400">
+              ارزش بازار
+            </div>
           </div>
-          <div className="text-lg font-bold text-gray-800 dark:text-white">
+          <div className="text-lg font-bold text-gray-800 dark:text-white tabular-nums">
             {fmtCompact(data?.total_market_value)}
           </div>
+          <div className="text-[10px] text-gray-400 mt-0.5">ارزش لحظه‌ای</div>
         </div>
-        <div className={cardCls}>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-            سود/زیان کل
+        <div className={`${cardCls} animate-fade-in-up`} style={{ animationDelay: "120ms" }}>
+          <div className="flex items-center gap-2 mb-2">
+            <span
+              className={`flex items-center justify-center w-8 h-8 rounded-xl ring-1 ${
+                gainPositive
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-emerald-500/20"
+                  : "bg-red-500/10 text-red-600 dark:text-red-400 ring-red-500/20"
+              }`}
+            >
+              <FaCoins size={13} />
+            </span>
+            <div className="text-[11px] text-gray-500 dark:text-gray-400">
+              سود / زیان کل
+            </div>
           </div>
           <div
-            className={`text-lg font-bold ${
+            className={`text-lg font-bold tabular-nums ${
               gainPositive
-                ? "text-green-600 dark:text-green-400"
+                ? "text-emerald-600 dark:text-emerald-400"
                 : "text-red-600 dark:text-red-400"
             }`}
           >
             {gainPositive ? "+" : ""}
             {fmtCompact(totalGain)}
           </div>
+          <div className={`text-[10px] mt-0.5 tabular-nums ${gainPositive ? "text-emerald-500/70" : "text-red-500/70"}`}>
+            {gainPositive ? "▲" : "▼"} {fmt(totalGainPct)}٪ بازده
+          </div>
         </div>
-        <div className={cardCls}>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-            بازده کل (%)
+        <div className={`${cardCls} animate-fade-in-up`} style={{ animationDelay: "180ms" }}>
+          <div className="flex items-center gap-2 mb-2">
+            <span
+              className={`flex items-center justify-center w-8 h-8 rounded-xl ring-1 ${
+                gainPositive
+                  ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-emerald-500/20"
+                  : "bg-red-500/10 text-red-600 dark:text-red-400 ring-red-500/20"
+              }`}
+            >
+              <FaPercentage size={13} />
+            </span>
+            <div className="text-[11px] text-gray-500 dark:text-gray-400">
+              بازده کل
+            </div>
           </div>
           <div
-            className={`text-lg font-bold ${
+            className={`text-lg font-bold tabular-nums ${
               gainPositive
-                ? "text-green-600 dark:text-green-400"
+                ? "text-emerald-600 dark:text-emerald-400"
                 : "text-red-600 dark:text-red-400"
             }`}
           >
             {gainPositive ? "+" : ""}
             {fmt(totalGainPct)}%
           </div>
+          <div className="text-[10px] text-gray-400 mt-0.5">نسبت به سرمایه</div>
         </div>
       </div>
 
@@ -556,8 +592,18 @@ const Portfolio = () => {
                           {fmt(h.gain_pct)}%)
                         </div>
                       </td>
-                      <td className="py-2 text-gray-600 dark:text-gray-300">
-                        {fmt(h.weight)}%
+                      <td className="py-2 min-w-[92px]">
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 rounded-full bg-gray-100 dark:bg-gray-700/60 overflow-hidden w-10">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-500"
+                              style={{ width: `${Math.min(100, h.weight)}%` }}
+                            />
+                          </div>
+                          <span className="text-gray-600 dark:text-gray-300 tabular-nums">
+                            {fmt(h.weight)}%
+                          </span>
+                        </div>
                       </td>
                       <td className="py-2">
                         <div className="flex gap-2 text-gray-500 dark:text-gray-400">

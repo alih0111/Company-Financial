@@ -1,0 +1,29 @@
+2026/09/28 12:06:39 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 266, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-28", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-09-28 12:10:22,285 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=266 skipped=0 mirror=not_attempted
+2026-09-28 12:10:22,286 [INFO] ✅ daily(canonical-only) انجام شد — upsert=266، تطبیق‌خورده=266، بدون‌تطبیق=930
+2026-09-28 12:10:22,286 [INFO] نمونه‌ای نمادهای بدون تطبیق: غزنجان, داروند, خگلپا, صبا, تابان, عیار, سینرژی, وپارس, خساپا, دارا یکم, آکو, منجیل, فنقره, خگستر, وپاسار, وتجارت, سمهریز, افران, آوند, اهرم, ومعادن, لبخند, احیا, پاسارگاد, نارنج اهرم
+RESULT|mode=daily(canonical-only)|upserted=266|matched=266|unmatched=930
+2026/09/28 12:10:28 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+2026/09/28 13:52:42 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 263, "canonical_skipped": 6, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-28", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-09-28 13:57:48,744 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=263 skipped=6 mirror=not_attempted
+2026-09-28 13:57:48,744 [INFO] ✅ daily(canonical-only) انجام شد — upsert=269، تطبیق‌خورده=269، بدون‌تطبیق=1320
+2026-09-28 13:57:48,744 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, غزنجان, داروند, خگلپا, سینرژی, صبا, وپارس, تابان, طلا, سیمین, لبن, خساپا, دارا یکم, نقرابی, منجیل, آکو, افران, کهربا, گوهر, لبخند, آوند, پاسارگاد, فنقره, خگستر, وتجارت
+RESULT|mode=daily(canonical-only)|upserted=269|matched=269|unmatched=1320
+2026/09/28 13:57:55 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+2026/09/28 17:49:03 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 9, "canonical_skipped": 261, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-28", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-09-28 17:54:19,851 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=9 skipped=261 mirror=not_attempted
+2026-09-28 17:54:19,851 [INFO] ✅ daily(canonical-only) انجام شد — upsert=270، تطبیق‌خورده=270، بدون‌تطبیق=1338
+2026-09-28 17:54:19,851 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, غزنجان, سیمین, طلا, داروند, سینرژی, خگلپا, نقرابی, کهربا, گلدا, صبا, گوهر, گنج, ریتون, وپارس, تابان, جام طلا, سیلور, لبن, افران, خساپا, دارا یکم, پاسارگاد, لبخند, آوند
+RESULT|mode=daily(canonical-only)|upserted=270|matched=270|unmatched=1338
+2026/09/28 17:54:25 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+2026/09/28 20:51:15 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 1, "canonical_skipped": 269, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-28", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-09-28 20:55:57,370 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=1 skipped=269 mirror=not_attempted
+2026-09-28 20:55:57,370 [INFO] ✅ daily(canonical-only) انجام شد — upsert=270، تطبیق‌خورده=270، بدون‌تطبیق=1338
+2026-09-28 20:55:57,370 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, غزنجان, سیمین, طلا, داروند, سینرژی, خگلپا, نقرابی, کهربا, گلدا, صبا, گوهر, گنج, ریتون, وپارس, تابان, جام طلا, سیلور, لبن, افران, خساپا, دارا یکم, پاسارگاد, لبخند, رز ترنج
+RESULT|mode=daily(canonical-only)|upserted=270|matched=270|unmatched=1338
+2026/09/28 20:56:02 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+2026/09/29 00:28:53 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.

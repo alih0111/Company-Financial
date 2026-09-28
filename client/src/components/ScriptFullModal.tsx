@@ -9,6 +9,11 @@ const ScriptFullModal = ({
   setModal: (val: any) => void;
   submitMetadata: () => void;
 }) => {
+  // هوک‌ها باید قبل از هر early-return باشند (قانون هوک‌های ری‌اکت)
+  const [selectAll, setSelectAll] = React.useState(false);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [rowNum, setRowNum] = React.useState(2);
+
   if (!modal.visible) return null;
 
   const handleToggle = (company: string, type: "script1" | "script2") => {
@@ -33,7 +38,6 @@ const ScriptFullModal = ({
     setModal({ ...modal, selections: updated });
   };
 
-  const [selectAll, setSelectAll] = React.useState(false);
   const handleToggleAll = () => {
     const updated = Object.fromEntries(
       modal.companies.map((name: string) => [
@@ -64,16 +68,12 @@ const ScriptFullModal = ({
     setSelectAll(!selectAll);
   };
 
-  const [searchTerm, setSearchTerm] = React.useState("");
-
   const filteredCompanies = modal.companies.filter((name: string) =>
     name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const [rowNum, setRowNum] = React.useState(2);
-
-  const handleMainRowMetaChange=(num:number)=>{
-    modal.companies.forEach(element => {
+  const handleMainRowMetaChange = (num: number) => {
+    modal.companies.forEach((element: string) => {
       modal.selections[element].rowMeta = num
     });
     setRowNum(num)

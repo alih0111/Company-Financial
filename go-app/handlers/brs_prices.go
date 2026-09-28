@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"os/exec"
 	"strconv"
 
@@ -67,7 +68,11 @@ func RunBrsCollector(c *gin.Context) {
 		}
 	}
 
-	cmd := exec.Command("python", args...)
+	pythonExe := os.Getenv("CDF_PYTHON")
+	if pythonExe == "" {
+		pythonExe = "python"
+	}
+	cmd := exec.Command(pythonExe, args...)
 
 	// دیباگ: نمایش args برای عیب‌یابی
 	log.Printf("🔍 BRS collector args: %v", args)

@@ -79,6 +79,51 @@
     }
 }
 
+/* Aurora — حرکت نرم لکه‌های نوری پس‌زمینه */
+@keyframes auroraDrift {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(40px, -30px) scale(1.15);
+    }
+    66% {
+        transform: translate(-30px, 20px) scale(0.92);
+    }
+}
+
+/* Marquee — نوار متحرک نمادها */
+@keyframes marquee {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(50%);
+    }
+}
+
+/* Grid pattern drift */
+@keyframes gridDrift {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 56px 56px;
+    }
+}
+
+/* Count-up number pop */
+@keyframes numPop {
+    0% {
+        opacity: 0;
+        transform: translateY(8px) scale(0.96);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 /* ── Utility Classes ── */
 @layer utilities {
     .animate-fade-in-up {
@@ -106,6 +151,14 @@
 
     .animate-float {
         animation: float 3s ease-in-out infinite;
+    }
+
+    .animate-num-pop {
+        animation: numPop 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    .animate-aurora {
+        animation: auroraDrift 18s ease-in-out infinite;
     }
 
     /* Gradient border wrapper */
@@ -143,13 +196,16 @@
         filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.35));
     }
     .glow-emerald {
-        filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.35));
+        filter: drop-shadow(0 0 8px rgba(5, 150, 105, 0.35));
     }
     .glow-red {
         filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.35));
     }
     .glow-amber {
         filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.35));
+    }
+    .glow-teal {
+        filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.35));
     }
 
     /* Text gradient */
@@ -167,12 +223,17 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-    .glow-emerald {
-        filter: drop-shadow(0 0 8px rgba(5, 150, 105, 0.35));
+
+    /* متن گرادیانی طلایی برای لندینگ */
+    .text-gradient-gold {
+        background: linear-gradient(120deg, #f59e0b, #fbbf24 40%, #f59e0b 60%, #d97706);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: shimmer 5s linear infinite;
     }
-    .glow-teal {
-        filter: drop-shadow(0 0 8px rgba(20, 184, 166, 0.35));
-    }
+
     .glass-border-emerald::before {
         content: "";
         position: absolute;
@@ -191,6 +252,37 @@
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         pointer-events: none;
+    }
+
+    /* پس‌زمینه‌ی گرید نرم برای هیرو */
+    .bg-grid-soft {
+        background-image:
+            linear-gradient(to right, rgba(16, 185, 129, 0.07) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(16, 185, 129, 0.07) 1px, transparent 1px);
+        background-size: 56px 56px;
+        animation: gridDrift 30s linear infinite;
+    }
+    .dark .bg-grid-soft {
+        background-image:
+            linear-gradient(to right, rgba(16, 185, 129, 0.06) 1px, transparent 1px),
+            linear-gradient(to bottom, rgba(16, 185, 129, 0.06) 1px, transparent 1px);
+    }
+
+    /* شیشه‌ی کلاسیک کارت‌ها */
+    .glass-card {
+        @apply rounded-2xl border border-gray-200/60 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/40 backdrop-blur-md shadow-md shadow-gray-900/5;
+    }
+
+    /* نوار متحرک ticker */
+    .ticker-mask {
+        mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+    }
+    .animate-marquee {
+        animation: marquee 40s linear infinite;
+    }
+    .animate-marquee:hover {
+        animation-play-state: paused;
     }
 }
 

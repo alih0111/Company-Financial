@@ -38,9 +38,13 @@ const AccessCard: React.FC<{ card: AccessCard; index: number }> = ({
 }) => (
   <Link
     to={card.to}
-    className="group relative flex flex-col gap-4 rounded-3xl border border-gray-200/70 dark:border-gray-700/50 bg-white/70 dark:bg-gray-800/40 backdrop-blur-xl p-6 shadow-lg shadow-emerald-500/5 hover:shadow-2xl hover:shadow-emerald-500/15 hover:-translate-y-1.5 transition-all duration-300 animate-fade-in-up"
+    className="group relative flex flex-col gap-4 rounded-3xl border border-gray-200/70 dark:border-gray-700/50 bg-white/70 dark:bg-gray-800/40 backdrop-blur-xl p-6 shadow-lg shadow-emerald-500/5 hover:shadow-2xl hover:shadow-emerald-500/15 hover:-translate-y-1.5 transition-all duration-300 animate-fade-in-up overflow-hidden"
     style={{ animationDelay: `${index * 90}ms` }}
   >
+    {/* هاله‌ی رنگی گوشه‌ی کارت هنگام hover */}
+    <div
+      className={`pointer-events-none absolute -top-16 -left-16 h-40 w-40 rounded-full blur-3xl opacity-0 group-hover:opacity-25 transition-opacity duration-500 ${card.gradient}`}
+    />
     <div
       className={`flex items-center justify-center w-14 h-14 rounded-2xl ring-1 ${card.ring} ${card.gradient} text-white text-2xl shadow-md transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}
     >
@@ -59,6 +63,155 @@ const AccessCard: React.FC<{ card: AccessCard; index: number }> = ({
       <FaArrowLeft className="transition-transform duration-300 group-hover:-translate-x-1" />
     </span>
   </Link>
+);
+
+// ── ماک‌آپ شیشه‌ای داشبورد در هیرو ──
+const HeroPreview: React.FC = () => {
+  // مسیر نمودار تزئینی (نرمال‌شده در 0..100)
+  const pts = [8, 14, 11, 22, 18, 30, 26, 38, 34, 48, 44, 58, 66, 62, 78, 90];
+  const W = 320;
+  const H = 110;
+  const toXY = (v: number, i: number): [number, number] => [
+    (i / (pts.length - 1)) * W,
+    H - (v / 100) * H,
+  ];
+  const line = pts.map((v, i) => toXY(v, i).join(",")).join(" L");
+  const area = `M0,${H} L${line} L${W},${H} Z`;
+
+  return (
+    <div className="relative animate-fade-in-up" style={{ animationDelay: "200ms" }}>
+      {/* کارت اصلی — اسپارک‌لاین بازار */}
+      <div className="relative rounded-3xl border border-gray-200/70 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/60 backdrop-blur-xl shadow-2xl shadow-emerald-500/10 p-5 animate-float">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25">
+            <FaChartLine size={13} />
+          </span>
+          <div>
+            <p className="text-xs font-bold text-gray-800 dark:text-white">
+              نمای کلی بازار
+            </p>
+            <p className="text-[10px] text-gray-400">امتیاز کوانت بنیادی</p>
+          </div>
+          <span className="mr-auto inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse-glow" />
+            زنده
+          </span>
+        </div>
+
+        <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-28">
+          <defs>
+            <linearGradient id="heroSpark" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+            </linearGradient>
+            <linearGradient id="heroStroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#10b981" />
+              <stop offset="100%" stopColor="#14b8a6" />
+            </linearGradient>
+          </defs>
+          <path d={area} fill="url(#heroSpark)" />
+          <path
+            d={`M${line}`}
+            fill="none"
+            stroke="url(#heroStroke)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <circle
+            cx={W}
+            cy={H - (pts[pts.length - 1] / 100) * H}
+            r="4"
+            fill="#10b981"
+          />
+          <circle
+            cx={W}
+            cy={H - (pts[pts.length - 1] / 100) * H}
+            r="8"
+            fill="none"
+            stroke="#10b981"
+            strokeOpacity="0.3"
+            strokeWidth="2"
+          />
+        </svg>
+
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {[
+            { label: "امتیاز", value: "۸۲٫۵", tone: "text-emerald-600 dark:text-emerald-400" },
+            { label: "رشد سود", value: "+۳۴٪", tone: "text-emerald-600 dark:text-emerald-400" },
+            { label: "P/E", value: "۶٫۱", tone: "text-amber-600 dark:text-amber-400" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="rounded-xl bg-gray-50/80 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-700/40 px-2 py-2 text-center"
+            >
+              <p className="text-[10px] text-gray-400">{s.label}</p>
+              <p className={`text-sm font-black tabular-nums ${s.tone}`}>{s.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* کارت شناور کوچک — رتبه‌ی شرکت */}
+      <div
+        className="absolute -bottom-6 -right-4 sm:-right-8 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/80 backdrop-blur-xl shadow-xl shadow-indigo-500/10 px-4 py-3 animate-float"
+        style={{ animationDelay: "0.8s" }}
+      >
+        <p className="text-[10px] text-gray-400">رتبه در بازار</p>
+        <p className="text-lg font-black tabular-nums text-indigo-600 dark:text-indigo-400">
+          ۹۳٪
+        </p>
+      </div>
+
+      {/* کارت شناور کوچک — سیگنال */}
+      <div
+        className="absolute -top-5 -left-3 sm:-left-6 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/80 backdrop-blur-xl shadow-xl shadow-emerald-500/10 px-4 py-3 animate-float"
+        style={{ animationDelay: "1.6s" }}
+      >
+        <p className="text-[10px] text-gray-400">سیگنال مدل</p>
+        <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">
+          خرید قوی ↑
+        </p>
+      </div>
+    </div>
+  );
+};
+
+// ── نوار متحرک نمادها (تزئینی) ──
+const TICKER = [
+  { s: "فولاد", c: 2.4 },
+  { s: "فملی", c: -1.1 },
+  { s: "شپنا", c: 3.8 },
+  { s: "خودرو", c: -0.6 },
+  { s: "طلا", c: 1.9 },
+  { s: "وبملت", c: 0.8 },
+  { s: "شستا", c: 2.2 },
+  { s: "پارسان", c: -1.7 },
+  { s: "فول mob", c: 4.1 },
+  { s: "کگل", c: 1.2 },
+];
+
+const TickerTape: React.FC = () => (
+  <div className="relative z-10 mx-auto max-w-7xl px-6">
+    <div className="ticker-mask overflow-hidden rounded-2xl border border-gray-200/60 dark:border-gray-700/40 bg-white/50 dark:bg-gray-800/30 backdrop-blur py-2.5">
+      <div dir="ltr" className="flex w-max animate-marquee gap-8 px-4">
+        {[...TICKER, ...TICKER].map((t, i) => (
+          <span key={i} className="flex items-center gap-2 text-xs font-bold tabular-nums whitespace-nowrap">
+            <span className="text-gray-600 dark:text-gray-300">{t.s}</span>
+            <span className={t.c >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}>
+              {t.c >= 0 ? "+" : ""}{t.c.toFixed(1)}٪
+            </span>
+            <span className={t.c >= 0 ? "text-emerald-500" : "text-red-500"}>
+              {t.c >= 0 ? "▲" : "▼"}
+            </span>
+          </span>
+        ))}
+      </div>
+    </div>
+    <p className="mt-1.5 text-center text-[10px] text-gray-400 dark:text-gray-500">
+      نوار نمایشی — برای دیدن داده‌ی واقعی وارد داشبورد شوید
+    </p>
+  </div>
 );
 
 const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
@@ -116,15 +269,16 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
 
   return (
     <div dir="rtl" className="relative min-h-screen overflow-hidden">
-      {/* ── Decorative background ── */}
+      {/* ── Decorative background: aurora + grid ── */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 -right-24 h-96 w-96 rounded-full bg-emerald-400/20 dark:bg-emerald-500/10 blur-3xl animate-float" />
+        <div className="absolute inset-0 bg-grid-soft [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,black,transparent)]" />
+        <div className="absolute -top-32 -right-24 h-96 w-96 rounded-full bg-emerald-400/20 dark:bg-emerald-500/10 blur-3xl animate-aurora" />
         <div
-          className="absolute top-40 -left-24 h-96 w-96 rounded-full bg-teal-400/20 dark:bg-teal-500/10 blur-3xl animate-float"
+          className="absolute top-40 -left-24 h-96 w-96 rounded-full bg-teal-400/20 dark:bg-teal-500/10 blur-3xl animate-aurora"
           style={{ animationDelay: "1.2s" }}
         />
         <div
-          className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-indigo-400/10 dark:bg-indigo-500/10 blur-3xl animate-float"
+          className="absolute bottom-0 left-1/3 h-80 w-80 rounded-full bg-indigo-400/10 dark:bg-indigo-500/10 blur-3xl animate-aurora"
           style={{ animationDelay: "0.6s" }}
         />
       </div>
@@ -186,72 +340,86 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
         </div>
       </header>
 
-      {/* ── Hero ── */}
-      <section className="relative z-10 mx-auto max-w-7xl px-6 pt-10 pb-16 text-center sm:pt-16">
-        <span className="animate-fade-in-up inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-          <FaShieldAlt size={11} />
-          سامانهٔ بنیادی و کوانت شرکت‌های بورسی
-        </span>
+      {/* ── Hero (دو ستونه) ── */}
+      <section className="relative z-10 mx-auto max-w-7xl px-6 pt-10 pb-12 sm:pt-16">
+        <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
+          <div className="text-center lg:text-right">
+            <span className="animate-fade-in-up inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+              <FaShieldAlt size={11} />
+              سامانهٔ بنیادی و کوانت شرکت‌های بورسی
+            </span>
 
-        <h2
-          className="animate-fade-in-up mx-auto mt-6 max-w-4xl text-4xl font-black leading-tight text-gray-800 dark:text-white sm:text-5xl md:text-6xl"
-          style={{ animationDelay: "80ms" }}
-        >
-          تصمیم‌های سرمایه‌گذاری،
-          <span className="text-gradient-emerald"> هوشمندتر و مستندتر</span>
-        </h2>
-
-        <p
-          className="animate-fade-in-up mx-auto mt-6 max-w-2xl text-base leading-8 text-gray-500 dark:text-gray-400 sm:text-lg"
-          style={{ animationDelay: "160ms" }}
-        >
-          داده‌های بنیادی، صورت‌های مالی و قیمت بازار را یکپارچه می‌کنیم و با
-          مدل امتیازدهی نسخه‌دار و PIT-safe، تصویری شفاف از عملکرد هر شرکت به شما
-          می‌دهیم.
-        </p>
-
-        <div
-          className="animate-fade-in-up mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row"
-          style={{ animationDelay: "240ms" }}
-        >
-          <Link
-            to={isLoggedIn ? "/dashboard" : "/login"}
-            className="group flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-8 text-base font-bold text-white shadow-lg shadow-emerald-500/25 transition hover:scale-[1.03] hover:shadow-xl hover:shadow-emerald-500/30 sm:w-auto"
-          >
-            {isLoggedIn ? "ورود به داشبورد" : "ورود به سیستم"}
-            <FaArrowLeft className="transition-transform duration-300 group-hover:-translate-x-1" />
-          </Link>
-          <a
-            href="#access"
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/40 px-8 text-base font-semibold text-gray-700 dark:text-gray-200 backdrop-blur transition hover:scale-[1.03] hover:shadow-md sm:w-auto"
-          >
-            مشاهدهٔ بخش‌ها
-          </a>
-        </div>
-
-        {/* ── Stats bar ── */}
-        <div
-          className="animate-fade-in-up mx-auto mt-16 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4"
-          style={{ animationDelay: "320ms" }}
-        >
-          {stats.map((s) => (
-            <div
-              key={s.label}
-              className="flex flex-col items-center gap-2 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/60 dark:bg-gray-800/40 px-4 py-5 backdrop-blur-xl shadow-sm"
+            <h2
+              className="animate-fade-in-up mt-6 text-4xl font-black leading-tight text-gray-800 dark:text-white sm:text-5xl"
+              style={{ animationDelay: "80ms" }}
             >
-              <span className="text-xl text-emerald-600 dark:text-emerald-400">
-                {s.icon}
-              </span>
-              <span className="text-xl font-black tabular-nums text-gray-800 dark:text-white">
-                {s.value}
-              </span>
-              <span className="text-[11px] font-medium text-gray-500 dark:text-gray-400 text-center">
-                {s.label}
-              </span>
+              تصمیم‌های سرمایه‌گذاری،
+              <span className="text-gradient-emerald"> هوشمندتر و مستندتر</span>
+            </h2>
+
+            <p
+              className="animate-fade-in-up mx-auto mt-6 max-w-xl text-base leading-8 text-gray-500 dark:text-gray-400 sm:text-lg lg:mx-0"
+              style={{ animationDelay: "160ms" }}
+            >
+              داده‌های بنیادی، صورت‌های مالی و قیمت بازار را یکپارچه می‌کنیم و با
+              مدل امتیازدهی نسخه‌دار و PIT-safe، تصویری شفاف از عملکرد هر شرکت به شما
+              می‌دهیم.
+            </p>
+
+            <div
+              className="animate-fade-in-up mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start"
+              style={{ animationDelay: "240ms" }}
+            >
+              <Link
+                to={isLoggedIn ? "/dashboard" : "/login"}
+                className="group flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 px-8 text-base font-bold text-white shadow-lg shadow-emerald-500/25 transition hover:scale-[1.03] hover:shadow-xl hover:shadow-emerald-500/30 sm:w-auto"
+              >
+                {isLoggedIn ? "ورود به داشبورد" : "ورود به سیستم"}
+                <FaArrowLeft className="transition-transform duration-300 group-hover:-translate-x-1" />
+              </Link>
+              <a
+                href="#access"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/40 px-8 text-base font-semibold text-gray-700 dark:text-gray-200 backdrop-blur transition hover:scale-[1.03] hover:shadow-md sm:w-auto"
+              >
+                مشاهدهٔ بخش‌ها
+              </a>
             </div>
-          ))}
+
+            {/* ── Stats bar ── */}
+            <div
+              className="animate-fade-in-up mt-12 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-4 mx-auto lg:mx-0"
+              style={{ animationDelay: "320ms" }}
+            >
+              {stats.map((s) => (
+                <div
+                  key={s.label}
+                  className="flex flex-col items-center gap-2 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/60 dark:bg-gray-800/40 px-3 py-4 backdrop-blur-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                >
+                  <span className="text-xl text-emerald-600 dark:text-emerald-400">
+                    {s.icon}
+                  </span>
+                  <span className="text-lg font-black tabular-nums text-gray-800 dark:text-white">
+                    {s.value}
+                  </span>
+                  <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400 text-center leading-4">
+                    {s.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ستون ویژوال */}
+          <div className="hidden lg:flex justify-center pb-8">
+            <HeroPreview />
+          </div>
         </div>
       </section>
+
+      {/* ── Ticker tape ── */}
+      <div className="mb-14">
+        <TickerTape />
+      </div>
 
       {/* ── Access cards ── */}
       <section id="access" className="relative z-10 mx-auto max-w-7xl px-6 pb-20">

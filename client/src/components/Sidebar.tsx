@@ -1,8 +1,25 @@
 import React, { useState } from "react";
 import Select from "react-select";
-import { useNavigate } from "react-router-dom";
-import NavigationButton from "./NavigationButton";
+import { NavLink } from "react-router-dom";
+import {
+  FaChartLine,
+  FaChartPie,
+  FaUsers,
+  FaCoins,
+  FaCalculator,
+  FaSyncAlt,
+  FaBolt,
+  FaDatabase,
+  FaDownload,
+  FaBalanceScale,
+  FaSignOutAlt,
+  FaShieldAlt,
+  FaArrowRight,
+  FaBriefcase,
+  FaTable,
+} from "react-icons/fa";
 import QuickSyncModal from "./QuickSyncModal";
+import { useDarkMode } from "../utils/theme";
 import { addViewedItem, collectBrsPrices, fetchFullPE } from "../utils/api";
 
 interface SidebarProps {
@@ -31,6 +48,19 @@ interface SidebarProps {
   }[];
 }
 
+// منوی ناوبری اصلی — «دارایی خانواده» فقط برای ادمین
+const NAV_ITEMS: {
+  to: string;
+  label: string;
+  icon: React.ReactNode;
+  adminOnly?: boolean;
+}[] = [
+  { to: "/dashboard", label: "داشبورد شرکت", icon: <FaChartLine size={13} /> },
+  { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
+  { to: "/portfolio", label: "پورتفولیو", icon: <FaBriefcase size={13} /> },
+  { to: "/assets", label: "دارایی خانواده", icon: <FaUsers size={13} />, adminOnly: true },
+];
+
 const Sidebar: React.FC<SidebarProps> = ({
   companyOptions,
   selectedCompany,
@@ -53,7 +83,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [brsMsg, setBrsMsg] = useState<string | null>(null);
   const [quickSyncOpen, setQuickSyncOpen] = useState(false);
   const [quickSyncing, setQuickSyncing] = useState(false);
-  const navigate = useNavigate();
+  const { darkMode } = useDarkMode();
 
   const fullPE = async () => {
     setLoadingFullPE(true);
@@ -120,11 +150,13 @@ const Sidebar: React.FC<SidebarProps> = ({
       }`}
     >
       <div className="pb-2 flex justify-between items-center">
-        <h2 className="text-xl font-bold text-gradient-emerald tracking-tight">
+        <h2 className="flex items-center gap-2 text-xl font-bold text-gradient-emerald tracking-tight">
+          <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25">
+            <FaChartLine size={14} />
+          </span>
           بینش شرکت‌ها
         </h2>
         <div className="flex items-center gap-1">
-          <NavigationButton />
           <button
             onClick={onClose}
             aria-label="بستن منو"
@@ -134,6 +166,40 @@ const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
       </div>
+
+      {/* ── منوی ناوبری اصلی ── */}
+      <nav className="flex flex-col gap-1">
+        {NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin).map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            onClick={onClose}
+            className={({ isActive }) =>
+              `flex items-center gap-2.5 h-10 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                isActive
+                  ? "bg-gradient-to-l from-emerald-500/15 to-teal-500/10 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/25 shadow-sm"
+                  : "text-gray-600 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-700/40 hover:text-gray-800 dark:hover:text-white"
+              }`
+            }
+          >
+            {({ isActive }) => (
+              <>
+                <span
+                  className={`flex items-center justify-center w-7 h-7 rounded-lg text-sm transition ${
+                    isActive
+                      ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/25"
+                      : "bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400"
+                  }`}
+                >
+                  {item.icon}
+                </span>
+                {item.label}
+              </>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+
       <div>
         <Select
           inputId="company"
@@ -150,14 +216,22 @@ const Sidebar: React.FC<SidebarProps> = ({
             control: (base, state) => ({
               ...base,
               borderRadius: "0.75rem",
-              borderColor: state.isFocused ? "#059669" : "#e5e7eb",
+              borderColor: state.isFocused
+                ? "#059669"
+                : darkMode
+                  ? "#374151"
+                  : "#e5e7eb",
               boxShadow: state.isFocused
                 ? "0 0 0 3px rgba(5, 150, 105, 0.15)"
-                : "0 1px 2px rgba(0,0,0,0.05)",
+                : "none",
               transition: "all 0.2s",
               minHeight: "2.25rem",
-              backgroundColor: "white",
+              backgroundColor: darkMode ? "#37415180" : "white",
               textAlign: "right",
+              color: darkMode ? "#e5e7eb" : "#1f2937",
+              ":hover": {
+                borderColor: darkMode ? "#4b5563" : "#d1d5db",
+              },
             }),
             valueContainer: (base) => ({
               ...base,
@@ -168,36 +242,51 @@ const Sidebar: React.FC<SidebarProps> = ({
               color: "#9ca3af",
               fontWeight: 500,
             }),
-            dropdownIndicator: (base) => ({
+            singleValue: (base) => ({
               ...base,
-              paddingLeft: "0.5rem",
-              paddingRight: "0.5rem",
-              color: "#6b7280",
-            }),
-            indicatorSeparator: () => ({
-              display: "none",
+              color: darkMode ? "#e5e7eb" : "#1f2937",
             }),
             input: (base) => ({
               ...base,
               textAlign: "right",
+              color: darkMode ? "#e5e7eb" : "#1f2937",
+            }),
+            dropdownIndicator: (base) => ({
+              ...base,
+              paddingLeft: "0.5rem",
+              paddingRight: "0.5rem",
+              color: darkMode ? "#9ca3af" : "#6b7280",
+            }),
+            indicatorSeparator: () => ({
+              display: "none",
             }),
             menu: (base) => ({
               ...base,
               borderRadius: "0.75rem",
               boxShadow:
-                "0 10px 40px -10px rgba(5,150,105,0.15), 0 4px 12px -2px rgba(0,0,0,0.08)",
+                "0 10px 40px -10px rgba(5,150,105,0.2), 0 4px 12px -2px rgba(0,0,0,0.15)",
               textAlign: "right",
               zIndex: 50,
-              border: "1px solid rgba(5,150,105,0.1)",
+              border: darkMode
+                ? "1px solid rgba(16,185,129,0.15)"
+                : "1px solid rgba(5,150,105,0.1)",
+              backgroundColor: darkMode ? "#1f2937" : "white",
+              overflow: "hidden",
             }),
             option: (base, state) => ({
               ...base,
               backgroundColor: state.isSelected
                 ? "#059669"
                 : state.isFocused
-                  ? "#ecfdf5"
-                  : "white",
-              color: state.isSelected ? "white" : "#374151",
+                  ? darkMode
+                    ? "#064e3b"
+                    : "#ecfdf5"
+                  : "transparent",
+              color: state.isSelected
+                ? "white"
+                : darkMode
+                  ? "#e5e7eb"
+                  : "#374151",
               padding: "0.5rem 0.75rem",
               cursor: "pointer",
               fontWeight: state.isSelected ? 600 : 400,
@@ -226,45 +315,43 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div className={`flex flex-col gap-2 overflow-hidden ${toolsOpen ? "" : "hidden"}`}>
               <button
-                onClick={() => navigate("/assets")}
-                className="w-full h-9 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-amber-500/20 transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-              >
-                دارایی خانواده
-              </button>
-              <button
                 onClick={() => openModalForScript("script1")}
                 disabled={runningScripts.script1}
-                className=" w-full h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
+                <FaCoins size={13} />
                 {runningScripts.script1 ? "در حال اجرا..." : "جمع‌آوری سود"}
               </button>
 
               <button
                 onClick={() => openModalForScript("script2")}
                 disabled={runningScripts.script2}
-                className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
+                <FaChartPie size={13} />
                 {runningScripts.script2 ? "در حال اجرا..." : "جمع‌آوری فروش"}
               </button>
 
               <button
                 onClick={() => fullPE()}
                 disabled={loadingFullPE}
-                className={`w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
             ${
               loadingFullPE
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"
             }`}
               >
+                <FaCalculator size={13} />
                 {loadingFullPE ? "در حال اجرا..." : "P/E کامل"}
               </button>
 
               <button
                 onClick={() => openModalForScript("stockPrices")}
                 disabled={runningScripts.stockPrices}
-                className="w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
+                <FaDownload size={13} />
                 {runningScripts.stockPrices ? "در حال اجرا..." : "جمع‌آوری قیمت‌ها"}
               </button>
 
@@ -272,26 +359,28 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <button
                   onClick={() => setQuickSyncOpen(true)}
                   disabled={quickSyncing}
-                  className={`w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200 ${
+                  className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200 ${
                     quickSyncing
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
                   }`}
                 >
-                  {quickSyncing ? "در حال بررسی..." : "⚡ جمع‌آوری سریع"}
+                  <FaBolt size={13} />
+                  {quickSyncing ? "در حال بررسی..." : "جمع‌آوری سریع"}
                 </button>
               </div>
 
               <button
                 onClick={() => openModalForScript("full")}
                 disabled={runningScripts.full}
-                className={`w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
                   ${
                     runningScripts.full
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"
                   }`}
               >
+                <FaDatabase size={13} />
                 {runningScripts.full ? "در حال اجرا..." : "جمع‌آوری کامل داده"}
               </button>
 
@@ -303,37 +392,40 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     onClick={runBrsDaily}
                     disabled={loadingBrsDaily}
-                    className={`w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
                       ${
                         loadingBrsDaily
                           ? "bg-gray-400 cursor-not-allowed"
                           : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
                       }`}
                   >
+                    <FaSyncAlt size={13} />
                     {loadingBrsDaily ? "در حال اجرا..." : "قیمت روزانه"}
                   </button>
                   <button
                     onClick={runBrsBackfill}
                     disabled={loadingBrsBackfill}
-                    className={`w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
                       ${
                         loadingBrsBackfill
                           ? "bg-gray-400 cursor-not-allowed"
                           : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 hover:shadow-md hover:shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98]"
                       }`}
                   >
+                    <FaDownload size={13} />
                     {loadingBrsBackfill ? "در حال اجرا..." : "تاریخچه قیمت"}
                   </button>
                   <button
                     onClick={runBrsSync}
                     disabled={loadingBrsSync}
-                    className={`w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
                       ${
                         loadingBrsSync
                           ? "bg-gray-400 cursor-not-allowed"
                           : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 hover:shadow-md hover:shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98]"
                       }`}
                   >
+                    <FaBalanceScale size={13} />
                     {loadingBrsSync ? "در حال اجرا..." : "تعدیل قیمت‌ها"}
                   </button>
                   {brsMsg && (
@@ -373,9 +465,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                     return (
                       <li
                         key={index}
-                        className={`flex justify-between cursor-pointer p-2 rounded-lg transition-all duration-150 text-sm
-                        hover:bg-indigo-50 dark:hover:bg-indigo-950/30
-                        ${isSelected ? "bg-indigo-50/80 dark:bg-indigo-950/40 ring-1 ring-indigo-200/60 dark:ring-indigo-800/40" : ""}`}
+                        className={`group flex items-center justify-between cursor-pointer p-2 rounded-xl transition-all duration-150 text-sm
+                        hover:bg-emerald-50 dark:hover:bg-emerald-950/30
+                        ${isSelected ? "bg-emerald-50/80 dark:bg-emerald-950/40 ring-1 ring-emerald-200/60 dark:ring-emerald-800/40" : ""}`}
                         onClick={() =>
                           handleCompanySelect(company.company_name)
                         }
@@ -385,8 +477,12 @@ const Sidebar: React.FC<SidebarProps> = ({
                         >
                           {eps != null ? eps.toFixed(2) + "%" : "--"}
                         </span>
-                        <span className="font-medium">
+                        <span className="flex items-center gap-1.5 font-medium">
                           {company.company_name}
+                          <FaArrowRight
+                            size={10}
+                            className="opacity-0 -translate-x-1 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-200 text-emerald-500"
+                          />
                         </span>
                       </li>
                     );
@@ -403,9 +499,27 @@ const Sidebar: React.FC<SidebarProps> = ({
               localStorage.removeItem("token");
               window.location.href = "/login";
             }}
-            className="w-full h-9 bg-gray-900 dark:bg-gray-100 hover:bg-gray-800 dark:hover:bg-gray-200 text-white dark:text-gray-900 rounded-xl font-semibold tracking-wide shadow-sm transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+            className="group flex items-center justify-between w-full h-10 px-3 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/60 dark:bg-gray-700/30 hover:bg-gray-900 dark:hover:bg-gray-100 transition-all duration-300 shadow-sm"
           >
-            {username}
+            <span className="flex items-center gap-2 min-w-0">
+              <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-[10px] font-black shrink-0">
+                {(username || "؟").trim().charAt(0).toUpperCase()}
+              </span>
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:text-white dark:group-hover:text-gray-900 truncate transition-colors">
+                {username}
+              </span>
+              {isAdmin && (
+                <FaShieldAlt
+                  size={10}
+                  className="text-emerald-500 shrink-0"
+                  title="ادمین"
+                />
+              )}
+            </span>
+            <span className="flex items-center gap-1.5 text-[10px] font-semibold text-gray-400 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
+              خروج
+              <FaSignOutAlt size={11} />
+            </span>
           </button>
         </div>
       </div>

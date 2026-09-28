@@ -1,9 +1,11 @@
-import React from "react";
+import type { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
+import { getAuthStatus } from "../hooks/useGetUser";
 
-const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const token = localStorage.getItem("token");
-  return token ? children : <Navigate to="/login" />;
+// محافظت روت: توکن موجود و معتبر (منقضی‌نشده) لازم است
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const { username } = getAuthStatus();
+  return username ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoute;

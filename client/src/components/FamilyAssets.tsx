@@ -24,6 +24,10 @@ import {
   FaWallet,
   FaDownload,
   FaCircleNotch,
+  FaUsers,
+  FaChartArea,
+  FaExchangeAlt,
+  FaLink,
 } from "react-icons/fa";
 import { useToast } from "./Toast";
 import { useConfirm } from "./ConfirmDialog";
@@ -48,6 +52,7 @@ import {
   deleteFamilyBrokerAccount,
   startFamilyBrokerSync,
   getFamilyBrokerJob,
+  submitFamilyBrokerCaptcha,
 } from "../utils/api";
 import type {
   FamilyState,
@@ -165,6 +170,7 @@ const FamilyAssets = () => {
   const [brokerEdit, setBrokerEdit] = useState<{ personId: number; username: string; password: string } | null>(null);
   const [savingBroker, setSavingBroker] = useState(false);
   const [brokerJobs, setBrokerJobs] = useState<Record<number, FamilyBrokerJob>>({});
+  const [captchaInput, setCaptchaInput] = useState<Record<number, string>>({});
   const [syncingPerson, setSyncingPerson] = useState<number | null>(null);
 
   const loadAll = useCallback(async () => {
@@ -497,6 +503,17 @@ const FamilyAssets = () => {
     }
   };
 
+  const sendCaptcha = async (personId: number, job: FamilyBrokerJob) => {
+    const code = (captchaInput[personId] || "").trim();
+    if (!code) return;
+    try {
+      await submitFamilyBrokerCaptcha(job.job_id, code);
+      setCaptchaInput((prev) => ({ ...prev, [personId]: "" }));
+    } catch (e: any) {
+      setError(e?.message || "ارسال کد امنیتی ناموفق بود");
+    }
+  };
+
   // متادیتای هر شخص برای چارت: id → {name, color, index}
   const personMeta = useMemo(() => {
     const map: Record<string, { name: string; color: string; index: number }> = {};
@@ -612,12 +629,12 @@ const FamilyAssets = () => {
     URL.revokeObjectURL(url);
   };
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "summary", label: "خلاصه و ثبت قیمت" },
-    { key: "people", label: "سبد اشخاص" },
-    { key: "history", label: "تاریخچه" },
-    { key: "flows", label: "آورده / برداشت" },
-    { key: "broker", label: "کارگزاری آگاه" },
+  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    { key: "summary", label: "خلاصه و ثبت قیمت", icon: <FaChartPie size={12} /> },
+    { key: "people", label: "سبد اشخاص", icon: <FaUsers size={12} /> },
+    { key: "history", label: "تاریخچه", icon: <FaChartArea size={12} /> },
+    { key: "flows", label: "آورده / برداشت", icon: <FaExchangeAlt size={12} /> },
+    { key: "broker", label: "کارگزاری آگاه", icon: <FaLink size={12} /> },
   ];
 
   const renderPersonCard = (p: FamilyPerson) => {
@@ -852,22 +869,28 @@ const FamilyAssets = () => {
     <div className="flex flex-col gap-4" dir="rtl">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-gradient-emerald">دارایی خانواده</h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+          <h2 className="flex items-center gap-2 text-xl font-bold text-gradient-emerald">
+            <span className="flex items-center justify-center w-9 h-9 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25">
+              <FaWallet size={15} />
+            </span>
+            دارایی خانواده
+          </h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             سبد اشخاص، قیمت لحظه‌ای و اتصال کارگزاری آگاه
           </p>
         </div>
-        <div className="flex gap-1 rounded-xl bg-gray-100 dark:bg-gray-800 p-1 overflow-x-auto">
+        <div className="flex gap-1 rounded-2xl bg-gray-100/80 dark:bg-gray-800/60 p-1 overflow-x-auto border border-gray-200/60 dark:border-gray-700/40 backdrop-blur-sm">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`px-3 h-8 rounded-lg text-sm font-semibold transition whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 h-9 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap ${
                 tab === t.key
-                  ? "bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-300 shadow"
-                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                  ? "bg-white dark:bg-gray-700 text-emerald-600 dark:text-emerald-300 shadow-sm ring-1 ring-gray-200/70 dark:ring-gray-600/40"
+                  : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-700/40"
               }`}
             >
+              {t.icon}
               {t.label}
             </button>
           ))}
@@ -1648,7 +1671,9 @@ const FamilyAssets = () => {
                 <div>
                   <h3 className="font-bold text-gray-800 dark:text-white">اتصال سبد به کارگزاری آگاه</h3>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-6">
-                    با سینک، پنجره مرورگر روی سرور باز می‌شود؛ نام کاربری/رمز از قبل پر شده و شما فقط کد امنیتی را وارد می‌کنید.
+                    سینک به‌صورت headless روی سرور اجرا می‌شود و کد امنیتی به‌طور خودکار خوانده می‌شود؛
+                    اگر کد از سمت سایت پذیرفته نشود، تصویر کپچا همین‌جا نمایش داده می‌شود تا وارد کنید.
+                    نشست هر شخص جداگانه ذخیره می‌شود و تا اعتبار نشست، سینک بعدی بدون کپچا انجام می‌شود.
                     سبد و مانده نقدی هر شخص به‌صورت کامل با داده کارگزاری جایگزین می‌شود.
                   </p>
                 </div>
@@ -1762,7 +1787,7 @@ const FamilyAssets = () => {
                         {job.state === "running" && (
                           <>
                             <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-1">
-                              {["باز کردن مرورگر", "انتظار کد امنیتی", "خواندن سبد", "ثبت سبد"].map((s, i) => (
+                              {["باز کردن مرورگر", "ورود/کد امنیتی", "خواندن سبد", "ثبت سبد"].map((s, i) => (
                                 <div
                                   key={s}
                                   className={`rounded-lg px-2 py-1 text-center text-[10px] border ${
@@ -1775,9 +1800,36 @@ const FamilyAssets = () => {
                                 </div>
                               ))}
                             </div>
-                            <p className="mt-2 text-amber-600 dark:text-amber-400">
-                              پنجره مرورگر روی سرور باز شده است؛ کد امنیتی را وارد کنید.
-                            </p>
+                            {job.needs_captcha && job.captcha_image ? (
+                              <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-3">
+                                <img
+                                  src={job.captcha_image}
+                                  alt="کد امنیتی"
+                                  className="h-10 rounded border border-gray-300 bg-white px-2"
+                                />
+                                <input
+                                  value={captchaInput[p.person_id] || ""}
+                                  onChange={(e) => setCaptchaInput((prev) => ({ ...prev, [p.person_id]: e.target.value }))}
+                                  onKeyDown={(e) => e.key === "Enter" && sendCaptcha(p.person_id, job)}
+                                  placeholder="کد امنیتی"
+                                  dir="ltr"
+                                  className={inputCls + " w-32"}
+                                />
+                                <button
+                                  onClick={() => sendCaptcha(p.person_id, job)}
+                                  className="rounded-xl bg-amber-600 hover:bg-amber-700 text-white px-3 py-1.5 text-sm"
+                                >
+                                  ثبت کد
+                                </button>
+                                <span className="text-[11px] text-amber-600 dark:text-amber-400">
+                                  حل خودکار کپچا ممکن نشد؛ لطفاً مقدار تصویر را وارد کنید.
+                                </span>
+                              </div>
+                            ) : (
+                              <p className="mt-2 text-amber-600 dark:text-amber-400">
+                                ورود خودکار در جریان است (حل خودکار کد امنیتی)؛ اگر کد نیاز شود همین‌جا نمایش داده می‌شود.
+                              </p>
+                            )}
                           </>
                         )}
                         {job.result?.needs_discovery && job.result.captured?.dump_dir && (

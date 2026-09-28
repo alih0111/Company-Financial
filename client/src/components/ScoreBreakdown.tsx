@@ -1,5 +1,14 @@
 import React from "react";
 import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
+import {
   FaArrowUp,
   FaArrowDown,
   FaMinus,
@@ -8,6 +17,7 @@ import {
 } from "react-icons/fa";
 import type { AIStockMetric } from "../utils/api";
 import { useDarkMode } from "../utils/theme";
+import { glassTooltipStyle } from "../utils/chart-theme";
 
 type Props = {
   metric: AIStockMetric | undefined;
@@ -577,8 +587,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
         </div>
       </details>
 
-      {/* ── Score Circle + Formula ── */}
-      <div className="flex items-center gap-5 mb-4">
+      {/* ── Score Circle + Radar + Formula ── */}
+      <div className="flex items-center gap-6 mb-4 flex-wrap">
         <div className={`relative w-28 h-28 shrink-0 ${scoreGlow}`}>
           <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
             <circle
@@ -605,7 +615,58 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
           </div>
         </div>
 
-        <div className="flex-1 min-w-0">
+        {/* Radar چهاربعدی دسته‌های امتیاز */}
+        <div className="w-44 h-44 shrink-0 -ml-2" dir="ltr">
+          <ResponsiveContainer width="100%" height="100%">
+            <RadarChart
+              data={categories.map((c) => ({
+                cat: c.title,
+                value: c.maxScore > 0 ? Math.round(((c.actualScore ?? 0) / c.maxScore) * 100) : 0,
+                full: 100,
+              }))}
+              cx="50%"
+              cy="50%"
+              outerRadius="72%"
+            >
+              <defs>
+                <linearGradient id="radarFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#10b981" stopOpacity={0.45} />
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0.25} />
+                </linearGradient>
+              </defs>
+              <PolarGrid
+                stroke={dark ? "rgba(148,163,184,0.18)" : "rgba(100,116,139,0.2)"}
+                gridType="polygon"
+              />
+              <PolarAngleAxis
+                dataKey="cat"
+                tick={{
+                  fill: dark ? "#94a3b8" : "#64748b",
+                  fontSize: 11,
+                  fontWeight: 700,
+                }}
+              />
+              <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+              <Radar
+                name="وضعیت"
+                dataKey="value"
+                stroke="#10b981"
+                strokeWidth={2}
+                fill="url(#radarFill)"
+                isAnimationActive
+                animationDuration={900}
+                dot={{ r: 3, fill: "#10b981", strokeWidth: 0 }}
+              />
+              <Tooltip
+                formatter={(v: any) => [`${v}٪ از سقف`, "دسته"]}
+                contentStyle={glassTooltipStyle(dark) as any}
+                itemStyle={{ color: dark ? "#e2e8f0" : "#0f172a" }}
+              />
+            </RadarChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="flex-1 min-w-[280px]">
           {/* Formula */}
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1.5 text-[11px] text-gray-600 dark:text-gray-300 tabular-nums">
             <span className="text-gray-400">(</span>

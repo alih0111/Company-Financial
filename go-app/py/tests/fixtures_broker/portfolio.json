@@ -1,0 +1,54 @@
+{
+  "isSuccess": true,
+  "message": "عملیات با موفقیت انجام شد",
+  "errorCode": -1,
+  "data": {
+    "data": [
+      {
+        "securityId": 1757,
+        "securityTitle": "کاسپین",
+        "securityIsin": "IRO3KSPZ0006",
+        "instrumentNscid": "IRO3KSPZ0001",
+        "companyName": "داروسازی کاسپین تامین",
+        "numberOfShares": 40764,
+        "averageBuyPrice": 8895.84432,
+        "calculatedAverageBuyPrice": 8928.15371,
+        "calculatedHeadLinePrice": 9008,
+        "calculatedTodayPrice": 37810,
+        "calculatedAssetCost": 363947257.83444,
+        "calculatedTodayCost": 1527723516,
+        "calculatedGain": 1163776258.16556,
+        "calculatedGainPercent": 319.7650849490946,
+        "sectorTitle": "مواد و محصولات دارویی",
+        "instrumentStateTitle": "مجاز",
+        "isSecurityActive": true
+      },
+      {
+        "securityTitle": "رهیاب",
+        "securityIsin": "IRO5RHYB0007",
+        "instrumentNscid": "IRO5RHYB0001",
+        "companyName": "رهیاب پیام گستران",
+        "numberOfShares": 92,
+        "averageBuyPrice": 7392.0,
+        "calculatedAverageBuyPrice": 7418.81522,
+        "calculatedHeadLinePrice": 7485,
+        "calculatedTodayPrice": 6190,
+        "calculatedAssetCost": 682531.00024,
+        "calculatedTodayCost": 569480,
+        "calculatedGain": -118062.00024,
+        "calculatedGainPercent": -17.297675856481245,
+        "sectorTitle": "اطلاعات و ارتباطات",
+        "instrumentStateTitle": "ممنوع-متوقف",
+        "isSecurityActive": true
+      }
+    ],
+    "assetSummary": {
+      "numberOfShares": 40856,
+      "calculatedAssetCost": 364629788.83468,
+      "calculatedTodayCost": 1528292996,
+      "calculatedGain": 1163658196.16532
+    },
+    "totalCount": 2
+  },
+  "problemDetail": null
+}

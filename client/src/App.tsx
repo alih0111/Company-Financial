@@ -15,24 +15,44 @@ import {
   FaBullseye,
 } from "react-icons/fa";
 import DonutChartComponent from "./components/DonutChartComponent";
-import { Routes, Route, useLocation, useNavigate, Navigate } from "react-router-dom";
-import { useSearchParams } from "react-router-dom";
+import { Routes, Route, useLocation, useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import ScriptFullModal from "./components/ScriptFullModal";
-import Login from "./components/Login";
-import Landing from "./components/Landing";
 import ProtectedRoute from "./components/ProtectedRoute";
-import BigDataTable from "./components/BigDataTable";
-import Register from "./components/Register";
-import { getAuthStatus } from "./hooks/useGetUser";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import AIStockTable from "./components/AIStockTable";
-import Portfolio from "./components/Portfolio";
-import FamilyAssets from "./components/FamilyAssets";
+import NotFound from "./components/NotFound";
+import { useCallback, useEffect, lazy, Suspense, useMemo, useState } from "react";
 import {
   getAIStockSummary,
   collectBrsPrices,
   type AIStockMetric,
 } from "./utils/api";
+import { getAuthStatus } from "./hooks/useGetUser";
+
+// صفحات سنگین lazy لود می‌شوند تا باندل اولیه سبک بماند
+const Landing = lazy(() => import("./components/Landing"));
+const Login = lazy(() => import("./components/Login"));
+const Register = lazy(() => import("./components/Register"));
+const BigDataTable = lazy(() => import("./components/BigDataTable"));
+const Portfolio = lazy(() => import("./components/Portfolio"));
+const FamilyAssets = lazy(() => import("./components/FamilyAssets"));
+
+// لودر سطح صفحه برای Suspense
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-[50vh]">
+    <div className="flex items-center gap-3 text-gray-400 dark:text-gray-500">
+      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+      </svg>
+      <span className="text-sm font-medium">در حال بارگذاری…</span>
+    </div>
+  </div>
+);
+
+// روت مهمان: کاربر لاگین‌شده نباید login/register را ببیند
+const GuestRoute = ({ children }: { children: React.ReactNode }) => {
+  const { username } = getAuthStatus();
+  return username ? <Navigate to="/dashboard" replace /> : <>{children}</>;
+};
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
@@ -60,7 +80,7 @@ const App = () => {
     ...scriptModalProps
   } = useCompanyData();
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
 
   const navigate = useNavigate();
   const handleCompanyChange = (name: string) => {
@@ -80,7 +100,7 @@ const App = () => {
 
   const pageTitle =
     location.pathname === "/Table"
-      ? "جدول داده"
+      ? "غربال بازار"
       : location.pathname === "/portfolio"
         ? "پورتفولیو"
         : location.pathname === "/assets"
@@ -90,11 +110,13 @@ const App = () => {
             : "داشبورد";
 
   const pageSubtitle =
-    location.pathname === "/assets"
-      ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
-      : location.pathname === "/portfolio"
-        ? "دارایی‌های سهام"
-        : undefined;
+    location.pathname === "/Table"
+      ? "غربال و مقایسه‌ی همه‌ی شرکت‌های بازار"
+      : location.pathname === "/assets"
+        ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
+        : location.pathname === "/portfolio"
+          ? "دارایی‌های سهام"
+          : undefined;
 
   const [collectingPrice, setCollectingPrice] = useState(false);
   const [priceCollectMsg, setPriceCollectMsg] = useState<string | null>(null);
@@ -121,13 +143,17 @@ const App = () => {
     if (location.pathname === "/") {
       document.title = "RFA | بینش شرکت‌ها";
     } else if (location.pathname === "/Table") {
-      document.title = "RFA | Table";
+      document.title = "RFA | غربال بازار";
     } else if (location.pathname === "/portfolio") {
-      document.title = "RFA | Portfolio";
+      document.title = "RFA | پورتفولیو";
     } else if (location.pathname === "/assets") {
-      document.title = "RFA | Family Assets";
+      document.title = "RFA | دارایی خانواده";
+    } else if (location.pathname === "/login") {
+      document.title = "RFA | ورود";
+    } else if (location.pathname === "/register") {
+      document.title = "RFA | ثبت‌نام";
     } else {
-      document.title = selectedCompany ? `RFA | ${selectedCompany}` : "RFA";
+      document.title = selectedCompany ? `RFA | ${selectedCompany}` : "RFA | داشبورد";
     }
   }, [selectedCompany, location.pathname]);
 
@@ -267,11 +293,11 @@ const App = () => {
       {/* ── EPS Chart + Donut ── */}
       <div className="animate-fade-in-up" style={{ animationDelay: "80ms" }}>
         {data1 ? (
-          <div className="flex gap-3">
-            <div className="w-3/4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="sm:w-3/4">
               <ChartComponent data={data1} />
             </div>
-            <div className="w-1/4">
+            <div className="sm:w-1/4">
               {dataScore && (
                 <DonutChartComponent score={dataScore[0].epsGrowth} />
               )}
@@ -287,11 +313,11 @@ const App = () => {
       {/* ── Sales Chart + Donut ── */}
       <div className="animate-fade-in-up" style={{ animationDelay: "160ms" }}>
         {data2 ? (
-          <div className="flex gap-3">
-            <div className="w-3/4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="sm:w-3/4">
               <ChartComponent data={data2} />
             </div>
-            <div className="w-1/4">
+            <div className="sm:w-1/4">
               {dataScore && (
                 <DonutChartComponent score={dataScore[0].salesGrowth} />
               )}
@@ -361,7 +387,9 @@ const App = () => {
           darkMode ? "dark" : ""
         } bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500`}
       >
-        <Landing darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        <Suspense fallback={<PageLoader />}>
+          <Landing darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
+        </Suspense>
       </div>
     );
   }
@@ -382,11 +410,7 @@ const App = () => {
                 onCompanyChange={handleCompanyChange}
                 openModalForScript={openModalForScript}
                 runningScripts={runningScripts}
-                companyProfits={
-                  allDataScore
-                    ? allDataScore
-                    : [{ company_name: "loading", eps_growth: 0 }]
-                }
+                companyProfits={allDataScore ?? []}
                 {...scriptModalProps}
                 isAdmin={isAdmin}
                 username={username}
@@ -415,92 +439,99 @@ const App = () => {
                   onMenuClick={() => setSidebarOpen(true)}
                 />
               )}
-              <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/"
-              element={
-                <Landing darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={<ProtectedRoute>{mainContent}</ProtectedRoute>}
-            />
-            <Route
-              path="/Table"
-              element={
-                <div>
-                  <BigDataTable
-                    data={bigTableData}
-                    _selectedCompany={selectedCompany}
-                    _onCompanyChange={handleCompanyChange}
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route
+                    path="/login"
+                    element={
+                      <GuestRoute>
+                        <Login />
+                      </GuestRoute>
+                    }
                   />
-                </div>
-              }
-            />
-            <Route
-              path="/portfolio"
-              element={
-                <ProtectedRoute>
-                  <Portfolio />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/assets"
-              element={
-                isAdmin ? (
-                  <ProtectedRoute>
-                    <FamilyAssets />
-                  </ProtectedRoute>
-                ) : (
-                  <Navigate to="/dashboard" replace />
-                )
-              }
-            />
-          </Routes>
-        </main>
-      </div>
-      <ScriptModal
-        modal={{ visible: scriptModalStates.script1, script: "profit" }}
-        setModal={(val) =>
-          setScriptModalStates((prev) => ({ ...prev, script1: val.visible }))
-        }
-        metadata={metadata}
-        setMetadata={setMetadata}
-        runningScripts={runningScripts}
-        submitMetadata={() => submitMetadata("script1")}
-      />
+                  <Route
+                    path="/register"
+                    element={
+                      <GuestRoute>
+                        <Register />
+                      </GuestRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard"
+                    element={<ProtectedRoute>{mainContent}</ProtectedRoute>}
+                  />
+                  <Route
+                    path="/Table"
+                    element={
+                      <ProtectedRoute>
+                        <BigDataTable data={bigTableData} />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/portfolio"
+                    element={
+                      <ProtectedRoute>
+                        <Portfolio />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/assets"
+                    element={
+                      isAdmin ? (
+                        <ProtectedRoute>
+                          <FamilyAssets />
+                        </ProtectedRoute>
+                      ) : (
+                        <Navigate to="/dashboard" replace />
+                      )
+                    }
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </main>
+          </div>
+          <ScriptModal
+            modal={{ visible: scriptModalStates.script1, script: "profit" }}
+            setModal={(val) =>
+              setScriptModalStates((prev) => ({ ...prev, script1: val.visible }))
+            }
+            metadata={metadata}
+            setMetadata={setMetadata}
+            runningScripts={runningScripts}
+            submitMetadata={() => submitMetadata("script1")}
+          />
 
-      <ScriptModal
-        modal={{ visible: scriptModalStates.script2, script: "sales" }}
-        setModal={(val) =>
-          setScriptModalStates((prev) => ({ ...prev, script2: val.visible }))
-        }
-        metadata={metadata}
-        setMetadata={setMetadata}
-        runningScripts={runningScripts}
-        submitMetadata={() => submitMetadata("script2")}
-      />
+          <ScriptModal
+            modal={{ visible: scriptModalStates.script2, script: "sales" }}
+            setModal={(val) =>
+              setScriptModalStates((prev) => ({ ...prev, script2: val.visible }))
+            }
+            metadata={metadata}
+            setMetadata={setMetadata}
+            runningScripts={runningScripts}
+            submitMetadata={() => submitMetadata("script2")}
+          />
 
-      <ScriptModal
-        modal={{
-          visible: scriptModalStates.stockPrices,
-          script: "stockPrices",
-        }}
-        setModal={(val) =>
-          setScriptModalStates((prev) => ({
-            ...prev,
-            stockPrices: val.visible,
-          }))
-        }
-        metadata={metadata}
-        setMetadata={setMetadata}
-        runningScripts={runningScripts}
-        submitMetadata={() => submitMetadata("stockPrices")}
-      />
+          <ScriptModal
+            modal={{
+              visible: scriptModalStates.stockPrices,
+              script: "stockPrices",
+            }}
+            setModal={(val) =>
+              setScriptModalStates((prev) => ({
+                ...prev,
+                stockPrices: val.visible,
+              }))
+            }
+            metadata={metadata}
+            setMetadata={setMetadata}
+            runningScripts={runningScripts}
+            submitMetadata={() => submitMetadata("stockPrices")}
+          />
 
           <ScriptFullModal
             modal={{ visible: scriptModalStates.full, ...fullModalData }}

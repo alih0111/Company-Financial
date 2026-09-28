@@ -81,6 +81,7 @@ type agahResult struct {
 	NeedsDiscovery bool           `json:"needs_discovery"`
 	Source         string         `json:"source"`
 	Summary        map[string]any `json:"summary"`
+	Login          map[string]any `json:"login,omitempty"`
 	Captured       map[string]any `json:"captured"`
 }
 
@@ -94,6 +95,11 @@ type brokerSyncJob struct {
 	StartedAt time.Time   `json:"started_at"`
 	UpdatedAt time.Time   `json:"updated_at"`
 	Result    *agahResult `json:"result,omitempty"`
+	// کپچای در انتظار ورود دستی (فقط هنگام running)
+	NeedsCaptcha bool   `json:"needs_captcha,omitempty"`
+	CaptchaImage string `json:"captcha_image,omitempty"`
+	// مسیر تبادل فایل کپچا/پاسخ با کالکتور؛ برای کلاینت ارسال نمی‌شود
+	exchangeDir string `json:"-"`
 }
 
 var (
@@ -105,6 +111,12 @@ var (
 func newBrokerJob(personID int) *brokerSyncJob {
 	brokerJobsMu.Lock()
 	defer brokerJobsMu.Unlock()
+	// jobهای تمام‌شده قدیمی را حذف کن تا map رشد نکند.
+	for id, j := range brokerJobs {
+		if j.State != "running" && time.Since(j.UpdatedAt) > time.Hour {
+			delete(brokerJobs, id)
+		}
+	}
 	brokerJobSeq++
 	id := fmt.Sprintf("agah-%d-%d", personID, brokerJobSeq)
 	job := &brokerSyncJob{ID: id, PersonID: personID, State: "running", Message: "در حال اجرا", StartedAt: time.Now(), UpdatedAt: time.Now()}
@@ -116,6 +128,19 @@ func getBrokerJob(id string) *brokerSyncJob {
 	brokerJobsMu.Lock()
 	defer brokerJobsMu.Unlock()
 	return brokerJobs[id]
+}
+
+// runningBrokerPersonIDs اشخاصی که سینک فعال دارند را برمی‌گرداند.
+func runningBrokerPersonIDs() map[int]bool {
+	brokerJobsMu.Lock()
+	defer brokerJobsMu.Unlock()
+	out := map[int]bool{}
+	for _, j := range brokerJobs {
+		if j.State == "running" {
+			out[j.PersonID] = true
+		}
+	}
+	return out
 }
 
 func updateBrokerJob(id, state, message string, result *agahResult) {
@@ -344,11 +369,21 @@ func startFamilyBrokerSyncPG(c *gin.Context) {
 		return
 	}
 
+	// سینک هم‌زمان برای یک شخص مجاز نیست (پروفایل مرورگر هر شخص فقط یک قفل دارد).
+	running := runningBrokerPersonIDs()
 	jobs := []*brokerSyncJob{}
 	for _, t := range targets {
+		if running[t.personID] {
+			continue
+		}
 		job := newBrokerJob(t.personID)
 		jobs = append(jobs, job)
 		go runAgahSyncJob(job.ID, t.personID)
+	}
+
+	if len(jobs) == 0 {
+		c.JSON(http.StatusConflict, gin.H{"error": "sync already running for the requested person(s)"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"jobs": jobs})
@@ -372,7 +407,84 @@ func getFamilyBrokerJobPG(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "job not found"})
 		return
 	}
+	attachBrokerChallenge(job)
 	c.JSON(http.StatusOK, job)
+}
+
+// attachBrokerChallenge در صورت انتشار کپچای در انتظار پاسخ، آن را به job می‌چسباند.
+func attachBrokerChallenge(job *brokerSyncJob) {
+	if job == nil || job.exchangeDir == "" {
+		return
+	}
+	b, err := os.ReadFile(filepath.Join(job.exchangeDir, "challenge.json"))
+	needs, image := false, ""
+	if err == nil {
+		var ch struct {
+			Captcha string `json:"captcha"`
+			Attempt int    `json:"attempt"`
+		}
+		if json.Unmarshal(b, &ch) == nil && ch.Captcha != "" {
+			needs, image = true, ch.Captcha
+		}
+	}
+	brokerJobsMu.Lock()
+	defer brokerJobsMu.Unlock()
+	if job.State != "running" {
+		return
+	}
+	job.NeedsCaptcha = needs
+	job.CaptchaImage = image
+}
+
+// SubmitFamilyBrokerCaptcha کد امنیتی وارد‌شده در UI را برای job در حال اجرا می‌فرستد.
+func SubmitFamilyBrokerCaptcha(c *gin.Context) {
+	if !requireFamilyAdmin(c) {
+		return
+	}
+	var req struct {
+		JobID string `json:"job_id"`
+		Code  string `json:"code"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil || strings.TrimSpace(req.JobID) == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "job_id and code are required"})
+		return
+	}
+	code := strings.TrimSpace(req.Code)
+	if code == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "code is required"})
+		return
+	}
+	job := getBrokerJob(strings.TrimSpace(req.JobID))
+	if job == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "job not found"})
+		return
+	}
+	if job.State != "running" {
+		c.JSON(http.StatusConflict, gin.H{"error": "job is not running"})
+		return
+	}
+	if job.exchangeDir == "" {
+		c.JSON(http.StatusConflict, gin.H{"error": "this job does not accept captcha input"})
+		return
+	}
+	if err := os.MkdirAll(job.exchangeDir, 0o755); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "exchange dir: " + err.Error()})
+		return
+	}
+	payload, _ := json.Marshal(map[string]string{"code": code})
+	tmp := filepath.Join(job.exchangeDir, "answer.json.tmp")
+	if err := os.WriteFile(tmp, payload, 0o644); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "write answer: " + err.Error()})
+		return
+	}
+	if err := os.Rename(tmp, filepath.Join(job.exchangeDir, "answer.json")); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "write answer: " + err.Error()})
+		return
+	}
+	// تصویر کهنه حذف شود تا UI کپچای جدید (در صورت تلاش مجدد) نشان دهد.
+	_ = os.Remove(filepath.Join(job.exchangeDir, "challenge.json"))
+	updateBrokerJob(job.ID, "running", "کد امنیتی دریافت شد؛ در حال ورود...", nil)
+	c.JSON(http.StatusOK, gin.H{"message": "submitted"})
 }
 
 // runAgahSyncJob اجرای collector، نوشتن snapshot و جایگزینی سبد شخص.
@@ -413,7 +525,17 @@ func runAgahSyncJob(jobID string, personID int) {
 		}
 	}
 
-	result, runErr := runAgahCollector(ctx, username, password)
+	job := getBrokerJob(jobID)
+	if job != nil {
+		job.exchangeDir = brokerExchangeDir(jobID)
+	}
+	defer func() {
+		if job != nil && job.exchangeDir != "" {
+			_ = os.RemoveAll(job.exchangeDir)
+		}
+	}()
+
+	result, runErr := runAgahCollector(ctx, personID, username, password, jobID)
 	if runErr != nil {
 		_ = recordBrokerSnapshot(ctx, db, personID, false, runErr.Error(), map[string]any{"error": runErr.Error()})
 		_ = markBrokerAccount(ctx, db, personID, "error", runErr.Error())
@@ -427,6 +549,7 @@ func runAgahSyncJob(jobID string, personID int) {
 		"cash":            result.Cash,
 		"source":          result.Source,
 		"summary":         result.Summary,
+		"login":           result.Login,
 		"needs_discovery": result.NeedsDiscovery,
 		"captured":        result.Captured,
 	}
@@ -455,22 +578,65 @@ func runAgahSyncJob(jobID string, personID int) {
 	updateBrokerJob(jobID, "done", fmt.Sprintf("%d دارایی به‌روزرسانی شد", imported), &result)
 }
 
+// brokerExchangeDir مسیر تبادل کپچا/پاسخ بین سرور و کالکتور برای هر job.
+func brokerExchangeDir(jobID string) string {
+	return filepath.Join(os.TempDir(), "agah-sync", "exchange", jobID)
+}
+
+// agahProfileKey کلید امن پروفایل مرورگر برای هر حساب کارگزاری (جدا‌سازی نشست‌ها).
+func agahProfileKey(personID int, username string) string {
+	var b strings.Builder
+	for _, r := range strings.TrimSpace(username) {
+		switch {
+		case r >= 'a' && r <= 'z', r >= 'A' && r <= 'Z', r >= '0' && r <= '9',
+			r == '.', r == '-', r == '_', r == '@':
+			b.WriteRune(r)
+		default:
+			b.WriteRune('_')
+		}
+	}
+	key := strings.Trim(b.String(), "_")
+	if key == "" {
+		key = fmt.Sprintf("person-%d", personID)
+	}
+	if len(key) > 80 {
+		key = key[:80]
+	}
+	return key
+}
+
 // runAgahCollector اسکریپت پایتون را اجرا و خروجی JSON را می‌خواند.
-func runAgahCollector(ctx context.Context, username, password string) (agahResult, error) {
+func runAgahCollector(ctx context.Context, personID int, username, password, jobID string) (agahResult, error) {
 	var result agahResult
 
 	outDir := filepath.Join(os.TempDir(), "agah-sync")
 	_ = os.MkdirAll(outDir, 0o755)
-	outPath := filepath.Join(outDir, fmt.Sprintf("result_%d.json", time.Now().UnixNano()))
-	dumpDir := filepath.Join(os.TempDir(), "agah-dump", fmt.Sprintf("%d", time.Now().UnixNano()))
+	stamp := time.Now().UnixNano()
+	outPath := filepath.Join(outDir, fmt.Sprintf("result_%d.json", stamp))
+	dumpDir := filepath.Join(os.TempDir(), "agah-dump", fmt.Sprintf("%d", stamp))
+	exchangeDir := brokerExchangeDir(jobID)
+
+	// ورود روی سرور headed اجرا می‌شود (رفتار امتحان‌شده) اما همه‌چیز خودکار است:
+	// کپچا با OCR حل می‌شود و فقط در صورت نیاز تصویرش به UI می‌آید؛ پنجره را
+	// کسی نباید لمس کند. با CDF_AGAH_HEADLESS=1 می‌توان headless اجرا کرد
+	// (در برخی شبکه‌ها API پنل، مرورگر headless را نمی‌پذیرد).
+	headless := false
+	switch strings.ToLower(strings.TrimSpace(os.Getenv("CDF_AGAH_HEADLESS"))) {
+	case "1", "true", "on":
+		headless = true
+	}
 
 	cfg := map[string]any{
 		"username":      username,
 		"password":      password,
 		"login_url":     agahLoginURL,
 		"portfolio_url": agahPortfolioURL,
-		"headless":      false,
-		"profile_dir":   filepath.Join(".runtime", "chromium-profile-agah"),
+		"headless":      headless,
+		"timeout_sec":   300,
+		// پروفایل مستقل برای هر شخص: نشست هر حساب جدا می‌ماند و سینک بعدیِ
+		// همان شخص تا اعتبار نشست بدون کپچا انجام می‌شود.
+		"profile_dir":  filepath.Join(".runtime", "chromium-profile-agah", agahProfileKey(personID, username)),
+		"exchange_dir": exchangeDir,
 	}
 	cfgJSON, _ := json.Marshal(cfg)
 
