@@ -843,3 +843,564 @@ Gates: new **`CANONICAL_UNIVERSE_COUNT_RECONCILED`**; kept
   --max-per-company 25 --skip-discovery`.
 - Remaining: 61 undiscovered companies + 4,304 discovered-pending periods.
   Do NOT start Model v2 / Signal Engine; do NOT fetch pre-1398; no final gate yet.
+
+## 35. Fetch-backlog drawdown + transient-zombie requeue (executed)
+
+Gates kept: `UNIVERSE_TIMELINE_AUDIT_READY`, `UNIVERSE_DISCOVERY_ADVANCED`,
+`UNIVERSE_BACKFILL_IN_PROGRESS`, `NET_PROFIT_RECONCILIATION_CLEAN`.
+SQL Server OFFLINE; discovery/search calls ZERO (all batches `--skip-discovery`);
+CAPTCHA 0 (no bypass/evasion; `captcha_events.csv` empty).
+
+- **State audit first** (no blind trust in stale counts): a prior `sustainable_run`
+  had been hard-killed mid-flight (status file stuck `RUNNING`, last checkpoint
+  کپارس/1259201); no python processes running. BEFORE (re-audited from queue+PG):
+  required 7,917 / recovered 2,603 / terminal 477 / pending 2,935 / unknown 1,902
+  → coverage **32.9 %**; PFP 137, CWSL 61, PDU 63, NFR 9, DC 3; discovered 212 /
+  undiscovered 61; queue 9,778 rows (DISCOVERED 6,827, WRITTEN 2,674,
+  FAILED_RETRYABLE 267, FETCH_PENDING 10); dup-current 0; CAPTCHA 0; disk C: 6.2 GB.
+- **Zombie-row fix (new)** `historical_codal_backfill/requeue_transient.py`: rows in
+  `FAILED_RETRYABLE` with transient browser/runtime reasons (`Page.goto` timeout,
+  `Page.content` while navigating, `Page crashed`) or the pre-v2
+  `operating_profit` parser requirement were never picked by `best_candidate`
+  (only `SOURCE_TEMPORARY_ERROR` is retry-eligible) — 74 permanent zombies.
+  Requeued 91 rows across 26 symbols to `DISCOVERED` (prev_reason retained,
+  `requeue_count` cap 3, no CAPTCHA rows touched, zero network). Same mechanism
+  as the شپنا/فملی transient-timeout precedent (§30).
+- **4 fetch-only batches** (company-completion order from `audit_timeline.py`,
+  pause 15 s/30 s, recycle 12, durable checkpoint per report):
+  batch1 10 symbols 125 processed (104 WRITTEN, 4 STE, 17 goto-FAILED);
+  batch2 14 symbols 152 processed (144 WRITTEN, 8 STE, **7 companies complete**);
+  batch3 12 symbols 278 processed (263 WRITTEN, 15 STE);
+  batch4 12 symbols **stopped at yield degradation** (recent-60 ratio 0.49 <
+  0.75 rule; Codal error shells/timeouts ~03:30 local): 162 processed
+  (130 WRITTEN, 10 STE, 22 FAILED).
+  Session totals: **717 processed / 641 WRITTEN / 37 SOURCE_TEMPORARY_ERROR /
+  39 transient FAILED** (requeueable), ≈873 facts, unique-live-report yield
+  0.86/0.95/0.95/0.80.
+- **AFTER**: recovered **3,239** (+636), pending **2,299** (−636), unknown 1,902
+  (unchanged — fetch-only), terminal 477 → coverage **40.9 %** (+8.0 pts).
+  DC 3→**4** (دانا 29/29), CWSL 61→**69** (+8: ساوه، وسپه، سرچشمه، برکت،
+  وخارزم، غگیلا، غپاک، اروند — several gained `SOURCE_NOT_FOUND_CONFIRMED`
+  terminals for genuinely absent periods, e.g. اروند term=14), PFP 137→128.
+- **Reconciliation** (`reconcile_net_profit.py`): net_profit fact rows 2,911→**3,523**;
+  unique current 1398+ periods 2,626→**3,267**; **duplicate-current violations = 0**;
+  legacy_sqlserver unresolved-title rows 275→246, current-display collisions 0 →
+  `NET_PROFIT_RECONCILIATION_CLEAN`.
+- **API** `GET /api/SalesData` (authenticated) 16 companies (9 session-completed +
+  regression بپیوند/کاسپین/فولاد/خودرو/فملی/شبندر/بزاگرس): 16/16 HTTP 200,
+  chronological ASC, title durations 3/6/9/12, no duplicate periods, no EPS
+  fallback, no fiscal-year gaps; source↔canonical conversion 4,195 checked /
+  0 mismatches. وسپه flag = documented legacy non-Esfand row (no title, value 0,
+  `legacy_sqlserver` origin) — deferred, untouched.
+- PIT: analytics **25 passed**, CAPTCHA/no-bypass **20 passed**. Disk C: 5.7 GB,
+  D: 8.2 GB (guard 2.0 GB never tripped). Queue final: DISCOVERED 6,202,
+  WRITTEN 3,315, FAILED_RETRYABLE 251 (86 `SOURCE_TEMPORARY_ERROR`),
+  FETCH_PENDING 10, DEFERRED 0. Discovered 212 / undiscovered 61 (unchanged).
+- Artifacts: `output/{fetch_zbatch1..4.txt, zbatch1..4.log, api_validation_after.csv,
+  batch1_before_stamp.txt}`; new script `requeue_transient.py`.
+- Resume (next session): when Codal responsive → `requeue_transient.py` (39 new
+  transient rows), `enrich_queue.py` + `audit_timeline.py`, then
+  `sustainable_run.py --from-file output/universe_fetch_order.txt
+  --max-per-company 25 --skip-discovery`. Discovery waves for the 61 undiscovered
+  companies remain secondary. Do NOT start Model v2 / Signal Engine; do NOT
+  enable SQL Server; do NOT fetch pre-1398.
+
+## 36. Investment chat assistant (new page + API)
+
+- Backend: `go-app/handlers/chat_handler.go`, route `POST /api/chat` (protected,
+  registered in `main.go`). Answers are rule-based and grounded **only** in the
+  canonical score data already served by `/api/summary`
+  (`integration.Default().FetchSummaryCanonical` → `analytics.company_scores` +
+  `analytics.factor_scores`). No SQL Server, no invented numbers.
+- Intents (Persian keyword match; text normalized for ZWNJ/punctuation/ي-ک):
+  greeting/help, top picks («بهترین/پیشنهاد/بخرم/خرید/سبد»), weakest list,
+  single-company analysis («تحلیل فولاد»), two-company comparison
+  («مقایسه فولاد و فملی»), market overview as fallback. Company matching is by
+  symbol token or company-name containment (longest match wins).
+- Verdicts are **relative** (percentile rank inside the scored universe), not
+  absolute score thresholds, because the live run's distribution is compressed
+  (268 companies, mean 35.9, median 34.0, max 66.4, only 12 at/above 60). Every
+  reply ends with an explicit "not buy/sell advice" line.
+- Optional LLM upgrade: when `AI_CHAT_URL` + `AI_API_KEY` (+ optional `AI_MODEL`)
+  are set, the same rule-engine context is posted to the chat-completions endpoint
+  and its answer replaces the rule reply; any error/timeout falls back silently to
+  the rule engine. Currently unset → rule engine only.
+- Frontend: `client/src/components/ChatPage.tsx` (lazy route `/chat`, sidebar entry
+  «دستیار سرمایه‌گذاری»), `sendChatMessage()` appended to
+  `client/src/utils/api.ts`. RTL bubbles (user left / assistant right, per RTL chat
+  convention), quick-prompt chips, typing indicator, Persian-digit formatting.
+- Verified: `go build ./...` + `go vet ./handlers/` clean; client `tsc -b` and
+  `npm run build` clean (ChatPage 4.8 kB chunk); endpoint smoke-tested for all six
+  intents against 268 companies; UI exercised in-browser against a local-API dev
+  server (quick-prompt ranking and per-company analysis rendered correct data).
+  `go run .` on :5000 restarted; output continues in `go-app/go-app-live.log`.
+- Gotcha: non-ASCII request bodies passed through Git Bash/curl get mangled by the
+  Windows shell (every intent then falls through to the market overview). Test
+  `/api/chat` with a UTF-8 client (browser or Node), never a curl argument string.
+
+
+## 37. Fetch drawdown to <1500 + discovery cadence resumed; stopped on disk guard
+
+Gate kept: `UNIVERSE_BACKFILL_IN_PROGRESS`; `NET_PROFIT_RECONCILIATION_CLEAN`
+re-verified. SQL Server OFFLINE. Fetch phase ZERO Codal search calls; no CAPTCHA
+(0 events, no bypass — on challenge the batch pauses and the documented headful
+human-resume flow is used).
+
+- **State refresh first** (`requeue_transient.py` 22 rows فخاس/تاصیکو;
+  `enrich_queue.py` 0; `audit_timeline.py`; `reconcile_net_profit.py`):
+  recovered 3,239 / terminal 477 / pending 2,299 / unknown 1,902 → coverage
+  40.9 %; DC 4, CWSL 69, PFP 128, PDU 63, NFR 9; discovered 212 / undiscovered 61;
+  disk C: 5.7 GB. No drift from §35.
+- **New regression guard** `historical_codal_backfill/check_zombie_holes.py`:
+  every actionable pending timeline unit must have ≥1 fetchable queue candidate
+  (DISCOVERED/FETCH_PENDING/CAPTCHA_REQUIRED); RETRYABLE-only units are the
+  documented deferred debt, not zombies. Result: 2,252/2,252 candidates →
+  **ZOMBIE_ACTIONABLE_HOLES = 0** (re-run at end: 1,350/1,350 → 0).
+- **5 fetch-only batches** (`--skip-discovery`, company-completion order,
+  checkpoint per report): 1,246 reports processed / **1,186 WRITTEN** /
+  45 `SOURCE_TEMPORARY_ERROR` / 14 transient `FAILED` / 1 `PARSE_FAILED`
+  (→FAILED_PERMANENT, new debt class); rolling yield 0.86–0.99, session 0.95.
+  Batch sizes: 236, 279, 258, 298, 175. Disk guard stopped the phase at
+  C: 2.13 GB (Temp cleaned → 2.6 GB; PostgreSQL/raws/lineage untouched).
+- **Discovery resumed at pending≈1,500** (spec §13/§14): `discovery_wave.py
+  --wave 15 --limit 15` → 15 attempted, **10 discovered** (all reached 1398
+  cutoff), 5 throttled (recorded with `next_retry_at`), 32 search calls,
+  **+510 letters**, 0 HTTP errors, 0 CAPTCHA. Then enrich → audit → 2 fetch
+  batches (batch 8 on the newly discovered companies, batch 9 next tranche).
+- **BEFORE → AFTER (this session)**: recovered 3,239 → **4,421 (+1,182)**;
+  pending 2,299 → **1,427 (−872 net)**; discovery_unknown 1,902 → **1,587
+  (−315)**; actionable pending+unknown 4,201 → **3,014 (−1,187)**;
+  terminal 477 → **482**; coverage 40.9 % → **55.8 % (+14.9 pts)**.
+  Companies: DC 4→**9**, CWSL 69→**75** (کلر، فاراک، شستا، حتوکا، حکشتی،
+  حپارسا + …), PFP 128→127, PDU **63→53**, NFR 9. Discovered 212→**222**,
+  undiscovered 61→**51**.
+- **Reconciliation**: net_profit facts 3,523 → **4,676**; unique current 1398+
+  periods **4,453**; **duplicate-current violations = 0**; legacy collisions 0.
+- **API** `GET /api/SalesData` (authenticated) 17 companies (session DC/CWSL +
+  regression set): 17/17 HTTP 200, chronological, 3/6/9/12 title durations,
+  cumulative, no duplicate periods, no EPS fallback, no year gaps; DB conversion
+  5,348 values / 0 mismatches.
+- **PIT**: analytics **25**, backtesting **27**, CAPTCHA/unit **20** — all passed;
+  `published_at`=source / `collected_at`=acquisition unchanged.
+- Final queue: WRITTEN 4,501, DISCOVERED 5,528, FAILED_RETRYABLE 288,
+  FETCH_PENDING 10, FAILED_PERMANENT 1 (10,328 rows). CAPTCHA 0.
+  Disk C: 2.6 GB / D: 8.2 GB (guard 2.0 GB → **fetch phase stopped here**).
+- Artifacts: `output/{fetch_zbatch5..9.txt, zbatch5..9.log, zwave15.log,
+  api_validation_session2.csv}`; new script `check_zombie_holes.py`.
+- Resume (next session, after freeing disk headroom): `requeue_transient.py`
+  (14+3 transient rows), `enrich_queue.py`, `audit_timeline.py`,
+  `reconcile_net_profit.py`, then
+  `sustainable_run.py --from-file output/universe_fetch_order.txt
+  --max-per-company 25 --skip-discovery` (pending 1,427 = 1,350 actionable +
+  backlog), then discovery wave 16 for the remaining **51 undiscovered**
+  companies (`--wave 16 --limit 15 --max-pages 8`; wave-15 throttled 5 retry
+  first). Milestone: undiscovered < 30, then 0 or explicit terminal state.
+  Do NOT start Model v2 / Signal Engine; do NOT enable SQL Server; no pre-1398.
+
+## 37. Upgrade plan approved — Phase 0 done (real numbers materialized)
+
+Plan (user-approved): make the chat assistant a grounded analyst + portfolio
+builder. Guiding rule: the LLM never produces numbers; every figure comes from a
+Go tool over canonical data. Phases: 0 (data/real numbers) → 1 (tools +
+tool-calling loop) → 2 (risk/portfolio engine in Go) → 3 (PIT backtest
+validation) → 4 (structured blocks + UI) → 5 (external data: sector/board,
+shares/free-float, index series) → 6 (personalization, family cash/assets).
+
+Phase 0 — completed and verified live:
+
+- Root cause found and fixed: `analytics.factor_scores.raw_value` was NULL for
+  all 28,035 rows, so no consumer could state an actual P/E, growth or margin
+  (the chat's "تحلیل کیمیا" printed no P/E or growth line). The engine only
+  stored percentiles. Same for `analytics.metric_snapshots` (0 rows).
+- `analytics_canonical_v1/compute_metrics.py`: added `FACTOR_RAW_SPEC`
+  (factor → raw metric field, unit, higher_is_better) + `METRIC_UNITS`; `store_run`
+  now writes `raw_value` and unit metadata per factor and one `metric_snapshots`
+  row per (company, base metric) with its unit.
+- Ran `orchestrate_refresh.py --mode RUN_IF_STALE` (the supported path; it targets
+  the app DB `company_financial_analytics_shadow_v121`). New run
+  `5fc702b2-8746-45a6-aa64-709bd15a4112`, as_of 2026-09-29: 267 companies,
+  5,607 factor rows (**3,349 with raw_value**), **4,825 metric_snapshot rows**.
+- Verified live: `/api/summary` non-null counts went from 0 to pe_approx 262/268,
+  sales_growth_12m 182, operating_margin 100, roe 101, financial_leverage 101,
+  current_ratio 101, cash_conversion 94, avg_trade_value_30d 268, price_return_30d
+  261, volatility_30d 268, interest_coverage 119.
+- Unit semantics confirmed from the engine (matter for any consumer): growths /
+  margins / ROE / momentum are **percent**; `margin_trend` pct_point;
+  `volatility_30d` daily percent stdev; `avg_trade_value_30d`, `latest_price`,
+  `*_ttm` are **rial**; `eps_ttm` rial_per_share; `current_ratio`, `debt_ratio`,
+  `cash_conversion`, `interest_coverage`, `pe/ps/pb` are ratios;
+  `sales_stability` 0..1; `earnings_quality` is a non-operating share where
+  **lower is better** (rank uses higher=False). `operating_profit_growth` can be
+  an astronomically large percent from a small denominator (observed range
+  −1.8e10 … +2.4e11) — the rank caps it at ±250; display must not print it.
+- Go: `integration.SymbolPage` (identity + monthly + financial + market + scores
+  + factor scores + metric snapshots + freshness) was reachable only from
+  `cmd/symbolvalidate`. Added `SymbolPage` to the `canonicalSource` interface and
+  a `Shadow.FetchSymbolPageCanonical` wrapper (+ test fake).
+- Chat company analysis now reads that bundle: real P/E, P/S, P/B, margins, ROE,
+  growth, 30-day return, daily vol, average trade value, current ratio, leverage,
+  cash conversion, TTM revenue/net profit, EPS — with unit-aware Persian phrases,
+  an outlier guard (|growth| > 1000% is not printed; a footnote counts them),
+  explicit data-limit lines (missing balance sheet, stale market vs score run) and
+  as-of lines (last monthly activity, last financial report, market date).
+- `GET /api/detail` revived as canonical-only: `?companyID=<legacy 32-hex>` or
+  `?companyName=`; returns summary (canonical scores), identity, monthly,
+  profit (EPS/revenue/operating/net profit/capital, million_rial), market
+  (OHLC/volume/trade_value/change), `metrics` (29 base metrics with units) and
+  `meta`. Previously it read the retired SQL Server view and read a path param the
+  route never registered, so it always returned 400 — nothing depended on it.
+- Client: `BigDataTable` and `ScoreBreakdown` now render percent values through an
+  outlier-safe formatter (`>+1000%` / `<−1000%`) instead of printing
+  millions-of-percent growth figures that materialization newly exposed.
+- Verified: `go build ./...`, `go vet ./handlers/ ./integration/`,
+  `go test ./integration/` (ok), `tsc -b`, `npm run build` all clean; endpoint
+  smoke tests for chat + `/api/detail` against the live DB. Backend restarted
+  (`go run .` on :5000, logs continue in `go-app/go-app-live.log`).
+- Not yet visually re-verified: the `/Table` and score-breakdown rendering with
+  the new real values (type-checked and build-verified only).
+
+Remaining: Phase 1 (tool registry + agent loop; needs `AI_CHAT_URL`/`AI_API_KEY`,
+with a JSON-action fallback if the provider lacks tool calling), Phase 2
+(`go-app/quant`: returns/vol/max-drawdown/covariance shrinkage, inverse-vol +
+min-variance with caps, rules fallback), Phase 3 (extend
+`backtesting_v1/portfolio_simulator.py` — currently equal-weight top-20, "no
+optimizer" — to score every weighting scheme on the frozen PIT snapshot), Phase 4
+(block payloads + client renderer, reuse ScoreBreakdown/Portfolio table/charts,
+apply-to-portfolio only after confirmation), Phase 5 (sector/board, shares/free
+float, index series → enables sector caps and beta), Phase 6 (personalization via
+real portfolio + family cash).
+
+## 38. Phase 1 done — tool-calling assistant is live (LLM grounded on canonical data)
+
+Configured LLM (`.env` is gitignored; keys never logged or echoed):
+`AI_CHAT_URL=https://api.avalai.ir/v1/chat/completions` with model routing
+`AI_MODEL=glm-5.3-flash` (main), `AI_MODEL_HARD=deepseek-v4.1-flash`,
+`AI_MODEL_CHEAP=deepseek-coder`. All three were probed for real tool calling
+against the gateway and all returned proper `tool_calls`; `gpt-4o-mini` also
+works (kept as an alternative). Note: the account balance is very low
+(~0.12 units) — `claude-sonnet-4-5` is already refused with "insufficient
+credit", so cheap/flash models are the only usable ones right now.
+
+- `go-app/handlers/chat_tools.go` — 8 read-only tools, every number comes from
+  canonical PG or the `quant` package: `search_companies`, `screen_companies`,
+  `get_company_profile`, `get_company_financials`, `get_monthly_sales`,
+  `get_price_stats`, `get_my_portfolio`, `compare_companies`.
+- `go-app/handlers/chat_agent.go` — the agent loop: OpenAI-style `tools` +
+  `tool_choice:auto`, up to 6 rounds, 45s per model call and a 100s budget;
+  model routing by task class (`looksHard` sends سبد/مقایسه/ریسک/بازار questions
+  to the hard model); system prompt forbids inventing numbers and requires the
+  "not advice" line; unknown tools and bad arguments degrade to an error message
+  handed back to the model instead of failing the request.
+- `go-app/quant/returns.go` — deterministic series math (daily returns, mean,
+  stdev, annualized volatility, downside deviation, cumulative return, max
+  drawdown, window return, correlation). Units documented per function; this is
+  the foundation Phase 2's optimizer builds on.
+- `go-app/integration/scores.go` — added `AllScoreInputRow.FactorRank(code)`.
+- `POST /api/chat` now prefers the agent and silently falls back to the rule
+  engine when the LLM is unset or errors; `GET /api/health/ai` (protected)
+  reports configured/reachable/model/latency without exposing the key.
+- Verified live: "بهترین سهمها برای سرمایهگذاری" → `screen_companies`, 10 names
+  with real P/E/growth/liquidity, explicitly labelled "ranked list, not an
+  optimized portfolio" (21s); "تحلیل فولاد" → `search_companies` +
+  `get_company_profile` + `get_company_financials` + `get_price_stats`, giving
+  TTM revenue/net profit/EPS, quarterly YoY decline, 365-day return +58.6%/30d,
+  annualized vol 34.9%, max drawdown −49.4%, liquidity 10.79e12 rial/day, plus a
+  data-quality warning about zero/incomplete revenue in some periods and the
+  capital increase (38s); "سبد سهام من چطوره و چه ریسکی داره؟" routed to
+  `deepseek-v4.1-flash` → `get_my_portfolio` → honest "no portfolio registered"
+  (6.6s). Tool traces are logged to `go-app/go-app-live.log.err`.
+- Latency is 7–40s for a deep multi-tool answer (several model+tool rounds);
+  Phase 4 must add progress/streaming before this feels good in the UI.
+- Not done in this phase: `build_portfolio` tool (needs the Phase 2 optimizer),
+  structured response blocks, SSE.
+
+Next: Phase 2 — `go-app/quant/optimize.go` (shrunk covariance, inverse-volatility
+and min-variance weights with per-name caps + liquidity/coverage eligibility),
+expose it as the `build_portfolio` tool, then Phase 3 — extend
+`backtesting_v1/portfolio_simulator.py` (equal-weight top-20, "no optimizer") to
+score every weighting scheme on the frozen PIT snapshot *before* any scheme is
+presented as a recommended portfolio.
+
+### 38a. LLM findings from live verification (important for cost/latency)
+
+- All three configured models really do tool calling through the AvalAI gateway
+  (verified with a real `tools` payload): `glm-5.3-flash` 1.4s,
+  `deepseek-v4.1-flash` 2.2s, `deepseek-coder` 4.1s for the same probe. The
+  previous probe that showed "no tool calls" was testing without sending `tools`
+  in the body — not a model limitation.
+- `glm-5.3-flash` is a **reasoning model**: responses carry
+  `reasoning_content` and the visible `content` only appears after reasoning
+  finishes. With `max_tokens=64` all 63 completion tokens went to reasoning and
+  `content` came back empty (`finish_reason=length`) — that is why
+  `/api/health/ai` first reported an empty reply. The agent loop sets no
+  `max_tokens`, so real answers are fine, but the token/latency cost per round is
+  higher than a non-reasoning model. `/api/health/ai` now uses 512 tokens and
+  falls back to the reasoning snippet for its sample line.
+- Measured end-to-end latency: 21s for a screening answer (2 model rounds +
+  screen call), 38s for a full single-company analysis (4 tools in one round),
+  6.6s for the portfolio question. Multi-round tool use is the main driver;
+  Phase 4 should stream progress.
+- **Account credit is nearly exhausted**: balance ≈ 0.12 units, and
+  `claude-sonnet-4-5` is already refused with "insufficient credit". Cheap/flash
+  models are the only usable ones until the balance is topped up. If speed and
+  cost matter more than reasoning depth, `gpt-4o-mini` (tool-capable, ~1s,
+  non-reasoning) works on the same key and only needs `AI_MODEL` changed.
+
+### 38b. Cost-capped model config (owner request: cheapest possible, ceiling = deepseek-v4.1-flash)
+
+Provider pricing read from `GET /v1/models` (per 1M tokens: input / cached-input / output):
+
+| model | in | cached | out | note |
+|---|---|---|---|---|
+| glm-5.3-flash | 0.075 | 0.015 | 0.25 | reasoning model → burns reasoning tokens billed as output; 3–6s/round; removed |
+| deepseek-v4.1-flash | 0.15 | **0.003** | 0.6 | chosen: cheapest reliable non-reasoning tool-caller |
+| deepseek-coder | 0.22 | 0.007 | 0.66 | **more expensive than v4.1-flash** — the "cheap tasks" label was wrong; removed |
+| deepseek-flash / gpt-4o-mini | 0.15 | 0.003 / 0.075 | 0.6 | same price; kept as alternatives |
+
+The gateway's genuinely cheapest models (gpt-oss-20b 0.007/0.03, nemotron, llama 1b/3b,
+granite-micro) are not trustworthy for Persian financial analysis or tool calling, so
+they are not used.
+
+- `.env` now: `AI_MODEL=deepseek-v4.1-flash`, `AI_MODEL_HARD=deepseek-v4.1-flash`,
+  `AI_MODEL_CHEAP=deepseek-v4.1-flash`. The hard/cheap knobs stay so a stronger or
+  cheaper model can be enabled later without code changes.
+- Structural token cuts: `agentMaxRounds` 6→4, history sent 8→4 messages,
+  `screen_companies` default rows 15→10 (max 40→25). Prompt tokens are re-sent and
+  re-billed on every tool round, so these are direct cost cuts.
+- `callAgentModel` now logs `tokens prompt/completion/total` per round so cost is
+  observable in `go-app/go-app-live.log.err`.
+- Measured on a real question ("سه سهم نقدشونده با P/E زیر ۷"): 3 rounds,
+  9,026 prompt + 960 completion ≈ 10k tokens ≈ **$0.002/question** at the listed
+  rates, 15.3s wall clock. Prompt dominates, and the provider's cached-input rate is
+  50× lower, so prefix caching is the main further saving if it applies.
+- Rough balance note: the account showed ≈0.12 units, i.e. on the order of tens of
+  questions at this per-question cost (unit-to-currency mapping not confirmed).
+
+## 39. Phase 2 done — Go portfolio builder live; Phase 3 (PIT validation) in flight
+
+Phase 2 (live, verified):
+- `go-app/quant/returns.go` + `portfolio.go`: deterministic series math — daily
+  returns, stdev, annualized/downside vol (250 trading days), cumulative return,
+  max drawdown, window return, correlation, aligned returns over a union calendar
+  with forward-fill and per-series start column (pre-listing padding must not
+  enter the covariance), sample covariance with a `start_row`, diagonal
+  shrinkage (λ=0.3), capped equal/inverse-vol/min-variance weights via projected
+  gradient + water-filling cap projection, portfolio vol/series, Sharpe-like
+  (rf=0), average pairwise correlation, one-way turnover, cash-buffer scaling.
+  `go test ./quant/` passes, including the analytic two-asset min-variance check.
+- `go-app/handlers/portfolio_build.go` + the `build_portfolio` tool (9 tools now):
+  universe = canonical scores with liquidity/score floors (risk profile: low 12
+  names/10% cap/10% cash/liq≥0.6, medium 15/12/5/0.4, high 20/15/0/0.25),
+  parallel PIT price fetch (≤30 candidates, ≤1000-day window), aligned covariance,
+  weighting, and a report that states its own limits: no index → no beta/rf=0,
+  no sector tags → no industry caps, no forward-return estimate, dropped names
+  listed, and "not yet backtest-validated". Turnover vs the user's real portfolio
+  when one exists. Verified live: cap respected, min-variance vol 17.2% vs 19.8%
+  equal-weight on the same names, avg pairwise corr 0.19.
+- Note for Phase 4/UX: selection is score-ranked then min-variance-weighted, so
+  low-score/high-vol names can get tiny weights and mid-score names can get the
+  cap — expected optimizer behaviour, but a "score tilt" variant may be wanted.
+
+Phase 3 (validation gate, in flight):
+- `backtesting_v1/risk_model.py` (+7 passing tests): same math in Python, PIT
+  weights per rebalance from closes ≤ signal date only; `PriceStore.window_closes/
+  window_dates` (bisect over a cached sorted date list) for cheap PIT windows.
+- `run_backtest.py`: `cfg.weighting != "equal"` now attaches PIT weights to every
+  selected member; new `run(..., simulator=)` selector — "corrected" is the
+  Phase-2 cash-aware policy and the only one honouring weights (`simulate` ignores
+  them; that was caught before any conclusion was drawn). Smoke test on
+  2026-01→06 confirms the three schemes produce different paths.
+- Full-window runs (66 monthly rebalances, 2021-01→2026-06, top-20, 10bps/side,
+  simulate_corrected for all schemes) launched for equal / inverse_vol /
+  min_variance into `output/weighting_validation/<scheme>/`; one run ≈ 14 min
+  wall. `weighting_validation.py` will emit comparison.md/json with a
+  risk-adjusted verdict; until it passes, `build_portfolio` keeps its
+  "not backtest-validated" label.
+
+### 39a. Phase 3 verdict — validation gate changed the default (as designed)
+
+Full-window PIT runs (66 monthly rebalances, 2021-01→2026-06, top-20, 10 bps/side,
+`simulate_corrected` for every scheme) — `output/weighting_validation/`:
+
+| scheme | net cum | ann. return | vol | maxDD | sharpe-like | turnover |
+|---|---|---|---|---|---|---|
+| equal (capped) | +874.3% | 56.5% | 10.0% | −24.7% | **1.47** | 28.2% |
+| inverse_vol | +830.5% | 51.0% | 9.7% | −23.2% | 1.40 | 28.2% |
+| min_variance | +729.2% | 47.8% | 10.0% | **−20.9%** | 1.30 | 28.2% |
+
+Verdict: no risk-adjusted edge for the optimizer over equal weighting on this
+path — equal keeps the best Sharpe-like; min-variance's only edge is ~3.8pp
+shallower max drawdown at a large return cost. Action taken: `build_portfolio`
+default method switched **min_variance → equal**, the scheme table is now quoted
+in the tool output, and the stale "not validated" warnings/system-prompt line
+were replaced with "weights chosen from the 2021–2026 PIT backtest; past
+performance is no guarantee". `min_variance`/`inverse_vol` remain selectable
+(low-drawdown variant). Comparison artifacts: `weighting_validation/comparison.{md,json}`.
+Caveat kept: one full-window path ≠ OOS protocol; the coverage-controlled
+revalidation (§38 note) is still the follow-up before making stronger claims.
+
+Everything rebuilt, `go test ./quant/` and `go vet` clean, backend restarted.
+
+Remaining: Phase 4 (SSE progress + structured blocks + client renderer),
+Phase 5 (sector/board, shares/free float, index series), Phase 6
+(personalization over real portfolio + family cash).
+
+## 40. Phase 4 done — live progress streaming + markdown answers
+
+- `POST /api/chat/stream` (`go-app/handlers/chat_stream.go`): SSE with events
+  `open` → `progress` (`round` / `tool_start` / `tool_done` / `tool_error`) →
+  `notice` (rule-engine fallback) → `final` (chatResponseBody with `tools_used`).
+  `X-Accel-Buffering: no` is set for reverse proxies. `runChatAgent` now takes an
+  event sink (nil = old behaviour) and returns `tools_used`; the synchronous
+  `/api/chat` response also carries `tools_used`.
+- Client: `sendChatMessageStream()` in `api.ts` (fetch + manual SSE frame
+  parsing, graceful abort), `ChatPage` shows a live Persian progress chip
+  («پروفایل بنیادی شرکت…» / «ساخت سبد…» / «در حال تحلیل…») under the typing dots
+  and falls back to the synchronous endpoint if the stream fails.
+- Markdown rendering: `react-markdown` + `remark-gfm` (installed with
+  `--legacy-peer-deps`; React 19 peer conflict) so the model's natural Markdown
+  (tables, bold, bullets) renders properly instead of raw `|---|` pipes. Styled
+  table/ul/ol/a components.
+- Verified in-browser end-to-end (temp dev server on :3010 pointed at the local
+  API): progress chip visible mid-stream during a multi-tool question; final
+  comparison answer rendered with a real Markdown table. Backend event timeline
+  confirmed from Node: open 0.1s → 4 rounds, 9 tool events → final 16.1s with
+  `tools_used`.
+- Known quirk (not a product bug): Playwright's fill+Enter did not trigger the
+  React keydown handler in the IAB; clicking the send button works. Real typing
+  uses the same keydown path — worth a manual Enter check on a real keyboard.
+- Remaining in Phase 4 (deferred): token-level streaming (`stream:true` to the
+  provider), structured `blocks` payload with an apply-to-portfolio flow.
+
+Remaining overall: Phase 5 (sector/board + shares/free float + index ingestion →
+enables industry caps and beta), Phase 6 (personalization over the real
+portfolio + family cash), plus the deferred Phase-4 items above.
+
+## 41. Phase 5 done — industry classification + share structure live (sector caps active)
+
+- Source proven reachable and sufficient: `Api.BrsApi.ir/Tsetmc/AllSymbols.php`
+  (1 request, ~1636 instruments) carries `cs/cs_id` (TSETMC industry category —
+  49 distinct, e.g. فولاد = «فلزات اساسی»), `z` (shares outstanding),
+  `mv` (market value rial), `eps`, `isin`. TSETMC/Codal are also reachable from
+  this server, but BRS needed no new credentials.
+- New canonical tables (DDL `canonical_postgres_v1_2_1/sql/115_market_meta.sql`,
+  applied to the shadow DB):
+  `core.company_classification` (PIT: category change closes valid_to), 
+  `core.share_structure` (daily snapshot, unique on security+date).
+- New collector `go-app/py/sync_market_meta.py` (--dry-run supported): matched
+  **265** canonical securities, 1,371 BRS rows unmatched (funds/rights outside
+  the canonical universe — expected). Unmatched canonical names (e.g. غاذر)
+  have a TSETMC code mismatch — they report as «نامشخص» and are excluded from
+  industry caps. Run it daily (it is idempotent per day); a cron entry next to
+  the BRS daily collector is the natural place.
+- Go: `integration/market_meta.go` (`MarketMetaByLegacyCompanyIDs` → interface +
+  Shadow wrapper), `quant.CapByGroup` (single-pass proportional group cap with
+  redistribution; unit-tested including the compliant-input no-op), wired into
+  `build_portfolio`: default industry cap 25% (`industry_cap` arg), per-holding
+  industry in the output, an industry-exposure table, and coverage-aware
+  warnings (partial coverage is disclosed per-name).
+- Verified live: risk-profile-high portfolio → 19/20 names classified, 25% cap
+  applied, غاذر reported as unmatched. `go build/vet/test` clean; backend
+  restarted.
+- Deferred (needs history or budget): index *history* — BRS `Index.php?type=1`
+  works (TEDPIX + equal-weight index + market value + trades snapshot, free tier
+  100 req/day) and `History.php` needs `l18` with a 10/day limit; plan is to
+  accumulate a daily snapshot into `market.index_observations` via the daily
+  collector and enable beta once enough history builds up. Beta currently stays
+  "unavailable" in tool outputs.
+
+## 42. Phase 6 done — personalization live (persistent prefs, capital-aware portfolios, portfolio critique)
+
+- `chat.user_settings` (DDL `sql/120_chat_settings.sql`, applied): per-user
+  risk_level + capital_rial. Dedicated test user `chat_smoke_test` created in
+  auth.users (no working login; JWT-minted for smoke tests only).
+- Tools added (11 total): `get_my_preferences`, `set_my_preferences`
+  (`go-app/handlers/chat_settings.go`), and `critique_my_portfolio` — critiques
+  the user's REAL holdings: weights, top-3 concentration, HHI, sector exposure
+  vs the 25% industry cap (using `core.company_classification`), and portfolio
+  vol/max-drawdown computed from each holding's actual price history (series
+  that fail the history check are dropped, never padded).
+  `readPortfolioHoldings` now also returns security_id + legacy company id.
+- `build_portfolio` personalization: risk level and capital default from the
+  user's saved settings; when capital is known the output lists per-name
+  approximate amounts and quantities (floor(amount/price), labelled تقریبی).
+- System-prompt rule added: everything is RIAL; if the user speaks toman, ×10
+  and state the conversion, confirming the rial number before
+  set_my_preferences. Found live: the model stored «۵۰۰ میلیون تومان» as 5e8
+  rial (10× off) — the rule addresses it.
+- Verified live with the real test user: set prefs → «ثبت شد»؛ get prefs →
+  both values; personalized portfolio ran with saved risk/capital; critique on
+  an empty portfolio answered honestly. Full flow with holdings requires a
+  portfolio row for the test user (next session can upsert a few holdings and
+  re-run critique).
+- Deferred: client «apply to portfolio» button (needs the structured
+  `portfolio` block on the response — the text output already carries
+  amounts/quantities), token-level streaming, daily cron for
+  `sync_market_meta.py`, index-history accumulation (beta).
+
+
+## 38. Drawdown to 592 pending + discovery 100 % + one documented reconcile flag
+
+Gate kept: `UNIVERSE_BACKFILL_IN_PROGRESS`. `NET_PROFIT_RECONCILIATION_CLEAN`
+requirement re-verified (duplicate-current violations = 0), but see the
+**documented flag** below: the script's stricter gate string now reads
+`NET_PROFIT_RECONCILIATION_FAIL` because of 1 heuristic legacy-display collision.
+SQL Server OFFLINE. Fetch phase: ZERO Codal search calls; CAPTCHA 0 (no bypass).
+
+- **Health/refresh first**: disk C: 6.3 GB → D: 8.0 GB; guard 2.0 GB unchanged;
+  no backfill process running. `requeue_transient.py` 14 rows; `enrich_queue.py` 0;
+  audit; reconcile; `check_zombie_holes.py` → 0. No drift from §37.
+- **Discovery finished**: waves 16–20 (73 companies attempted, 68 discovered,
+  7 throttled then retried, 0 CAPTCHA) → **PARTIAL_DISCOVERY_UNKNOWN = 0**
+  (no company remains discovery-unknown), undiscovered 51 → **0 attempted-pending**,
+  12 companies have no 1398+ letters at all (source-absent; NFR class 9 + 3),
+  discovery cache complete 265. Letters added ≈ 2,153.
+- **14 fetch-only batches** (10–23; `--skip-discovery`; company-completion order;
+  checkpoint per report): 2,235 reports processed / **≈2,100 WRITTEN** /
+  112 `SOURCE_TEMPORARY_ERROR` / 21 transient `FAILED` / 4 now
+  `DEFERRED_SOURCE_TEMPORARY_ERROR` (retry cap engaged as designed) / 1 `FAILED_PERMANENT`.
+  Rolling yield 0.93–0.99 through batch 22, then the tail degraded
+  (batch 23: 0.73; recent-40/74 = 0.74) → **fetch phase stopped on the yield guard**
+  (remaining holes are dominated by Codal system-error shells for 1398/3M letters;
+  per policy they are acquisition debt, not terminal).
+- **BEFORE → AFTER (this session)**: recovered 4,421 → **6,506 (+2,085)**;
+  pending 1,427 → **592 (−835 net)**; discovery_unknown 1,587 → **261 (−1,326)**;
+  actionable pending+unknown 3,014 → **853 (−2,161)**; terminal 482 → **558**;
+  coverage 55.8 % → **82.2 % (+26.4 pts)**. Companies: DC 9→**19**,
+  CWSL 75→**95**, PFP 128→150, PDU 63→**0**, NFR 9 — **30 companies
+  terminalized** (target +20 met). `zero_recovered_1398_plus` 84 → **13**.
+- **Queue**: WRITTEN 6,603, DISCOVERED 5,498, FAILED_RETRYABLE 365,
+  FETCH_PENDING 10, DEFERRED 4, FAILED_PERMANENT 1 (12,481 rows).
+- **Quality**: `reconcile_net_profit.py` → net_profit facts **6,642**, unique
+  current 1398+ periods **6,548**, **duplicate_current_violations = 0**;
+  API `GET /api/SalesData` **33/33 companies** (19 DC + 8 CWSL + regression set)
+  HTTP 200, chronological, 3/6/9/12, cumulative, no duplicate periods, no EPS
+  fallback, no year gaps; source↔canonical conversion 7,314 values / 0 mismatches.
+  PIT: analytics **25**, backtesting **34**, CAPTCHA/unit **20** — all passed.
+  Disk C: 7.1 GB / D: 7.6 GB.
+- **DOCUMENTED FLAG — `period_end_mismatch_audit.json` (new)**:
+  8 of 6,620 codal lineage reports (0.12 %) carry a `period_end_date` one period
+  early (Jalali leap-Esfand `x/12/30` conversion bug in the pre-existing lineage
+  writer: e.g. tracing 748716 دلقما 1399/12/30 stored as 2020-03-19 instead of
+  2021-03-20). **7 of the 8 have 0 statements / 0 facts** (no data effect);
+  **1** (شلیا tracing 752545, 6M ending 1398/11/30) carries 1 net_profit fact
+  attributed one year early. Consequences: (a) the reconcile script flags exactly
+  1 `legacy_current_display_collision` (دلقما, 1399, 12M) because the legacy row
+  at the true period end has no codal title next to it, so its gate string reads
+  FAIL even though duplicate-current = 0 and the live API for دلقما is clean
+  (27 rows, no duplicate (fy, periodOrder), all checks pass); (b) 1 value
+  (شلیا) sits at the wrong period_end. NOT repaired here — writing to lineage
+  rows is a data change requiring an explicit decision; the correct fix is to
+  re-derive `period_end_date` for those 8 tracings from their own titles and
+  move the single شلیا fact, then re-run reconcile.
+- Artifacts: `output/{fetch_zbatch10..23.txt, zbatch10..23.log, zwave16..20.log,
+  api_validation_session3.csv, period_end_mismatch_audit.json}`.
+- Resume (next session): `requeue_transient.py` (21 transient rows),
+  `enrich_queue.py`, `audit_timeline.py`, `reconcile_net_profit.py`,
+  `check_zombie_holes.py`, then fetch the remaining **452 actionable units**
+  (121 companies, mostly 1–4 units each) via a closest-to-terminal batch built
+  from the audit CSV — only when the rolling yield is ≥ 0.75 (the tail is
+  error-shell heavy now; respect backoff, do not hammer). Decide on the 8
+  mis-dated lineage rows. Discovery: nothing left to discover; the 12
+  no-letter companies are source-absent terminal candidates.
+  Do NOT start Model v2 / Signal Engine; do NOT enable SQL Server; no pre-1398.

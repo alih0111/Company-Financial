@@ -682,60 +682,113 @@ func getOneSummaryByCompanyID(db *sql.DB, companyID string) (models.AIStockMetri
 	return scanAIStockMetric(rows)
 }
 
+// GetAIStockDetail serves GET /api/detail?companyID=<legacy 32-hex> or
+// ?companyName=<symbol|name>. Canonical-only read of one company: identity,
+// canonical scores, monthly activities, income-statement periods, market
+// history and materialized base-metric snapshots (with units).
+//
+// The route previously read the retired SQL Server view and was unreachable
+// (the handler read a path param that the route never registered), so nothing
+// depended on its old payload; the top-level keys are kept anyway.
 func GetAIStockDetail(c *gin.Context) {
-	if config.SQLServerMode() == "offline_expected" {
-		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "detail unavailable (legacy view retired)", "reason": "sqlserver_offline_expected"})
+	legacyID := strings.TrimSpace(c.Query("companyID"))
+	name := strings.TrimSpace(c.Query("companyName"))
+
+	sh := integration.Default()
+	if sh == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "canonical read unavailable"})
 		return
 	}
-	db := config.GetDB()
-	defer db.Close()
-
-	companyID := strings.TrimSpace(c.Param("companyID"))
-	if companyID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "companyID is required"})
-		return
-	}
-
-	months := parseIntQuery(c, "months", 24)
-	marketDays := parseIntQuery(c, "market_days", 90)
-	profitReports := parseIntQuery(c, "profit_reports", 8)
-
-	if months > 60 {
-		months = 60
-	}
-	if marketDays > 250 {
-		marketDays = 250
-	}
-	if profitReports > 20 {
-		profitReports = 20
-	}
-
-	summary, err := getOneSummaryByCompanyID(db, companyID)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, gin.H{"error": "company not found"})
+	if legacyID == "" {
+		if name == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "companyID or companyName is required"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "summary error: " + err.Error()})
+		bundle, err := sh.FetchCompanyScoreCanonical(c.Request.Context(), name)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "canonical resolve error: " + err.Error()})
+			return
+		}
+		legacyID = bundle.LegacyCompanyID
+	}
+	if legacyID == "" {
+		c.JSON(http.StatusNotFound, gin.H{"error": "company not found"})
 		return
 	}
 
-	monthly, err := getMonthlyPoints(db, companyID, months)
+	page, err := sh.FetchSymbolPageCanonical(c.Request.Context(), legacyID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "monthly error: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "canonical detail error: " + err.Error()})
+		return
+	}
+	if !page.IdentityFound {
+		c.JSON(http.StatusNotFound, gin.H{"error": "company not found"})
 		return
 	}
 
-	profit, err := getProfitPoints(db, companyID, profitReports)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "profit error: " + err.Error()})
-		return
+	capAt := func(v, max int) int {
+		if v > max {
+			return max
+		}
+		return v
+	}
+	months := capAt(parseIntQuery(c, "months", 24), 60)
+	marketDays := capAt(parseIntQuery(c, "market_days", 90), 250)
+	profitReports := capAt(parseIntQuery(c, "profit_reports", 8), 20)
+
+	monthly := make([]gin.H, 0, months)
+	for i, m := range page.Monthly {
+		if i >= months {
+			break
+		}
+		monthly = append(monthly, gin.H{
+			"report_date": m.ReportDate, "production_qty": m.ProductionQuantity,
+			"sales_qty": m.SalesQuantity, "sales_amount_rial": m.SalesAmountRial,
+		})
 	}
 
-	market, err := getMarketPoints(db, companyID, marketDays)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "market error: " + err.Error()})
-		return
+	profit := make([]gin.H, 0, profitReports)
+	for i, f := range page.Financial {
+		if i >= profitReports {
+			break
+		}
+		profit = append(profit, gin.H{
+			"report_date": f.ReportDate, "eps_rial": f.EPS,
+			"revenue_million_rial": f.Revenue, "operating_profit_million_rial": f.OperatingProfit,
+			"net_profit_million_rial": f.NetProfit, "capital_million_rial": f.Capital,
+		})
+	}
+
+	market := make([]gin.H, 0, marketDays)
+	for i, d := range page.Market {
+		if i >= marketDays {
+			break
+		}
+		market = append(market, gin.H{
+			"gregorian_date": d.Date, "jalali_date": d.JalaliDate,
+			"closing_price": d.ClosingPrice, "last_price": d.LastPrice,
+			"high_price": d.HighPrice, "low_price": d.LowPrice,
+			"volume": d.Volume, "trade_value": d.TradeValue, "change_percent": d.ChangePercent,
+		})
+	}
+
+	metrics := make([]gin.H, 0, len(page.MetricSnapshots))
+	for _, s := range page.MetricSnapshots {
+		metrics = append(metrics, gin.H{
+			"metric_code": s.MetricCode, "value": s.Value, "unit": s.Unit, "as_of_date": s.AsOfDate,
+		})
+	}
+
+	summary := gin.H{}
+	if len(page.Scores) > 0 {
+		s := page.Scores[0]
+		summary = gin.H{
+			"company_id": s.LegacyCompanyID, "symbol": s.Symbol, "company_name": s.CompanyName,
+			"quant_score": s.QuantScore, "data_quality_score": s.DataQualityScore,
+			"growth_score": s.GrowthScore, "profitability_score": s.ProfitabilityScore,
+			"valuation_score": s.ValuationScore, "market_score": s.MarketScore,
+			"score_version": s.ScoreVersion,
+		}
 	}
 
 	c.JSON(http.StatusOK, gin.H{
@@ -743,6 +796,16 @@ func GetAIStockDetail(c *gin.Context) {
 		"monthly": monthly,
 		"profit":  profit,
 		"market":  market,
+		"metrics": metrics,
+		"identity": gin.H{
+			"symbol": page.Identity.Symbol, "display_name": page.Identity.DisplayName,
+			"legal_name": page.Identity.LegalName, "tsetmc_ins_code": page.Identity.TsetmcInsCode,
+		},
+		"meta": gin.H{
+			"score_as_of": page.Metadata.ScoreAsOf, "score_run_id": page.Metadata.ScoreRunID,
+			"market_as_of": page.Metadata.MarketAsOf, "fundamentals_as_of": page.Metadata.FundamentalsAsOf,
+			"stale": page.Metadata.Stale,
+		},
 	})
 }
 

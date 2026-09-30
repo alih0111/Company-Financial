@@ -17,6 +17,7 @@ import {
   FaArrowRight,
   FaBriefcase,
   FaTable,
+  FaRobot,
 } from "react-icons/fa";
 import QuickSyncModal from "./QuickSyncModal";
 import { useDarkMode } from "../utils/theme";
@@ -57,8 +58,14 @@ const NAV_ITEMS: {
 }[] = [
   { to: "/dashboard", label: "داشبورد شرکت", icon: <FaChartLine size={13} /> },
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
+  { to: "/chat", label: "دستیار سرمایه‌گذاری", icon: <FaRobot size={13} /> },
   { to: "/portfolio", label: "پورتفولیو", icon: <FaBriefcase size={13} /> },
-  { to: "/assets", label: "دارایی خانواده", icon: <FaUsers size={13} />, adminOnly: true },
+  {
+    to: "/assets",
+    label: "دارایی خانواده",
+    icon: <FaUsers size={13} />,
+    adminOnly: true,
+  },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -313,11 +320,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </span>
               </button>
             </div>
-            <div className={`flex flex-col gap-2 overflow-hidden ${toolsOpen ? "" : "hidden"}`}>
+            <div className={`flex flex-col gap-2 ${toolsOpen ? "" : "hidden"}`}>
               <button
                 onClick={() => openModalForScript("script1")}
                 disabled={runningScripts.script1}
-                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
                 <FaCoins size={13} />
                 {runningScripts.script1 ? "در حال اجرا..." : "جمع‌آوری سود"}
@@ -326,7 +333,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => openModalForScript("script2")}
                 disabled={runningScripts.script2}
-                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
                 <FaChartPie size={13} />
                 {runningScripts.script2 ? "در حال اجرا..." : "جمع‌آوری فروش"}
@@ -335,7 +342,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => fullPE()}
                 disabled={loadingFullPE}
-                className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm transition-all duration-200
             ${
               loadingFullPE
                 ? "bg-gray-400 cursor-not-allowed"
@@ -349,17 +356,19 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => openModalForScript("stockPrices")}
                 disabled={runningScripts.stockPrices}
-                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
               >
                 <FaDownload size={13} />
-                {runningScripts.stockPrices ? "در حال اجرا..." : "جمع‌آوری قیمت‌ها"}
+                {runningScripts.stockPrices
+                  ? "در حال اجرا..."
+                  : "جمع‌آوری قیمت‌ها"}
               </button>
 
               <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
                 <button
                   onClick={() => setQuickSyncOpen(true)}
                   disabled={quickSyncing}
-                  className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200 ${
+                  className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm transition-all duration-200 ${
                     quickSyncing
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
@@ -373,7 +382,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => openModalForScript("full")}
                 disabled={runningScripts.full}
-                className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm transition-all duration-200
                   ${
                     runningScripts.full
                       ? "bg-gray-400 cursor-not-allowed"
@@ -392,7 +401,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     onClick={runBrsDaily}
                     disabled={loadingBrsDaily}
-                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm transition-all duration-200
                       ${
                         loadingBrsDaily
                           ? "bg-gray-400 cursor-not-allowed"
@@ -405,7 +414,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     onClick={runBrsBackfill}
                     disabled={loadingBrsBackfill}
-                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm transition-all duration-200
                       ${
                         loadingBrsBackfill
                           ? "bg-gray-400 cursor-not-allowed"
@@ -418,7 +427,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     onClick={runBrsSync}
                     disabled={loadingBrsSync}
-                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl text-sm tracking-wide shadow-sm transition-all duration-200
+                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm transition-all duration-200
                       ${
                         loadingBrsSync
                           ? "bg-gray-400 cursor-not-allowed"

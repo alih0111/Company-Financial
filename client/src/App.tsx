@@ -34,6 +34,7 @@ const Register = lazy(() => import("./components/Register"));
 const BigDataTable = lazy(() => import("./components/BigDataTable"));
 const Portfolio = lazy(() => import("./components/Portfolio"));
 const FamilyAssets = lazy(() => import("./components/FamilyAssets"));
+const ChatPage = lazy(() => import("./components/ChatPage"));
 
 // لودر سطح صفحه برای Suspense
 const PageLoader = () => (
@@ -101,22 +102,26 @@ const App = () => {
   const pageTitle =
     location.pathname === "/Table"
       ? "غربال بازار"
-      : location.pathname === "/portfolio"
-        ? "پورتفولیو"
-        : location.pathname === "/assets"
-          ? "دارایی خانواده"
-          : selectedCompany
-            ? selectedCompany
-            : "داشبورد";
+      : location.pathname === "/chat"
+        ? "دستیار سرمایه‌گذاری"
+        : location.pathname === "/portfolio"
+          ? "پورتفولیو"
+          : location.pathname === "/assets"
+            ? "دارایی خانواده"
+            : selectedCompany
+              ? selectedCompany
+              : "داشبورد";
 
   const pageSubtitle =
     location.pathname === "/Table"
       ? "غربال و مقایسه‌ی همه‌ی شرکت‌های بازار"
-      : location.pathname === "/assets"
-        ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
-        : location.pathname === "/portfolio"
-          ? "دارایی‌های سهام"
-          : undefined;
+      : location.pathname === "/chat"
+        ? "گفت‌وگو و پیشنهاد سرمایه‌گذاری بر پایه‌ی داده‌های کمی"
+        : location.pathname === "/assets"
+          ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
+          : location.pathname === "/portfolio"
+            ? "دارایی‌های سهام"
+            : undefined;
 
   const [collectingPrice, setCollectingPrice] = useState(false);
   const [priceCollectMsg, setPriceCollectMsg] = useState<string | null>(null);
@@ -474,6 +479,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <Portfolio />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/chat"
+                    element={
+                      <ProtectedRoute>
+                        <ChatPage />
                       </ProtectedRoute>
                     }
                   />

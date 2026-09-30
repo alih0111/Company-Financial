@@ -227,3 +227,50 @@ func (s *Shadow) FetchCompanyScoreCanonical(ctx context.Context, companyName str
 	}
 	return s.src.CompanyScoreByLegacyID(tctx, s.cfg.ScoreVersion, legacyID)
 }
+
+// SymbolPageCanonical reads the full canonical bundle for one company by its
+// legacy 32-hex CompanyID: identity, monthly activities, financial periods,
+// market history, scores, factor scores and base-metric snapshots.
+func (s *Shadow) FetchSymbolPageCanonical(ctx context.Context, legacyID string) (SymbolPageCanonical, error) {
+	if s == nil || s.src == nil {
+		return SymbolPageCanonical{}, fmt.Errorf("canonical source not configured")
+	}
+	if legacyID == "" {
+		return SymbolPageCanonical{}, nil
+	}
+	tctx, cancel := s.withFundTimeout(ctx)
+	defer cancel()
+	return s.src.SymbolPage(tctx, legacyID)
+}
+
+// FetchPriceSeriesCanonical reads canonical adjusted daily prices for one
+// company by legacy 32-hex CompanyID (newest first), which is what the risk and
+// portfolio math consumes.
+func (s *Shadow) FetchPriceSeriesCanonical(ctx context.Context, legacyID string, limit int) ([]MarketInputRow, error) {
+	if s == nil || s.src == nil {
+		return nil, fmt.Errorf("canonical source not configured")
+	}
+	if legacyID == "" {
+		return nil, nil
+	}
+	if limit <= 0 || limit > 2000 {
+		limit = 400
+	}
+	tctx, cancel := s.withFundTimeout(ctx)
+	defer cancel()
+	return s.src.PriceHistoryByLegacyCompanyID(tctx, legacyID, limit)
+}
+
+// FetchMarketMetaCanonical reads industry/share-structure metadata for the given
+// legacy company ids.
+func (s *Shadow) FetchMarketMetaCanonical(ctx context.Context, ids []string) ([]MarketMetaRow, error) {
+	if s == nil || s.src == nil {
+		return nil, fmt.Errorf("canonical source not configured")
+	}
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	tctx, cancel := s.withFundTimeout(ctx)
+	defer cancel()
+	return s.src.MarketMetaByLegacyCompanyIDs(tctx, ids)
+}

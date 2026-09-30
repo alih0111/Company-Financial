@@ -104,6 +104,21 @@ func (f *fakeSource) CompanyScoreByLegacyID(_ context.Context, _ string, legacyI
 	return b, f.err
 }
 
+func (f *fakeSource) SymbolPage(_ context.Context, legacyID string) (SymbolPageCanonical, error) {
+	f.bundleCalls++
+	page := SymbolPageCanonical{}
+	page.Identity.CanonicalCompanyID = legacyID
+	return page, f.err
+}
+
+func (f *fakeSource) PriceHistoryByLegacyCompanyID(context.Context, string, int) ([]MarketInputRow, error) {
+	return nil, f.err
+}
+
+func (f *fakeSource) MarketMetaByLegacyCompanyIDs(context.Context, []string) ([]MarketMetaRow, error) {
+	return nil, f.err
+}
+
 func (f *fakeSource) Health(context.Context) error { return f.err }
 
 func testCfg(mode ReadMode) Config {

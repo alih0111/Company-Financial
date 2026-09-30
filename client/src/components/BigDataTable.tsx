@@ -104,6 +104,18 @@ const growthBadge = (value: number | null | undefined) => {
   return "text-gray-600 dark:text-gray-300";
 };
 
+// نرخ رشد با مخرج کوچک می‌تواند به میلیون‌ها درصد برسد؛ نمایش عددی‌اش گمراه‌کننده
+// است، پس خارج از بازه‌ی معنادار فقط جهت تغییر نشان داده می‌شود.
+const PCT_DISPLAY_LIMIT = 1000;
+
+const fmtPct = (value: number | null | undefined, digits = 2) => {
+  if (value == null || !Number.isFinite(value)) return "--";
+  if (Math.abs(value) > PCT_DISPLAY_LIMIT) {
+    return value > 0 ? `>+${PCT_DISPLAY_LIMIT}%` : `<−${PCT_DISPLAY_LIMIT}%`;
+  }
+  return value.toFixed(digits) + "%";
+};
+
 // Row left border color based on score
 const rowBorderColor = (score: number | null | undefined) => {
   if (score == null || !Number.isFinite(score)) return "border-l-gray-300 dark:border-l-gray-700";
@@ -177,7 +189,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
         className: "w-32",
         Cell: ({ value }: { value: number | null | undefined }) => (
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${nonOpBadge(value)}`}>
-            {value != null && Number.isFinite(value) ? value.toFixed(2) + "%" : "--"}
+            {fmtPct(value)}
           </span>
         ),
       },
@@ -188,7 +200,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
         className: "w-32",
         Cell: ({ value }: { value: number }) => (
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${growthBadge(value)}`}>
-            {value != null ? value.toFixed(2) + "%" : "--"}
+            {fmtPct(value)}
           </span>
         ),
       },
@@ -199,7 +211,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
         className: "w-32",
         Cell: ({ value }: { value: number }) => (
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${growthBadge(value)}`}>
-            {value != null ? value.toFixed(2) + "%" : "--"}
+            {fmtPct(value)}
           </span>
         ),
       },
@@ -353,8 +365,9 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
                 <tr
                   {...row.getRowProps()}
                   key={row.getRowProps().key}
-                  onClick={async () => {
+                  onClick={async (e: React.MouseEvent) => {
                     const companyName = row.original.company_name;
+                    const url = `/dashboard?companyname=${encodeURIComponent(companyName)}`;
 
                     try {
                       await addViewedItem(companyName);
@@ -362,8 +375,14 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
                       console.error("Failed to save viewed item:", err);
                     }
 
+                    // Ctrl/Cmd + کلیک: باز شدن در تب جدید مثل لینک معمولی
+                    if (e.ctrlKey || e.metaKey) {
+                      window.open(url, "_blank", "noopener");
+                      return;
+                    }
+
                     // ناوبری داخلی به داشبورد همان شرکت
-                    navigate(`/dashboard?companyname=${encodeURIComponent(companyName)}`);
+                    navigate(url);
                   }}
                   className={`
                     cursor-pointer transition-all duration-200 ease-out

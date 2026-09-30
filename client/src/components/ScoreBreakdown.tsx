@@ -48,8 +48,17 @@ type Category = {
   accentBg: string;    // Tailwind bg color class
 };
 
-const pct = (v: number | null | undefined) =>
-  v == null || Number.isNaN(v) ? "--" : `${v.toFixed(1)}%`;
+// نرخ رشد با مخرج کوچک می‌تواند به میلیون‌ها درصد برسد؛ نمایش عددی‌اش گمراه‌کننده
+// است، پس خارج از بازه‌ی معنادار فقط جهت تغییر نشان داده می‌شود.
+const PCT_DISPLAY_LIMIT = 1000;
+
+const pct = (v: number | null | undefined) => {
+  if (v == null || Number.isNaN(v)) return "--";
+  if (Math.abs(v) > PCT_DISPLAY_LIMIT) {
+    return v > 0 ? `>+${PCT_DISPLAY_LIMIT}%` : `<−${PCT_DISPLAY_LIMIT}%`;
+  }
+  return `${v.toFixed(1)}%`;
+};
 
 const num = (v: number | null | undefined, d = 2) =>
   v == null || Number.isNaN(v) ? "--" : v.toFixed(d);

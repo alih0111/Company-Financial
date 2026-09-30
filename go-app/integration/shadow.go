@@ -9,11 +9,11 @@ import (
 
 // Endpoint identifiers used across handlers and diagnostics.
 const (
-	EndpointCompanyNames    = "GET /api/CompanyNames"
-	EndpointPriceHistory    = "GET /api/price-history"
-	EndpointScores          = "GET /api/summary"
-	EndpointSalesData       = "GET /api/SalesData"
-	EndpointSalesData2      = "GET /api/SalesData2"
+	EndpointCompanyNames     = "GET /api/CompanyNames"
+	EndpointPriceHistory     = "GET /api/price-history"
+	EndpointScores           = "GET /api/summary"
+	EndpointSalesData        = "GET /api/SalesData"
+	EndpointSalesData2       = "GET /api/SalesData2"
 	EndpointAllCompanyScores = "GET /api/AllCompanyScores"
 	EndpointCompanyScores    = "GET /api/CompanyScores"
 )
@@ -33,18 +33,18 @@ type Shadow struct {
 
 // Status is the safe observability view (no connection strings or secrets).
 type Status struct {
-	ReadMode             string `json:"read_mode"`
-	CanonicalConfigured  bool   `json:"canonical_configured"`
-	CanonicalReachable   bool   `json:"canonical_reachable"`
-	CanonicalError       string `json:"canonical_error,omitempty"`
-	ScoreVersion         string `json:"score_version"`
-	ScoreRunID           string `json:"score_run_id,omitempty"`
-	ScoreAsOf            string `json:"score_as_of,omitempty"`
-	SourceCutoffAt       string `json:"source_cutoff_at,omitempty"`
-	DataAsOf             string `json:"data_as_of,omitempty"`
-	ScoreStale           bool   `json:"score_stale"`
-	ComparisonRules      string `json:"comparison_rules"`
-	ShadowTimeoutMS      int    `json:"shadow_timeout_ms"`
+	ReadMode            string `json:"read_mode"`
+	CanonicalConfigured bool   `json:"canonical_configured"`
+	CanonicalReachable  bool   `json:"canonical_reachable"`
+	CanonicalError      string `json:"canonical_error,omitempty"`
+	ScoreVersion        string `json:"score_version"`
+	ScoreRunID          string `json:"score_run_id,omitempty"`
+	ScoreAsOf           string `json:"score_as_of,omitempty"`
+	SourceCutoffAt      string `json:"source_cutoff_at,omitempty"`
+	DataAsOf            string `json:"data_as_of,omitempty"`
+	ScoreStale          bool   `json:"score_stale"`
+	ComparisonRules     string `json:"comparison_rules"`
+	ShadowTimeoutMS     int    `json:"shadow_timeout_ms"`
 
 	CanaryEnabled     bool `json:"price_history_canary_enabled"`
 	CanarySymbolCount int  `json:"price_history_canary_symbol_count"`
@@ -261,9 +261,9 @@ func (s *Shadow) comparePriceHistory(ctx context.Context, symbol string, limit i
 		legacyRecs = append(legacyRecs, marketRecord(r))
 	}
 	spec := CompareSpec{
-		KeyField:        "date",
-		AllowLegacyOnly: true,
-		AllowCanonOnly:  true,
+		KeyField:         "date",
+		AllowLegacyOnly:  true,
+		AllowCanonOnly:   true,
 		MaxMissingDetail: 10,
 		Fields: []FieldSpec{
 			{Name: "closing_price", Kind: KindNumber, Money: true, ExpectedUnitPresentation: true, Tolerance: 1e-6},
@@ -311,9 +311,9 @@ func (s *Shadow) CompareScores(ctx context.Context, legacy []ScoreInputRow, lega
 		legacyRecs = append(legacyRecs, scoreRecord(r))
 	}
 	spec := CompareSpec{
-		KeyField:        "legacy_company_id",
-		AllowLegacyOnly: true,
-		AllowCanonOnly:  false,
+		KeyField:         "legacy_company_id",
+		AllowLegacyOnly:  true,
+		AllowCanonOnly:   false,
 		MaxMissingDetail: 20,
 		Fields: []FieldSpec{
 			{Name: "symbol", Kind: KindText, Identity: true},
@@ -564,20 +564,20 @@ func (s *Shadow) compareCompanyScores(ctx context.Context, legacy CompanyScoreIn
 
 func allScoreRecord(r AllScoreInputRow) Record {
 	return Record{
-		"legacy_company_id": TextValue(r.LegacyCompanyID),
-		"company_name":      TextValue(r.CompanyName),
-		"symbol":            TextValue(r.Symbol),
-		"sales_growth":      NumValue(r.SalesGrowth),
-		"eps_growth":        NumValue(r.EPSGrowth),
-		"pe":                NumValue(r.PE),
-		"price":             NumValue(r.Price),
-		"operation":         NumValue(r.Operation),
-		"quant_score":       NumValue(r.QuantScore),
-		"data_quality_score": NumValue(r.DataQualityScore),
-		"growth_score":      NumValue(r.GrowthScore),
+		"legacy_company_id":   TextValue(r.LegacyCompanyID),
+		"company_name":        TextValue(r.CompanyName),
+		"symbol":              TextValue(r.Symbol),
+		"sales_growth":        NumValue(r.SalesGrowth),
+		"eps_growth":          NumValue(r.EPSGrowth),
+		"pe":                  NumValue(r.PE),
+		"price":               NumValue(r.Price),
+		"operation":           NumValue(r.Operation),
+		"quant_score":         NumValue(r.QuantScore),
+		"data_quality_score":  NumValue(r.DataQualityScore),
+		"growth_score":        NumValue(r.GrowthScore),
 		"profitability_score": NumValue(r.ProfitabilityScore),
-		"valuation_score":   NumValue(r.ValuationScore),
-		"market_score":      NumValue(r.MarketScore),
+		"valuation_score":     NumValue(r.ValuationScore),
+		"market_score":        NumValue(r.MarketScore),
 	}
 }
 

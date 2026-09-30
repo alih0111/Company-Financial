@@ -96,17 +96,17 @@ type CompareSpec struct {
 // Difference classifications. Every mismatch must be classified; none may
 // silently disappear.
 const (
-	ClassExactMatch            = "EXACT_MATCH"
-	ClassExpectedUnit          = "EXPECTED_UNIT_PRESENTATION"
-	ClassExpectedSemantic      = "EXPECTED_CANONICAL_SEMANTIC_CHANGE"
-	ClassLegacyOnly            = "LEGACY_ONLY"
-	ClassCanonicalOnly         = "CANONICAL_ONLY"
-	ClassNameNullSemantics     = "NULL_SEMANTICS_DIFFERENCE"
-	ClassOrderOnly             = "ORDER_ONLY_DIFFERENCE"
-	ClassNameNumericMismatch   = "NUMERIC_MISMATCH"
-	ClassNameIdentityMismatch  = "IDENTITY_MISMATCH"
-	ClassQueryError            = "QUERY_ERROR"
-	ClassNameUnclassified      = "UNCLASSIFIED_MISMATCH"
+	ClassExactMatch           = "EXACT_MATCH"
+	ClassExpectedUnit         = "EXPECTED_UNIT_PRESENTATION"
+	ClassExpectedSemantic     = "EXPECTED_CANONICAL_SEMANTIC_CHANGE"
+	ClassLegacyOnly           = "LEGACY_ONLY"
+	ClassCanonicalOnly        = "CANONICAL_ONLY"
+	ClassNameNullSemantics    = "NULL_SEMANTICS_DIFFERENCE"
+	ClassOrderOnly            = "ORDER_ONLY_DIFFERENCE"
+	ClassNameNumericMismatch  = "NUMERIC_MISMATCH"
+	ClassNameIdentityMismatch = "IDENTITY_MISMATCH"
+	ClassQueryError           = "QUERY_ERROR"
+	ClassNameUnclassified     = "UNCLASSIFIED_MISMATCH"
 )
 
 // DiffRecord is a single classified difference.
@@ -122,14 +122,14 @@ type DiffRecord struct {
 
 // EndpointResult aggregates a single shadow comparison.
 type EndpointResult struct {
-	Endpoint      string
-	KeyField      string
-	LegacyRows    int
-	CanonicalRows int
-	Matched       int
-	ExpectedDiffs int
-	Unexpected    int
-	Errors        int
+	Endpoint        string
+	KeyField        string
+	LegacyRows      int
+	CanonicalRows   int
+	Matched         int
+	ExpectedDiffs   int
+	Unexpected      int
+	Errors          int
 	OrderChanged    bool
 	Classifications map[string]int
 	Diffs           []DiffRecord

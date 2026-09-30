@@ -46,6 +46,12 @@ type AllScoreInputRow struct {
 	FactorRaw map[string]float64
 }
 
+// FactorRank returns the factor percentile (0..1) for a code, or 0 when the
+// factor was not materialized for this company.
+func (r AllScoreInputRow) FactorRank(code string) float64 {
+	return r.FactorRanks[code]
+}
+
 // CompanyScoreInputRow is the legacy /api/CompanyScores per-company shape used
 // for comparison. It carries only display/presentation values; the canonical
 // bundle is the analytics source of truth.

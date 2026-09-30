@@ -68,6 +68,15 @@ func main() {
 		protected.POST("/portfolio", handlers.UpsertHolding)
 		protected.DELETE("/portfolio/:company_id", handlers.DeleteHolding)
 
+		// دستیار چت سرمایه‌گذاری (مبتنی بر دیتای امتیاز کمی)
+		protected.POST("/chat", handlers.Chat)
+
+		// همان چت با رویدادهای پیشرفت (SSE)
+		protected.POST("/chat/stream", handlers.ChatStream)
+
+		// بررسی سلامت اتصال مدل زبانی (بدون افشای کلید)
+		protected.GET("/health/ai", handlers.GetAIHealth)
+
 		// دارایی خانواده (فقط ادمین) → جایگزین اکسل «دارایی»
 		protected.GET("/family/assets", handlers.GetFamilyAssets)
 		protected.POST("/family/assets", handlers.CreateFamilyAsset)

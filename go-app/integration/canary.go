@@ -605,19 +605,19 @@ func (s *Shadow) startCanaryFlusher() {
 }
 
 type canarySummary struct {
-	GeneratedAt  string                     `json:"generated_at"`
-	Enabled      bool                       `json:"enabled"`
-	SymbolCount  int                        `json:"symbol_count"`
-	Symbols      []string                   `json:"symbols"`
-	Percent      int                        `json:"percent"`
-	Verify       bool                       `json:"verify"`
-	TimeoutMs    int                        `json:"timeout_ms"`
-	Counters     map[string]int             `json:"counters"`
-	Latency      canaryLatencyStat          `json:"latency"`
-	PerSymbol    map[string]symbolSummary   `json:"per_symbol"`
-	SampleCount  int                        `json:"sample_count"`
-	Unexpected   int                        `json:"unexpected_differences"`
-	CanonicalErr int                        `json:"canonical_errors"`
+	GeneratedAt  string                   `json:"generated_at"`
+	Enabled      bool                     `json:"enabled"`
+	SymbolCount  int                      `json:"symbol_count"`
+	Symbols      []string                 `json:"symbols"`
+	Percent      int                      `json:"percent"`
+	Verify       bool                     `json:"verify"`
+	TimeoutMs    int                      `json:"timeout_ms"`
+	Counters     map[string]int           `json:"counters"`
+	Latency      canaryLatencyStat        `json:"latency"`
+	PerSymbol    map[string]symbolSummary `json:"per_symbol"`
+	SampleCount  int                      `json:"sample_count"`
+	Unexpected   int                      `json:"unexpected_differences"`
+	CanonicalErr int                      `json:"canonical_errors"`
 }
 
 type symbolSummary struct {

@@ -787,3 +787,103 @@ export async function syncCodal(
 
   return res.json();
 }
+// ----------------------------- Investment Chat -----------------------------
+
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ChatResponse {
+  reply: string;
+  intent?: string;
+}
+
+export async function sendChatMessage(
+  messages: ChatMessage[]
+): Promise<ChatResponse> {
+  const res = await fetch(`${API_BASE}/chat`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ messages }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || `Chat failed: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export interface ChatProgressEvent {
+  kind: "open" | "round" | "tool_start" | "tool_done" | "tool_error" | "notice";
+  tool?: string;
+  round?: number;
+  message?: string;
+}
+
+// sendChatMessageStream همان /chat است ولی روی /chat/stream با رویدادهای SSE؛
+// هر ابزار که دستیار صدا می‌زند از طریق onEvent لحظه‌ای گزارش می‌شود.
+// اگر استریم شکست بخورد، فراخوان می‌تواند به sendChatMessage برگردد.
+export async function sendChatMessageStream(
+  messages: ChatMessage[],
+  onEvent: (e: ChatProgressEvent) => void,
+  signal?: AbortSignal
+): Promise<ChatResponse> {
+  const res = await fetch(`${API_BASE}/chat/stream`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ messages }),
+    signal,
+  });
+  if (!res.ok || !res.body) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || `Chat stream failed: ${res.status}`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let final: ChatResponse | null = null;
+
+  const handleFrame = (frame: string) => {
+    const evMatch = frame.match(/^event: (.+)$/m);
+    const dataMatch = frame.match(/^data: (.+)$/m);
+    const ev = evMatch ? evMatch[1].trim() : "";
+    let data: Record<string, unknown> = {};
+    try {
+      data = JSON.parse(dataMatch ? dataMatch[1] : "{}");
+    } catch {
+      return;
+    }
+    if (ev === "progress") {
+      onEvent({
+        kind: (data.type as ChatProgressEvent["kind"]) || "round",
+        tool: data.tool as string | undefined,
+        round: data.round as number | undefined,
+      });
+    } else if (ev === "notice") {
+      onEvent({ kind: "notice", message: data.message as string });
+    } else if (ev === "final") {
+      final = { reply: String(data.reply ?? ""), intent: data.intent as string | undefined };
+    } else if (ev === "error") {
+      throw new Error(String(data.error ?? "stream error"));
+    }
+  };
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let idx: number;
+    while ((idx = buffer.indexOf("\n\n")) >= 0) {
+      const frame = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 2);
+      if (frame.trim()) handleFrame(frame);
+    }
+  }
+
+  if (!final) throw new Error("stream ended without a final answer");
+  return final;
+}

@@ -14,9 +14,9 @@ import (
 // Jalali period prefix (canonical migrated statements do not carry fiscal
 // metadata), so it is a documented fiscal-year proxy.
 type QuarterlyProfitPoint struct {
-	PeriodEndDate   string
-	FiscalYear      int
-	Quarter         int
+	PeriodEndDate    string
+	FiscalYear       int
+	Quarter          int
 	CumulativeProfit float64
 	QuarterlyProfit  float64
 	SourceReportID   string

@@ -45,6 +45,61 @@ BASELINE_WEIGHTS_V37 = {
     "LowVolatility": 2, "Momentum": 1,
 }
 
+# factor_code -> (metric field(s) in the engine output, unit, higher_is_better).
+# A percentile alone tells a consumer nothing about magnitude, so the raw value is
+# materialized alongside it (analytics.factor_scores.raw_value) together with its
+# unit; readers must not guess a unit from the factor code.
+FACTOR_RAW_SPEC = {
+    "SalesGrowth": (("sales_growth_12m",), "percent", True),
+    "SalesGrowth3M": (("sales_growth_3m",), "percent", True),
+    "RevenueGrowth": (("revenue_growth",), "percent", True),
+    "OperatingProfitGrowth": (("operating_profit_growth",), "percent", True),
+    # Mirrors the rank substitution: net profit growth falls back to EPS growth.
+    "NetProfitGrowth": (("net_profit_growth", "eps_growth"), "percent", True),
+    "OperatingMargin": (("operating_margin",), "percent", True),
+    "NetMargin": (("net_margin",), "percent", True),
+    "ROERank": (("roe",), "percent", True),
+    "MarginTrend": (("margin_trend",), "pct_point", True),
+    "InterestCoverage": (("interest_coverage",), "ratio", True),
+    "CashConversion": (("cash_conversion",), "ratio", True),
+    "EarningsQuality": (("earnings_quality",), "percent", False),
+    "PE": (("pe",), "ratio", False),
+    "PS": (("ps",), "ratio", False),
+    "PB": (("pb",), "ratio", False),
+    "Liquidity": (("avg_trade_value_30d",), "rial", True),
+    "Leverage": (("debt_ratio",), "ratio", False),
+    "CurrentRatio": (("current_ratio",), "ratio", True),
+    "Stability": (("sales_stability",), "score01", True),
+    "LowVolatility": (("volatility_30d",), "percent_daily", False),
+    "Momentum": (("price_momentum_30d",), "percent", True),
+}
+
+# Derived base metrics written to analytics.metric_snapshots (unit per code).
+METRIC_UNITS = {
+    "sales_ttm": "rial", "sales_growth_12m": "percent", "sales_growth_3m": "percent",
+    "sales_stability": "score01", "revenue_ttm": "rial", "revenue_growth": "percent",
+    "net_profit_ttm": "rial", "operating_profit_ttm": "rial", "eps_ttm": "rial_per_share",
+    "net_profit_growth": "percent", "operating_profit_growth": "percent", "eps_growth": "percent",
+    "net_margin": "percent", "operating_margin": "percent", "margin_trend": "pct_point",
+    "roe": "percent", "current_ratio": "ratio", "debt_ratio": "ratio",
+    "interest_coverage": "ratio", "earnings_quality": "percent", "cash_conversion": "ratio",
+    "price_momentum_30d": "percent", "volatility_30d": "percent_daily",
+    "avg_trade_value_30d": "rial", "latest_price": "rial",
+    "pe": "ratio", "ps": "ratio", "pb": "ratio", "ocf_ttm": "rial",
+}
+
+
+def factor_raw_value(v, factor_code):
+    """Raw magnitude for a factor, or None. Mirrors the rank fallback chain."""
+    spec = FACTOR_RAW_SPEC.get(factor_code)
+    if not spec:
+        return None
+    for field in spec[0]:
+        if v.get(field) is not None:
+            return v[field]
+    return None
+
+
 MONETARY = {"revenue", "net_profit", "operating_profit", "finance_cost",
             "other_non_operating", "operating_cash_flow"}
 
@@ -540,11 +595,30 @@ def store_run(eng, metrics, as_of, cutoff, digest):
                     pct = v.get(field)
                     if pct is None:
                         continue
+                    raw = factor_raw_value(v, fc)
+                    spec = FACTOR_RAW_SPEC.get(fc)
                     cur.execute("""INSERT INTO analytics.factor_scores
-                        (run_id, company_id, factor_code, percentile, weighted_score, weight, metadata)
-                        VALUES (%s,%s,%s,%s,%s,%s,%s)
+                        (run_id, company_id, factor_code, raw_value, percentile,
+                         weighted_score, weight, metadata)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
                         ON CONFLICT (run_id, company_id, factor_code) DO NOTHING""",
-                        (run_id, cid, fc, pct, pct * w, w, json.dumps({"weights_validated": False})))
+                        (run_id, cid, fc, raw, pct, pct * w, w,
+                         json.dumps({"weights_validated": False,
+                                     "raw_unit": spec[1] if spec else None,
+                                     "higher_is_better": spec[2] if spec else None,
+                                     "raw_field": spec[0][0] if spec else None},
+                                    ensure_ascii=False)))
+                for mc, mu in METRIC_UNITS.items():
+                    val = v.get(mc)
+                    if val is None:
+                        continue
+                    cur.execute("""INSERT INTO analytics.metric_snapshots
+                        (as_of_date, company_id, primary_security_id, metric_code,
+                         value, unit, calculation_version, source_cutoff_at, details)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                        (as_of, cid, v["security_id"], mc, val, mu,
+                         SCORE_VERSION, cutoff,
+                         json.dumps({"input_hash": digest}, ensure_ascii=False)))
             pg.commit()
             print("stored score_run", run_id, "companies", len(metrics))
     finally:

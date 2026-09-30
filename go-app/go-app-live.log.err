@@ -27,3 +27,172 @@ RESULT|mode=daily(canonical-only)|upserted=270|matched=270|unmatched=1338
 RESULT|mode=daily(canonical-only)|upserted=270|matched=270|unmatched=1338
 2026/09/28 20:56:02 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
 2026/09/29 00:28:53 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/29 13:41:26 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 269, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-29", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-09-29 13:46:34,226 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=269 skipped=0 mirror=not_attempted
+2026-09-29 13:46:34,226 [INFO] ✅ daily(canonical-only) انجام شد — upsert=269، تطبیق‌خورده=269، بدون‌تطبیق=1341
+2026-09-29 13:46:34,226 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, خگلپا, داروند, منجیل, غزنجان, لبن, اهرم, سینرژی, وتجارت, نارنج اهرم, ذرت, صبا, دارا یکم, ومعادن, سیمین, طلا, تابان, فنقره, توان, دوایکس, خگستر, جهش, افران, کهربا, اخابر
+RESULT|mode=daily(canonical-only)|upserted=269|matched=269|unmatched=1341
+2026/09/29 13:46:39 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+exit status 0xffffffff
+exit status 0xffffffff
+exit status 0xffffffff
+exit status 1
+exit status 0xffffffff
+exit status 0xffffffff
+2026/09/29 21:24:47 chat-agent: model=glm-5.3-flash tools=8 question="بهترین سهم\u200cها برای سرمایه\u200cگذاری چی هست؟"
+2026/09/29 21:24:52 chat-agent: tool screen_companies ok (97 chars)
+2026/09/29 21:24:57 chat-agent: tool screen_companies ok (2418 chars)
+2026/09/29 21:25:08 chat-agent: model=glm-5.3-flash tools=8 question="تحلیل فولاد"
+2026/09/29 21:25:13 chat-agent: tool search_companies ok (267 chars)
+2026/09/29 21:25:17 chat-agent: tool get_company_profile ok (1294 chars)
+2026/09/29 21:25:18 chat-agent: tool get_company_financials ok (1269 chars)
+2026/09/29 21:25:18 chat-agent: tool get_price_stats ok (642 chars)
+2026/09/29 21:26:33 chat-agent: model=deepseek-v4.1-flash tools=8 question="سبد سهام من چطوره و چه ریسکی داره؟"
+2026/09/29 21:26:35 chat-agent: tool get_my_portfolio ok (59 chars)
+exit status 0xffffffff
+exit status 0xffffffff
+exit status 0xffffffff
+2026/09/29 21:57:58 chat-agent: tokens prompt=50 completion=186 total=236
+2026/09/29 21:57:58 chat-agent: model=deepseek-v4.1-flash tools=8 question="سه سهم نقدشونده با P/E زیر ۷ معرفی کن"
+2026/09/29 21:58:00 chat-agent: tokens prompt=1644 completion=114 total=1758
+2026/09/29 21:58:00 chat-agent: tool screen_companies ok (3419 chars)
+2026/09/29 21:58:04 chat-agent: tokens prompt=3041 completion=283 total=3324
+2026/09/29 21:58:04 chat-agent: tool get_company_profile ok (1248 chars)
+2026/09/29 21:58:04 chat-agent: tool get_company_profile ok (1300 chars)
+2026/09/29 21:58:04 chat-agent: tool get_company_profile ok (1219 chars)
+2026/09/29 21:58:13 chat-agent: tokens prompt=4341 completion=563 total=4904
+2026/09/29 22:08:10 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+exit status 0xffffffff
+2026/09/29 22:11:27 chat-agent: model=deepseek-v4.1-flash tools=9 question="یک سبد متعادل با وزن\u200cهای مشخص برایم بساز"
+2026/09/29 22:11:29 chat-agent: tokens prompt=2094 completion=73 total=2167
+2026/09/29 22:11:31 chat-agent: tool build_portfolio ok (4386 chars)
+2026/09/29 22:11:32 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/29 22:11:41 chat-agent: tokens prompt=3622 completion=932 total=4554
+2026/09/29 22:12:27 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/29 22:14:02 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/29 22:15:37 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+exit status 0xffffffff
+2026/09/29 22:17:46 chat-agent: model=deepseek-v4.1-flash tools=9 question="یک سبد کم\u200cریسک با وزن\u200cهای مشخص بساز و ریسکش…"
+2026/09/29 22:17:49 chat-agent: tokens prompt=2103 completion=66 total=2169
+2026/09/29 22:17:52 chat-agent: tool build_portfolio ok (4108 chars)
+2026/09/29 22:18:01 chat-agent: tokens prompt=3513 completion=815 total=4328
+2026/09/29 22:26:10 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/29 22:29:15 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/29 22:30:40 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/29 22:32:30 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/29 22:53:20 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+exit status 0xffffffff
+2026/09/29 23:10:10 chat-agent: model=deepseek-v4.1-flash tools=9 question="یک سبد متعادل بساز"
+2026/09/29 23:10:14 chat-agent: tokens prompt=2077 completion=59 total=2136
+2026/09/29 23:10:15 chat-agent: tool build_portfolio ok (4872 chars)
+2026/09/29 23:10:23 chat-agent: tokens prompt=3759 completion=925 total=4684
+exit status 0xffffffff
+exit status 0xffffffff
+2026/09/29 23:21:57 chat-agent: model=deepseek-v4.1-flash tools=9 question="تحلیل فولاد و مقایسه با کیمیا"
+2026/09/29 23:21:59 chat-agent: tokens prompt=2099 completion=138 total=2237
+2026/09/29 23:21:59 chat-agent: tool search_companies ok (267 chars)
+2026/09/29 23:21:59 chat-agent: tool search_companies ok (266 chars)
+2026/09/29 23:22:00 chat-agent: tokens prompt=2392 completion=182 total=2574
+2026/09/29 23:22:00 chat-agent: tool compare_companies ok (911 chars)
+2026/09/29 23:22:00 chat-agent: tool get_company_profile ok (1294 chars)
+2026/09/29 23:22:00 chat-agent: tool get_company_profile ok (1279 chars)
+2026/09/29 23:22:01 chat-agent: tool get_price_stats ok (642 chars)
+2026/09/29 23:22:01 chat-agent: tool get_price_stats ok (641 chars)
+2026/09/29 23:22:03 chat-agent: tokens prompt=4200 completion=153 total=4353
+2026/09/29 23:22:03 chat-agent: tool get_company_financials ok (999 chars)
+2026/09/29 23:22:03 chat-agent: tool get_company_financials ok (953 chars)
+2026/09/29 23:22:13 chat-agent: tokens prompt=4971 completion=1160 total=6131
+2026/09/29 23:29:46 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/29 23:31:08 chat-agent: model=deepseek-v4.1-flash tools=9 question="تحلیل فولاد و مقایسه با کیمیا"
+2026/09/29 23:31:10 chat-agent: tokens prompt=2213 completion=116 total=2329
+2026/09/29 23:31:10 chat-agent: tool search_companies ok (267 chars)
+2026/09/29 23:31:10 chat-agent: tool search_companies ok (266 chars)
+2026/09/29 23:31:11 chat-agent: tokens prompt=2506 completion=247 total=2753
+2026/09/29 23:31:11 chat-agent: tool get_company_profile ok (1294 chars)
+2026/09/29 23:31:11 chat-agent: tool get_company_profile ok (1279 chars)
+2026/09/29 23:31:11 chat-agent: tool compare_companies ok (911 chars)
+2026/09/29 23:31:12 chat-agent: tool get_price_stats ok (642 chars)
+2026/09/29 23:31:12 chat-agent: tool get_price_stats ok (641 chars)
+2026/09/29 23:31:18 chat-agent: tokens prompt=4380 completion=974 total=5354
+2026/09/29 23:36:35 chat-agent: model=deepseek-v4.1-flash tools=9 question="مقایسه فولاد و کیمیا"
+2026/09/29 23:36:38 chat-agent: tokens prompt=2211 completion=126 total=2337
+2026/09/29 23:36:38 chat-agent: tool compare_companies ok (911 chars)
+2026/09/29 23:36:39 chat-agent: tokens prompt=2580 completion=101 total=2681
+2026/09/29 23:36:39 chat-agent: tool get_price_stats ok (642 chars)
+2026/09/29 23:36:39 chat-agent: tool get_price_stats ok (641 chars)
+2026/09/29 23:36:43 chat-agent: tokens prompt=3105 completion=627 total=3732
+2026/09/29 23:39:01 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+exit status 0xffffffff
+2026/09/30 00:06:39 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+exit status 0xffffffff
+2026/09/30 00:12:11 chat-agent: model=deepseek-v4.1-flash tools=9 question="یک سبد پرخطر بساز و پراکندگی صنعتی\u200cاش را نش\xd8…"
+2026/09/30 00:12:13 chat-agent: tokens prompt=2108 completion=143 total=2251
+2026/09/30 00:12:14 chat-agent: tool build_portfolio ok (7088 chars)
+2026/09/30 00:12:20 chat-agent: tokens prompt=4447 completion=767 total=5214
+exit status 0xffffffff
+2026/09/30 00:14:28 chat-agent: model=deepseek-v4.1-flash tools=9 question="سلام"
+2026/09/30 00:14:30 chat-agent: tokens prompt=2087 completion=230 total=2317
+2026/09/30 00:14:32 chat-agent: tokens prompt=50 completion=153 total=203
+exit status 0xffffffff
+2026/09/30 00:36:23 chat-agent: model=deepseek-v4.1-flash tools=12 question="ریسکم متوسطه و سرمایه\u200cام ۵۰۰ میلیون تومانه\xd8…"
+2026/09/30 00:36:24 chat-agent: tokens prompt=2366 completion=131 total=2497
+2026/09/30 00:36:24 chat-agent: tool set_my_preferences failed: کاربر شناسایی نشد
+2026/09/30 00:36:26 chat-agent: tokens prompt=2454 completion=170 total=2624
+2026/09/30 00:36:26 chat-agent: model=deepseek-v4.1-flash tools=12 question="حالا با همین تنظیمات یک سبد بساز"
+2026/09/30 00:36:27 chat-agent: tokens prompt=2356 completion=94 total=2450
+2026/09/30 00:36:27 chat-agent: tool get_my_preferences ok (165 chars)
+2026/09/30 00:36:27 chat-agent: tool get_my_portfolio ok (59 chars)
+2026/09/30 00:36:29 chat-agent: tokens prompt=2462 completion=289 total=2751
+2026/09/30 00:36:30 chat-agent: tool build_portfolio ok (5991 chars)
+2026/09/30 00:36:34 chat-agent: tokens prompt=4453 completion=753 total=5206
+2026/09/30 00:36:34 chat-agent: model=deepseek-v4.1-flash tools=12 question="سبد من رو نقد کن"
+2026/09/30 00:36:35 chat-agent: tokens prompt=2350 completion=98 total=2448
+2026/09/30 00:36:35 chat-agent: tool critique_my_portfolio ok (54 chars)
+2026/09/30 00:36:35 chat-agent: tool get_my_portfolio ok (59 chars)
+2026/09/30 00:36:35 chat-agent: tool get_my_preferences ok (165 chars)
+2026/09/30 00:36:36 chat-agent: tokens prompt=2488 completion=245 total=2733
+2026/09/30 00:37:42 chat-agent: model=deepseek-v4.1-flash tools=12 question="ریسکم متوسطه و سرمایه\u200cام ۵۰۰ میلیون تومانه\xd8…"
+2026/09/30 00:37:43 chat-agent: tokens prompt=2366 completion=120 total=2486
+2026/09/30 00:37:43 chat-agent: tool set_my_preferences failed: failed to encode args[2]: unable to encode 5e+09 into binary format for int4 (OID 23): 5000000000 is greater than maximum value for int4
+2026/09/30 00:37:45 chat-agent: tokens prompt=2489 completion=246 total=2735
+2026/09/30 00:37:45 chat-agent: tool set_my_preferences ok (12 chars)
+2026/09/30 00:37:47 chat-agent: tokens prompt=2566 completion=132 total=2698
+2026/09/30 00:37:47 chat-agent: tool get_my_preferences ok (97 chars)
+2026/09/30 00:37:49 chat-agent: tokens prompt=2626 completion=318 total=2944
+2026/09/30 00:37:49 chat-agent: model=deepseek-v4.1-flash tools=12 question="حالا یک سبد با همین تنظیمات بساز"
+2026/09/30 00:37:50 chat-agent: tokens prompt=2356 completion=131 total=2487
+2026/09/30 00:37:50 chat-agent: tool get_my_preferences ok (97 chars)
+2026/09/30 00:37:50 chat-agent: tool get_my_portfolio ok (59 chars)
+2026/09/30 00:37:50 chat-agent: tokens prompt=2448 completion=79 total=2527
+2026/09/30 00:37:51 chat-agent: tool build_portfolio ok (7584 chars)
+2026/09/30 00:37:55 chat-agent: tokens prompt=4924 completion=707 total=5631
+2026/09/30 00:37:55 chat-agent: model=deepseek-v4.1-flash tools=12 question="تنظیمات من چیه؟"
+2026/09/30 00:37:56 chat-agent: tokens prompt=2351 completion=46 total=2397
+2026/09/30 00:37:56 chat-agent: tool get_my_preferences ok (97 chars)
+2026/09/30 00:37:57 chat-agent: tokens prompt=2411 completion=101 total=2512
+exit status 0xffffffff
+2026/09/30 00:40:04 chat-agent: model=deepseek-v4.1-flash tools=12 question="یک سبد کم\u200cریسک با سرمایه\u200cام بساز"
+2026/09/30 00:40:05 chat-agent: tokens prompt=2425 completion=89 total=2514
+2026/09/30 00:40:05 chat-agent: tool get_my_preferences ok (97 chars)
+2026/09/30 00:40:05 chat-agent: tool get_my_portfolio ok (59 chars)
+2026/09/30 00:40:06 chat-agent: tokens prompt=2517 completion=170 total=2687
+2026/09/30 00:40:07 chat-agent: tool build_portfolio ok (6673 chars)
+2026/09/30 00:40:12 chat-agent: tokens prompt=4713 completion=1236 total=5949
+exit status 0xffffffff
+2026/09/30 00:42:00 chat-agent: model=deepseek-v4.1-flash tools=12 question="یک سبد کم\u200cریسک با سرمایه\u200cام بساز"
+2026/09/30 00:42:01 chat-agent: tokens prompt=2456 completion=83 total=2539
+2026/09/30 00:42:01 chat-agent: tool get_my_preferences ok (97 chars)
+2026/09/30 00:42:02 chat-agent: tool get_my_portfolio ok (59 chars)
+2026/09/30 00:42:03 chat-agent: tokens prompt=2548 completion=179 total=2727
+2026/09/30 00:42:04 chat-agent: tool build_portfolio ok (6673 chars)
+2026/09/30 00:42:10 chat-agent: tokens prompt=4728 completion=1634 total=6362
+2026/09/30 13:45:08 chat-agent: model=deepseek-v4.1-flash tools=12 question="تحلیل فولاد"
+2026/09/30 13:45:10 chat-agent: tokens prompt=2559 completion=99 total=2658
+2026/09/30 13:45:10 chat-agent: tool search_companies ok (267 chars)
+2026/09/30 13:45:13 chat-agent: tokens prompt=2714 completion=230 total=2944
+2026/09/30 13:45:13 chat-agent: tool get_company_profile ok (1294 chars)
+2026/09/30 13:45:13 chat-agent: tool get_company_financials ok (1269 chars)
+2026/09/30 13:45:13 chat-agent: tool get_price_stats ok (642 chars)
+2026/09/30 13:45:13 chat-agent: tool get_monthly_sales ok (1636 chars)
+2026/09/30 13:45:22 chat-agent: tokens prompt=4526 completion=1045 total=5571

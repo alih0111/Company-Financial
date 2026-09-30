@@ -117,6 +117,15 @@ export default function useCompanyData() {
     }
   }, [searchParams, companyOptions, hasSynced]);
 
+  // همگام‌سازی با تغییر companyname در URL (مثلاً کلیک روی نماد در غربال بازار
+  // وقتی داشبورد از قبل باز است) — بدون نیاز به رفرش دستی صفحه.
+  const paramCompany = searchParams.get("companyname") || "";
+  useEffect(() => {
+    if (paramCompany) {
+      setSelectedCompany((prev) => (prev === paramCompany ? prev : paramCompany));
+    }
+  }, [paramCompany]);
+
   const loadCompanyOptions = useCallback(async () => {
     setLoadingCompanies(true);
     try {

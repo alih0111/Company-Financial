@@ -16,12 +16,12 @@ func registryWith(classes map[string]string) *EligibilityRegistry {
 
 func TestEligibilityClassification(t *testing.T) {
 	reg := registryWith(map[string]string{
-		"فولاد":  EligibleSafe,
-		"خودرو":  EligibleSafe,
-		"کسرا":   EligibleSafe,
+		"فولاد":   EligibleSafe,
+		"خودرو":   EligibleSafe,
+		"کسرا":    EligibleSafe,
 		"جم پیلن": CollisionLegacy,
 		"های وب":  CollisionLegacy,
-		"خاهن":   LegacyOnly,
+		"خاهن":    LegacyOnly,
 		"نامعلوم": CanonicalUnmapped,
 		"های وب3": LegacyCoverageDivergence,
 	})
@@ -51,7 +51,7 @@ func TestGuardBlocksAllowlist(t *testing.T) {
 	sh := newShadowForTest(cfg, &fakeSource{})
 	sh.SetEligibility(registryWith(map[string]string{
 		"جم پیلن": CollisionLegacy,
-		"فولاد":  EligibleSafe,
+		"فولاد":   EligibleSafe,
 	}))
 	if got := sh.PriceHistoryRoute("جم پیلن"); got != RouteLegacy {
 		t.Fatalf("allowlisted collision must be forced to legacy, got %v", got)
@@ -73,7 +73,7 @@ func TestGuardBlocksPercentage(t *testing.T) {
 	sh.SetEligibility(registryWith(map[string]string{
 		"جم پیلن": CollisionLegacy,
 		"های وب":  CollisionLegacy,
-		"فولاد":  EligibleSafe,
+		"فولاد":   EligibleSafe,
 	}))
 	if got := sh.PriceHistoryRoute("جم پیلن"); got != RouteLegacy {
 		t.Fatalf("percentage must not select collision into canonical, got %v", got)
@@ -125,7 +125,7 @@ func TestRegistryForcesShadowLegacyForCollision(t *testing.T) {
 	sh := newShadowForTest(cfg, &fakeSource{})
 	sh.SetEligibility(registryWith(map[string]string{
 		"جم پیلن": CollisionLegacy,
-		"فولاد":  EligibleSafe,
+		"فولاد":   EligibleSafe,
 	}))
 	if got := sh.PriceHistoryRoute("جم پیلن"); got != RouteLegacy {
 		t.Fatalf("registered collision must not shadow-compare, got %v", got)
@@ -181,9 +181,9 @@ func TestLoadEligibilityCSV(t *testing.T) {
 func TestEligibilityCounters(t *testing.T) {
 	sh := newShadowForTest(testCfg(ModeLegacy), &fakeSource{})
 	sh.SetEligibility(registryWith(map[string]string{
-		"فولاد":  EligibleSafe,
+		"فولاد":   EligibleSafe,
 		"جم پیلن": CollisionLegacy,
-		"خاهن":   LegacyOnly,
+		"خاهن":    LegacyOnly,
 		"نامعلوم": CanonicalUnmapped,
 	}))
 	sh.RecordEligibility("فولاد")

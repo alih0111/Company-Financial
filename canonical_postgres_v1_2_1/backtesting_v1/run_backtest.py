@@ -23,10 +23,11 @@ sys.path.insert(0, str(BASE / "migration_tools"))
 from config import BacktestConfig, frozen_model_identifiers, SCORE_VERSION  # noqa: E402
 from calendar import TradingCalendar, rebalance_dates  # noqa: E402
 from market_data import load_price_store  # noqa: E402
+import risk_model  # noqa: E402
 from snapshot_builder import build_snapshot, snapshot_stable_payload  # noqa: E402
 from universe import evaluate_universe, track_changes  # noqa: E402
 from forward_returns import compute_forward_returns, forward_return  # noqa: E402
-from portfolio_simulator import select_top, simulate  # noqa: E402
+from portfolio_simulator import select_top, simulate, simulate_corrected  # noqa: E402
 import diagnostics as DG  # noqa: E402
 from assess_readiness import FACTOR_SOURCE  # noqa: E402
 
@@ -47,7 +48,14 @@ def _write_csv(path: Path, rows, fieldnames=None):
             w.writerow({k: (json.dumps(v) if isinstance(v, (dict, list)) else v) for k, v in r.items()})
 
 
-def run(cfg: BacktestConfig | None = None, outdir: Path | None = None) -> dict:
+def run(cfg: BacktestConfig | None = None, outdir: Path | None = None,
+        simulator: str = "auto") -> dict:
+    """simulator: "auto" (default, unchanged) | "simple" | "corrected".
+
+    "corrected" is the Phase-2 cash-aware wealth-path policy and is the only one
+    that honours per-member weights; the weighting validation uses it for every
+    scheme so the comparison is apples-to-apples.
+    """
     cfg = cfg or BacktestConfig()
     outdir = outdir or (HERE / "output")
     outdir.mkdir(parents=True, exist_ok=True)
@@ -93,6 +101,7 @@ def run(cfg: BacktestConfig | None = None, outdir: Path | None = None) -> dict:
 
     # ---- Phase C: portfolio (rebalance-to-rebalance holding) ----
     port_rebalances = []
+    weighted_info = []
     for i, rb in enumerate(rebalances):
         if i + 1 >= len(rebalances):
             break
@@ -101,10 +110,20 @@ def run(cfg: BacktestConfig | None = None, outdir: Path | None = None) -> dict:
         def hret(s):
             return forward_return(price_store, s["security_id"], entry, exit_)
         sel = [{"company_id": s["company_id"], "ret": hret(s)} for s in rb["selected"]]
+        if cfg.weighting != "equal":
+            # PIT risk weighting: only closes on/before the signal date T are used.
+            wmap, winfo = risk_model.weights_for(price_store, rb["selected"], rb["date"], cfg.weighting)
+            for m in sel:
+                m["weight"] = wmap.get(m["company_id"], 0.0)
+            weighted_info.append({"date": str(rb["date"]), **winfo})
         bench = [{"company_id": s["company_id"], "ret": hret(s)} for s in rb["tradable"]]
         port_rebalances.append({"date": rb["date"], "execution_date": entry,
                                 "selected": sel, "benchmark": bench})
-    port_rows, port_summary = simulate(port_rebalances, cfg.cost_bps_per_side)
+    use_corrected = simulator == "corrected" or (simulator == "auto" and cfg.weighting != "equal")
+    if use_corrected:
+        port_rows, port_summary, _contrib = simulate_corrected(port_rebalances, cfg.cost_bps_per_side)
+    else:
+        port_rows, port_summary = simulate(port_rebalances, cfg.cost_bps_per_side)
 
     # ---- Phase D: cross-sectional diagnostics on primary horizon ----
     primary = 21
