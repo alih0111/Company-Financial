@@ -398,6 +398,11 @@ func syncFamilyPricesFromMarketPG(ctx context.Context, db *sql.DB, fullBackfill 
 	}
 
 	for _, a := range assets {
+		// دارایی‌های دستی (دلار/سایر) قیمتشان از بازار نمی‌آید و در فهرست
+		// «گم‌شده»ها هم نباید بیایند؛ قیمت دستی خانواده دست‌نخورده می‌ماند.
+		if a.Category == "dollar" || a.Category == "other" {
+			continue
+		}
 		symbol := strings.TrimSpace(a.Symbol)
 		name := strings.TrimSpace(a.Name)
 		if symbol == "" {

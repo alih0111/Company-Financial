@@ -34,6 +34,9 @@ SQL_ORDER = [
     "090_indexes.sql",
     "100_family.sql",
     "110_family_broker.sql",
+    "115_market_meta.sql",
+    "116_market_assets.sql",
+    "120_chat_settings.sql",
 ]
 
 

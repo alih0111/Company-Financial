@@ -51,6 +51,10 @@ func main() {
 		// تاریخچه‌ی قیمت نماد
 		protected.GET("/price-history", handlers.GetPriceHistory)
 
+		// شاخص‌های بازار + صندوق‌های طلا/کالا (صفحه‌ی «بازار»)
+		protected.GET("/market/assets", handlers.GetMarketAssets)
+		protected.POST("/market/collect", handlers.RunMarketAssetsCollector)
+
 		// خروجی CSV امتیازات
 		protected.GET("/export/scores", handlers.ExportScoresCSV)
 

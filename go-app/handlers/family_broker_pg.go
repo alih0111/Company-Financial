@@ -735,7 +735,32 @@ func reconcileBrokerHoldingsPG(ctx context.Context, db *sql.DB, personID int, re
 		imported++
 	}
 
-	// حذف دارایی‌های شخص که در سبد کارگزاری نیستند (جایگزینی کامل).
+	// دارایی‌های غیربورسی (دلار/سایر) هرگز از کارگزاری نمی‌آیند و دستی وارد
+	// می‌شوند؛ حذفِ جایگزینیِ کامل نباید آن‌ها را پاک کند.
+	manualRows, err := tx.QueryContext(ctx, `
+		SELECT h.asset_id
+		FROM family.holdings h
+		JOIN family.assets a ON a.asset_id = h.asset_id
+		WHERE h.person_id = $1 AND a.category IN ('dollar', 'other')`, personID)
+	if err != nil {
+		return imported, err
+	}
+	for manualRows.Next() {
+		var id int
+		if err := manualRows.Scan(&id); err != nil {
+			manualRows.Close()
+			return imported, err
+		}
+		keepAssetIDs = append(keepAssetIDs, id)
+	}
+	if err := manualRows.Err(); err != nil {
+		manualRows.Close()
+		return imported, err
+	}
+	manualRows.Close()
+
+	// حذف دارایی‌های شخص که در سبد کارگزاری نیستند (جایگزینی کامل)؛
+	// دارایی‌های دستی بالا در فهرست نگه‌داشتنی‌ها هستند.
 	if len(keepAssetIDs) == 0 {
 		if _, err := tx.ExecContext(ctx, `DELETE FROM family.holdings WHERE person_id = $1`, personID); err != nil {
 			return imported, err

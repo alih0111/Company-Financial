@@ -1,7 +1,14 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTable, useSortBy, useGlobalFilter, type Column } from "react-table";
-import { FaSort, FaSortUp, FaSortDown, FaSearch, FaCheck, FaTimes } from "react-icons/fa";
+import {
+  FaSort,
+  FaSortUp,
+  FaSortDown,
+  FaSearch,
+  FaCheck,
+  FaTimes,
+} from "react-icons/fa";
 import { addViewedItem } from "../utils/api";
 
 const getStableValue = (row: DataRow): boolean | null => {
@@ -80,27 +87,35 @@ const scoreBadge = (value: number | null | undefined) => {
   if (value == null || !Number.isFinite(value)) {
     return "bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400";
   }
-  if (value >= 70) return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20";
-  if (value >= 55) return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/15";
-  if (value >= 40) return "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20";
-  if (value >= 25) return "bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20";
+  if (value >= 70)
+    return "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20";
+  if (value >= 55)
+    return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/15";
+  if (value >= 40)
+    return "bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 ring-1 ring-indigo-500/20";
+  if (value >= 25)
+    return "bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/20";
   return "bg-red-500/15 text-red-600 dark:text-red-400 ring-1 ring-red-500/20";
 };
 
 // Non-operating badge styling
 const nonOpBadge = (value: number | null | undefined) => {
   if (value == null || !Number.isFinite(value)) return "text-gray-400";
-  if (value < 5) return "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10";
+  if (value < 5)
+    return "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10";
   if (value < 15) return "text-amber-600 dark:text-amber-400 bg-amber-500/10";
-  if (value < 30) return "text-orange-600 dark:text-orange-400 bg-orange-500/10";
+  if (value < 30)
+    return "text-orange-600 dark:text-orange-400 bg-orange-500/10";
   return "text-red-600 dark:text-red-400 bg-red-500/10 font-semibold";
 };
 
 // Growth badge
 const growthBadge = (value: number | null | undefined) => {
   if (value == null || !Number.isFinite(value)) return "text-gray-400";
-  if (value > 30) return "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 font-semibold";
-  if (value < -10) return "text-red-600 dark:text-red-400 bg-red-500/10 font-semibold";
+  if (value > 30)
+    return "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 font-semibold";
+  if (value < -10)
+    return "text-red-600 dark:text-red-400 bg-red-500/10 font-semibold";
   return "text-gray-600 dark:text-gray-300";
 };
 
@@ -118,7 +133,8 @@ const fmtPct = (value: number | null | undefined, digits = 2) => {
 
 // Row left border color based on score
 const rowBorderColor = (score: number | null | undefined) => {
-  if (score == null || !Number.isFinite(score)) return "border-l-gray-300 dark:border-l-gray-700";
+  if (score == null || !Number.isFinite(score))
+    return "border-l-gray-300 dark:border-l-gray-700";
   if (score >= 70) return "border-l-emerald-500/60";
   if (score >= 55) return "border-l-emerald-400/40";
   if (score >= 40) return "border-l-indigo-500/50";
@@ -134,105 +150,116 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
     () =>
       [
         {
-        Header: "Score",
-        id: "quant_score",
-
-        accessor: (row: DataRow) => {
-          const value = row.quant_score;
-
-          if (value === null || value === undefined) {
-            return null;
-          }
-
-          const parsed = Number(value);
-          return Number.isFinite(parsed) ? parsed : null;
+          Header: "ردیف",
+          id: "row_number",
+          Cell: () => null,
+          disableSortBy: true,
+          className: "w-20",
+        },
+        {
+          Header: "Company",
+          accessor: "company_name",
+          className: "w-32",
+          Cell: ({ value }: { value: string }) => (
+            <span className="font-bold text-gray-800 dark:text-white text-sm">
+              {value}
+            </span>
+          ),
         },
 
-        sortType: "numericSort",
-        sortDescFirst: true,
-        className: "w-28",
-
-        Cell: ({ value }: { value: number | null | undefined }) => (
-          <span className={`inline-flex items-center justify-center min-w-[3.5rem] px-3 py-1 rounded-full text-sm font-bold tabular-nums ${scoreBadge(value)}`}>
-            {value != null && Number.isFinite(value) ? value.toFixed(2) : "--"}
-          </span>
-        ),
-      },
-      {
-        Header: "Stable",
-        id: "Stable",
-        accessor: (row: DataRow) => getStableValue(row),
-        sortType: "basic",
-        className: "w-16",
-        Cell: ({ value }: { value: boolean | null | undefined }) => {
-          if (value === true) {
-            return (
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/25">
-                <FaCheck className="text-emerald-600 dark:text-emerald-400 text-xs" />
-              </span>
-            );
-          }
-          if (value === false) {
-            return (
-              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-500/15 ring-1 ring-red-500/25">
-                <FaTimes className="text-red-500 dark:text-red-400 text-xs" />
-              </span>
-            );
-          }
-          return <span className="text-gray-400">--</span>;
+        {
+          Header: "EPS Growth",
+          accessor: "eps_growth",
+          sortType: "basic",
+          className: "w-32",
+          Cell: ({ value }: { value: number }) => (
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${growthBadge(value)}`}
+            >
+              {fmtPct(value)}
+            </span>
+          ),
         },
-      },
-      {
-        Header: "nonOperating",
-        accessor: "non_operating_pct",
-        sortType: "numericSort",
-        className: "w-32",
-        Cell: ({ value }: { value: number | null | undefined }) => (
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${nonOpBadge(value)}`}>
-            {fmtPct(value)}
-          </span>
-        ),
-      },
-      {
-        Header: "EPS Growth",
-        accessor: "eps_growth",
-        sortType: "basic",
-        className: "w-32",
-        Cell: ({ value }: { value: number }) => (
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${growthBadge(value)}`}>
-            {fmtPct(value)}
-          </span>
-        ),
-      },
-      {
-        Header: "Sales Growth",
-        accessor: "sales_growth",
-        sortType: "basic",
-        className: "w-32",
-        Cell: ({ value }: { value: number }) => (
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${growthBadge(value)}`}>
-            {fmtPct(value)}
-          </span>
-        ),
-      },
-      {
-        Header: "Company",
-        accessor: "company_name",
-        className: "w-32",
-        Cell: ({ value }: { value: string }) => (
-          <span className="font-bold text-gray-800 dark:text-white text-sm">
-            {value}
-          </span>
-        ),
-      },
-      {
-        Header: "ردیف",
-        id: "row_number",
-        Cell: () => null,
-        disableSortBy: true,
-        className: "w-20",
-      },
-    ] as unknown as Column<DataRow>[],
+        {
+          Header: "Sales Growth",
+          accessor: "sales_growth",
+          sortType: "basic",
+          className: "w-32",
+          Cell: ({ value }: { value: number }) => (
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${growthBadge(value)}`}
+            >
+              {fmtPct(value)}
+            </span>
+          ),
+        },
+        {
+          Header: "nonOperating",
+          accessor: "non_operating_pct",
+          sortType: "numericSort",
+          className: "w-32",
+          Cell: ({ value }: { value: number | null | undefined }) => (
+            <span
+              className={`inline-flex items-center px-2.5 py-0.5 rounded-lg text-xs font-medium tabular-nums ${nonOpBadge(value)}`}
+            >
+              {fmtPct(value)}
+            </span>
+          ),
+        },
+        {
+          Header: "Stable",
+          id: "Stable",
+          accessor: (row: DataRow) => getStableValue(row),
+          sortType: "basic",
+          className: "w-16",
+          Cell: ({ value }: { value: boolean | null | undefined }) => {
+            if (value === true) {
+              return (
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-500/15 ring-1 ring-emerald-500/25">
+                  <FaCheck className="text-emerald-600 dark:text-emerald-400 text-xs" />
+                </span>
+              );
+            }
+            if (value === false) {
+              return (
+                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-red-500/15 ring-1 ring-red-500/25">
+                  <FaTimes className="text-red-500 dark:text-red-400 text-xs" />
+                </span>
+              );
+            }
+            return <span className="text-gray-400">--</span>;
+          },
+        },
+        {
+          Header: "Score",
+          id: "quant_score",
+
+          accessor: (row: DataRow) => {
+            const value = row.quant_score;
+
+            if (value === null || value === undefined) {
+              return null;
+            }
+
+            const parsed = Number(value);
+            return Number.isFinite(parsed) ? parsed : null;
+          },
+
+          sortType: "numericSort",
+          sortDescFirst: true,
+          className: "w-28",
+
+          Cell: ({ value }: { value: number | null | undefined }) => (
+            <span
+              className={`inline-flex items-center justify-center min-w-[3.5rem] px-3 py-1 rounded-full text-sm font-bold tabular-nums ${scoreBadge(value)}`}
+            >
+              {value != null && Number.isFinite(value)
+                ? value.toFixed(2)
+                : "--"}
+            </span>
+          ),
+        },
+      ] as unknown as Column<DataRow>[],
     [],
   );
 
@@ -249,30 +276,32 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
     useSortBy,
   );
 
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    rows,
-    prepareRow,
-  } = tableInstance;
+  const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
+    tableInstance;
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value || "";
     setGlobalFilter(value);
     // Plugin-added method from useGlobalFilter
-    (tableInstance as unknown as Record<string, (v: string) => void>).setGlobalFilter(value);
+    (
+      tableInstance as unknown as Record<string, (v: string) => void>
+    ).setGlobalFilter(value);
   };
 
   const handleSortBy = (sorts: { id: string; desc: boolean }[]) => {
     // Plugin-added method from useSortBy
-    (tableInstance as unknown as Record<string, (s: { id: string; desc: boolean }[]) => void>).setSortBy(sorts);
+    (
+      tableInstance as unknown as Record<
+        string,
+        (s: { id: string; desc: boolean }[]) => void
+      >
+    ).setSortBy(sorts);
   };
 
   return (
     <div className="animate-fade-in-up glass-border glass-border-active rounded-3xl border border-gray-200/80 dark:border-gray-700/60 bg-white/70 dark:bg-gray-800/50 backdrop-blur-xl shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 py-4 px-6">
       {/* ── Toolbar ── */}
-      <div className="flex items-center gap-3 mb-4 flex-wrap">
+      <div className="flex items-center gap-3 mb-4 flex-wrap justify-between">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
           <FaSearch className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm" />
@@ -301,7 +330,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
       </div>
 
       {/* ── Table ── */}
-      <div className="overflow-auto max-h-[82vh] rounded-2xl">
+      <div className="overflow-auto max-h-[70vh] rounded-2xl">
         <table
           {...getTableProps()}
           className="min-w-full text-sm border-collapse"
@@ -319,7 +348,9 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
                 >
                   {headerGroup.headers.map((column) => {
                     const col = column as unknown as Record<string, unknown>;
-                    const getSortProps = col.getSortByToggleProps as (() => Record<string, unknown>) | undefined;
+                    const getSortProps = col.getSortByToggleProps as
+                      | (() => Record<string, unknown>)
+                      | undefined;
                     const sortProps = getSortProps ? getSortProps() : {};
                     const headerProps = column.getHeaderProps(sortProps);
                     return (
@@ -390,9 +421,10 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
                     hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30
                     hover:shadow-lg hover:shadow-indigo-500/5
                     hover:-translate-y-[1px]
-                    ${rowIndex % 2 === 0
-                      ? "bg-white/40 dark:bg-gray-900/20"
-                      : "bg-gray-50/40 dark:bg-gray-800/20"
+                    ${
+                      rowIndex % 2 === 0
+                        ? "bg-white/40 dark:bg-gray-900/20"
+                        : "bg-gray-50/40 dark:bg-gray-800/20"
                     }
                   `}
                 >
@@ -401,7 +433,8 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
                       {...cell.getCellProps()}
                       key={cell.getCellProps().key}
                       className={`p-3 text-center text-gray-600 dark:text-gray-300 ${
-                        (cell.column as unknown as Record<string, unknown>).className as string || ""
+                        ((cell.column as unknown as Record<string, unknown>)
+                          .className as string) || ""
                       }`}
                     >
                       {cell.column.id === "row_number" ? (

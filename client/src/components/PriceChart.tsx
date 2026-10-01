@@ -8,7 +8,13 @@ import {
   type ISeriesApi,
   type UTCTimestamp,
 } from "lightweight-charts";
-import { FaChartLine, FaDownload, FaSync, FaArrowUp, FaArrowDown } from "react-icons/fa";
+import {
+  FaChartLine,
+  FaDownload,
+  FaSync,
+  FaArrowUp,
+  FaArrowDown,
+} from "react-icons/fa";
 import {
   getPriceHistory,
   collectBrsPrices,
@@ -61,13 +67,19 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
   const [rangeIdx, setRangeIdx] = useState(2);
   const [fetching, setFetching] = useState(false);
   const [fetchMsg, setFetchMsg] = useState<string | null>(null);
-  const [logScale, setLogScale] = useState(false);
+  const [logScale, setLogScale] = useState(true);
   const { isAdmin } = getAuthStatus();
 
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candleRef = useRef<ISeriesApi<"Candlestick"> | null>(null);
   const volumeRef = useRef<ISeriesApi<"Histogram"> | null>(null);
+  // برای auto-extend هنگام زوم‌اوت
+  const candlesRef = useRef<CandlePoint[]>([]);
+  const rangeIdxRef = useRef(rangeIdx);
+  const loadingRef = useRef(false);
+  const autoExtendRef = useRef(false);
+  rangeIdxRef.current = rangeIdx;
   const [hover, setHover] = useState<{
     date: string;
     o: number;
@@ -80,6 +92,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
 
   const loadData = () => {
     if (!companyName) return;
+    loadingRef.current = true;
     setLoading(true);
     setError(null);
     getPriceHistory(companyName, RANGES[rangeIdx].days)
@@ -87,7 +100,10 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         setData(rows.reverse());
       })
       .catch((e) => setError(e?.message || "خطا"))
-      .finally(() => setLoading(false));
+      .finally(() => {
+        loadingRef.current = false;
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
@@ -99,7 +115,11 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     setFetching(true);
     setFetchMsg(null);
     try {
-      await collectBrsPrices("backfill", { symbol: companyName, raw: true, limit: 0 });
+      await collectBrsPrices("backfill", {
+        symbol: companyName,
+        raw: true,
+        limit: 0,
+      });
       setFetchMsg("قیمت‌ها جمع شد ✓");
       setTimeout(() => {
         loadData();
@@ -137,7 +157,9 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       const low = Math.min(rawLow, open, close);
 
       // time به‌صورت UTC timestamp از روی رشته‌ی YYYY-MM-DD
-      const t = Math.floor(new Date(d.date + "T00:00:00Z").getTime() / 1000) as UTCTimestamp;
+      const t = Math.floor(
+        new Date(d.date + "T00:00:00Z").getTime() / 1000,
+      ) as UTCTimestamp;
 
       candles.push({ time: t, open, high, low, close });
       volumes.push({
@@ -145,7 +167,10 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         value: d.volume || 0,
         color: close >= open ? C.upFill : C.downFill,
       });
-      jalaliMap.set(t, { jdate: d.jalali_date || d.date, chg: d.change_percent || 0 });
+      jalaliMap.set(t, {
+        jdate: d.jalali_date || d.date,
+        chg: d.change_percent || 0,
+      });
       prevClose = d.closing_price;
     }
     return { candles, volumes, jalaliMap };
@@ -184,8 +209,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       layout: {
         background: { type: ColorType.Solid, color: "transparent" },
         textColor: dark ? "#94a3b8" : "#64748b",
-        fontFamily:
-          '"Vazirmatn", "Segoe UI", Tahoma, system-ui, sans-serif',
+        fontFamily: '"Vazirmatn", "Segoe UI", Tahoma, system-ui, sans-serif',
         fontSize: 11,
       },
       grid: {
@@ -217,7 +241,12 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         barSpacing: 9,
         minBarSpacing: 2,
       },
-      handleScale: { axisPressedMouseMove: { time: true, price: false } },
+      handleScale: {
+        axisPressedMouseMove: { time: true, price: true },
+        axisDoubleClickReset: { time: true, price: true },
+        mouseWheel: true,
+        pinch: true,
+      },
     });
 
     const candleSeries = chart.addCandlestickSeries({
@@ -260,7 +289,9 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       const bar = param.seriesData.get(candleSeries) as
         | { open: number; high: number; low: number; close: number }
         | undefined;
-      const v = param.seriesData.get(volumeSeries) as { value: number } | undefined;
+      const v = param.seriesData.get(volumeSeries) as
+        | { value: number }
+        | undefined;
       if (!bar) {
         setHover(null);
         return;
@@ -278,9 +309,24 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     };
     chart.subscribeCrosshairMove(onMove);
 
+    // زوم‌اوت خودکار: اگر کاربر از ابتدای داده رد شد، بازه‌ی بزرگ‌تر لود کن
+    const onRangeChange = (range: any) => {
+      if (!range || loadingRef.current) return;
+      if (range.from < 0.5 && candlesRef.current.length > 0) {
+        const nextIdx = Math.min(rangeIdxRef.current + 1, RANGES.length - 1);
+        if (nextIdx !== rangeIdxRef.current) {
+          autoExtendRef.current = true;
+          rangeIdxRef.current = nextIdx;
+          setRangeIdx(nextIdx);
+        }
+      }
+    };
+    chart.timeScale().subscribeVisibleLogicalRangeChange(onRangeChange);
+
     return () => {
       ro.disconnect();
       chart.unsubscribeCrosshairMove(onMove);
+      chart.timeScale().unsubscribeVisibleLogicalRangeChange(onRangeChange);
       chart.remove();
       chartRef.current = null;
       candleRef.current = null;
@@ -295,12 +341,27 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     const chart = chartRef.current;
     if (!chart || !candleRef.current || !volumeRef.current) return;
 
+    const ts = chart.timeScale();
+    // اگر با زوم‌اوت خودکار داده‌ی قدیمی‌تر لود شد، جای پنجره‌ی دید کاربر را حفظ کن
+    const keepView = autoExtendRef.current && candlesRef.current.length > 0;
+    const prevRange = keepView ? ts.getVisibleLogicalRange() : null;
+    const prevCount = candlesRef.current.length;
+
+    candlesRef.current = candles;
     chart.priceScale("right").applyOptions({
       mode: logScale ? PriceScaleMode.Logarithmic : PriceScaleMode.Normal,
     });
     candleRef.current.setData(candles as any);
     volumeRef.current.setData(volumes as any);
-    chart.timeScale().fitContent();
+    ts.fitContent();
+    if (keepView && prevRange && candles.length > prevCount) {
+      const added = candles.length - prevCount;
+      ts.setVisibleLogicalRange({
+        from: prevRange.from + added,
+        to: prevRange.to + added,
+      });
+    }
+    autoExtendRef.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [candles, volumes, logScale]);
 
@@ -364,25 +425,42 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       </div>
 
       {/* ── Legend / Crosshair readout ── */}
-      <div className="flex items-center gap-4 mb-2 px-1 text-[11px] font-semibold tabular-nums min-h-[18px]" dir="ltr">
+      <div
+        className="flex items-center gap-4 mb-2 px-1 text-[11px] font-semibold tabular-nums min-h-[18px]"
+        dir="ltr"
+      >
         {hover ? (
           <>
             <span className="text-gray-400">{hover.date}</span>
             <span className="text-gray-500 dark:text-gray-400">
-              O <b className="text-gray-700 dark:text-gray-200">{priceFmt(hover.o)}</b>
+              O{" "}
+              <b className="text-gray-700 dark:text-gray-200">
+                {priceFmt(hover.o)}
+              </b>
             </span>
             <span className="text-gray-500 dark:text-gray-400">
-              H <b className="text-emerald-600 dark:text-emerald-400">{priceFmt(hover.h)}</b>
+              H{" "}
+              <b className="text-emerald-600 dark:text-emerald-400">
+                {priceFmt(hover.h)}
+              </b>
             </span>
             <span className="text-gray-500 dark:text-gray-400">
-              L <b className="text-red-500 dark:text-red-400">{priceFmt(hover.l)}</b>
+              L{" "}
+              <b className="text-red-500 dark:text-red-400">
+                {priceFmt(hover.l)}
+              </b>
             </span>
             <span className="text-gray-500 dark:text-gray-400">
-              C <b className="text-gray-700 dark:text-gray-200">{priceFmt(hover.c)}</b>
+              C{" "}
+              <b className="text-gray-700 dark:text-gray-200">
+                {priceFmt(hover.c)}
+              </b>
             </span>
             <span
               className={
-                hover.chg >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"
+                hover.chg >= 0
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-red-500 dark:text-red-400"
               }
             >
               {hover.chg >= 0 ? "+" : ""}
@@ -403,41 +481,57 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       {stats && (
         <div className="grid grid-cols-4 gap-2 mb-4">
           <div className="rounded-xl bg-gray-50 dark:bg-gray-800/40 p-2.5 text-center border border-gray-100 dark:border-gray-700/40">
-            <div className="text-[10px] text-gray-400 dark:text-gray-500 font-medium mb-0.5">آخرین قیمت</div>
+            <div className="text-[10px] text-gray-400 dark:text-gray-500 font-medium mb-0.5">
+              آخرین قیمت
+            </div>
             <div className="text-sm font-bold text-gray-800 dark:text-white tabular-nums">
               {priceFmt(stats.latest)}
             </div>
           </div>
           <div className="rounded-xl bg-emerald-50 dark:bg-emerald-900/15 p-2.5 text-center border border-emerald-100 dark:border-emerald-900/30">
-            <div className="text-[10px] text-emerald-600 dark:text-emerald-400/70 font-medium mb-0.5">سقف</div>
+            <div className="text-[10px] text-emerald-600 dark:text-emerald-400/70 font-medium mb-0.5">
+              سقف
+            </div>
             <div className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
               {priceFmt(stats.max)}
             </div>
           </div>
           <div className="rounded-xl bg-red-50 dark:bg-red-900/15 p-2.5 text-center border border-red-100 dark:border-red-900/30">
-            <div className="text-[10px] text-red-500 dark:text-red-400/70 font-medium mb-0.5">کف</div>
+            <div className="text-[10px] text-red-500 dark:text-red-400/70 font-medium mb-0.5">
+              کف
+            </div>
             <div className="text-sm font-bold text-red-500 dark:text-red-400 tabular-nums">
               {priceFmt(stats.min)}
             </div>
           </div>
-          <div className={`rounded-xl p-2.5 text-center border ${
-            stats.totalReturn >= 0
-              ? "bg-emerald-50 dark:bg-emerald-900/15 border-emerald-100 dark:border-emerald-900/30"
-              : "bg-red-50 dark:bg-red-900/15 border-red-100 dark:border-red-900/30"
-          }`}>
-            <div className={`text-[10px] font-medium mb-0.5 flex items-center justify-center gap-1 ${
+          <div
+            className={`rounded-xl p-2.5 text-center border ${
               stats.totalReturn >= 0
-                ? "text-emerald-600 dark:text-emerald-400/70"
-                : "text-red-500 dark:text-red-400/70"
-            }`}>
-              {stats.totalReturn >= 0 ? <FaArrowUp size={8} /> : <FaArrowDown size={8} />}
+                ? "bg-emerald-50 dark:bg-emerald-900/15 border-emerald-100 dark:border-emerald-900/30"
+                : "bg-red-50 dark:bg-red-900/15 border-red-100 dark:border-red-900/30"
+            }`}
+          >
+            <div
+              className={`text-[10px] font-medium mb-0.5 flex items-center justify-center gap-1 ${
+                stats.totalReturn >= 0
+                  ? "text-emerald-600 dark:text-emerald-400/70"
+                  : "text-red-500 dark:text-red-400/70"
+              }`}
+            >
+              {stats.totalReturn >= 0 ? (
+                <FaArrowUp size={8} />
+              ) : (
+                <FaArrowDown size={8} />
+              )}
               بازده
             </div>
-            <div className={`text-sm font-bold tabular-nums ${
-              stats.totalReturn >= 0
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-500 dark:text-red-400"
-            }`}>
+            <div
+              className={`text-sm font-bold tabular-nums ${
+                stats.totalReturn >= 0
+                  ? "text-emerald-600 dark:text-emerald-400"
+                  : "text-red-500 dark:text-red-400"
+              }`}
+            >
               {stats.totalReturn >= 0 ? "+" : ""}
               {stats.totalReturn.toFixed(1)}%
             </div>
@@ -449,8 +543,20 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         <div className="h-[400px] flex items-center justify-center">
           <div className="flex items-center gap-3 text-gray-400 dark:text-gray-500">
             <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+                fill="none"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              />
             </svg>
             <span className="text-sm font-medium">در حال بارگذاری نمودار…</span>
           </div>
@@ -486,7 +592,9 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
             </button>
           )}
           {fetchMsg && (
-            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">{fetchMsg}</p>
+            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+              {fetchMsg}
+            </p>
           )}
         </div>
       ) : (

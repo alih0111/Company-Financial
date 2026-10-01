@@ -59,6 +59,18 @@ func GetPriceHistory(c *gin.Context) {
 
 	companyName = normalizePersian(companyName)
 
+	// Exchange indices are not securities and live in market.index_observations.
+	// Serve them through the identical JSON contract so the same price chart
+	// renders a stock, a gold fund and an index without special-casing.
+	if looksLikeIndex(companyName) {
+		if db, err := config.GetPG(); err == nil && db != nil {
+			if rows, err := indexHistoryRows(c.Request.Context(), db, companyName, limit); err == nil && len(rows) > 0 {
+				c.JSON(http.StatusOK, rows)
+				return
+			}
+		}
+	}
+
 	// SQL Server retired: canonical-only, with an explicit error on failure and
 	// NO legacy fallback (which would attempt an unreachable SQL Server).
 	if config.SQLServerMode() == "offline_expected" {

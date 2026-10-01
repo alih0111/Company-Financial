@@ -18,6 +18,7 @@ import {
   FaBriefcase,
   FaTable,
   FaRobot,
+  FaGlobe,
 } from "react-icons/fa";
 import QuickSyncModal from "./QuickSyncModal";
 import { useDarkMode } from "../utils/theme";
@@ -57,6 +58,7 @@ const NAV_ITEMS: {
   adminOnly?: boolean;
 }[] = [
   { to: "/dashboard", label: "داشبورد شرکت", icon: <FaChartLine size={13} /> },
+  { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
   { to: "/chat", label: "دستیار سرمایه‌گذاری", icon: <FaRobot size={13} /> },
   { to: "/portfolio", label: "پورتفولیو", icon: <FaBriefcase size={13} /> },
@@ -324,7 +326,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => openModalForScript("script1")}
                 disabled={runningScripts.script1}
-                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
                 <FaCoins size={13} />
                 {runningScripts.script1 ? "در حال اجرا..." : "جمع‌آوری سود"}
@@ -333,7 +335,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => openModalForScript("script2")}
                 disabled={runningScripts.script2}
-                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
                 <FaChartPie size={13} />
                 {runningScripts.script2 ? "در حال اجرا..." : "جمع‌آوری فروش"}
@@ -346,7 +348,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             ${
               loadingFullPE
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20  active:scale-[0.98]"
             }`}
               >
                 <FaCalculator size={13} />
@@ -356,7 +358,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 onClick={() => openModalForScript("stockPrices")}
                 disabled={runningScripts.stockPrices}
-                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.98]"
+                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
                 <FaDownload size={13} />
                 {runningScripts.stockPrices
@@ -371,7 +373,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm transition-all duration-200 ${
                     quickSyncing
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                      : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20  active:scale-[0.98]"
                   }`}
                 >
                   <FaBolt size={13} />
@@ -386,7 +388,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   ${
                     runningScripts.full
                       ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                      : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20  active:scale-[0.98]"
                   }`}
               >
                 <FaDatabase size={13} />
@@ -405,7 +407,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       ${
                         loadingBrsDaily
                           ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                          : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20  active:scale-[0.98]"
                       }`}
                   >
                     <FaSyncAlt size={13} />
@@ -418,7 +420,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       ${
                         loadingBrsBackfill
                           ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 hover:shadow-md hover:shadow-cyan-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                          : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 hover:shadow-md hover:shadow-cyan-500/20  active:scale-[0.98]"
                       }`}
                   >
                     <FaDownload size={13} />
@@ -431,7 +433,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                       ${
                         loadingBrsSync
                           ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 hover:shadow-md hover:shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98]"
+                          : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 hover:shadow-md hover:shadow-amber-500/20  active:scale-[0.98]"
                       }`}
                   >
                     <FaBalanceScale size={13} />

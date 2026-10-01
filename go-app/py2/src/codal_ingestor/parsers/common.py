@@ -127,6 +127,20 @@ def extract_date_from_table(table: Tag) -> str | None:
     return None
 
 
+def period_end_from_title(title: str | None) -> str | None:
+    """Authoritative period end taken from the Codal report title.
+
+    Codal letter titles state the period explicitly, e.g.
+    "اطلاعات و صورت‌های مالی میاندوره‌ای  دوره ۶ ماهه منتهی به ۱۳۹۸/۱۱/۳۰" or
+    "صورت‌های مالی  سال مالی منتهی به ۱۳۹۹/۱۲/۳۰".  Statement headers, by
+    contrast, also carry a comparative (prior-period) column whose date can be
+    the first date in the header grid, so deriving the period from the table can
+    attribute the statement to the wrong economic period (the comparative one).
+    The title is therefore authoritative, the table header only a fallback.
+    """
+    return find_jalali_date(title)
+
+
 def detect_currency_unit(text: str) -> str:
     normalized = normalize_label(text)
     if "میلیون ریال" in normalized:

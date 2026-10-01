@@ -18,6 +18,7 @@ from codal_ingestor.parsers.common import (
     expand_visible_cells,
     extract_date_from_table,
     get_column_headers,
+    period_end_from_title,
     soup_from_html,
 )
 
@@ -129,6 +130,7 @@ def parse_profit_loss_html(
     company_name: str,
     source_url: str,
     report_date: str | None,
+    report_title: str | None = None,
 ) -> ProfitLossReportData:
     table = find_profit_loss_table(html)
     if table is None:
@@ -225,7 +227,7 @@ def parse_profit_loss_html(
                 )
             )
 
-    period_end = report_date or extract_date_from_table(table)
+    period_end = report_date or period_end_from_title(report_title) or extract_date_from_table(table)
     if not period_end:
         raise ValueError("report date was not found")
 

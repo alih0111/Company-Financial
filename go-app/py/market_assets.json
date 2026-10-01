@@ -1,0 +1,389 @@
+{
+  "comment": "Registered market assets: exchange indices (accumulated daily) and gold/commodity funds (securities with full price history). Regenerate candidates with: python py/market_assets.py discover",
+  "indices": [
+    {
+      "code": "TEDPIX",
+      "name": "شاخص کل"
+    },
+    {
+      "code": "TEDPIX_PRICE",
+      "name": "شاخص قیمت(وزنی-ارزشی)"
+    },
+    {
+      "code": "TEDPIX_EW",
+      "name": "شاخص کل (هم وزن)"
+    },
+    {
+      "code": "TEDPIX_EW_PRICE",
+      "name": "شاخص قیمت (هم وزن)"
+    },
+    {
+      "code": "TEDPIX_FREEFLOAT",
+      "name": "شاخص آزاد شناور"
+    },
+    {
+      "code": "MARKET_FIRST",
+      "name": "شاخص بازار اول"
+    },
+    {
+      "code": "MARKET_SECOND",
+      "name": "شاخص بازار دوم"
+    }
+  ],
+  "funds": [
+    {
+      "symbol": "نگین فارس",
+      "name": "صندوق س.طلا زردیس خلیج فارس",
+      "ins_code": "53514992320442853",
+      "kind": "gold"
+    },
+    {
+      "symbol": "ناب",
+      "name": "صندوق س.پشتوانه طلا نهایت نگر",
+      "ins_code": "30582275818828857",
+      "kind": "gold"
+    },
+    {
+      "symbol": "ناب2",
+      "name": "صندوق س.پشتوانه طلا نهایت نگر",
+      "ins_code": "41874435286844039",
+      "kind": "gold"
+    },
+    {
+      "symbol": "همیان",
+      "name": "صندوق س.پشتوانه طلا همیان سپهر",
+      "ins_code": "50072269736641214",
+      "kind": "gold"
+    },
+    {
+      "symbol": "همیان2",
+      "name": "صندوق س.پشتوانه طلا همیان سپهر",
+      "ins_code": "64405197943651570",
+      "kind": "gold"
+    },
+    {
+      "symbol": "گلدیس",
+      "name": "صندوق س.پشتوانه طلا گلدیس نوین",
+      "ins_code": "68376789401977331",
+      "kind": "gold"
+    },
+    {
+      "symbol": "درنا",
+      "name": "صندوق س.پشتوانه طلای درنا",
+      "ins_code": "17248898258246807",
+      "kind": "gold"
+    },
+    {
+      "symbol": "عیار",
+      "name": "صندوق طلای عیار مفید",
+      "ins_code": "34144395039913458",
+      "kind": "gold"
+    },
+    {
+      "symbol": "سینرژی",
+      "name": "ص.س. مبتنی بر کالای فارابی",
+      "ins_code": "15001802434062073",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "رزگلد",
+      "name": "صندوق س. کالای آرمان آتی",
+      "ins_code": "17244733069907210",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "آلتون",
+      "name": "صندوق س. کالای آسمان",
+      "ins_code": "28374437855144739",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "زریران",
+      "name": "صندوق س. کالای داریوش",
+      "ins_code": "7171962866271439",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "سیان",
+      "name": "صندوق س. کالای دیبای معیار1",
+      "ins_code": "31765923007618205",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "قلک گلد",
+      "name": "صندوق س. کالای قلک",
+      "ins_code": "20611778787745873",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "مهرگلد",
+      "name": "صندوق س. کالای نفیس مهرگان",
+      "ins_code": "48961821709187018",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "طلا",
+      "name": "صندوق س. کالای پارسیان",
+      "ins_code": "46700660505281786",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "ریتون",
+      "name": "صندوق س. کالای پاسارگاد",
+      "ins_code": "14035144070182412",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "ریتون2",
+      "name": "صندوق س. کالای پاسارگاد",
+      "ins_code": "36952679871949516",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نقرآمد",
+      "name": "صندوق س. کالای کارآمد1",
+      "ins_code": "41941748231072053",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "کهربا",
+      "name": "صندوق س. کالای کهربا",
+      "ins_code": "25559236668122210",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "امرالد",
+      "name": "صندوق س. کالای کیمیا",
+      "ins_code": "30895446582685604",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "پلاتا",
+      "name": "صندوق س. کالای کیمیا1",
+      "ins_code": "26581180478947817",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "سیلور",
+      "name": "صندوق س.بازده نقره نوا",
+      "ins_code": "18156575395080321",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "سیلور2",
+      "name": "صندوق س.بازده نقره نوا",
+      "ins_code": "24865200855668752",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "جام طلا",
+      "name": "صندوق س.مبتنی بر کالای فارابی",
+      "ins_code": "35389487611786089",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "سیمین",
+      "name": "صندوق س.نقره سیمین هوبر",
+      "ins_code": "33761569293467411",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "درخشان",
+      "name": "صندوق س.کالای آبان",
+      "ins_code": "61805666737517582",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "زرفام",
+      "name": "صندوق س.کالای آشنا",
+      "ins_code": "33144542989832366",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "سیگلو",
+      "name": "صندوق س.کالای آشنای1",
+      "ins_code": "10098482000925815",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "مثقال",
+      "name": "صندوق س.کالای آگاه",
+      "ins_code": "32469128621155736",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نقراط",
+      "name": "صندوق س.کالای آگاه1",
+      "ins_code": "65365726391403130",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "زر",
+      "name": "صندوق س.کالای امید ثروت ایران",
+      "ins_code": "33254899395816171",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "تابش",
+      "name": "صندوق س.کالای تابان تمدن",
+      "ins_code": "9089296888187061",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نقرفام",
+      "name": "صندوق س.کالای تابان تمدن1",
+      "ins_code": "30714541738317499",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "رز ترنج",
+      "name": "صندوق س.کالای ترنج",
+      "ins_code": "20244389840999638",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "یاس",
+      "name": "صندوق س.کالای ترنج1",
+      "ins_code": "16240668736729756",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "قیراط",
+      "name": "صندوق س.کالای درفش دماوند",
+      "ins_code": "6237807001018762",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "جواهر",
+      "name": "صندوق س.کالای دنای زاگرس",
+      "ins_code": "38544104313215500",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "لیان",
+      "name": "صندوق س.کالای دیبای معیار",
+      "ins_code": "6362118829011821",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "زمرد",
+      "name": "صندوق س.کالای زمرد بیدار",
+      "ins_code": "64795751499397128",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "دفینه",
+      "name": "صندوق س.کالای سینا",
+      "ins_code": "13117618204212939",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نفیس",
+      "name": "صندوق س.کالای صبا",
+      "ins_code": "4626686276232042",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نهال",
+      "name": "صندوق س.کالای نوویرا",
+      "ins_code": "12913156843322499",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نقرین",
+      "name": "صندوق س.کالای نوویرا1",
+      "ins_code": "12590355983583239",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نقرین2",
+      "name": "صندوق س.کالای نوویرا1",
+      "ins_code": "64755435377613454",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "زروان",
+      "name": "صندوق س.کالای ویستا",
+      "ins_code": "28255729477187163",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "گلدا",
+      "name": "صندوق س.کالای پاداش",
+      "ins_code": "48968268685622891",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "گلدا2",
+      "name": "صندوق س.کالای پاداش",
+      "ins_code": "2066976169139083",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "سیلوا",
+      "name": "صندوق س.کالای پاداش1",
+      "ins_code": "7887331100268907",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "سیلوا2",
+      "name": "صندوق س.کالای پاداش1",
+      "ins_code": "52578796680038854",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نقرسا",
+      "name": "صندوق س.کالای پارسیان1",
+      "ins_code": "47717365931256099",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "زرگر",
+      "name": "صندوق س.کالای کارآمد",
+      "ins_code": "16817885126368964",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نقران",
+      "name": "صندوق س.کالای کهربا1",
+      "ins_code": "41483334879559487",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "آتش",
+      "name": "صندوق س.کالای کهکشان فیروزه",
+      "ins_code": "56987424987755487",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "نقرابی",
+      "name": "صندوق س.کالای کهکشان فیروزه1",
+      "ins_code": "8620139816622134",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "میراث",
+      "name": "صندوق س.کالای کوروش",
+      "ins_code": "53633583359422860",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "گوهر",
+      "name": "صندوق س.کالای کیان",
+      "ins_code": "12390706505809150",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "گوهر2",
+      "name": "صندوق س.کالای کیان",
+      "ins_code": "35757908588761589",
+      "kind": "commodity"
+    },
+    {
+      "symbol": "سافرون",
+      "name": "صندوق س.کالای گنجینه زمین",
+      "ins_code": "51200575796028449",
+      "kind": "commodity"
+    }
+  ]
+}

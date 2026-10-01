@@ -35,6 +35,7 @@ const BigDataTable = lazy(() => import("./components/BigDataTable"));
 const Portfolio = lazy(() => import("./components/Portfolio"));
 const FamilyAssets = lazy(() => import("./components/FamilyAssets"));
 const ChatPage = lazy(() => import("./components/ChatPage"));
+const MarketPage = lazy(() => import("./components/MarketPage"));
 
 // لودر سطح صفحه برای Suspense
 const PageLoader = () => (
@@ -102,26 +103,30 @@ const App = () => {
   const pageTitle =
     location.pathname === "/Table"
       ? "غربال بازار"
-      : location.pathname === "/chat"
-        ? "دستیار سرمایه‌گذاری"
-        : location.pathname === "/portfolio"
-          ? "پورتفولیو"
-          : location.pathname === "/assets"
-            ? "دارایی خانواده"
-            : selectedCompany
-              ? selectedCompany
-              : "داشبورد";
+      : location.pathname === "/market"
+        ? "بازار"
+        : location.pathname === "/chat"
+          ? "دستیار سرمایه‌گذاری"
+          : location.pathname === "/portfolio"
+            ? "پورتفولیو"
+            : location.pathname === "/assets"
+              ? "دارایی خانواده"
+              : selectedCompany
+                ? selectedCompany
+                : "داشبورد";
 
   const pageSubtitle =
     location.pathname === "/Table"
       ? "غربال و مقایسه‌ی همه‌ی شرکت‌های بازار"
-      : location.pathname === "/chat"
-        ? "گفت‌وگو و پیشنهاد سرمایه‌گذاری بر پایه‌ی داده‌های کمی"
-        : location.pathname === "/assets"
-          ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
-          : location.pathname === "/portfolio"
-            ? "دارایی‌های سهام"
-            : undefined;
+      : location.pathname === "/market"
+        ? "شاخص‌های بازار و نمادهای طلا/کالا با نمودار قیمت"
+        : location.pathname === "/chat"
+          ? "گفت‌وگو و پیشنهاد سرمایه‌گذاری بر پایه‌ی داده‌های کمی"
+          : location.pathname === "/assets"
+            ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
+            : location.pathname === "/portfolio"
+              ? "دارایی‌های سهام"
+              : undefined;
 
   const [collectingPrice, setCollectingPrice] = useState(false);
   const [priceCollectMsg, setPriceCollectMsg] = useState<string | null>(null);
@@ -153,6 +158,8 @@ const App = () => {
       document.title = "RFA | پورتفولیو";
     } else if (location.pathname === "/assets") {
       document.title = "RFA | دارایی خانواده";
+    } else if (location.pathname === "/market") {
+      document.title = "RFA | بازار";
     } else if (location.pathname === "/login") {
       document.title = "RFA | ورود";
     } else if (location.pathname === "/register") {
@@ -210,6 +217,17 @@ const App = () => {
       (r) => r.company_name === selectedCompany,
     );
   }, [aiRows, selectedCompany]);
+
+  // صندوق‌های طلا/کالا و شاخص‌ها صورت مالی و امتیاز بنیادی ندارند؛ فقط
+  // نمودار قیمت برایشان معنا دارد. بدون این فلگ، آرایه‌ی خالی امتیاز باعث
+  // خطای رندر می‌شد.
+  const hasFundamentals = useMemo(
+    () =>
+      (data1?.length ?? 0) > 0 ||
+      (data2?.length ?? 0) > 0 ||
+      (dataScore?.length ?? 0) > 0,
+    [data1, data2, dataScore],
+  );
 
   const mainContent = loadingData ? (
     <div className="flex items-center justify-center h-full">
@@ -296,6 +314,7 @@ const App = () => {
       )}
 
       {/* ── EPS Chart + Donut ── */}
+      {hasFundamentals && (
       <div className="animate-fade-in-up" style={{ animationDelay: "80ms" }}>
         {data1 ? (
           <div className="flex flex-col sm:flex-row gap-3">
@@ -303,7 +322,7 @@ const App = () => {
               <ChartComponent data={data1} />
             </div>
             <div className="sm:w-1/4">
-              {dataScore && (
+              {dataScore && dataScore.length > 0 && (
                 <DonutChartComponent score={dataScore[0].epsGrowth} />
               )}
             </div>
@@ -314,8 +333,10 @@ const App = () => {
           </p>
         )}
       </div>
+      )}
 
       {/* ── Sales Chart + Donut ── */}
+      {hasFundamentals && (
       <div className="animate-fade-in-up" style={{ animationDelay: "160ms" }}>
         {data2 ? (
           <div className="flex flex-col sm:flex-row gap-3">
@@ -323,7 +344,7 @@ const App = () => {
               <ChartComponent data={data2} />
             </div>
             <div className="sm:w-1/4">
-              {dataScore && (
+              {dataScore && dataScore.length > 0 && (
                 <DonutChartComponent score={dataScore[0].salesGrowth} />
               )}
             </div>
@@ -334,6 +355,20 @@ const App = () => {
           </p>
         )}
       </div>
+      )}
+
+      {/* نماد بدون صورت مالی (صندوق طلا/کالا): فقط نمودار قیمت */}
+      {selectedCompany && !loadingData && !hasFundamentals && !currentMetric && (
+        <div className="animate-fade-in-up rounded-2xl border border-amber-200/70 dark:border-amber-900/40 bg-amber-50/60 dark:bg-amber-900/10 p-4">
+          <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+            «{selectedCompany}» صورت مالی و امتیاز بنیادی ندارد
+          </p>
+          <p className="text-xs text-amber-600/80 dark:text-amber-400/70 mt-1">
+            این نماد یک صندوق/ابزار بازار است؛ داده‌ی آن شامل نمودار قیمت است. برای
+            شاخص‌ها و سایر صندوق‌های طلا/کالا به صفحه‌ی «بازار و طلا» سر بزنید.
+          </p>
+        </div>
+      )}
 
       {/* ── Price Chart ── */}
       {selectedCompany && (
@@ -377,7 +412,7 @@ const App = () => {
       )}
 
       {/* ── Score Breakdown ── */}
-      {selectedCompany && (
+      {selectedCompany && hasFundamentals && (
         <div className="animate-fade-in-up" style={{ animationDelay: "320ms" }}>
           <ScoreBreakdown metric={currentMetric} />
         </div>
@@ -487,6 +522,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <ChatPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/market"
+                    element={
+                      <ProtectedRoute>
+                        <MarketPage />
                       </ProtectedRoute>
                     }
                   />

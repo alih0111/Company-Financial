@@ -1339,7 +1339,7 @@ portfolio + family cash), plus the deferred Phase-4 items above.
   `sync_market_meta.py`, index-history accumulation (beta).
 
 
-## 38. Drawdown to 592 pending + discovery 100 % + one documented reconcile flag
+## 43. Drawdown to 592 pending + discovery 100 % + one documented reconcile flag (financial-recovery track)
 
 Gate kept: `UNIVERSE_BACKFILL_IN_PROGRESS`. `NET_PROFIT_RECONCILIATION_CLEAN`
 requirement re-verified (duplicate-current violations = 0), but see the
@@ -1404,3 +1404,305 @@ SQL Server OFFLINE. Fetch phase: ZERO Codal search calls; CAPTCHA 0 (no bypass).
   mis-dated lineage rows. Discovery: nothing left to discover; the 12
   no-letter companies are source-absent terminal candidates.
   Do NOT start Model v2 / Signal Engine; do NOT enable SQL Server; no pre-1398.
+
+## 44. Market assets live — indices (شاخص کل/هم‌وزن) + gold & commodity funds (عیار/مثقال/…) with stock-like pages and price charts
+
+Requested feature: exchange indices and gold/commodity fund symbols in the data,
+each selectable like a stock with a working price chart.
+
+- **Data model (canonical)**:
+  - Indices are NOT securities — a new append-only table
+    `market.index_observations` (DDL `canonical_postgres_v1_2_1/sql/116_market_assets.sql`,
+    applied to the shadow DB; added to `tests/run_ddl.py` SQL_ORDER). Unique per
+    (index_code, trade_date); a same-day re-run upserts. An index has no issuer,
+    no ISIN and a level rather than an IRR price, so it must not fake a
+    `core.securities` row (Company != Security invariant kept).
+  - Funds ARE tradable securities: 59 gold/commodity ETFs (عیار، مثقال، طلا،
+    ناب، گلدیس، …) registered as issuer `core.companies` + `core.securities`
+    (`security_type` gold/commodity) + `core.security_aliases` (symbol, company
+    name, brs name). They therefore flow through the EXISTING read paths with no
+    changes: `/api/CompanyNames`, `/api/price-history`, stock dashboard, chart.
+    مثقال was previously fuzzy-matched as a `stock`; it is now typed correctly.
+  - Registry: `go-app/py/market_assets.json` (indices with stable codes
+    TEDPIX/TEDPIX_EW/… + funds with ins_code). Refresh candidates with
+    `python py/market_assets.py discover`.
+- **Collector `go-app/py/market_assets.py`** (`ensure | backfill | daily | status | discover`):
+  - `ensure` is idempotent; identity = tsetmc ins_code, then EXACT codal_symbol —
+    never the display name (ناب/ناب2 share one legal name; a name lookup silently
+    merged the second series — fixed).
+  - `backfill` prefers BRS `Candlestick.php?type=3` (adjusted) and falls back to
+    `History.php?type=0` (unadjusted daily OHLC → written to the canonical
+    'adjusted' series slot but flagged `is_adjusted=false`,
+    `adjustment_method='none'`, `source='brs_history'`); a later Candlestick run
+    supersedes it (latest collected_at wins). `--limit` (default 8),
+    `--min-rows`, `--all` make it resumable; gold funds are processed first.
+  - `daily` = index snapshot (`Index.php?type=3` + type=1 market-wide stats) +
+    today's fund prices from one AllSymbols request. Placeholder prices
+    (untraded new series report 1 rial) are skipped (`MIN_VALID_PRICE_RIAL=100`).
+    Fund daily snapshots use `source='brs_daily'` so they are appended, not
+    deduped away by history rows, and win the latest-observation read.
+  - **BRS free plan quota is the hard constraint**: ~10 requests/day per history
+    endpoint (Candlestick 402s beyond that: `usage_today_limit: 10`). Today عیار
+    (1,953 candles) + 4 more got full history; 51/59 funds have data, 8 remain
+    (mostly the "2" second series + گلدیس/درنا/نگین فارس/همیان partials). Keep
+    running `backfill` daily (gold first) until `status` reports 0 missing, or
+    upgrade the BRS plan. Index history does not exist on BRS at all — it
+    accumulates one row/day from now (charts start with 1 candle).
+- **API (Go)**: `GET /api/market/assets` (indices + funds with latest price /
+  change / observation count), `POST /api/market/collect` (admin → collector),
+  and `GET /api/price-history` now serves indices by name («شاخص کل») or code
+  (TEDPIX) through the identical JSON contract (cheap `looksLikeIndex` gate so
+  the stock path pays no extra query). `integration/canonical.go` CompanyNames
+  now orders companies before bare symbols/aliases so the client's default
+  dashboard selection stays a real company (آتش — a newly added fund — had become
+  names[0]); comparison is set-based, so ordering is safe.
+- **Client**: new `/market` page («بازار و طلا» in the sidebar,
+  `client/src/components/MarketPage.tsx`) — index cards with level + change,
+  gold/commodity fund lists with search, and the SAME `PriceChart` component for
+  the selection (indices via price-history, funds as securities); admin buttons
+  for daily refresh and per-symbol history backfill.
+- **PRE-EXISTING BUG FIXED**: `App.tsx` rendered `dataScore[0].epsGrowth` after
+  only `dataScore &&` — an empty score array (any symbol without fundamentals,
+  e.g. a fund) unmounted the whole React tree (blank page). Now gated on
+  `hasFundamentals` and `dataScore.length`, with an explicit amber notice for
+  market assets without financials.
+- Verified live: migration applied; `ensure` 59 funds (50+8 created);
+  `daily` 7 index rows + 58 funds; `/api/market/assets` 200 (7 indices, 59 funds);
+  `/api/price-history?companyName=شاخص کل` and `عیار` (365 rows) 200;
+  `go build/vet/test` clean, `tsc -b` clean, `vite build` clean; browser-verified
+  /market (index card + عیار candlestick+volume chart) and /dashboard?companyname=عیار
+  (no crash, notice + price chart). Go backend restarted on :5000.
+- Resume (next session): keep the daily trio — `brs_prices.py daily`,
+  `sync_market_meta.py`, and `market_assets.py daily` + `market_assets.py backfill`
+  (resumable, gold first) — on the same cron; check `market_assets.py status`.
+  If BRS quota is upgraded, run `backfill --all` once for full adjusted history.
+
+## 45. Family assets: dollar (دلار) as a manually-entered, broker-independent asset
+
+Request: add USD to family assets (سهام/طلا/نقد) entered per person manually —
+explicitly NOT sourced from the Agah broker sync.
+
+- **The model already had `category='dollar'`** (DB CHECK, Go validation, UI
+  option, donut, `dollar_total`) but no dollar asset existed and — the real trap —
+  `reconcileBrokerHoldingsPG` (family_broker_pg.go) does a FULL replacement of a
+  person's holdings on every Agah sync (`DELETE ... asset_id <> ALL(keep)`),
+  which would have silently erased any manually-entered dollar holding.
+- **Broker sync now preserves manual assets**: before the replacement DELETE,
+  holdings whose `family.assets.category IN ('dollar','other')` are added to the
+  keep-list, so only broker-manageable categories (stock/gold) are reconciled.
+  This is the load-bearing change; everything else was already wired.
+- **Market price sync skips manual categories**: `syncFamilyPricesFromMarketPG`
+  (family_assets_pg.go) ignores `dollar`/`other` assets entirely — they no longer
+  appear in the «missing» list and their manual prices in `family.prices` are
+  never touched by the daily BRS collector (which auto-calls this sync).
+- **Asset created**: `family.assets` id 22 «دلار», category dollar, no symbol,
+  commission_rate 0, sort_order 0. Initial price 2,547,000 rial (آزاد, tgju
+  1405/07/08) inserted into `family.prices` — correctable any time in «ثبت قیمت روز».
+- **UI polish**: `$` badge next to دلار in the price form and the assets table;
+  the summary card now reads «سهام / طلا / دلار».
+- **Gotcha worth remembering**: `canonical_ingest.db.connect()` does NOT commit —
+  closing rolls back. Writes must use `transaction()`. The first dollar insert
+  silently vanished this way; the read-back inside the same transaction made it
+  look successful.
+- **Verified**: API round-trip — asset listed with latest_price 2,547,000
+  (1405/07/08); temp holding for علی (1,000 دلار, cost 2.4B) → value 2,547,000,000,
+  profit +147M (+6.1%), `dollar_total` aggregated, then removed (state restored);
+  `POST /family/sync-prices` → 11 updated / missing = stale stock symbols only,
+  dollar excluded and price intact; `go build/vet` clean, `tsc -b` + `vite build`
+  clean; browser-verified /assets (price form row «دلار$✎», portfolio table row,
+  summary card). Go backend restarted on :5000.
+- Usage: for each person → «سبد اشخاص» → «افزودن دارایی به سبد» → دلار + تعداد
+  (تعداد دلار) + بهای تمام‌شده (ریال). Rate updates: «خلاصه و ثبت قیمت» → دلار row.
+- Follow-up (same session): «پرتفوی کل» table now (a) hides assets whose
+  total_quantity is 0 (e.g. a freshly created-but-unheld asset), and (b) adds a
+  «جمع کل» footer (بهای تمام‌شده / ارزش / سود+درصد / وزن) plus the same totals
+  row in the CSV export. Empty state text when nothing is held.
+- Follow-up 2: «پرتفوی کل» columns are now sortable — click a header to sort
+  (first click desc, click again toggles asc; active column highlighted with
+  FaSortUp/FaSortDown). Sort keys: name (fa localeCompare), latest_price,
+  price_date (Jalali text sorts correctly), total_quantity, total_cost,
+  total_value, total_profit, weight. Default sort = ارزش desc. CSV export and
+  the جمع کل footer follow the sorted order. `tsc -b` + `vite build` clean;
+  verified in-browser (name asc/desc, تعداد کل desc).
+- Follow-up 3: the top stat row of /assets was reworked. Removed the redundant
+  «ارزش دارایی‌ها» (merged مانده into «جمع کل») and the arbitrary ±3%
+  «بهترین/بدترین حالت فردا» cards. New `client/src/components/MarketPulseCards.tsx`
+  renders a 4-card «نبض بازار» strip above the family cards: شاخص کل and
+  شاخص کل (هم‌وزن) (level + today's change% from /api/market/assets), طلا via
+  مثقال (price + today's change + ~30-day change computed client-side from
+  price-history), and دلار (manual rate from the family state). Degrades
+  gracefully — cards simply don't render when their data is missing. Family
+  cards grid rebalanced to 3 columns.
+- Follow-up 4: the three family cards were densified. «سود / زیان کل» now also
+  shows the cost base and the best/worst holding by profit_pct (real data, not a
+  projection). «سهام / طلا / دلار» shows the category total, a 3-segment stacked
+  allocation bar (same colors as the donut) and each category's weight %.
+  `tsc -b` + `vite build` clean; verified in-browser.
+
+
+## 43b. Period-end repair (8 lineage dates) + fetch tail stopped on yield guard
+
+Financial-recovery track. Gates at end: `NET_PROFIT_RECONCILIATION_CLEAN`
+(duplicate-current 0, legacy collisions 0), `ZOMBIE_ACTIONABLE_HOLES = 0`,
+`UNIVERSE_BACKFILL_IN_PROGRESS`. SQL Server OFFLINE; CAPTCHA 0.
+
+### PERIOD-END REPAIR (root cause + fix)
+- **Root cause** was NOT the arithmetic converter (`jdatetime` is exact, incl.
+  leap Esfand 30): `extract_date_from_table` took the FIRST date-bearing
+  statement-header column, which is the **comparative (prior-period) column**
+  for some letters → statement attributed to the wrong economic period
+  (e.g. شلیا 752545 title ۱۳۹۸/۱۱/۳۰ stored as ۱۳۹۷/۱۱/۳۰ = 2019-02-19).
+- **Shared fix**: `period_end_from_title()` in `codal_ingestor/parsers/common.py`
+  (title "منتهی به YYYY/MM/DD" is authoritative; table header only a fallback) +
+  `report_title=` parameter on `parse_profit_loss_html`; all backfill call sites
+  (sustainable_run / backfill_net_profit ×2 / captcha_aware ×2 / targeted_finish)
+  now pass the letter title. No symbol-specific logic.
+- **Tests**: `historical_codal_backfill/tests/test_period_end_title.py` — 15 cases:
+  title extraction (1399/12/30, 1400/12/29, 1403/12/30, 1398/05/31, 1398/11/30, …),
+  exact Gregorian conversions (leap + non-leap Esfand), parser regression
+  (title beats the comparative column), fallback preserved. All pass.
+- **Repair** (`repair_period_end.py`, canonical patterns only — reports metadata is
+  schema-mutable (only source identity is immutable); statements/facts immutable →
+  append-only correction): 8 reports corrected.
+  - 7 metadata-only (0 statements/facts): تایرا 1066941 (2023-03-20→2023-06-21),
+    تایرا 1301680 (2024-03-19→2024-12-20), دلقما 748716 (2020-03-19→2021-03-20),
+    دامین 752100 (2020-03-19→2021-03-20), شکربن 752867, کطبس 755390, کپرور 762086
+    (2020-03-19→2021-03-20).
+  - 1 fact-bearing: شلیا 752545 (2019-02-19→2020-02-19) — reparsed the stored raw
+    with the fixed parser → new report version + parse_run; the corrected
+    net_profit fact was attached to the EXISTING statement at the true period
+    (1398/11/30 = 2020-02-19); no duplicate economic period; old statement/fact
+    preserved as evidence.
+- **Read guard (1 generic condition)** in `NetProfitSeriesByLegacyCompanyID`:
+  a period is current only if its statement period is backed by an identified
+  source period (a Codal letter normalized to that period, or the statement's own
+  report carrying the same period). Universe-wide effect: exactly 1 displayed
+  period removed (شلیا's orphaned 2019-02-19 row); legacy-only periods unaffected
+  (their own reports carry the period). Live :5000 process must be restarted to
+  pick this up (validated on a temp :5099 instance + SQL-level proof:
+  263→263 companies, only شلیا 26→25 rows, total periods 6643→6642).
+- **Result**: mismatch detector 6,620/6,620 consistent (was 8 wrong); دلقما
+  legacy collision GONE; the orphaned prior-parse fact is now classified as an
+  unresolved-title evidence row (`codal: 1`) instead of a display collision;
+  **reconcile gate = NET_PROFIT_RECONCILIATION_CLEAN** (duplicate-current 0,
+  legacy collisions 0). API on the fixed code: 24/24 companies pass incl. all 7
+  affected; شلیا 25 rows, no (fy, periodOrder) duplicate, value at
+  2020-02-19 / 1398 / 6M. PIT: analytics 25, backtesting 34,
+  backfill/captcha/period-end 35 (incl. the 15 new), Go integration tests pass.
+
+### FETCH TAIL (batches 24–28) — stopped on the yield guard
+- 372 processed / **279 WRITTEN** / 81 `SOURCE_TEMPORARY_ERROR` / 12 retryable →
+  rolling yield 0.75 overall; recent-40 fell to **0.67 < 0.75 → phase stopped**
+  (tail dominated by Codal system-error shells for 1398/3M letters; capped rows
+  moved to `DEFERRED_SOURCE_TEMPORARY_ERROR` (now 7), never terminal).
+- pending 592 → **325**; recovered 6,506 → **6,773 (+267)**; terminal 558.
+- **Split (unit-level)**: actionable `DISCOVERED_PENDING_FETCH` **157**
+  (121→~100 companies, 1–4 units each) · deferred temporary-source debt
+  `RETRYABLE` **161** · true terminal `SOURCE_NOT_FOUND_CONFIRMED` **558** ·
+  period-level `DISCOVERY_UNKNOWN` **1,711**.
+- CAPTCHA 0. Disk C: 6.9 GB / D: 7.6 GB. Queue: WRITTEN 6,724→6,854 range during
+  the phase; final states: DISCOVERED 5,220, FAILED_RETRYABLE 390, FETCH_PENDING 10,
+  DEFERRED 6(+1), FAILED_PERMANENT 1.
+
+### EXTERNAL CHANGE — universe expanded by a parallel session (not this track)
+At 19:15 local another session inserted **50 commodity/gold funds** into
+core.companies/securities (طلا، کهربا، سینرژی، سیمین، جام طلا، امرالد، آلتون،
+عیار، …) → canonical companies 273 → **323**, `required_periods` 7,917 → **9,367**,
+`NO_FINANCIAL_REPORTS` 9 → **59**, period-level unknown 261 → **1,711** (the
+funds' ~1,450 units), so the headline `timeline_coverage_percent` diluted
+82.2 % → 72.3 %. The financial-recovery numbers above are unchanged in scope on
+the original 273-company roster (recovered 6,773 / pending 325 within it).
+**Decision needed**: either the funds are in scope (then Codal net-profit
+discovery must be run for them — they are funds; many may have no income
+statements) or the timeline audit should scope to the operating-company roster.
+Not changed here.
+
+- Artifacts: `output/{period_end_mismatch_audit.json, period_end_correction_results.csv,
+  api_validation_after_period_fix.csv, fetch_zbatch24..28.txt, zbatch24..28.log}`;
+  code: `parsers/common.py (period_end_from_title)`, `parsers/profit_loss.py
+  (report_title=)`, `repair_period_end.py`, `check_zombie_holes.py`,
+  `canonical.go` (current-period guard), `tests/test_period_end_title.py`.
+- Resume: (1) decide the funds scoping question; (2) restart the live Go process
+  to pick up the read guard; (3) `requeue_transient.py` → enrich → audit →
+  reconcile → zombie → fetch the remaining **157 actionable units** only when the
+  rolling yield ≥ 0.75 (respect backoff; the 161 RETRYABLE units stay debt until
+  Codal serves real pages). Do NOT start Model v2 / Signal Engine; do NOT enable
+  SQL Server; no pre-1398.
+
+### 43b addendum — final probe + closing split (same session)
+- A small probe (batch 29, 8 companies, 44 reports: 31 WRITTEN / 13 STE,
+  yield 0.70) confirmed the Codal late-night error-shell window is still active
+  → fetch stays stopped per the yield guard. CAPTCHA 0 throughout.
+- Final gates after refresh: pending **296**, recovered **6,802**, coverage
+  72.6 % (323-company scope incl. the 50 external funds), reconcile
+  **NET_PROFIT_RECONCILIATION_CLEAN**, **ZOMBIE_ACTIONABLE_HOLES = 0**
+  (127/127; the 15 flagged just before were a stale-CSV artifact — always
+  re-run `audit_timeline.py` before `check_zombie_holes.py`).
+- Closing split (unit-level): actionable **127** · deferred temporary-source
+  debt (RETRYABLE) **161** · true terminal (SOURCE_NOT_FOUND_CONFIRMED) **558** ·
+  period-level DISCOVERY_UNKNOWN **1,711** (≈1,450 belong to the 50 external
+  funds). net_profit facts **6,907**. Disk C: 6.9 GB.
+
+### 43b part 2 — CORPORATE_NET_PROFIT_SCOPE_1398_PLUS reconciled; live :5000 restarted
+- Root cause of the 273→323 drift: a parallel session inserted 50 gold/commodity
+  fund companies (primary `security_type`='gold'/'commodity') for the market-assets
+  track. Additionally مثقال — a commodity fund — had been inside the ORIGINAL 273
+  all along (0 Codal letters, legal_name NULL).
+- Explicit scope frozen (`freeze_corporate_scope.py` →
+  `output/corporate_net_profit_scope_1398_plus.csv` + `_meta.json`): rule
+  **corporate ⟺ primary security_type='stock'** — no name heuristics.
+  Universe split: **canonical security universe 331** (272 stock + 51 commodity +
+  8 gold) · **corporate net-profit subjects 272** · **NOT_APPLICABLE_CORPORATE_
+  NET_PROFIT 51** fund instruments (مثقال + the 50 new) + 8 secondary "2"
+  securities owned by fund companies. Nothing deleted; market/portfolio data intact.
+- `audit_timeline.py` now consumes the frozen scope file: instruments outside it
+  can never silently enter the corporate denominator (scope-drift guard) and are
+  reported separately. Regression tests: `tests/test_corporate_scope.py` (8 cases
+  incl. "a fund security does not enter corporate expected periods").
+- **Corrected corporate timeline (272 subjects)**: required **7,888** (the 1,479
+  fund units + مثقال's 29 left the denominator: 9,367−1,450−29) · recovered
+  **6,802** · terminal **558** · pending **296** · period-level unknown **232** ·
+  coverage **86.2 %** · DC 19 / CWSL 96 / PFP 149 / NFR 8 (=272) · zombie 0 ·
+  reconcile **CLEAN**.
+- Roster diff vs the old frozen 273: **272 unchanged corporate** · 0 new
+  legitimate corporate · 0 removed · **مثقال reclassified out (fund, was
+  mis-scoped in the old 273)** · 51 fund instruments + 8 secondary securities
+  excluded. Gate **CORPORATE_NET_PROFIT_SCOPE_RECONCILED** = set.
+- **Live :5000 restarted** with the fixed code (old `go run` child killed; new
+  instance verified listening). Validation on :5000: 14/14 companies pass —
+  شلیا 25 rows with the value at 2020-02-19/1398/6M, دلقما 27 clean, all other
+  affected + ordinary + non-Esfand (وخارزم/حکشتی) samples: no duplicate
+  (fiscalYear, periodOrder), HTTP 200.
+- Fetch remains STOPPED (latest probe yield 0.70 < 0.75). Resume command when a
+  probe ≥ 0.75: `sustainable_run.py --from-file <closest-to-terminal list>
+  --skip-discovery --max-per-company 25` (recompute the list from the scoped
+  audit; ~127 actionable units).
+
+### 43b part 3 — FINAL CORPORATE CLOSEOUT: gates emitted
+- Discovery closed for all 272 corporate subjects (wave 21: the last 8 companies
+  بمولد/تاتمس/ثالوند/دزهراوی/رمپنا/غدام/فبستم/یاقوت → +309 letters; source-exhausted
+  for 1) → **DISCOVERY_UNKNOWN = 0**.
+- Actionable tail drained (probe yield 0.90 → batches 31/32: 256 processed,
+  231 WRITTEN, yield 0.94/0.78) → **ACTIONABLE_PENDING = 0**; recovered **7,098**,
+  terminal **610**, coverage **90.0 %** (272-corporate scope).
+- New company classification `COMPLETE_WITH_DEFERRED_ACQUISITION_DEBT` added to
+  the audit (actionable vs debt counters split): final company states
+  DC **20** / CWSL **101** / **DEFERRED_DEBT 150** / NFR **1** = 272 — no ambiguous
+  company remains.
+- Reconcile: facts **7,185**, unique current periods **7,163**,
+  duplicate-current **0**, legacy collisions **0**, gate **CLEAN**. The last
+  heuristic flag (دجابر 1402/3M) was a **unit-label conflation**, not a collision:
+  a legacy Q1 row (1402/03/31) vs a Q4 letter titled "۳ ماهه منتهی به ۱۴۰۲/۱۲/۲۹"
+  share the (fy,dur) label but are different economic periods; the reconcile now
+  reports such rows separately (`legacy_label_conflations: 1`) using the
+  title-derived economic date, and only same-economic-period rows count as
+  collisions.
+- Final API on live :5000: **43/43 pass** (DC + CWSL + deferred-debt + banks +
+  non-Esfand + previously problematic + corrected-report symbols); conversion
+  7,857 values / 0 mismatches. The وسپه exact_conversion flag was a validator
+  artifact on a None/None legacy row (validator fixed; the documented legacy
+  no-title limitation remains).
+- **GATES EMITTED** (`output/corporate_backfill_final_gates.json`):
+  `HISTORICAL_NET_PROFIT_FULL_BACKFILL_PARTIAL` (180 deferred acquisition-debt
+  periods) + `CUMULATIVE_PROFIT_UNIVERSE_READY`; `UNIVERSE_BACKFILL_IN_PROGRESS`
+  superseded (actionable exhausted; only backoff-gated deferred debt remains).

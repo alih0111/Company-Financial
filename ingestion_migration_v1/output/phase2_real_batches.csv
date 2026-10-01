@@ -231,3 +231,4 @@ market_price,brs_prices,market-auth-1790605459,brs,not_attempted,success,270,9,2
 market_price,brs_prices,market-auth-1790616357,brs,not_attempted,success,270,1,269,0,270,,,0,0,2026-09-28T20:55:18.842098+03:30,2026-09-28T20:55:57.362334+03:30
 market_price,brs_prices,market-auth-1790676994,brs,not_attempted,success,269,269,0,0,269,,,0,0,2026-09-29T13:45:29.951205+03:30,2026-09-29T13:46:34.219105+03:30
 market_price,brs_prices,market-auth-1790701601,brs,not_attempted,success,270,9,261,0,270,,,0,0,2026-09-29T20:35:48.569260+03:30,2026-09-29T20:36:41.617576+03:30
+market_price,brs_prices,market-auth-1790780929,brs,not_attempted,success,271,271,0,0,271,,,0,0,2026-09-30T18:36:13.355463+03:30,2026-09-30T18:38:49.438968+03:30

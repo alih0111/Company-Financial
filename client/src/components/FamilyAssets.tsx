@@ -28,9 +28,13 @@ import {
   FaChartArea,
   FaExchangeAlt,
   FaLink,
+  FaSort,
+  FaSortUp,
+  FaSortDown,
 } from "react-icons/fa";
 import { useToast } from "./Toast";
 import { useConfirm } from "./ConfirmDialog";
+import MarketPulseCards from "./MarketPulseCards";
 import { SkeletonCards, SkeletonTable } from "./Skeleton";
 import { useDarkMode } from "../utils/theme";
 import { glassTooltipStyle } from "../utils/chart-theme";
@@ -113,6 +117,29 @@ const jalaliMonthsAgo = (dateKey: string, months: number): string => {
   return `${String(y2).padStart(4, "0")}/${String(m2).padStart(2, "0")}/${String(d2).padStart(2, "0")}`;
 };
 
+// ستون‌های قابل مرتب‌سازی جدول «پرتفوی کل»
+type AssetSortKey =
+  | "name"
+  | "latest_price"
+  | "price_date"
+  | "total_quantity"
+  | "total_cost"
+  | "total_value"
+  | "total_profit"
+  | "profit_pct"
+  | "weight";
+
+const ASSET_SORT_COLUMNS: { key: AssetSortKey; label: string }[] = [
+  { key: "name", label: "دارایی" },
+  { key: "latest_price", label: "آخرین قیمت" },
+  { key: "price_date", label: "تاریخ قیمت" },
+  { key: "total_quantity", label: "تعداد کل" },
+  { key: "total_cost", label: "بهای تمام‌شده" },
+  { key: "total_value", label: "ارزش" },
+  { key: "total_profit", label: "سود/زیان" },
+  { key: "weight", label: "وزن" },
+];
+
 const RANGES = [
   { key: "all", label: "همه", months: 0 },
   { key: "3y", label: "۳ سال", months: 36 },
@@ -155,21 +182,41 @@ const FamilyAssets = () => {
   } | null>(null);
 
   const [addingFor, setAddingFor] = useState<number | null>(null);
-  const [addForm, setAddForm] = useState({ asset_id: "", quantity: "", cost_basis: "" });
+  const [addForm, setAddForm] = useState({
+    asset_id: "",
+    quantity: "",
+    cost_basis: "",
+  });
 
-  const [cashEdit, setCashEdit] = useState<{ personId: number; value: string } | null>(null);
+  const [cashEdit, setCashEdit] = useState<{
+    personId: number;
+    value: string;
+  } | null>(null);
 
   const [newPersonName, setNewPersonName] = useState("");
   const [newAssetName, setNewAssetName] = useState("");
   const [newAssetCategory, setNewAssetCategory] = useState("stock");
 
-  const [flowForm, setFlowForm] = useState({ date_key: "", amount: "", direction: "in", note: "" });
+  const [flowForm, setFlowForm] = useState({
+    date_key: "",
+    amount: "",
+    direction: "in",
+    note: "",
+  });
   const [savingFlow, setSavingFlow] = useState(false);
 
-  const [brokerAccounts, setBrokerAccounts] = useState<FamilyBrokerAccount[]>([]);
-  const [brokerEdit, setBrokerEdit] = useState<{ personId: number; username: string; password: string } | null>(null);
+  const [brokerAccounts, setBrokerAccounts] = useState<FamilyBrokerAccount[]>(
+    [],
+  );
+  const [brokerEdit, setBrokerEdit] = useState<{
+    personId: number;
+    username: string;
+    password: string;
+  } | null>(null);
   const [savingBroker, setSavingBroker] = useState(false);
-  const [brokerJobs, setBrokerJobs] = useState<Record<number, FamilyBrokerJob>>({});
+  const [brokerJobs, setBrokerJobs] = useState<Record<number, FamilyBrokerJob>>(
+    {},
+  );
   const [captchaInput, setCaptchaInput] = useState<Record<number, string>>({});
   const [syncingPerson, setSyncingPerson] = useState<number | null>(null);
 
@@ -191,7 +238,8 @@ const FamilyAssets = () => {
       setFlowForm((f) => ({ ...f, date_key: f.date_key || st.today_datekey }));
       setPriceInputs((prev) => {
         const next: Record<number, string> = {};
-        for (const a of st.assets) next[a.asset_id] = prev[a.asset_id] ?? String(a.latest_price || "");
+        for (const a of st.assets)
+          next[a.asset_id] = prev[a.asset_id] ?? String(a.latest_price || "");
         return next;
       });
     } catch (e: any) {
@@ -238,7 +286,8 @@ const FamilyAssets = () => {
       const raw = priceInputs[a.asset_id];
       if (!raw || raw.trim() === "") continue;
       const p = parseFloat(raw);
-      if (!Number.isNaN(p) && p > 0) prices.push({ asset_id: a.asset_id, price: p });
+      if (!Number.isNaN(p) && p > 0)
+        prices.push({ asset_id: a.asset_id, price: p });
     }
     if (!priceDate || prices.length === 0) {
       setError("تاریخ و حداقل یک قیمت معتبر لازم است");
@@ -248,7 +297,9 @@ const FamilyAssets = () => {
     setError(null);
     try {
       const res = await saveFamilyPrices(priceDate, prices);
-      setMsg(`قیمت‌های ${priceDate} ذخیره شد — جمع کل: ${fmtInt(res.total_value)}`);
+      setMsg(
+        `قیمت‌های ${priceDate} ذخیره شد — جمع کل: ${fmtInt(res.total_value)}`,
+      );
       await loadAll();
     } catch (e: any) {
       setError(e?.message || "ذخیره قیمت‌ها ناموفق بود");
@@ -265,7 +316,9 @@ const FamilyAssets = () => {
       const parts: string[] = [];
       if (res.updated?.length) {
         const dates = [...new Set(res.updated.map((u) => u.date_key))];
-        parts.push(`${res.updated.length} قیمت از بازار (${dates.join("، ")}) دریافت شد ✓`);
+        parts.push(
+          `${res.updated.length} قیمت از بازار (${dates.join("، ")}) دریافت شد ✓`,
+        );
       }
       if (res.missing?.length) {
         parts.push(`دستی وارد کنید: ${res.missing.join("، ")}`);
@@ -279,7 +332,12 @@ const FamilyAssets = () => {
     }
   };
 
-  const startEdit = (personId: number, assetId: number, qty: number, cost: number) => {
+  const startEdit = (
+    personId: number,
+    assetId: number,
+    qty: number,
+    cost: number,
+  ) => {
     setAddingFor(null);
     setEditing({
       personId,
@@ -293,7 +351,12 @@ const FamilyAssets = () => {
     if (!editing) return;
     const quantity = parseFloat(editing.quantity);
     const costBasis = parseFloat(editing.costBasis);
-    if (Number.isNaN(quantity) || quantity < 0 || Number.isNaN(costBasis) || costBasis < 0) {
+    if (
+      Number.isNaN(quantity) ||
+      quantity < 0 ||
+      Number.isNaN(costBasis) ||
+      costBasis < 0
+    ) {
       setError("تعداد یا بهای تمام‌شده معتبر نیست");
       return;
     }
@@ -312,8 +375,19 @@ const FamilyAssets = () => {
     }
   };
 
-  const removeHolding = async (personId: number, assetId: number, name: string) => {
-    if (!(await confirm({ message: `حذف «${name}» از این سبد؟`, danger: true, confirmLabel: "حذف" }))) return;
+  const removeHolding = async (
+    personId: number,
+    assetId: number,
+    name: string,
+  ) => {
+    if (
+      !(await confirm({
+        message: `حذف «${name}» از این سبد؟`,
+        danger: true,
+        confirmLabel: "حذف",
+      }))
+    )
+      return;
     try {
       await deleteFamilyHolding(personId, assetId);
       await loadAll();
@@ -413,7 +487,14 @@ const FamilyAssets = () => {
   };
 
   const removeFlow = async (id: number) => {
-    if (!(await confirm({ message: "حذف این جریان نقدی؟", danger: true, confirmLabel: "حذف" }))) return;
+    if (
+      !(await confirm({
+        message: "حذف این جریان نقدی؟",
+        danger: true,
+        confirmLabel: "حذف",
+      }))
+    )
+      return;
     try {
       await deleteFamilyCashFlow(id);
       await loadAll();
@@ -451,7 +532,14 @@ const FamilyAssets = () => {
   };
 
   const removeBroker = async (personId: number) => {
-    if (!(await confirm({ message: "اتصال کارگزاری این شخص حذف شود؟", danger: true, confirmLabel: "حذف" }))) return;
+    if (
+      !(await confirm({
+        message: "اتصال کارگزاری این شخص حذف شود؟",
+        danger: true,
+        confirmLabel: "حذف",
+      }))
+    )
+      return;
     try {
       await deleteFamilyBrokerAccount(personId);
       await loadAll();
@@ -460,7 +548,10 @@ const FamilyAssets = () => {
     }
   };
 
-  const pollBrokerJob = async (jobId: string, personId: number): Promise<FamilyBrokerJob | null> => {
+  const pollBrokerJob = async (
+    jobId: string,
+    personId: number,
+  ): Promise<FamilyBrokerJob | null> => {
     for (let i = 0; i < 220; i++) {
       await new Promise((r) => setTimeout(r, 2000));
       try {
@@ -478,7 +569,9 @@ const FamilyAssets = () => {
     setError(null);
     setSyncingPerson(personId ?? 0);
     try {
-      const res = await startFamilyBrokerSync(personId ? { person_id: personId } : { all: true });
+      const res = await startFamilyBrokerSync(
+        personId ? { person_id: personId } : { all: true },
+      );
       const jobs = res.jobs || [];
       const next: Record<number, FamilyBrokerJob> = { ...brokerJobs };
       jobs.forEach((j) => {
@@ -491,7 +584,9 @@ const FamilyAssets = () => {
         if (!done || done.state === "error") failed++;
       }
       if (failed > 0) {
-        setError("سینک کارگزاری برای برخی اشخاص ناموفق بود (کد امنیتی/ساختار پنل را بررسی کنید)");
+        setError(
+          "سینک کارگزاری برای برخی اشخاص ناموفق بود (کد امنیتی/ساختار پنل را بررسی کنید)",
+        );
       } else {
         setMsg("سینک کارگزاری با موفقیت انجام شد ✓");
       }
@@ -516,19 +611,88 @@ const FamilyAssets = () => {
 
   // متادیتای هر شخص برای چارت: id → {name, color, index}
   const personMeta = useMemo(() => {
-    const map: Record<string, { name: string; color: string; index: number }> = {};
+    const map: Record<string, { name: string; color: string; index: number }> =
+      {};
     (state?.people || []).forEach((p, i) => {
-      map[String(p.person_id)] = { name: p.name, color: personColor(i), index: i };
+      map[String(p.person_id)] = {
+        name: p.name,
+        color: personColor(i),
+        index: i,
+      };
     });
     return map;
   }, [state]);
+
+  // پرتفوی کل: فقط دارایی‌های دارای موجودی — دارایی‌های با تعداد صفر (مثل
+  // نماد تازه‌ساخته یا خالی‌شده) جایی در جدول ندارند.
+  const heldAssets = useMemo(
+    () => (state?.assets ?? []).filter((a) => (a.total_quantity || 0) > 0),
+    [state],
+  );
+  const portfolioTotals = useMemo(() => {
+    const cost = heldAssets.reduce((s, a) => s + (a.total_cost || 0), 0);
+    const value = heldAssets.reduce((s, a) => s + (a.total_value || 0), 0);
+    const profit = heldAssets.reduce((s, a) => s + (a.total_profit || 0), 0);
+    const weight = heldAssets.reduce((s, a) => s + (a.weight || 0), 0);
+    return {
+      cost,
+      value,
+      profit,
+      weight,
+      profitPct: cost > 0 ? profit / cost : 0,
+    };
+  }, [heldAssets]);
+
+  const [assetSort, setAssetSort] = useState<{
+    key: AssetSortKey;
+    dir: "asc" | "desc";
+  }>({ key: "total_value", dir: "desc" });
+
+  const toggleAssetSort = (key: AssetSortKey) =>
+    setAssetSort((s) =>
+      s.key === key
+        ? { key, dir: s.dir === "desc" ? "asc" : "desc" }
+        : { key, dir: "desc" },
+    );
+
+  const sortedAssets = useMemo(() => {
+    const { key, dir } = assetSort;
+    const rows = [...heldAssets];
+    rows.sort((a, b) => {
+      const va = a[key] as string | number | null | undefined;
+      const vb = b[key] as string | number | null | undefined;
+      let cmp: number;
+      if (typeof va === "string" || typeof vb === "string") {
+        cmp = String(va ?? "").localeCompare(String(vb ?? ""), "fa");
+      } else {
+        cmp = (Number(va) || 0) - (Number(vb) || 0);
+      }
+      return dir === "asc" ? cmp : -cmp;
+    });
+    return rows;
+  }, [heldAssets, assetSort]);
+
+  // بهترین / ضعیف‌ترین نماد سبد از نظر درصد سود — برای کارت «سود / زیان کل»
+  const bestWorst = useMemo(() => {
+    const held = heldAssets.filter(
+      (a) => a.total_value > 0 && Number.isFinite(a.profit_pct),
+    );
+    if (held.length === 0) return null;
+    const sorted = [...held].sort(
+      (a, b) => (b.profit_pct || 0) - (a.profit_pct || 0),
+    );
+    return { best: sorted[0], worst: sorted[sorted.length - 1] };
+  }, [heldAssets]);
 
   // داده چارت: فیلتر بر اساس بازه انتخابی
   const chartData = useMemo(() => {
     if (history.length === 0) return [];
     const range = RANGES.find((r) => r.key === rangeKey);
     if (!range || range.months === 0) return history;
-    const threshold = jalaliMonthsAgo(history[history.length - 1].date_key, range.months);
+    const threshold = jalaliMonthsAgo(
+      history[history.length - 1].date_key,
+      range.months,
+    );
     return history.filter((r) => r.date_key >= threshold);
   }, [history, rangeKey]);
 
@@ -537,7 +701,8 @@ const FamilyAssets = () => {
     if (chartData.length < 2) return null;
     const first = chartData[0];
     const last = chartData[chartData.length - 1];
-    const rangeChangePct = first.total > 0 ? last.total / first.total - 1 : null;
+    const rangeChangePct =
+      first.total > 0 ? last.total / first.total - 1 : null;
 
     let best = { pct: 0, date: "" };
     let worst = { pct: 0, date: "" };
@@ -573,7 +738,7 @@ const FamilyAssets = () => {
       const res = await syncFamilyPrices(true);
       setMsg(
         `تاریخچه ${res.updated?.length || 0} دارایی از بازار دریافت شد` +
-          (res.missing?.length ? ` — دستی: ${res.missing.join("، ")}` : "")
+          (res.missing?.length ? ` — دستی: ${res.missing.join("، ")}` : ""),
       );
       await loadAll();
     } catch (e: any) {
@@ -614,6 +779,23 @@ const FamilyAssets = () => {
     ].filter((x) => x.value > 0);
   }, [summary]);
 
+  // وزن هر دسته از دارایی (سهام/طلا/دلار) برای نوار تخصیص کارت ترکیب
+  const categorySplit = useMemo(() => {
+    const stocks = summary?.stocks_total ?? 0;
+    const gold = summary?.gold_total ?? 0;
+    const dollar = summary?.dollar_total ?? 0;
+    const total = stocks + gold + dollar;
+    const rows = [
+      { name: "سهام", value: stocks, color: "#059669" },
+      { name: "طلا", value: gold, color: "#f59e0b" },
+      { name: "دلار", value: dollar, color: "#0ea5e9" },
+    ].filter((r) => r.value > 0);
+    return {
+      rows: rows.map((r) => ({ ...r, pct: total > 0 ? r.value / total : 0 })),
+      total,
+    };
+  }, [summary]);
+
   const downloadCsv = (filename: string, rows: (string | number)[][]) => {
     const csv = rows
       .map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(","))
@@ -630,10 +812,18 @@ const FamilyAssets = () => {
   };
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
-    { key: "summary", label: "خلاصه و ثبت قیمت", icon: <FaChartPie size={12} /> },
+    {
+      key: "summary",
+      label: "خلاصه و ثبت قیمت",
+      icon: <FaChartPie size={12} />,
+    },
     { key: "people", label: "سبد اشخاص", icon: <FaUsers size={12} /> },
     { key: "history", label: "تاریخچه", icon: <FaChartArea size={12} /> },
-    { key: "flows", label: "آورده / برداشت", icon: <FaExchangeAlt size={12} /> },
+    {
+      key: "flows",
+      label: "آورده / برداشت",
+      icon: <FaExchangeAlt size={12} />,
+    },
     { key: "broker", label: "کارگزاری آگاه", icon: <FaLink size={12} /> },
   ];
 
@@ -645,24 +835,47 @@ const FamilyAssets = () => {
           <div className="flex items-center gap-3">
             <span
               className="flex items-center justify-center w-11 h-11 rounded-2xl text-white font-bold text-lg shrink-0 shadow-sm"
-              style={{ background: personMeta[String(p.person_id)]?.color || "#059669" }}
+              style={{
+                background: personMeta[String(p.person_id)]?.color || "#059669",
+              }}
             >
               {(p.name || "?").trim().charAt(0)}
             </span>
             <div>
-              <h3 className="font-bold text-gray-800 dark:text-white text-lg">{p.name}</h3>
+              <h3 className="font-bold text-gray-800 dark:text-white text-lg">
+                {p.name}
+              </h3>
               <div className="flex gap-3 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                <span>ارزش سبد: <b className="text-gray-700 dark:text-gray-200">{fmtInt(p.holdings_value)}</b></span>
-                <span>سهم از کل: <b className="text-gray-700 dark:text-gray-200">{fmtPct(p.share_of_total)}</b></span>
+                <span>
+                  ارزش سبد:{" "}
+                  <b className="text-gray-700 dark:text-gray-200">
+                    {fmtInt(p.holdings_value)}
+                  </b>
+                </span>
+                <span>
+                  سهم از کل:{" "}
+                  <b className="text-gray-700 dark:text-gray-200">
+                    {fmtPct(p.share_of_total)}
+                  </b>
+                </span>
               </div>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="text-left">
-              <div className="text-[11px] text-gray-500 dark:text-gray-400">سود / زیان</div>
-              <div className={`font-bold tabular-nums ${pos ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                {pos ? "+" : ""}{fmtInt(p.profit)}
-                <span className="text-xs font-normal"> ({pos ? "+" : ""}{fmtPct(p.profit_pct)})</span>
+              <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                سود / زیان
+              </div>
+              <div
+                className={`font-bold tabular-nums ${pos ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+              >
+                {pos ? "+" : ""}
+                {fmtInt(p.profit)}
+                <span className="text-xs font-normal">
+                  {" "}
+                  ({pos ? "+" : ""}
+                  {fmtPct(p.profit_pct)})
+                </span>
               </div>
             </div>
             {cashEdit?.personId === p.person_id ? (
@@ -670,24 +883,45 @@ const FamilyAssets = () => {
                 <input
                   type="number"
                   value={cashEdit.value}
-                  onChange={(e) => setCashEdit({ personId: p.person_id, value: e.target.value })}
+                  onChange={(e) =>
+                    setCashEdit({
+                      personId: p.person_id,
+                      value: e.target.value,
+                    })
+                  }
                   className={inputCls + " w-36"}
                 />
-                <button onClick={saveCash} className="text-emerald-500 hover:text-emerald-600" title="ذخیره مانده">
+                <button
+                  onClick={saveCash}
+                  className="text-emerald-500 hover:text-emerald-600"
+                  title="ذخیره مانده"
+                >
                   <FaCheck />
                 </button>
-                <button onClick={() => setCashEdit(null)} className="text-gray-400 hover:text-gray-600">
+                <button
+                  onClick={() => setCashEdit(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
                   <FaTimes />
                 </button>
               </div>
             ) : (
               <button
-                onClick={() => setCashEdit({ personId: p.person_id, value: String(p.cash_balance) })}
+                onClick={() =>
+                  setCashEdit({
+                    personId: p.person_id,
+                    value: String(p.cash_balance),
+                  })
+                }
                 className="text-right hover:ring-2 hover:ring-emerald-500/30 rounded-xl px-3 py-1.5 transition"
                 title="ویرایش مانده حساب"
               >
-                <div className="text-[11px] text-gray-500 dark:text-gray-400">مانده حساب</div>
-                <div className="font-bold text-amber-600 dark:text-amber-400 tabular-nums">{fmtInt(p.cash_balance)}</div>
+                <div className="text-[11px] text-gray-500 dark:text-gray-400">
+                  مانده حساب
+                </div>
+                <div className="font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+                  {fmtInt(p.cash_balance)}
+                </div>
               </button>
             )}
           </div>
@@ -717,7 +951,10 @@ const FamilyAssets = () => {
           <tbody>
             {p.holdings.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-3 text-center text-gray-400 text-xs">
+                <td
+                  colSpan={7}
+                  className="py-3 text-center text-gray-400 text-xs"
+                >
                   این سبد خالی است
                 </td>
               </tr>
@@ -725,17 +962,25 @@ const FamilyAssets = () => {
             {p.holdings.map((h) => {
               const hPos = h.profit >= 0;
               const isEdit =
-                editing?.personId === p.person_id && editing?.assetId === h.asset_id;
+                editing?.personId === p.person_id &&
+                editing?.assetId === h.asset_id;
               return (
-                <tr key={h.asset_id} className="border-b border-gray-100 dark:border-gray-800">
-                  <td className="py-1.5 font-medium text-gray-800 dark:text-gray-100">{h.asset_name}</td>
+                <tr
+                  key={h.asset_id}
+                  className="border-b border-gray-100 dark:border-gray-800"
+                >
+                  <td className="py-1.5 font-medium text-gray-800 dark:text-gray-100">
+                    {h.asset_name}
+                  </td>
                   {isEdit ? (
                     <>
                       <td className="py-1.5">
                         <input
                           type="number"
                           value={editing.quantity}
-                          onChange={(e) => setEditing({ ...editing, quantity: e.target.value })}
+                          onChange={(e) =>
+                            setEditing({ ...editing, quantity: e.target.value })
+                          }
                           className={inputCls + " w-28"}
                         />
                       </td>
@@ -743,16 +988,29 @@ const FamilyAssets = () => {
                         <input
                           type="number"
                           value={editing.costBasis}
-                          onChange={(e) => setEditing({ ...editing, costBasis: e.target.value })}
+                          onChange={(e) =>
+                            setEditing({
+                              ...editing,
+                              costBasis: e.target.value,
+                            })
+                          }
                           className={inputCls + " w-36"}
                         />
                       </td>
                       <td colSpan={3} className="py-1.5">
                         <div className="flex gap-2">
-                          <button onClick={saveEdit} className="text-emerald-500 hover:text-emerald-600" title="ذخیره">
+                          <button
+                            onClick={saveEdit}
+                            className="text-emerald-500 hover:text-emerald-600"
+                            title="ذخیره"
+                          >
                             <FaCheck />
                           </button>
-                          <button onClick={() => setEditing(null)} className="text-gray-400 hover:text-gray-600" title="انصراف">
+                          <button
+                            onClick={() => setEditing(null)}
+                            className="text-gray-400 hover:text-gray-600"
+                            title="انصراف"
+                          >
                             <FaTimes />
                           </button>
                         </div>
@@ -760,25 +1018,52 @@ const FamilyAssets = () => {
                     </>
                   ) : (
                     <>
-                      <td className="py-1.5 tabular-nums">{fmtInt(h.quantity)}</td>
-                      <td className="py-1.5 tabular-nums text-gray-600 dark:text-gray-300">{fmtInt(h.cost_basis)}</td>
-                      <td className="py-1.5 tabular-nums font-medium">{fmtInt(h.value)}</td>
-                      <td className={`py-1.5 tabular-nums font-semibold ${hPos ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                        {hPos ? "+" : ""}{fmtInt(h.profit)}
-                        <div className="text-[11px] font-normal opacity-80">({hPos ? "+" : ""}{fmtPct(h.profit_pct)})</div>
+                      <td className="py-1.5 tabular-nums">
+                        {fmtInt(h.quantity)}
                       </td>
-                      <td className="py-1.5 tabular-nums text-gray-600 dark:text-gray-300">{fmtPct(h.weight)}</td>
+                      <td className="py-1.5 tabular-nums text-gray-600 dark:text-gray-300">
+                        {fmtInt(h.cost_basis)}
+                      </td>
+                      <td className="py-1.5 tabular-nums font-medium">
+                        {fmtInt(h.value)}
+                      </td>
+                      <td
+                        className={`py-1.5 tabular-nums font-semibold ${hPos ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                      >
+                        {hPos ? "+" : ""}
+                        {fmtInt(h.profit)}
+                        <div className="text-[11px] font-normal opacity-80">
+                          ({hPos ? "+" : ""}
+                          {fmtPct(h.profit_pct)})
+                        </div>
+                      </td>
+                      <td className="py-1.5 tabular-nums text-gray-600 dark:text-gray-300">
+                        {fmtPct(h.weight)}
+                      </td>
                       <td className="py-1.5">
                         <div className="flex gap-2 text-gray-500 dark:text-gray-400">
                           <button
-                            onClick={() => startEdit(p.person_id, h.asset_id, h.quantity, h.cost_basis)}
+                            onClick={() =>
+                              startEdit(
+                                p.person_id,
+                                h.asset_id,
+                                h.quantity,
+                                h.cost_basis,
+                              )
+                            }
                             className="hover:text-emerald-500"
                             title="ویرایش"
                           >
                             <FaEdit />
                           </button>
                           <button
-                            onClick={() => removeHolding(p.person_id, h.asset_id, h.asset_name)}
+                            onClick={() =>
+                              removeHolding(
+                                p.person_id,
+                                h.asset_id,
+                                h.asset_name,
+                              )
+                            }
                             className="hover:text-red-500"
                             title="حذف"
                           >
@@ -796,7 +1081,9 @@ const FamilyAssets = () => {
                 <td className="py-1.5">
                   <select
                     value={addForm.asset_id}
-                    onChange={(e) => setAddForm({ ...addForm, asset_id: e.target.value })}
+                    onChange={(e) =>
+                      setAddForm({ ...addForm, asset_id: e.target.value })
+                    }
                     className={inputCls}
                   >
                     <option value="">انتخاب دارایی…</option>
@@ -811,7 +1098,9 @@ const FamilyAssets = () => {
                   <input
                     type="number"
                     value={addForm.quantity}
-                    onChange={(e) => setAddForm({ ...addForm, quantity: e.target.value })}
+                    onChange={(e) =>
+                      setAddForm({ ...addForm, quantity: e.target.value })
+                    }
                     placeholder="تعداد"
                     className={inputCls + " w-28"}
                   />
@@ -820,20 +1109,30 @@ const FamilyAssets = () => {
                   <input
                     type="number"
                     value={addForm.cost_basis}
-                    onChange={(e) => setAddForm({ ...addForm, cost_basis: e.target.value })}
+                    onChange={(e) =>
+                      setAddForm({ ...addForm, cost_basis: e.target.value })
+                    }
                     placeholder="بهای تمام‌شده"
                     className={inputCls + " w-36"}
                   />
                 </td>
                 <td colSpan={4} className="py-1.5">
                   <div className="flex gap-2">
-                    <button onClick={saveAdd} className="text-emerald-500 hover:text-emerald-600" title="ذخیره">
+                    <button
+                      onClick={saveAdd}
+                      className="text-emerald-500 hover:text-emerald-600"
+                      title="ذخیره"
+                    >
                       <FaCheck />
                     </button>
                     <button
                       onClick={() => {
                         setAddingFor(null);
-                        setAddForm({ asset_id: "", quantity: "", cost_basis: "" });
+                        setAddForm({
+                          asset_id: "",
+                          quantity: "",
+                          cost_basis: "",
+                        });
                       }}
                       className="text-gray-400 hover:text-gray-600"
                       title="انصراف"
@@ -849,7 +1148,11 @@ const FamilyAssets = () => {
                   <button
                     onClick={() => {
                       setEditing(null);
-                      setAddForm({ asset_id: "", quantity: "", cost_basis: "" });
+                      setAddForm({
+                        asset_id: "",
+                        quantity: "",
+                        cost_basis: "",
+                      });
                       setAddingFor(p.person_id);
                     }}
                     className="text-xs flex items-center gap-1.5 text-emerald-500 hover:text-emerald-600 font-medium"
@@ -900,7 +1203,11 @@ const FamilyAssets = () => {
       {error && (
         <div className="rounded-xl bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-700 text-rose-700 dark:text-rose-300 px-4 py-2 text-sm flex items-center justify-between gap-2">
           <span>{error}</span>
-          <button onClick={() => setError(null)} aria-label="بستن" className="opacity-60 hover:opacity-100">
+          <button
+            onClick={() => setError(null)}
+            aria-label="بستن"
+            className="opacity-60 hover:opacity-100"
+          >
             <FaTimes size={12} />
           </button>
         </div>
@@ -916,19 +1223,38 @@ const FamilyAssets = () => {
           <span className="flex items-center justify-center w-14 h-14 rounded-3xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-2xl">
             <FaCoins />
           </span>
-          <p className="text-gray-600 dark:text-gray-300 font-medium">هنوز داده‌ای ثبت نشده است</p>
+          <p className="text-gray-600 dark:text-gray-300 font-medium">
+            هنوز داده‌ای ثبت نشده است
+          </p>
           <p className="text-xs text-gray-400 max-w-sm">
-            از تب «سبد اشخاص» یک شخص و دارایی اضافه کنید، یا از تب «کارگزاری آگاه» سبد را
-            مستقیم از کارگزاری بخوانید.
+            از تب «سبد اشخاص» یک شخص و دارایی اضافه کنید، یا از تب «کارگزاری
+            آگاه» سبد را مستقیم از کارگزاری بخوانید.
           </p>
         </div>
       ) : (
         <>
+          {/* ── نبض بازار: شاخص‌ها / طلا / دلار ── */}
+          <MarketPulseCards
+            dollarPrice={
+              state.assets.find((a) => a.category === "dollar")?.latest_price
+            }
+            dollarDate={
+              state.assets.find((a) => a.category === "dollar")?.price_date
+            }
+          />
+
           {/* ── کارت‌های خلاصه ── */}
-          <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-6 gap-3">
-            <div className={cardCls + " animate-fade-in-up glass-border glass-border-emerald relative overflow-hidden"}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div
+              className={
+                cardCls +
+                " animate-fade-in-up glass-border glass-border-emerald relative overflow-hidden"
+              }
+            >
               <div className="flex items-center justify-between mb-1">
-                <div className="text-xs text-gray-500 dark:text-gray-400">جمع کل</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  جمع کل
+                </div>
                 <span className="text-emerald-600 dark:text-emerald-400 text-sm">
                   <FaWallet />
                 </span>
@@ -936,14 +1262,21 @@ const FamilyAssets = () => {
               <div className="text-lg font-bold text-gray-800 dark:text-white tabular-nums">
                 {fmtCompact(summary?.grand_total)}
               </div>
-              <div className="text-[11px] text-gray-400 tabular-nums">{fmtInt(summary?.grand_total)}</div>
+              <div className="text-[11px] text-gray-400 tabular-nums">
+                {fmtInt(summary?.grand_total)} — مانده:{" "}
+                {fmtCompact(summary?.total_cash)}
+              </div>
               {histDelta && (
                 <div
                   className={`text-[11px] font-semibold tabular-nums mt-1 ${
-                    histDelta.abs >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                    histDelta.abs >= 0
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-rose-600 dark:text-rose-400"
                   }`}
                 >
-                  {histDelta.abs >= 0 ? "▲" : "▼"} {fmtCompact(Math.abs(histDelta.abs))} ({fmtPct(Math.abs(histDelta.pct))})
+                  {histDelta.abs >= 0 ? "▲" : "▼"}{" "}
+                  {fmtCompact(Math.abs(histDelta.abs))} (
+                  {fmtPct(Math.abs(histDelta.pct))})
                 </div>
               )}
               {sparkData.length > 1 && (
@@ -952,11 +1285,25 @@ const FamilyAssets = () => {
                     <AreaChart data={sparkData}>
                       <defs>
                         <linearGradient id="spark" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="#059669" stopOpacity={0.35} />
-                          <stop offset="100%" stopColor="#059669" stopOpacity={0} />
+                          <stop
+                            offset="0%"
+                            stopColor="#059669"
+                            stopOpacity={0.35}
+                          />
+                          <stop
+                            offset="100%"
+                            stopColor="#059669"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
                       </defs>
-                      <Area type="monotone" dataKey="v" stroke="#059669" strokeWidth={1.5} fill="url(#spark)" />
+                      <Area
+                        type="monotone"
+                        dataKey="v"
+                        stroke="#059669"
+                        strokeWidth={1.5}
+                        fill="url(#spark)"
+                      />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
@@ -964,18 +1311,12 @@ const FamilyAssets = () => {
             </div>
             <div className={cardCls}>
               <div className="flex items-center justify-between mb-1">
-                <div className="text-xs text-gray-500 dark:text-gray-400">ارزش دارایی‌ها</div>
-                <span className="text-teal-600 dark:text-teal-400 text-sm"><FaChartPie /></span>
-              </div>
-              <div className="text-lg font-bold text-gray-800 dark:text-white tabular-nums">
-                {fmtCompact(summary?.holdings_value)}
-              </div>
-              <div className="text-[11px] text-gray-400">مانده: {fmtCompact(summary?.total_cash)}</div>
-            </div>
-            <div className={cardCls}>
-              <div className="flex items-center justify-between mb-1">
-                <div className="text-xs text-gray-500 dark:text-gray-400">سود / زیان کل</div>
-                <span className="text-sm text-gray-400"><FaCoins /></span>
+                <div className="text-xs text-gray-500 dark:text-gray-400">
+                  سود / زیان کل
+                </div>
+                <span className="text-sm text-gray-400">
+                  <FaCoins />
+                </span>
               </div>
               <div
                 className={`text-lg font-bold tabular-nums ${
@@ -989,38 +1330,90 @@ const FamilyAssets = () => {
               </div>
               <div className="text-[11px] text-gray-400">
                 ({(summary?.total_profit ?? 0) >= 0 ? "+" : ""}
-                {fmtPct(summary?.total_profit_pct)})
+                {fmtPct(summary?.total_profit_pct)}) از بهای{" "}
+                {fmtCompact(summary?.total_cost)}
               </div>
+              {bestWorst && (
+                <div className="mt-2 space-y-1 text-[11px]">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-gray-400 truncate">
+                      بهترین: {bestWorst.best.name}
+                    </span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold tabular-nums shrink-0">
+                      {fmtPct(bestWorst.best.profit_pct)}
+                    </span>
+                  </div>
+                  {bestWorst.worst.asset_id !== bestWorst.best.asset_id && (
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-gray-400 truncate">
+                        ضعیف‌ترین: {bestWorst.worst.name}
+                      </span>
+                      <span className="text-red-500 dark:text-red-400 font-semibold tabular-nums shrink-0">
+                        {fmtPct(bestWorst.worst.profit_pct)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className={cardCls}>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">بهترین حالت فردا (۳٪+)</div>
-              <div className="text-lg font-bold text-green-600 dark:text-green-400 tabular-nums">
-                {fmtCompact(summary?.best_tomorrow)}
+              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                سهام / طلا / دلار
               </div>
-            </div>
-            <div className={cardCls}>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">بدترین حالت فردا (۳٪−)</div>
-              <div className="text-lg font-bold text-red-600 dark:text-red-400 tabular-nums">
-                {fmtCompact(summary?.worst_tomorrow)}
+              {categorySplit.total > 0 ? (
+                <>
+                  <div className="text-sm font-bold text-gray-800 dark:text-white tabular-nums">
+                    {fmtCompact(categorySplit.total)}
+                  </div>
+                  <div
+                    className="h-2 rounded-full overflow-hidden flex my-2"
+                    dir="ltr"
+                  >
+                    {categorySplit.rows.map((r) => (
+                      <div
+                        key={r.name}
+                        style={{
+                          width: `${r.pct * 100}%`,
+                          background: r.color,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div className="space-y-0.5 text-[11px]">
+                    {categorySplit.rows.map((r) => (
+                      <div
+                        key={r.name}
+                        className="flex items-center justify-between gap-2"
+                      >
+                        <span className="flex items-center gap-1.5 text-gray-500 dark:text-gray-400">
+                          <span
+                            className="w-2 h-2 rounded-full shrink-0"
+                            style={{ background: r.color }}
+                          />
+                          {r.name}
+                        </span>
+                        <span className="tabular-nums text-gray-700 dark:text-gray-200 font-semibold">
+                          {fmtPct(r.pct)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="text-sm text-gray-400">
+                  دارایی‌ای ثبت نشده است
+                </div>
+              )}
+              <div className="text-[11px] text-gray-400 mt-1">
+                آخرین قیمت: {summary?.latest_datekey || "--"}
               </div>
-            </div>
-            <div className={cardCls}>
-              <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">طلا / سهام</div>
-              <div className="text-sm font-bold text-gray-800 dark:text-white tabular-nums">
-                <span title="سهام">{fmtCompact(summary?.stocks_total)}</span>
-                <span className="text-gray-400 mx-1">/</span>
-                <span className="text-amber-600 dark:text-amber-400" title="طلا">
-                  {fmtCompact(summary?.gold_total)}
-                </span>
-              </div>
-              <div className="text-[11px] text-gray-400">آخرین قیمت: {summary?.latest_datekey || "--"}</div>
             </div>
           </div>
 
           {tab === "summary" && (
             <>
               {/* ── تخصیص دارایی ── */}
-              {allocation.length > 0 && (
+              {/* {allocation.length > 0 && (
                 <div className={panelCls + " flex flex-wrap items-center gap-5"}>
                   <div className="relative" style={{ width: 180, height: 180 }} dir="ltr">
                     <ResponsiveContainer width="100%" height="100%">
@@ -1067,14 +1460,18 @@ const FamilyAssets = () => {
                     })}
                   </div>
                 </div>
-              )}
+              )} */}
 
               {/* ── ثبت قیمت روز ── */}
               <div className={panelCls}>
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-                  <h3 className="font-semibold text-gray-800 dark:text-white">ثبت قیمت روز</h3>
+                  <h3 className="font-semibold text-gray-800 dark:text-white">
+                    ثبت قیمت روز
+                  </h3>
                   <div className="flex items-center gap-2">
-                    <label className="text-xs text-gray-500 dark:text-gray-400">تاریخ (شمسی)</label>
+                    <label className="text-xs text-gray-500 dark:text-gray-400">
+                      تاریخ (شمسی)
+                    </label>
                     <input
                       type="text"
                       value={priceDate}
@@ -1094,12 +1491,23 @@ const FamilyAssets = () => {
                             ●
                           </span>
                         )}
+                        {a.category === "dollar" && (
+                          <span className="text-sky-500 mr-1" title="دلار">
+                            $
+                          </span>
+                        )}
                         {a.symbol ? (
-                          <span className="text-emerald-500 mr-1" title="قیمت خودکار از بازار">
+                          <span
+                            className="text-emerald-500 mr-1"
+                            title="قیمت خودکار از بازار"
+                          >
                             ⚡
                           </span>
                         ) : (
-                          <span className="text-gray-400 mr-1" title="ورود دستی قیمت">
+                          <span
+                            className="text-gray-400 mr-1"
+                            title="ورود دستی قیمت"
+                          >
                             ✎
                           </span>
                         )}
@@ -1108,9 +1516,14 @@ const FamilyAssets = () => {
                         type="number"
                         value={priceInputs[a.asset_id] ?? ""}
                         onChange={(e) =>
-                          setPriceInputs({ ...priceInputs, [a.asset_id]: e.target.value })
+                          setPriceInputs({
+                            ...priceInputs,
+                            [a.asset_id]: e.target.value,
+                          })
                         }
-                        placeholder={a.latest_price ? String(a.latest_price) : "قیمت"}
+                        placeholder={
+                          a.latest_price ? String(a.latest_price) : "قیمت"
+                        }
                         className={inputCls}
                       />
                     </div>
@@ -1122,7 +1535,8 @@ const FamilyAssets = () => {
                     disabled={savingPrices}
                     className="flex items-center gap-2 px-4 h-9 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-semibold shadow-lg transition disabled:opacity-50"
                   >
-                    <FaCheck /> {savingPrices ? "در حال ذخیره..." : "ذخیره قیمت‌ها"}
+                    <FaCheck />{" "}
+                    {savingPrices ? "در حال ذخیره..." : "ذخیره قیمت‌ها"}
                   </button>
                   <button
                     onClick={syncFromMarket}
@@ -1133,7 +1547,8 @@ const FamilyAssets = () => {
                     📥 {syncing ? "در حال دریافت..." : "دریافت قیمت از بازار"}
                   </button>
                   <span className="text-xs text-gray-400">
-                    با دکمه «Daily Prices» در سایدبار هم قیمت‌ها خودکار به‌روز می‌شوند؛ این فرم فقط برای اصلاح دستی
+                    با دکمه «Daily Prices» در سایدبار هم قیمت‌ها خودکار به‌روز
+                    می‌شوند؛ این فرم فقط برای اصلاح دستی
                   </span>
                 </div>
               </div>
@@ -1141,15 +1556,45 @@ const FamilyAssets = () => {
               {/* ── جدول دارایی‌ها مثل Sheet1 ── */}
               <div className={panelCls}>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-gray-800 dark:text-white">پرتفوی کل</h3>
+                  <h3 className="font-semibold text-gray-800 dark:text-white">
+                    پرتفوی کل
+                  </h3>
                   <button
                     onClick={() =>
                       downloadCsv("family-assets.csv", [
-                        ["دارایی", "آخرین قیمت", "تاریخ قیمت", "تعداد کل", "بهای تمام‌شده", "ارزش", "سود/زیان", "درصد سود", "وزن"],
-                        ...state.assets.map((a) => [
-                          a.name, a.latest_price, a.price_date, a.total_quantity,
-                          a.total_cost, a.total_value, a.total_profit, a.profit_pct, a.weight,
+                        [
+                          "دارایی",
+                          "آخرین قیمت",
+                          "تاریخ قیمت",
+                          "تعداد کل",
+                          "بهای تمام‌شده",
+                          "ارزش",
+                          "سود/زیان",
+                          "درصد سود",
+                          "وزن",
+                        ],
+                        ...sortedAssets.map((a) => [
+                          a.name,
+                          a.latest_price,
+                          a.price_date,
+                          a.total_quantity,
+                          a.total_cost,
+                          a.total_value,
+                          a.total_profit,
+                          a.profit_pct,
+                          a.weight,
                         ]),
+                        [
+                          "جمع",
+                          "",
+                          "",
+                          "",
+                          portfolioTotals.cost,
+                          portfolioTotals.value,
+                          portfolioTotals.profit,
+                          portfolioTotals.profitPct,
+                          portfolioTotals.weight,
+                        ],
                       ])
                     }
                     className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"
@@ -1158,55 +1603,157 @@ const FamilyAssets = () => {
                   </button>
                 </div>
                 <div className="overflow-auto max-h-[70vh]">
-                <table className="w-full text-sm text-right">
-                  <thead>
-                    <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">دارایی</th>
-                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">آخرین قیمت</th>
-                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">تاریخ قیمت</th>
-                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">تعداد کل</th>
-                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">بهای تمام‌شده</th>
-                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">ارزش</th>
-                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">سود/زیان</th>
-                      <th className="sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium">وزن</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {state.assets.map((a) => {
-                      const pos = a.total_profit >= 0;
-                      return (
-                        <tr key={a.asset_id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/40">
-                          <td className="py-2 font-semibold text-gray-800 dark:text-gray-100">
-                            {a.name}
-                            {a.category === "gold" && (
-                              <span className="text-amber-500 mr-1" title="طلا">●</span>
-                            )}
-                            {a.symbol && (
-                              <span className="text-emerald-500 mr-1" title="قیمت خودکار از بازار">⚡</span>
-                            )}
+                  <table className="w-full text-sm text-right">
+                    <thead>
+                      <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+                        {ASSET_SORT_COLUMNS.map((c) => {
+                          const active = assetSort.key === c.key;
+                          return (
+                            <th
+                              key={c.key}
+                              onClick={() => toggleAssetSort(c.key)}
+                              title="برای مرتب‌سازی کلیک کنید"
+                              className={`sticky top-0 z-10 bg-white/95 dark:bg-gray-800/95 backdrop-blur py-2 font-medium cursor-pointer select-none transition ${
+                                active
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : "hover:text-emerald-600 dark:hover:text-emerald-400"
+                              }`}
+                            >
+                              <span className="inline-flex items-center gap-1">
+                                {c.label}
+                                {active ? (
+                                  assetSort.dir === "asc" ? (
+                                    <FaSortUp size={10} />
+                                  ) : (
+                                    <FaSortDown size={10} />
+                                  )
+                                ) : (
+                                  <FaSort size={9} className="opacity-40" />
+                                )}
+                              </span>
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedAssets.length === 0 && (
+                        <tr>
+                          <td
+                            colSpan={8}
+                            className="py-3 text-center text-gray-400 text-xs"
+                          >
+                            هنوز دارایی‌ای با موجودی ثبت نشده است
                           </td>
-                          <td className="py-2 tabular-nums">{a.latest_price ? fmtInt(a.latest_price) : "—"}</td>
-                          <td className="py-2 text-gray-500 dark:text-gray-400 text-xs">{a.price_date || "—"}</td>
-                          <td className="py-2 tabular-nums">{fmtInt(a.total_quantity)}</td>
-                          <td className="py-2 tabular-nums text-gray-600 dark:text-gray-300">{fmtInt(a.total_cost)}</td>
-                          <td className="py-2 tabular-nums font-medium">{fmtInt(a.total_value)}</td>
-                          <td className={`py-2 tabular-nums font-semibold ${pos ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                            {pos ? "+" : ""}{fmtCompact(a.total_profit)}
-                            <div className="text-[11px] font-normal opacity-80">({pos ? "+" : ""}{fmtPct(a.profit_pct)})</div>
-                          </td>
-                          <td className="py-2 tabular-nums text-gray-600 dark:text-gray-300">{fmtPct(a.weight)}</td>
                         </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                      )}
+                      {sortedAssets.map((a) => {
+                        const pos = a.total_profit >= 0;
+                        return (
+                          <tr
+                            key={a.asset_id}
+                            className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700/40"
+                          >
+                            <td className="py-2 font-semibold text-gray-800 dark:text-gray-100">
+                              {a.name}
+                              {a.category === "gold" && (
+                                <span
+                                  className="text-amber-500 mr-1"
+                                  title="طلا"
+                                >
+                                  ●
+                                </span>
+                              )}
+                              {a.category === "dollar" && (
+                                <span
+                                  className="text-sky-500 mr-1"
+                                  title="دلار — ورود دستی"
+                                >
+                                  $
+                                </span>
+                              )}
+                              {a.symbol && (
+                                <span
+                                  className="text-emerald-500 mr-1"
+                                  title="قیمت خودکار از بازار"
+                                >
+                                  ⚡
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-2 tabular-nums">
+                              {a.latest_price ? fmtInt(a.latest_price) : "—"}
+                            </td>
+                            <td className="py-2 text-gray-500 dark:text-gray-400 text-xs">
+                              {a.price_date || "—"}
+                            </td>
+                            <td className="py-2 tabular-nums">
+                              {fmtInt(a.total_quantity)}
+                            </td>
+                            <td className="py-2 tabular-nums text-gray-600 dark:text-gray-300">
+                              {fmtInt(a.total_cost)}
+                            </td>
+                            <td className="py-2 tabular-nums font-medium">
+                              {fmtInt(a.total_value)}
+                            </td>
+                            <td
+                              className={`py-2 tabular-nums font-semibold ${pos ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                            >
+                              {pos ? "+" : ""}
+                              {fmtCompact(a.total_profit)}
+                              <div className="text-[11px] font-normal opacity-80">
+                                ({pos ? "+" : ""}
+                                {fmtPct(a.profit_pct)})
+                              </div>
+                            </td>
+                            <td className="py-2 tabular-nums text-gray-600 dark:text-gray-300">
+                              {fmtPct(a.weight)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                    {heldAssets.length > 0 && (
+                      <tfoot>
+                        <tr className="border-t-2 border-gray-300 dark:border-gray-600 bg-gray-50/80 dark:bg-gray-800/60 font-semibold">
+                          <td className="py-2 text-gray-800 dark:text-gray-100">
+                            جمع کل
+                          </td>
+                          <td />
+                          <td />
+                          <td />
+                          <td className="py-2 tabular-nums text-gray-700 dark:text-gray-200">
+                            {fmtInt(portfolioTotals.cost)}
+                          </td>
+                          <td className="py-2 tabular-nums text-gray-800 dark:text-white">
+                            {fmtInt(portfolioTotals.value)}
+                          </td>
+                          <td
+                            className={`py-2 tabular-nums ${portfolioTotals.profit >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                          >
+                            {portfolioTotals.profit >= 0 ? "+" : ""}
+                            {fmtCompact(portfolioTotals.profit)}
+                            <div className="text-[11px] font-normal opacity-80">
+                              ({portfolioTotals.profit >= 0 ? "+" : ""}
+                              {fmtPct(portfolioTotals.profitPct)})
+                            </div>
+                          </td>
+                          <td className="py-2 tabular-nums text-gray-600 dark:text-gray-300">
+                            {fmtPct(portfolioTotals.weight)}
+                          </td>
+                        </tr>
+                      </tfoot>
+                    )}
+                  </table>
                 </div>
               </div>
 
               {/* ── افزودن شخص / دارایی ── */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className={panelCls}>
-                  <h3 className="font-semibold text-gray-800 dark:text-white mb-3">افزودن شخص</h3>
+                  <h3 className="font-semibold text-gray-800 dark:text-white mb-3">
+                    افزودن شخص
+                  </h3>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -1224,7 +1771,9 @@ const FamilyAssets = () => {
                   </div>
                 </div>
                 <div className={panelCls}>
-                  <h3 className="font-semibold text-gray-800 dark:text-white mb-3">افزودن دارایی</h3>
+                  <h3 className="font-semibold text-gray-800 dark:text-white mb-3">
+                    افزودن دارایی
+                  </h3>
                   <div className="flex gap-2">
                     <input
                       type="text"
@@ -1255,13 +1804,20 @@ const FamilyAssets = () => {
           )}
 
           {tab === "people" && (
-            <div className="flex flex-col gap-4">{state.people.map(renderPersonCard)}</div>
+            <div className="flex flex-col gap-4">
+              {state.people.map(renderPersonCard)}
+            </div>
           )}
 
           {tab === "history" && (
             <div className="flex flex-col gap-4">
               {/* ── کنترل‌ها: بازه + نوع نمودار ── */}
-              <div className={panelCls + " flex flex-wrap items-center justify-between gap-3"}>
+              <div
+                className={
+                  panelCls +
+                  " flex flex-wrap items-center justify-between gap-3"
+                }
+              >
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex gap-1 rounded-xl bg-gray-100 dark:bg-gray-900/60 p-1">
                     {RANGES.map((r) => (
@@ -1300,7 +1856,10 @@ const FamilyAssets = () => {
                       🌊 انباشته
                     </button>
                   </div>
-                  <div className="flex gap-1 rounded-xl bg-gray-100 dark:bg-gray-900/60 p-1" title="مقیاس محور عمودی — لگاریتمی برای دیدن رشد نسبی در بازه‌های طولانی">
+                  <div
+                    className="flex gap-1 rounded-xl bg-gray-100 dark:bg-gray-900/60 p-1"
+                    title="مقیاس محور عمودی — لگاریتمی برای دیدن رشد نسبی در بازه‌های طولانی"
+                  >
                     <button
                       onClick={() => setLogScale(false)}
                       className={`px-3 h-7 rounded-lg text-xs font-semibold transition ${
@@ -1327,10 +1886,19 @@ const FamilyAssets = () => {
                   <button
                     onClick={() =>
                       downloadCsv("family-history.csv", [
-                        ["تاریخ", "جمع کل", "واقعی", ...Object.values(personMeta).map((m) => m.name)],
+                        [
+                          "تاریخ",
+                          "جمع کل",
+                          "واقعی",
+                          ...Object.values(personMeta).map((m) => m.name),
+                        ],
                         ...history.map((h) => [
-                          h.date_key, h.total, h.has_total ? 1 : 0,
-                          ...Object.keys(personMeta).map((pid) => h.people[pid] ?? 0),
+                          h.date_key,
+                          h.total,
+                          h.has_total ? 1 : 0,
+                          ...Object.keys(personMeta).map(
+                            (pid) => h.people[pid] ?? 0,
+                          ),
                         ]),
                       ])
                     }
@@ -1361,7 +1929,9 @@ const FamilyAssets = () => {
                 >
                   <span
                     className="inline-block w-3 h-1.5 rounded-full"
-                    style={{ background: "linear-gradient(to left, #6366f1, #a855f7)" }}
+                    style={{
+                      background: "linear-gradient(to left, #6366f1, #a855f7)",
+                    }}
                   />
                   جمع کل
                 </button>
@@ -1375,7 +1945,10 @@ const FamilyAssets = () => {
                         : "border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60"
                     }`}
                   >
-                    <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: meta.color }} />
+                    <span
+                      className="inline-block w-2.5 h-2.5 rounded-full"
+                      style={{ background: meta.color }}
+                    />
                     {meta.name}
                   </button>
                 ))}
@@ -1385,15 +1958,20 @@ const FamilyAssets = () => {
               <div className={panelCls}>
                 <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
                   <h3 className="font-semibold text-gray-800 dark:text-white">
-                    {chartMode === "line" ? "روند دارایی" : "دارایی به تفکیک اشخاص"}{" "}
+                    {chartMode === "line"
+                      ? "روند دارایی"
+                      : "دارایی به تفکیک اشخاص"}{" "}
                     <span className="text-xs font-normal text-gray-400">
-                      ({chartData.length} روز، از {chartData[0]?.date_key || "--"})
+                      ({chartData.length} روز، از{" "}
+                      {chartData[0]?.date_key || "--"})
                     </span>
                   </h3>
                   {chartStats && (
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       سقف تاریخی:{" "}
-                      <b className={darkMode ? "text-gray-200" : "text-gray-800"}>
+                      <b
+                        className={darkMode ? "text-gray-200" : "text-gray-800"}
+                      >
                         {fmtCompact(chartStats.ath.value)}
                       </b>{" "}
                       در {chartStats.ath.date}
@@ -1402,17 +1980,33 @@ const FamilyAssets = () => {
                 </div>
                 <ResponsiveContainer width="100%" height={460}>
                   {chartMode === "line" ? (
-                    <ComposedChart data={chartData} margin={{ top: 10, right: 10, bottom: 0, left: 10 }}>
+                    <ComposedChart
+                      data={chartData}
+                      margin={{ top: 10, right: 10, bottom: 0, left: 10 }}
+                    >
                       <defs>
-                        <linearGradient id="totalGrad" x1="0" y1="0" x2="1" y2="0">
+                        <linearGradient
+                          id="totalGrad"
+                          x1="0"
+                          y1="0"
+                          x2="1"
+                          y2="0"
+                        >
                           <stop offset="0%" stopColor="#6366f1" />
                           <stop offset="100%" stopColor="#a855f7" />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#374151" : "#e5e7eb"} opacity={0.6} />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke={darkMode ? "#374151" : "#e5e7eb"}
+                        opacity={0.6}
+                      />
                       <XAxis
                         dataKey="date_key"
-                        tick={{ fontSize: 10, fill: darkMode ? "#9ca3af" : "#6b7280" }}
+                        tick={{
+                          fontSize: 10,
+                          fill: darkMode ? "#9ca3af" : "#6b7280",
+                        }}
                         minTickGap={60}
                       />
                       <YAxis
@@ -1420,11 +2014,22 @@ const FamilyAssets = () => {
                         domain={logScale ? ["auto", "auto"] : [0, "auto"]}
                         allowDataOverflow
                         allowDecimals={false}
-                        tick={{ fontSize: 10, fill: darkMode ? "#9ca3af" : "#6b7280" }}
+                        tick={{
+                          fontSize: 10,
+                          fill: darkMode ? "#9ca3af" : "#6b7280",
+                        }}
                         tickFormatter={(v: number) => fmtCompact(v)}
                         width={62}
                       />
-                      <Tooltip content={<HistoryTooltip darkMode={darkMode} personMeta={personMeta} mode="line" />} />
+                      <Tooltip
+                        content={
+                          <HistoryTooltip
+                            darkMode={darkMode}
+                            personMeta={personMeta}
+                            mode="line"
+                          />
+                        }
+                      />
                       {Object.entries(personMeta).map(([pid, meta]) =>
                         !hiddenSeries.has(pid) ? (
                           <Line
@@ -1438,7 +2043,7 @@ const FamilyAssets = () => {
                             activeDot={{ r: 3.5, strokeWidth: 0 }}
                             animationDuration={700}
                           />
-                        ) : null
+                        ) : null,
                       )}
                       {!hiddenSeries.has("total") && (
                         <Line
@@ -1448,25 +2053,54 @@ const FamilyAssets = () => {
                           stroke="url(#totalGrad)"
                           strokeWidth={3.5}
                           dot={false}
-                          activeDot={{ r: 5, strokeWidth: 2, stroke: darkMode ? "#1f2937" : "#fff" }}
+                          activeDot={{
+                            r: 5,
+                            strokeWidth: 2,
+                            stroke: darkMode ? "#1f2937" : "#fff",
+                          }}
                           animationDuration={700}
                         />
                       )}
                     </ComposedChart>
                   ) : (
-                    <AreaChart data={chartData} margin={{ top: 10, right: 10, bottom: 0, left: 10 }}>
+                    <AreaChart
+                      data={chartData}
+                      margin={{ top: 10, right: 10, bottom: 0, left: 10 }}
+                    >
                       <defs>
                         {Object.entries(personMeta).map(([pid, meta]) => (
-                          <linearGradient key={pid} id={`stackGrad-${pid}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={meta.color} stopOpacity={0.75} />
-                            <stop offset="100%" stopColor={meta.color} stopOpacity={0.08} />
+                          <linearGradient
+                            key={pid}
+                            id={`stackGrad-${pid}`}
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="0%"
+                              stopColor={meta.color}
+                              stopOpacity={0.75}
+                            />
+                            <stop
+                              offset="100%"
+                              stopColor={meta.color}
+                              stopOpacity={0.08}
+                            />
                           </linearGradient>
                         ))}
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke={darkMode ? "#374151" : "#e5e7eb"} opacity={0.6} />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke={darkMode ? "#374151" : "#e5e7eb"}
+                        opacity={0.6}
+                      />
                       <XAxis
                         dataKey="date_key"
-                        tick={{ fontSize: 10, fill: darkMode ? "#9ca3af" : "#6b7280" }}
+                        tick={{
+                          fontSize: 10,
+                          fill: darkMode ? "#9ca3af" : "#6b7280",
+                        }}
                         minTickGap={60}
                       />
                       <YAxis
@@ -1474,11 +2108,22 @@ const FamilyAssets = () => {
                         domain={logScale ? ["auto", "auto"] : [0, "auto"]}
                         allowDataOverflow
                         allowDecimals={false}
-                        tick={{ fontSize: 10, fill: darkMode ? "#9ca3af" : "#6b7280" }}
+                        tick={{
+                          fontSize: 10,
+                          fill: darkMode ? "#9ca3af" : "#6b7280",
+                        }}
                         tickFormatter={(v: number) => fmtCompact(v)}
                         width={62}
                       />
-                      <Tooltip content={<HistoryTooltip darkMode={darkMode} personMeta={personMeta} mode="stack" />} />
+                      <Tooltip
+                        content={
+                          <HistoryTooltip
+                            darkMode={darkMode}
+                            personMeta={personMeta}
+                            mode="stack"
+                          />
+                        }
+                      />
                       {Object.entries(personMeta).map(([pid, meta]) =>
                         !hiddenSeries.has(pid) ? (
                           <Area
@@ -1492,7 +2137,7 @@ const FamilyAssets = () => {
                             fill={`url(#stackGrad-${pid})`}
                             animationDuration={700}
                           />
-                        ) : null
+                        ) : null,
                       )}
                       {!hiddenSeries.has("total") && (
                         <Line
@@ -1510,8 +2155,10 @@ const FamilyAssets = () => {
                   )}
                 </ResponsiveContainer>
                 <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-2 leading-5">
-                  سری اشخاص = دارایی‌های امروز × قیمت تاریخی + مانده فعلی حساب؛ بنابراین جمع اشخاص در گذشته ممکن است
-                  با خط «جمع کل» واقعی (ترکیب سبد آن زمان) تفاوت داشته باشد. خط ممتد = داده واقعی اکسل و سایت.
+                  سری اشخاص = دارایی‌های امروز × قیمت تاریخی + مانده فعلی حساب؛
+                  بنابراین جمع اشخاص در گذشته ممکن است با خط «جمع کل» واقعی
+                  (ترکیب سبد آن زمان) تفاوت داشته باشد. خط ممتد = داده واقعی
+                  اکسل و سایت.
                 </p>
               </div>
 
@@ -1519,14 +2166,20 @@ const FamilyAssets = () => {
               {chartStats && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div className={cardCls}>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">آخرین ارزش کل</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      آخرین ارزش کل
+                    </div>
                     <div className="text-lg font-bold text-gray-800 dark:text-white tabular-nums">
                       {fmtCompact(chartStats.last.total)}
                     </div>
-                    <div className="text-[11px] text-gray-400">{chartStats.last.date_key}</div>
+                    <div className="text-[11px] text-gray-400">
+                      {chartStats.last.date_key}
+                    </div>
                   </div>
                   <div className={cardCls}>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">بازده این بازه</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      بازده این بازه
+                    </div>
                     <div
                       className={`text-lg font-bold tabular-nums ${
                         (chartStats.rangeChangePct ?? 0) >= 0
@@ -1537,21 +2190,31 @@ const FamilyAssets = () => {
                       {(chartStats.rangeChangePct ?? 0) >= 0 ? "+" : ""}
                       {fmtPct(chartStats.rangeChangePct)}
                     </div>
-                    <div className="text-[11px] text-gray-400">از {chartStats.first.date_key}</div>
+                    <div className="text-[11px] text-gray-400">
+                      از {chartStats.first.date_key}
+                    </div>
                   </div>
                   <div className={cardCls}>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">بهترین روز بازه</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      بهترین روز بازه
+                    </div>
                     <div className="text-lg font-bold text-green-600 dark:text-green-400 tabular-nums">
                       +{fmtPct(chartStats.best.pct)}
                     </div>
-                    <div className="text-[11px] text-gray-400">{chartStats.best.date || "--"}</div>
+                    <div className="text-[11px] text-gray-400">
+                      {chartStats.best.date || "--"}
+                    </div>
                   </div>
                   <div className={cardCls}>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">بدترین روز بازه</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">
+                      بدترین روز بازه
+                    </div>
                     <div className="text-lg font-bold text-red-600 dark:text-red-400 tabular-nums">
                       {fmtPct(chartStats.worst.pct)}
                     </div>
-                    <div className="text-[11px] text-gray-400">{chartStats.worst.date || "--"}</div>
+                    <div className="text-[11px] text-gray-400">
+                      {chartStats.worst.date || "--"}
+                    </div>
                   </div>
                 </div>
               )}
@@ -1561,33 +2224,47 @@ const FamilyAssets = () => {
           {tab === "flows" && (
             <>
               <div className={panelCls}>
-                <h3 className="font-semibold text-gray-800 dark:text-white mb-3">ثبت آورده / برداشت</h3>
+                <h3 className="font-semibold text-gray-800 dark:text-white mb-3">
+                  ثبت آورده / برداشت
+                </h3>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
-                    <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">تاریخ (شمسی)</label>
+                    <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">
+                      تاریخ (شمسی)
+                    </label>
                     <input
                       type="text"
                       value={flowForm.date_key}
-                      onChange={(e) => setFlowForm({ ...flowForm, date_key: e.target.value })}
+                      onChange={(e) =>
+                        setFlowForm({ ...flowForm, date_key: e.target.value })
+                      }
                       placeholder="1405/05/26"
                       className={inputCls}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">مبلغ</label>
+                    <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">
+                      مبلغ
+                    </label>
                     <input
                       type="number"
                       value={flowForm.amount}
-                      onChange={(e) => setFlowForm({ ...flowForm, amount: e.target.value })}
+                      onChange={(e) =>
+                        setFlowForm({ ...flowForm, amount: e.target.value })
+                      }
                       placeholder="مبلغ"
                       className={inputCls}
                     />
                   </div>
                   <div>
-                    <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">جهت</label>
+                    <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">
+                      جهت
+                    </label>
                     <select
                       value={flowForm.direction}
-                      onChange={(e) => setFlowForm({ ...flowForm, direction: e.target.value })}
+                      onChange={(e) =>
+                        setFlowForm({ ...flowForm, direction: e.target.value })
+                      }
                       className={inputCls}
                     >
                       <option value="in">آورده (+)</option>
@@ -1595,11 +2272,15 @@ const FamilyAssets = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">یادداشت</label>
+                    <label className="block text-xs mb-1 text-gray-500 dark:text-gray-400">
+                      یادداشت
+                    </label>
                     <input
                       type="text"
                       value={flowForm.note}
-                      onChange={(e) => setFlowForm({ ...flowForm, note: e.target.value })}
+                      onChange={(e) =>
+                        setFlowForm({ ...flowForm, note: e.target.value })
+                      }
                       placeholder="یادداشت..."
                       className={inputCls}
                     />
@@ -1630,13 +2311,19 @@ const FamilyAssets = () => {
                   <tbody>
                     {flows.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="py-3 text-center text-gray-400 text-xs">
+                        <td
+                          colSpan={5}
+                          className="py-3 text-center text-gray-400 text-xs"
+                        >
                           جریان نقدی ثبت نشده است
                         </td>
                       </tr>
                     )}
                     {flows.map((f) => (
-                      <tr key={f.id} className="border-b border-gray-100 dark:border-gray-800">
+                      <tr
+                        key={f.id}
+                        className="border-b border-gray-100 dark:border-gray-800"
+                      >
                         <td className="py-2 tabular-nums">{f.date_key}</td>
                         <td className="py-2">
                           <span
@@ -1650,10 +2337,18 @@ const FamilyAssets = () => {
                             {f.direction === "in" ? "آورده" : "برداشت"}
                           </span>
                         </td>
-                        <td className="py-2 tabular-nums font-medium">{fmtInt(f.amount)}</td>
-                        <td className="py-2 text-gray-500 dark:text-gray-400">{f.note || "—"}</td>
+                        <td className="py-2 tabular-nums font-medium">
+                          {fmtInt(f.amount)}
+                        </td>
+                        <td className="py-2 text-gray-500 dark:text-gray-400">
+                          {f.note || "—"}
+                        </td>
                         <td className="py-2">
-                          <button onClick={() => removeFlow(f.id)} className="text-gray-400 hover:text-red-500" title="حذف">
+                          <button
+                            onClick={() => removeFlow(f.id)}
+                            className="text-gray-400 hover:text-red-500"
+                            title="حذف"
+                          >
                             <FaTrash />
                           </button>
                         </td>
@@ -1667,45 +2362,79 @@ const FamilyAssets = () => {
 
           {tab === "broker" && (
             <div className="flex flex-col gap-4">
-              <div className={panelCls + " flex flex-wrap items-center justify-between gap-3"}>
+              <div
+                className={
+                  panelCls +
+                  " flex flex-wrap items-center justify-between gap-3"
+                }
+              >
                 <div>
-                  <h3 className="font-bold text-gray-800 dark:text-white">اتصال سبد به کارگزاری آگاه</h3>
+                  <h3 className="font-bold text-gray-800 dark:text-white">
+                    اتصال سبد به کارگزاری آگاه
+                  </h3>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-6">
-                    سینک به‌صورت headless روی سرور اجرا می‌شود و کد امنیتی به‌طور خودکار خوانده می‌شود؛
-                    اگر کد از سمت سایت پذیرفته نشود، تصویر کپچا همین‌جا نمایش داده می‌شود تا وارد کنید.
-                    نشست هر شخص جداگانه ذخیره می‌شود و تا اعتبار نشست، سینک بعدی بدون کپچا انجام می‌شود.
-                    سبد و مانده نقدی هر شخص به‌صورت کامل با داده کارگزاری جایگزین می‌شود.
+                    سینک به‌صورت headless روی سرور اجرا می‌شود و کد امنیتی
+                    به‌طور خودکار خوانده می‌شود؛ اگر کد از سمت سایت پذیرفته
+                    نشود، تصویر کپچا همین‌جا نمایش داده می‌شود تا وارد کنید.
+                    نشست هر شخص جداگانه ذخیره می‌شود و تا اعتبار نشست، سینک بعدی
+                    بدون کپچا انجام می‌شود. سبد و مانده نقدی هر شخص به‌صورت کامل
+                    با داده کارگزاری جایگزین می‌شود.
                   </p>
                 </div>
                 <button
                   onClick={() => syncBroker()}
-                  disabled={syncingPerson !== null || brokerAccounts.filter((b) => b.has_secret).length === 0}
+                  disabled={
+                    syncingPerson !== null ||
+                    brokerAccounts.filter((b) => b.has_secret).length === 0
+                  }
                   className="rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-4 py-2 text-sm font-medium"
                 >
-                  {syncingPerson === 0 ? "در حال سینک همه..." : "سینک همه از آگاه"}
+                  {syncingPerson === 0
+                    ? "در حال سینک همه..."
+                    : "سینک همه از آگاه"}
                 </button>
               </div>
 
               {state.people.map((p) => {
-                const acc = brokerAccounts.find((b) => b.person_id === p.person_id);
+                const acc = brokerAccounts.find(
+                  (b) => b.person_id === p.person_id,
+                );
                 const job = brokerJobs[p.person_id];
                 const configured = !!(acc && acc.has_secret);
                 return (
                   <div key={p.person_id} className={panelCls}>
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <h3 className="font-bold text-gray-800 dark:text-white">{p.name}</h3>
+                        <h3 className="font-bold text-gray-800 dark:text-white">
+                          {p.name}
+                        </h3>
                         <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 flex flex-wrap gap-3">
                           <span>
-                            کاربر: <b className="text-gray-700 dark:text-gray-200">{acc?.username || "—"}</b>
+                            کاربر:{" "}
+                            <b className="text-gray-700 dark:text-gray-200">
+                              {acc?.username || "—"}
+                            </b>
                           </span>
                           {acc?.last_synced_at && (
                             <span>
-                              آخرین سینک: <b>{new Date(acc.last_synced_at).toLocaleString("fa-IR")}</b>
+                              آخرین سینک:{" "}
+                              <b>
+                                {new Date(acc.last_synced_at).toLocaleString(
+                                  "fa-IR",
+                                )}
+                              </b>
                             </span>
                           )}
-                          {acc?.last_status === "ok" && <span className="text-green-600 dark:text-green-400">موفق</span>}
-                          {acc?.last_status === "error" && <span className="text-red-500">خطا: {acc.last_error}</span>}
+                          {acc?.last_status === "ok" && (
+                            <span className="text-green-600 dark:text-green-400">
+                              موفق
+                            </span>
+                          )}
+                          {acc?.last_status === "error" && (
+                            <span className="text-red-500">
+                              خطا: {acc.last_error}
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
@@ -1713,15 +2442,29 @@ const FamilyAssets = () => {
                           <div className="flex flex-wrap items-end gap-2">
                             <input
                               value={brokerEdit.username}
-                              onChange={(e) => setBrokerEdit({ ...brokerEdit, username: e.target.value })}
+                              onChange={(e) =>
+                                setBrokerEdit({
+                                  ...brokerEdit,
+                                  username: e.target.value,
+                                })
+                              }
                               placeholder="نام کاربری / کد ملی"
                               className={inputCls + " w-44"}
                             />
                             <input
                               type="password"
                               value={brokerEdit.password}
-                              onChange={(e) => setBrokerEdit({ ...brokerEdit, password: e.target.value })}
-                              placeholder={configured ? "رمز (خالی = بدون تغییر)" : "کلمه عبور"}
+                              onChange={(e) =>
+                                setBrokerEdit({
+                                  ...brokerEdit,
+                                  password: e.target.value,
+                                })
+                              }
+                              placeholder={
+                                configured
+                                  ? "رمز (خالی = بدون تغییر)"
+                                  : "کلمه عبور"
+                              }
                               className={inputCls + " w-44"}
                             />
                             <button
@@ -1731,7 +2474,10 @@ const FamilyAssets = () => {
                             >
                               {savingBroker ? "..." : "ذخیره"}
                             </button>
-                            <button onClick={() => setBrokerEdit(null)} className="text-gray-400 hover:text-gray-600 px-2">
+                            <button
+                              onClick={() => setBrokerEdit(null)}
+                              className="text-gray-400 hover:text-gray-600 px-2"
+                            >
                               <FaTimes />
                             </button>
                           </div>
@@ -1749,11 +2495,17 @@ const FamilyAssets = () => {
                                 disabled={syncingPerson !== null}
                                 className="rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-3 py-1.5 text-sm"
                               >
-                                {syncingPerson === p.person_id ? "در حال سینک..." : "سینک از آگاه"}
+                                {syncingPerson === p.person_id
+                                  ? "در حال سینک..."
+                                  : "سینک از آگاه"}
                               </button>
                             )}
                             {acc && (
-                              <button onClick={() => removeBroker(p.person_id)} className="text-gray-400 hover:text-red-500 px-1" title="حذف اتصال">
+                              <button
+                                onClick={() => removeBroker(p.person_id)}
+                                className="text-gray-400 hover:text-red-500 px-1"
+                                title="حذف اتصال"
+                              >
                                 <FaTrash />
                               </button>
                             )}
@@ -1762,9 +2514,13 @@ const FamilyAssets = () => {
                       </div>
                     </div>
                     {job && (
-                      <div className={`mt-3 text-xs ${job.state === "error" ? "text-rose-500" : "text-gray-500 dark:text-gray-400"}`}>
+                      <div
+                        className={`mt-3 text-xs ${job.state === "error" ? "text-rose-500" : "text-gray-500 dark:text-gray-400"}`}
+                      >
                         <div className="flex items-center gap-2 flex-wrap">
-                          {job.state === "running" && <FaCircleNotch className="animate-spin text-emerald-500" />}
+                          {job.state === "running" && (
+                            <FaCircleNotch className="animate-spin text-emerald-500" />
+                          )}
                           <span
                             className={`font-semibold ${
                               job.state === "done"
@@ -1774,20 +2530,36 @@ const FamilyAssets = () => {
                                   : ""
                             }`}
                           >
-                            {job.state === "running" ? "در حال اجرا" : job.state === "done" ? "انجام شد" : "خطا"}
+                            {job.state === "running"
+                              ? "در حال اجرا"
+                              : job.state === "done"
+                                ? "انجام شد"
+                                : "خطا"}
                           </span>
                           <span>— {job.message}</span>
                           {job.state === "running" && (
-                            <span className="tabular-nums text-gray-400" dir="ltr">
-                              ({String(Math.floor(brokerElapsed / 60)).padStart(2, "0")}:
-                              {String(brokerElapsed % 60).padStart(2, "0")})
+                            <span
+                              className="tabular-nums text-gray-400"
+                              dir="ltr"
+                            >
+                              (
+                              {String(Math.floor(brokerElapsed / 60)).padStart(
+                                2,
+                                "0",
+                              )}
+                              :{String(brokerElapsed % 60).padStart(2, "0")})
                             </span>
                           )}
                         </div>
                         {job.state === "running" && (
                           <>
                             <div className="mt-2 grid grid-cols-2 sm:grid-cols-4 gap-1">
-                              {["باز کردن مرورگر", "ورود/کد امنیتی", "خواندن سبد", "ثبت سبد"].map((s, i) => (
+                              {[
+                                "باز کردن مرورگر",
+                                "ورود/کد امنیتی",
+                                "خواندن سبد",
+                                "ثبت سبد",
+                              ].map((s, i) => (
                                 <div
                                   key={s}
                                   className={`rounded-lg px-2 py-1 text-center text-[10px] border ${
@@ -1809,8 +2581,16 @@ const FamilyAssets = () => {
                                 />
                                 <input
                                   value={captchaInput[p.person_id] || ""}
-                                  onChange={(e) => setCaptchaInput((prev) => ({ ...prev, [p.person_id]: e.target.value }))}
-                                  onKeyDown={(e) => e.key === "Enter" && sendCaptcha(p.person_id, job)}
+                                  onChange={(e) =>
+                                    setCaptchaInput((prev) => ({
+                                      ...prev,
+                                      [p.person_id]: e.target.value,
+                                    }))
+                                  }
+                                  onKeyDown={(e) =>
+                                    e.key === "Enter" &&
+                                    sendCaptcha(p.person_id, job)
+                                  }
                                   placeholder="کد امنیتی"
                                   dir="ltr"
                                   className={inputCls + " w-32"}
@@ -1822,19 +2602,25 @@ const FamilyAssets = () => {
                                   ثبت کد
                                 </button>
                                 <span className="text-[11px] text-amber-600 dark:text-amber-400">
-                                  حل خودکار کپچا ممکن نشد؛ لطفاً مقدار تصویر را وارد کنید.
+                                  حل خودکار کپچا ممکن نشد؛ لطفاً مقدار تصویر را
+                                  وارد کنید.
                                 </span>
                               </div>
                             ) : (
                               <p className="mt-2 text-amber-600 dark:text-amber-400">
-                                ورود خودکار در جریان است (حل خودکار کد امنیتی)؛ اگر کد نیاز شود همین‌جا نمایش داده می‌شود.
+                                ورود خودکار در جریان است (حل خودکار کد امنیتی)؛
+                                اگر کد نیاز شود همین‌جا نمایش داده می‌شود.
                               </p>
                             )}
                           </>
                         )}
-                        {job.result?.needs_discovery && job.result.captured?.dump_dir && (
-                          <div className="mt-1 text-amber-600 dark:text-amber-400">dump برای کشف ساختار پنل: {job.result.captured.dump_dir}</div>
-                        )}
+                        {job.result?.needs_discovery &&
+                          job.result.captured?.dump_dir && (
+                            <div className="mt-1 text-amber-600 dark:text-amber-400">
+                              dump برای کشف ساختار پنل:{" "}
+                              {job.result.captured.dump_dir}
+                            </div>
+                          )}
                       </div>
                     )}
                   </div>
@@ -1849,7 +2635,10 @@ const FamilyAssets = () => {
 };
 
 // ── Tooltip سفارشی چارت تاریخچه ──
-type PersonMetaMap = Record<string, { name: string; color: string; index: number }>;
+type PersonMetaMap = Record<
+  string,
+  { name: string; color: string; index: number }
+>;
 
 const HistoryTooltip: React.FC<{
   active?: boolean;
@@ -1881,7 +2670,9 @@ const HistoryTooltip: React.FC<{
       style={glassTooltipStyle(darkMode) as any}
       className="rounded-xl px-3 py-2.5 min-w-56 max-h-80 overflow-auto"
     >
-      <div className={`text-xs font-bold mb-2 pb-2 border-b ${darkMode ? "border-gray-600 text-gray-100" : "border-gray-200 text-gray-800"}`}>
+      <div
+        className={`text-xs font-bold mb-2 pb-2 border-b ${darkMode ? "border-gray-600 text-gray-100" : "border-gray-200 text-gray-800"}`}
+      >
         {label}
       </div>
       <div className="flex flex-col gap-1.5">
@@ -1890,11 +2681,17 @@ const HistoryTooltip: React.FC<{
             <span className={labelCls}>
               <span
                 className="inline-block w-3 h-1.5 rounded-full"
-                style={{ background: "linear-gradient(to left, #6366f1, #a855f7)" }}
+                style={{
+                  background: "linear-gradient(to left, #6366f1, #a855f7)",
+                }}
               />
-              <b className={darkMode ? "text-gray-100" : "text-gray-800"}>جمع کل</b>
+              <b className={darkMode ? "text-gray-100" : "text-gray-800"}>
+                جمع کل
+              </b>
             </span>
-            <span className={`text-sm font-bold ${darkMode ? "text-gray-100" : "text-gray-800"}`}>
+            <span
+              className={`text-sm font-bold ${darkMode ? "text-gray-100" : "text-gray-800"}`}
+            >
               {fmtInt(Number(totalEntry.value))}
             </span>
           </div>
@@ -1902,9 +2699,13 @@ const HistoryTooltip: React.FC<{
         {mode === "stack" && (
           <div className={rowCls}>
             <span className={labelCls}>
-              <b className={darkMode ? "text-gray-100" : "text-gray-800"}>جمع اشخاص</b>
+              <b className={darkMode ? "text-gray-100" : "text-gray-800"}>
+                جمع اشخاص
+              </b>
             </span>
-            <span className={`text-sm font-bold ${darkMode ? "text-gray-100" : "text-gray-800"}`}>
+            <span
+              className={`text-sm font-bold ${darkMode ? "text-gray-100" : "text-gray-800"}`}
+            >
               {fmtInt(personsSum)}
             </span>
           </div>
@@ -1912,21 +2713,32 @@ const HistoryTooltip: React.FC<{
         {personEntries.map((p) => (
           <div key={p.pid} className={rowCls}>
             <span className={labelCls}>
-              <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: p.meta.color }} />
-              <span className={darkMode ? "text-gray-300" : "text-gray-600"}>{p.meta.name}</span>
+              <span
+                className="inline-block w-2.5 h-2.5 rounded-full"
+                style={{ background: p.meta.color }}
+              />
+              <span className={darkMode ? "text-gray-300" : "text-gray-600"}>
+                {p.meta.name}
+              </span>
             </span>
             <span className="flex items-center gap-2">
               {personsSum > 0 && (
-                <span className="text-[10px] text-gray-400">{((p.value / personsSum) * 100).toFixed(0)}%</span>
+                <span className="text-[10px] text-gray-400">
+                  {((p.value / personsSum) * 100).toFixed(0)}%
+                </span>
               )}
-              <span className={`text-xs font-semibold ${darkMode ? "text-gray-200" : "text-gray-700"}`}>
+              <span
+                className={`text-xs font-semibold ${darkMode ? "text-gray-200" : "text-gray-700"}`}
+              >
                 {fmtInt(p.value)}
               </span>
             </span>
           </div>
         ))}
         {mode === "stack" && totalEntry && (
-          <div className={`${rowCls} pt-1.5 mt-1 border-t ${darkMode ? "border-gray-600" : "border-gray-200"}`}>
+          <div
+            className={`${rowCls} pt-1.5 mt-1 border-t ${darkMode ? "border-gray-600" : "border-gray-200"}`}
+          >
             <span className={labelCls}>
               <span
                 className="inline-block w-3 border-t-2 border-dashed"
@@ -1934,7 +2746,9 @@ const HistoryTooltip: React.FC<{
               />
               <span className="text-gray-400">جمع کل واقعی</span>
             </span>
-            <span className="text-xs font-semibold text-gray-400">{fmtInt(Number(totalEntry.value))}</span>
+            <span className="text-xs font-semibold text-gray-400">
+              {fmtInt(Number(totalEntry.value))}
+            </span>
           </div>
         )}
       </div>

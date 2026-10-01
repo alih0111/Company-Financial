@@ -83,22 +83,25 @@ func (p *PG) CompanyNames(ctx context.Context) ([]string, error) {
 	}
 	// Union company display/legal names with security aliases so that
 	// symbol-named companies match the legacy name set without changing
-	// canonical identity.
+	// canonical identity. Companies are listed before bare symbols/aliases:
+	// the client picks the first entry as the dashboard's default company, and
+	// issuer rows (which now include gold/commodity funds) must not push a
+	// fund symbol to the front of the list.
 	const q = `
 		SELECT name FROM (
-			SELECT COALESCE(NULLIF(BTRIM(display_name), ''), BTRIM(legal_name)) AS name
+			SELECT COALESCE(NULLIF(BTRIM(display_name), ''), BTRIM(legal_name)) AS name, 0 AS grp
 			FROM core.companies
 			WHERE COALESCE(NULLIF(BTRIM(display_name), ''), BTRIM(legal_name)) <> ''
 			UNION
-			SELECT COALESCE(NULLIF(BTRIM(sec.codal_symbol), ''), BTRIM(sec.brs_name)) AS name
+			SELECT COALESCE(NULLIF(BTRIM(sec.codal_symbol), ''), BTRIM(sec.brs_name)) AS name, 1 AS grp
 			FROM core.securities sec
 			WHERE COALESCE(NULLIF(BTRIM(sec.codal_symbol), ''), BTRIM(sec.brs_name)) <> ''
 			UNION
-			SELECT BTRIM(sa.alias_value) AS name
+			SELECT BTRIM(sa.alias_value) AS name, 2 AS grp
 			FROM core.security_aliases sa
 			WHERE BTRIM(sa.alias_value) <> ''
 		) t
-		ORDER BY 1`
+		ORDER BY grp, name`
 	rows, err := p.db.QueryContext(ctx, q)
 	if err != nil {
 		return nil, err
@@ -572,6 +575,14 @@ func (p *PG) NetProfitSeriesByLegacyCompanyID(ctx context.Context, legacyID stri
 			  AND fs.statement_type = 'income_statement'
 			  AND f.metric_code = 'net_profit'
 			  AND f.period_order = 1
+			  -- A period is current only when its statement period is backed by an
+			  -- identified source period: either a Codal letter normalized to this
+			  -- exact period (cr), or the statement's own report carrying the same
+			  -- period (normal case, incl. legacy-only periods). Excludes statements
+			  -- left at a superseded/wrong period by a previously mis-normalized
+			  -- report date, so a corrected value is never displayed twice.
+			  AND (cr.source_report_id IS NOT NULL
+			       OR r.period_end_date IS NOT DISTINCT FROM fs.period_end_date)
 		)
 		SELECT DISTINCT ON (period_end_date)
 		       COALESCE(jalali_period_text, ''), COALESCE(published_at::text, ''),

@@ -887,3 +887,64 @@ export async function sendChatMessageStream(
   if (!final) throw new Error("stream ended without a final answer");
   return final;
 }
+
+// ── دارایی‌های بازار: شاخص‌ها + صندوق‌های طلا/کالا ──
+export interface MarketIndex {
+  code: string;
+  name: string;
+  value: number;
+  change: number;
+  change_percent: number;
+  min: number;
+  max: number;
+  trade_date: string;
+  jalali_date: string;
+  market_value_rial: number;
+  trade_value_rial: number;
+}
+
+export interface MarketFund {
+  symbol: string;
+  name: string;
+  kind: string;
+  last_price: number;
+  change_percent: number;
+  trade_date: string;
+  jalali_date: string;
+  observations: number;
+}
+
+export interface MarketAssets {
+  indices: MarketIndex[];
+  funds: MarketFund[];
+  source: string;
+}
+
+export async function getMarketAssets(): Promise<MarketAssets> {
+  const res = await fetch(`${API_BASE}/market/assets`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to fetch market assets");
+  return res.json();
+}
+
+export async function collectMarketAssets(
+  mode: "daily" | "backfill" | "ensure" = "daily",
+  options?: { symbol?: string; limit?: number; all?: boolean }
+): Promise<any> {
+  const res = await fetch(`${API_BASE}/market/collect`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+    body: JSON.stringify({
+      mode,
+      symbol: options?.symbol,
+      limit: options?.limit,
+      all: options?.all,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => null);
+    throw new Error(err?.error || "Failed to run market collector");
+  }
+  return res.json();
+}

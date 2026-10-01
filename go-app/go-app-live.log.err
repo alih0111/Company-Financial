@@ -196,3 +196,40 @@ exit status 0xffffffff
 2026/09/30 13:45:13 chat-agent: tool get_price_stats ok (642 chars)
 2026/09/30 13:45:13 chat-agent: tool get_monthly_sales ok (1636 chars)
 2026/09/30 13:45:22 chat-agent: tokens prompt=4526 completion=1045 total=5571
+2026/09/30 18:30:14 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 271, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-30", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-09-30 18:38:49,983 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=271 skipped=0 mirror=not_attempted
+2026-09-30 18:38:49,983 [INFO] ✅ daily(canonical-only) انجام شد — upsert=271، تطبیق‌خورده=271، بدون‌تطبیق=1304
+2026-09-30 18:38:49,984 [INFO] نمونه‌ای نمادهای بدون تطبیق: شکیمیا, عیار, لبن, منجیل, طلا, کهربا, غزنجان, سمهریز, فنقره, سیمین, گنج, وتجارت, نقرابی, تابان, افران, ذرت, گوهر, سیلور, پاسارگاد, نارنج اهرم, لبخند, صبا, آوند, خگلپا, اهرم
+RESULT|mode=daily(canonical-only)|upserted=271|matched=271|unmatched=1304
+2026/09/30 18:39:02 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+2026/09/30 18:45:20 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/30 18:50:50 chat-agent: model=deepseek-v4.1-flash tools=12 question="بهترین سهم\u200cها برای سرمایه\u200cگذاری چی هست؟"
+2026/09/30 18:50:51 chat-stream: agent failed, falling back to rules: ai status=429 body={
+  "error": {
+    "message": "Rate limit reached for requests. Check your quota and upgrade your account to higher levels at https://ava.al/limits or contact support at support@avalai.ir and include the request ID 01a0f2e7-78de-7da1-a603-6279c89e8756 in your email if you believe this is an error.",…
+2026/09/30 18:56:01 chat-agent: model=deepseek-v4.1-flash tools=12 question="۱۰۰ میلیون پول دارم چیا بخرم؟"
+2026/09/30 18:56:04 chat-agent: tokens prompt=3075 completion=125 total=3200
+2026/09/30 18:56:04 chat-agent: tool get_my_preferences ok (165 chars)
+2026/09/30 18:56:09 chat-agent: tokens prompt=3149 completion=326 total=3475
+2026/09/30 18:56:48 chat-agent: model=deepseek-v4.1-flash tools=12 question="بله ۱۰۰ میلیون تومان و سطح ریسک زیاد"
+2026/09/30 18:56:51 chat-agent: tokens prompt=3131 completion=239 total=3370
+2026/09/30 18:56:52 chat-agent: tool set_my_preferences ok (12 chars)
+2026/09/30 18:56:53 chat-agent: tool build_portfolio ok (9217 chars)
+2026/09/30 18:57:07 chat-agent: tokens prompt=6168 completion=1813 total=7981
+2026/09/30 19:09:10 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+2026/09/30 19:15:58 chat-agent: model=deepseek-v4.1-flash tools=12 question="اگه ریسک کم باشه چه پیشنهادی میدی؟"
+2026/09/30 19:16:01 chat-agent: tokens prompt=4393 completion=136 total=4529
+2026/09/30 19:16:03 chat-agent: tool build_portfolio ok (6672 chars)
+2026/09/30 19:16:17 chat-agent: tokens prompt=6584 completion=1458 total=8042
+2026/09/30 19:17:14 chat-agent: model=deepseek-v4.1-flash tools=12 question="وضعیت بازار چطوره؟"
+2026/09/30 19:17:19 chat-agent: tokens prompt=5667 completion=467 total=6134
+2026/09/30 19:17:19 chat-agent: tool screen_companies ok (2340 chars)
+2026/09/30 19:17:19 chat-agent: tool screen_companies ok (2418 chars)
+2026/09/30 19:17:21 chat-agent: tool get_price_stats ok (646 chars)
+2026/09/30 19:17:21 chat-agent: tool get_price_stats ok (644 chars)
+2026/09/30 19:17:21 chat-agent: tool get_price_stats ok (646 chars)
+2026/09/30 19:17:21 chat-agent: tool get_price_stats ok (641 chars)
+2026/09/30 19:17:34 chat-agent: tokens prompt=8659 completion=1246 total=9905
+2026/09/30 20:16:48 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
+exit status 1
