@@ -19,6 +19,7 @@ go-app/.runtime/
 historical_codal_backfill
 output
 integration_shadow_v1
+canonical_postgres_v1_2_1
 
 # General
 .DS_Store

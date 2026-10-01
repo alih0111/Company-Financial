@@ -1706,3 +1706,33 @@ Not changed here.
   `HISTORICAL_NET_PROFIT_FULL_BACKFILL_PARTIAL` (180 deferred acquisition-debt
   periods) + `CUMULATIVE_PROFIT_UNIVERSE_READY`; `UNIVERSE_BACKFILL_IN_PROGRESS`
   superseded (actionable exhausted; only backoff-gated deferred debt remains).
+
+## 46. Backfill CLOSEOUT + Model v2 data-readiness rebaseline (financial-recovery track)
+
+Canonical closeout doc: `historical_codal_backfill/CORPORATE_NET_PROFIT_CLOSEOUT.md`
+(single source of truth; supersedes conflicting counters in §23–§43b).
+Gates: `CORPORATE_NET_PROFIT_SCOPE_RECONCILED` + `NET_PROFIT_RECONCILIATION_CLEAN`
++ `HISTORICAL_NET_PROFIT_FULL_BACKFILL_PARTIAL` + `CUMULATIVE_PROFIT_UNIVERSE_READY`
+(`UNIVERSE_BACKFILL_IN_PROGRESS` retired).
+
+- Maintenance debt workflow: `historical_codal_debt_retry.py` — probe-gated
+  (≥0.75), capped, no discovery/CAPTCHA-bypass, never reclassifies debt as
+  SOURCE_NOT_FOUND, never rewrites the gate artifact. The 180 deferred periods
+  are maintenance debt, NOT project backlog.
+- Guard suite: `corporate_backfill_guards.py` — G1 scope drift, G2 fund in
+  timeline, G3 duplicate-current, G4 discovery-unknown, G5 zombie holes,
+  G6 period_end mismatch, G7 EPS/unit conversion, G8 SQL Server dependency,
+  G9 live API fiscal duplication → **ALL GUARDS PASS**.
+- Model v2 rebaseline (`model_v2_validation/output/MODEL_V2_REBASELINE.json`):
+  analytics recomputed (run `9ebb4335`, 271 companies, 5,691 factor rows) →
+  signals rebuilt (13,481 rows) → factor decision table re-run: **8 factor class
+  changes**, notably NetProfitGrowthRank INSUFFICIENT_DATA(3.9 % cov) →
+  ROBUST_SIGNAL(82.4 %) and SalesGrowth3MRank WEAK → ROBUST; medium-coverage
+  stratum 96 → 2,063 signals. Model v2 holdout: baseline IC 0.1721 / exp-a
+  0.1617 / exp-c 0.1720; coverage-bias correlation 0.50 baseline vs 0.12–0.24
+  candidates. Selection (frozen dev+val rule) still picks exp-a; gate stays
+  **MODEL_V2_VALIDATION_WEAK** — now model-level only, data blocker removed.
+- Data-debt impact: 150/272 companies affected but 129 have a single missing
+  period of ~29; forward returns statistically indistinguishable
+  (0.0326 vs 0.0329). No imputation performed.
+- Signal Engine NOT started.

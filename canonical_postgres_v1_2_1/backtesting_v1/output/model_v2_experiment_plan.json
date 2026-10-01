@@ -2,12 +2,11 @@
   "canonical-v2-exp-A": {
     "hypothesis": "remove factors with NO_MEASURABLE_SIGNAL/INSUFFICIENT_DATA",
     "drop": [
-      "NetProfitGrowthRank",
       "OperatingMarginRank",
-      "NetMarginRank",
-      "PSRank",
+      "EarningsQualityRank",
       "PBRank",
       "LiquidityRank",
+      "StabilityRank",
       "ROERank",
       "LeverageRank",
       "CurrentRatioRank",
@@ -19,7 +18,9 @@
     "hypothesis": "reweight robust factors up / weak down (grid only on dev+val)",
     "robust": [
       "SalesGrowthRank",
+      "SalesGrowth3MRank",
       "RevenueGrowthRank",
+      "NetProfitGrowthRank",
       "PERank",
       "LowVolatilityRank"
     ],
@@ -27,7 +28,10 @@
   },
   "canonical-v2-exp-C": {
     "hypothesis": "alternative missingness policy (new model/version)",
-    "focus": [],
+    "focus": [
+      "PSRank",
+      "MomentumRank"
+    ],
     "note": "does not mutate canonical-v1"
   }
 }

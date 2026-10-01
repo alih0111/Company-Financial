@@ -2,7 +2,7 @@
   "score_version": "canonical-v1-dev",
   "implementation_revision": "report-chain-ttm-v1",
   "config_hash": "a65808face918ae9c7bb4c8c5a3d0d67d420c84fcd2392d59cd1aac032015885",
-  "summary_hash": "4a628e7d730ccb090bc8b04a7558086bc50ef62e213837cd2556c85d48bbad29",
+  "summary_hash": "683bda19f0a808762b41f46537ee064e3aaace881f6e5521b4dbc75fa7344987",
   "frozen_model": {
     "score_version": "canonical-v1-dev",
     "implementation_revision": "report-chain-ttm-v1",

@@ -9,20 +9,16 @@
     "weights_validated": false,
     "baseline_weights_note": "NOT VALIDATED FOR CANONICAL V1 (prototype baseline)"
   },
-  "n_signals": 13303,
+  "n_signals": 13481,
   "n_dates": 63,
   "classification_counts": {
-    "INSUFFICIENT_DATA": 9,
-    "TIME_UNSTABLE": 2,
-    "WEAK_BUT_CONSISTENT": 2,
-    "DIRECTION_UNSTABLE": 3,
-    "ROBUST_SIGNAL": 4,
-    "NO_MEASURABLE_SIGNAL": 1
+    "TIME_UNSTABLE": 4,
+    "ROBUST_SIGNAL": 6,
+    "COVERAGE_CONFOUNDED": 2,
+    "NO_MEASURABLE_SIGNAL": 3,
+    "INSUFFICIENT_DATA": 6
   },
   "direction_review_required": [
-    "OperatingProfitGrowthRank",
-    "StabilityRank",
-    "MomentumRank",
     "LeverageRank",
     "CurrentRatioRank",
     "CashConversionRank"
@@ -31,7 +27,7 @@
     {
       "factor_a": "PSRank",
       "factor_b": "PBRank",
-      "rank_corr": 0.8388046332260578,
+      "rank_corr": 0.8442876458776943,
       "n": 599
     },
     {
@@ -41,111 +37,111 @@
       "n": 610
     },
     {
-      "factor_a": "PERank",
-      "factor_b": "PSRank",
-      "rank_corr": 0.7342458921047168,
-      "n": 600
-    },
-    {
       "factor_a": "SalesGrowthRank",
       "factor_b": "RevenueGrowthRank",
-      "rank_corr": 0.6951666878377735,
-      "n": 438
+      "rank_corr": 0.6997992239792505,
+      "n": 434
+    },
+    {
+      "factor_a": "PERank",
+      "factor_b": "PSRank",
+      "rank_corr": 0.6962489818796911,
+      "n": 768
     },
     {
       "factor_a": "PERank",
       "factor_b": "PBRank",
-      "rank_corr": 0.6540234117844183,
-      "n": 599
-    },
-    {
-      "factor_a": "NetMarginRank",
-      "factor_b": "PSRank",
-      "rank_corr": -0.6250664606042882,
-      "n": 600
+      "rank_corr": 0.6387439784314393,
+      "n": 604
     },
     {
       "factor_a": "OperatingMarginRank",
       "factor_b": "InterestCoverageRank",
-      "rank_corr": 0.5743266500589215,
-      "n": 742
+      "rank_corr": 0.575924500281713,
+      "n": 738
+    },
+    {
+      "factor_a": "NetMarginRank",
+      "factor_b": "PSRank",
+      "rank_corr": -0.5691979486008488,
+      "n": 768
+    },
+    {
+      "factor_a": "OperatingMarginRank",
+      "factor_b": "NetMarginRank",
+      "rank_corr": 0.5368149072084635,
+      "n": 779
     },
     {
       "factor_a": "NetMarginRank",
       "factor_b": "CurrentRatioRank",
-      "rank_corr": 0.5435735426615762,
+      "rank_corr": 0.5310610089924479,
       "n": 604
     },
     {
-      "factor_a": "NetMarginRank",
-      "factor_b": "LeverageRank",
-      "rank_corr": 0.5178151201276407,
-      "n": 604
-    },
-    {
-      "factor_a": "SalesGrowthRank",
+      "factor_a": "RevenueGrowthRank",
       "factor_b": "NetProfitGrowthRank",
-      "rank_corr": 0.5145708950671892,
-      "n": 316
+      "rank_corr": 0.5264847470820934,
+      "n": 769
     }
   ],
-  "baseline_diag_ic": 0.10983856863354514,
+  "baseline_diag_ic": 0.12923624398441835,
   "category": [
     {
       "category": "growth",
-      "raw_ic": 0.08882659470814548,
-      "controlled_ic": 0.06781229905795558,
-      "ic_ci_low": 0.06519231902604389,
-      "ic_ci_high": 0.11386085571174524,
-      "ic_5d": 0.03662100629107203,
-      "ic_21d": 0.08882659470814548,
-      "ic_63d": 0.0981909742292131,
-      "ic_2021_2023": 0.044294826537779934,
-      "ic_2024_2025": 0.13935624657093013
+      "raw_ic": 0.1214893609415719,
+      "controlled_ic": 0.12099683533376288,
+      "ic_ci_low": 0.09300306223849684,
+      "ic_ci_high": 0.15080041561588758,
+      "ic_5d": 0.04052245987844925,
+      "ic_21d": 0.1214893609415719,
+      "ic_63d": 0.15030553690094053,
+      "ic_2021_2023": 0.09336507601167349,
+      "ic_2024_2025": 0.1456716943917661
     },
     {
       "category": "profitability",
-      "raw_ic": 0.008741835107157913,
-      "controlled_ic": 0.03182307850568321,
-      "ic_ci_low": -0.0107080651118651,
-      "ic_ci_high": 0.0287372581655209,
-      "ic_5d": 0.000666512203318821,
-      "ic_21d": 0.008741835107157913,
-      "ic_63d": 0.015347411165376882,
-      "ic_2021_2023": -0.009159636174371575,
-      "ic_2024_2025": 0.03641229597773265
+      "raw_ic": 0.022414003872574136,
+      "controlled_ic": 0.025792903898183145,
+      "ic_ci_low": 0.0038200052774482445,
+      "ic_ci_high": 0.042083558163080376,
+      "ic_5d": -0.0008816666028752764,
+      "ic_21d": 0.022414003872574136,
+      "ic_63d": 0.03268604205818732,
+      "ic_2021_2023": 0.0029628678550248613,
+      "ic_2024_2025": 0.05264255943677032
     },
     {
       "category": "valuation",
-      "raw_ic": 0.11360802339639745,
-      "controlled_ic": 0.11644414628792762,
-      "ic_ci_low": 0.08352867743894601,
-      "ic_ci_high": 0.1461759367810396,
-      "ic_5d": 0.03622087490960128,
-      "ic_21d": 0.11360802339639745,
-      "ic_63d": 0.16735164703077818,
-      "ic_2021_2023": 0.07674347222673966,
-      "ic_2024_2025": 0.1569629998297187
+      "raw_ic": 0.11231805576188203,
+      "controlled_ic": 0.08987511558677529,
+      "ic_ci_low": 0.08249526748851699,
+      "ic_ci_high": 0.14477917320228753,
+      "ic_5d": 0.036026871078801134,
+      "ic_21d": 0.11231805576188203,
+      "ic_63d": 0.16422163151561067,
+      "ic_2021_2023": 0.07594781682706409,
+      "ic_2024_2025": 0.1533519541264313
     },
     {
       "category": "market",
-      "raw_ic": 0.035707840692930155,
-      "controlled_ic": -0.005842426378144977,
-      "ic_ci_low": -0.01479683409221791,
-      "ic_ci_high": 0.08597718870235214,
-      "ic_5d": 0.02069688375370002,
-      "ic_21d": 0.035707840692930155,
-      "ic_63d": 0.07578716310749734,
-      "ic_2021_2023": 0.007346463445636254,
-      "ic_2024_2025": 0.07115101714671629
+      "raw_ic": 0.036811570856838866,
+      "controlled_ic": 0.010419599273766962,
+      "ic_ci_low": -0.013556026216544271,
+      "ic_ci_high": 0.08768301555155354,
+      "ic_5d": 0.021388906541836932,
+      "ic_21d": 0.036811570856838866,
+      "ic_63d": 0.0763615278240589,
+      "ic_2021_2023": 0.009487731771614598,
+      "ic_2024_2025": 0.07079041758117958
     }
   ],
   "decomposition": {
-    "quant_score_ic": 0.10879117154948027,
-    "category_sum_ic": 0.12791259156690632,
-    "n_factors_ic": 0.03024199554833406,
-    "market_score_ic": 0.035707840692930155,
-    "data_quality_ic": 0.0396777934393513,
+    "quant_score_ic": 0.12642649013942506,
+    "category_sum_ic": 0.14156411802033161,
+    "n_factors_ic": 0.028657530494812948,
+    "market_score_ic": 0.036811570856838866,
+    "data_quality_ic": 0.0339765322713316,
     "note": "diagnostic decomposition; not a replacement score"
   },
   "oos": {
@@ -179,12 +175,11 @@
     "canonical-v2-exp-A": {
       "hypothesis": "remove factors with NO_MEASURABLE_SIGNAL/INSUFFICIENT_DATA",
       "drop": [
-        "NetProfitGrowthRank",
         "OperatingMarginRank",
-        "NetMarginRank",
-        "PSRank",
+        "EarningsQualityRank",
         "PBRank",
         "LiquidityRank",
+        "StabilityRank",
         "ROERank",
         "LeverageRank",
         "CurrentRatioRank",
@@ -196,7 +191,9 @@
       "hypothesis": "reweight robust factors up / weak down (grid only on dev+val)",
       "robust": [
         "SalesGrowthRank",
+        "SalesGrowth3MRank",
         "RevenueGrowthRank",
+        "NetProfitGrowthRank",
         "PERank",
         "LowVolatilityRank"
       ],
@@ -204,17 +201,20 @@
     },
     "canonical-v2-exp-C": {
       "hypothesis": "alternative missingness policy (new model/version)",
-      "focus": [],
+      "focus": [
+        "PSRank",
+        "MomentumRank"
+      ],
       "note": "does not mutate canonical-v1"
     }
   },
   "hashes": {
-    "factor_validation": "8cdc796adfe5d84d633496ab28330801805ea2a06bf642ee1f9a52ef27923b34",
-    "incremental": "8eb190c77d8f1b2605e4684b7ac8215b2076d7bdff1b69fea52f76ff33b889fc",
-    "loo": "485fcf57318e6a277b3bf838bc8a2e8b455c69572ffd62a3196b965d53a6c623",
-    "redundancy": "103370b39a8e148d982cb3a7da923352993506413bf9b371a4716f6534d9cfa4",
-    "category": "2602735ff4a687e0062dc0ccae27dd30b3d7edcb8cba392488090cc8941e442c",
-    "weight_evidence": "74c999070af079cb556c17e0ba5d6558752f5782a00a75c1d589efad5b2e49b6",
-    "summary": "9039b5694a09da4646b2b816c134056032d4e63c72b97a4b3700084abbeb9f6e"
+    "factor_validation": "fdb1a70f45da13cf1bff4dd9ae60d3ff74541c66586ea2193be94908dbd2b088",
+    "incremental": "bf0f0e975af08cddba197f764917d87d16cd3adc11f1531d6c9ac4cfaba42010",
+    "loo": "42ffb2693f5deb8821f84efccc6bcd9e2f565e4f86ab696cfcf43ed16612bbcc",
+    "redundancy": "b69a13ce1208439160cffc31aa3ea03a23d1aa9308bed00be0854e97a39bf2e0",
+    "category": "bf69d971feefe18b589768285e982f668be08b7f6658a39ee1552f352181770f",
+    "weight_evidence": "9da3f31708fd6daef55c80ce3347d39ade3556dd0701587fcf272239c8eb70a4",
+    "summary": "058138860070285fffce92699ca2259e0a2e849c73f38300675297d2b85b834c"
   }
 }
