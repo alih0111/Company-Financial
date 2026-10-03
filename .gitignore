@@ -28,3 +28,5 @@ canonical_postgres_v1_2_1
 
 .env
 integration_shadow_v1/output/price_history_canary_summary.json
+go-app/go-app-live.log
+integration_shadow_v1/output/price_history_canary_summary.json
