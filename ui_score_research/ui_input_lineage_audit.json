@@ -1,0 +1,157 @@
+{
+ "input_families": {
+  "monthly_sales_activity": {
+   "factors": [
+    "sales_growth_12m",
+    "sales_growth_3m",
+    "sales_stability"
+   ],
+   "v1_basis": "D legacy period_end proxy (published_at NULL, period_end <= as_of)",
+   "recovered_real_times": "9,615/12,180 periods (78.9%)",
+   "v2_basis": "A recovered published_at (latest-version-conservative)"
+  },
+  "revenue_profit_eps_ttm_growth": {
+   "factors": [
+    "revenue_growth",
+    "operating_profit_growth",
+    "net_profit_growth",
+    "eps_growth"
+   ],
+   "v1_basis": "D legacy proxy for 7,562 statement reports; A for 595 codal",
+   "recovered_real_times": "LT6 letters matched for legacy periods",
+   "v2_basis": "A where matched/codal; unavailable otherwise"
+  },
+  "margins_roe": {
+   "factors": [
+    "operating_margin",
+    "net_margin",
+    "roe",
+    "margin_trend"
+   ],
+   "v1_basis": "D legacy proxy / A codal",
+   "v2_basis": "same as statement family"
+  },
+  "coverage_quality": {
+   "factors": [
+    "interest_coverage",
+    "cash_conversion",
+    "earnings_quality"
+   ],
+   "v1_basis": "D/A (incl. cash_flow statements)",
+   "v2_basis": "same"
+  },
+  "leverage_current_ratio": {
+   "factors": [
+    "debt_ratio",
+    "current_ratio"
+   ],
+   "v1_basis": "D/A (balance sheet)",
+   "v2_basis": "same"
+  },
+  "share_count_market_cap": {
+   "factors": [
+    "shares_outstanding",
+    "market_cap"
+   ],
+   "v1_basis": "H/A core.share_intervals knowledge_from <= cutoff (real)",
+   "v2_basis": "unchanged (already provable)"
+  },
+  "pe_ps_pb": {
+   "factors": [
+    "pe",
+    "ps",
+    "pb"
+   ],
+   "v1_basis": "mixed: market leg C (trade_date proxy), fundamental leg D/A",
+   "v2_basis": "market leg unchanged; fundamental leg now publication-gated"
+  },
+  "liquidity": {
+   "factors": [
+    "avg_trade_value_30d"
+   ],
+   "v1_basis": "C deterministic market-date data (trade_date <= as_of, frozen proxy)",
+   "v2_basis": "unchanged"
+  },
+  "volatility_momentum": {
+   "factors": [
+    "volatility_30d",
+    "price_momentum_30d",
+    "latest_price"
+   ],
+   "v1_basis": "C deterministic market-date data",
+   "v2_basis": "unchanged"
+  },
+  "data_quality_multiplier": {
+   "factors": [
+    "data_quality_score"
+   ],
+   "v1_basis": "derived from input completeness (inherits input bases)",
+   "v2_basis": "unchanged logic applied to PIT-eligible inputs"
+  }
+ },
+ "visibility_map": {
+  "monthly_rows": 12182,
+  "statement_rows": 8157,
+  "status_counts": {
+   "monthly_PROVABLE": 9615,
+   "monthly_UNPROVABLE": 2567,
+   "statement_CODAL_REAL_PUBLISHED_AT": 595,
+   "statement_PROVABLE": 2815,
+   "statement_UNPROVABLE": 4747
+  },
+  "rule": "visible_from = real DB published_at (codal) or LATEST recovered publication of the (company, period) (legacy, conservative latest-version rule); NULL = unprovable; period_end is never used as a publication time"
+ },
+ "snapshot_classification": {
+  "window_days": 730,
+  "snapshots_total": 13481,
+  "PROVABLY_PIT_SAFE": 102,
+  "DIRECT_LEAK_CONFIRMED": 4500,
+  "UNPROVABLE_LEGACY_KNOWLEDGE_TIME": 8879,
+  "classification_precedence": "leak > unprovable > safe (conservative: ANY window input row)",
+  "leak_snapshots_by_year": {
+   "2021": 645,
+   "2022": 940,
+   "2023": 848,
+   "2024": 799,
+   "2025": 977,
+   "2026": 291
+  },
+  "unprovable_snapshots_by_year": {
+   "2021": 2350,
+   "2022": 2508,
+   "2023": 2530,
+   "2024": 2543,
+   "2025": 2632,
+   "2026": 630
+  },
+  "leak_snapshots_top_security": {
+   "رمپنا": 50,
+   "غدام": 45,
+   "فجر": 42,
+   "پاکشو": 38,
+   "فسپا": 37,
+   "چکارن": 36,
+   "شرانل": 35,
+   "فولاد": 35,
+   "کمنگنز": 35,
+   "خودرو": 35
+  },
+  "leak_snapshots_by_family": {
+   "financial_statement": 2759,
+   "monthly_activity": 2264
+  }
+ },
+ "row_level_leaks": {},
+ "cutoff_convention": {
+  "original_validated_convention": "cutoff = 23:59:59 UTC on the signal date, as_of = signal date (ui_score_historical_v1.py EOD); reused EXACTLY",
+  "pre_event_baseline_rule": "latest snapshot with knowledge_cutoff < event published_at (instant)",
+  "no_performance_informed_choices": true
+ },
+ "artifacts": {
+  "visibility_parquet": "D:\\RFA\\Company-Financial\\ui_score_research\\input_report_visibility_v2.parquet",
+  "classification_parquet": "D:\\RFA\\Company-Financial\\ui_score_research\\ui_panel_v1_snapshot_classification.parquet",
+  "event_artifact_sha256": "bcd69f109fd1a3bebbaadac0b82d99dbe5047777186216411509b9be850c9895",
+  "panel_source": "research_bundle/monthly_pit_panel.parquet",
+  "audit_script_sha256": "17c166ecdd69a419693cd462cf7222a6b12cc885d42308e6eff7b3c1f1fa5acf"
+ }
+}

@@ -1,235 +1,473 @@
-2026/09/28 12:06:39 🔍 BRS collector args: [py/brs_prices.py daily]
-{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 266, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-28", "health": "DEGRADED_LEGACY_MIRROR"}
-2026-09-28 12:10:22,285 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=266 skipped=0 mirror=not_attempted
-2026-09-28 12:10:22,286 [INFO] ✅ daily(canonical-only) انجام شد — upsert=266، تطبیق‌خورده=266، بدون‌تطبیق=930
-2026-09-28 12:10:22,286 [INFO] نمونه‌ای نمادهای بدون تطبیق: غزنجان, داروند, خگلپا, صبا, تابان, عیار, سینرژی, وپارس, خساپا, دارا یکم, آکو, منجیل, فنقره, خگستر, وپاسار, وتجارت, سمهریز, افران, آوند, اهرم, ومعادن, لبخند, احیا, پاسارگاد, نارنج اهرم
-RESULT|mode=daily(canonical-only)|upserted=266|matched=266|unmatched=930
-2026/09/28 12:10:28 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
-2026/09/28 13:52:42 🔍 BRS collector args: [py/brs_prices.py daily]
-{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 263, "canonical_skipped": 6, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-28", "health": "DEGRADED_LEGACY_MIRROR"}
-2026-09-28 13:57:48,744 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=263 skipped=6 mirror=not_attempted
-2026-09-28 13:57:48,744 [INFO] ✅ daily(canonical-only) انجام شد — upsert=269، تطبیق‌خورده=269، بدون‌تطبیق=1320
-2026-09-28 13:57:48,744 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, غزنجان, داروند, خگلپا, سینرژی, صبا, وپارس, تابان, طلا, سیمین, لبن, خساپا, دارا یکم, نقرابی, منجیل, آکو, افران, کهربا, گوهر, لبخند, آوند, پاسارگاد, فنقره, خگستر, وتجارت
-RESULT|mode=daily(canonical-only)|upserted=269|matched=269|unmatched=1320
-2026/09/28 13:57:55 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
-2026/09/28 17:49:03 🔍 BRS collector args: [py/brs_prices.py daily]
-{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 9, "canonical_skipped": 261, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-28", "health": "DEGRADED_LEGACY_MIRROR"}
-2026-09-28 17:54:19,851 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=9 skipped=261 mirror=not_attempted
-2026-09-28 17:54:19,851 [INFO] ✅ daily(canonical-only) انجام شد — upsert=270، تطبیق‌خورده=270، بدون‌تطبیق=1338
-2026-09-28 17:54:19,851 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, غزنجان, سیمین, طلا, داروند, سینرژی, خگلپا, نقرابی, کهربا, گلدا, صبا, گوهر, گنج, ریتون, وپارس, تابان, جام طلا, سیلور, لبن, افران, خساپا, دارا یکم, پاسارگاد, لبخند, آوند
-RESULT|mode=daily(canonical-only)|upserted=270|matched=270|unmatched=1338
-2026/09/28 17:54:25 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
-2026/09/28 20:51:15 🔍 BRS collector args: [py/brs_prices.py daily]
-{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 1, "canonical_skipped": 269, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-28", "health": "DEGRADED_LEGACY_MIRROR"}
-2026-09-28 20:55:57,370 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=1 skipped=269 mirror=not_attempted
-2026-09-28 20:55:57,370 [INFO] ✅ daily(canonical-only) انجام شد — upsert=270، تطبیق‌خورده=270، بدون‌تطبیق=1338
-2026-09-28 20:55:57,370 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, غزنجان, سیمین, طلا, داروند, سینرژی, خگلپا, نقرابی, کهربا, گلدا, صبا, گوهر, گنج, ریتون, وپارس, تابان, جام طلا, سیلور, لبن, افران, خساپا, دارا یکم, پاسارگاد, لبخند, رز ترنج
-RESULT|mode=daily(canonical-only)|upserted=270|matched=270|unmatched=1338
-2026/09/28 20:56:02 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
-2026/09/29 00:28:53 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/29 13:41:26 🔍 BRS collector args: [py/brs_prices.py daily]
-{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 269, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-29", "health": "DEGRADED_LEGACY_MIRROR"}
-2026-09-29 13:46:34,226 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=269 skipped=0 mirror=not_attempted
-2026-09-29 13:46:34,226 [INFO] ✅ daily(canonical-only) انجام شد — upsert=269، تطبیق‌خورده=269، بدون‌تطبیق=1341
-2026-09-29 13:46:34,226 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, خگلپا, داروند, منجیل, غزنجان, لبن, اهرم, سینرژی, وتجارت, نارنج اهرم, ذرت, صبا, دارا یکم, ومعادن, سیمین, طلا, تابان, فنقره, توان, دوایکس, خگستر, جهش, افران, کهربا, اخابر
-RESULT|mode=daily(canonical-only)|upserted=269|matched=269|unmatched=1341
-2026/09/29 13:46:39 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
-exit status 0xffffffff
-exit status 0xffffffff
-exit status 0xffffffff
-exit status 1
-exit status 0xffffffff
-exit status 0xffffffff
-2026/09/29 21:24:47 chat-agent: model=glm-5.3-flash tools=8 question="بهترین سهم\u200cها برای سرمایه\u200cگذاری چی هست؟"
-2026/09/29 21:24:52 chat-agent: tool screen_companies ok (97 chars)
-2026/09/29 21:24:57 chat-agent: tool screen_companies ok (2418 chars)
-2026/09/29 21:25:08 chat-agent: model=glm-5.3-flash tools=8 question="تحلیل فولاد"
-2026/09/29 21:25:13 chat-agent: tool search_companies ok (267 chars)
-2026/09/29 21:25:17 chat-agent: tool get_company_profile ok (1294 chars)
-2026/09/29 21:25:18 chat-agent: tool get_company_financials ok (1269 chars)
-2026/09/29 21:25:18 chat-agent: tool get_price_stats ok (642 chars)
-2026/09/29 21:26:33 chat-agent: model=deepseek-v4.1-flash tools=8 question="سبد سهام من چطوره و چه ریسکی داره؟"
-2026/09/29 21:26:35 chat-agent: tool get_my_portfolio ok (59 chars)
-exit status 0xffffffff
-exit status 0xffffffff
-exit status 0xffffffff
-2026/09/29 21:57:58 chat-agent: tokens prompt=50 completion=186 total=236
-2026/09/29 21:57:58 chat-agent: model=deepseek-v4.1-flash tools=8 question="سه سهم نقدشونده با P/E زیر ۷ معرفی کن"
-2026/09/29 21:58:00 chat-agent: tokens prompt=1644 completion=114 total=1758
-2026/09/29 21:58:00 chat-agent: tool screen_companies ok (3419 chars)
-2026/09/29 21:58:04 chat-agent: tokens prompt=3041 completion=283 total=3324
-2026/09/29 21:58:04 chat-agent: tool get_company_profile ok (1248 chars)
-2026/09/29 21:58:04 chat-agent: tool get_company_profile ok (1300 chars)
-2026/09/29 21:58:04 chat-agent: tool get_company_profile ok (1219 chars)
-2026/09/29 21:58:13 chat-agent: tokens prompt=4341 completion=563 total=4904
-2026/09/29 22:08:10 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-exit status 0xffffffff
-2026/09/29 22:11:27 chat-agent: model=deepseek-v4.1-flash tools=9 question="یک سبد متعادل با وزن\u200cهای مشخص برایم بساز"
-2026/09/29 22:11:29 chat-agent: tokens prompt=2094 completion=73 total=2167
-2026/09/29 22:11:31 chat-agent: tool build_portfolio ok (4386 chars)
-2026/09/29 22:11:32 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/29 22:11:41 chat-agent: tokens prompt=3622 completion=932 total=4554
-2026/09/29 22:12:27 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/29 22:14:02 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/29 22:15:37 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-exit status 0xffffffff
-2026/09/29 22:17:46 chat-agent: model=deepseek-v4.1-flash tools=9 question="یک سبد کم\u200cریسک با وزن\u200cهای مشخص بساز و ریسکش…"
-2026/09/29 22:17:49 chat-agent: tokens prompt=2103 completion=66 total=2169
-2026/09/29 22:17:52 chat-agent: tool build_portfolio ok (4108 chars)
-2026/09/29 22:18:01 chat-agent: tokens prompt=3513 completion=815 total=4328
-2026/09/29 22:26:10 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/29 22:29:15 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/29 22:30:40 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/29 22:32:30 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/29 22:53:20 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-exit status 0xffffffff
-2026/09/29 23:10:10 chat-agent: model=deepseek-v4.1-flash tools=9 question="یک سبد متعادل بساز"
-2026/09/29 23:10:14 chat-agent: tokens prompt=2077 completion=59 total=2136
-2026/09/29 23:10:15 chat-agent: tool build_portfolio ok (4872 chars)
-2026/09/29 23:10:23 chat-agent: tokens prompt=3759 completion=925 total=4684
-exit status 0xffffffff
-exit status 0xffffffff
-2026/09/29 23:21:57 chat-agent: model=deepseek-v4.1-flash tools=9 question="تحلیل فولاد و مقایسه با کیمیا"
-2026/09/29 23:21:59 chat-agent: tokens prompt=2099 completion=138 total=2237
-2026/09/29 23:21:59 chat-agent: tool search_companies ok (267 chars)
-2026/09/29 23:21:59 chat-agent: tool search_companies ok (266 chars)
-2026/09/29 23:22:00 chat-agent: tokens prompt=2392 completion=182 total=2574
-2026/09/29 23:22:00 chat-agent: tool compare_companies ok (911 chars)
-2026/09/29 23:22:00 chat-agent: tool get_company_profile ok (1294 chars)
-2026/09/29 23:22:00 chat-agent: tool get_company_profile ok (1279 chars)
-2026/09/29 23:22:01 chat-agent: tool get_price_stats ok (642 chars)
-2026/09/29 23:22:01 chat-agent: tool get_price_stats ok (641 chars)
-2026/09/29 23:22:03 chat-agent: tokens prompt=4200 completion=153 total=4353
-2026/09/29 23:22:03 chat-agent: tool get_company_financials ok (999 chars)
-2026/09/29 23:22:03 chat-agent: tool get_company_financials ok (953 chars)
-2026/09/29 23:22:13 chat-agent: tokens prompt=4971 completion=1160 total=6131
-2026/09/29 23:29:46 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/29 23:31:08 chat-agent: model=deepseek-v4.1-flash tools=9 question="تحلیل فولاد و مقایسه با کیمیا"
-2026/09/29 23:31:10 chat-agent: tokens prompt=2213 completion=116 total=2329
-2026/09/29 23:31:10 chat-agent: tool search_companies ok (267 chars)
-2026/09/29 23:31:10 chat-agent: tool search_companies ok (266 chars)
-2026/09/29 23:31:11 chat-agent: tokens prompt=2506 completion=247 total=2753
-2026/09/29 23:31:11 chat-agent: tool get_company_profile ok (1294 chars)
-2026/09/29 23:31:11 chat-agent: tool get_company_profile ok (1279 chars)
-2026/09/29 23:31:11 chat-agent: tool compare_companies ok (911 chars)
-2026/09/29 23:31:12 chat-agent: tool get_price_stats ok (642 chars)
-2026/09/29 23:31:12 chat-agent: tool get_price_stats ok (641 chars)
-2026/09/29 23:31:18 chat-agent: tokens prompt=4380 completion=974 total=5354
-2026/09/29 23:36:35 chat-agent: model=deepseek-v4.1-flash tools=9 question="مقایسه فولاد و کیمیا"
-2026/09/29 23:36:38 chat-agent: tokens prompt=2211 completion=126 total=2337
-2026/09/29 23:36:38 chat-agent: tool compare_companies ok (911 chars)
-2026/09/29 23:36:39 chat-agent: tokens prompt=2580 completion=101 total=2681
-2026/09/29 23:36:39 chat-agent: tool get_price_stats ok (642 chars)
-2026/09/29 23:36:39 chat-agent: tool get_price_stats ok (641 chars)
-2026/09/29 23:36:43 chat-agent: tokens prompt=3105 completion=627 total=3732
-2026/09/29 23:39:01 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-exit status 0xffffffff
-2026/09/30 00:06:39 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-exit status 0xffffffff
-2026/09/30 00:12:11 chat-agent: model=deepseek-v4.1-flash tools=9 question="یک سبد پرخطر بساز و پراکندگی صنعتی\u200cاش را نش\xd8…"
-2026/09/30 00:12:13 chat-agent: tokens prompt=2108 completion=143 total=2251
-2026/09/30 00:12:14 chat-agent: tool build_portfolio ok (7088 chars)
-2026/09/30 00:12:20 chat-agent: tokens prompt=4447 completion=767 total=5214
-exit status 0xffffffff
-2026/09/30 00:14:28 chat-agent: model=deepseek-v4.1-flash tools=9 question="سلام"
-2026/09/30 00:14:30 chat-agent: tokens prompt=2087 completion=230 total=2317
-2026/09/30 00:14:32 chat-agent: tokens prompt=50 completion=153 total=203
-exit status 0xffffffff
-2026/09/30 00:36:23 chat-agent: model=deepseek-v4.1-flash tools=12 question="ریسکم متوسطه و سرمایه\u200cام ۵۰۰ میلیون تومانه\xd8…"
-2026/09/30 00:36:24 chat-agent: tokens prompt=2366 completion=131 total=2497
-2026/09/30 00:36:24 chat-agent: tool set_my_preferences failed: کاربر شناسایی نشد
-2026/09/30 00:36:26 chat-agent: tokens prompt=2454 completion=170 total=2624
-2026/09/30 00:36:26 chat-agent: model=deepseek-v4.1-flash tools=12 question="حالا با همین تنظیمات یک سبد بساز"
-2026/09/30 00:36:27 chat-agent: tokens prompt=2356 completion=94 total=2450
-2026/09/30 00:36:27 chat-agent: tool get_my_preferences ok (165 chars)
-2026/09/30 00:36:27 chat-agent: tool get_my_portfolio ok (59 chars)
-2026/09/30 00:36:29 chat-agent: tokens prompt=2462 completion=289 total=2751
-2026/09/30 00:36:30 chat-agent: tool build_portfolio ok (5991 chars)
-2026/09/30 00:36:34 chat-agent: tokens prompt=4453 completion=753 total=5206
-2026/09/30 00:36:34 chat-agent: model=deepseek-v4.1-flash tools=12 question="سبد من رو نقد کن"
-2026/09/30 00:36:35 chat-agent: tokens prompt=2350 completion=98 total=2448
-2026/09/30 00:36:35 chat-agent: tool critique_my_portfolio ok (54 chars)
-2026/09/30 00:36:35 chat-agent: tool get_my_portfolio ok (59 chars)
-2026/09/30 00:36:35 chat-agent: tool get_my_preferences ok (165 chars)
-2026/09/30 00:36:36 chat-agent: tokens prompt=2488 completion=245 total=2733
-2026/09/30 00:37:42 chat-agent: model=deepseek-v4.1-flash tools=12 question="ریسکم متوسطه و سرمایه\u200cام ۵۰۰ میلیون تومانه\xd8…"
-2026/09/30 00:37:43 chat-agent: tokens prompt=2366 completion=120 total=2486
-2026/09/30 00:37:43 chat-agent: tool set_my_preferences failed: failed to encode args[2]: unable to encode 5e+09 into binary format for int4 (OID 23): 5000000000 is greater than maximum value for int4
-2026/09/30 00:37:45 chat-agent: tokens prompt=2489 completion=246 total=2735
-2026/09/30 00:37:45 chat-agent: tool set_my_preferences ok (12 chars)
-2026/09/30 00:37:47 chat-agent: tokens prompt=2566 completion=132 total=2698
-2026/09/30 00:37:47 chat-agent: tool get_my_preferences ok (97 chars)
-2026/09/30 00:37:49 chat-agent: tokens prompt=2626 completion=318 total=2944
-2026/09/30 00:37:49 chat-agent: model=deepseek-v4.1-flash tools=12 question="حالا یک سبد با همین تنظیمات بساز"
-2026/09/30 00:37:50 chat-agent: tokens prompt=2356 completion=131 total=2487
-2026/09/30 00:37:50 chat-agent: tool get_my_preferences ok (97 chars)
-2026/09/30 00:37:50 chat-agent: tool get_my_portfolio ok (59 chars)
-2026/09/30 00:37:50 chat-agent: tokens prompt=2448 completion=79 total=2527
-2026/09/30 00:37:51 chat-agent: tool build_portfolio ok (7584 chars)
-2026/09/30 00:37:55 chat-agent: tokens prompt=4924 completion=707 total=5631
-2026/09/30 00:37:55 chat-agent: model=deepseek-v4.1-flash tools=12 question="تنظیمات من چیه؟"
-2026/09/30 00:37:56 chat-agent: tokens prompt=2351 completion=46 total=2397
-2026/09/30 00:37:56 chat-agent: tool get_my_preferences ok (97 chars)
-2026/09/30 00:37:57 chat-agent: tokens prompt=2411 completion=101 total=2512
-exit status 0xffffffff
-2026/09/30 00:40:04 chat-agent: model=deepseek-v4.1-flash tools=12 question="یک سبد کم\u200cریسک با سرمایه\u200cام بساز"
-2026/09/30 00:40:05 chat-agent: tokens prompt=2425 completion=89 total=2514
-2026/09/30 00:40:05 chat-agent: tool get_my_preferences ok (97 chars)
-2026/09/30 00:40:05 chat-agent: tool get_my_portfolio ok (59 chars)
-2026/09/30 00:40:06 chat-agent: tokens prompt=2517 completion=170 total=2687
-2026/09/30 00:40:07 chat-agent: tool build_portfolio ok (6673 chars)
-2026/09/30 00:40:12 chat-agent: tokens prompt=4713 completion=1236 total=5949
-exit status 0xffffffff
-2026/09/30 00:42:00 chat-agent: model=deepseek-v4.1-flash tools=12 question="یک سبد کم\u200cریسک با سرمایه\u200cام بساز"
-2026/09/30 00:42:01 chat-agent: tokens prompt=2456 completion=83 total=2539
-2026/09/30 00:42:01 chat-agent: tool get_my_preferences ok (97 chars)
-2026/09/30 00:42:02 chat-agent: tool get_my_portfolio ok (59 chars)
-2026/09/30 00:42:03 chat-agent: tokens prompt=2548 completion=179 total=2727
-2026/09/30 00:42:04 chat-agent: tool build_portfolio ok (6673 chars)
-2026/09/30 00:42:10 chat-agent: tokens prompt=4728 completion=1634 total=6362
-2026/09/30 13:45:08 chat-agent: model=deepseek-v4.1-flash tools=12 question="تحلیل فولاد"
-2026/09/30 13:45:10 chat-agent: tokens prompt=2559 completion=99 total=2658
-2026/09/30 13:45:10 chat-agent: tool search_companies ok (267 chars)
-2026/09/30 13:45:13 chat-agent: tokens prompt=2714 completion=230 total=2944
-2026/09/30 13:45:13 chat-agent: tool get_company_profile ok (1294 chars)
-2026/09/30 13:45:13 chat-agent: tool get_company_financials ok (1269 chars)
-2026/09/30 13:45:13 chat-agent: tool get_price_stats ok (642 chars)
-2026/09/30 13:45:13 chat-agent: tool get_monthly_sales ok (1636 chars)
-2026/09/30 13:45:22 chat-agent: tokens prompt=4526 completion=1045 total=5571
-2026/09/30 18:30:14 🔍 BRS collector args: [py/brs_prices.py daily]
-{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 271, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-09-30", "health": "DEGRADED_LEGACY_MIRROR"}
-2026-09-30 18:38:49,983 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=271 skipped=0 mirror=not_attempted
-2026-09-30 18:38:49,983 [INFO] ✅ daily(canonical-only) انجام شد — upsert=271، تطبیق‌خورده=271، بدون‌تطبیق=1304
-2026-09-30 18:38:49,984 [INFO] نمونه‌ای نمادهای بدون تطبیق: شکیمیا, عیار, لبن, منجیل, طلا, کهربا, غزنجان, سمهریز, فنقره, سیمین, گنج, وتجارت, نقرابی, تابان, افران, ذرت, گوهر, سیلور, پاسارگاد, نارنج اهرم, لبخند, صبا, آوند, خگلپا, اهرم
-RESULT|mode=daily(canonical-only)|upserted=271|matched=271|unmatched=1304
-2026/09/30 18:39:02 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
-2026/09/30 18:45:20 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/30 18:50:50 chat-agent: model=deepseek-v4.1-flash tools=12 question="بهترین سهم\u200cها برای سرمایه\u200cگذاری چی هست؟"
-2026/09/30 18:50:51 chat-stream: agent failed, falling back to rules: ai status=429 body={
+2026-10-02 17:28:12,522 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=??????
+2026-10-02 17:29:07,505 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=کاسپین
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1590194", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1577900", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 17:29:26,324 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=HC6Oc8aFayYGoUc8QQQaQQQHXBqg%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-02 17:29:29,113 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-02 17:29:29,126 [INFO] ✅ Final total row found: جمع
+2026-10-02 17:29:29,126 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=12750986.0
+2026-10-02 17:29:29,129 [INFO] ℹ️ total_value=21343493.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 3, "canonical_skipped": 1, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 17:29:29,586 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-02 17:29:29,586 [INFO] ✅ values extracted: کاسپین (monthly)
+2026-10-02 17:29:30,464 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=NwDe7iwAFGW2FrWc1Llt8A%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-02 17:29:33,146 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-02 17:29:33,154 [INFO] ✅ Final total row found: جمع
+2026-10-02 17:29:33,154 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=12700096.0
+2026-10-02 17:29:33,156 [INFO] ℹ️ total_value=22333987.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 3, "canonical_skipped": 1, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 17:29:33,472 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-02 17:29:33,472 [INFO] ✅ values extracted: کاسپین (monthly)
+2026-10-02 17:41:44,285 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=کاسپین
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1557696", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 17:41:57,628 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=QNJQQQaQQQBar4H6ULnYZD5VuVCw%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-02 17:42:00,502 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-02 17:42:00,508 [INFO] ✅ Final total row found: جمع
+2026-10-02 17:42:00,508 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=12504091.0
+2026-10-02 17:42:00,511 [INFO] ℹ️ total_value=23143682.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 3, "canonical_skipped": 1, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 17:42:00,939 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-02 17:42:00,939 [INFO] ✅ values extracted: کاسپین (monthly)
+2026-10-02 18:32:44,120 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=فسرب
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604209", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1589867", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1574580", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 18:32:58,573 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=N1rTEweNWlAf6pWkm7aflA%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-02 18:33:01,443 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-02 18:33:01,453 [INFO] ✅ Final total row found: جمع
+2026-10-02 18:33:01,453 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=2699299.0
+2026-10-02 18:33:01,458 [INFO] ℹ️ total_value=450.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 0, "canonical_skipped": 4, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 18:33:01,866 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-02 18:33:01,866 [INFO] ✅ values extracted: فسرب (monthly)
+2026-10-02 18:33:03,257 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=9O0wKOOObOOO0RwSLdlaDphlOOObOOOkSg%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-02 18:33:05,997 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-02 18:33:06,004 [INFO] ✅ Final total row found: جمع
+2026-10-02 18:33:06,004 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=2112978.0
+2026-10-02 18:33:06,006 [INFO] ℹ️ total_value=499.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 4, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 18:33:06,470 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-02 18:33:06,470 [INFO] ✅ values extracted: فسرب (monthly)
+2026-10-02 18:33:07,277 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=VdGoVFyOBqtS9dE8Sd5QQQaQQQlA%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-02 18:33:10,042 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-02 18:33:10,062 [INFO] ✅ Final total row found: جمع
+2026-10-02 18:33:10,063 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=1015241.0
+2026-10-02 18:33:10,066 [INFO] ℹ️ total_value=225.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 4, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 18:33:10,508 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-02 18:33:10,508 [INFO] ✅ values extracted: فسرب (monthly)
+2026-10-02 18:34:23,681 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=ذوب
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1589160", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 18:34:32,034 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=RxX5gRoOqnHPfpc2j4eASw%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-02 18:34:35,184 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-02 18:34:35,193 [INFO] ✅ Final total row found: جمع
+2026-10-02 18:34:35,194 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=80345608.0
+2026-10-02 18:34:35,197 [INFO] ℹ️ total_value=126508.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 4, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-02 18:34:35,626 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-02 18:34:35,626 [INFO] ✅ values extracted: ذوب (monthly)
+2026/10/03 08:38:12 chat-agent: model=deepseek-v4.1-flash tools=12 question="الان پول دارم چی بخرم؟"
+2026/10/03 08:38:12 chat-stream: agent failed, falling back to rules: ai status=429 body={
   "error": {
-    "message": "Rate limit reached for requests. Check your quota and upgrade your account to higher levels at https://ava.al/limits or contact support at support@avalai.ir and include the request ID 01a0f2e7-78de-7da1-a603-6279c89e8756 in your email if you believe this is an error.",…
-2026/09/30 18:56:01 chat-agent: model=deepseek-v4.1-flash tools=12 question="۱۰۰ میلیون پول دارم چیا بخرم؟"
-2026/09/30 18:56:04 chat-agent: tokens prompt=3075 completion=125 total=3200
-2026/09/30 18:56:04 chat-agent: tool get_my_preferences ok (165 chars)
-2026/09/30 18:56:09 chat-agent: tokens prompt=3149 completion=326 total=3475
-2026/09/30 18:56:48 chat-agent: model=deepseek-v4.1-flash tools=12 question="بله ۱۰۰ میلیون تومان و سطح ریسک زیاد"
-2026/09/30 18:56:51 chat-agent: tokens prompt=3131 completion=239 total=3370
-2026/09/30 18:56:52 chat-agent: tool set_my_preferences ok (12 chars)
-2026/09/30 18:56:53 chat-agent: tool build_portfolio ok (9217 chars)
-2026/09/30 18:57:07 chat-agent: tokens prompt=6168 completion=1813 total=7981
-2026/09/30 19:09:10 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-2026/09/30 19:15:58 chat-agent: model=deepseek-v4.1-flash tools=12 question="اگه ریسک کم باشه چه پیشنهادی میدی؟"
-2026/09/30 19:16:01 chat-agent: tokens prompt=4393 completion=136 total=4529
-2026/09/30 19:16:03 chat-agent: tool build_portfolio ok (6672 chars)
-2026/09/30 19:16:17 chat-agent: tokens prompt=6584 completion=1458 total=8042
-2026/09/30 19:17:14 chat-agent: model=deepseek-v4.1-flash tools=12 question="وضعیت بازار چطوره؟"
-2026/09/30 19:17:19 chat-agent: tokens prompt=5667 completion=467 total=6134
-2026/09/30 19:17:19 chat-agent: tool screen_companies ok (2340 chars)
-2026/09/30 19:17:19 chat-agent: tool screen_companies ok (2418 chars)
-2026/09/30 19:17:21 chat-agent: tool get_price_stats ok (646 chars)
-2026/09/30 19:17:21 chat-agent: tool get_price_stats ok (644 chars)
-2026/09/30 19:17:21 chat-agent: tool get_price_stats ok (646 chars)
-2026/09/30 19:17:21 chat-agent: tool get_price_stats ok (641 chars)
-2026/09/30 19:17:34 chat-agent: tokens prompt=8659 completion=1246 total=9905
-2026/09/30 20:16:48 [canary] failed to flush diagnostics: open ..\integration_shadow_v1\output\price_history_canary_summary.json: The requested operation cannot be performed on a file with a user-mapped section open.
-exit status 1
+    "message": "Your account credit has been exhausted. You don't have enough credit to make this request. Please top up your account or add more credit at https://ava.al/billing to continue using the service.",
+    "type": "quota_exceeded",
+    "param": null,
+    "code": "quota_excee…
+2026/10/03 08:38:58 chat-agent: model=deepseek-v4.1-flash tools=12 question="کاسپین یا شسپا؟"
+2026/10/03 08:38:58 chat-stream: agent failed, falling back to rules: ai status=429 body={
+  "error": {
+    "message": "Your account credit has been exhausted. You don't have enough credit to make this request. Please top up your account or add more credit at https://ava.al/billing to continue using the service.",
+    "type": "quota_exceeded",
+    "param": null,
+    "code": "quota_excee…
+2026-10-03 08:39:52,846 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=دقاضی
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604325", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 08:40:19,334 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=k7XhL9vJFGSccDjrwsdXpg%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-03 08:40:22,082 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-03 08:40:22,090 [INFO] ✅ Final total row found: جمع
+2026-10-03 08:40:22,091 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=11122527.0
+2026-10-03 08:40:22,094 [INFO] ℹ️ total_value=15413755.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 4, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 08:40:22,817 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-03 08:40:22,817 [INFO] ✅ values extracted: دقاضی (monthly)
+2026-10-03 08:41:21,655 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=شسپا
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1588280", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1576141", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 08:41:32,730 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=cQPBE3wkjYxeYSganxW8Ug%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-03 08:41:35,724 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-03 08:41:35,736 [INFO] ✅ Final total row found: جمع
+2026-10-03 08:41:35,737 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=71047152.0
+2026-10-03 08:41:35,740 [INFO] ℹ️ total_value=64739.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 4, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 08:41:36,340 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-03 08:41:36,340 [INFO] ✅ values extracted: شسپا (monthly)
+2026-10-03 08:41:41,574 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=ckBosEbDvIUnzOa73J6Yeg%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-03 08:41:44,388 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-03 08:41:44,399 [INFO] ✅ Final total row found: جمع
+2026-10-03 08:41:44,399 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=74142771.0
+2026-10-03 08:41:44,405 [INFO] ℹ️ total_value=64189.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 3, "canonical_skipped": 1, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 08:41:44,850 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-03 08:41:44,851 [INFO] ✅ values extracted: شسپا (monthly)
+2026/10/03 12:13:14 🔍 BRS collector args: [py/brs_prices.py daily]
+2026/10/03 12:15:08 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 259, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-10-03", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 12:17:11,442 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=259 skipped=0 mirror=not_attempted
+2026-10-03 12:17:11,443 [INFO] ✅ daily(canonical-only) انجام شد — upsert=259، تطبیق‌خورده=259، بدون‌تطبیق=899
+2026-10-03 12:17:11,444 [INFO] نمونه‌ای نمادهای بدون تطبیق: تابان, فنقره, خگلپا, اهرم, ومعادن, عیار, لبن, غزنجان, موج, خساپا, توان, صبا, نارنج اهرم, سمهریز, جهش, شتاب, خگستر, مارون, تاپیکو, دارا یکم, دارونو, وتجارت, فارس, بیدار, آوند
+RESULT|mode=daily(canonical-only)|upserted=259|matched=259|unmatched=899
+2026/10/03 12:17:17 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 202, "canonical_skipped": 57, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-10-03", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 12:18:52,749 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=202 skipped=57 mirror=not_attempted
+2026-10-03 12:18:52,749 [INFO] ✅ daily(canonical-only) انجام شد — upsert=259، تطبیق‌خورده=259، بدون‌تطبیق=899
+2026-10-03 12:18:52,749 [INFO] نمونه‌ای نمادهای بدون تطبیق: تابان, فنقره, خگلپا, اهرم, عیار, ومعادن, لبن, غزنجان, موج, خساپا, توان, صبا, سمهریز, نارنج اهرم, جهش, شتاب, خگستر, مارون, تاپیکو, دارا یکم, دارونو, وتجارت, فارس, بیدار, آوند
+RESULT|mode=daily(canonical-only)|upserted=259|matched=259|unmatched=899
+2026/10/03 12:18:57 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+2026/10/03 17:53:08 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 257, "canonical_skipped": 2, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-10-03", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 17:58:13,499 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=257 skipped=2 mirror=not_attempted
+2026-10-03 17:58:13,500 [INFO] ✅ daily(canonical-only) انجام شد — upsert=259، تطبیق‌خورده=259، بدون‌تطبیق=1375
+2026-10-03 17:58:13,500 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, تابان, فنقره, اهرم, خگلپا, ومعادن, طلا, لبن, غزنجان, موج, خساپا, نقرابی, کهربا, گنج, توان, صبا, تاپیکو, سیمین, گوهر, نارنج اهرم, سمهریز, افران, آوند, شتاب, جهش
+RESULT|mode=daily(canonical-only)|upserted=259|matched=259|unmatched=1375
+2026/10/03 17:58:19 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+2026/10/03 18:11:44 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 1, "canonical_skipped": 258, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-10-03", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 18:16:40,319 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=1 skipped=258 mirror=not_attempted
+2026-10-03 18:16:40,319 [INFO] ✅ daily(canonical-only) انجام شد — upsert=259، تطبیق‌خورده=259، بدون‌تطبیق=1402
+2026-10-03 18:16:40,320 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, تابان, فنقره, اهرم, خگلپا, طلا, سینرژی, ومعادن, لبن, غزنجان, موج, نقرابی, خساپا, کهربا, گنج, توان, صبا, تاپیکو, سیمین, گوهر, نارنج اهرم, سمهریز, افران, آوند, شتاب
+RESULT|mode=daily(canonical-only)|upserted=259|matched=259|unmatched=1402
+2026/10/03 18:16:44 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+2026-10-03 21:15:13,037 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=قثابت
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605385", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 21:15:33,116 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=CajXqNN1bgQQQaQQQZTuNPOslLzw%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-03 21:15:36,029 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-03 21:15:36,050 [INFO] ✅ Final total row found: جمع
+2026-10-03 21:15:36,050 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=150801.0
+2026-10-03 21:15:36,057 [INFO] ℹ️ total_value=1118.05
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 4, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 21:15:36,813 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-03 21:15:36,813 [INFO] ✅ values extracted: قثابت (monthly)
+2026-10-03 21:15:56,307 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607466", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607465", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607016", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607435", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607429", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606389", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606007", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607447", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607232", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605867", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607271", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607142", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607156", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607213", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607137", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604782", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607231", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607111", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605027", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607113", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:16:04,282 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=2 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607041", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607030", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606418", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607042", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607035", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607031", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606974", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607028", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606500", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607022", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606995", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1599929", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607010", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606775", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605868", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606989", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604035", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606977", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1603028", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606869", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:16:12,005 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=3 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606717", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606936", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606980", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606945", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606939", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606918", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606951", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605324", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606931", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606137", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606934", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606933", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606920", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606900", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606521", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606091", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606823", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606722", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606800", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:16:17,489 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=4 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1602173", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1602489", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606886", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606884", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606836", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606883", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606334", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606363", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606882", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606881", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605753", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606325", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604646", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605922", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606306", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606860", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606861", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606476", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606460", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606726", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:16:24,284 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=5 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606677", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606778", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606395", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606478", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606053", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606755", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606671", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605955", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605120", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605886", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606531", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605171", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606555", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606676", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606714", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606370", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606300", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606147", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606656", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:16:34,913 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=OOObOOOoqSrZnEvKrOyrpve0JeeQ%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-03 21:16:37,648 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-03 21:16:37,657 [INFO] ✅ Final total row found: جمع
+2026-10-03 21:16:37,658 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=125448987.0
+2026-10-03 21:16:37,661 [INFO] ℹ️ total_value=1054077.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 3, "canonical_skipped": 1, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 21:16:38,107 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-03 21:16:38,107 [INFO] ✅ values extracted: کگل (monthly)
+2026-10-03 21:16:38,779 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=Rp3DQQQaQQQJeH5h6tnviF9S9kwA%3d%3d&rt=2&let=8&ct=0&ft=-1
+2026-10-03 21:16:40,912 [INFO] ✅ One-month columns: [(4, 'دوره 1 ماهه منتهی به 1405/06/31')]
+2026-10-03 21:16:40,913 [INFO] ✅ Final total row found: جمع
+2026-10-03 21:16:40,913 [WARNING] ⚠️ One-month columns were found, but their metric type is unsupported: ['دوره 1 ماهه منتهی به 1405/06/31']
+2026-10-03 21:16:40,913 [WARNING] ⚠️ Could not extract one-month values for https://www.codal.ir/Reports/Decision.aspx?LetterSerial=Rp3DQQQaQQQJeH5h6tnviF9S9kwA%3d%3d&rt=2&let=8&ct=0&ft=-1
+2026-10-03 21:16:41,619 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=JKu0EQQQaQQQG9id2WxqUsJJCoaQ%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-03 21:16:44,059 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-03 21:16:44,064 [INFO] ✅ Final total row found: جمع
+2026-10-03 21:16:44,065 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=20790.0
+2026-10-03 21:16:44,066 [INFO] ℹ️ total_value=20790.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 3, "canonical_skipped": 1, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 21:16:44,542 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-03 21:16:44,542 [INFO] ✅ values extracted: فبستم (monthly)
+2026-10-03 21:16:44,789 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=qppQQQaQQQSpTasSsfL33l1TUd1A%3d%3d&rt=2&let=8&ct=0&ft=-1
+2026-10-03 21:16:46,927 [INFO] ✅ One-month columns: [(4, 'دوره 1 ماهه منتهی به 1405/06/31')]
+2026-10-03 21:16:46,928 [INFO] ✅ Final total row found: جمع
+2026-10-03 21:16:46,929 [WARNING] ⚠️ One-month columns were found, but their metric type is unsupported: ['دوره 1 ماهه منتهی به 1405/06/31']
+2026-10-03 21:16:46,929 [WARNING] ⚠️ Could not extract one-month values for https://www.codal.ir/Reports/Decision.aspx?LetterSerial=qppQQQaQQQSpTasSsfL33l1TUd1A%3d%3d&rt=2&let=8&ct=0&ft=-1
+2026-10-03 21:16:48,029 [INFO] canonical-only codal sync: {'scanned': 100, 'already': 2, 'new': 98, 'ingested': 4, 'quarantined': 94, 'errors': 0, 'pages': 5, 'completed': 2, 'failed': 0, 'unsupported': 2, 'fetched': 4, 'max_pages': 5, 'dry_run': False, 'authority': 'CANONICAL', 'mode': 'canonical_only_offline'}
+2026-10-03 21:18:48,046 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=زکشت
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604802", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 21:18:54,718 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=CzDYnE85IDIJwatAIN7Xxw%3d%3d&rt=8&let=58&ct=0&ft=-1
+2026-10-03 21:18:57,067 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-03 21:18:57,071 [INFO] ✅ Final total row found: جمع درآمدهای عملیاتی
+2026-10-03 21:18:57,072 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=2308447.0
+2026-10-03 21:18:57,073 [INFO] ℹ️ total_value=2308447.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 4, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 21:18:57,685 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-03 21:18:57,685 [INFO] ✅ values extracted: زکشت (monthly)
+2026-10-03 21:19:17,627 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=سصوفی
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1603541", "retry_backlog": 18, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 21:19:24,136 [INFO] 🔍 Scraping report: https://www.codal.ir/Reports/Decision.aspx?LetterSerial=aNWEtG07xsHOFWPWeQFQog%3d%3d&rt=0&let=58&ct=0&ft=-1
+2026-10-03 21:19:26,899 [INFO] ✅ One-month columns: [(13, 'تعداد تولید'), (14, 'تعداد فروش'), (15, 'نرخ فروش (ریال)'), (16, 'مبلغ فروش (میلیون ریال)')]
+2026-10-03 21:19:26,911 [INFO] ✅ Final total row found: جمع
+2026-10-03 21:19:26,911 [INFO] ✅ Product one-month values extracted: production=0.0, sales_quantity=0.0, sales_amount=7346169.0
+2026-10-03 21:19:26,914 [INFO] ℹ️ total_value=189343.0
+{"domain": "MONTHLY_ACTIVITY", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "written", "canonical_inserted": 4, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 0, "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-03 21:19:27,431 [INFO] monthly canonical-only outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS mirror=not_attempted
+2026-10-03 21:19:27,432 [INFO] ✅ values extracted: سصوفی (monthly)
+2026-10-03 21:19:48,841 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=1 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607466", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607016", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607435", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607429", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606007", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607447", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607232", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605867", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607271", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607142", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607156", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607213", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607137", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604782", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607111", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605027", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607113", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:19:54,249 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=2 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607041", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607030", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607042", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607035", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607031", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606974", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607028", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606500", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607022", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606995", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1599929", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1607010", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606775", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605868", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606989", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604035", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606977", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1603028", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606869", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:20:00,434 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=3 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606717", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606936", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606980", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606945", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606939", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606918", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606951", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605324", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606931", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606137", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606934", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606933", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606920", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606900", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606521", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606091", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606823", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606722", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606800", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:20:06,261 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=4 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1602173", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1602489", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606886", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606884", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606836", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606883", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606334", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606363", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606882", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606881", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605753", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606325", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604646", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605922", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606306", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606860", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606861", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606476", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606460", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606726", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:20:11,851 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=5 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606677", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606778", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606395", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606478", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606053", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606755", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606671", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605955", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605120", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605886", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606531", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605171", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606555", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606676", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606714", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606370", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606300", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606147", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606656", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:20:17,041 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=6 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606535", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606525", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606608", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606033", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605438", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606481", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604554", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604862", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606529", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604723", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606550", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606258", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606523", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605107", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606493", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606462", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606503", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605260", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606317", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:20:22,734 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=7 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605960", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606407", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606332", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606118", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606220", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606318", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605669", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605271", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604944", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1603232", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606260", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606253", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606212", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606244", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606107", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604261", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:20:27,344 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=8 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1602543", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605893", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605700", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1603455", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605850", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606167", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606159", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606157", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606138", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604961", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:20:30,305 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=9 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606153", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606144", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605147", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606124", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606139", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606135", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605756", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605896", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604202", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606133", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605359", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605298", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606083", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:20:34,097 [INFO] 🌐 Codal discovery: LetterType=58 PageNumber=10 symbol=-
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605165", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1606110", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605008", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604867", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604781", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605351", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1603965", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1604751", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1605308", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1599533", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+{"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1599841", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
+2026-10-03 21:20:37,454 [INFO] canonical-only codal sync: {'scanned': 200, 'already': 37, 'new': 163, 'ingested': 0, 'quarantined': 163, 'errors': 0, 'pages': 10, 'completed': 0, 'failed': 0, 'unsupported': 0, 'fetched': 0, 'max_pages': 10, 'dry_run': False, 'authority': 'CANONICAL', 'mode': 'canonical_only_offline'}

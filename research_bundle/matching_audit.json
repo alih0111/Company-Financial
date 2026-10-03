@@ -1,0 +1,20 @@
+{
+ "stats": {
+  "monthly": {
+   "MATCH_EXACT": 0,
+   "MATCH_STRONG": 7487,
+   "MATCH_STRONG_CORRECTION": 2128,
+   "AMBIGUOUS": 6,
+   "NOT_FOUND": 2559
+  },
+  "financial_report": {
+   "MATCH_EXACT": 595,
+   "MATCH_STRONG": 2416,
+   "MATCH_STRONG_CORRECTION": 399,
+   "AMBIGUOUS": 2665,
+   "NOT_FOUND": 2082
+  }
+ },
+ "letters_recovered": 27497,
+ "stream_rows": 11909
+}

@@ -27,6 +27,9 @@ func main() {
 	// Observability only: read mode + backend availability. No secrets.
 	r.GET("/api/health/shadow", handlers.GetShadowHealth)
 
+	// نوار قیمت لحظه‌ای صفحه‌ی اصلی (عمومی — TSETMC + TGJU با کش سروری)
+	api.GET("/market/ticker", handlers.GetMarketTicker)
+
 	r.POST("/api/register/send-code", handlers.SendVerificationCode)
 	r.POST("/api/register", handlers.Register)
 	api.POST("/login", handlers.Login)

@@ -1,0 +1,12 @@
+{
+ "label": "NON_SHADOW_CURRENT_PREVIEW",
+ "run_id": "0d2e5bc7-fde1-4af3-87fa-f292376beb79",
+ "as_of_date": "2026-10-01",
+ "source_cutoff_at": "2026-10-01T12:50:41.187110+03:30",
+ "completed_at": "2026-10-01T12:50:54.842877+03:30",
+ "code_version": "canonical-v1-dev+report-chain-ttm+direct-valuation+fiscal-anchor-cell",
+ "eligible_universe_count": 271,
+ "selected_count": 54,
+ "note": "not a frozen month-end shadow decision; no paper orders; clock NOT started; state untouched",
+ "excluded_fixture_run": "e5998f6d-93ab-4577-b13a-7b2f89c39c02"
+}

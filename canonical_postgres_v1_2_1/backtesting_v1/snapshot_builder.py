@@ -28,8 +28,13 @@ def end_of_day_utc(d: dt.date) -> dt.datetime:
 def build_snapshot(as_of_date: dt.date, price_store=None):
     # Historical market PIT uses trade_date as the availability proxy because
     # canonical collected_at is migration metadata, not historical availability.
+    # valuation="legacy": canonical share snapshots only start at 2026-09-29, so
+    # a historical as_of has no PIT market cap. Reusing today's share count would
+    # be look-ahead, so the EPS-based path is kept (and labeled) for history; the
+    # direct path applies to live runs.
     eng = CM.Engine(as_of_date, end_of_day_utc(as_of_date),
-                    market_pit="trade_date", market_as_of_date=as_of_date)
+                    market_pit="trade_date", market_as_of_date=as_of_date,
+                    valuation=CM.VAL_LEGACY)
     eng.compute()
     signals = []
     for cid, m in eng.metrics.items():
@@ -54,6 +59,7 @@ def build_snapshot(as_of_date: dt.date, price_store=None):
             "factor_rank": ranks,
             "category_available": cat_avail,
             "ttm_prov": m.get("_ttm_prov", {}),
+            "valuation_prov": m.get("_valuation_prov", {}),
             "dq_flags": m.get("_dq").flags if m.get("_dq") else [],
             "uses_report_chain": any(v == "REPORT_CHAIN_TTM" for v in (m.get("_ttm_prov") or {}).values()),
         })

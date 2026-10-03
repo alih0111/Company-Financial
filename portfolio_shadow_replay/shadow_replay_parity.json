@@ -1,0 +1,69 @@
+{
+ "artifact_kind": "SHADOW_V1_1_HISTORICAL_REPLAY_PARITY",
+ "label": "HISTORICAL_REPLAY_ONLY",
+ "spec_sha256": "f396b5f65474a017f7f97ff9f2d0c8679708f6e20ee104dc19dc53d06709ff0e",
+ "panel_sha256": "543dfbf732ae9b60eff8014b2226faa806ffb85baec8794a109870c97df0639a",
+ "calendar": {
+  "certified_calendar": "all distinct market.price_observations trade dates",
+  "exec_date_mismatches": 0,
+  "rederived_63_of_63_match": true,
+  "rule": "first canonical trading date strictly after score date",
+  "shadow_calendar": "no Thu/Fri, breadth>=30 (spec V1.1 §4)"
+ },
+ "tradability": {
+  "both_traded": 13245,
+  "conclusion": "path-A cache evidence and certified daily-panel flag agree on every (E, symbol) pair needed by the replay",
+  "neither": 1560,
+  "only_cache": 0,
+  "only_daily_panel": 0,
+  "pairs_checked": 14805
+ },
+ "parity": {
+  "SHADOW_REPLAY_PORTFOLIO_PARITY": "PASS",
+  "any_mismatch": false,
+  "exec_date_mismatches": [],
+  "float_field_mismatches": {},
+  "max_abs_diff_by_field": {
+   "absolute_traded_notional_fraction": 4.440892098500626e-16,
+   "bench_return": 3.0531133177191805e-16,
+   "buy_notional": 7.771561172376096e-16,
+   "buy_scale": 1.1102230246251565e-15,
+   "cash_weight": 6.217088644825805e-17,
+   "failed_targets": 0.0,
+   "holdings_count": 0.0,
+   "sell_notional": 7.771561172376096e-16,
+   "top20_return": 3.191891195797325e-16,
+   "trade_notional": 1.1102230246251565e-16,
+   "transaction_cost": 9.80118763926896e-17,
+   "transaction_cost_fraction": 1.0018028073766061e-16,
+   "turnover": 1.6653345369377348e-16,
+   "value_post_trade": 1.7763568394002505e-15,
+   "value_pre_trade": 2.220446049250313e-15
+  },
+  "months_compared": 63,
+  "n_eligible_mismatches": [],
+  "n_selected_mismatches": [],
+  "note": "engine = live shadow harness semantics (deterministic sorted port); baseline = SCORE_PORTFOLIO_V1 accounting-repaired certified artifacts",
+  "return_mismatches": [],
+  "selection_set_mismatches": [],
+  "tolerance": 1e-09,
+  "trade_notional_mismatches": [],
+  "trade_notional_pairs_compared": 3035
+ },
+ "engine_conventions": {
+  "costs": "50 bps one-way BASE, paid from portfolio cash, buys scale proportionally when cash+sells cannot cover buys+costs",
+  "return_semantics": "PRICE_PLUS_MECHANICAL_ADJUSTMENTS (CONFIRMED gap-rule chain; no dividends)",
+  "returns": "NAV_post(E_k) -> NAV_post(E_k+1) (certified repaired convention; identical to the live shadow perf block), entry rebalance cost included in NAV_post(0)"
+ },
+ "determinism_probe": {
+  "monthly_csv_sha256": "c00f22a9abdcc1b34ee9a8c8733005dbbcfbb75280776d7f0edd8fffad859880",
+  "note": "re-run with a different PYTHONHASHSEED must reproduce these hashes",
+  "targets_content_sha256": "056e80963e08b546759bcb74f46faffc028c17c6c851aea4045e3b2d8e2e32aa",
+  "trades_content_sha256": "adca7fc9d50f8aa7c280c5b759a94e539ea46f592ac0b779b9a2376ed377cc6d"
+ },
+ "determinism_rerun": "IDENTICAL — byte-level reproducibility across PYTHONHASHSEED runs",
+ "live_state_untouched": {
+  "byte_identical": true,
+  "sha256": "63493408c6796c135927c149aa8ea6dd3110969d65ea39f8c48be7a624fa6337"
+ }
+}

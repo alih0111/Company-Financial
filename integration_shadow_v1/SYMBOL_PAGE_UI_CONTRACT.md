@@ -8,9 +8,9 @@ and the canonical presentation rules. Verified against the live React app.
 | UI panel | Component | Endpoint | Fields consumed | Ordering required |
 | --- | --- | --- | --- | --- |
 | Upper profit/EPS chart | `ChartComponent` (data1) | `GET /api/SalesData` | `reportDate`, `percentage`, `wow` | oldest → newest (left→right) |
-| EPS-growth donut | `DonutChartComponent` | `GET /api/CompanyScores` | `epsGrowth` (0–100) | – |
+| EPS-growth donut | `DonutChartComponent` | `GET /api/summary` | `net_profit_growth_4_reports` (raw %, label «رشد سود خالص») | – |
 | Lower sales chart | `ChartComponent` (data2) | `GET /api/SalesData2` | `reportDate`, `percentage`, `wow` | oldest → newest |
-| Sales-growth donut | `DonutChartComponent` | `GET /api/CompanyScores` | `salesGrowth` (0–100) | – |
+| Sales-growth donut | `DonutChartComponent` | `GET /api/summary` | `sales_growth_12m` (raw %, label «رشد فروش») | – |
 | Price chart | `PriceChart` | `GET /api/price-history` | `date`,`jalali_date`,`closing_price`,… | newest→oldest (component handles) |
 | Company selector | `CompanySelect` | `GET /api/CompanyNames` | `string[]` | alphabetical |
 | Top KPI cards | `App.tsx` | `GET /api/summary` (`getAIStockSummary`) | `quant_score`, `sales_growth_12m`, `pe_approx`, category scores | – |
@@ -37,7 +37,18 @@ Key: `App.tsx` builds `aiRows` from `/api/summary` and looks up `currentMetric =
 - Ordering: **oldest → newest** (backend guarantees).
 - Empty history → `200 []` (explicit), not an error.
 
-### `GET /api/CompanyScores` (donuts)
+### Donuts (upper = net-profit growth, lower = sales growth)
+- Donut value = **raw factor growth %** from `GET /api/summary`
+  (`net_profit_growth_4_reports`, `sales_growth_12m`) — the same source as the
+  KPI cards, so the gauge reads «رشد سود خالص ۳۲۷.۳٪» / «رشد فروش ۷۴.۸٪».
+- Ring fill clamps to 0–100 (growth >100 → full ring, negative → empty ring);
+  the center label prints the unclamped raw value.
+- Donut renders only when the summary row exists and the value is non-null.
+- Factor **percentile ranks** (former donut source, `CompanyScores`
+  `epsGrowth`/`salesGrowth` = percentile × 100) remain visible in the score
+  breakdown section, not on the donuts.
+
+### `GET /api/CompanyScores`
 - `epsGrowth`, `salesGrowth`, `operation`, `salesStability`, `epsLevel` = canonical
   factor **percentile × 100** (0–100). Canonical-v1 does not materialize factor
   raw values, so a rank-based score is the honest presentation.

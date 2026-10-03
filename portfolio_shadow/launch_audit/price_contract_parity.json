@@ -1,0 +1,18 @@
+{
+ "sample_size": 233,
+ "compared_priced": 229,
+ "consistent_absent": 4,
+ "mismatches": [],
+ "max_abs_diff": 0.0,
+ "max_rel_diff": 0.0,
+ "per_class": {
+  "capital_increase": 30,
+  "rights_issue": 30,
+  "reverse_split": 17,
+  "unclassified_mechanical_reset": 30
+ },
+ "legs": "A=execute_score_portfolio_v1.build_adj (certified execution pipeline); B=repair_accounting_v1.build_adj (chain source imported by shadow observer); C=independent recomputation in certified factor order",
+ "calendars_identical_A_B": true,
+ "exact_session_raw_pClosing_checks": 229,
+ "conflicting_duplicate_pClosing_sessions": 0
+}

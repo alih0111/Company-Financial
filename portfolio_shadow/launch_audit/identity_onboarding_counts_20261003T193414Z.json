@@ -1,0 +1,15 @@
+{
+ "artifact_kind": "IDENTITY_ONBOARDING_COUNTS",
+ "batch_id": "ONBOARD-20261003T193414Z",
+ "appended_at_utc": "2026-10-03T19:34:14.710096+00:00",
+ "basis_run_id": "e5998f6d-93ab-4577-b13a-7b2f89c39c02",
+ "n_classified": 271,
+ "classification_counts": {
+  "HISTORICAL_MAP_VERIFIED": 235,
+  "FORWARD_MAP_VERIFIED": 36
+ },
+ "newly_appended_to_ledger": 36,
+ "ledger_total_onboarded": 36,
+ "with_price_cache": 36,
+ "note": "identity classification governs fill eligibility only; ranking universe and Top20 selection are untouched (spec §8)"
+}

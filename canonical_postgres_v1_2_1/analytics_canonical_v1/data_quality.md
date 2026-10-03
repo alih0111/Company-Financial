@@ -18,6 +18,13 @@ Data quality is computed from canonical sources and the run's
 | `missing_comparable_period` | medium | TTM prior comparable missing | TTM metric NULL | keep | factor neutral |
 | `low_confidence_corporate_action` | low | unconfirmed heuristic corporate action affects price | market metrics flagged | keep | DQ penalty |
 | `unknown_unit` | high | `canonical_unit` missing/unexpected for a fact | affected metric NULL | keep | factor neutral |
+| `VALUATION_INPUT_MISSING` | medium | direct valuation mode, but no PIT share snapshot → no market cap | PE/PS/PB NULL | keep | existing null policy (no change) |
+| `EPS_COMPARATIVE_SHARE_BASE_MISMATCH` | low | comparative EPS column (ord 2/3) deviates >1% from the referenced statement's own EPS | none (diagnostic) | keep | informational |
+| `EPS_NETPROFIT_SIGN_MISMATCH` | low | TTM EPS and TTM net profit have opposite signs | none (diagnostic) | keep | informational |
+| `TTM_METHOD_MISMATCH` | low | EPS and net profit resolved by different TTM methods (direct vs chain) | none (diagnostic) | keep | informational |
+
+The four valuation diagnostics are **reported, never scored**: `DQ.score()` is a
+function of the boolean components alone, so adding a flag cannot change a score.
 
 ## DataQualityScore (prototype)
 

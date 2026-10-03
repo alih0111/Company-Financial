@@ -1,0 +1,1201 @@
+{
+ "samples": [
+  {
+   "signal_date": "2021-11-30",
+   "symbol": "فپنتا",
+   "h21": {
+    "recomputed": 0.1518442623,
+    "bundle": 0.15184426229508174,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.0409380692,
+    "bundle": -0.04093806921675791,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.4514799636,
+    "bundle": 0.45147996357012743,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.3041729432,
+    "bundle": 0.3041729432476852,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2021-10-31",
+   "symbol": "کصدف",
+   "h21": {
+    "recomputed": -0.0550100018,
+    "bundle": -0.055010001818512455,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.0138206947,
+    "bundle": 0.013820694671758282,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.4048008729,
+    "bundle": 0.4048008728859793,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.7278780278,
+    "bundle": 0.7278780277529233,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-11-30",
+   "symbol": "غدام",
+   "h21": {
+    "recomputed": 0.2,
+    "bundle": 0.19999999999999996,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.063002681,
+    "bundle": -0.0630026809651475,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.3156062187,
+    "bundle": 0.31560621874652073,
+    "match": true
+   },
+   "h252": {
+    "bundle": NaN,
+    "status": "incomplete_window"
+   }
+  },
+  {
+   "signal_date": "2022-12-31",
+   "symbol": "سکرما",
+   "h21": {
+    "recomputed": 0.0837988827,
+    "bundle": 0.08379888268156432,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.8452091557,
+    "bundle": 0.8452091557221202,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 1.1188306865,
+    "bundle": 1.1188306865292397,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 1.1903611882,
+    "bundle": 1.1903611882376994,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2024-09-30",
+   "symbol": "سشرق",
+   "h21": {
+    "recomputed": 0.0426742532,
+    "bundle": 0.04267425320056906,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.443907184,
+    "bundle": 0.44390718401316454,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 1.169976817,
+    "bundle": 1.1699768170232048,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 1.7445761411,
+    "bundle": 1.7445761411059806,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-11-30",
+   "symbol": "ثبهساز",
+   "h21": {
+    "recomputed": 0.1568112133,
+    "bundle": 0.15681121331581238,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.0433639947,
+    "bundle": 0.04336399474375807,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.5539032659,
+    "bundle": 0.5539032658926475,
+    "match": true
+   },
+   "h252": {
+    "bundle": NaN,
+    "status": "incomplete_window"
+   }
+  },
+  {
+   "signal_date": "2023-08-30",
+   "symbol": "ساروم",
+   "h21": {
+    "recomputed": 0.0607857672,
+    "bundle": 0.06078576723498896,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.1428218433,
+    "bundle": 0.1428218433407462,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.2036076106,
+    "bundle": 0.20360761057573518,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.5748270264,
+    "bundle": 0.5748270264312465,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2022-06-29",
+   "symbol": "شوینده",
+   "h21": {
+    "recomputed": -0.255800119,
+    "bundle": -0.25580011897679955,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.257584771,
+    "bundle": -0.2575847709696608,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.0773349197,
+    "bundle": -0.07733491969066031,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.1717220936,
+    "bundle": 0.17172209362614232,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2024-03-30",
+   "symbol": "وتوشه",
+   "h21": {
+    "recomputed": -0.0256134309,
+    "bundle": -0.025613430908308144,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.0174343521,
+    "bundle": -0.017434352130865194,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.0176925565,
+    "bundle": -0.017692556467333587,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.3142712569,
+    "bundle": 0.31427125693654356,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-08-31",
+   "symbol": "فاذر",
+   "h21": {
+    "recomputed": 0.092226614,
+    "bundle": 0.09222661396574439,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.1462450593,
+    "bundle": 0.1462450592885376,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.1923583663,
+    "bundle": 0.19235836627140968,
+    "match": true
+   },
+   "h252": {
+    "bundle": NaN,
+    "status": "row_missing_in_daily"
+   }
+  },
+  {
+   "signal_date": "2025-10-29",
+   "symbol": "کاما",
+   "h21": {
+    "recomputed": -0.0561970747,
+    "bundle": -0.0561970746728252,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.0050038491,
+    "bundle": 0.005003849114703529,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.0473441166,
+    "bundle": -0.04734411656348869,
+    "match": true
+   },
+   "h252": {
+    "bundle": NaN,
+    "status": "incomplete_window"
+   }
+  },
+  {
+   "signal_date": "2021-01-31",
+   "symbol": "کلوند",
+   "h21": {
+    "recomputed": 0.0806017063,
+    "bundle": 0.08060170633138752,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.5154916929,
+    "bundle": -0.5154916928603502,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.4387745366,
+    "bundle": -0.43877453662757393,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.5124708096,
+    "bundle": -0.5124708095956703,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-09-30",
+   "symbol": "فگستر",
+   "h21": {
+    "recomputed": 0.1066561845,
+    "bundle": 0.10665618448637337,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.2762054507,
+    "bundle": 0.2762054507337528,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.1897274569,
+    "bundle": 0.1897274569200884,
+    "match": true
+   },
+   "h252": {
+    "bundle": NaN,
+    "status": "incomplete_window"
+   }
+  },
+  {
+   "signal_date": "2022-02-28",
+   "symbol": "زفکا",
+   "h21": {
+    "recomputed": 0.097826087,
+    "bundle": 0.09782608695652173,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.2880434783,
+    "bundle": 0.2880434782608696,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.1582760156,
+    "bundle": 0.15827601558823368,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.9866632926,
+    "bundle": 0.9866632925595653,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2023-01-31",
+   "symbol": "شیران",
+   "h21": {
+    "recomputed": 0.1388611389,
+    "bundle": 0.13886113886113893,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.8300686592,
+    "bundle": 0.8300686592168436,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.5026295048,
+    "bundle": 0.5026295047958158,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.5165750222,
+    "bundle": 0.5165750222417169,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2021-06-30",
+   "symbol": "شیراز",
+   "h21": {
+    "recomputed": 0.1619391439,
+    "bundle": 0.16193914388860242,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.55320612,
+    "bundle": 0.5532061199931235,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.2207323363,
+    "bundle": 0.22073233625580202,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.2107448984,
+    "bundle": 0.21074489841963828,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2024-05-29",
+   "symbol": "حسینا",
+   "h21": {
+    "recomputed": 0.2894021739,
+    "bundle": 0.28940217391304346,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.4815474987,
+    "bundle": 0.48154749870632996,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.5942578189,
+    "bundle": 0.5942578189282328,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.5756421006,
+    "bundle": 0.5756421005662966,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2021-02-28",
+   "symbol": "پارسان",
+   "h21": {
+    "recomputed": 0.1239623686,
+    "bundle": 0.1239623685666853,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.0370780299,
+    "bundle": 0.03707802988378539,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.658550083,
+    "bundle": 0.6585500830105147,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.7718695913,
+    "bundle": 0.7718695913464395,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2022-02-28",
+   "symbol": "فزر",
+   "h21": {
+    "recomputed": -0.0017452007,
+    "bundle": -0.0017452006980802626,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.301161581,
+    "bundle": 0.30116158103081836,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.1211264444,
+    "bundle": -0.12112644444376353,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.7874984677,
+    "bundle": 0.7874984676952881,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2021-08-31",
+   "symbol": "کسرا",
+   "h21": {
+    "recomputed": -0.1412987013,
+    "bundle": -0.14129870129870126,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.2353246753,
+    "bundle": -0.23532467532467527,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.08561782,
+    "bundle": -0.08561782003511575,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.1013589506,
+    "bundle": -0.10135895055392108,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-10-29",
+   "symbol": "پاسا",
+   "h21": {
+    "recomputed": -0.0175675676,
+    "bundle": -0.01756756756756761,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.0418918919,
+    "bundle": 0.0418918918918918,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.0709459459,
+    "bundle": -0.07094594594594594,
+    "match": true
+   },
+   "h252": {
+    "bundle": NaN,
+    "status": "incomplete_window"
+   }
+  },
+  {
+   "signal_date": "2021-09-29",
+   "symbol": "ستران",
+   "h21": {
+    "recomputed": -0.2121212121,
+    "bundle": -0.21212121212121227,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.1638001638,
+    "bundle": -0.16380016380016393,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.0532350532,
+    "bundle": -0.05323505323505329,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.1037411026,
+    "bundle": 0.10374110257391989,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2021-05-31",
+   "symbol": "قصفها",
+   "h21": {
+    "recomputed": -0.4437893342,
+    "bundle": -0.4437893342166279,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.187402721,
+    "bundle": -0.18740272095529276,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.5308857902,
+    "bundle": -0.5308857902085825,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.4144972676,
+    "bundle": -0.4144972676391999,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2021-04-28",
+   "symbol": "کیمیا",
+   "h21": {
+    "recomputed": 7.14,
+    "bundle": 7.140000000000001,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 6.25,
+    "bundle": 6.25,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 6.0632577772,
+    "bundle": 6.06325777716218,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 4.6066642674,
+    "bundle": 4.606664267432971,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-01-29",
+   "symbol": "خمحرکه",
+   "h21": {
+    "recomputed": 0.0490018149,
+    "bundle": 0.04900181488203259,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.165154265,
+    "bundle": 0.16515426497277685,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.3933613337,
+    "bundle": -0.39336133366322745,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.4312419382,
+    "bundle": -0.43124193816751455,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2024-04-30",
+   "symbol": "شستا",
+   "h21": {
+    "recomputed": -0.1086375779,
+    "bundle": -0.10863757791629569,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.0774710597,
+    "bundle": -0.0774710596616206,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.0809411527,
+    "bundle": 0.08094115270056657,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.6498032111,
+    "bundle": 0.6498032110940835,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-03-30",
+   "symbol": "سباقر",
+   "h21": {
+    "recomputed": 0.3411042945,
+    "bundle": 0.34110429447852764,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.2,
+    "bundle": 0.19999999999999996,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.7885049421,
+    "bundle": 0.7885049421001733,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 2.0937000227,
+    "bundle": 2.093700022679057,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2023-07-31",
+   "symbol": "غپینو",
+   "h21": {
+    "recomputed": -0.0520205403,
+    "bundle": -0.05202054029917391,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.2045099353,
+    "bundle": -0.20450993525340477,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.1312793034,
+    "bundle": -0.13127930341594107,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.0207453549,
+    "bundle": -0.020745354925256865,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-02-26",
+   "symbol": "دقاضی",
+   "h21": {
+    "recomputed": -0.0400593416,
+    "bundle": -0.040059341559734785,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.3826704841,
+    "bundle": 0.38267048410655824,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.1053660973,
+    "bundle": 0.10536609732195612,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.537934695,
+    "bundle": 0.5379346949887203,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2023-08-30",
+   "symbol": "کاسپین",
+   "h21": {
+    "recomputed": 0.0589519651,
+    "bundle": 0.058951965065502154,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.0070960699,
+    "bundle": 0.007096069868995469,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.1626637555,
+    "bundle": 0.1626637554585153,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.4006783745,
+    "bundle": 0.40067837452013033,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2024-09-30",
+   "symbol": "سپید",
+   "h21": {
+    "recomputed": -0.1495327103,
+    "bundle": -0.14953271028037385,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.2118380062,
+    "bundle": 0.21183800623052984,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.0903426791,
+    "bundle": 0.09034267912772598,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.0386908987,
+    "bundle": 0.03869089865819619,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2023-02-28",
+   "symbol": "دامین",
+   "h21": {
+    "recomputed": 0.4238510063,
+    "bundle": 0.42385100630820083,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.9982831554,
+    "bundle": 0.9982831553808404,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.4015523509,
+    "bundle": 0.40155235094092645,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.8024330452,
+    "bundle": 0.8024330452056894,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2023-01-31",
+   "symbol": "کلر",
+   "h21": {
+    "recomputed": 0.5320045298,
+    "bundle": 0.5320045297619145,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.8287168695,
+    "bundle": 0.8287168695181744,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.085293455,
+    "bundle": 0.08529345496355356,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.1505154174,
+    "bundle": 0.15051541740126706,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2024-08-31",
+   "symbol": "دبالک",
+   "h21": {
+    "recomputed": 0.0926517572,
+    "bundle": 0.0926517571884986,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.1309904153,
+    "bundle": 0.1309904153354633,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.1729401627,
+    "bundle": -0.17294016266204404,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.1875322313,
+    "bundle": -0.18753223131626973,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2021-04-28",
+   "symbol": "چکاپا",
+   "h21": {
+    "recomputed": -0.1770712909,
+    "bundle": -0.17707129094412333,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.2838150289,
+    "bundle": -0.28381502890173416,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.4030828516,
+    "bundle": -0.4030828516377649,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.3119983332,
+    "bundle": -0.3119983331871907,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2024-02-28",
+   "symbol": "کاذر",
+   "h21": {
+    "recomputed": -0.0231023102,
+    "bundle": -0.02310231023102305,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.2446323295,
+    "bundle": -0.24463232953301628,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.2041383926,
+    "bundle": -0.2041383925595286,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.2833092345,
+    "bundle": -0.2833092344565321,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2022-03-30",
+   "symbol": "شمواد",
+   "h21": {
+    "recomputed": -0.0381086803,
+    "bundle": -0.038108680310515175,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.203246295,
+    "bundle": 0.20324629498941427,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.0338743825,
+    "bundle": 0.03387438249823571,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.3434930347,
+    "bundle": 0.343493034712153,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2022-11-30",
+   "symbol": "ارفع",
+   "h21": {
+    "recomputed": 0.2422939068,
+    "bundle": 0.24229390681003582,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.5627240143,
+    "bundle": 0.5627240143369177,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.9840932456,
+    "bundle": 0.98409324564896,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.9919979996,
+    "bundle": 0.9919979996156887,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2024-07-31",
+   "symbol": "رانفور",
+   "h21": {
+    "recomputed": -0.0336134454,
+    "bundle": -0.03361344537815125,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.0436066318,
+    "bundle": -0.043606631841926036,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.1741994095,
+    "bundle": 0.17419940949352708,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.1576978505,
+    "bundle": 0.15769785046008966,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2026-05-31",
+   "symbol": "کهمدا",
+   "h21": {
+    "recomputed": 0.5346938776,
+    "bundle": 0.5346938775510204,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 1.2897959184,
+    "bundle": 1.2897959183673469,
+    "match": true
+   },
+   "h126": {
+    "bundle": NaN,
+    "status": "incomplete_window"
+   },
+   "h252": {
+    "bundle": NaN,
+    "status": "incomplete_window"
+   }
+  },
+  {
+   "signal_date": "2023-02-28",
+   "symbol": "بنو",
+   "h21": {
+    "recomputed": 0.4834619625,
+    "bundle": 0.4834619625137817,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.4829106946,
+    "bundle": 0.4829106945975745,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.1882579934,
+    "bundle": 0.188257993384785,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.0212238148,
+    "bundle": 0.021223814773980054,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2022-11-30",
+   "symbol": "غمهرا",
+   "h21": {
+    "recomputed": 0.1949343972,
+    "bundle": 0.19493439718432537,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.4667297042,
+    "bundle": 0.4667297042154843,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.8591442303,
+    "bundle": 0.8591442303433112,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.6963791933,
+    "bundle": 0.696379193295598,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-08-31",
+   "symbol": "غدام",
+   "h21": {
+    "recomputed": 0.0811149389,
+    "bundle": 0.08111493892890698,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.1703726903,
+    "bundle": 0.17037269025994362,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.0945818979,
+    "bundle": 0.09458189790165994,
+    "match": true
+   },
+   "h252": {
+    "bundle": NaN,
+    "status": "row_missing_in_daily"
+   }
+  },
+  {
+   "signal_date": "2022-01-31",
+   "symbol": "بشهاب",
+   "h21": {
+    "recomputed": -0.0899736779,
+    "bundle": -0.0899736779133764,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.2217436388,
+    "bundle": -0.221743638829066,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.3885388812,
+    "bundle": -0.388538881240151,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.2777267284,
+    "bundle": -0.27772672835516155,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2022-04-30",
+   "symbol": "زاگرس",
+   "h21": {
+    "recomputed": -0.1353637902,
+    "bundle": -0.1353637901861252,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.314986498,
+    "bundle": -0.31498649801433787,
+    "match": true
+   },
+   "h126": {
+    "recomputed": -0.358878216,
+    "bundle": -0.35887821599397596,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.097595651,
+    "bundle": 0.09759565099426015,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2022-10-31",
+   "symbol": "غشصفا",
+   "h21": {
+    "recomputed": 0.222002635,
+    "bundle": 0.22200263504611328,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.2773386034,
+    "bundle": 0.2773386034255598,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.8566237795,
+    "bundle": 0.8566237794502982,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.2960335131,
+    "bundle": 0.2960335131071681,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2024-05-29",
+   "symbol": "پرداخت",
+   "h21": {
+    "recomputed": 0.0166944908,
+    "bundle": 0.016694490818029983,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.1939899833,
+    "bundle": -0.1939899833055092,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.4173622705,
+    "bundle": 0.41736227045075114,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.4815304662,
+    "bundle": 0.48153046615385353,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2022-07-31",
+   "symbol": "کرماشا",
+   "h21": {
+    "recomputed": 0.1171026873,
+    "bundle": 0.11710268731090934,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.053390283,
+    "bundle": 0.05339028296849957,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.0982381207,
+    "bundle": 0.09823812066203952,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.1684989082,
+    "bundle": 0.16849890816248259,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2023-03-29",
+   "symbol": "شدوص",
+   "h21": {
+    "recomputed": 0.2862318841,
+    "bundle": 0.28623188405797095,
+    "match": true
+   },
+   "h63": {
+    "recomputed": 0.1404589344,
+    "bundle": 0.14045893439078383,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.3291062769,
+    "bundle": 0.3291062769215902,
+    "match": true
+   },
+   "h252": {
+    "recomputed": 0.6524998385,
+    "bundle": 0.6524998384671536,
+    "match": true
+   }
+  },
+  {
+   "signal_date": "2025-06-30",
+   "symbol": "مادیرا",
+   "h21": {
+    "recomputed": -0.1334316255,
+    "bundle": -0.13343162550681908,
+    "match": true
+   },
+   "h63": {
+    "recomputed": -0.0431256911,
+    "bundle": -0.043125691116844944,
+    "match": true
+   },
+   "h126": {
+    "recomputed": 0.1241376036,
+    "bundle": 0.12413760363452231,
+    "match": true
+   },
+   "h252": {
+    "recomputed": -0.1135003861,
+    "bundle": -0.11350038607513568,
+    "match": true
+   }
+  }
+ ],
+ "folad_example": {
+  "direct": 0.077447,
+  "outcome": 0.07744680851063834
+ },
+ "tested": 191,
+ "matches": 191
+}

@@ -1,0 +1,78 @@
+{
+ "runs": [
+  {
+   "run": "6bd0efed",
+   "as_of": "2026-09-24",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  },
+  {
+   "run": "d3ed9b8c",
+   "as_of": "2026-09-24",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  },
+  {
+   "run": "c6cb1579",
+   "as_of": "2026-09-24",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  },
+  {
+   "run": "489a6df0",
+   "as_of": "2026-09-25",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  },
+  {
+   "run": "5d432805",
+   "as_of": "2026-09-26",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  },
+  {
+   "run": "5fc702b2",
+   "as_of": "2026-09-29",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  },
+  {
+   "run": "9ebb4335",
+   "as_of": "2026-09-30",
+   "after_freeze": false,
+   "certain_last_trading_date": true
+  },
+  {
+   "run": "04a4e1da",
+   "as_of": "2026-09-30",
+   "after_freeze": false,
+   "certain_last_trading_date": true
+  },
+  {
+   "run": "85915095",
+   "as_of": "2026-10-01",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  },
+  {
+   "run": "5c284bd2",
+   "as_of": "2026-10-01",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  },
+  {
+   "run": "0d2e5bc7",
+   "as_of": "2026-10-01",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  },
+  {
+   "run": "e5998f6d",
+   "as_of": "2026-10-02",
+   "after_freeze": false,
+   "certain_last_trading_date": false
+  }
+ ],
+ "qualifying": 0,
+ "audit_at": "2026-10-03T23:10:35.121883+03:30"
+}

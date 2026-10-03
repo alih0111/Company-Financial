@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaChartLine,
@@ -14,8 +14,12 @@ import {
   FaDatabase,
   FaLayerGroup,
   FaBolt,
+  FaDollarSign,
+  FaCoins,
+  FaGem,
 } from "react-icons/fa";
 import { getAuthStatus } from "../hooks/useGetUser";
+import { API_BASE } from "../config";
 
 interface LandingProps {
   darkMode: boolean;
@@ -79,7 +83,10 @@ const HeroPreview: React.FC = () => {
   const area = `M0,${H} L${line} L${W},${H} Z`;
 
   return (
-    <div className="relative animate-fade-in-up" style={{ animationDelay: "200ms" }}>
+    <div
+      className="relative animate-fade-in-up"
+      style={{ animationDelay: "200ms" }}
+    >
       {/* کارت اصلی — اسپارک‌لاین بازار */}
       <div className="relative rounded-3xl border border-gray-200/70 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/60 backdrop-blur-xl shadow-2xl shadow-emerald-500/10 p-5 animate-float">
         <div className="flex items-center gap-2 mb-3">
@@ -137,16 +144,30 @@ const HeroPreview: React.FC = () => {
 
         <div className="mt-3 grid grid-cols-3 gap-2">
           {[
-            { label: "امتیاز", value: "۸۲٫۵", tone: "text-emerald-600 dark:text-emerald-400" },
-            { label: "رشد سود", value: "+۳۴٪", tone: "text-emerald-600 dark:text-emerald-400" },
-            { label: "P/E", value: "۶٫۱", tone: "text-amber-600 dark:text-amber-400" },
+            {
+              label: "امتیاز",
+              value: "۸۲٫۵",
+              tone: "text-emerald-600 dark:text-emerald-400",
+            },
+            {
+              label: "رشد سود",
+              value: "+۳۴٪",
+              tone: "text-emerald-600 dark:text-emerald-400",
+            },
+            {
+              label: "P/E",
+              value: "۶٫۱",
+              tone: "text-amber-600 dark:text-amber-400",
+            },
           ].map((s) => (
             <div
               key={s.label}
               className="rounded-xl bg-gray-50/80 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-700/40 px-2 py-2 text-center"
             >
               <p className="text-[10px] text-gray-400">{s.label}</p>
-              <p className={`text-sm font-black tabular-nums ${s.tone}`}>{s.value}</p>
+              <p className={`text-sm font-black tabular-nums ${s.tone}`}>
+                {s.value}
+              </p>
             </div>
           ))}
         </div>
@@ -177,8 +198,18 @@ const HeroPreview: React.FC = () => {
   );
 };
 
-// ── نوار متحرک نمادها (تزئینی) ──
-const TICKER = [
+// ── بازار در یک نگاه: کارت‌های کلیدی + نوار متحرک آهسته ──
+interface TickerItem {
+  key: string;
+  title: string;
+  price: number;
+  unit: string;
+  change_pct: number;
+  source: string;
+  group?: string;
+}
+
+const FALLBACK_TICKER = [
   { s: "فولاد", c: 2.4 },
   { s: "فملی", c: -1.1 },
   { s: "شپنا", c: 3.8 },
@@ -191,28 +222,357 @@ const TICKER = [
   { s: "کگل", c: 1.2 },
 ];
 
-const TickerTape: React.FC = () => (
-  <div className="relative z-10 mx-auto max-w-7xl px-6">
-    <div className="ticker-mask overflow-hidden rounded-2xl border border-gray-200/60 dark:border-gray-700/40 bg-white/50 dark:bg-gray-800/30 backdrop-blur py-2.5">
-      <div dir="ltr" className="flex w-max animate-marquee gap-8 px-4">
-        {[...TICKER, ...TICKER].map((t, i) => (
-          <span key={i} className="flex items-center gap-2 text-xs font-bold tabular-nums whitespace-nowrap">
-            <span className="text-gray-600 dark:text-gray-300">{t.s}</span>
-            <span className={t.c >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-500 dark:text-red-400"}>
-              {t.c >= 0 ? "+" : ""}{t.c.toFixed(1)}٪
-            </span>
-            <span className={t.c >= 0 ? "text-emerald-500" : "text-red-500"}>
-              {t.c >= 0 ? "▲" : "▼"}
-            </span>
-          </span>
-        ))}
-      </div>
-    </div>
-    <p className="mt-1.5 text-center text-[10px] text-gray-400 dark:text-gray-500">
-      نوار نمایشی — برای دیدن داده‌ی واقعی وارد داشبورد شوید
-    </p>
-  </div>
+const faInt = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
+const faOne = new Intl.NumberFormat("fa-IR", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+const faTwo = new Intl.NumberFormat("fa-IR", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+const faPct = new Intl.NumberFormat("fa-IR", {
+  maximumFractionDigits: 2,
+});
+
+// قیمت‌های بزرگ (سکه، طلای ۱۸ عیار و...) فشرده نمایش داده می‌شوند.
+const formatTickerPrice = (item: TickerItem): string => {
+  if (item.unit === "دلار") return faTwo.format(item.price);
+  if (item.unit === "تومان" && item.price >= 10_000_000)
+    return `${faOne.format(item.price / 1_000_000)} میلیون`;
+  return faInt.format(item.price);
+};
+
+const changeNode = (pct: number) => (
+  <>
+    <span
+      className={
+        pct >= 0
+          ? "text-emerald-600 dark:text-emerald-400"
+          : "text-red-500 dark:text-red-400"
+      }
+    >
+      {(pct >= 0 ? "+" : "−") + faPct.format(Math.abs(pct)) + "٪"}
+    </span>
+    <span className={pct >= 0 ? "text-emerald-500" : "text-red-500"}>
+      {pct >= 0 ? "▲" : "▼"}
+    </span>
+  </>
 );
+
+// این آیتم‌ها به‌جای نوار متحرک، کارت برجسته می‌گیرند.
+const HIGHLIGHT_CARDS: Record<
+  string,
+  { icon: React.ReactNode; gradient: string; ring: string }
+> = {
+  tedex: {
+    icon: <FaChartLine />,
+    gradient: "bg-gradient-to-br from-emerald-500 to-teal-600",
+    ring: "ring-emerald-500/30",
+  },
+  price_dollar_rl: {
+    icon: <FaDollarSign />,
+    gradient: "bg-gradient-to-br from-indigo-500 to-violet-600",
+    ring: "ring-indigo-500/30",
+  },
+  geram18: {
+    icon: <FaGem />,
+    gradient: "bg-gradient-to-br from-amber-500 to-orange-600",
+    ring: "ring-amber-500/30",
+  },
+  sekee: {
+    icon: <FaCoins />,
+    gradient: "bg-gradient-to-br from-yellow-500 to-amber-600",
+    ring: "ring-yellow-500/30",
+  },
+};
+
+// کد گروه صنعت TSETMC → نام فارسی صنعت
+const INDUSTRY_FA: Record<string, string> = {
+  "13": "معدنی",
+  "23": "پالایشی",
+  "27": "فلزات اساسی",
+  "34": "خودروسازی",
+  "39": "سرمایه‌گذاری",
+  "43": "دارویی",
+  "44": "پتروشیمی",
+  "57": "بانکی",
+  "68": "صندوق طلا",
+};
+
+// ترتیب نمایش گروه‌ها در نوار
+const INDUSTRY_ORDER = [
+  "بانکی",
+  "فلزات اساسی",
+  "معدنی",
+  "پالایشی",
+  "پتروشیمی",
+  "خودروسازی",
+  "دارویی",
+  "سرمایه‌گذاری",
+  "صندوق طلا",
+];
+
+const INDUSTRY_STYLE: Record<string, string> = {
+  بانکی:
+    "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 ring-indigo-500/25",
+  "فلزات اساسی":
+    "bg-amber-500/10 text-amber-600 dark:text-amber-400 ring-amber-500/25",
+  معدنی:
+    "bg-orange-500/10 text-orange-600 dark:text-orange-400 ring-orange-500/25",
+  پالایشی: "bg-sky-500/10 text-sky-600 dark:text-sky-400 ring-sky-500/25",
+  پتروشیمی: "bg-teal-500/10 text-teal-600 dark:text-teal-400 ring-teal-500/25",
+  خودروسازی:
+    "bg-violet-500/10 text-violet-600 dark:text-violet-400 ring-violet-500/25",
+  دارویی:
+    "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-emerald-500/25",
+  سرمایه‌گذاری:
+    "bg-fuchsia-500/10 text-fuchsia-600 dark:text-fuchsia-400 ring-fuchsia-500/25",
+  "صندوق طلا":
+    "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400 ring-yellow-500/25",
+};
+
+const TAPE_SPEED_PX_PER_SEC = 30;
+
+// آیتم‌های نوار را بر اساس صنعت گروه‌بندی و مرتب می‌کند.
+const buildTapeGroups = (items: TickerItem[]) => {
+  const byName = new Map<string, TickerItem[]>();
+  for (const t of items) {
+    const name = INDUSTRY_FA[t.group ?? ""] ?? "سایر";
+    const list = byName.get(name);
+    if (list) list.push(t);
+    else byName.set(name, [t]);
+  }
+  return [...byName.entries()]
+    .map(([name, list]) => ({ name, items: list }))
+    .sort((a, b) => {
+      const ia = INDUSTRY_ORDER.indexOf(a.name);
+      const ib = INDUSTRY_ORDER.indexOf(b.name);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    });
+};
+
+const TickerTape: React.FC = () => {
+  const [items, setItems] = useState<TickerItem[] | null>(null);
+  const [live, setLive] = useState<"loading" | "live" | "off">("loading");
+  const marqueeRef = React.useRef<HTMLDivElement>(null);
+  const offsetRef = React.useRef(0); // موقعیت فعلی نوار (scrollLeft)
+  const hoverPauseRef = React.useRef(false);
+  const draggingRef = React.useRef<{
+    startX: number;
+    startScroll: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/market/ticker`);
+        if (!res.ok) throw new Error(String(res.status));
+        const data = (await res.json()) as { items?: TickerItem[] };
+        if (!alive) return;
+        if (data.items && data.items.length > 0) {
+          setItems(data.items);
+          setLive("live");
+        } else {
+          setLive("off");
+        }
+      } catch {
+        if (alive) setLive("off");
+      }
+    };
+    load();
+    const timer = setInterval(load, 60_000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, []);
+
+  // اسکرول خودکار با تایمر و محاسبه‌ی dt — سرعت ثابت و مستقل از تعداد آیتم‌ها؛
+  // در تب مخفی rAF معلق می‌شود، به همین دلیل از setInterval استفاده می‌کنیم.
+  // هنگام hover یا کشیدن با موس متوقف می‌شود.
+  useEffect(() => {
+    const el = marqueeRef.current;
+    if (!el) return;
+    let last = performance.now();
+    const id = window.setInterval(() => {
+      const now = performance.now();
+      const dt = Math.min((now - last) / 1000, 0.5);
+      last = now;
+      const half = el.scrollWidth / 2; // عرض یک ستِ کامل از محتوا
+      if (half > 0 && !hoverPauseRef.current && !draggingRef.current) {
+        offsetRef.current -= TAPE_SPEED_PX_PER_SEC * dt; // حرکت به سمت راست (حس RTL)
+        if (offsetRef.current < 0) offsetRef.current += half;
+        if (offsetRef.current > half) offsetRef.current -= half;
+        el.scrollLeft = offsetRef.current;
+      }
+    }, 16);
+    return () => window.clearInterval(id);
+  }, [live]);
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = marqueeRef.current;
+    if (!el) return;
+    draggingRef.current = { startX: e.clientX, startScroll: el.scrollLeft };
+    // با PointerEvent سینتتیک (و بعضی حالت‌های نادر) ممکن است خطا بدهد؛ بحرانی نیست
+    try {
+      el.setPointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+  };
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = marqueeRef.current;
+    const d = draggingRef.current;
+    if (!el || !d) return;
+    const half = el.scrollWidth / 2;
+    if (half <= 0) return;
+    // محتوا دنبال موس حرکت می‌کند؛ اسکرول در محدوده‌ی محتوای تکرارشده wrap می‌شود
+    let s = d.startScroll - (e.clientX - d.startX);
+    s = ((s % half) + half) % half;
+    offsetRef.current = s;
+    el.scrollLeft = s;
+  };
+  const endDrag = () => {
+    draggingRef.current = null;
+  };
+
+  const isLive = live === "live" && items !== null;
+  const highlightItems = isLive
+    ? items!.filter((t) => HIGHLIGHT_CARDS[t.key])
+    : [];
+  // نوار متحرک فقط سهام + صندوق‌های مثقال و عیار؛ بقیه (سکه‌ها، یورو، صندوق طلا/کهربا و...) نمایش داده نمی‌شوند
+  const TAPE_EXCLUDE = new Set(["tedex", "طلا", "کهربا"]);
+  const tapeItems = isLive
+    ? items!.filter((t) => t.source === "tsetmc" && !TAPE_EXCLUDE.has(t.key))
+    : [];
+  const tapeGroups = isLive ? buildTapeGroups(tapeItems) : [];
+
+  return (
+    <div className="relative z-10 mx-auto max-w-7xl px-6">
+      {isLive && highlightItems.length > 0 && (
+        <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {highlightItems.map((t) => {
+            const card = HIGHLIGHT_CARDS[t.key];
+            return (
+              <div
+                key={t.key}
+                className="flex items-center gap-3 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/60 dark:bg-gray-800/40 px-4 py-3.5 backdrop-blur-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+              >
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-white text-base ring-1 shadow-md ${card.ring} ${card.gradient}`}
+                >
+                  {card.icon}
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400">
+                    {t.title}
+                  </p>
+                  <p className="text-base sm:text-lg font-black tabular-nums text-gray-800 dark:text-white leading-tight">
+                    {formatTickerPrice(t)}
+                    <span className="mr-1 text-[10px] font-medium text-gray-400">
+                      {t.unit}
+                    </span>
+                  </p>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-[11px] font-bold tabular-nums">
+                    {changeNode(t.change_pct)}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {(!isLive || tapeItems.length > 0) && (
+        <div
+          ref={marqueeRef}
+          dir="ltr"
+          className="ticker-mask overflow-hidden rounded-2xl border border-gray-200/60 dark:border-gray-700/40 bg-white/50 dark:bg-gray-800/30 backdrop-blur py-2.5 cursor-grab select-none active:cursor-grabbing"
+          style={{ touchAction: "pan-y" }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onMouseEnter={() => (hoverPauseRef.current = true)}
+          onMouseLeave={() => (hoverPauseRef.current = false)}
+        >
+          <div className="flex w-max gap-8 px-4">
+            {isLive
+              ? [...tapeGroups, ...tapeGroups].map((g, gi) => (
+                  <React.Fragment key={`${g.name}-${gi}`}>
+                    <span
+                      className={`inline-flex shrink-0 items-center self-center rounded-full px-2.5 py-1 text-[10px] font-bold whitespace-nowrap ring-1 ${
+                        INDUSTRY_STYLE[g.name] ??
+                        "bg-gray-500/10 text-gray-500 ring-gray-500/20"
+                      }`}
+                    >
+                      {g.name}
+                    </span>
+                    {g.items.map((t) => (
+                      <span
+                        key={`${t.key}-${gi}`}
+                        className="flex items-center gap-2 text-xs font-bold tabular-nums whitespace-nowrap"
+                      >
+                        <span className="text-gray-800 dark:text-gray-100">
+                          {formatTickerPrice(t)}
+                          {/* <span className="mr-0.5 text-[9px] font-medium text-gray-400">
+                            {t.unit}
+                          </span> */}
+                        </span>
+                        <span className="text-gray-600 dark:text-gray-300">
+                          {t.title}
+                        </span>
+                        {changeNode(t.change_pct)}
+                      </span>
+                    ))}
+                  </React.Fragment>
+                ))
+              : [...FALLBACK_TICKER, ...FALLBACK_TICKER].map((t, i) => (
+                  <span
+                    key={`fb-${i}`}
+                    className="flex items-center gap-2 text-xs font-bold tabular-nums whitespace-nowrap"
+                  >
+                    <span className="text-gray-600 dark:text-gray-300">
+                      {t.s}
+                    </span>
+                    <span
+                      className={
+                        t.c >= 0
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-red-500 dark:text-red-400"
+                      }
+                    >
+                      {t.c >= 0 ? "+" : ""}
+                      {t.c.toFixed(1)}٪
+                    </span>
+                    <span
+                      className={t.c >= 0 ? "text-emerald-500" : "text-red-500"}
+                    >
+                      {t.c >= 0 ? "▲" : "▼"}
+                    </span>
+                  </span>
+                ))}
+          </div>
+        </div>
+      )}
+      <p className="mt-1.5 flex items-center justify-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
+        {isLive ? (
+          <>
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse-glow" />
+            <span className="text-emerald-600/80 dark:text-emerald-400/80">
+              داده‌ی زنده
+            </span>
+            از TSETMC و TGJU — به‌روزرسانی خودکار هر دقیقه
+          </>
+        ) : (
+          "نوار نمایشی — برای دیدن داده‌ی واقعی وارد داشبورد شوید"
+        )}
+      </p>
+    </div>
+  );
+};
 
 const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
   const { isAdmin, username } = getAuthStatus();
@@ -361,9 +721,9 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
               className="animate-fade-in-up mx-auto mt-6 max-w-xl text-base leading-8 text-gray-500 dark:text-gray-400 sm:text-lg lg:mx-0"
               style={{ animationDelay: "160ms" }}
             >
-              داده‌های بنیادی، صورت‌های مالی و قیمت بازار را یکپارچه می‌کنیم و با
-              مدل امتیازدهی نسخه‌دار و PIT-safe، تصویری شفاف از عملکرد هر شرکت به شما
-              می‌دهیم.
+              داده‌های بنیادی، صورت‌های مالی و قیمت بازار را یکپارچه می‌کنیم و
+              با مدل امتیازدهی نسخه‌دار و PIT-safe، تصویری شفاف از عملکرد هر
+              شرکت به شما می‌دهیم.
             </p>
 
             <div
@@ -422,7 +782,10 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
       </div>
 
       {/* ── Access cards ── */}
-      <section id="access" className="relative z-10 mx-auto max-w-7xl px-6 pb-20">
+      <section
+        id="access"
+        className="relative z-10 mx-auto max-w-7xl px-6 pb-20"
+      >
         <div className="mb-8 text-center">
           <h3 className="text-2xl font-bold text-gray-800 dark:text-white sm:text-3xl">
             به کجا می‌خواهید بروید؟

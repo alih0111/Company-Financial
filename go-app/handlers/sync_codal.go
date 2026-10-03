@@ -16,6 +16,7 @@ type SyncCodalRequest struct {
 	DryRun   bool   `json:"dry_run"`   // فقط کشف، بدون تغییر داده
 	MaxPages int    `json:"max_pages"` // حداکثر صفحه از هر feed
 	Limit    int    `json:"limit"`     // حداکثر گزارش جدید
+	Symbol   string `json:"symbol"`    // جمع‌آوری فقط برای این نماد (خالی = feed سراسری)
 }
 
 // RunSyncCodal دستور py/sync_codal.py را اجرا می‌کند.
@@ -44,6 +45,9 @@ func RunSyncCodal(c *gin.Context) {
 	}
 	if req.Limit > 0 {
 		args = append(args, "--limit", strconv.Itoa(req.Limit))
+	}
+	if req.Symbol != "" {
+		args = append(args, "--symbol", req.Symbol)
 	}
 
 	cmd := exec.Command("python", args...)

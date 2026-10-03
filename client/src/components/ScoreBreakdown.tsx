@@ -33,6 +33,10 @@ type Factor = {
   good: boolean | null;
   neutralWhenNull?: boolean;
   invalid?: boolean;
+  // Input absent (no PIT share snapshot / no TTM quantity). Distinct from
+  // "invalid": a missing input is not a wrong value and must not be labelled
+  // as one.
+  missing?: boolean;
   note?: string;
 };
 
@@ -122,17 +126,22 @@ const FactorRow: React.FC<{ f: Factor; dark: boolean }> = ({ f, dark }) => {
               className="h-full rounded-full transition-all duration-700 ease-out"
               style={{
                 width: `${Math.min(100, rank * 100)}%`,
-                background: f.invalid || (!hasData && f.neutralWhenNull)
-                  ? dark
-                    ? "#374151"
-                    : "#d1d5db"
-                  : `linear-gradient(90deg, ${rankColor(rank)}, ${rankColor(rank)}dd)`,
+                background:
+                  f.invalid || f.missing || (!hasData && f.neutralWhenNull)
+                    ? dark
+                      ? "#374151"
+                      : "#d1d5db"
+                    : `linear-gradient(90deg, ${rankColor(rank)}, ${rankColor(rank)}dd)`,
               }}
             />
           )}
         </div>
 
-        {f.invalid ? (
+        {f.missing ? (
+          <span className="text-[10px] text-gray-400 shrink-0 w-24 text-left">
+            داده کافی نیست
+          </span>
+        ) : f.invalid ? (
           <span className="text-[10px] text-red-500 font-medium shrink-0 w-24 text-left">
             نامعتبر → 0
           </span>
@@ -189,10 +198,20 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
         ? "glow-amber"
         : "glow-red";
 
-  const peInvalid =
-    metric.pe_approx == null || metric.pe_approx <= 0 || metric.pe_approx > 60;
-  const psInvalid =
-    metric.ps_ratio == null || metric.ps_ratio <= 0;
+  // Three distinct valuation input states. A missing input (no PIT market cap /
+  // no TTM quantity) is deliberately NOT labelled "invalid": the score penalty
+  // is unchanged, but the UI must say what actually happened.
+  const peMissing = metric.pe_approx == null;
+  const peInvalid = !peMissing && (metric.pe_approx <= 0 || metric.pe_approx > 60);
+  const psMissing = metric.ps_ratio == null;
+  const psInvalid = !psMissing && metric.ps_ratio <= 0;
+  const pbMissing = metric.pb_ratio == null;
+  const pbInvalid = !pbMissing && metric.pb_ratio <= 0;
+  const valuationPenaltyReasons = peInvalid
+    ? ["P/E نامعتبر یا خارج از بازه (−۸)"]
+    : peMissing
+      ? ["P/E محاسبه نشد؛ ورودی ارزش‌گذاری موجود نیست (جریمه‌ی مدل ثابت: −۸)"]
+      : [];
 
   const categories: Category[] = [
     {
@@ -404,13 +423,13 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
       maxScore: 16,
       actualScore: metric.valuation_score,
       penalty: metric.valuation_penalty,
-      penaltyReasons: peInvalid ? ["P/E نامعتبر یا خارج از بازه (−۸)"] : [],
+      penaltyReasons: valuationPenaltyReasons,
       accentColor: "border-l-purple-500",
       accentBg: "bg-purple-500/5 dark:bg-purple-500/5",
       factors: [
         {
           label: "P/E (TTM)",
-          hint: "قیمت ÷ سود هر سهم ۱۲ماهه — فقط بین ۰ تا ۶۰ معتبر است؛ خارج از آن بدترین رتبه + جریمه",
+          hint: "ارزش بازار ÷ سود خالص ۱۲ماهه — فقط بین ۰ تا ۶۰ معتبر است؛ خارج از آن بدترین رتبه + جریمه",
           value: metric.pe_approx,
           display: num(metric.pe_approx, 1),
           weight: 11,
@@ -420,11 +439,16 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
               ? null
               : metric.pe_approx > 0 && metric.pe_approx < 15,
           invalid: peInvalid,
-          note: peInvalid ? "نامعتبر → جریمه‌ی ارزش‌گذاری" : "پایین = ارزان‌تر",
+          missing: peMissing,
+          note: peMissing
+            ? "ورودی محاسبه موجود نیست (ارزش بازار/سود دوازده‌ماهه)"
+            : peInvalid
+              ? "نامعتبر → جریمه‌ی ارزش‌گذاری"
+              : "پایین = ارزان‌تر",
         },
         {
           label: "P/S",
-          hint: "هم‌ارز P/E × حاشیه‌ی خالص — قیمت ÷ فروش هر سهم؛ فقط وقتی محاسبه می‌شود که P/E و حاشیه معتبر باشند",
+          hint: "ارزش بازار ÷ درآمد ۱۲ماهه — مستقل از علامت P/E محاسبه می‌شود",
           value: metric.ps_ratio,
           display: num(metric.ps_ratio, 2),
           weight: 3,
@@ -434,10 +458,11 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
               ? null
               : metric.ps_ratio > 0 && metric.ps_ratio < 3,
           invalid: psInvalid,
+          missing: psMissing,
         },
         {
           label: "P/B",
-          hint: "قیمت به ارزش دفتری — هم‌ارز P/E × ROE؛ پایین‌تر = ارزان‌تر نسبت به ارزش دفتری",
+          hint: "ارزش بازار ÷ حقوق صاحبان سهام — مستقل از علامت P/E محاسبه می‌شود",
           value: metric.pb_ratio,
           display: num(metric.pb_ratio, 2),
           weight: 2,
@@ -446,7 +471,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
             metric.pb_ratio == null
               ? null
               : metric.pb_ratio > 0 && metric.pb_ratio < 2,
-          invalid: metric.pb_ratio == null || metric.pb_ratio <= 0,
+          invalid: pbInvalid,
+          missing: pbMissing,
         },
 
       ],

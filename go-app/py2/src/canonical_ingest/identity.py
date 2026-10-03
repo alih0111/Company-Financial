@@ -25,6 +25,7 @@ def resolve_company(
     legacy_company_id: str | None = None,
     ins_code: str | int | None = None,
     name: str | None = None,
+    symbol: str | None = None,
 ) -> Optional[str]:
     if legacy_company_id:
         got = _scalar(
@@ -52,6 +53,27 @@ def resolve_company(
                WHERE a.alias_value=%s AND a.alias_type IN ('company_name','symbol')
                LIMIT 1""",
             (name.strip(),),
+        )
+        if got:
+            return got
+    # نام قانونی کدال اغلب با alias های ما یکی نیست؛ نماد کدال مطمئن‌ترین
+    # کلید دوم است (ستون codal_symbol در core.securities برای همین است).
+    if symbol not in (None, ""):
+        got = _scalar(
+            cur,
+            "SELECT company_id FROM core.securities WHERE codal_symbol=%s "
+            "AND company_id IS NOT NULL LIMIT 1",
+            (symbol.strip(),),
+        )
+        if got:
+            return got
+        got = _scalar(
+            cur,
+            """SELECT s.company_id FROM core.security_aliases a
+               JOIN core.securities s ON s.id = a.security_id
+               WHERE a.alias_value=%s AND a.alias_type = 'symbol'
+               LIMIT 1""",
+            (symbol.strip(),),
         )
         if got:
             return got

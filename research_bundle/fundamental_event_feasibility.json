@@ -1,0 +1,26 @@
+{
+ "total_events_with_real_pub": 11743,
+ "with_valid_yoy": 11660,
+ "eligible_events": 11489,
+ "distinct_entry_dates": 930,
+ "qualifying_dates_ge10": 278,
+ "events_on_qualifying_dates": 9810,
+ "symbols": 164,
+ "year_distribution": {
+  "2021": 1185,
+  "2022": 2092,
+  "2023": 2200,
+  "2024": 2253,
+  "2025": 2377,
+  "2026": 1382
+ },
+ "fe1_feasible": true,
+ "fe8_concentration": {
+  "max_security_share": 0.0089,
+  "max_year_share": 0.2069,
+  "pass": true
+ },
+ "liquidity_20": 69.61,
+ "liquidity_30": 56.95,
+ "liquidity_60": 36.6
+}

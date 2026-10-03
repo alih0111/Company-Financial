@@ -8,6 +8,22 @@ import (
 	"strings"
 )
 
+// MaxPriceHistoryLimit سقف تعداد رکوردهای تاریخچه‌ی قیمت است؛ هم‌راستا با
+// handlers.MaxPriceHistoryLimit. کلاینت برای زوم‌اوت تا این عدد درخواست می‌دهد.
+const MaxPriceHistoryLimit = 100000
+
+// preallocLimit ظرفیت اولیه‌ی اسلایس خروجی را محدود می‌کند تا درخواست‌های
+// بزرگ (زوم‌اوت نامحدود) بی‌جهت حافظه رزرو نکنند.
+func preallocLimit(limit int) int {
+	if limit > 4096 {
+		return 4096
+	}
+	if limit < 0 {
+		return 0
+	}
+	return limit
+}
+
 // MarketInputRow is the normalized market-price shape used for comparison. It
 // mirrors the legacy /api/price-history response fields.
 type MarketInputRow struct {
@@ -190,8 +206,10 @@ func (p *PG) PriceHistory(ctx context.Context, symbol string, limit int) ([]Mark
 	if p == nil || p.db == nil {
 		return nil, fmt.Errorf("canonical postgres not configured")
 	}
-	if limit <= 0 || limit > 5000 {
+	if limit <= 0 {
 		limit = 365
+	} else if limit > MaxPriceHistoryLimit {
+		limit = MaxPriceHistoryLimit
 	}
 	securityID, err := p.ResolveSecurityID(ctx, symbol)
 	if err != nil {
@@ -221,7 +239,7 @@ func (p *PG) PriceHistory(ctx context.Context, symbol string, limit int) ([]Mark
 		return nil, err
 	}
 	defer rows.Close()
-	out := make([]MarketInputRow, 0, limit)
+	out := make([]MarketInputRow, 0, preallocLimit(limit))
 	for rows.Next() {
 		var r MarketInputRow
 		var tradeDate any

@@ -1,0 +1,150 @@
+{
+ "reconciliation": {
+  "canonical_monthly_rows": 12180,
+  "canonical_rows_with_published_at_db": 0,
+  "canonical_rows_with_published_at_recovered": 9615,
+  "matched_codal_publication_rows": 12183,
+  "unique_source_report_ids": 12183,
+  "unique_tracing_nos": 12183,
+  "unique_security_periods": 9615,
+  "original_publications": 9615,
+  "corrections": 2568,
+  "multiple_publications_same_period": 2128,
+  "duplicate_source_report_ids": 0,
+  "one_source_report_matched_to_multiple_canonical_rows": 0,
+  "ambiguous_excluded": 6,
+  "not_found": 2559,
+  "final_event_stream_rows": 12183,
+  "canonical_rows_with_recovered_published_at": 9615,
+  "old_stream_monthly_rows_11743_reconciliation": "11,743 old-stream rows = 9,615 original publications + 2,128 latest-correction rows; the old stream dropped 440 earlier correction letters. The V1.1 stream carries every publication: 9615 originals + 2568 corrections = 12183."
+ },
+ "universe": {
+  "total_event_rows": 12183,
+  "eligible_acceleration_events": 6091,
+  "qualifying_signal_entry_dates_ge10": 203,
+  "events_on_qualifying_dates": 5442,
+  "distinct_signal_entry_dates": 390,
+  "symbols": 160,
+  "events_by_year": {
+   "2021": 556,
+   "2022": 962,
+   "2023": 1213,
+   "2024": 1327,
+   "2025": 1268,
+   "2026": 765
+  },
+  "max_symbol_concentration": 0.010343129207026762,
+  "max_symbol": "دفرا",
+  "max_year_concentration": 0.21786241996388114,
+  "max_year": "2024",
+  "correction_event_rows": 2568,
+  "eligible_correction_events": 0,
+  "ineligibility_reasons": {
+   "CURRENT_VALUE_VERSION_UNVERIFIABLE": 1576,
+   "NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PERIOD_PRIOR_YEAR": 793,
+   "PREVIOUS_PERIOD_NOT_KNOWN(FUTURE_PUB)": 306,
+   "CURRENT_VALUE_VERSION_UNVERIFIABLE;PREVIOUS_PERIOD_NOT_KNOWN(FUTURE_PUB)": 301,
+   "CURRENT_VALUE_VERSION_UNVERIFIABLE;NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PERIOD_PRIOR_YEAR": 155,
+   "NO_PREVIOUS_PERIOD_PRIOR_YEAR": 153,
+   "INVALID_CURRENT_SALES;NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PERIOD": 47,
+   "NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PERIOD": 33,
+   "CURRENT_VALUE_VERSION_UNVERIFIABLE;NO_PRIOR_YEAR_COMPARATOR;PREVIOUS_PERIOD_NOT_KNOWN(FUTURE_PUB)": 30,
+   "NO_PRIOR_YEAR_COMPARATOR;PREVIOUS_PERIOD_NOT_KNOWN(FUTURE_PUB)": 27,
+   "CURRENT_VALUE_VERSION_UNVERIFIABLE;NO_PREVIOUS_PERIOD_PRIOR_YEAR": 24,
+   "NO_PRIOR_YEAR_COMPARATOR": 21,
+   "CURRENT_VALUE_VERSION_UNVERIFIABLE;NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PERIOD": 15,
+   "PREVIOUS_PERIOD_NOT_KNOWN(UNVERIFIED_IN_WINDOW)": 8,
+   "CURRENT_VALUE_VERSION_UNVERIFIABLE;NO_PRIOR_YEAR_COMPARATOR": 7,
+   "INVALID_CURRENT_SALES;NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PERIOD_PRIOR_YEAR": 7,
+   "CURRENT_VALUE_VERSION_UNVERIFIABLE;PRIOR_YEAR_NOT_KNOWN_AT_EVENT_TIME(FUTURE_PUB)": 5,
+   "INVALID_CURRENT_SALES;CURRENT_VALUE_VERSION_UNVERIFIABLE;NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PERIOD": 5,
+   "INVALID_CURRENT_SALES;CURRENT_VALUE_VERSION_UNVERIFIABLE;NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PERIOD_PRIOR_YEAR": 4,
+   "INVALID_CURRENT_SALES;CURRENT_VALUE_VERSION_UNVERIFIABLE;NO_PRIOR_YEAR_COMPARATOR;PREVIOUS_PERIOD_NOT_KNOWN(FUTURE_PUB)": 3,
+   "INVALID_CURRENT_SALES;CURRENT_VALUE_VERSION_UNVERIFIABLE;NO_PREVIOUS_PERIOD_PRIOR_YEAR": 2,
+   "INVALID_CURRENT_SALES": 1,
+   "CURRENT_VALUE_VERSION_UNVERIFIABLE;PREVIOUS_PERIOD_NOT_KNOWN(UNVERIFIED_IN_WINDOW)": 1
+  },
+  "fe1_preoutcome_pass": true,
+  "fe8_preoutcome_pass": true,
+  "qualifying_dates_ge24_check": true,
+  "events_ge500_check": true,
+  "yoy_sanity": {
+   "median": 0.4663087378250983,
+   "p1": -0.7403887706190093,
+   "p99": 5.267201953996269
+  },
+  "acceleration_sanity": {
+   "median": 0.0,
+   "p1": -4.067099163521027,
+   "p99": 3.8006537133917466
+  }
+ },
+ "ei_gates": {
+  "EI1_one_row_per_publication": {
+   "stream_rows": 12183,
+   "distinct_source_ids": 12183,
+   "pass": true
+  },
+  "EI2_no_unexplained_duplicates": {
+   "duplicate_source_report_ids": 0,
+   "one_source_multi_canonical": 0,
+   "multi_publication_periods_all_have_correction": true,
+   "pass": true
+  },
+  "EI3_real_publication_times": {
+   "raw_parse_failures": 0,
+   "pass": true
+  },
+  "EI4_entry_strictly_after_publication_date": {
+   "checked": 9615,
+   "violations": 0,
+   "pass": true
+  },
+  "EI5_current_and_prior_year_pit_known": {
+   "eligible_events": 6091,
+   "prior_year_knownness_mix": {
+    "PUB_VERIFIED": 5346,
+    "PRE_WINDOW": 745
+   },
+   "previous_period_knownness_mix": {
+    "PUB_VERIFIED": 6090,
+    "PRE_WINDOW": 1
+   },
+   "pass": true
+  },
+  "EI6_previous_period_distinct_earlier": {
+   "violations": 0,
+   "same_period_correction_used_as_predecessor": 0,
+   "pass": true
+  },
+  "EI7_corrections_preserve_knowledge": {
+   "correction_rows": 2568,
+   "order_violations": 0,
+   "originals_retained": 9615,
+   "correction_rows_carry_no_canonical_value": true,
+   "pass": true
+  },
+  "EI8_outcomes_physically_inaccessible": {
+   "data_sources_read": [
+    "postgresql: core.companies, core.securities (identity)",
+    "postgresql: fundamentals.monthly_activities (canonical monthly sales history)",
+    "postgresql: market.price_observations SELECT DISTINCT trade_date (calendar only)",
+    "local cache: historical_codal_backfill/output/pub_backfill/*.json (letter metadata)"
+   ],
+   "outcome_or_price_level_reads": 0,
+   "note": "construction code touches trade DATES only; no adjusted price, return, or outcome file is opened; the build script is the audit evidence",
+   "pass": true
+  }
+ },
+ "artifacts": {
+  "universe_parquet": "D:\\RFA\\Company-Financial\\fundamental_event_research\\monthly_sales_events_universe_v1_1.parquet",
+  "universe_parquet_sha256": "bcd69f109fd1a3bebbaadac0b82d99dbe5047777186216411509b9be850c9895",
+  "old_preregistration": "FUNDAMENTAL_EVENT_V1_PREREGISTRATION.md",
+  "old_preregistration_sha256": "5dff31d525a58b6474d06956eab5abff5a93ff898f3571358ac0d3b637c66fd1",
+  "build_script_sha256": "8afbaa8942474b6445caac5048cb959a96082074b48f9c32d962805c716dcff1",
+  "ei_gates_all_pass": true,
+  "new_preregistration": "FUNDAMENTAL_EVENT_V1_PREREGISTRATION_V1_1.md",
+  "new_preregistration_sha256": "c1dacaf19377c5c8f89fd15d9ed782aef5db84317b2d90031cc42d31c543d9d4",
+  "superseded_preregistration_sha256": "5dff31d525a58b6474d06956eab5abff5a93ff898f3571358ac0d3b637c66fd1"
+ }
+}

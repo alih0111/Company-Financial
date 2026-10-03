@@ -75,8 +75,15 @@ def test_market_revision_detection_and_no_fabrication():
     rev = P2.market_revision_audit(pc)
     # 126 keys with conflicts in the shadow; all flagged pit_ambiguous, none altered
     assert all(r["pit_ambiguous"] for r in rev)
-    pc.execute("SELECT count(*) FROM market.corporate_actions")
-    assert pc.fetchone()[0] == 0, "corporate actions must not be fabricated"
+    # RETURN_SERIES_CORPORATE_ACTION_INTEGRITY (2026-10-02): the table now holds
+    # evidence-backed rows from the validated gap-rule pipeline. Fabrication is
+    # still forbidden: every row must carry the pipeline source tag and be either
+    # announcement/share-confirmed or explicitly flagged heuristic.
+    pc.execute("SELECT count(*) FROM market.corporate_actions WHERE source <> 'tsetmc_gap_rule_v1'")
+    assert pc.fetchone()[0] == 0, "unexpected corporate-action source (fabrication guard)"
+    pc.execute("SELECT count(*) FROM market.corporate_actions "
+               "WHERE is_confirmed = false AND detected_heuristically = false")
+    assert pc.fetchone()[0] == 0, "rows without confirmation or heuristic flag are fabrication"
     pg.close()
 
 

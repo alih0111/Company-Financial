@@ -1,0 +1,124 @@
+{
+ "issue1_arithmetic": {
+  "total_rows": 12183,
+  "unique_tracing_no": 12183,
+  "unique_source_report_id": 12183,
+  "original_rows": 9615,
+  "correction_rows": 2568,
+  "original_plus_correction": 12183,
+  "sum_equals_total": true,
+  "unique_security_periods": 9615,
+  "multi_publication_security_periods": 2128,
+  "corrections_per_period_distribution": {
+   "1": 1762,
+   "2": 309,
+   "3": 43,
+   "4": 11,
+   "5": 3
+  },
+  "chain_9615_plus_2128_plus_440": {
+   "canonical_periods_with_recovered_pub": 9615,
+   "latest_correction_rows_old_stream": 2128,
+   "earlier_extra_correction_letters": 440,
+   "sum": 12183,
+   "equals_total_rows": true
+  },
+  "frozen_specs_contain_9618": false,
+  "typo_note": "the frozen V1.1 preregistration MD states original_publications = 9,615 (PART 16); '9,618' appeared only in the chat summary of 2026-10-03 and is a reporting typo — the artifact itself holds 9,615 original rows"
+ },
+ "issue2_ui_baseline": {
+  "panel_source": "research_bundle/monthly_pit_panel.parquet",
+  "panel_sha256": "e0d3de2655b41d5c458cd7f1c574b1ddf848a6d50e036af090c910899d8bdfca",
+  "panel_documented_pit_rule": "financial inputs: published_at <= cutoff; legacy-migrated: period_end <= as_of (RESEARCH_BUNDLE_README.md PIT rules; DATA_INVENTORY.md line 111)",
+  "panel_preserves_knowledge_cutoff_column": false,
+  "candidate_A_definition": "latest signal_date strictly before the event's Tehran publication date",
+  "candidate_A_coverage": {
+   "events": 6079,
+   "with_baseline": 6024,
+   "lost": 55
+  },
+  "structural_leak_evidence": {
+   "events_where_snapshot_includes_own_period_value": 96,
+   "share_of_with_baseline": 0.0159,
+   "mechanism": "the legacy rule period_end <= as_of lets the monthly snapshot at the last month-end before publication already contain the event's own sales value, because monthly period_end usually precedes the publication month-end — the baseline would NOT represent knowledge strictly before the publication"
+  },
+  "candidate_B_diagnostic": {
+   "definition": "latest signal_date strictly before the event's period_end (provably excludes the event's own value under the documented rule)",
+   "with_baseline": 6024,
+   "note": "still relies on the legacy proxy for all OTHER components' publication times; and is not the definition the preregistration asked to prove"
+  },
+  "verdict": "NO",
+  "verdict_reason": "the UI artifact preserves as_of (signal_date) only; it has no per-snapshot knowledge-cutoff column, and its documented legacy-input rule (period_end <= as_of) is a proxy that cannot prove 'cutoff < event published_at' — worse, under that rule the selected pre-event snapshot provably already contains the event's own period value for 96 of 6024 baseline-covered events. Per the do-not-invent instruction no baseline mapping is persisted.",
+  "remedy_path": "rebuild/extend the UI panel to persist, per snapshot row, the max published_at of every fundamental input (a true knowledge cutoff), using the now-recovered monthly publication times; then the strict mapping becomes provable and this gate can be revisited with a new preregistration clarification"
+ },
+ "issue3_staleness": {
+  "note": "diagnostic only under candidate A; NOT a binding baseline (gate = NO)",
+  "n": 6024,
+  "median_age_days": 27.0,
+  "p75_age_days": 28.0,
+  "p90_age_days": 52.69999999999982,
+  "max_age_days": 213.0,
+  "share_le_31d": 0.8929282868525896,
+  "share_32_62d": 0.06208499335989376,
+  "share_gt_62d": 0.0449867197875166,
+  "no_staleness_cutoff_optimized": true
+ },
+ "issue4_one_security_per_date": {
+  "eligible_events_before_rule": 6091,
+  "duplicate_groups": 6,
+  "duplicate_rows": 18,
+  "causes": {
+   "distinct_periods_same_entry_date": 6
+  },
+  "rule": "keep the publication with the latest published_at (strictly before the entry date, true by construction); exact-timestamp ties would exclude the group — 0 occurred; tracing_no tie-break not applicable (originals of different periods are not revisions of each other)",
+  "ambiguous_tie_groups_excluded": 0,
+  "rows_dropped_by_rule": 12,
+  "eligible_events_after_rule": 6079
+ },
+ "issue5_final_counts": {
+  "raw_event_stream_rows": 12183,
+  "eligible_acceleration_events_v1_1": 6091,
+  "eligible_after_one_security_per_date_rule": 6079,
+  "unique_signal_entry_dates": 390,
+  "qualifying_dates_ge10": 203,
+  "events_on_qualifying_dates": 5441,
+  "symbols": 160,
+  "max_symbol_concentration": 0.010363546635959862,
+  "max_year_concentration": 0.21779898009541043,
+  "fe1_preoutcome_pass_after_rule": true,
+  "fe8_preoutcome_pass_after_rule": true,
+  "fe6_baseline_coverage_DIAGNOSTIC_ONLY": {
+   "events_with_valid_pre_event_ui_baseline_candidate_A": 6024,
+   "qualifying_dates_with_both_signals": 201,
+   "binding": false,
+   "reason": "PRE_EVENT_UI_BASELINE_PIT_READY = NO"
+  }
+ },
+ "issue6_time_normalization": {
+  "rows_checked": 12183,
+  "unresolvable_in_raw_cache": 0,
+  "incorrect_utc_rows": 0,
+  "incorrect_tehran_wall_rows": 0,
+  "incorrect_tehran_date_rows": 0,
+  "incorrect_signal_entry_rows_originals": 0,
+  "raw_jalali_preserved": true,
+  "binding_artifact": "monthly_sales_events_universe_v1_1.parquet (Asia/Tehran zone rules)",
+  "legacy_defect_location": "research_bundle/event_stream_pit.parquet (quarantined; 1,809 rows +1h, fixed-offset +03:30)",
+  "current_incorrect_timestamp_rows": 0
+ },
+ "gates": {
+  "EVENT_COUNT_ARITHMETIC": "PASS",
+  "EVENT_TIME_NORMALIZATION": "PASS",
+  "ONE_SECURITY_PER_SIGNAL_DATE": "PASS",
+  "PRE_EVENT_UI_BASELINE_PIT_READY": "NO",
+  "FUNDAMENTAL_EVENT_V1_2_PREREGISTERED": "NO",
+  "v1_2_creation_rule": "V1.2 requires all of EVENT_COUNT_ARITHMETIC=PASS, PRE_EVENT_UI_BASELINE_PIT_READY=YES, ONE_SECURITY_PER_SIGNAL_DATE=PASS, EVENT_TIME_NORMALIZATION=PASS — PRE_EVENT_UI_BASELINE_PIT_READY=NO, so NO V1.2 spec is created"
+ },
+ "artifacts": {
+  "v1_1_artifact_readonly": "D:\\RFA\\Company-Financial\\fundamental_event_research\\monthly_sales_events_universe_v1_1.parquet",
+  "v1_1_artifact_sha256": "bcd69f109fd1a3bebbaadac0b82d99dbe5047777186216411509b9be850c9895",
+  "v1_1_preregistration_sha256": "c1dacaf19377c5c8f89fd15d9ed782aef5db84317b2d90031cc42d31c543d9d4",
+  "v1_0_preregistration_sha256": "5dff31d525a58b6474d06956eab5abff5a93ff898f3571358ac0d3b637c66fd1",
+  "gates_script_sha256": "a30da35e9f760d116cd399eea3cd31d522e417372e18e356e85bdace542fbad1"
+ }
+}

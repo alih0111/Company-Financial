@@ -4,8 +4,10 @@ import {
   ColorType,
   CrosshairMode,
   PriceScaleMode,
+  TickMarkType,
   type IChartApi,
   type ISeriesApi,
+  type Time,
   type UTCTimestamp,
 } from "lightweight-charts";
 import {
@@ -28,12 +30,15 @@ type Props = {
   refreshTick?: number;
 };
 
+// سقف درخواست از سرور (برابر سقف سمت بک‌اند)
+const ALL_DAYS = 100000;
+
 const RANGES = [
   { label: "۱ماه", days: 30 },
   { label: "۳ماه", days: 90 },
   { label: "۶ماه", days: 180 },
   { label: "۱سال", days: 365 },
-  { label: "همه", days: 5000 },
+  { label: "همه", days: ALL_DAYS },
 ];
 
 // رنگ‌های کندل مطابق هویت سبز/قرمز مالی
@@ -42,6 +47,89 @@ const C = {
   down: "#ef4444",
   upFill: "rgba(16,185,129,0.55)",
   downFill: "rgba(239,68,68,0.55)",
+};
+
+// ── تقویم شمسی برای محور زمان ──
+const JALALI_MONTHS = [
+  "فروردین",
+  "اردیبهشت",
+  "خرداد",
+  "تیر",
+  "مرداد",
+  "شهریور",
+  "مهر",
+  "آبان",
+  "آذر",
+  "دی",
+  "بهمن",
+  "اسفند",
+];
+
+// فرمترها یک‌بار ساخته می‌شوند؛ ساخت مکرر Intl در هر تیک پرهزینه است.
+// تقویم persian با timeZone=UTC چون زمان کندل‌ها نیمه‌شب UTC است.
+const jDateFmt = new Intl.DateTimeFormat("en-US-u-ca-persian", {
+  timeZone: "UTC",
+  year: "numeric",
+  month: "numeric",
+  day: "numeric",
+});
+const jClockFmt = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "UTC",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+const jClockSecFmt = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "UTC",
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
+
+const faDigits = (s: string) => s.replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[+d]);
+
+// timestamp را به اجزای تاریخ شمسی تبدیل می‌کند (پشتیبانی از هر سه نوع Time)
+const jalaliParts = (time: Time) => {
+  const d =
+    typeof time === "number"
+      ? new Date(time * 1000)
+      : typeof time === "object"
+        ? new Date(Date.UTC(time.year, time.month - 1, time.day))
+        : new Date(time + "T00:00:00Z");
+  const map: Record<string, string> = {};
+  for (const p of jDateFmt.formatToParts(d)) map[p.type] = p.value;
+  return {
+    jy: +map.year,
+    jm: +map.month,
+    jd: +map.day,
+    d,
+    // قالب کامل مطابق فرمت بک‌اند: ۱۴۰۳/۰۵/۱۲
+    full: faDigits(
+      `${map.year}/${String(map.month).padStart(2, "0")}/${String(
+        map.day,
+      ).padStart(2, "0")}`,
+    ),
+  };
+};
+
+// برچسب تیک‌های محور زمان: سال/ماه/روز شمسی
+const jalaliTickMark = (time: Time, tickMarkType: TickMarkType) => {
+  const { jy, jm, jd, d } = jalaliParts(time);
+  switch (tickMarkType) {
+    case TickMarkType.Year:
+      return faDigits(String(jy));
+    case TickMarkType.Month:
+      return JALALI_MONTHS[jm - 1] ?? faDigits(String(jm));
+    case TickMarkType.DayOfMonth:
+      return faDigits(String(jd));
+    case TickMarkType.Time:
+      return faDigits(jClockFmt.format(d));
+    case TickMarkType.TimeWithSeconds:
+      return faDigits(jClockSecFmt.format(d));
+    default:
+      return faDigits(String(jy));
+  }
 };
 
 type CandlePoint = {
@@ -64,7 +152,8 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
   const [data, setData] = useState<PriceHistoryRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [rangeIdx, setRangeIdx] = useState(2);
+  // تعداد رکورد درخواستی؛ با زوم‌اوت خودکار بزرگ‌تر می‌شود (بدون سقف ثابت)
+  const [days, setDays] = useState(180);
   const [fetching, setFetching] = useState(false);
   const [fetchMsg, setFetchMsg] = useState<string | null>(null);
   const [logScale, setLogScale] = useState(true);
@@ -76,10 +165,12 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
   const volumeRef = useRef<ISeriesApi<"Histogram"> | null>(null);
   // برای auto-extend هنگام زوم‌اوت
   const candlesRef = useRef<CandlePoint[]>([]);
-  const rangeIdxRef = useRef(rangeIdx);
+  const daysRef = useRef(days);
   const loadingRef = useRef(false);
   const autoExtendRef = useRef(false);
-  rangeIdxRef.current = rangeIdx;
+  // وقتی بازه‌ی بزرگ‌تر هم رکورد جدیدی برنگرداند، دوباره درخواست نمی‌فرستیم
+  const exhaustedRef = useRef(false);
+  daysRef.current = days;
   const [hover, setHover] = useState<{
     date: string;
     o: number;
@@ -90,12 +181,12 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     chg: number;
   } | null>(null);
 
-  const loadData = () => {
+  const loadData = (reqDays: number = days) => {
     if (!companyName) return;
     loadingRef.current = true;
     setLoading(true);
     setError(null);
-    getPriceHistory(companyName, RANGES[rangeIdx].days)
+    getPriceHistory(companyName, reqDays)
       .then((rows) => {
         setData(rows.reverse());
       })
@@ -106,10 +197,36 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       });
   };
 
+  const prevCompanyRef = useRef(companyName);
+  const prevTickRef = useRef(refreshTick);
+
   useEffect(() => {
-    loadData();
+    const companyChanged = prevCompanyRef.current !== companyName;
+    const tickChanged = prevTickRef.current !== refreshTick;
+    prevCompanyRef.current = companyName;
+    prevTickRef.current = refreshTick;
+
+    if (companyChanged) {
+      // نماد عوض شد → بازه و وضعیت‌ها به حالت اولیه، بدون درخواست با بازه‌ی قبلی
+      exhaustedRef.current = false;
+      autoExtendRef.current = false;
+      candlesRef.current = [];
+      daysRef.current = 180;
+      setDays(180);
+      if (days === 180) loadData(180);
+      return;
+    }
+    // قیمت تازه رسیده → ممکن است تاریخچه‌ی جدیدی اضافه شده باشد
+    if (tickChanged) exhaustedRef.current = false;
+    loadData(days);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [companyName, rangeIdx, refreshTick]);
+  }, [companyName, days, refreshTick]);
+
+  // انتخاب دستی بازه → وضعیت «داده تمام شد» ریست می‌شود
+  const selectRange = (d: number) => {
+    exhaustedRef.current = false;
+    setDays(d);
+  };
 
   const handleFetchPrices = async () => {
     setFetching(true);
@@ -199,13 +316,18 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
 
   // ── ساخت چارت — وقتی داده رسید و container در DOM قرار گرفت ──
   const hasData = candles.length > 0;
+  // پیل فعال = بزرگ‌ترین بازه‌ای که در مقدار فعلی days جا می‌شود
+  const activePill = RANGES.reduce(
+    (acc, r, i) => (r.days <= days ? i : acc),
+    -1,
+  );
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !hasData) return;
 
     const chart = createChart(el, {
       width: el.clientWidth,
-      height: 400,
+      height: 600,
       layout: {
         background: { type: ColorType.Solid, color: "transparent" },
         textColor: dark ? "#94a3b8" : "#64748b",
@@ -217,6 +339,11 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         horzLines: {
           color: dark ? "rgba(148,163,184,0.08)" : "rgba(100,116,139,0.1)",
         },
+      },
+      localization: {
+        locale: "fa-IR",
+        // برچسب تاریخ روی محور زمان وقتی نشانگر حرکت می‌کند
+        timeFormatter: (time: Time) => jalaliParts(time).full,
       },
       crosshair: {
         mode: CrosshairMode.Normal,
@@ -239,7 +366,14 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         borderVisible: false,
         rightOffset: 4,
         barSpacing: 9,
-        minBarSpacing: 2,
+        // تیک‌های محور با تقویم شمسی
+        tickMarkFormatter: jalaliTickMark,
+        // کفِ فاصله‌ی کندل‌ها = سقف زوم‌اوت. با مقدار بزرگ، کتابخانه زوم‌اوت را
+        // زودتر قفل می‌کند؛ عدد کوچک اجازه‌ی زوم‌اوت عمیق (و لود خودکار تاریخچه) می‌دهد.
+        minBarSpacing: 0.05,
+        // لبه‌ها را قفل نکن تا فضای خالی سمت چپ برای رسیدن به داده‌ی قدیمی‌تر باز بماند
+        fixLeftEdge: false,
+        fixRightEdge: false,
       },
       handleScale: {
         axisPressedMouseMove: { time: true, price: true },
@@ -309,17 +443,19 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     };
     chart.subscribeCrosshairMove(onMove);
 
-    // زوم‌اوت خودکار: اگر کاربر از ابتدای داده رد شد، بازه‌ی بزرگ‌تر لود کن
+    // زوم‌اوت خودکار: هر وقت فضای خالی سمت چپ (قبل از قدیمی‌ترین کندل) دیده شد،
+    // به‌اندازه‌ی همان فضای خالی رکورد قدیمی‌تر بگیر — بدون سقف، تا وقتی داده تمام شود.
     const onRangeChange = (range: any) => {
-      if (!range || loadingRef.current) return;
-      if (range.from < 0.5 && candlesRef.current.length > 0) {
-        const nextIdx = Math.min(rangeIdxRef.current + 1, RANGES.length - 1);
-        if (nextIdx !== rangeIdxRef.current) {
-          autoExtendRef.current = true;
-          rangeIdxRef.current = nextIdx;
-          setRangeIdx(nextIdx);
-        }
-      }
+      if (!range || loadingRef.current || exhaustedRef.current) return;
+      if (range.from >= -1 || candlesRef.current.length === 0) return;
+      const cur = daysRef.current;
+      if (cur >= ALL_DAYS) return;
+      // رکورد لازم = کندل‌های فعلی + فضای خالی سمت چپ (+ حاشیه)
+      const needed = candlesRef.current.length - range.from + 8;
+      const next = Math.min(Math.max(Math.ceil(needed), cur * 2), ALL_DAYS);
+      autoExtendRef.current = true;
+      daysRef.current = next;
+      setDays(next);
     };
     chart.timeScale().subscribeVisibleLogicalRangeChange(onRangeChange);
 
@@ -346,6 +482,8 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     const keepView = autoExtendRef.current && candlesRef.current.length > 0;
     const prevRange = keepView ? ts.getVisibleLogicalRange() : null;
     const prevCount = candlesRef.current.length;
+    // درخواست بزرگ‌تر هم کندل جدیدی اضافه نکرد → تاریخچه تمام شده است
+    if (keepView && candles.length <= prevCount) exhaustedRef.current = true;
 
     candlesRef.current = candles;
     chart.priceScale("right").applyOptions({
@@ -390,13 +528,13 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         </div>
         <div className="flex items-center gap-2">
           {/* Range pills */}
-          <div className="flex gap-0.5 p-0.5 rounded-xl bg-gray-100 dark:bg-gray-700/40">
+          {/* <div className="flex gap-0.5 p-0.5 rounded-xl bg-gray-100 dark:bg-gray-700/40">
             {RANGES.map((r, i) => (
               <button
                 key={i}
-                onClick={() => setRangeIdx(i)}
+                onClick={() => selectRange(r.days)}
                 className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition-all duration-200 ${
-                  i === rangeIdx
+                  i === activePill
                     ? "bg-emerald-600 text-white shadow-sm shadow-emerald-500/25"
                     : dark
                       ? "text-gray-400 hover:text-gray-200 hover:bg-gray-600/40"
@@ -406,7 +544,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
                 {r.label}
               </button>
             ))}
-          </div>
+          </div> */}
           {/* Log/Linear toggle */}
           <button
             onClick={() => setLogScale(!logScale)}
@@ -540,7 +678,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       )}
 
       {loading ? (
-        <div className="h-[400px] flex items-center justify-center">
+        <div className="h-[600px] flex items-center justify-center">
           <div className="flex items-center gap-3 text-gray-400 dark:text-gray-500">
             <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
               <circle
@@ -602,7 +740,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
           ref={containerRef}
           dir="ltr"
           className={`rounded-xl overflow-hidden ${legendUp ? "" : ""}`}
-          style={{ height: 400 }}
+          style={{ height: 600 }}
         />
       )}
     </div>

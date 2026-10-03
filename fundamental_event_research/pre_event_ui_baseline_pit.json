@@ -1,0 +1,35 @@
+{
+ "coverage": {
+  "eligible_events_total": 6079,
+  "valid_pit_baseline": 5902,
+  "missing_baseline": 177,
+  "coverage_pct": 97.09,
+  "events_on_qualifying_dates": 5441,
+  "events_on_qualifying_dates_with_baseline": 5302,
+  "qualifying_events_coverage_pct": 97.45,
+  "tie_groups_excluded_by_dedup_rule": 0
+ },
+ "age": {
+  "median": 27.0,
+  "p75": 28.0,
+  "p90": 32.0,
+  "max": 213.0,
+  "share_le_31d": 0.8948,
+  "share_32_62d": 0.0605,
+  "share_gt_62d": 0.0447,
+  "note": "diagnostic only; no staleness cutoff optimized"
+ },
+ "fe6": {
+  "identical_row_events": 5902,
+  "distinct_entry_dates": 387,
+  "qualifying_dates_ge10_identical_rows": 196,
+  "events_on_fe6_qualifying_dates": 5258,
+  "symbols": 160,
+  "adequacy_rule": ">=24 qualifying identical-row dates AND >=500 identical-row events (a priori, mirrors FE1)",
+  "FE6_PREOUTCOME_SAMPLE_ADEQUATE": true
+ },
+ "artifacts": {
+  "baseline_parquet": "D:\\RFA\\Company-Financial\\fundamental_event_research\\pre_event_ui_baseline_pit.parquet",
+  "panel_source": "D:\\RFA\\Company-Financial\\ui_score_research\\ui_score_historical_pit_v2\\ui_score_historical_pit_v2.jsonl"
+ }
+}

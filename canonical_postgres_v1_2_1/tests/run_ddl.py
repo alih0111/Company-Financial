@@ -36,6 +36,9 @@ SQL_ORDER = [
     "110_family_broker.sql",
     "115_market_meta.sql",
     "116_market_assets.sql",
+    "117_share_events.sql",
+    "118_corporate_action_semantics.sql",
+    "119_tsetmc_current_shares.sql",
     "120_chat_settings.sql",
 ]
 

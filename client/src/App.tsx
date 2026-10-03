@@ -6,20 +6,20 @@ import ChartComponent from "./components/ChartComponent";
 import PriceChart from "./components/PriceChart";
 import ScoreBreakdown from "./components/ScoreBreakdown";
 import useCompanyData from "./hooks/useCompanyData";
-import ScriptModal from "./components/ScriptModal";
 import { useDarkMode } from "./utils/theme";
-import {
-  FaChartBar,
-  FaArrowUp,
-  FaArrowDown,
-  FaBullseye,
-} from "react-icons/fa";
+import { FaChartBar, FaArrowUp, FaArrowDown, FaBullseye } from "react-icons/fa";
 import DonutChartComponent from "./components/DonutChartComponent";
 import { Routes, Route, useLocation, useNavigate, useSearchParams, Navigate } from "react-router-dom";
-import ScriptFullModal from "./components/ScriptFullModal";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./components/NotFound";
-import { useCallback, useEffect, lazy, Suspense, useMemo, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  lazy,
+  Suspense,
+  useMemo,
+  useState,
+} from "react";
 import {
   getAIStockSummary,
   collectBrsPrices,
@@ -42,8 +42,20 @@ const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[50vh]">
     <div className="flex items-center gap-3 text-gray-400 dark:text-gray-500">
       <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+          fill="none"
+        />
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        />
       </svg>
       <span className="text-sm font-medium">در حال بارگذاری…</span>
     </div>
@@ -66,20 +78,9 @@ const App = () => {
     data2,
     dataScore,
     allDataScore,
-    stockPrice,
-    stockPriceScore,
     loadingData,
-    runningScripts,
-    metadata,
-    setMetadata,
-    scriptModalStates,
-    setScriptModalStates,
-    fullModalData,
-    setFullModalData,
-    openModalForScript,
-    submitMetadata,
+    loadingCompanies,
     refreshData,
-    ...scriptModalProps
   } = useCompanyData();
 
   const [, setSearchParams] = useSearchParams();
@@ -165,7 +166,9 @@ const App = () => {
     } else if (location.pathname === "/register") {
       document.title = "RFA | ثبت‌نام";
     } else {
-      document.title = selectedCompany ? `RFA | ${selectedCompany}` : "RFA | داشبورد";
+      document.title = selectedCompany
+        ? `RFA | ${selectedCompany}`
+        : "RFA | داشبورد";
     }
   }, [selectedCompany, location.pathname]);
 
@@ -248,7 +251,9 @@ const App = () => {
             d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
           />
         </svg>
-        <span className="text-sm font-medium">Loading company data...</span>
+        <span className="text-sm font-medium">
+          در حال بارگذاری داده‌های شرکت...
+        </span>
       </div>
     </div>
   ) : (
@@ -315,60 +320,72 @@ const App = () => {
 
       {/* ── EPS Chart + Donut ── */}
       {hasFundamentals && (
-      <div className="animate-fade-in-up" style={{ animationDelay: "80ms" }}>
-        {data1 ? (
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="sm:w-3/4">
-              <ChartComponent data={data1} />
+        <div className="animate-fade-in-up" style={{ animationDelay: "80ms" }}>
+          {data1 ? (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="sm:w-3/4">
+                <ChartComponent data={data1} />
+              </div>
+              <div className="sm:w-1/4">
+                {/* گیج، درصد رشد خام را نشان می‌دهد (همان منبع کارت بالای صفحه)
+                    نه رتبه‌ی درصدی بازار — رتبه‌ها در بخش تجزیه‌ی امتیاز هستند. */}
+                {currentMetric?.net_profit_growth_4_reports != null && (
+                  <DonutChartComponent
+                    score={currentMetric.net_profit_growth_4_reports}
+                    label="رشد سود خالص"
+                  />
+                )}
+              </div>
             </div>
-            <div className="sm:w-1/4">
-              {dataScore && dataScore.length > 0 && (
-                <DonutChartComponent score={dataScore[0].epsGrowth} />
-              )}
-            </div>
-          </div>
-        ) : (
-          <p className="text-gray-400 dark:text-gray-500 text-sm">
-            Loading chart data...
-          </p>
-        )}
-      </div>
+          ) : (
+            <p className="text-gray-400 dark:text-gray-500 text-sm">
+              Loading chart data...
+            </p>
+          )}
+        </div>
       )}
 
       {/* ── Sales Chart + Donut ── */}
       {hasFundamentals && (
-      <div className="animate-fade-in-up" style={{ animationDelay: "160ms" }}>
-        {data2 ? (
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="sm:w-3/4">
-              <ChartComponent data={data2} />
+        <div className="animate-fade-in-up" style={{ animationDelay: "160ms" }}>
+          {data2 ? (
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="sm:w-3/4">
+                <ChartComponent data={data2} />
+              </div>
+              <div className="sm:w-1/4">
+                {currentMetric?.sales_growth_12m != null && (
+                  <DonutChartComponent
+                    score={currentMetric.sales_growth_12m}
+                    label="رشد فروش"
+                  />
+                )}
+              </div>
             </div>
-            <div className="sm:w-1/4">
-              {dataScore && dataScore.length > 0 && (
-                <DonutChartComponent score={dataScore[0].salesGrowth} />
-              )}
-            </div>
-          </div>
-        ) : (
-          <p className="text-gray-400 dark:text-gray-500 text-sm">
-            Loading chart data...
-          </p>
-        )}
-      </div>
+          ) : (
+            <p className="text-gray-400 dark:text-gray-500 text-sm">
+              Loading chart data...
+            </p>
+          )}
+        </div>
       )}
 
       {/* نماد بدون صورت مالی (صندوق طلا/کالا): فقط نمودار قیمت */}
-      {selectedCompany && !loadingData && !hasFundamentals && !currentMetric && (
-        <div className="animate-fade-in-up rounded-2xl border border-amber-200/70 dark:border-amber-900/40 bg-amber-50/60 dark:bg-amber-900/10 p-4">
-          <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
-            «{selectedCompany}» صورت مالی و امتیاز بنیادی ندارد
-          </p>
-          <p className="text-xs text-amber-600/80 dark:text-amber-400/70 mt-1">
-            این نماد یک صندوق/ابزار بازار است؛ داده‌ی آن شامل نمودار قیمت است. برای
-            شاخص‌ها و سایر صندوق‌های طلا/کالا به صفحه‌ی «بازار و طلا» سر بزنید.
-          </p>
-        </div>
-      )}
+      {selectedCompany &&
+        !loadingData &&
+        !hasFundamentals &&
+        !currentMetric && (
+          <div className="animate-fade-in-up rounded-2xl border border-amber-200/70 dark:border-amber-900/40 bg-amber-50/60 dark:bg-amber-900/10 p-4">
+            <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
+              «{selectedCompany}» صورت مالی و امتیاز بنیادی ندارد
+            </p>
+            <p className="text-xs text-amber-600/80 dark:text-amber-400/70 mt-1">
+              این نماد یک صندوق/ابزار بازار است؛ داده‌ی آن شامل نمودار قیمت است.
+              برای شاخص‌ها و سایر صندوق‌های طلا/کالا به صفحه‌ی «بازار و طلا» سر
+              بزنید.
+            </p>
+          </div>
+        )}
 
       {/* ── Price Chart ── */}
       {selectedCompany && (
@@ -448,10 +465,8 @@ const App = () => {
                 companyOptions={companyOptions}
                 selectedCompany={selectedCompany}
                 onCompanyChange={handleCompanyChange}
-                openModalForScript={openModalForScript}
-                runningScripts={runningScripts}
+                loadingCompanies={loadingCompanies}
                 companyProfits={allDataScore ?? []}
-                {...scriptModalProps}
                 isAdmin={isAdmin}
                 username={username}
                 open={sidebarOpen}
@@ -550,53 +565,6 @@ const App = () => {
               </Suspense>
             </main>
           </div>
-          <ScriptModal
-            modal={{ visible: scriptModalStates.script1, script: "profit" }}
-            setModal={(val) =>
-              setScriptModalStates((prev) => ({ ...prev, script1: val.visible }))
-            }
-            metadata={metadata}
-            setMetadata={setMetadata}
-            runningScripts={runningScripts}
-            submitMetadata={() => submitMetadata("script1")}
-          />
-
-          <ScriptModal
-            modal={{ visible: scriptModalStates.script2, script: "sales" }}
-            setModal={(val) =>
-              setScriptModalStates((prev) => ({ ...prev, script2: val.visible }))
-            }
-            metadata={metadata}
-            setMetadata={setMetadata}
-            runningScripts={runningScripts}
-            submitMetadata={() => submitMetadata("script2")}
-          />
-
-          <ScriptModal
-            modal={{
-              visible: scriptModalStates.stockPrices,
-              script: "stockPrices",
-            }}
-            setModal={(val) =>
-              setScriptModalStates((prev) => ({
-                ...prev,
-                stockPrices: val.visible,
-              }))
-            }
-            metadata={metadata}
-            setMetadata={setMetadata}
-            runningScripts={runningScripts}
-            submitMetadata={() => submitMetadata("stockPrices")}
-          />
-
-          <ScriptFullModal
-            modal={{ visible: scriptModalStates.full, ...fullModalData }}
-            setModal={(val) => {
-              setScriptModalStates((prev) => ({ ...prev, full: val.visible }));
-              setFullModalData(val);
-            }}
-            submitMetadata={() => submitMetadata("full")}
-          />
         </div>
       </ConfirmProvider>
     </ToastProvider>

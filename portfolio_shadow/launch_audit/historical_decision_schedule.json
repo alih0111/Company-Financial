@@ -1,0 +1,632 @@
+[
+ {
+  "month": "2021-01",
+  "score_date": "2021-01-31",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2021-01-31",
+  "last_trading_date_in_month": "2021-01-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-01-31T23:59:59+00:00"
+ },
+ {
+  "month": "2021-02",
+  "score_date": "2021-02-28",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2021-02-28",
+  "last_trading_date_in_month": "2021-02-28",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-02-28T23:59:59+00:00"
+ },
+ {
+  "month": "2021-03",
+  "score_date": "2021-03-31",
+  "weekday": "Wed",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2021-03-31",
+  "last_trading_date_in_month": "2021-03-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-03-31T23:59:59+00:00"
+ },
+ {
+  "month": "2021-04",
+  "score_date": "2021-04-28",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2021-04-30",
+  "last_trading_date_in_month": "2021-04-28",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-04-28T23:59:59+00:00"
+ },
+ {
+  "month": "2021-05",
+  "score_date": "2021-05-31",
+  "weekday": "Mon",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2021-05-31",
+  "last_trading_date_in_month": "2021-05-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-05-31T23:59:59+00:00"
+ },
+ {
+  "month": "2021-06",
+  "score_date": "2021-06-30",
+  "weekday": "Wed",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2021-06-30",
+  "last_trading_date_in_month": "2021-06-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-06-30T23:59:59+00:00"
+ },
+ {
+  "month": "2021-07",
+  "score_date": "2021-07-31",
+  "weekday": "Sat",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2021-07-31",
+  "last_trading_date_in_month": "2021-07-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-07-31T23:59:59+00:00"
+ },
+ {
+  "month": "2021-08",
+  "score_date": "2021-08-31",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2021-08-31",
+  "last_trading_date_in_month": "2021-08-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-08-31T23:59:59+00:00"
+ },
+ {
+  "month": "2021-09",
+  "score_date": "2021-09-29",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2021-09-30",
+  "last_trading_date_in_month": "2021-09-29",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-09-29T23:59:59+00:00"
+ },
+ {
+  "month": "2021-10",
+  "score_date": "2021-10-31",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2021-10-31",
+  "last_trading_date_in_month": "2021-10-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-10-31T23:59:59+00:00"
+ },
+ {
+  "month": "2021-11",
+  "score_date": "2021-11-30",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2021-11-30",
+  "last_trading_date_in_month": "2021-11-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-11-30T23:59:59+00:00"
+ },
+ {
+  "month": "2021-12",
+  "score_date": "2021-12-29",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2021-12-31",
+  "last_trading_date_in_month": "2021-12-29",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2021-12-29T23:59:59+00:00"
+ },
+ {
+  "month": "2022-01",
+  "score_date": "2022-01-31",
+  "weekday": "Mon",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2022-01-31",
+  "last_trading_date_in_month": "2022-01-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-01-31T23:59:59+00:00"
+ },
+ {
+  "month": "2022-02",
+  "score_date": "2022-02-28",
+  "weekday": "Mon",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2022-02-28",
+  "last_trading_date_in_month": "2022-02-28",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-02-28T23:59:59+00:00"
+ },
+ {
+  "month": "2022-03",
+  "score_date": "2022-03-30",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2022-03-31",
+  "last_trading_date_in_month": "2022-03-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-03-30T23:59:59+00:00"
+ },
+ {
+  "month": "2022-04",
+  "score_date": "2022-04-30",
+  "weekday": "Sat",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2022-04-30",
+  "last_trading_date_in_month": "2022-04-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-04-30T23:59:59+00:00"
+ },
+ {
+  "month": "2022-05",
+  "score_date": "2022-05-31",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2022-05-31",
+  "last_trading_date_in_month": "2022-05-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-05-31T23:59:59+00:00"
+ },
+ {
+  "month": "2022-06",
+  "score_date": "2022-06-29",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2022-06-30",
+  "last_trading_date_in_month": "2022-06-29",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-06-29T23:59:59+00:00"
+ },
+ {
+  "month": "2022-07",
+  "score_date": "2022-07-31",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2022-07-31",
+  "last_trading_date_in_month": "2022-07-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-07-31T23:59:59+00:00"
+ },
+ {
+  "month": "2022-08",
+  "score_date": "2022-08-31",
+  "weekday": "Wed",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2022-08-31",
+  "last_trading_date_in_month": "2022-08-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-08-31T23:59:59+00:00"
+ },
+ {
+  "month": "2022-09",
+  "score_date": "2022-09-28",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2022-09-30",
+  "last_trading_date_in_month": "2022-09-28",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-09-28T23:59:59+00:00"
+ },
+ {
+  "month": "2022-10",
+  "score_date": "2022-10-31",
+  "weekday": "Mon",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2022-10-31",
+  "last_trading_date_in_month": "2022-10-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-10-31T23:59:59+00:00"
+ },
+ {
+  "month": "2022-11",
+  "score_date": "2022-11-30",
+  "weekday": "Wed",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2022-11-30",
+  "last_trading_date_in_month": "2022-11-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-11-30T23:59:59+00:00"
+ },
+ {
+  "month": "2022-12",
+  "score_date": "2022-12-31",
+  "weekday": "Sat",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2022-12-31",
+  "last_trading_date_in_month": "2022-12-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2022-12-31T23:59:59+00:00"
+ },
+ {
+  "month": "2023-01",
+  "score_date": "2023-01-31",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2023-01-31",
+  "last_trading_date_in_month": "2023-01-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-01-31T23:59:59+00:00"
+ },
+ {
+  "month": "2023-02",
+  "score_date": "2023-02-28",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2023-02-28",
+  "last_trading_date_in_month": "2023-02-28",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-02-28T23:59:59+00:00"
+ },
+ {
+  "month": "2023-03",
+  "score_date": "2023-03-29",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2023-03-31",
+  "last_trading_date_in_month": "2023-03-29",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-03-29T23:59:59+00:00"
+ },
+ {
+  "month": "2023-04",
+  "score_date": "2023-04-30",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2023-04-30",
+  "last_trading_date_in_month": "2023-04-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-04-30T23:59:59+00:00"
+ },
+ {
+  "month": "2023-05",
+  "score_date": "2023-05-31",
+  "weekday": "Wed",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2023-05-31",
+  "last_trading_date_in_month": "2023-05-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-05-31T23:59:59+00:00"
+ },
+ {
+  "month": "2023-06",
+  "score_date": "2023-06-28",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2023-06-30",
+  "last_trading_date_in_month": "2023-06-28",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-06-28T23:59:59+00:00"
+ },
+ {
+  "month": "2023-07",
+  "score_date": "2023-07-31",
+  "weekday": "Mon",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2023-07-31",
+  "last_trading_date_in_month": "2023-07-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-07-31T23:59:59+00:00"
+ },
+ {
+  "month": "2023-08",
+  "score_date": "2023-08-30",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2023-08-31",
+  "last_trading_date_in_month": "2023-08-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-08-30T23:59:59+00:00"
+ },
+ {
+  "month": "2023-09",
+  "score_date": "2023-09-30",
+  "weekday": "Sat",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2023-09-30",
+  "last_trading_date_in_month": "2023-09-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-09-30T23:59:59+00:00"
+ },
+ {
+  "month": "2023-10",
+  "score_date": "2023-10-31",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2023-10-31",
+  "last_trading_date_in_month": "2023-10-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-10-31T23:59:59+00:00"
+ },
+ {
+  "month": "2023-11",
+  "score_date": "2023-11-29",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2023-11-30",
+  "last_trading_date_in_month": "2023-11-29",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-11-29T23:59:59+00:00"
+ },
+ {
+  "month": "2023-12",
+  "score_date": "2023-12-31",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2023-12-31",
+  "last_trading_date_in_month": "2023-12-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2023-12-31T23:59:59+00:00"
+ },
+ {
+  "month": "2024-01",
+  "score_date": "2024-01-31",
+  "weekday": "Wed",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2024-01-31",
+  "last_trading_date_in_month": "2024-01-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-01-31T23:59:59+00:00"
+ },
+ {
+  "month": "2024-02",
+  "score_date": "2024-02-28",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2024-02-29",
+  "last_trading_date_in_month": "2024-02-28",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-02-28T23:59:59+00:00"
+ },
+ {
+  "month": "2024-03",
+  "score_date": "2024-03-30",
+  "weekday": "Sat",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2024-03-31",
+  "last_trading_date_in_month": "2024-03-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-03-30T23:59:59+00:00"
+ },
+ {
+  "month": "2024-04",
+  "score_date": "2024-04-30",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2024-04-30",
+  "last_trading_date_in_month": "2024-04-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-04-30T23:59:59+00:00"
+ },
+ {
+  "month": "2024-05",
+  "score_date": "2024-05-29",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2024-05-31",
+  "last_trading_date_in_month": "2024-05-29",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-05-29T23:59:59+00:00"
+ },
+ {
+  "month": "2024-06",
+  "score_date": "2024-06-30",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2024-06-30",
+  "last_trading_date_in_month": "2024-06-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-06-30T23:59:59+00:00"
+ },
+ {
+  "month": "2024-07",
+  "score_date": "2024-07-31",
+  "weekday": "Wed",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2024-07-31",
+  "last_trading_date_in_month": "2024-07-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-07-31T23:59:59+00:00"
+ },
+ {
+  "month": "2024-08",
+  "score_date": "2024-08-31",
+  "weekday": "Sat",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2024-08-31",
+  "last_trading_date_in_month": "2024-08-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-08-31T23:59:59+00:00"
+ },
+ {
+  "month": "2024-09",
+  "score_date": "2024-09-30",
+  "weekday": "Mon",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2024-09-30",
+  "last_trading_date_in_month": "2024-09-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-09-30T23:59:59+00:00"
+ },
+ {
+  "month": "2024-10",
+  "score_date": "2024-10-30",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2024-10-31",
+  "last_trading_date_in_month": "2024-10-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-10-30T23:59:59+00:00"
+ },
+ {
+  "month": "2024-11",
+  "score_date": "2024-11-30",
+  "weekday": "Sat",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2024-11-30",
+  "last_trading_date_in_month": "2024-11-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-11-30T23:59:59+00:00"
+ },
+ {
+  "month": "2024-12",
+  "score_date": "2024-12-31",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2024-12-31",
+  "last_trading_date_in_month": "2024-12-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2024-12-31T23:59:59+00:00"
+ },
+ {
+  "month": "2025-01",
+  "score_date": "2025-01-29",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2025-01-31",
+  "last_trading_date_in_month": "2025-01-29",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-01-29T23:59:59+00:00"
+ },
+ {
+  "month": "2025-02",
+  "score_date": "2025-02-26",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2025-02-28",
+  "last_trading_date_in_month": "2025-02-26",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-02-26T23:59:59+00:00"
+ },
+ {
+  "month": "2025-03",
+  "score_date": "2025-03-30",
+  "weekday": "Sun",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2025-03-31",
+  "last_trading_date_in_month": "2025-03-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-03-30T23:59:59+00:00"
+ },
+ {
+  "month": "2025-04",
+  "score_date": "2025-04-30",
+  "weekday": "Wed",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2025-04-30",
+  "last_trading_date_in_month": "2025-04-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-04-30T23:59:59+00:00"
+ },
+ {
+  "month": "2025-05",
+  "score_date": "2025-05-31",
+  "weekday": "Sat",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2025-05-31",
+  "last_trading_date_in_month": "2025-05-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-05-31T23:59:59+00:00"
+ },
+ {
+  "month": "2025-06",
+  "score_date": "2025-06-30",
+  "weekday": "Mon",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2025-06-30",
+  "last_trading_date_in_month": "2025-06-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-06-30T23:59:59+00:00"
+ },
+ {
+  "month": "2025-07",
+  "score_date": "2025-07-30",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2025-07-31",
+  "last_trading_date_in_month": "2025-07-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-07-30T23:59:59+00:00"
+ },
+ {
+  "month": "2025-08",
+  "score_date": "2025-08-31",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2025-08-31",
+  "last_trading_date_in_month": "2025-08-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-08-31T23:59:59+00:00"
+ },
+ {
+  "month": "2025-09",
+  "score_date": "2025-09-30",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2025-09-30",
+  "last_trading_date_in_month": "2025-09-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-09-30T23:59:59+00:00"
+ },
+ {
+  "month": "2025-10",
+  "score_date": "2025-10-29",
+  "weekday": "Wed",
+  "is_month_end_calendar": false,
+  "month_end_calendar_date": "2025-10-31",
+  "last_trading_date_in_month": "2025-10-29",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-10-29T23:59:59+00:00"
+ },
+ {
+  "month": "2025-11",
+  "score_date": "2025-11-30",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2025-11-30",
+  "last_trading_date_in_month": "2025-11-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-11-30T23:59:59+00:00"
+ },
+ {
+  "month": "2025-12",
+  "score_date": "2025-12-31",
+  "weekday": "Wed",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2025-12-31",
+  "last_trading_date_in_month": "2025-12-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2025-12-31T23:59:59+00:00"
+ },
+ {
+  "month": "2026-01",
+  "score_date": "2026-01-31",
+  "weekday": "Sat",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2026-01-31",
+  "last_trading_date_in_month": "2026-01-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2026-01-31T23:59:59+00:00"
+ },
+ {
+  "month": "2026-05",
+  "score_date": "2026-05-31",
+  "weekday": "Sun",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2026-05-31",
+  "last_trading_date_in_month": "2026-05-31",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2026-05-31T23:59:59+00:00"
+ },
+ {
+  "month": "2026-06",
+  "score_date": "2026-06-30",
+  "weekday": "Tue",
+  "is_month_end_calendar": true,
+  "month_end_calendar_date": "2026-06-30",
+  "last_trading_date_in_month": "2026-06-30",
+  "last_trading_differs": false,
+  "knowledge_cutoff": "2026-06-30T23:59:59+00:00"
+ }
+]

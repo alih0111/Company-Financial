@@ -1,0 +1,90 @@
+gross reproducibility: 0.0 4.440892098500626e-16
+nav identity max err: 4.440892098500626e-16
+ledger ok: True
+self-financing: PASS replay err: 2.1910420144877207e-09
+bootstrap reproduced: True [0.0006529464492549486, 0.00961235646617731]
+{
+ "gates": {
+  "PV1": "PASS",
+  "PV2": "PASS",
+  "PV3": "PASS",
+  "PV4": "PASS",
+  "PV5": "PASS",
+  "PV6": "PASS",
+  "PV7": "PASS",
+  "PV8": "PASS",
+  "SCORE_PORTFOLIO_V1_PRIMARY_GATE": "PASS",
+  "gate_values": {
+   "PV2_annualized_excess_pp": 7.32,
+   "PV3_bootstrap_lower_bound": 0.0006529464492549486,
+   "PV4_positive_full_years": 4,
+   "PV5_top20_mdd": -0.26853278059083563,
+   "PV5_bench_mdd": -0.29498965257912046,
+   "PV6_avg_turnover": 0.29307998001479646,
+   "PV7_median_holdings": 44.0,
+   "PV8_avg_cash_pct": -2.3326692807098398e-15
+  }
+ },
+ "wealth": {
+  "TOP20_GROSS": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 1.0,
+   "final_nav_pre_last_rebalance": 6.561578,
+   "final_nav_post_last_rebalance": 6.561578,
+   "terminal_wealth_multiple": 6.561578,
+   "cumulative_return": 5.561578,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.439231,
+   "cagr_from_product_vs_path": 6.561578,
+   "product_of_monthly_returns": 6.561578,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "TOP20_BASE": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.995025,
+   "final_nav_pre_last_rebalance": 5.65569,
+   "final_nav_post_last_rebalance": 5.64507,
+   "terminal_wealth_multiple": 5.64507,
+   "cumulative_return": 4.64507,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.397927,
+   "cagr_from_product_vs_path": 5.673295,
+   "product_of_monthly_returns": 5.673295,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "BENCH_BASE": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.995025,
+   "final_nav_pre_last_rebalance": 4.277311,
+   "final_nav_post_last_rebalance": 4.275451,
+   "terminal_wealth_multiple": 4.275451,
+   "cumulative_return": 3.275451,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.324724,
+   "cagr_from_product_vs_path": 4.296828,
+   "product_of_monthly_returns": 4.296828,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "TOP10_BASE": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.995025,
+   "final_nav_pre_last_rebalance": 6.735625,
+   "final_nav_post_last_rebalance": 6.716595,
+   "terminal_wealth_multiple": 6.716595,
+   "cumulative_return": 5.716595,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.445751,
+   "cagr_from_product_vs_path": 6.750178,
+   "product_of_monthly_returns": 6.750178,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  }
+ }
+}

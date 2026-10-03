@@ -28,8 +28,11 @@ sys.path.insert(0, str(BASE / "migration_tools"))
 from common import pg_pilot_conn  # noqa: E402
 
 from data_quality import DQ  # noqa: E402
-from report_chain_ttm import (resolve_ttm, PROV_DIRECT, PROV_CHAIN,  # noqa: E402
-                              PROV_NO_ANNUAL, PROV_NO_COMPARABLE, PROV_PIT, PROV_INSUFFICIENT)
+from fiscal_calendar import (annual_month_of, build_fiscal_calendar,  # noqa: E402
+                             prev_annual_cell, STATE_EXPLICIT)
+from report_chain_ttm import (resolve_ttm, PROV_CHAIN, PROV_DIRECT,  # noqa: E402
+                              PROV_FISCAL_UNKNOWN, PROV_INSUFFICIENT,
+                              PROV_NO_ANNUAL, PROV_NO_COMPARABLE, PROV_PIT)
 
 OUT = HERE / "output"
 SCORE_VERSION = "canonical-v1-dev"
@@ -85,6 +88,7 @@ METRIC_UNITS = {
     "interest_coverage": "ratio", "earnings_quality": "percent", "cash_conversion": "ratio",
     "price_momentum_30d": "percent", "volatility_30d": "percent_daily",
     "avg_trade_value_30d": "rial", "latest_price": "rial",
+    "market_cap": "rial", "shares_outstanding": "count",
     "pe": "ratio", "ps": "ratio", "pb": "ratio", "ocf_ttm": "rial",
 }
 
@@ -119,6 +123,133 @@ def cap(v, lo, hi):
     return lo if v < lo else hi if v > hi else v
 
 
+# ---- valuation construction -------------------------------------------------
+# Direct canonical valuation: each ratio is built from its own economic
+# quantity. The identities PS = PE x net_margin and PB = PE x ROE are NOT used
+# in production: one bad PE (comparative EPS columns are not always restated on
+# a common share basis) would contaminate all three ratios.
+VAL_DIRECT = "direct"
+VAL_LEGACY = "legacy"
+
+PE_METHOD_DIRECT = "market_cap_over_net_profit_ttm"
+PS_METHOD_DIRECT = "market_cap_over_revenue_ttm"
+PB_METHOD_DIRECT = "market_cap_over_equity"
+PE_METHOD_LEGACY = "eps_ttm_legacy"
+PS_METHOD_LEGACY = "pe_x_net_margin_legacy"
+PB_METHOD_LEGACY = "pe_x_roe_legacy"
+PE_METHOD_UNAVAILABLE = "unavailable_no_market_cap"
+
+
+def direct_valuation(market_cap, net_profit_ttm, revenue_ttm, equity):
+    """PE/PS/PB from a PIT market cap and absolute canonical quantities (IRR).
+
+    PE and PS use trailing-twelve-month flows, PB the latest PIT-valid
+    balance-sheet stock. Each ratio stays None when its own denominator is
+    unusable, independently of the other two.
+    """
+    pe = ps = pb = None
+    if market_cap is not None and market_cap > 0:
+        if net_profit_ttm not in (None, 0):
+            pe = market_cap / net_profit_ttm          # negative when loss-making
+        if revenue_ttm is not None and revenue_ttm > 0:
+            ps = market_cap / revenue_ttm
+        if equity is not None and equity > 0:
+            pb = market_cap / equity
+    return pe, ps, pb
+
+
+def legacy_valuation(latest_price, eps_ttm, net_margin, roe):
+    """Pre-correction EPS-based valuation, retained for historical comparability."""
+    pe = (latest_price / eps_ttm) if (latest_price and eps_ttm not in (None, 0)) else None
+    ps = (pe * net_margin / 100.0) if (pe is not None and net_margin is not None and net_margin > 0) else None
+    pb = (pe * roe / 100.0) if (pe is not None and roe is not None and roe > 0) else None
+    return pe, ps, pb
+
+
+def rel_dev(value, reference, threshold=0.01):
+    """Relative deviation of two comparable figures, or None when not comparable.
+
+    Used only as a diagnostic: a comparative column that does not match the
+    referenced statement's own reported value signals a restated share base.
+    """
+    if value in (None, 0) or reference in (None, 0):
+        return None
+    dev = abs(value - reference) / abs(reference)
+    return dev if dev > threshold else None
+
+
+def pit_share_snapshot(rows, as_of, cutoff):
+    """Latest PIT-valid share snapshot per security.
+
+    A snapshot is usable only when it was both dated (``as_of_date``) and
+    collected (``collected_at``) at or before the valuation instant, so a later
+    share count can never leak backwards into an earlier valuation.
+    """
+    best: dict = {}
+    for r in rows:
+        snap_date = r.get("as_of_date")
+        if snap_date is None or snap_date > as_of:
+            continue
+        collected = r.get("collected_at")
+        if collected is not None and collected > cutoff:
+            continue
+        rank = (snap_date, collected or dt.datetime.min.replace(tzinfo=dt.timezone.utc), r.get("id") or 0)
+        cur = best.get(r["security_id"])
+        if cur is None or rank > cur[0]:
+            best[r["security_id"]] = (rank, r)
+    return {sid: entry[1] for sid, entry in best.items()}
+
+
+def select_current_shares(tsetmc_rows, vendor_pit: dict, cutoff) -> dict:
+    """CURRENT share-source precedence (contract: UI_SCORE_CURRENT_SOURCE_CONTRACT.md).
+
+    PRIMARY  TSETMC_ZTITAD_CURRENT      real collected_at <= cutoff (never backdated)
+    FALLBACK BRS_SHARE_STRUCTURE_CURRENT (vendor PIT snapshot) when no eligible TSETMC row
+    BOTH_MISSING -> shares None -> existing valuation penalty applies upstream.
+
+    Returns {security_id: {shares, source, collected_at, source_as_of, fallback_used,
+    cross_check_status}}. cross_check_status compares the two sources when both exist
+    (AGREE / DISAGREE) and records single-source coverage otherwise. Historical
+    (market_pit='trade_date') runs never call this — the frozen historical contract
+    (TSETMC share-change history + Codal knowledge_from) applies there instead.
+    """
+    best: dict = {}
+    for r in tsetmc_rows or []:
+        ca = r.get("collected_at")
+        if ca is None or ca > cutoff:
+            continue
+        sid = r.get("security_id")
+        rank = (ca, r.get("id") or 0)
+        cur = best.get(sid)
+        if cur is None or rank > cur[0]:
+            best[sid] = (rank, r)
+    out: dict = {}
+    for sid in set(list(best.keys()) + list((vendor_pit or {}).keys())):
+        t = best.get(sid)
+        v = (vendor_pit or {}).get(sid)
+        t_sh = num(t[1].get("shares_count")) if t else None
+        v_sh = num(v.get("shares_count")) if v else None
+        if t_sh:
+            src, sh, ca = "TSETMC_ZTITAD_CURRENT", t_sh, t[1].get("collected_at")
+            sa, fb = None, False
+            if v_sh is None:
+                xc = "TSETMC_ONLY"
+            elif abs(v_sh - t_sh) / max(v_sh, t_sh, 1) < 1e-9:
+                xc = "AGREE"
+            else:
+                xc = "DISAGREE"
+        elif v_sh:
+            src, sh, ca = "BRS_SHARE_STRUCTURE_CURRENT", v_sh, v.get("collected_at")
+            sa, fb = v.get("as_of_date"), True
+            xc = "VENDOR_ONLY"
+        else:
+            src = sh = ca = sa = None
+            fb, xc = False, "BOTH_MISSING"
+        out[sid] = {"shares": sh, "source": src, "collected_at": ca, "source_as_of": sa,
+                    "fallback_used": fb, "cross_check_status": xc}
+    return out
+
+
 def midrank(values: dict, higher_is_better=True, neutral=0.3, invalid_zero=None):
     present = {k: v for k, v in values.items() if v is not None}
     n = len(present)
@@ -150,13 +281,17 @@ def fiscal_ym(period_end_date):
 
 class Engine:
     def __init__(self, as_of: dt.date, cutoff: dt.datetime,
-                 market_pit: str = "collected_at", market_as_of_date: dt.date | None = None):
+                 market_pit: str = "collected_at", market_as_of_date: dt.date | None = None,
+                 valuation: str = VAL_DIRECT):
         self.as_of = as_of
         self.cutoff = cutoff
         # market_pit: "collected_at" (canonical contract, default) or "trade_date"
         # (historical backtest proxy: a price for trade_date d is available at end of d).
         self.market_pit = market_pit
         self.market_as_of_date = market_as_of_date or as_of
+        # valuation: "direct" (PIT market cap / absolute quantities) or "legacy"
+        # (pre-correction EPS-based path, for reproducing historical runs).
+        self.valuation = valuation
         self.flags_by_company: dict[str, DQ] = {}
 
     def load(self):
@@ -218,6 +353,43 @@ class Engine:
                 FROM market.price_observations
                 WHERE collected_at <= %s
                 ORDER BY security_id, trade_date DESC, collected_at DESC""", (self.cutoff,))
+
+        # PIT market-cap inputs (shares outstanding). Explicit vendor share
+        # structure only: no share count is inferred from capital/nominal value,
+        # because the implied nominal value is not 1000 IRR for every issuer.
+        # Selection is bounded by as_of_date AND collected_at (in
+        # pit_share_snapshot) so a later snapshot cannot leak backwards.
+        self.share_structure = rows("""
+            SELECT id, security_id::text AS security_id, company_id::text AS company_id,
+                   shares_count, market_value_rial, eps_rial, as_of_date, source, collected_at
+            FROM core.share_structure
+            WHERE as_of_date <= %s""", (self.as_of,))
+
+        # CURRENT share-source contract: PRIMARY = TSETMC zTitad snapshots with a REAL
+        # collected_at <= cutoff; FALLBACK = vendor core.share_structure. Historical
+        # (market_pit='trade_date') runs never read this table — the frozen historical
+        # contract (TSETMC share-change history + Codal knowledge_from) applies there.
+        self.tsetmc_current = []
+        if self.market_pit != "trade_date":
+            try:
+                self.tsetmc_current = rows("""
+                    SELECT id, security_id::text AS security_id, shares_count, collected_at, source
+                    FROM market.tsetmc_current_shares
+                    WHERE collected_at <= %s
+                    ORDER BY security_id, collected_at DESC""", (self.cutoff,))
+            except Exception:
+                self.tsetmc_current = []
+
+        # Explicit fiscal-calendar evidence: Codal report titles state the
+        # duration (3/6/9/12 ماهه) and the period end. Required to anchor TTM on
+        # the company's real annual report instead of assuming month 12.
+        self.codal_titles = rows("""
+            SELECT r.company_id::text AS company_id, r.title, r.period_end_date
+            FROM ingestion.reports r
+            WHERE r.source = 'codal' AND r.report_type = 'financial_statement'
+              AND r.title IS NOT NULL AND r.period_end_date IS NOT NULL
+              AND r.published_at IS NOT NULL AND r.published_at <= %s
+            ORDER BY r.period_end_date""", (self.cutoff,))
         pg.close()
 
     # ---------- population ----------
@@ -319,6 +491,29 @@ class Engine:
         for p in self.prices:
             px.setdefault(p["security_id"], []).append(p)
 
+        # PIT shares outstanding per security (explicit vendor snapshot only)
+        shares_pit = pit_share_snapshot(getattr(self, "share_structure", []), self.as_of, self.cutoff)
+        # CURRENT share-source precedence (production/current mode only)
+        if self.market_pit == "trade_date":
+            self.current_shares = {}
+        else:
+            self.current_shares = select_current_shares(
+                getattr(self, "tsetmc_current", []), shares_pit, self.cutoff)
+
+        # Fiscal calendar: per-cell duration + per-company annual anchor month,
+        # both derived from explicit Codal report titles.
+        cal_rows = []
+        for row in getattr(self, "codal_titles", []):
+            try:
+                c_fy, c_fm = fiscal_ym(row["period_end_date"])
+            except Exception:
+                continue
+            cal_rows.append((row["company_id"], row["title"], c_fy, c_fm))
+        durations_cell, fiscal_cal = build_fiscal_calendar(cal_rows)
+        durations_by_company: dict = {}
+        for (c_id, cell_key), dur in durations_cell.items():
+            durations_by_company.setdefault(c_id, {})[cell_key] = dur
+
         metrics = {}
         for cid, s in subjects.items():
             dq = self.flags_by_company.setdefault(cid, DQ())
@@ -353,8 +548,19 @@ class Engine:
 
             prov = {}
 
+            ann_month, ann_state, ann_src = annual_month_of(fiscal_cal, cid)
+            cell_durations = durations_by_company.get(cid, {})
+
             def rtt(metric, fy, fm, tag):
-                v, p = resolve_ttm(rep, metric, fy, fm)
+                # is_annual True only with explicit evidence (a 12-month title).
+                is_annual = True if cell_durations.get((fy, fm)) == 12 else None
+                anchor = prev_annual_cell(cell_durations, fy, fm)
+                v, p = resolve_ttm(rep, metric, fy, fm, annual_month=ann_month,
+                                   is_annual=is_annual, prev_annual_cell=anchor)
+                if p == PROV_CHAIN and anchor is None and ann_state != STATE_EXPLICIT:
+                    # The chain needed a fiscal-year anchor and no explicit
+                    # evidence exists: report blocked rather than a guessed TTM.
+                    v, p = None, PROV_FISCAL_UNKNOWN
                 prov[tag] = p
                 return v
 
@@ -435,11 +641,44 @@ class Engine:
             liq = sum(tvs) / len(tvs) if tvs else None
             if not srows:
                 dq.add("missing_price")
-            pe = None
-            if latest_price and eps_ttm and eps_ttm != 0:
-                pe = latest_price / eps_ttm
-            ps = (pe * net_margin / 100.0) if (pe is not None and net_margin is not None and net_margin > 0) else None
-            pb = (pe * roe / 100.0) if (pe is not None and roe is not None and roe > 0) else None
+
+            # ---- valuation (direct canonical) ----
+            cur_sel = self.current_shares.get(s["security_id"]) if s["security_id"] else None
+            share_row = shares_pit.get(s["security_id"]) if s["security_id"] else None
+            if cur_sel and cur_sel["shares"]:
+                shares_out = cur_sel["shares"]
+            else:
+                shares_out = num(share_row["shares_count"]) if share_row else None
+            market_cap = (latest_price * shares_out
+                          if (latest_price and latest_price > 0 and shares_out and shares_out > 0)
+                          else None)
+            if self.valuation == VAL_LEGACY:
+                pe, ps, pb = legacy_valuation(latest_price, eps_ttm, net_margin, roe)
+                pe_m, ps_m, pb_m = PE_METHOD_LEGACY, PS_METHOD_LEGACY, PB_METHOD_LEGACY
+            else:
+                pe, ps, pb = direct_valuation(market_cap, net_ttm, revenue_ttm, equity)
+                pe_m, ps_m, pb_m = PE_METHOD_DIRECT, PS_METHOD_DIRECT, PB_METHOD_DIRECT
+                if market_cap is None:
+                    dq.add("VALUATION_INPUT_MISSING")
+                    pe_m = ps_m = pb_m = PE_METHOD_UNAVAILABLE
+
+            # ---- valuation diagnostics (informational; never scored) ----
+            if (eps_ttm not in (None, 0) and net_ttm not in (None, 0)
+                    and (eps_ttm > 0) != (net_ttm > 0)):
+                dq.add("EPS_NETPROFIT_SIGN_MISMATCH")
+            if prov.get("eps_ttm") != prov.get("net_profit_ttm"):
+                dq.add("TTM_METHOD_MISMATCH")
+            # a subject with no eligible report at this as_of has latest=None; the
+            # diagnostics below are report-chain based and simply do not apply
+            cell_latest = (rep.get(latest) or {}) if latest else {}
+            eps_orders = cell_latest.get("eps") or {}
+            cmp_prev = (rep.get((latest[0] - 1, latest[1])) or {}) if latest else {}
+            cmp_fy = (rep.get((latest[0] - 1, 12)) or {}) if latest else {}
+            if (rel_dev(eps_orders.get(2), (cmp_prev.get("eps") or {}).get(1)) is not None
+                    or rel_dev(eps_orders.get(3), (cmp_fy.get("eps") or {}).get(1)) is not None):
+                dq.add("EPS_COMPARATIVE_SHARE_BASE_MISMATCH")
+            if rep and ann_state != STATE_EXPLICIT:
+                dq.add("FISCAL_CALENDAR_UNKNOWN")
 
             metrics[cid] = {
                 "symbol": s["symbol"], "security_id": s["security_id"],
@@ -453,9 +692,25 @@ class Engine:
                 "interest_coverage": interest, "earnings_quality": earnings_q, "cash_conversion": cash_conv,
                 "price_momentum_30d": mom, "volatility_30d": vol, "avg_trade_value_30d": liq,
                 "latest_price": latest_price, "pe": pe, "ps": ps, "pb": pb,
+                "market_cap": market_cap, "shares_outstanding": shares_out,
                 "ocf_ttm": ocf_ttm,
                 "has_financial": s["has_financial"], "has_monthly": s["has_monthly"],
                 "has_price": bool(srows), "_dq": dq, "_ttm_prov": prov,
+                "_valuation_prov": {
+                    "valuation_mode": self.valuation,
+                    "pe_method": pe_m, "ps_method": ps_m, "pb_method": pb_m,
+                    "share_source": (cur_sel["source"] if cur_sel and cur_sel["source"]
+                                     else (share_row.get("source") if share_row else None)),
+                    "share_source_collected_at": (cur_sel["collected_at"] if cur_sel else None),
+                    "share_source_fallback_used": (cur_sel["fallback_used"] if cur_sel else None),
+                    "share_cross_check_status": (cur_sel["cross_check_status"] if cur_sel else None),
+                    "share_as_of_date": (share_row.get("as_of_date") if share_row else None),
+                },
+                "_fiscal_calendar": {
+                    "fiscal_year_end_month": ann_month,
+                    "state": ann_state,
+                    "source": ann_src,
+                },
             }
         self.metrics = metrics
         self.rank_and_score()
@@ -545,19 +800,23 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--as-of", default="2026-09-24")
     ap.add_argument("--cutoff", default="2026-09-24T20:41:02+00:00")
+    ap.add_argument("--valuation", choices=[VAL_DIRECT, VAL_LEGACY], default=VAL_DIRECT,
+                    help="direct: PIT market cap / absolute quantities (default); "
+                         "legacy: pre-correction EPS-based ratios")
     ap.add_argument("--store", action="store_true")
     args = ap.parse_args()
     as_of = dt.date.fromisoformat(args.as_of)
     cutoff = dt.datetime.fromisoformat(args.cutoff)
 
     OUT.mkdir(parents=True, exist_ok=True)
-    eng = Engine(as_of, cutoff)
+    eng = Engine(as_of, cutoff, valuation=args.valuation)
     metrics = eng.compute()
     digest = eng.digest()
 
     (OUT / "canonical_v1_metrics.json").write_text(
         json.dumps({c: {**{k: v for k, v in m.items() if not k.startswith("_")},
-                         "_ttm_prov": m.get("_ttm_prov", {})}
+                         "_ttm_prov": m.get("_ttm_prov", {}),
+                         "_valuation_prov": m.get("_valuation_prov", {})}
                     for c, m in metrics.items()}, indent=1, default=str), encoding="utf-8")
     (OUT / "canonical_v1_hash.txt").write_text(digest + "\n", encoding="utf-8")
     print("population:", len(metrics), "hash:", digest)
@@ -570,15 +829,26 @@ def main() -> int:
 
 
 def store_run(eng, metrics, as_of, cutoff, digest):
+    # metric_snapshots is keyed by (as_of_date, company_id, metric_code,
+    # calculation_version), so a new valuation construction for the same as_of
+    # must carry its own calculation version instead of colliding with the run
+    # that used the old formulas. score_version (the value the reader filters
+    # on) is deliberately left unchanged.
+    calc_version = SCORE_VERSION + ("+direct-valuation+fiscal-anchor-cell"
+                                    if eng.valuation == VAL_DIRECT else "")
     pg = pg_pilot_conn()
     try:
         with pg.cursor() as cur:
             cur.execute("""INSERT INTO analytics.score_runs
                 (score_version, as_of_date, source_cutoff_at, status, completed_at, code_version, parameters)
                 VALUES (%s,%s,%s,'completed',now(),%s,%s) RETURNING id""",
-                (SCORE_VERSION, as_of, cutoff, "canonical-v1-dev+report-chain-ttm",
+                (SCORE_VERSION, as_of, cutoff, "canonical-v1-dev+report-chain-ttm+direct-valuation+fiscal-anchor-cell",
                  json.dumps({"baseline_weights_v37": BASELINE_WEIGHTS_V37,
                              "weights_validated": False, "input_hash": digest,
+                             "valuation_mode": eng.valuation,
+                             "valuation_formulas": {
+                                 "pe": PE_METHOD_DIRECT, "ps": PS_METHOD_DIRECT, "pb": PB_METHOD_DIRECT},
+                             "fiscal_calendar": "codal_report_title",
                              "implementation_revision": "report-chain-ttm-v1"})))
             run_id = cur.fetchone()[0]
             for cid, v in metrics.items():
@@ -597,6 +867,7 @@ def store_run(eng, metrics, as_of, cutoff, digest):
                         continue
                     raw = factor_raw_value(v, fc)
                     spec = FACTOR_RAW_SPEC.get(fc)
+                    vprov = v.get("_valuation_prov") or {}
                     cur.execute("""INSERT INTO analytics.factor_scores
                         (run_id, company_id, factor_code, raw_value, percentile,
                          weighted_score, weight, metadata)
@@ -606,7 +877,12 @@ def store_run(eng, metrics, as_of, cutoff, digest):
                          json.dumps({"weights_validated": False,
                                      "raw_unit": spec[1] if spec else None,
                                      "higher_is_better": spec[2] if spec else None,
-                                     "raw_field": spec[0][0] if spec else None},
+                                     "raw_field": spec[0][0] if spec else None,
+                                     **({"valuation_method": {
+                                         "PE": vprov.get("pe_method"),
+                                         "PS": vprov.get("ps_method"),
+                                         "PB": vprov.get("pb_method")}[fc]}
+                                        if fc in ("PE", "PS", "PB") else {})},
                                     ensure_ascii=False)))
                 for mc, mu in METRIC_UNITS.items():
                     val = v.get(mc)
@@ -617,7 +893,7 @@ def store_run(eng, metrics, as_of, cutoff, digest):
                          value, unit, calculation_version, source_cutoff_at, details)
                         VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
                         (as_of, cid, v["security_id"], mc, val, mu,
-                         SCORE_VERSION, cutoff,
+                         calc_version, cutoff,
                          json.dumps({"input_hash": digest}, ensure_ascii=False)))
             pg.commit()
             print("stored score_run", run_id, "companies", len(metrics))

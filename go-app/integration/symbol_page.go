@@ -97,8 +97,10 @@ func (p *PG) PriceHistoryByLegacyCompanyID(ctx context.Context, legacyID string,
 	if p == nil || p.db == nil {
 		return nil, fmt.Errorf("canonical postgres not configured")
 	}
-	if limit <= 0 || limit > 5000 {
+	if limit <= 0 {
 		limit = 365
+	} else if limit > MaxPriceHistoryLimit {
+		limit = MaxPriceHistoryLimit
 	}
 	ident, found, err := p.IdentityByLegacyCompanyID(ctx, legacyID)
 	if err != nil {
@@ -129,7 +131,7 @@ func (p *PG) PriceHistoryByLegacyCompanyID(ctx context.Context, legacyID string,
 		return nil, err
 	}
 	defer rows.Close()
-	out := make([]MarketInputRow, 0, limit)
+	out := make([]MarketInputRow, 0, preallocLimit(limit))
 	for rows.Next() {
 		var r MarketInputRow
 		var tradeDate any

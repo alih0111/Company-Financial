@@ -13,6 +13,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// MaxPriceHistoryLimit سقف تعداد رکوردهای تاریخچه‌ی قیمت است. کلاینت برای
+// «زوم‌اوت نامحدود» تا این عدد درخواست می‌دهد؛ هرچه تاریخچه‌ی نماد کوتاه‌تر
+// باشد همان مقدار موجود برگردانده می‌شود.
+const MaxPriceHistoryLimit = 100000
+
+// priceHistoryPrealloc ظرفیت اولیه‌ی اسلایس خروجی را محدود می‌کند تا درخواست‌های
+// بزرگ (زوم‌اوت نامحدود) بی‌جهت حافظه رزرو نکنند.
+func priceHistoryPrealloc(limit int) int {
+	if limit > 4096 {
+		return 4096
+	}
+	if limit < 0 {
+		return 0
+	}
+	return limit
+}
+
 func errString(err error) string {
 	if err == nil {
 		return ""
@@ -53,8 +70,8 @@ func GetPriceHistory(c *gin.Context) {
 	}
 
 	limit := parseIntQuery(c, "limit", 365)
-	if limit > 5000 {
-		limit = 5000
+	if limit > MaxPriceHistoryLimit {
+		limit = MaxPriceHistoryLimit
 	}
 
 	companyName = normalizePersian(companyName)

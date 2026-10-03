@@ -1,0 +1,126 @@
+{
+ "active_spec": {
+  "file": "portfolio_shadow/SHADOW_V1_1_SPEC.md",
+  "frozen_at_utc": "2026-10-03T19:40:34Z",
+  "kind": "PRE_FIRST_DECISION_CLARIFICATION",
+  "sha256": "f396b5f65474a017f7f97ff9f2d0c8679708f6e20ee104dc19dc53d06709ff0e",
+  "supersedes": {
+   "file": "portfolio_shadow/SHADOW_V1_SPEC.md",
+   "preserved_unchanged": true,
+   "sha256": "959b56904added66812ab3726fc067112d7bc12ab3d58d8334f3c4381540df3a"
+  }
+ },
+ "coverage_snapshot_at_freeze": {
+  "in_certified_identity_map": 235,
+  "scored_companies_last_pre_freeze_run": 271,
+  "unpriceable_if_selected": "handled by frozen failed-target rule (target stays cash) and issue log",
+  "with_raw_price_cache": 238
+ },
+ "coverage_snapshot_at_launch_audit": {
+  "forward_refresh_evidence": "portfolio_shadow/launch_audit/forward_refresh_evidence_20261003T193204Z.json",
+  "identity_AMBIGUOUS": 0,
+  "identity_FORWARD_MAP_VERIFIED": 36,
+  "identity_HISTORICAL_MAP_VERIFIED": 235,
+  "identity_UNRESOLVED": 0,
+  "identity_ledger": "portfolio_shadow/identity_onboarding_ledger.jsonl (36 onboarded, batch ONBOARD-20261003T193414Z)",
+  "scored_companies_last_pre_freeze_run": 271,
+  "with_raw_price_cache_after_forward_refresh": 271
+ },
+ "data_contracts": {
+  "calendar": "no Thu/Fri; breadth >= 30 securities with volume>0 (spec §5a, evidence in spec)",
+  "decision_schedule": "V1.1 §2: as_of_date = last canonical trading date of the decision month (recovered historical rule); skipped months allowed",
+  "forward_cache_refresh": "V1.1 §6: refresh_raw_caches_forward.py; append by (dEven,hEven); first-seen-wins; late arrivals for covered sessions skipped; vendor revisions counted/ignored; per-record insCode identity check",
+  "identity_onboarding": "V1.1 §7: HISTORICAL_MAP_VERIFIED / FORWARD_MAP_VERIFIED (ledger, append-only) / UNRESOLVED / AMBIGUOUS; only verified identities receive fills",
+  "price_path_A": "raw closing caches (pClosing) x CONFIRMED tsetmc_gap_rule_v1 factors",
+  "price_path_B_diagnostic_only": "market.price_observations (vendor_adjusted legacy_brs_adjusted; dedup by max collected_at; known phantom carry-over sessions excluded by §5a calendar)",
+  "source_cutoff_window": "V1.1 §3: [12:45 Tehran on as_of (operational post-close), EOD UTC on as_of (historical knowledge contract)]"
+ },
+ "decisions": [],
+ "engine": {
+  "accounting_invariants": [
+   "NAV_post = NAV_pre - cost (exact)",
+   "cash >= 0",
+   "buy-delta scaling only",
+   "position continuity",
+   "self-financing"
+  ],
+  "certified_source": "portfolio_research/repair_accounting_v1.py",
+  "deterministic_port": "portfolio_shadow/deterministic_accounting.py",
+  "port_change_vs_certified": "sorted key iteration replacing unordered set iteration (spec §13); economics identical, parity-proven"
+ },
+ "engineering_validation": {
+  "T1_unit_tests": {
+   "A_bps_and_B_one_way_purchase": "PASS",
+   "C_full_rotation": "PASS",
+   "D_zero_turnover": "PASS",
+   "E_proportional_reduction": "PASS"
+  },
+  "T2_invariant_sweep": "PASS",
+  "T3_parity_vs_certified": {
+   "max_abs_diff": 2.842170943040401e-14,
+   "note": "certified engine iterates unordered sets; diff is summation-order float noise (relative magnitude ~1e-16 of position values; scaling-path arithmetic chains can accumulate to ~1e-13 absolute)",
+   "required_max": 1e-12,
+   "verdict": "PASS",
+   "worst_scenario": 0
+  },
+  "T4_observer_close": {
+   "carried_held_nontradable": "PASS",
+   "cash_nonneg": "PASS",
+   "cost_is_50bps_of_notional": "PASS",
+   "failed_target_not_bought": "PASS",
+   "nav_identity": "PASS",
+   "reselected_held_executed_to_target": "PASS",
+   "scaling_buy_scale_applied_when_cash_short": "PASS",
+   "scaling_cash_nonneg": "PASS",
+   "scaling_nav_identity": "PASS",
+   "turnover_positive_and_le_1": "PASS"
+  },
+  "T5_determinism": {
+   "byte_identical_across_processes": true,
+   "n_artifacts": 4,
+   "pythonhashseeds": [
+    "1",
+    "2",
+    "3"
+   ],
+   "verdict": "PASS"
+  },
+  "all_pass": true,
+  "fixture_sha256": "2bcded7eb73fb777ae398c0f052e13d01a207db772713d51c0795e7bda343c3e",
+  "report": "portfolio_shadow/tests/determinism_report.json"
+ },
+ "flags": {
+  "BROKER_CONNECTION_ENABLED": "NO",
+  "REAL_MONEY_ORDERS_ENABLED": "NO",
+  "SHADOW_ACCOUNTING_ENGINE": "CERTIFIED_REPAIRED_DETERMINISTIC_PORT",
+  "SHADOW_BUILD_DETERMINISTIC": "PASS",
+  "SHADOW_DATA_PIPELINE_READY": "YES",
+  "SHADOW_IDENTITY_READY": "YES",
+  "SHADOW_LIVE_START_READY": "YES",
+  "SHADOW_V1_SPEC_FROZEN": "YES"
+ },
+ "historical_prereg_sha256": "10e6aa0e477b89eb73a5deacb72a4e337467fcfd2a06fd736a78e5954ecaf17c",
+ "ignored_runs": [],
+ "last_pre_freeze_production_run": {
+  "as_of_date": "2026-10-02",
+  "completed_at_tehran": "2026-10-02T15:04:14+03:30",
+  "input_hash": "d75b8c5b7a13cdaaa70f54f428d6a9590f07a1c8475ff066a7f05d3bbf554d44",
+  "role": "test fixture only (portfolio_shadow/tests); can never be a shadow observation",
+  "run_id": "e5998f6d-93ab-4577-b13a-7b2f89c39c02"
+ },
+ "prohibitions": [
+  "no brokerage transmission",
+  "no real-money orders",
+  "no automatic account access",
+  "no modification of the frozen score/selection/schedule/weights/execution/costs/gates for 12 monthly cycles",
+  "no backfilled or synthetic shadow observations",
+  "no Score V2",
+  "no Fundamental Event V1 execution"
+ ],
+ "shadow_version": "SHADOW_V1_1",
+ "spec_file": "portfolio_shadow/SHADOW_V1_1_SPEC.md (active; SHADOW_V1_SPEC.md preserved unchanged)",
+ "spec_frozen_at_utc": "2026-10-03T18:45:00Z",
+ "spec_sha256": "959b56904added66812ab3726fc067112d7bc12ab3d58d8334f3c4381540df3a",
+ "start_rule": "V1.1 §2: decision month M = earliest completed canonical-v1-dev run with completed_at > 2026-10-03T18:45:00Z whose as_of_date equals the LAST canonical trading date of month M, source_cutoff_at within [12:45 Tehran on as_of, EOD UTC as_of], projected execution date not yet underway at build (no backfill); months without a qualifying run are skipped and logged; one decision per calendar month.",
+ "strategy": "score-portfolio-v1-top20"
+}

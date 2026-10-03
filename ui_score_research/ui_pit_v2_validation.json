@@ -1,0 +1,156 @@
+{
+ "coverage": {
+  "rows": 12604,
+  "dates": 63,
+  "symbols": 235,
+  "rows_with_ret21": 12604,
+  "rows_with_ret252": 10803,
+  "ui_score_null": 0
+ },
+ "ic": {
+  "21": {
+   "n_dates": 63,
+   "mean_spearman": 0.057413199647373465,
+   "median_spearman": 0.05164151844153559,
+   "positive_fraction": 0.7301587301587301
+  },
+  "63": {
+   "n_dates": 62,
+   "mean_spearman": 0.0853334140049092,
+   "median_spearman": 0.0814864532783943,
+   "positive_fraction": 0.7903225806451613
+  },
+  "126": {
+   "n_dates": 61,
+   "mean_spearman": 0.10956832630790993,
+   "median_spearman": 0.09218680588413725,
+   "positive_fraction": 0.9016393442622951
+  },
+  "252": {
+   "n_dates": 55,
+   "mean_spearman": 0.1030735896235202,
+   "median_spearman": 0.1096209175835408,
+   "positive_fraction": 0.8181818181818182
+  }
+ },
+ "ic_excess": {
+  "21": {
+   "n_dates": 63,
+   "mean_spearman": 0.057413199647373465,
+   "positive_fraction": 0.7301587301587301
+  },
+  "63": {
+   "n_dates": 62,
+   "mean_spearman": 0.0853334140049092,
+   "positive_fraction": 0.7903225806451613
+  },
+  "126": {
+   "n_dates": 61,
+   "mean_spearman": 0.10956832630790993,
+   "positive_fraction": 0.9016393442622951
+  },
+  "252": {
+   "n_dates": 55,
+   "mean_spearman": 0.1030735896235202,
+   "positive_fraction": 0.8181818181818182
+  }
+ },
+ "quintiles": {
+  "21": {
+   "n_dates": 63,
+   "quintile_mean_return": {
+    "1": 0.05537575887470644,
+    "2": 0.05644707343984845,
+    "3": 0.0402735707930527,
+    "4": 0.046166016443807745,
+    "5": 0.039932222800751524
+   },
+   "q5_q1_mean_spread_pp": -1.5443536073954909
+  },
+  "63": {
+   "n_dates": 62,
+   "quintile_mean_return": {
+    "1": 0.08744151822561237,
+    "2": 0.09685583049456943,
+    "3": 0.08835095841809346,
+    "4": 0.10052008854919972,
+    "5": 0.10525485409159167
+   },
+   "q5_q1_mean_spread_pp": 1.781333586597928
+  },
+  "126": {
+   "n_dates": 61,
+   "quintile_mean_return": {
+    "1": 0.16029883629040637,
+    "2": 0.177703428003417,
+    "3": 0.18092804352867298,
+    "4": 0.20173835885717947,
+    "5": 0.22027565518897052
+   },
+   "q5_q1_mean_spread_pp": 5.997681889856414
+  },
+  "252": {
+   "n_dates": 55,
+   "quintile_mean_return": {
+    "1": 0.34997813331083,
+    "2": 0.36132438296743546,
+    "3": 0.3703087405429077,
+    "4": 0.41759932160269103,
+    "5": 0.4541118436855256
+   },
+   "q5_q1_mean_spread_pp": 10.41337103746957
+  }
+ },
+ "bootstrap": {
+  "seed": 20261003,
+  "B": 2000,
+  "ic63": {
+   "mean": 0.0853334140049092,
+   "ci_lower": 0.04725881846167762,
+   "ci_upper": 0.12482770901381422,
+   "block_len": 4,
+   "B": 2000
+  },
+  "spread63_pp": {
+   "mean": 1.7813335865979283,
+   "ci_lower": -2.3765300801566283,
+   "ci_upper": 5.689431481823814,
+   "block_len": 4,
+   "B": 2000
+  }
+ },
+ "comparison": {
+  "per_horizon": {
+   "IC21": {
+    "v2": 0.0574,
+    "frozen": 0.1103,
+    "delta": -0.0529,
+    "class": "MATERIALLY_WEAKER"
+   },
+   "IC63": {
+    "v2": 0.0853,
+    "frozen": 0.1543,
+    "delta": -0.069,
+    "class": "MATERIALLY_WEAKER"
+   },
+   "IC126": {
+    "v2": 0.1096,
+    "frozen": 0.1806,
+    "delta": -0.071,
+    "class": "MATERIALLY_WEAKER"
+   },
+   "IC252": {
+    "v2": 0.1031,
+    "frozen": 0.1571,
+    "delta": -0.054,
+    "class": "MATERIALLY_WEAKER"
+   }
+  },
+  "UI_HISTORICAL_VALIDATION_PIT_REPAIR": "MATERIALLY_WEAKER",
+  "materiality_rule": "|Delta IC| >= 0.02 (a priori, = FE6 convention)"
+ },
+ "artifacts": {
+  "panel": "D:\\RFA\\Company-Financial\\ui_score_research\\ui_score_historical_pit_v2\\ui_score_historical_pit_v2.jsonl",
+  "convention": "frozen ui_score_historical_analysis.py"
+ }
+}

@@ -279,7 +279,7 @@
         -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
     }
     .animate-marquee {
-        animation: marquee 40s linear infinite;
+        animation: marquee 120s linear infinite;
     }
     .animate-marquee:hover {
         animation-play-state: paused;

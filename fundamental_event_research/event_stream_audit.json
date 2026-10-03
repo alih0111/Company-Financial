@@ -1,0 +1,182 @@
+{
+ "reconciliation": {
+  "monthly": {
+   "canonical_events_total": 12180,
+   "independent_match_stats": {
+    "AMBIGUOUS": 6,
+    "MATCH_STRONG": 7487,
+    "MATCH_STRONG_CORRECTION": 2128,
+    "NOT_FOUND": 2559
+   },
+   "matched_events_total": 9615,
+   "old_stream_rows": 11743,
+   "old_stream_status_counts": {
+    "MATCH_STRONG": 7487,
+    "MATCH_STRONG_CORRECTION": 4256
+   },
+   "canonical_publication_rows": 12183,
+   "original_rows": 9615,
+   "correction_rows": 2568,
+   "reconciliation": "12180 canonical events = 7487 MATCH_STRONG + 2128 MATCH_STRONG_CORRECTION + 6 AMBIGUOUS + 2559 NOT_FOUND; publication rows = originals + every correction letter"
+  },
+  "financial": {
+   "canonical_events_total": 8157,
+   "independent_match_stats": {
+    "AMBIGUOUS": 2665,
+    "MATCH_EXACT": 595,
+    "MATCH_STRONG": 2416,
+    "MATCH_STRONG_CORRECTION": 399,
+    "NOT_FOUND": 2082
+   },
+   "matched_events_total": 3410,
+   "intended_stream_publication_rows": 3249,
+   "actual_old_stream_financial_rows": 166,
+   "old_stream_financial_status_counts": {
+    "MATCH_STRONG_CORRECTION": 166
+   },
+   "old_stream_financial_unique_published_at": [
+    "2026-08-29 15:33:00+03:30"
+   ],
+   "old_stream_financial_published_at_nunique": 1,
+   "defect_confirmed": true
+  }
+ },
+ "duplicates": {
+  "letters_multi_symbol": {},
+  "letters_multi_symbol_count": 0,
+  "db_reports_tracing_no_nonnull": 0,
+  "monthly_event_id_duplicates": [],
+  "monthly_rows_not_in_raw_cache": 0,
+  "monthly_correction_rows_failing_letter_check": 0,
+  "monthly_originals_per_canonical_event": {
+   "max": 1,
+   "n_events": 9615
+  },
+  "old_stream_monthly_source_report_id_duplicates": 0,
+  "old_stream_financial_source_report_id_duplicates": 0
+ },
+ "timestamps": {
+  "rows": 12183,
+  "raw_jalali_parse_failures": 0,
+  "tehran_wall_time_matches_raw": 12183,
+  "tehran_date_matches_raw_jalali_date": 12183,
+  "utc_equal_stored": 12183,
+  "utc_mismatch_inside_dst_windows_2021_2022": 0,
+  "utc_mismatch_outside_dst_windows": 0,
+  "old_stream_utc_error_hours_histogram": {
+   "0.0": 9934,
+   "1.0": 1809
+  },
+  "old_stream_tz_note": "old event_stream_pit stamped every row with fixed +03:30; during Iran DST windows (2021-03-22..2021-09-21, 2022-03-22..2022-09-21) the true offset is +04:30, so its stored UTC instants are 1h late there. Signal entry uses the Tehran calendar date only, which is unaffected; the canonical artifact re-converts with the Asia/Tehran zone rules.",
+  "published_after_period_end": 12073,
+  "published_on_or_before_period_end": 110,
+  "early_publication_note": "early publications are genuine Codal letters filed 0-6 days before their Jalali Esfand period end; matching verified by exact title period; entry rule unchanged",
+  "early_publication_jalali_months": [
+   3,
+   4,
+   7,
+   12
+  ]
+ },
+ "corrections": {
+  "correction_rows": 2568,
+  "order_violations_correction_not_after_original": 0,
+  "same_day_corrections": 69,
+  "original_rows_retained_with_original_knowledge_time": true,
+  "corrected_values_available": false
+ },
+ "coverage": {
+  "publication_sequence_period_order_violations": {
+   "violations": 0,
+   "pairs": 9451
+  },
+  "eligible_events": 8270,
+  "symbols": 161,
+  "max_security_share": 0.007738814993954051,
+  "max_security": "شبصیر",
+  "year_distribution": {
+   "2021": 585,
+   "2022": 1407,
+   "2023": 1663,
+   "2024": 1757,
+   "2025": 1814,
+   "2026": 1044
+  },
+  "max_year_share": 0.21934703748488513,
+  "max_year": "2025",
+  "fe8_security_limit": 0.05,
+  "fe8_year_limit": 0.3,
+  "fe8_precheck_pass": true,
+  "distinct_entry_dates": 428,
+  "qualifying_dates_ge10": 230,
+  "events_on_qualifying_dates": 7662,
+  "fe1_precheck_pass": true
+ },
+ "feature_panel": {
+  "correction_treatment": "correction publications preserved as stream rows with their own knowledge time; excluded from the feature/event set because corrected numeric values were never ingested (value fidelity), per frozen PART 1 item 4/5. Not a threshold change.",
+  "entry_rule": {
+   "e2_strictly_after": 9615,
+   "e2_rows": 9615,
+   "e2_equals_next_trading_date": 9615
+  },
+  "yoy_sanity": {
+   "n": 8270,
+   "median": 0.4584186184126309,
+   "p1": -0.7557128309510781,
+   "p99": 5.942851039879732,
+   "share_abs_gt_1": 0.19818621523579202
+  },
+  "acceleration_sanity": {
+   "n": 8270,
+   "median": 0.002094214168316455,
+   "p1": -4.214887558179146,
+   "p99": 4.2395028663968874,
+   "share_abs_gt_1": 0.13059250302297462
+  },
+  "ineligibility_reasons_originals": {
+   "NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PUBLICATION_YOY": 1081,
+   "NO_PREVIOUS_PUBLICATION_YOY": 195,
+   "INVALID_CURRENT_SALES;NO_PRIOR_YEAR_COMPARATOR;NO_PREVIOUS_PUBLICATION_YOY": 69
+  },
+  "e4_prior_year_verification": {
+   "eligible_total": 8270,
+   "verified_true": 7458,
+   "not_recoverable_none": 812,
+   "hard_violations_false": 0,
+   "note": "True = comparator period's own publication time recovered and strictly earlier than the event; None = comparator period letter not matched (soft evidence: 0 period-order violations in 9,451 publication-sequence pairs); False would be a leak and is excluded by PRIOR_YEAR_NOT_KNOWN_AT_EVENT_TIME"
+  },
+  "artifact_rows": 12183,
+  "artifact_original_rows": 9615,
+  "artifact_correction_rows": 2568
+ },
+ "defect_ledger": {
+  "old_pre_outcome_panel": {
+   "file": "research_bundle/fundamental_event_pre_outcome_panel.parquet",
+   "defect": "same-month-prior-year lookup in fundamental_event_feasibility.py was not restricted to the event's company (loop over all companies, first month match won, no ORDER BY -> nondeterministic). All SALES_YOY_*/acceleration values are invalid.",
+   "evidence": {
+    "median_yoy": 3.217673827568772,
+    "p99_yoy": 3069.045229075064,
+    "share_abs_yoy_gt_1": 0.6549742710120069,
+    "rows": 11743
+   },
+   "status": "SUPERSEDED by fundamental_event_research/monthly_sales_events_pit.parquet"
+  },
+  "old_feasibility_json": {
+   "file": "research_bundle/fundamental_event_feasibility.json",
+   "defect": "counts derived from the defective panel; PART 15 measured numbers superseded by this audit",
+   "status": "SUPERSEDED (frozen gate THRESHOLDS unchanged; only measured counts corrected)"
+  },
+  "old_event_stream_financial_rows": {
+   "file": "research_bundle/event_stream_pit.parquet",
+   "defect": "financial section of match_pub_times.py never emitted original MATCH_STRONG rows; 166 rows exist only where loop state leaked from the monthly section: all 166 carry one constant published_at (the last monthly letter's stamp) and canonical report UUIDs as source_report_id. Financial stream section is quarantined.",
+   "monthly_section_status": "VALID (proven by independent matcher + row-level reconciliation)",
+   "status": "monthly: superseded by canonical artifact; financial: QUARANTINED — rebuild is a separate future task"
+  }
+ },
+ "artifacts": {
+  "preregistration_sha256": "5dff31d525a58b6474d06956eab5abff5a93ff898f3571358ac0d3b637c66fd1",
+  "monthly_sales_events_pit_parquet": "D:\\RFA\\Company-Financial\\fundamental_event_research\\monthly_sales_events_pit.parquet",
+  "monthly_sales_events_pit_parquet_sha256": "15d39e5389dc47de82d89d62d18debfc272d88bcbda5ca95f05a886d6fadefdf",
+  "audit_script_sha256": "e9febd438d4b45e67dd923fa43243bdcb9a15ccea7b77ff68eab89d51f339e89"
+ }
+}

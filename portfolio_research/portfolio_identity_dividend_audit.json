@@ -1,0 +1,211 @@
+{
+ "identity_audit": {
+  "scored_symbols": 235,
+  "db_invariants": {
+   "security_rows": 331,
+   "distinct_symbols": 331,
+   "distinct_ins_codes": 331,
+   "distinct_companies": 323,
+   "note": "1 symbol = 1 security row = 1 ins_code; symbol->issuer uniqueness is a DB invariant"
+  },
+  "findings": {
+   "A_symbol_multiple_issuers": [],
+   "B_issuer_multiple_symbols": [
+    {
+     "company": "صندوق س.کالای نوویرا1",
+     "symbols": [
+      "نقرین",
+      "نقرین2"
+     ],
+     "primary_symbol": "نقرین",
+     "kind": "same-issuer secondary instrument (X2 rights/fund class)"
+    },
+    {
+     "company": "صندوق س.پشتوانه طلا همیان سپهر",
+     "symbols": [
+      "همیان",
+      "همیان2"
+     ],
+     "primary_symbol": "همیان",
+     "kind": "same-issuer secondary instrument (X2 rights/fund class)"
+    },
+    {
+     "company": "صندوق س.کالای پاداش1",
+     "symbols": [
+      "سیلوا",
+      "سیلوا2"
+     ],
+     "primary_symbol": "سیلوا",
+     "kind": "same-issuer secondary instrument (X2 rights/fund class)"
+    },
+    {
+     "company": "صندوق س.بازده نقره نوا",
+     "symbols": [
+      "سیلور",
+      "سیلور2"
+     ],
+     "primary_symbol": "سیلور",
+     "kind": "same-issuer secondary instrument (X2 rights/fund class)"
+    },
+    {
+     "company": "صندوق س. کالای پاسارگاد",
+     "symbols": [
+      "ریتون",
+      "ریتون2"
+     ],
+     "primary_symbol": "ریتون",
+     "kind": "same-issuer secondary instrument (X2 rights/fund class)"
+    },
+    {
+     "company": "صندوق س.کالای پاداش",
+     "symbols": [
+      "گلدا",
+      "گلدا2"
+     ],
+     "primary_symbol": "گلدا",
+     "kind": "same-issuer secondary instrument (X2 rights/fund class)"
+    },
+    {
+     "company": "صندوق س.پشتوانه طلا نهایت نگر",
+     "symbols": [
+      "ناب",
+      "ناب2"
+     ],
+     "primary_symbol": "ناب",
+     "kind": "same-issuer secondary instrument (X2 rights/fund class)"
+    },
+    {
+     "company": "صندوق س.کالای کیان",
+     "symbols": [
+      "گوهر",
+      "گوهر2"
+     ],
+     "primary_symbol": "گوهر",
+     "kind": "same-issuer secondary instrument (X2 rights/fund class)"
+    }
+   ],
+   "C_symbol_reuse": [],
+   "D_overlapping_ids": [],
+   "E_nonoverlap_same_instrument": [],
+   "F_normalization_collisions": [],
+   "score_daily_mismatches": [],
+   "ambiguous": []
+  },
+  "symbols_with_identity_mismatch_score_vs_daily": 0,
+  "ambiguous_mappings": 0,
+  "F_note": "normalization collisions listed only when they involve distinct raw symbols"
+ },
+ "identity_map": {
+  "file": "D:\\RFA\\Company-Financial\\portfolio_research\\portfolio_identity_map.parquet",
+  "rows": 235,
+  "key": "portfolio_security_key = company_id:ins_code (stable TSETMC instrument mapped to company)",
+  "ambiguous_rows": 0,
+  "mapping_statuses": {
+   "UNIQUE": 235
+  },
+  "same_ins_code_as_daily": 235,
+  "different_ins_code_same_issuer": 0,
+  "different_issuer": 0
+ },
+ "feasibility_recheck": {
+  "rebalance_dates": 63,
+  "median_eligible": 212,
+  "top20_holdings_median": 42,
+  "top20_failed_mean": 0.0,
+  "top20_cash_pct_mean": 0.0,
+  "dates_with_top20_failure": 0,
+  "ambiguous_status_rows_in_score_panel": 0,
+  "ambiguous_symbols": [],
+  "matches_previous_symbol_only_feasibility": true,
+  "note": "identical to the symbol-only run because the canonical map resolves every scored symbol to a unique issuer/instrument and the daily lookups are symbol-keyed on both runs; the security_id mismatch never affects the daily-panel lookups"
+ },
+ "dividends": {
+  "disclosure_data_available": false,
+  "canonical_tables_with_dividend_fields": [],
+  "reports_with_dividend_titles": 0,
+  "fact_metric_codes_dividend": "none",
+  "file_cache_hits": [
+   "historical_codal_backfill\\output\\pilot_return_adjustment.json"
+  ],
+  "file_cache_hits_count": 1,
+  "gap_rule_dividend_hypotheses": {
+   "what": "4,344 corporate-action rows carry dividend_per_share_hypothesis — PRICE-GAP-DERIVED values (taxonomy PRICE_ADJUSTMENT_UNCLASSIFIED, detection official_gap_rule). These are NOT disclosure data and are NOT used as dividend inputs (prohibited).",
+   "by_year_2021_plus": {
+    "2021": {
+     "gap_events": 452,
+     "symbols": 198
+    },
+    "2022": {
+     "gap_events": 465,
+     "symbols": 202
+    },
+    "2023": {
+     "gap_events": 427,
+     "symbols": 215
+    },
+    "2024": {
+     "gap_events": 451,
+     "symbols": 213
+    },
+    "2025": {
+     "gap_events": 432,
+     "symbols": 216
+    },
+    "2026": {
+     "gap_events": 277,
+     "symbols": 205
+    }
+   },
+   "all_CONFIRMED_in_return_chain": 2504,
+   "implication": "the CONFIRMED official gap-rule chain ALREADY adjusts prices at these 2,504 dividend-like ex-date gaps (2021-2026, 198-216 symbols/year) — the adjustment FACTOR is official regardless of attribution, so the V1 return stream implicitly includes the wealth effect of these events; completeness of official gap detection is not provable"
+  },
+  "by_year": {
+   "2021": {
+    "disclosure_events": 0,
+    "symbols": 0
+   },
+   "2022": {
+    "disclosure_events": 0,
+    "symbols": 0
+   },
+   "2023": {
+    "disclosure_events": 0,
+    "symbols": 0
+   },
+   "2024": {
+    "disclosure_events": 0,
+    "symbols": 0
+   },
+   "2025": {
+    "disclosure_events": 0,
+    "symbols": 0
+   },
+   "2026": {
+    "disclosure_events": 0,
+    "symbols": 0
+   }
+  }
+ },
+ "total_return": {
+  "TOTAL_RETURN_RECONSTRUCTION": "PARTIAL",
+  "reason": "no disclosure-level DPS/entitlement data exists (explicit total-return reconstruction from source documents is impossible today); HOWEVER the CONFIRMED official gap-rule chain already embeds 2,504 dividend-like ex-date adjustments (2021-2026), so the V1 return stream implicitly includes most dividend wealth effects without any fabrication",
+  "unprovable_parts": "completeness of official gap detection (small dividends may not trigger the rule) and the dividend-vs-capital-change attribution of each gap (immaterial for wealth, material for labeling)",
+  "path_to_YES": "collect Codal AGM/board DPS disclosures + ex/entitlement dates (LetterType 8/9 نحوه تقسیم سود) into a canonical dividend table; then a disclosure-backed total-return reconstruction becomes feasible and SCORE_PORTFOLIO_V1_1 could supersede V1 before execution",
+  "consequence": "SCORE PORTFOLIO V1 remains PRICE_PLUS_MECHANICAL_ADJUSTMENTS as frozen; it is NOT a fully disclosed real-money wealth backtest, though its dividend coverage via official gap factors is likely substantial"
+ },
+ "readiness": {
+  "PORTFOLIO_IDENTITY_CONTRACT": "PASS",
+  "PORTFOLIO_EXECUTION_MAPPING_READY": "YES",
+  "CASH_DIVIDEND_DATA_AVAILABLE": "NO",
+  "TOTAL_RETURN_RECONSTRUCTION": "PARTIAL",
+  "PORTFOLIO_V1_EXISTING_SPEC_EXECUTION_READY": "YES",
+  "interpretation_boundary": "research execution readiness = YES (deterministic identity, execution dates, no ambiguity); real-money wealth interpretation readiness = PARTIAL (dividend wealth is implicitly included via official gap factors but cannot be separated or verified without disclosure data)"
+ },
+ "artifacts": {
+  "identity_map_parquet": "D:\\RFA\\Company-Financial\\portfolio_research\\portfolio_identity_map.parquet",
+  "identity_map_sha256": "eaea81523a11c09b864aca37e625f8efd4c03fd108f714c391d3d4a576e8b10a",
+  "audit_script_sha256": "2c33b7882c67522c2532d8a3f92452043d5e5e64b3a09aba848f9fe9fbc03c12",
+  "score_panel_sha256": "543dfbf732ae9b60eff8014b2226faa806ffb85baec8794a109870c97df0639a",
+  "preregistration_sha256": "10e6aa0e477b89eb73a5deacb72a4e337467fcfd2a06fd736a78e5954ecaf17c"
+ }
+}

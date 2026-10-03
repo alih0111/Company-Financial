@@ -101,3 +101,21 @@ def test_pit_cutoff_excludes_future_market_observations():
     eng = _engine(); eng.load()
     for p in eng.prices:
         assert p["collected_at"] <= eng.cutoff
+
+
+def test_subject_without_eligible_reports_does_not_break_compute():
+    """A subject whose report chain is empty at a historical as_of must not crash
+    the engine (regression: the valuation diagnostics dereferenced `latest`)."""
+    eng = CM.Engine(dt.date(2023, 7, 31),
+                    dt.datetime(2023, 7, 31, 23, 59, 59, tzinfo=dt.timezone.utc),
+                    market_pit="trade_date", market_as_of_date=dt.date(2023, 7, 31))
+    metrics = eng.compute()
+    assert metrics, "engine returned no subjects"
+    empty = [c for c, s in eng.build_subjects().items() if not eng.report_index().get(c)]
+    if empty:
+        for cid in empty:
+            if cid in metrics:
+                assert metrics[cid]["_dq"] is not None
+    eng2 = CM.Engine(dt.date(2026, 10, 1),
+                     dt.datetime(2026, 10, 1, 23, 59, 59, tzinfo=dt.timezone.utc))
+    assert eng2.compute()

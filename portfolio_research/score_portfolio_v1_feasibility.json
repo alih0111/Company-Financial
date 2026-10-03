@@ -1,0 +1,95 @@
+{
+ "rebalance_dates": {
+  "n": 63,
+  "first": "2021-01-31",
+  "last": "2026-06-30"
+ },
+ "selection": {
+  "eligible_per_date_median": 212,
+  "eligible_per_date_min": 79,
+  "eligible_per_date_max": 227,
+  "top20_holdings_median": 42,
+  "top20_holdings_min": 15,
+  "top20_holdings_max": 45,
+  "top10_holdings_median": 21,
+  "top10_holdings_min": 7,
+  "tie_break_rule": "(ui_score DESC, symbol ASC); n = max(1, floor(pct*N))"
+ },
+ "tradability": {
+  "exec_dates_resolvable": 63,
+  "top20_failed_median": 0.0,
+  "top20_failed_mean": 0.0,
+  "top20_cash_pct_mean": 0.0,
+  "top20_cash_pct_max": 0.0,
+  "top10_failed_mean": 0.0,
+  "top10_cash_pct_mean": 0.0,
+  "dates_with_top20_failure": 0,
+  "rule": "tradable iff daily-panel row exists AND security_traded == True; failed weight stays cash"
+ },
+ "coverage": {
+  "panel_rows": 12604,
+  "panel_symbols": 235,
+  "daily_panel_symbols": 238,
+  "scored_symbols_in_daily_panel": 235,
+  "identity_key": "symbol (score-panel is_primary security_id does not match the daily panel's research-symbol security_id for the same symbol)",
+  "by_year": {
+   "2021": {
+    "dates": 12,
+    "med_elig": 124,
+    "med_n20": 24,
+    "med_cash20": 0.0
+   },
+   "2022": {
+    "dates": 12,
+    "med_elig": 211,
+    "med_n20": 42,
+    "med_cash20": 0.0
+   },
+   "2023": {
+    "dates": 12,
+    "med_elig": 216,
+    "med_n20": 43,
+    "med_cash20": 0.0
+   },
+   "2024": {
+    "dates": 12,
+    "med_elig": 215,
+    "med_n20": 43,
+    "med_cash20": 0.0
+   },
+   "2025": {
+    "dates": 12,
+    "med_elig": 221,
+    "med_n20": 44,
+    "med_cash20": 0.0
+   },
+   "2026": {
+    "dates": 3,
+    "med_elig": 209,
+    "med_n20": 41,
+    "med_cash20": 0.0
+   }
+  }
+ },
+ "semantics": {
+  "PORTFOLIO_RETURN_SEMANTICS": "PRICE_PLUS_MECHANICAL_ADJUSTMENTS",
+  "basis": "canonical adjusted chain = pClosing x CONFIRMED tsetmc_gap_rule_v1 factors; corporate actions covered: capital_increase 384, rights_issue 480, reverse_split 30, other heuristic gaps 6,119",
+  "cash_dividends": "NOT captured (no dividend adjustment source exists)",
+  "terminology": "annualized/cumulative figures are price-plus-mechanical-adjustment returns; 'total shareholder return' is NOT a permitted label"
+ },
+ "gates_precheck": {
+  "PV7_median_holdings_ge20_top20": true,
+  "PV8_expected_involuntary_cash_le10pct_top20": true,
+  "note": "pre-checks only; PV1-PV8 are formally evaluated at execution"
+ },
+ "artifacts": {
+  "score_panel": "D:\\RFA\\Company-Financial\\ui_score_research\\ui_score_historical_pit_v2.parquet",
+  "score_panel_sha256": "543dfbf732ae9b60eff8014b2226faa806ffb85baec8794a109870c97df0639a",
+  "daily_panel": "D:\\RFA\\Company-Financial\\research_bundle\\daily_market_panel.parquet",
+  "daily_panel_sha256": "c94c19f55c72e416d1cbb1fe173a71ed5ecf803e1ad17b5a269d6839ed88db4d",
+  "feasibility_script_sha256": "5c3aa7ead0ecd6a691bdf066fb495da193eb89b7d219138b9b0bb6caacc40335",
+  "preregistration": "SCORE_PORTFOLIO_V1_PREREGISTRATION.md",
+  "preregistration_sha256": "10e6aa0e477b89eb73a5deacb72a4e337467fcfd2a06fd736a78e5954ecaf17c"
+ },
+ "PORTFOLIO_V1_FEASIBLE": "YES"
+}

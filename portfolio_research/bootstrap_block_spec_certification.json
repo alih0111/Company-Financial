@@ -1,0 +1,70 @@
+{
+ "prereg": {
+  "sha256": "10e6aa0e477b89eb73a5deacb72a4e337467fcfd2a06fd736a78e5954ecaf17c",
+  "bootstrap_observation_unit": "monthly portfolio return observations (verbatim: 'Monthly portfolio observations')",
+  "time_index_unit": "monthly periods (one excess-return observation per rebalance-to-rebalance interval)",
+  "required_block_duration": "verbatim: '6-month moving blocks'",
+  "observations_or_calendar_span": "NOT explicitly stated in the prereg; the observation unit is explicitly monthly RETURN observations, and no endpoint/span convention is defined anywhere in the document",
+  "explicit_implementation_convention": "none (the block=7 span helper was implementation, not spec)",
+  "verbatim": "Monthly portfolio observations; seed 20261003, B = 2000, 6-month moving blocks (date-level resampling); bootstrap CIs for mean monthly excess return and its annualized equivalent; if technically valid, CAGR difference via time-block paths. 95% intervals; block size never altered after results."
+ },
+ "vector": {
+  "n": 62,
+  "sha256_persisted_csv_vector": "d6a084dc728ca5539916b8f7e3c9a26e6ab0e1dc78868800c121761985f95b5e",
+  "sha256_fresh_resim_vector": "4cb283bf3fa24b983b73b12b3ea1d05be8a5b932821e91ab507edb0b7ead6cd2",
+  "sha256_certified_run_vector": "c0a0e62b8c8c09f186242bf456095afec938fb2d3fa6b71474d97dce1422dcbb",
+  "max_elementwise_diff_persisted_vs_fresh": 4.718447854656915e-16,
+  "nondeterminism_note": "byte-level hashes differ across processes because float summation order in the engine depends on set iteration order (PYTHONHASHSEED); elementwise agreement is <=5e-16 — economically identical vectors",
+  "matches_certified_vector": true
+ },
+ "block7_reproduction": {
+  "ci95_persisted_csv_vector": [
+   0.0006529464492549505,
+   0.009612356466177316
+  ],
+  "ci95_fresh_resim_vector": [
+   0.0006529464492549543,
+   0.009612356466177299
+  ],
+  "certified_ci95": [
+   0.0006529464492549663,
+   0.009612356466177318
+  ],
+  "csv_matches_certified": true,
+  "fresh_matches_certified": true
+ },
+ "block6": {
+  "block_len_monthly_returns": 6,
+  "mean_monthly_excess": 0.0049732270567218,
+  "ci95_mean_monthly_excess": [
+   0.00030310854970984585,
+   0.009953382050883216
+  ],
+  "ci95_mean_monthly_excess_fresh_vector": [
+   0.0003031085497098434,
+   0.0099533820508832
+  ],
+  "ci_variant_max_diff": 1.5612511283791264e-17,
+  "annualized_equivalent_mean": 0.0596787246806616,
+  "annualized_equivalent_ci95": [
+   0.0036373025965181502,
+   0.11944058461059859
+  ],
+  "cagr_difference_ci95": [
+   0.0030968829312041707,
+   0.160029531711238
+  ]
+ },
+ "pv3": {
+  "BLOCK6_lower_bound": 0.00030310854970984585,
+  "BLOCK7_lower_bound_for_record": 0.0006529464492549505,
+  "PV3_FINAL": "PASS",
+  "PV3_ROBUST_TO_BLOCK_INTERPRETATION": true,
+  "rule_applied": "section 5: the frozen spec's explicit observation unit (monthly return observations) makes the 6-return block the compliant construction; the implemented 7 is non-compliant under both readings (7 return observations span ~7 monthly periods)"
+ },
+ "artifacts": {
+  "preregistration_sha256": "10e6aa0e477b89eb73a5deacb72a4e337467fcfd2a06fd736a78e5954ecaf17c",
+  "certification_script_sha256": "63241af8ca90a4bd3f80778ea5d87fc18f899fac9cf62f70c14301c681ee0903",
+  "source_artifact": "score_portfolio_v1_monthly_accounting_repaired.csv"
+ }
+}

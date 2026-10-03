@@ -26,7 +26,7 @@ import argparse
 import json
 import logging
 import sys
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import codal_feed
 import codal_prefilter
@@ -63,8 +63,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--max-pages",
         type=int,
-        default=5,
-        help="سقف ایمنی تعداد صفحه از هر feed (پیش‌فرض 5)؛ فقط safety cap است، نه هدف.",
+        default=0,
+        help="۰/خالی = Auto (اسکن تا watermark با سقف ایمنی ۵). عدد صریح = دقیقاً این "
+             "تعداد صفحه برای هر feed، بدون توقف زودهنگام watermark.",
     )
     parser.add_argument(
         "--overlap-hours",
@@ -83,6 +84,11 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         type=int,
         default=3,
         help="حداکثر تلاش مجدد برای گزارش‌های failed.",
+    )
+    parser.add_argument(
+        "--symbol",
+        default=None,
+        help="جمع‌آوری فقط برای یک نماد (سرچ کدال به‌جای feed سراسری).",
     )
     parser.add_argument("--from-date", default=None, help="تاریخ شمسی شروع (مثلاً 1405/01/01).")
     parser.add_argument("--to-date", default=None, help="تاریخ شمسی پایان.")
@@ -128,6 +134,17 @@ def _record_skip(stats: dict, reason: str) -> None:
         stats["skipped_missing_metadata"] += 1
     else:
         stats["skipped_unsupported_type"] += 1
+
+
+_TZ_TEHRAN = timezone(timedelta(hours=3, minutes=30))
+
+
+def _aware(dt: datetime | None) -> datetime | None:
+    """published_at از feed بدون timezone است (ساعت محلی تهران)؛ برای مقایسه با
+    watermark در پستگرس (TIMESTAMPTZ) باید هر دو aware باشند."""
+    if dt is None:
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=_TZ_TEHRAN)
 
 
 def _oldest_published(reports) -> datetime | None:
@@ -352,11 +369,59 @@ def process_pending(route: str, pending: list[dict], conn, stats: dict, max_atte
             stats["errors"].append({"report_id": item["report_id"], "error": str(exc)})
 
 
+FINANCIAL_TABLE = "miandore2"
+MONTHLY_TABLE = "mahane"
+
+
+def _extract_report_values(item: dict, page) -> tuple[str, str | None, str | None]:
+    """استخراج اعداد از بدنه‌ی گزارش با پارس‌کننده‌های فعلی و نوشتن canonical.
+
+    در حالت canonical-only، ``save_report_to_sql``/``scrape_report`` خودشان
+    شاخه‌ی بدون SQL Server را می‌روند؛ اینجا فقط صدا زدن و ترجمه‌ی نتیجه است.
+    خروجی: (status, report_date, error)
+    """
+    route = item["route"]
+    url = item["url"]
+    company_name = item["company_name"]
+    if route == "monthly":
+        import MianSql2
+        parsed = MianSql2.parse_report_table(page, url)
+        if not parsed:
+            return "unsupported", None, "monthly report format not supported by parser"
+        report_date = parsed.get("report_date")
+        monthly_values = parsed.get("monthly_values")
+        if not report_date or not monthly_values:
+            return "unsupported", report_date, "missing report date or monthly values"
+        ok = MianSql2.save_report_to_sql(
+            company_name=company_name,
+            report_date=report_date,
+            monthly_values=monthly_values,
+            base_url=url,
+            table_name=MONTHLY_TABLE,
+        )
+        return ("completed" if ok else "failed"), report_date, (
+            None if ok else "parser could not save values")
+    import MianSql
+    ok = MianSql.scrape_report(
+        page=page, link=url, company_name=company_name,
+        base_url=url, table_name=FINANCIAL_TABLE,
+    )
+    return ("completed" if ok else "failed"), None, (
+        None if ok else "parser returned no saved data")
+
+
 def run_sync_canonical_only(args: argparse.Namespace) -> dict:
     """Canonical-only Codal sync: fetch -> raw body -> canonical report lineage.
 
-    No SQL Server connection is created. Legacy registry/watermark state is skipped.
-    TracingNo -> source_report_id semantics are unchanged (canonical_hook uses it).
+    No SQL Server connection is created. Discovery dedups against
+    ``ingestion.reports`` (TracingNo) via ``canonical_hook.known_codal_report_ids``
+    تا گزارش‌های شناخته‌شده دوباره دانلود و بازنویسی نشوند. بودجه‌ی صفحه
+    (``--max-pages``) برای هر feed مستقل است و ``--limit`` روی گزارش‌های جدید
+    اعمال می‌شود.
+
+    خروجی علاوه بر کلیدهای canonical (``ingested/quarantined/errors``)، کلیدهای
+    سازگار با UI قدیمی (``new/already/completed/failed/fetched`` و
+    ``financial/monthly``) را هم دارد تا نمایش درست باشد.
     """
     import canonical_hook  # lazy
 
@@ -366,47 +431,318 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
     if not letter_types:
         raise ValueError("No supported --letter-type given (only 6 and 58 are supported)")
 
-    totals = {"scanned": 0, "ingested": 0, "quarantined": 0, "errors": 0, "pages": 0,
-              "max_pages": args.max_pages, "dry_run": args.dry_run,
-              "authority": "CANONICAL", "mode": "canonical_only_offline"}
+    def _feed_stats(lt: int) -> dict:
+        return {
+            "letter_type": lt,
+            "pages": 0,
+            "stop_reason": None,
+            "scanned": 0,
+            "already": 0,
+            "new": 0,
+            "ingested": 0,
+            "quarantined": 0,
+            "errors": 0,
+            "completed": 0,
+            "failed": 0,
+            "unsupported": 0,
+        }
+
+    feeds = {lt: _feed_stats(lt) for lt in letter_types}
+    overlap = timedelta(hours=args.overlap_hours)
+    # عدد صریح max_pages = عمق دقیق اسکن (توقف watermark غیرفعال)؛ ۰ = Auto
+    explicit_depth = args.max_pages if args.max_pages and args.max_pages > 0 else 0
+    scan_cap = explicit_depth or 5
+    watermarks = {lt: None for lt in letter_types}
+    scan_newest = {lt: None for lt in letter_types}
+    # نامه‌های جدیدی که ذخیره شدند و باید اعدادشان استخراج شود
+    pending_values: list[dict] = []
+
     for lt in letter_types:
+        stats = feeds[lt]
         page_number = 1
+        # incremental: بدون from-date صریح، تا «آبستن‌ mark آخرین sync موفق» عقب می‌رویم
+        if not args.from_date and not explicit_depth:
+            watermarks[lt] = canonical_hook.get_codal_watermark(lt)
         while True:
-            if args.max_pages and totals["pages"] >= args.max_pages:
+            if scan_cap and stats["pages"] >= scan_cap:
+                stats["stop_reason"] = "max_pages_reached"
                 break
-            page = codal_feed.discover_reports(lt, page_number,
-                                              from_date=args.from_date, to_date=args.to_date)
-            totals["pages"] += 1
+            page = codal_feed.discover_reports(
+                lt, page_number,
+                from_date=args.from_date, to_date=args.to_date,
+            )
+            stats["pages"] += 1
             if not page.reports:
+                stats["stop_reason"] = "empty_feed"
                 break
+
+            newest = _aware(_newest_published(page.reports))
+            if newest is not None and (scan_newest[lt] is None or newest > scan_newest[lt]):
+                scan_newest[lt] = newest
+
+            known = canonical_hook.known_codal_report_ids(
+                [r.report_id for r in page.reports]
+            )
             for report in page.reports:
-                totals["scanned"] += 1
-                if args.dry_run:
+                stats["scanned"] += 1
+                if report.report_id in known:
+                    stats["already"] += 1
                     continue
-                res = canonical_hook.ingest_codal_authoritative(report.raw, fetch_body=True)
+                if args.dry_run:
+                    stats["new"] += 1
+                    continue
+
+                res = canonical_hook.ingest_codal_authoritative(
+                    report.raw, fetch_body=True
+                )
                 status = res.get("status")
                 if status == "written":
-                    totals["ingested"] += 1
+                    stats["new"] += 1
+                    stats["ingested"] += 1
+                    display = canonical_hook.resolve_codal_company_display_name(
+                        name=(report.raw.get("CompanyName") or "").strip() or None,
+                        symbol=(report.raw.get("Symbol") or "").strip() or None,
+                    )
+                    pending_values.append({
+                        "letter_type": lt,
+                        "route": "monthly" if lt == MONTHLY_LETTER_TYPE else "financial",
+                        "url": report.report_url,
+                        "company_name": display or report.company_name or report.ticker or "",
+                    })
                 elif status == "quarantined":
-                    totals["quarantined"] += 1
-                elif status in ("canonical_error", "no_tracing_no"):
-                    totals["errors"] += 1
+                    # گزارش جدید است ولی هویت شرکت حل نشد
+                    stats["new"] += 1
+                    stats["quarantined"] += 1
+                else:
+                    stats["errors"] += 1
+
+                if args.limit and stats["new"] >= args.limit:
+                    break
+
+            if args.limit and stats["new"] >= args.limit:
+                stats["stop_reason"] = "limit_reached"
+                break
+            oldest = _aware(_oldest_published(page.reports))
+            wm = watermarks[lt]
+            if wm is not None and oldest is not None and oldest < (wm - overlap):
+                stats["stop_reason"] = "watermark_reached"
+                break
             if page.is_last_page:
+                stats["stop_reason"] = "empty_feed"
                 break
             page_number += 1
+        if stats["stop_reason"] is None:
+            stats["stop_reason"] = "max_pages_reached"
+
+    # ── استخراج اعداد: پارس‌کننده‌های فعلی با یک browser context مشترک ──
+    if pending_values and not args.dry_run:
+        from playwright.sync_api import sync_playwright
+        import MianSql
+        with sync_playwright() as pw:
+            context = MianSql.create_context(pw)
+            page = context.new_page()
+            try:
+                for item in pending_values:
+                    st = feeds[item["letter_type"]]
+                    try:
+                        v_status, _rdate, _err = _extract_report_values(item, page)
+                    except Exception as exc:  # noqa: BLE001 - خطای هر گزارش مستقل است
+                        logger.exception("❌ value extraction crashed: %s", item["url"])
+                        v_status = "failed"
+                    if v_status == "completed":
+                        st["completed"] += 1
+                        logger.info("✅ values extracted: %s (%s)",
+                                    item["company_name"], item["route"])
+                    elif v_status == "unsupported":
+                        st["unsupported"] += 1
+                    else:
+                        st["failed"] += 1
+            finally:
+                context.close()
+
+    for lt in letter_types:
+        stats = feeds[lt]
+        # advance watermark فقط وقتی feed بدون خطا کامل شد؛ در خطا، اجرای بعدی
+        # دوباره از همین نقطه اسکن می‌کند تا گزارشی از دست نرود
+        if stats["errors"] == 0 and not args.dry_run and scan_newest[lt] is not None:
+            wm = watermarks[lt]
+            target = scan_newest[lt] if (wm is None or scan_newest[lt] > wm) else wm
+            canonical_hook.set_codal_watermark(lt, target)
+
+    totals = {
+        "scanned": sum(s["scanned"] for s in feeds.values()),
+        "already": sum(s["already"] for s in feeds.values()),
+        "new": sum(s["new"] for s in feeds.values()),
+        "ingested": sum(s["ingested"] for s in feeds.values()),
+        "quarantined": sum(s["quarantined"] for s in feeds.values()),
+        "errors": sum(s["errors"] for s in feeds.values()),
+        "pages": sum(s["pages"] for s in feeds.values()),
+        # کلیدهای سازگار با UI قدیمی quick-sync — «completed» یعنی اعداد استخراج شد
+        "completed": sum(s["completed"] for s in feeds.values()),
+        "failed": sum(s["errors"] + s["failed"] for s in feeds.values()),
+        "unsupported": sum(s["unsupported"] for s in feeds.values()),
+        "fetched": sum(s["ingested"] for s in feeds.values()),
+        "max_pages": scan_cap,
+        "dry_run": args.dry_run,
+        "authority": "CANONICAL",
+        "mode": "canonical_only_offline",
+    }
+    summary = {
+        "success": totals["errors"] == 0,
+        "dry_run": args.dry_run,
+        "canonical_only": True,
+        "total": totals,
+        "financial": feeds.get(FINANCIAL_LETTER_TYPE),
+        "monthly": feeds.get(MONTHLY_LETTER_TYPE),
+    }
     logger.info("canonical-only codal sync: %s", totals)
-    return {"success": totals["errors"] == 0, "dry_run": args.dry_run, "canonical_only": True,
-            "total": totals}
+    return summary
+
+
+def run_sync_symbol(args: argparse.Namespace) -> dict:
+    """جمع‌آوری فقط برای یک نماد: آخرین ``--limit`` گزارش از سرچ کدال.
+
+    برای هر گزارش: dedup با TracingNo → جدید = ذخیره‌ی خام + استخراج اعداد با
+    پارس‌کننده‌ها؛ قدیمی = شمرده‌شده به‌عنوان already. Watermark در این مسیر
+    معنا ندارد (هدف همان نماد است، نه feed سراسری).
+    """
+    import canonical_hook
+
+    letter_types = [
+        lt for lt in resolve_letter_types(args) if route_for_letter_type(lt) != "unknown"
+    ]
+    if not letter_types:
+        raise ValueError("No supported --letter-type given (only 6 and 58 are supported)")
+
+    def _feed_stats(lt: int) -> dict:
+        return {
+            "letter_type": lt,
+            "pages": 0,
+            "stop_reason": None,
+            "scanned": 0,
+            "already": 0,
+            "new": 0,
+            "ingested": 0,
+            "quarantined": 0,
+            "errors": 0,
+            "completed": 0,
+            "failed": 0,
+            "unsupported": 0,
+        }
+
+    feeds = {lt: _feed_stats(lt) for lt in letter_types}
+    pending_values: list[dict] = []
+    take = args.limit if args.limit and args.limit > 0 else 8
+
+    for lt in letter_types:
+        stats = feeds[lt]
+        page = codal_feed.discover_reports(lt, 1, symbol=args.symbol)
+        stats["pages"] = 1
+        if not page.reports:
+            stats["stop_reason"] = "empty_feed"
+            continue
+        stats["stop_reason"] = "symbol_scan_done"
+
+        reports = page.reports[:take]
+        known = canonical_hook.known_codal_report_ids(
+            [r.report_id for r in reports]
+        )
+        for report in reports:
+            stats["scanned"] += 1
+            if report.report_id in known:
+                stats["already"] += 1
+                continue
+            res = canonical_hook.ingest_codal_authoritative(
+                report.raw, fetch_body=True
+            )
+            status = res.get("status")
+            if status == "written":
+                stats["new"] += 1
+                stats["ingested"] += 1
+                display = canonical_hook.resolve_codal_company_display_name(
+                    name=(report.raw.get("CompanyName") or "").strip() or None,
+                    symbol=(report.raw.get("Symbol") or "").strip() or None,
+                )
+                pending_values.append({
+                    "letter_type": lt,
+                    "route": "monthly" if lt == MONTHLY_LETTER_TYPE else "financial",
+                    "url": report.report_url,
+                    "company_name": display or report.company_name or report.ticker or "",
+                })
+            elif status == "quarantined":
+                stats["new"] += 1
+                stats["quarantined"] += 1
+            else:
+                stats["errors"] += 1
+
+    # استخراج اعداد (یک browser context مشترک)
+    if pending_values:
+        from playwright.sync_api import sync_playwright
+        import MianSql
+        with sync_playwright() as pw:
+            context = MianSql.create_context(pw)
+            page = context.new_page()
+            try:
+                for item in pending_values:
+                    st = feeds[item["letter_type"]]
+                    try:
+                        v_status, _rdate, _err = _extract_report_values(item, page)
+                    except Exception as exc:  # noqa: BLE001
+                        logger.exception("❌ value extraction crashed: %s", item["url"])
+                        v_status = "failed"
+                    if v_status == "completed":
+                        st["completed"] += 1
+                        logger.info("✅ values extracted: %s (%s)",
+                                    item["company_name"], item["route"])
+                    elif v_status == "unsupported":
+                        st["unsupported"] += 1
+                    else:
+                        st["failed"] += 1
+            finally:
+                context.close()
+
+    totals = {
+        "scanned": sum(s["scanned"] for s in feeds.values()),
+        "already": sum(s["already"] for s in feeds.values()),
+        "new": sum(s["new"] for s in feeds.values()),
+        "ingested": sum(s["ingested"] for s in feeds.values()),
+        "quarantined": sum(s["quarantined"] for s in feeds.values()),
+        "errors": sum(s["errors"] for s in feeds.values()),
+        "pages": sum(s["pages"] for s in feeds.values()),
+        "completed": sum(s["completed"] for s in feeds.values()),
+        "failed": sum(s["failed"] for s in feeds.values()),
+        "unsupported": sum(s["unsupported"] for s in feeds.values()),
+        "fetched": sum(s["ingested"] for s in feeds.values()),
+        "dry_run": args.dry_run,
+        "authority": "CANONICAL",
+        "mode": "symbol_scan",
+        "symbol": args.symbol,
+    }
+    return {
+        "success": totals["errors"] == 0,
+        "dry_run": args.dry_run,
+        "canonical_only": True,
+        "total": totals,
+        "financial": feeds.get(FINANCIAL_LETTER_TYPE),
+        "monthly": feeds.get(MONTHLY_LETTER_TYPE),
+    }
 
 
 def run_sync(args: argparse.Namespace) -> dict:
     # Canonical-only offline: never open SQL Server for the Codal path.
+    # فقط «بررسی شرایط» در try است؛ خود اجرای canonical نباید در خطا بی‌صدا
+    # به مسیر legacy بیفتد (اجرای دوباره/دوگانه). خطا به main() برمی‌گردد.
     try:
         import canonical_hook as _hook
-        if _hook.canonical_only_offline() and _hook.codal_canonical_authority():
-            return run_sync_canonical_only(args)
-    except Exception:  # noqa: BLE001 - fall through to legacy behaviour
-        pass
+        canonical_route = _hook.canonical_only_offline() and _hook.codal_canonical_authority()
+    except Exception:  # noqa: BLE001
+        canonical_route = False
+    if canonical_route and getattr(args, "symbol", None):
+        return run_sync_symbol(args)
+    if canonical_route:
+        return run_sync_canonical_only(args)
+    if not args.max_pages:  # Auto در مسیر legacy هم به کپ ایمنی ۵ ترجمه می‌شود
+        args.max_pages = 5
 
     letter_types = [
         lt for lt in resolve_letter_types(args) if route_for_letter_type(lt) != "unknown"

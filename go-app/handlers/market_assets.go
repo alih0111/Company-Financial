@@ -167,8 +167,10 @@ func indexHistoryRows(ctx context.Context, db *sql.DB, key string, limit int) ([
 	if key == "" {
 		return nil, nil
 	}
-	if limit <= 0 || limit > 5000 {
+	if limit <= 0 {
 		limit = 365
+	} else if limit > MaxPriceHistoryLimit {
+		limit = MaxPriceHistoryLimit
 	}
 	rows, err := db.QueryContext(ctx, `
 		SELECT trade_date, COALESCE(jalali_date_text, ''), value,
@@ -182,7 +184,7 @@ func indexHistoryRows(ctx context.Context, db *sql.DB, key string, limit int) ([
 		return nil, err
 	}
 	defer rows.Close()
-	out := make([]PriceHistoryRow, 0, limit)
+	out := make([]PriceHistoryRow, 0, priceHistoryPrealloc(limit))
 	for rows.Next() {
 		var r PriceHistoryRow
 		var tradeDate any

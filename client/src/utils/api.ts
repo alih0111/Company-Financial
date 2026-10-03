@@ -74,85 +74,8 @@ export const fetchStockPriceScore = async (companyName: string) => {
   return res.json();
 };
 
-export const fetchFullPE = async () => {
-  const res = await fetch(`${API_BASE}/FetchFullPE`, {
-    headers: getAuthHeaders(),
-  });
-
-  if (!res.ok) throw new Error("Failed to fetch sales data 2");
-  return res.json();
-};
-
-// export const fetchStockPrice = async (companyName: string) => {
-//   const res = await fetch(
-//     `${API_BASE}/StockPrice?companyName=${encodeURIComponent(companyName)}`
-//   );
-//   if (!res.ok) throw new Error("Failed to fetch sales data 2");
-//   return res.json();
-// };
-
-export const fetchUrlForScript = async (
-  companyName: string,
-  script: "script1" | "script2" | "stockPrices"
-) => {
-  const url =
-    script === "script1"
-      ? `${API_BASE}/GetUrl`
-      : script === "script2"
-      ? `${API_BASE}/GetUrl2`
-      : `${API_BASE}/GetUrl2`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ companyName }),
-  });
-  if (!res.ok) throw new Error("Failed to fetch URL for script");
-  return res.json();
-};
-
-export const runScript = async (
-  script: "script1" | "script2" | "stockPrices" | "full",
-  metadata: any
-) => {
-  const url =
-    // script === "script1"
-    //   ? "http://localhost:5000/run-script"
-    //   : "http://localhost:5000/run-script2";
-    script === "script1"
-      ? `${API_BASE}/run-script`
-      : script === "script2"
-      ? `${API_BASE}/run-script2`
-      : script === "stockPrices"
-      ? `${API_BASE}/run_script_price`
-      : "";
-  const res = await fetch(url, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify(metadata),
-  });
-  if (!res.ok) throw new Error("Failed to run script");
-  return res.json();
-};
-
-export const runBulkScript = async (
-  script: "script1" | "script2",
-  companies: string[],
-  rowMeta: number = 20,
-  pageNumbers: number[] = [1, 2, 3, 4]
-) => {
-  const res = await fetch(`${API_BASE}/fetchAllData`, {
-    method: "POST",
-    headers: getAuthHeaders(),
-    body: JSON.stringify({ script, companies, rowMeta, pageNumbers }),
-  });
-
-  if (!res.ok) {
-    const error = await res.json();
-    throw new Error(error?.error || "Failed to run bulk script");
-  }
-
-  return res.json();
-};
+// جمع‌آوری قدیمی (run-script/GetUrl وابسته به SQL Server بازنشسته شده)؛
+// جایگزین canonical: syncCodal و collectBrsPrices.
 
 export const addViewedItem = async (item: string) => {
   const res = await fetch(`${API_BASE}/users/get-items`, {
@@ -745,6 +668,8 @@ export interface SyncCodalTotal {
   completed: number;
   failed: number;
   unsupported: number;
+  // مسیر canonical (sync-codal): گزارش‌های نماد خارج از universe
+  quarantined?: number;
 }
 
 export interface SyncCodalSummary {
@@ -762,6 +687,8 @@ export interface SyncCodalPayload {
   dry_run?: boolean;
   max_pages?: number;
   limit?: number;
+  // جمع‌آوری فقط برای یک نماد (خالی = sync سراسری feed کدال)
+  symbol?: string;
 }
 
 export async function syncCodal(
@@ -775,6 +702,7 @@ export async function syncCodal(
       dry_run: payload.dry_run ?? false,
       ...(payload.max_pages ? { max_pages: payload.max_pages } : {}),
       ...(payload.limit ? { limit: payload.limit } : {}),
+      ...(payload.symbol ? { symbol: payload.symbol } : {}),
     }),
   });
 

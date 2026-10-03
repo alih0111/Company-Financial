@@ -222,6 +222,7 @@ def _build_query(
     page_number: int,
     from_date: str | None = None,
     to_date: str | None = None,
+    symbol: str | None = None,
 ) -> str:
     params: dict[str, object] = {
         "LetterType": letter_type,
@@ -244,6 +245,9 @@ def _build_query(
         params["FromDate"] = from_date
     if to_date:
         params["ToDate"] = to_date
+    if symbol:
+        # سرچ per-symbol کدال؛ بدون این پارامتر، feed سراسری کل بازار می‌آید
+        params["symbol"] = symbol.strip()
 
     return f"{SEARCH_API_BASE}?{urllib.parse.urlencode(params)}"
 
@@ -277,15 +281,20 @@ def discover_reports(
     *,
     from_date: str | None = None,
     to_date: str | None = None,
+    symbol: str | None = None,
     timeout: int = DEFAULT_TIMEOUT,
     retries: int = DEFAULT_RETRIES,
 ) -> FeedPage:
-    """یک صفحه از feed کدال را می‌خواند و metadata گزارش‌ها را برمی‌گرداند."""
+    """یک صفحه از feed کدال را می‌خواند و metadata گزارش‌ها را برمی‌گرداند.
+
+    با ``symbol`` فقط گزارش‌های همان نماد (سرچ کدال) برمی‌گردد.
+    """
     if page_number < 1:
         raise ValueError("page_number must be >= 1")
 
-    url = _build_query(letter_type, page_number, from_date, to_date)
-    logger.info("🌐 Codal discovery: LetterType=%s PageNumber=%s", letter_type, page_number)
+    url = _build_query(letter_type, page_number, from_date, to_date, symbol)
+    logger.info("🌐 Codal discovery: LetterType=%s PageNumber=%s symbol=%s",
+                letter_type, page_number, symbol or "-")
 
     data = _fetch_json(url, timeout=timeout, retries=retries)
 

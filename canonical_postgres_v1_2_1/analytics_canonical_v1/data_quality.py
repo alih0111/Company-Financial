@@ -20,6 +20,13 @@ SEVERITY = {
     "MISSING_PRIOR_ANNUAL": "low",
     "MISSING_PRIOR_COMPARABLE": "low",
     "PIT_UNAVAILABLE": "low",
+    # Valuation diagnostics. Informational only: reported, never scored
+    # (DQ.score() is a function of the boolean components alone).
+    "VALUATION_INPUT_MISSING": "medium",
+    "FISCAL_CALENDAR_UNKNOWN": "medium",
+    "EPS_COMPARATIVE_SHARE_BASE_MISMATCH": "low",
+    "EPS_NETPROFIT_SIGN_MISMATCH": "low",
+    "TTM_METHOD_MISMATCH": "low",
 }
 
 # Components of the prototype DataQualityScore (0..1). NOT VALIDATED FOR CANONICAL V1.

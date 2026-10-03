@@ -1,0 +1,5 @@
+excluded_category,diag_IC63,full_IC63,delta_IC63,diag_IC126,full_IC126,delta_IC126,delta_pos_frac_63,delta_spread_63_pp,delta_spread_126_pp,note
+Growth,0.0744,0.0853,-0.0109,0.1171,0.1096,0.0075,-0.048,-1.073,-0.558,points NOT reallocated; DQ preserved (diag = DQ*(raw_sum - category))
+Profitability,0.0854,0.0853,0.0001,0.1095,0.1096,-0.0001,-0.032,0.22,0.625,points NOT reallocated; DQ preserved (diag = DQ*(raw_sum - category))
+Valuation,0.0823,0.0853,-0.003,0.0975,0.1096,-0.0121,0.033,-0.827,-2.408,points NOT reallocated; DQ preserved (diag = DQ*(raw_sum - category))
+MarketRisk,0.0856,0.0853,0.0003,0.1107,0.1096,0.0011,0.033,-2.249,-2.346,points NOT reallocated; DQ preserved (diag = DQ*(raw_sum - category))

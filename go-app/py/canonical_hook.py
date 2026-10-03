@@ -224,6 +224,118 @@ def codal_fallback_enabled() -> bool:
     return raw not in ("0", "false", "no", "off")
 
 
+def known_codal_report_ids(source_report_ids: list) -> set:
+    """کدام TracingNoها از قبل در canonical (ingestion.reports) موجودند.
+
+    برای dedup مسیر sync-codal؛ تا گزارش‌های شناخته‌شده دوباره دانلود و
+    بازنویسی نشوند. در هر خطا مجموعه‌ی خالی برمی‌گردد (رفتار fail-open مثل بقیه
+    مرزهای isolation) — یعنی گزارش دوباره ingest می‌شود، نه اینکه از دست برود.
+    """
+    ids = [str(s).strip() for s in (source_report_ids or []) if str(s).strip()]
+    if not ids or not _load():
+        return set()
+    try:
+        canonical_ingest = _canonical["mod"]
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cur.execute(
+                "SELECT source_report_id FROM ingestion.reports "
+                "WHERE source = 'codal' AND source_report_id = ANY(%s)",
+                (ids,),
+            )
+            return {str(row[0]) for row in cur.fetchall()}
+    except Exception as exc:  # noqa: BLE001
+        try:
+            print(json.dumps({"domain": "CODAL", "health": "DEDUP_LOOKUP_FAILED",
+                              "error": str(exc)}, ensure_ascii=False))
+        except Exception:
+            pass
+        return set()
+
+
+def get_codal_watermark(letter_type: int):
+    """آخرین sync موفق هر feed کدال (معادل legacy CodalSyncState، در پستگرس)."""
+    if not _load():
+        return None
+    try:
+        canonical_ingest = _canonical["mod"]
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cur.execute(
+                """CREATE TABLE IF NOT EXISTS ingestion.codal_sync_state (
+                       letter_type INT PRIMARY KEY,
+                       last_successful_sync TIMESTAMPTZ NOT NULL,
+                       updated_at TIMESTAMPTZ NOT NULL DEFAULT now())"""
+            )
+            cur.execute(
+                "SELECT last_successful_sync FROM ingestion.codal_sync_state WHERE letter_type = %s",
+                (int(letter_type),),
+            )
+            row = cur.fetchone()
+            return row[0] if row else None
+    except Exception as exc:  # noqa: BLE001
+        try:
+            print(json.dumps({"domain": "CODAL", "health": "WATERMARK_READ_FAILED",
+                              "error": str(exc)}, ensure_ascii=False))
+        except Exception:
+            pass
+        return None
+
+
+def resolve_codal_company_display_name(name=None, symbol=None) -> str | None:
+    """نام نمایشی canonical برای پاس دادن به پارس‌کننده‌ها (MianSql/MianSql2).
+
+    نامه‌ی کدال نام رسمی طولانی می‌آورد که اغلب با alias ها یکی نیست؛ پارس‌کننده
+    برای resolve_legacy_key به نامی نیاز دارد که در canonical موجود باشد.
+    """
+    if not _load():
+        return None
+    try:
+        from canonical_ingest.identity import resolve_company as _resolve_company
+        canonical_ingest = _canonical["mod"]
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cid = _resolve_company(
+                cur, legacy_company_id=None, ins_code=None,
+                name=(name or "").strip() or None,
+                symbol=(symbol or "").strip() or None,
+            )
+            if not cid:
+                return None
+            cur.execute("SELECT display_name FROM core.companies WHERE id=%s", (cid,))
+            row = cur.fetchone()
+            return str(row[0]) if row and row[0] else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def set_codal_watermark(letter_type: int, when) -> bool:
+    if not _load() or when is None:
+        return False
+    try:
+        canonical_ingest = _canonical["mod"]
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cur.execute(
+                """CREATE TABLE IF NOT EXISTS ingestion.codal_sync_state (
+                       letter_type INT PRIMARY KEY,
+                       last_successful_sync TIMESTAMPTZ NOT NULL,
+                       updated_at TIMESTAMPTZ NOT NULL DEFAULT now())"""
+            )
+            cur.execute(
+                """INSERT INTO ingestion.codal_sync_state (letter_type, last_successful_sync, updated_at)
+                   VALUES (%s, %s, now())
+                   ON CONFLICT (letter_type) DO UPDATE
+                   SET last_successful_sync = EXCLUDED.last_successful_sync,
+                       updated_at = now()""",
+                (int(letter_type), when),
+            )
+        return True
+    except Exception as exc:  # noqa: BLE001
+        try:
+            print(json.dumps({"domain": "CODAL", "health": "WATERMARK_WRITE_FAILED",
+                              "error": str(exc)}, ensure_ascii=False))
+        except Exception:
+            pass
+        return False
+
+
 def retry_backlog_count(domain: str | None = None) -> int:
     try:
         path = _OUT_DIR / "canonical_retry_manifest.jsonl"
@@ -276,6 +388,39 @@ def _gregorian(jalali: str | None) -> str | None:
         return jdatetime.date(y, m, d).togregorian().isoformat()
     except Exception:
         return None
+
+
+_PERSIAN_DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+
+
+def _publish_datetime_iso(raw) -> str | None:
+    """PublishDateTime کدال → ISO گرگوری برای ستون timestamptz.
+
+    ورودی کدال شمسی با ارقام فارسی است، مثل «۱۴۰۵/۰۷/۰۴ ۱۵:۵۹:۲۴». بدون این
+    تبدیل، insert با «invalid input syntax for type timestamp» شکست می‌خورد.
+    سال بزرگ‌تر از ۱۵۰۰ یعنی ورودی از قبل گرگوری است و دست‌نخورده می‌رود.
+    """
+    if raw in (None, ""):
+        return None
+    text = str(raw).strip().translate(_PERSIAN_DIGITS)
+    if not text:
+        return None
+    try:
+        date_part, _, time_part = text.partition(" ")
+        y, m, d = (int(x) for x in date_part.split("/")[:3])
+        if y > 1500:
+            return text
+        hour = minute = second = 0
+        if time_part:
+            bits = [int(x) for x in time_part.split(":") if x != ""]
+            hour = bits[0] if len(bits) > 0 else 0
+            minute = bits[1] if len(bits) > 1 else 0
+            second = bits[2] if len(bits) > 2 else 0
+        import jdatetime
+        g = jdatetime.date(y, m, d).togregorian()
+        return f"{g.isoformat()}T{hour:02d}:{minute:02d}:{second:02d}+03:30"
+    except Exception:
+        return text
 
 
 def _sqlserver_conn():
@@ -833,13 +978,48 @@ def _canonical_codal_write(letter: dict, fetch_body: bool = True, supersedes_sou
     tracing = str(letter.get("TracingNo") or "").strip()
     if not tracing:
         return {"status": "no_tracing_no", "inserted": 0, "skipped": 0}
+    name = letter.get("CompanyName")
+    symbol = letter.get("Symbol")
+
+    # شناسایی سبک (فقط نام/نماد، بدون دانلود بدنه) — نامه‌ی شرکت ناشناس را
+    # همان جا قرنطینه کن؛ در فصل‌های خلوت کدال این ~۹۰٪ ترافیک دانلود را حذف می‌کند.
+    pre_company_id = None
+    try:
+        from canonical_ingest.identity import resolve_company as _resolve_company
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            pre_company_id = _resolve_company(
+                cur,
+                legacy_company_id=None,
+                ins_code=None,
+                name=(name or "").strip() or None,
+                symbol=(symbol or "").strip() or None,
+            )
+    except Exception:  # noqa: BLE001 - در خطا مسیر عادی ادامه می‌دهد
+        pre_company_id = None
+
+    if pre_company_id is None:
+        try:
+            with canonical_ingest.transaction() as conn:
+                canonical_ingest.CanonicalWriter(conn).quarantine(
+                    entity_type="company",
+                    issue_code="identity_conflict",
+                    severity="high",
+                    details={"domain": "codal_report", "source_report_id": tracing,
+                             "name": name, "symbol": symbol, "stage": "pre_fetch"},
+                )
+        except Exception as exc:  # noqa: BLE001
+            return {"status": "canonical_error", "error": str(exc), "inserted": 0,
+                    "skipped": 0, "tracing_no": tracing}
+        return {"status": "quarantined", "detail": "company unresolved (pre-fetch)",
+                "inserted": 0, "skipped": 0, "tracing_no": tracing, "has_raw": False}
+
     url = letter.get("Url") or letter.get("PdfUrl")
     body = _fetch_text(url) if (fetch_body and url) else None
     try:
         res = canonical_ingest.dual_write_report(
-            name=letter.get("CompanyName"), symbol=letter.get("Symbol"), source="codal",
+            name=name, symbol=symbol, source="codal",
             source_report_id=tracing, report_type="codal_letter", title=letter.get("Title"),
-            source_url=url, published_at=letter.get("PublishDateTime"),
+            source_url=url, published_at=_publish_datetime_iso(letter.get("PublishDateTime")),
             content_text=body,
             content_json=None if body else {"tracing_no": tracing, "title": letter.get("Title")},
             payload_type="html" if body else "json", collected_at=_now_iso(),
@@ -931,7 +1111,7 @@ def dual_write_codal_letter(letter: dict, fetch_body: bool = True):
     title = letter.get("Title")
     company_name = letter.get("CompanyName")
     symbol = letter.get("Symbol")
-    published = letter.get("PublishDateTime")
+    published = _publish_datetime_iso(letter.get("PublishDateTime"))
     body = _fetch_text(url) if (fetch_body and url) else None
     try:
         res = canonical_ingest.dual_write_report(

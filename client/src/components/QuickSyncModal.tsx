@@ -67,6 +67,8 @@ const QuickSyncModal: React.FC<QuickSyncModalProps> = ({
   const newCount = total?.new ?? 0;
   const failed = total?.failed ?? 0;
   const completed = total?.completed ?? 0;
+  const quarantined = total?.quarantined ?? 0;
+  const syncFailed = summary?.success === false;
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
@@ -109,14 +111,15 @@ const QuickSyncModal: React.FC<QuickSyncModalProps> = ({
 
           <div>
             <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-              حداکثر صفحات (Auto / پیش‌فرض سرور)
+              حداکثر صفحات (خالی = خودکار تا آخرین sync؛ عدد = دقیقاً همین
+              عمق اسکن می‌شود)
             </label>
             <input
               type="number"
               min="1"
               disabled={running}
               value={maxPages}
-              placeholder="Auto"
+              placeholder="خودکار"
               onChange={(e) => setMaxPages(e.target.value)}
               className="w-full h-9 px-3 rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-800 text-center focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
             />
@@ -154,12 +157,26 @@ const QuickSyncModal: React.FC<QuickSyncModalProps> = ({
           </div>
         )}
 
+        {/* خطای سطح اجرا (پاسخ بدون total — مثلا خطای اتصال به کدال) */}
+        {summary && !total && !running && (
+          <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300">
+            جمع‌آوری سریع ناموفق بود.
+            <div className="mt-1 text-xs break-words">
+              {summary.error || "خطای ناشناخته"}
+            </div>
+          </div>
+        )}
+
         {/* خروجی موفق */}
         {summary && total && !running && (
           <div className="mb-4 text-sm">
             {newCount === 0 && failed === 0 ? (
               <p className="text-center text-gray-600 dark:text-gray-300 font-medium">
                 گزارش جدیدی برای نمادهای شما پیدا نشد.
+              </p>
+            ) : syncFailed ? (
+              <p className="text-center text-red-600 dark:text-red-400 font-semibold mb-3">
+                جمع‌آوری با خطا متوقف شد — {failed} گزارش ناموفق
               </p>
             ) : (
               <p className="text-center font-semibold mb-3 text-emerald-600 dark:text-emerald-400">
@@ -177,6 +194,12 @@ const QuickSyncModal: React.FC<QuickSyncModalProps> = ({
               <Row label="گزارش‌های جدید" value={newCount} />
               <Row label="جمع‌آوری موفق" value={completed} />
               <Row label="خطا" value={failed} />
+              {quarantined > 0 && (
+                <Row
+                  label="بدون تطبیق شرکت (خارج از پوشش)"
+                  value={quarantined}
+                />
+              )}
             </div>
 
             <div className="flex justify-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/60 text-xs text-gray-600 dark:text-gray-300">

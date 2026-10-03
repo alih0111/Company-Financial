@@ -6,10 +6,8 @@ import {
   FaChartPie,
   FaUsers,
   FaCoins,
-  FaCalculator,
   FaSyncAlt,
   FaBolt,
-  FaDatabase,
   FaDownload,
   FaBalanceScale,
   FaSignOutAlt,
@@ -21,20 +19,14 @@ import {
   FaGlobe,
 } from "react-icons/fa";
 import QuickSyncModal from "./QuickSyncModal";
+import SymbolSyncModal from "./SymbolSyncModal";
 import { useDarkMode } from "../utils/theme";
-import { addViewedItem, collectBrsPrices, fetchFullPE } from "../utils/api";
+import { addViewedItem, collectBrsPrices } from "../utils/api";
 
 interface SidebarProps {
   companyOptions: { value: string; label: string }[];
   selectedCompany: string;
   onCompanyChange: (val: string) => void;
-  openModalForScript: (
-    script: "script1" | "script2" | "full" | "stockPrices",
-  ) => void;
-  runningScripts: Record<
-    "script1" | "script2" | "full" | "stockPrices",
-    boolean
-  >;
 
   loadingCompanies: boolean;
   isAdmin: boolean;
@@ -58,10 +50,10 @@ const NAV_ITEMS: {
   adminOnly?: boolean;
 }[] = [
   { to: "/dashboard", label: "داشبورد شرکت", icon: <FaChartLine size={13} /> },
-  { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
+  // { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
   { to: "/chat", label: "دستیار سرمایه‌گذاری", icon: <FaRobot size={13} /> },
-  { to: "/portfolio", label: "پورتفولیو", icon: <FaBriefcase size={13} /> },
+  // { to: "/portfolio", label: "پورتفولیو", icon: <FaBriefcase size={13} /> },
   {
     to: "/assets",
     label: "دارایی خانواده",
@@ -74,8 +66,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   companyOptions,
   selectedCompany,
   onCompanyChange,
-  openModalForScript,
-  runningScripts,
   loadingCompanies,
   companyProfits,
   isAdmin,
@@ -85,19 +75,46 @@ const Sidebar: React.FC<SidebarProps> = ({
   onDataCollected,
 }) => {
   const [toolsOpen, setToolsOpen] = useState(true);
-  const [loadingFullPE, setLoadingFullPE] = useState(false);
   const [loadingBrsDaily, setLoadingBrsDaily] = useState(false);
   const [loadingBrsBackfill, setLoadingBrsBackfill] = useState(false);
   const [loadingBrsSync, setLoadingBrsSync] = useState(false);
   const [brsMsg, setBrsMsg] = useState<string | null>(null);
   const [quickSyncOpen, setQuickSyncOpen] = useState(false);
   const [quickSyncing, setQuickSyncing] = useState(false);
+  // جمع‌آوری سود/فروش per-symbol — مودال با تعداد گزارش دلخواه
+  const [symbolSync, setSymbolSync] = useState<"financial" | "monthly" | null>(
+    null,
+  );
+  const [loadingCompanyPrices, setLoadingCompanyPrices] = useState(false);
+  const [toolsMsg, setToolsMsg] = useState<{
+    kind: "ok" | "err";
+    text: string;
+  } | null>(null);
   const { darkMode } = useDarkMode();
 
-  const fullPE = async () => {
-    setLoadingFullPE(true);
-    await fetchFullPE();
-    setLoadingFullPE(false);
+  // جمع‌آوری تاریخچه‌ی قیمت نماد انتخاب‌شده از BRS
+  const runCompanyPrices = async () => {
+    if (!selectedCompany || loadingCompanyPrices) return;
+    setLoadingCompanyPrices(true);
+    setToolsMsg(null);
+    try {
+      await collectBrsPrices("backfill", {
+        symbol: selectedCompany,
+        force: true,
+      });
+      setToolsMsg({
+        kind: "ok",
+        text: `تاریخچه‌ی قیمت «${selectedCompany}» کامل شد ✓`,
+      });
+      onDataCollected?.();
+    } catch (e: any) {
+      setToolsMsg({
+        kind: "err",
+        text: e?.message || "خطا در جمع‌آوری قیمت",
+      });
+    } finally {
+      setLoadingCompanyPrices(false);
+    }
   };
 
   const runBrsDaily = async () => {
@@ -154,7 +171,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 h-full w-72 p-6 overflow-y-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl shadow-emerald-500/5 dark:shadow-emerald-500/10 border-r border-gray-200/80 dark:border-gray-700/60 flex flex-col gap-3 transition-transform duration-300 ease-in-out lg:sticky lg:top-4 lg:h-auto lg:max-h-[97vh] lg:m-4 lg:mb-0 lg:mr-0 lg:rounded-3xl lg:border lg:translate-x-0 ${
+      className={`fixed left-0 top-0 z-40 h-full w-80 p-6 overflow-y-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl shadow-emerald-500/5 dark:shadow-emerald-500/10 border-r border-gray-200/80 dark:border-gray-700/60 flex flex-col gap-3 transition-transform duration-300 ease-in-out lg:sticky lg:top-4 lg:h-auto lg:max-h-[97vh] lg:mb-0 lg:mr-0 lg:rounded-3xl lg:border lg:translate-x-0 ${
         open ? "translate-x-0" : "-translate-x-full"
       }`}
     >
@@ -324,46 +341,45 @@ const Sidebar: React.FC<SidebarProps> = ({
             </div>
             <div className={`flex flex-col gap-2 ${toolsOpen ? "" : "hidden"}`}>
               <button
-                onClick={() => openModalForScript("script1")}
-                disabled={runningScripts.script1}
+                onClick={() => setSymbolSync("financial")}
+                disabled={!selectedCompany}
+                title={
+                  selectedCompany
+                    ? `آخرین گزارش‌های سود «${selectedCompany}»`
+                    : "ابتدا یک نماد انتخاب کنید"
+                }
                 className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
                 <FaCoins size={13} />
-                {runningScripts.script1 ? "در حال اجرا..." : "جمع‌آوری سود"}
+                جمع‌آوری سود
               </button>
 
               <button
-                onClick={() => openModalForScript("script2")}
-                disabled={runningScripts.script2}
+                onClick={() => setSymbolSync("monthly")}
+                disabled={!selectedCompany}
+                title={
+                  selectedCompany
+                    ? `آخرین گزارش‌های فروش «${selectedCompany}»`
+                    : "ابتدا یک نماد انتخاب کنید"
+                }
                 className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
                 <FaChartPie size={13} />
-                {runningScripts.script2 ? "در حال اجرا..." : "جمع‌آوری فروش"}
+                جمع‌آوری فروش
               </button>
 
               <button
-                onClick={() => fullPE()}
-                disabled={loadingFullPE}
-                className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm transition-all duration-200
-            ${
-              loadingFullPE
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20  active:scale-[0.98]"
-            }`}
-              >
-                <FaCalculator size={13} />
-                {loadingFullPE ? "در حال اجرا..." : "P/E کامل"}
-              </button>
-
-              <button
-                onClick={() => openModalForScript("stockPrices")}
-                disabled={runningScripts.stockPrices}
+                onClick={runCompanyPrices}
+                disabled={!selectedCompany || loadingCompanyPrices}
+                title={
+                  selectedCompany
+                    ? `تاریخچه‌ی قیمت «${selectedCompany}»`
+                    : "ابتدا یک نماد انتخاب کنید"
+                }
                 className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
               >
                 <FaDownload size={13} />
-                {runningScripts.stockPrices
-                  ? "در حال اجرا..."
-                  : "جمع‌آوری قیمت‌ها"}
+                {loadingCompanyPrices ? "در حال اجرا..." : "جمع‌آوری قیمت‌ها"}
               </button>
 
               <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
@@ -381,19 +397,17 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </button>
               </div>
 
-              <button
-                onClick={() => openModalForScript("full")}
-                disabled={runningScripts.full}
-                className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm transition-all duration-200
-                  ${
-                    runningScripts.full
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 hover:shadow-md hover:shadow-purple-500/20  active:scale-[0.98]"
+              {toolsMsg && (
+                <p
+                  className={`text-xs text-center font-medium ${
+                    toolsMsg.kind === "ok"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-red-500 dark:text-red-400"
                   }`}
-              >
-                <FaDatabase size={13} />
-                {runningScripts.full ? "در حال اجرا..." : "جمع‌آوری کامل داده"}
-              </button>
+                >
+                  {toolsMsg.text}
+                </p>
+              )}
 
               <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
                 <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">
@@ -539,6 +553,14 @@ const Sidebar: React.FC<SidebarProps> = ({
         visible={quickSyncOpen}
         onClose={() => setQuickSyncOpen(false)}
         onRunningChange={setQuickSyncing}
+      />
+
+      <SymbolSyncModal
+        visible={symbolSync !== null}
+        mode={symbolSync ?? "financial"}
+        symbol={selectedCompany}
+        onClose={() => setSymbolSync(null)}
+        onDataCollected={onDataCollected}
       />
     </aside>
   );

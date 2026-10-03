@@ -12,9 +12,11 @@ import { colorForScore, glassTooltipStyle } from "../utils/chart-theme";
 
 type DonutChartProps = {
   score?: number;
+  /** برچسب وسط گیج — مثلا «رشد سود خالص» یا «رشد فروش» */
+  label?: string;
 };
 
-const DonutChartComponent: React.FC<DonutChartProps> = ({ score }) => {
+const DonutChartComponent: React.FC<DonutChartProps> = ({ score, label = "امتیاز" }) => {
   const { darkMode } = useDarkMode();
   const dark = darkMode;
 
@@ -50,7 +52,7 @@ const DonutChartComponent: React.FC<DonutChartProps> = ({ score }) => {
           }}
         />
         <span>
-          امتیاز: {actualScore.toFixed(1)}%
+          {label}: {actualScore.toFixed(1)}%
         </span>
       </div>
     );
@@ -119,7 +121,7 @@ const DonutChartComponent: React.FC<DonutChartProps> = ({ score }) => {
               style={{ textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}
             />
             <Label
-              value="امتیاز"
+              value={label}
               position="center"
               dy={22}
               fontSize={11}

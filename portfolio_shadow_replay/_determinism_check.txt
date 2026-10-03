@@ -1,0 +1,1 @@
+IDENTICAL — byte-level reproducibility across PYTHONHASHSEED runs

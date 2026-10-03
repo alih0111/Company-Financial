@@ -1,0 +1,45 @@
+{
+ "T1_unit_tests": {
+  "A_bps_and_B_one_way_purchase": "PASS",
+  "C_full_rotation": "PASS",
+  "D_zero_turnover": "PASS",
+  "E_proportional_reduction": "PASS"
+ },
+ "T2_invariant_sweep": "PASS",
+ "T3_parity_vs_certified": {
+  "max_abs_diff": 2.842170943040401e-14,
+  "note": "certified engine iterates unordered sets; diff is summation-order float noise (relative magnitude ~1e-16 of position values; scaling-path arithmetic chains can accumulate to ~1e-13 absolute)",
+  "required_max": 1e-12,
+  "verdict": "PASS",
+  "worst_scenario": 0
+ },
+ "T4_observer_close": {
+  "carried_held_nontradable": "PASS",
+  "cash_nonneg": "PASS",
+  "cost_is_50bps_of_notional": "PASS",
+  "failed_target_not_bought": "PASS",
+  "nav_identity": "PASS",
+  "reselected_held_executed_to_target": "PASS",
+  "scaling_buy_scale_applied_when_cash_short": "PASS",
+  "scaling_cash_nonneg": "PASS",
+  "scaling_nav_identity": "PASS",
+  "turnover_positive_and_le_1": "PASS"
+ },
+ "T5_determinism": {
+  "artifact_hashes_run1": {
+   "test_shadow_orders_2026_10.parquet": "6850a19c1ec2fccb4d55207a7b73935a8648813d8f36a7c0e1b9ee7b8dd65735",
+   "test_shadow_portfolio_state_2026_10.json": "56a94dbf35ace13bb00ad2b84de960ef22d37ad6d23658b3490b6762632b6565",
+   "test_shadow_snapshot_2026_10.json": "df6c7a5c18f27f23dd8921b2d60f86103132bbcea90390ee572b2d7562a4e8ad",
+   "test_shadow_targets_2026_10.parquet": "37ac899cd626b1df777a46467c90578f6112e131f97a987a093c87f25adf6826"
+  },
+  "byte_identical_across_processes": true,
+  "n_artifacts": 4,
+  "pythonhashseeds": [
+   "1",
+   "2",
+   "3"
+  ],
+  "verdict": "PASS"
+ },
+ "all_pass": true
+}

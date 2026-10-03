@@ -1,0 +1,31 @@
+{
+ "artifact_hashes": {
+  "test_shadow_orders_2026_10.parquet": {
+   "sha256_canonical_content": "91bd8fc1000f4ad6c2d7b4cc0ad2118cd9f1c93a076453cb3ba56b9fe5779978",
+   "sha256_file": "6850a19c1ec2fccb4d55207a7b73935a8648813d8f36a7c0e1b9ee7b8dd65735"
+  },
+  "test_shadow_snapshot_2026_10.json": {
+   "sha256_file": "df6c7a5c18f27f23dd8921b2d60f86103132bbcea90390ee572b2d7562a4e8ad"
+  },
+  "test_shadow_targets_2026_10.parquet": {
+   "sha256_canonical_content": "ab17a65e32e52eea93752b5065dd7fc1e0973bd8355790e30665feb9176bf732",
+   "sha256_file": "37ac899cd626b1df777a46467c90578f6112e131f97a987a093c87f25adf6826"
+  }
+ },
+ "artifact_kind": "TEST_FIXTURE_REBUILD",
+ "decision": {
+  "as_of_date": "2026-10-02",
+  "decision_nav": 1.0,
+  "exec_date_projected": "2026-10-03",
+  "holdings_decision": {},
+  "n_eligible": 271,
+  "n_selected": 54
+ },
+ "run": {
+  "as_of_date": "2026-10-02",
+  "completed_at": "2026-10-02T15:04:14.021117+03:30",
+  "knowledge_cutoff": "2026-10-02T15:15:00+03:30",
+  "run_id": "e5998f6d-93ab-4577-b13a-7b2f89c39c02"
+ },
+ "spec_sha256": "959b56904added66812ab3726fc067112d7bc12ab3d58d8334f3c4381540df3a"
+}

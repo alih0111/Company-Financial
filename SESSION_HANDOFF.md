@@ -1736,3 +1736,1562 @@ Gates: `CORPORATE_NET_PROFIT_SCOPE_RECONCILED` + `NET_PROFIT_RECONCILIATION_CLEA
   period of ~29; forward returns statistically indistinguishable
   (0.0326 vs 0.0329). No imputation performed.
 - Signal Engine NOT started.
+
+## 47. MODEL_V2_1_ROBUST_SET — pre-registered experiment (result: WEAK)
+
+Pre-registration: `model_v2_validation/MODEL_V2_1_PREREGISTRATION.md` (frozen
+before any Holdout/Forward read). Config hash
+`e543ea3e3e957fbfbccd2f3fe26256cd1274b1d7c78727ef43f98bb074565373`.
+Candidates (untouched exp-a/b/c left as-is): `canonical-v2.1-a` equal-weight over
+the 6 ROBUST_SIGNAL factors · `-b` weights ∝ Dev-IC21 (PERank .294,
+NetProfitGrowth .319, SalesGrowth .133, SalesGrowth3M .131, LowVolatility .115,
+RevenueGrowth .009) · `-c` coverage-neutral (β=0.0005 fitted on Dev) ·
+`-a-NPGX` ablation without NetProfitGrowthRank.
+
+- **Frozen decision rule (Dev+Val only) produced NO eligible candidate → gate
+  `MODEL_V2_1_VALIDATION_WEAK`.** v2.1-a failed R4 (Val turnover 0.655 > 0.65)
+  by 0.005; v2.1-b failed R1 (Val IC21 0.1901 < baseline 0.1917); v2.1-c failed
+  R4 (0.664). Rule not relaxed after seeing results.
+- Dev 2021–23 IC21: baseline 0.0765 · a 0.1159 · **b 0.1276** · c 0.1158 ·
+  a-NPGX 0.0923. Val 2024: baseline 0.1917 · a 0.2095 · b 0.1901 · c 0.2093.
+- Holdout 2025 (diagnostic): baseline 0.1721 · a 0.1533 · **b 0.1707** · c 0.1528 ·
+  a-NPGX 0.1327. Forward 2026 (diagnostic): baseline 0.3589 · a 0.3750 ·
+  **b 0.3792** · c 0.3741 · a-NPGX 0.3365.
+- Coverage-bias control is the robust-set's real win: coverage–score correlation
+  0.013–0.075 (candidates) vs 0.41–0.50 (baseline) across Dev/Val/Holdout.
+- **NetProfitGrowthRank ablation**: Δ IC21 = +0.0236 (Dev), −0.0134 (Val),
+  +0.0206 (Holdout), +0.0384 (Forward) → net positive in 3 of 4 periods; Δ spread
+  positive in all; small coverage-corr cost. The recovered history adds
+  measurable, if not decisive, model value.
+- Audits (`output/model_v2_1_audits.json`): return convention = **raw_price_return**
+  → cumulative 9.886 vs 2.480 means compounded net-of-cost wealth multiples
+  (+988.6% vs +248.0%), equal-weight, monthly, 1-day execution lag; corporate
+  actions unavailable → **RETURN_SERIES_NOT_PROMOTION_GRADE** (IC evidence stays
+  usable). Lookahead: 250-sample audit → 0 violations (250/250 entry strictly
+  after signal; 144 exposure signals correctly excluded by the PIT filter);
+  backtesting PIT suite 34/34.
+- Signal Engine NOT started.
+
+## 48. FINAL bounded historical-share increment — Stage-4 ambiguity resolution (2026-10-01)
+
+**Framing (user-issued task order):** the Model v2/v2.1 rebaseline result was accepted; one
+bounded confounder remained — PERank_DIRECT coverage 41.9% vs factor-level direct IC *better*
+than legacy in Dev/Val. One FINAL coverage increment was authorized: resolve the existing 311
+`MATCH_AMBIGUOUS` TSETMC↔Codal LT28 events using **LT28 bodies only**, then rebuild
+PE_DIRECT → PERank_DIRECT_V2 → frozen Model v2/v2.1 with **zero methodology changes**. After
+this task historical-share acquisition is CLOSED regardless of gate outcome.
+
+**Phase 1 — decomposition (pre-acquisition)** (`historical_codal_backfill/
+coverage_decomposition.py`, `output/coverage_decomposition_pre_stage4.json`): all 13,481 grid
+rows classified by first blocker (OTHER = 0, exhaustive): COVERED 5,648 · MISSING_PRICE 1 ·
+MISSING_NET_PROFIT_TTM 645 · NO_TSETMC_SHARE_HISTORY 671 · PRE_FIRST_EVENT_UNKNOWN 758 ·
+NO_CODAL_MATCH 91 · **AMBIGUOUS_CODAL_MATCH 3,403 (91 symbols — max recoverable)** ·
+CODAL_PUBLISHED_AFTER_SIGNAL 1,916 · NEGATIVE_OR_INVALID_PE 348. Reconciliation exact:
+5,996 v1 jsonl rows all on-grid; 5,648 valid-PE = the v1 rebaseline hit count; 348 invalid =
+the rank-less rows the frozen `direct_ranks()` correctly skips.
+
+**Phase 2 — body fetch** (`run_stage4_bodies.py`): 96 AMBIG symbols via `acquire_lt28`
+unchanged policy — **594 network calls, 0×429, 0 CAPTCHA, ~55 min**, cache-first, bodies only
+(no attachments/OCR/other letter types). 651 OK bodies total incl. pilot.
+
+**Phase 3/4 — economic resolution** (`stage4_matcher.py` + `universe_join.py` Stage-4):
+deterministic, economics-first (capital/par vs TSETMC count, tol 1e-6, capital used for
+RECONCILIATION ONLY — shares stay TSETMC-authoritative), chronology second, contradiction
+never accepted; Stage-3 records locked (zero demotions); amendments candidates with own
+published_at; ZWNJ-normalized parser (fixes `به‌مبلغ` misses of the acquire-time parser).
+Result: **311 AMBIG → 233 MATCH_EXACT + 21 MATCH_STRONG + 57 MATCH_STILL_AMBIGUOUS (23
+symbols)**; NO_MATCH 0. knowledge_from = matched letter's published_at only; valid_from =
+dEven only; 16 new unit tests (`tests/test_stage4_matcher.py`); parser parity vs Darou's
+8-transition chain verified; 5-symbol end-to-end spot-check passed.
+
+**Phase 5 — coverage before/after** (`output/coverage_decomposition_post_stage4.json`,
+`universe_coverage_v2.json`): PIT-safe share rows 6,255 → **9,156 (46.4% → 67.9%)**; share-
+valid 11,725 unchanged. RECOVERABLE_AMBIGUITY_RESOLVED = 3,062; LEGITIMATE_FUTURE_KNOWLEDGE_
+BLOCK = 4,016 (incl. CODAL_PUBLISHED_AFTER_SIGNAL 2,246 — ambiguity resolved but the letter
+post-dates the signal cutoff; PIT NOT weakened). First-blocker post: COVERED 8,205 · AMBIG
+250 · published-after 2,246 · invalid-PE 614 · rest structural, OTHER = 0.
+
+**Phase 6/7 — PE_DIRECT/PERank_DIRECT_V2** (`universe_pe_perank.py --tag v2`, append-only;
+v1 artifacts untouched): `pe_direct_universe_v2.jsonl` **8,819 rows** (5,996) — valid PE
+8,205 · PE<=0 375 · PE>60 239; +2,557 newly ranked, 0 dropped; engine rows reused from
+`engine_rows_grid.json` (compute_metrics has no share_intervals dependency — verified; one-
+date spot-check each load). CALC = `perank-direct-v2+tsetmc-shares+codal-knowledge+ambiguity-
+resolved`.
+
+**Phase 8 — factor IC (63d fwd, frozen split; Holdout/Forward descriptive)**: Dev: legacy
+0.1579 → V1 0.1646 → **V2 0.1743**. Val: 0.2289 → 0.2216 → 0.2049. (`perank_direct_
+validation_v2.json` carries ret_21 too; ad-hoc stage 5-6 reports are now reproducible.)
+
+**Phase 9/10 — frozen model rerun** (`model_v2_direct_rebaseline_v2.py`, artifact `model_v2_
+direct_perank_rebaseline_v2.json`): direct hits 5,648 → **8,205**; legacy lost 7,641 → 5,152.
+Direct world Dev/Val IC21: a 0.1013/0.1946 · b 0.0968/0.1462 · c 0.1010/0.1949 (baseline
+0.0765/0.1917). **v2.1-a and c now PASS R1** (previously failed Val vs baseline). Legacy
+world reproduces §47 exactly (a 3/4 rules, b fails R1, c fails R4) — harness sanity check.
+exp-a/exp-b (previously unexecuted older Model v2) closed: **legacy world fully eligible
+(4/4 rules: a 0.0939/0.2082, b 0.0940/0.2146)**; direct world fails R1+R2 (a 0.0737/0.1996,
+b 0.0759/0.1991, Dev pos-frac 0.69). Direct IC deltas vs V1 rebaseline: +0.0024…+0.0054
+Dev/Val across a/b/c; Val pos-frac +0.083 (a/c); Dev turnover −0.008.
+
+**Designations:**
+- `MODEL_V2_DIRECT_REBASELINE = FAIL` (exp-a/b direct world: 2/4 rules each)
+- `MODEL_V2_1_DIRECT_REBASELINE = FAIL` (direct world best a/c = 2/4 rules)
+- `MODEL_V2_1_PREREGISTERED_GATE = FAIL` — failure MODE moved: R1 now passes (coverage
+  dilution was real and material), remaining failures are **R2 (Dev pos-frac 0.72 < 0.75)**
+  and **R4 (turnover 0.664/0.661 > 0.65)** — properties of the candidate set, not coverage.
+- Answer to the task question: resolving the ambiguity materially improved direct coverage
+  (+45%) and every direct Dev/Val IC, and moved v2.1-a/c past R1 — but did NOT flip the
+  preregistered gate. Missingness dilution was a genuine confounder, not the whole story.
+
+**STOP RULE EXECUTED:** `HISTORICAL_SHARE_REPAIR_COMPLETE = YES`. Historical-share
+acquisition CLOSED (no OCR, no more LT28 sources, no nominal-value work, no alternative
+share-history sources to be proposed). Next task: **RETURN_SERIES_CORPORATE_ACTION_
+INTEGRITY** (`market.corporate_actions` empty; ex-date source discovery; contract amendment
+before any writer). Signal Engine still NOT started. Holdout/Forward untouched as
+decision surfaces; `RETURN_SERIES_NOT_PROMOTION_GRADE` still ACTIVE.
+
+## 49. RETURN_SERIES_CORPORATE_ACTION_INTEGRITY — complete (2026-10-02)
+
+Goal: determine whether the historical return series can be made adjustment-aware and
+auditable, and if so build it — without reopening historical-share work, without tuning
+anything, without the Signal Engine. Audit-first artifact: `backtesting_v1/
+RETURN_PATH_AUDIT.md` (Phases 1-3) + `backtesting_v1/CORPORATE_ACTION_TAXONOMY.md`
+(Phases 4/5/7/8, frozen).
+
+**PHASE 1-2 findings (audit).** The "raw_price_return" label was a misnomer: `market.
+price_observations` contains ONLY an adjusted series (705,812 rows `vendor_adjusted` +
+5,546 later `NULL`-method rows from `brs_daily`; 1,163 duplicate (security,date) groups =
+pre-existing PriceStore last-row-wins hazard, finding A1). `vendor_snapshots` empty; no
+dividend data anywhere in the DB. Local evidence: TSETMC share-change cache, 708 cached
+LT28 bodies (capital economics + funding source), 1,250 flagged ≥25% moves.
+
+**PHASE 3 (endpoint validation).** 11 guessed adjustment endpoints → 404;
+`TseClient2.aspx?t=ClosingPrices` → 500 (retired channel). **VALIDATED:
+`cdn.tsetmc.com/api/ClosingPrice/GetClosingPriceDailyList/{insCode}/0` = RAW daily
+OHLC** (`pClosing`, `priceYesterday` re-based at events). Raw-ness proven on دارو
+(25,420 → 1,280 across the ×19.92 event where the vendor series is continuous). The
+official TSE adjustment algorithm (gap rule) was recovered from a verbatim port of
+TSETMC's own client: event = price discontinuity; capital iff a share-change record
+matches; else dividend = the gap; backward coefficient = after/before.
+
+**PHASE 5 (two-axis proof).** دارو price re-base (ex) **2025-07-29** vs share-change
+`dEven` **2025-08-21** vs LT28 publish 2025-08-25 — the frozen distinction is measurable,
+not theoretical.
+
+**PHASE 6 (pilot, 5 symbols).** Vendor series decoded: base field = **`pDrCotVal` (last
+trade), NOT `pClosing`** (finding A3 — the whole model history ran on last-trade levels);
+vendor ≡ **Mode 1 (capital + dividends)** backward-adjusted. Event-level vendor F-step
+agreement: capital 20/20 verifiable, dividends 39/51 (all misses = windows merged with a
+capital event, one post-migration staleness — وبملت 2026-07-25, gap≈1.0 noise).
+**The promotion deficit was auditability, not missing adjustment.**
+
+**PHASE 7 (decision).** Representation **B — raw prices + event-by-event factors**
+(`CORPORATE_ACTION_TAXONOMY.md`); vendor series demoted to cross-check. No UI
+considerations; smallest deterministic chain supporting forward returns, IC, backtests,
+reproducibility, PIT-safe sourcing.
+
+**PHASE 9 (pipeline).** Raw daily history fetched for the research universe (**238/238,
+0 failures**, paced, gzip-cached, raw responses preserved). `build_corporate_actions.py`
+→ **`market.corporate_actions` = 7,013 rows** (cash_dividend 4,344 · other/price-up
+re-bases 1,775 · rights_issue 480 · capital_increase 384 · reverse_split 30; 237/238
+symbols), idempotent (`source='tsetmc_gap_rule_v1'`), every row carries ex_date,
+last_cum_date, reference prices, detection method, provenance ids; capital events
+share-change-confirmed (`is_confirmed=true`), dividends flagged `detected_heuristically`
+(no announcement source was crawled — per scope). Taxonomy field rule fixed during
+validation: `adjustment_factor` = **after/before** (the backward coefficient); an inverted
+chain was caught immediately by the factor-IC sanity check and corrected before any
+model claim. Raw price tables untouched; `test_phase2` fabrication guard updated
+deliberately (source-tag + confirmation/heuristic invariants instead of 0-rows).
+
+**PHASE 10 (`FORWARD_RETURN_ADJUSTED_V1`, `phase3_signals_adjusted_v1.csv`).** Same
+entry/exit semantics (frozen execution dates, global calendar, exact-date closes, None
+rules). Coverage IMPROVED: ret_63 non-null 12,062 → 13,199. Windows straddling an event:
+257 (5d) / 1,543 (21d) / 4,456 (63d). |Δ| vs legacy: median ≈1.0-1.1%, mean 1.4-1.6%
+(the residual = pClosing-vs-pDrCotVal field difference + vendor staleness, documented).
+
+**PHASE 11 (frozen harness on adjusted returns; PERank_DIRECT_V2).** Factor IC ret_63:
+Dev +0.167 / Val +0.208 / Holdout +0.177 — reproduces the legacy-target evidence on an
+auditable series. Direct world: baseline dev/val IC21 0.0753/0.1801; v2.1-a
+**0.0992/0.1932 — passes R1+R3+R4, fails ONLY R2** (Dev pos-frac 0.72 < 0.75, same
+near-miss as the raw world); b fails R1+R2; c fails R2+R4; exp-a 2/4, exp-b 3/4 (also
+R2). Legacy-perank world: a/c 3/4 (R2), b 2/4. Holdout/Forward descriptive:
+baseline 0.1728/0.2864, v2.1-a 0.1373/0.3297.
+
+**PHASE 12 designations:**
+- `RETURN_SERIES_INTEGRITY = PASS` — raw source validated 238/238; 7,013 provenance-
+  complete events; vendor cross-check consistent at all verifiable events; adjusted
+  coverage ≥ legacy; factor/model evidence reproduces.
+- `CORPORATE_ACTION_PIPELINE = PASS` — idempotent, evidence-classified, provenance-
+  complete, no raw writes, taxonomy frozen.
+- `MODEL_V2_1_ADJUSTED_RETURN_GATE = FAIL` — no eligible candidate on adjusted returns.
+  **Did return adjustment materially change the preregistered conclusion? NO.** The gate
+  fails in both worlds; v2.1-a is the strongest candidate in both (3/4 rules, sole
+  blocker R2 Dev positive-fraction 0.72 vs 0.75, identical near-miss) — but the evidence
+  base is now promotion-grade and auditable, and the IC levels are measured on a
+  defensible target rather than a black box.
+
+`RETURN_SERIES_NOT_PROMOTION_GRADE` = LIFTED for FORWARD_RETURN_ADJUSTED_V1 (absolute-
+return metrics may now be computed on the adjusted target; the legacy vendor target
+remains frozen for comparison). Signal Engine still NOT started. Next open items: the
+R2 near-miss is a candidate-set property (not tunable in this task); Signal-Engine
+evaluation decision now has both prerequisites (share repair + return integrity) closed.
+
+## 50. Return-layer integrity hardening — semantics separated from mechanics (2026-10-02)
+
+Bounded hardening pass after provisional acceptance of §49. No historical-share work, no
+model redesign, no gate change. Artifacts: `sql/118_corporate_action_semantics.sql`
+(idempotent), `historical_codal_backfill/build_corporate_actions.py` (rewritten),
+`semantic_hardening_report.json`, `return_reproducibility_demo.json`,
+`CORPORATE_ACTION_TAXONOMY.md` (hardening section).
+
+- **TASK 1/2**: all 4,344 price-gap-inferred `cash_dividend` labels DOWNGRADED to
+  `PRICE_ADJUSTMENT_UNCLASSIFIED` (a price gap alone must not become a dividend); dividend
+  amounts kept as `metadata.dividend_per_share_hypothesis`. Final: CONFIRMED 414
+  (capital_increase 384 + reverse_split 30 — independently confirmed by TSETMC share-change
+  records), INFERRED 480 (rights_issue — funding source from cached LT28 letter text),
+  UNCLASSIFIED 6,119. No adjustment evidence deleted; 7,013 rows intact.
+- **TASK 3**: option B — one table with `event_semantics_status` (CONFIRMED/INFERRED/
+  UNCLASSIFIED) + `adjustment_evidence_status` (CONFIRMED/INVALID), idempotent migration
+  registered in run_ddl.py. Return builder consumes CONFIRMED mechanical factors only.
+- **TASK 4**: `CANONICAL_RETURN_PRICE = TSETMC pClosing` (official weighted close) frozen;
+  no contract pins pDrCotVal (legacy last-trade semantics were a migration artifact — A3);
+  legacy pDrCotVal series preserved for comparison; no mixing.
+- **TASK 6**: exact rule = `priceYesterday(t+1) != pClosing(t)` (1e-6 tol, NO size
+  threshold). 837,287 pairs → 7,013 flagged (0.84%, 1:1 with rows); **12,904 unflagged
+  ≥5% and 2,734 unflagged ≥10% ordinary moves preserved**; 17.5% of flags are <0.5%
+  reference revisions — not a big-move filter.
+- **TASK 5/8**: chain rebuilt from raw + CONFIRMED factors only (vendor = cross-check);
+  دارو example raw 25,420→1,280, factor 0.05035405, back-adjusted continuous (1.000000);
+  **sha256 of phase3_signals_adjusted_v1.csv unchanged ⇒ FORWARD_RETURN_ADJUSTED_V1
+  numerically equivalent**; no V2; measured gate result stands without rerun.
+- **TASK 7**: mechanical factor consistency 12/12 in every share-event stratum; semantic
+  precision reported separately (dividends not locally validatable → UNCLASSIFIED).
+
+**TASK 9 gates:** `PRICE_ADJUSTMENT_PIPELINE = PASS` · `CORPORATE_ACTION_SEMANTICS =
+PARTIAL` (honest: 414 confirmed / 480 inferred / 6,119 unclassified pending official
+announcement evidence — no fabrication) · `RETURN_SERIES_INTEGRITY = PASS` (dates real,
+factors reproducible, ordinary moves not suppressed, pClosing frozen, provenance complete).
+`MODEL_V2_1_ADJUSTED_RETURN_GATE = FAIL` retained (numbers byte-identical).
+
+**TASK 10: `DATA_INTEGRITY_BLOCKERS_CLOSED = YES`.** Historical shares AND return series
+are both closed. R2 near-miss (Dev positive-fraction 0.72 vs 0.75) is accepted as the
+candidate's result — R2/weights/factors untouchable without a new preregistered
+experiment. Next project decision: **WHAT TO DO AFTER MODEL_V2_1_VALIDATION_WEAK** (not
+data repair). Signal Engine NOT started automatically. Tests 180+62 green (fabrication
+guard now enforces source-tag + confirmation/heuristic invariants).
+
+## 51. MODEL V2.1 CLOSED — R2 root cause + Model v2.2 preregistered (2026-10-02)
+
+v2.1 formally closed with `MODEL_V2_1_FINAL_STATUS = VALIDATION_WEAK` (immutable closeout:
+`model_v2_validation/MODEL_V2_1_FINAL_CLOSEOUT.md`, hash-pinned to the final artifacts:
+adjusted CSV `bf7cc191…`, pe_direct_universe_v2 `121dbb51…`, eval JSONs recorded). R2's
+0.72-vs-0.75 is the accepted final result; no rescue is permitted.
+
+**R2 diagnosis (Dev 2021-2023 ONLY; `model_v2_1_r2_diagnostics.py` →
+`output/model_v2_1_r2_diagnostics.json`)**: 36 dates = 26 positive / 10 negative / 7
+near-zero — exactly ONE date short of 0.75; nearest negative |IC| = 0.0022; quarter-block
+bootstrap P(pos-frac ≥ 0.75) = 0.432 (threshold inside the sampling distribution);
+negatives diffuse (all 3 years, 8 of 12 quarters, longest run 2) with two heavy dates
+(2022-07-31 −0.332, 2023-10-31 −0.233). Factor attribution on the five worst dates:
+LowVolatilityRank strongly negative on all five (−0.13…−0.53), PERank on four. Factor
+availability: RevenueGrowthRank **5.2%**, SalesGrowth 29.7%, PERank 56.4%, LowVol 99.99%.
+Redundancy: growth-family pairwise corr up to 0.649. LOO (diagnostic): NPGX −0.0223,
+SalesGrowth +0.0005, RevenueGrowth −0.0009. Verdict: small-number-of-dates stability on a
+thin diffuse margin + two heavy regime dates; NOT broad structural weakness. No regime
+label exists in the codebase (year/quarter used). Holdout/Forward untouched.
+
+**Model v2.2 preregistered** (`model_v2_validation/MODEL_V2_2_PREREGISTRATION.md`, frozen
+BEFORE execution; MODEL_V2_2_EXECUTED = NO): binding data-snooping statement (2024/2025/
+2026 can never be untouched holdouts again); exactly three Dev-grounded hypotheses — H1
+missing-data interaction (RevenueGrowthRank 5.2% availability), H2 growth-family
+redundancy (4/6 weight in one correlated family), H3 LowVolatilityRank unstable
+contribution (diagnostic context; NOT removed — turnover anchor). Candidates: PRIMARY
+`canonical-v2.2-a` = {PERank_DIRECT_V2, GrowthComposite(NPGX,SG,SG3M), LowVol} 1/3;
+ablation `-b` = five factors (isolates H1); ablation `-c` = GrowthComposite₄ incl.
+RevenueGrowth (isolates H2). Same R1-R4 thresholds (unchanged), same missing policy,
+TOP_N 20, FORWARD_RETURN_ADJUSTED_V1, PERank_DIRECT_V2. Exploratory historical evaluation
+procedure frozen (one deterministic execution; Holdout/Forward descriptive only);
+confirmatory SHADOW protocol defined (≥12 future monthly dates, mean IC21 > 0, pf ≥ 0.75,
+turnover ≤ 0.65, ≥ baseline; single judgment). Signal Engine boundary: RESEARCH_SIGNAL_
+READY (exploratory PASS + shadow running) vs PROMOTION_READY (shadow confirmatory PASS +
+integrity gates); Signal Engine work requires PROMOTION_READY.
+
+**Final outputs: MODEL_V2_1_CLOSED = YES · MODEL_V2_2_PREREGISTERED = YES ·
+MODEL_V2_2_EXECUTED = NO · SIGNAL_ENGINE_STARTED = NO.** STOP here per the task order.
+
+## 52. MODEL V2.2 EXECUTED (once) — EXPLORATORY_GATE = FAIL, VALIDATION_WEAK (2026-10-02)
+
+Preregistration clarified (shadow baseline pinned to frozen `canonical-v1-dev` mean IC21 on
+identical shadow dates; shadow-scorer boundary section §8C added) and re-frozen:
+**sha256 e4edbb781c110a584008a35a9ee36a871326d5e999e86c4c0f86f0431ae5bd25**. Executed
+EXACTLY ONCE (`model_v2_2_execution.py` → `output/model_v2_2_execution.json`; input hash
+verified `bf7cc191…`). All historical results EXPLORATORY_HISTORICAL. Baseline
+canonical-v1-dev: Dev/Val IC21 0.0753/0.1801.
+
+| candidate | Dev IC21 | Val IC21 | Dev pf | Val pf | Dev turn | Val turn | R1 | R2 | R3 | R4 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| v2.2-a (primary) | +0.0705 | +0.1798 | 0.6944 | 0.8333 | 0.6502 | 0.6302 | FAIL | FAIL | PASS | FAIL |
+| v2.2-b (abl.) | +0.1120 | +0.1988 | 0.7222 | 0.8333 | 0.6269 | 0.6352 | PASS | **FAIL** | PASS | PASS |
+| v2.2-c (abl.) | +0.0705 | +0.1798 | 0.6944 | 0.8333 | 0.6502 | 0.6302 | FAIL | FAIL | PASS | FAIL |
+
+(verbatim note: a vs c differ on exactly the 822 rows / 6.1% where RevenueGrowthRank
+exists — identical at reporting precision.)
+
+**MODEL_V2_2_EXPLORATORY_GATE = FAIL · primary = MODEL_V2_2_VALIDATION_WEAK ·
+MODEL_V2_2_SHADOW_ELIGIBLE = NO.** No shadow spec created; no v2.3; no redesign.
+
+**Hypothesis verdicts:** H1 (drop RevenueGrowthRank) — mechanism CONFIRMED
+(renormalization frequency 97.9% → 70.6%; Dev IC 0.0992→0.1120, Val 0.1932→0.1988; R1
+flipped to PASS) but Dev positive-fraction UNCHANGED at 0.7222 → R2 untouched. H2 (family
+collapse) — REJECTED: collapse destroyed IC (Dev 0.1120→0.0705) and pos-frac
+(0.7222→0.6944); upweighting LowVol to 1/3 diluted the strongest growth signal. H3 — NOT
+experimentally tested (no candidate changes LowVolatilityRank), as preregistered.
+
+v2.1-a vs v2.2-a: score rank correlation 0.9371, mean top-20 Jaccard 0.7244 — same model
+family; v2.2-b fails R2 at the IDENTICAL 26/36 as v2.1-a. The R2 blocker (LowVol/PERank
+negative dates) is structural across every preregistered variant and is ACCEPTED.
+
+**Final outputs: MODEL_V2_1_CLOSED = YES · MODEL_V2_2_PREREGISTERED = YES ·
+MODEL_V2_2_EXECUTED = YES · MODEL_V2_2_EXPLORATORY_GATE = FAIL ·
+MODEL_V2_2_SHADOW_ELIGIBLE = NO · PRODUCTION_SIGNAL_ENGINE_STARTED = NO ·
+DATA_INTEGRITY_BLOCKERS_CLOSED = YES.** Per the frozen stop rule: the robust-six family
+is closed; any further research cycle requires new Dev-only evidence and a new
+preregistration. STOP.
+
+## 53. Research program decision — robust-six family CLOSED, no new family justified (2026-10-02)
+
+Bounded Development-only decision analysis (`research_decision_analysis.py` →
+`output/research_decision_panel.json`; document `RESEARCH_PROGRAM_DECISION.md`). Part 1
+records the eight CLOSED findings (PE repair, PERank_DIRECT quality, return integrity,
+RG availability, family redundancy, dual R2 failure, 26/36-vs-27/36, dead test periods).
+
+**PART 3 — REGIME_MECHANISM_EVIDENCE = NONE.** Seven ex-ante state variables (breadth,
+median trailing return, cross-sectional dispersion, volatility level, negative-PE
+prevalence, PE dispersion, recent capital-adjustment fraction) median-split the 36 Dev
+dates: negative dates at chance concentration (4–6 of 10) on every variable; several
+wrong-signed (composite did BETTER in high-vol / high-neg-PE halves); correlations with
+date IC between −0.15 and +0.15.
+
+**PART 4 — LowVolatilityRank**: positive mean IC in every year (+0.027/+0.026/+0.059),
+pf 0.556; +0.128 on positive composite dates vs −0.200 on negative; NO correlation with
+ex-ante vol (−0.012), turnover (−0.053) or coverage (+0.026); rank-corr +0.177 with
+PERank, −0.068 with NPGX. Negative episodes = RANDOM/NOISY, not systematic or
+regime-dependent. Not removed, not reweighted.
+
+**PART 5 — PERank_DIRECT_V2**: 12 negative Dev dates; all state correlations weak
+(−0.22…+0.12); state means on negative dates ≈ identical to all dates; industry
+domination NOT DERIVABLE (no sector columns). Ordinary sampling variation.
+
+**PART 6/7 — NEW_MODEL_FAMILY_JUSTIFIED = NO.** Both allowed hypothesis classes
+(regime-conditional reliability; cross-sectional confidence weighting) fail criteria 2+4
+(ex-ante observability + Development support) — there is NO stable pre-observable state
+behind the R2 failures. Zero surviving hypotheses. The research program STOPS: the
+26/36-vs-27/36 shortfall is sampling noise around a modest positive mean IC (+0.086),
+not an unexplained mechanism. Any future research requires genuinely new external
+evidence and a new preregistration.
+
+**Final outputs: ROBUST_SIX_FAMILY_CLOSED = YES · NEW_MODEL_FAMILY_JUSTIFIED = NO ·
+SIGNAL_ENGINE_STARTED = NO · DATA_INTEGRITY_BLOCKERS_CLOSED = YES.** Infrastructure note:
+a research-only shadow scorer is technically feasible but remains OFF (no shadow-eligible
+candidate exists). Signal Engine NOT STARTED. STOP.
+
+## 54. UI score historically validated — STRONG, monotone, POSITIVE spread (2026-10-02)
+
+Product question: did the EXACT 0-100 score users see (canonical-v1-dev) predict relative
+performance historically? Answer: **YES** — tested directly on the frozen grid.
+
+- **PHASE 0**: production scorer = compute_metrics.py Engine (canonical-v1-dev, VAL_DIRECT);
+  quant_score = DQ x (growth 36 + profitability 26 + valuation 16 + market 11, weighted
+  rank sums with penalties); UI = analytics.company_scores run 0d2e5bc7 via
+  summary_canonical.go -> ScoreBreakdown.tsx. Explicitly DIFFERENT from the tested v2.1/
+  v2.2 composites. Manifest: ui_score_historical_v1/ui_score_production_manifest.json.
+- **PHASE 3 parity**: fresh Engine run with the stored live-run parameters = 243/271
+  exact; 28/271 differ ONLY in growth_score (<=2.4 points) because the stored run predates
+  the current rank step (NetProfitGrowthRank EPS-fallback rank change). Explainable ->
+  reconstruction used the CURRENT production implementation.
+- **PHASE 2/4**: ui_score_historical_v1.jsonl = 13,481/13,481 grid rows (63 dates x 238
+  symbols), every component preserved (raw metrics, ranks, contributions, categories, DQ,
+  flags); shares injected from the validated TSETMC+Codal knowledge path (task directive);
+  adjusted forward returns 21/63/126/252 (pClosing + confirmed factors).
+- **Results**: IC21 +0.110 (pf .857) · IC63 +0.154 (pf .935) · IC126 +0.181 (pf 1.00) ·
+  IC252 +0.157 (pf .982). Quintile means strictly monotonic Q1<Q2<Q3<Q4<Q5 on 63/126/252;
+  Q5-Q1 = +0.07pp / +4.9pp / +11.0pp / +17.0pp (positive 4/4). Excess vs universe: Q1
+  below, Q5 above at every horizon. Categories: Growth short, Valuation+Market long,
+  Profitability weakest; combination matches/beats every category. DQ multiplier = gate
+  not alpha (corr with ret63 +0.02); scores >=60 rare (83 rows), 80-100 band EMPTY
+  historically. IC63 positive in every year 2021-2026 (+0.081..+0.253).
+- **Gates: UI_SCORE_RECONSTRUCTION = PASS · UI_SCORE_HISTORICAL_PREDICTIVE_EVIDENCE =
+  STRONG · UI_SCORE_MONOTONICITY = PASS (3/4 horizons; 21d flat) ·
+  UI_SCORE_HIGH_VS_LOW_SPREAD = POSITIVE (4/4).**
+- Score semantics for the product: a RANKING + quality summary — NOT a probability of
+  profit. No score changes made. Signal Engine still NOT STARTED. Artifacts:
+  UI_SCORE_HISTORICAL_VALIDATION.md, ui_score_historical_v1.jsonl,
+  ui_score_historical_v1_analysis.json.
+
+## 55. UI-score robustness audit — PASS on all four verdicts (2026-10-02)
+
+Final robustness audit of the exact production UI score (§54). Artifact:
+`output/ui_score_robustness_audit.json` (script `ui_score_robustness_audit.py`); results
+appended to `UI_SCORE_HISTORICAL_VALIDATION.md`.
+
+- **TASK 1**: scorer machinery in MACHINE PARITY between current Engine and the
+  reconstruction scorer (growth/prof/market/DQ zero diffs, 271 companies). Valuation
+  differences (234 companies, mean |dq| 2.11, max 15.32) trace entirely to the share INPUT
+  source (production core.share_structure vs task-directed core.share_intervals:
+  195 identical, 1 >1% (خودکفا 25%), 70 rec-missing, 4 prod-missing). Study labelled
+  validation of CURRENT_PRODUCTION_SCORE — not historical UI code.
+- **TASK 2 survivorship**: all 238 research symbols active today; canonical DB has 0
+  delisted primary securities; 0 intra-sample trading stops; new entries 2022-26 are real
+  listings (+4/+4/+3/+5/+2); reconstruction per-date symbol sets identical to the frozen
+  phase3 grid. The list is PRESENT-DAY (B) at the issuer level: companies delisted during
+  2021-26 are absent from the DB entirely — structural upward bias on ABSOLUTE returns,
+  unquantifiable from canonical data; cross-sectional ranking result far less sensitive.
+- **TASK 3**: PIT rank audit 2021/2023/2025 — within-date recomputed percentiles match
+  stored ranks exactly.
+- **TASK 4**: coverage 100%/98.4%/96.9%/86.5% at 21/63/126/252d (13,481/13,270/13,056/
+  11,654 valid rows).
+- **TASK 5 block bootstrap (B=2000, horizon-length blocks)**: IC CI95 [+0.082,+0.141] /
+  [+0.122,+0.194] / [+0.134,+0.228] / [+0.099,+0.235] — P(IC<=0)=0.000 all horizons.
+  Q5-Q1 CI95: 21d [-0.019,+0.021] (NOT distinguishable from 0) · 63d [+0.016,+0.077]
+  (P=0.0005) · 126d [+0.044,+0.166] · 252d [+0.029,+0.316].
+- **TASK 6 non-overlapping cohorts**: 63d 17 cohorts meanIC +0.171 pf .94 spread +9.1pp;
+  126d 9 cohorts +0.148 pf 1.00 +8.0pp; 252d 5 cohorts +0.126 pf 1.00 +10.4pp; 21d 32
+  cohorts +0.101 pf .84 +0.6pp. Direction confirmed everywhere.
+- **TASK 7**: strictly monotonic MEANS and MEDIANS Q1<Q2<Q3<Q4<Q5 at 63/126/252d; 21d means
+  not monotonic (Q3 dip) but medians monotonic (0.5%->3.7%).
+- **TASK 8**: 21d discrepancy explained — mean spread +0.07pp vs median +2.46pp and 1%-
+  winsorized mean +2.69pp: extreme outliers cancel the mean; rank IC unaffected. 21d =
+  WEAK economically.
+- **TASK 9**: observed production score range 2.1-71.9 (p99 52.2); 80+ NEVER occurred —
+  the 0-100 scale is not empirically calibrated over its full range.
+- **TASK 10**: DQ interaction — pre-DQ IC63 +0.162 / spread +5.7pp vs post-DQ +0.154 /
+  +4.9pp: the multiplier slightly HURTS ranking (mainly suppresses dq=0.80 rows);
+  diagnostic only, unchanged.
+- **TASK 11**: monthly top-quintile turnover 33.6% (66% persist), top-decile 44.1% —
+  operationally meaningful stability.
+
+**Verdicts: UI_SCORE_CURRENT_CODE_PARITY = PASS · UI_SCORE_PIT_UNIVERSE_INTEGRITY = PASS
+(with the explicit present-day-list survivorship caveat) · UI_SCORE_DEPENDENCE_ROBUSTNESS
+= PASS · UI_SCORE_HISTORICAL_RANKING_VALUE = STRONG · 21D = WEAK (real rank signal, ~zero
+mean spread) · 63_126D = STRONG · 252D = STRONG.** Plain answer: yes — the higher-scored
+of two otherwise eligible stocks was more likely to outperform subsequently, robustly at
+63-252d. Statistical ranking value strong at all horizons; economic top-vs-bottom spread
+meaningful only at 63d+. Signal Engine still NOT STARTED. STOP.
+
+## 56. Survivorship resolution — gates final (2026-10-02)
+
+Provisional PARTIAL revisions accepted and resolved with market-wide evidence. Method:
+bounded Codal enumeration of LetterType=58 monthly activity reports (mandatory for listed
+producers) for three probe months — 1400/05, 1402/05, 1404/05 (2021/2023/2025). Raw
+responses cached (`output/survivorship_probe/`); scripts `enumerate_codal_issuers.py`,
+candidate tables `survivorship_candidates_final.json`, input sensitivity
+`ui_score_input_sensitivity.json`.
+
+- LT58 filer population: **618 (2021-07) → 725 (2023-07) → 860 (2025-07); union 914**.
+- vs the canonical/research universe: 229 in the 238 list + 33 canonical matches; **651
+  filers ABSENT from the canonical DB** (270 operating, 168 investment, 21 insurance,
+  13 banks, 11 leasing, 8 financing — مخابرات ایران، بیمه البرز، بورس تهران among them).
+- Month patterns: 339 absent filers alive in ALL THREE probes (pure coverage gap);
+  **~34 stopped filing during the window (the plausible true-exit set, 3.7% of filers)**;
+  155 first filed 1404 (new listings). Verdict: the dominant issue is COVERAGE breadth
+  (the canonical universe covers ~29% of market filers), not delisting survivorship.
+- The 651 have NO ingested fundamentals → the exact production scorer cannot run for them
+  → kept EXPLICITLY MISSING (no invented data; scoring would need a new ingestion
+  pipeline, out of scope). Survivorship direction (were disappeared names low-score?)
+  UNVERIFIED, not assumed.
+- **PHASE 8 input sensitivity** (vendor vs TSETMC share source, as_of 2026-10-01, 271
+  companies): score rank corr **0.956**, mean |Δ| 2.11, max 15.32; top-quintile overlap
+  86.2%, top-decile 74.2%; movers >2/5/10 points: 71/39/7. Material for individual
+  rankings; production source untouched.
+- **FINAL GATES: UI_SCORE_SCORER_FORMULA_PARITY = PASS · UI_SCORE_CURRENT_INPUT_PARITY =
+  PARTIAL · UI_SCORE_PIT_UNIVERSE_INTEGRITY = PARTIAL · UI_SCORE_DEPENDENCE_ROBUSTNESS =
+  PASS · UI_SCORE_HISTORICAL_RANKING_VALUE = STRONG** (within the reconstructed available
+  historical universe).
+- **FINAL CLAIM (mandated PARTIAL wording): higher UI scores ranked future returns better
+  within the reconstructed available historical universe, with residual survivorship
+  uncertainty.** Inclusion of later-disappeared equities does NOT materially weaken the
+  conclusion (exit set ~34, unscorable without new ingestion); 21d remains economically
+  WEAK. Signal Engine NOT STARTED. STOP.
+
+## 57. UI-score current share-source contract FROZEN (2026-10-02)
+
+Final task: single canonical valuation/share source for the UI score. Contract document:
+`canonical_postgres_v1_2_1/analytics_canonical_v1/UI_SCORE_CURRENT_SOURCE_CONTRACT.md`.
+Evidence: `output/share_source_reconciliation_ui271.json`,
+`output/ui_score_canonical_source_recompute.json`,
+`output/ui_score_input_sensitivity.json`,
+`output/tsetmc_share/nonresearch_instruments.json` (zTitad fetched for the 33 non-research
+UI subjects).
+
+- **PHASE 1**: vendor source = `brs_all_symbols` daily snapshot (588 rows / 325 securities,
+  as_of 2026-09-29..10-01; Engine gate as_of_date <= as_of AND collected_at <= cutoff; no
+  fallback; missing -> valuation penalty). TSETMC: zTitad (live instrument master) +
+  GetInstrumentShareChange.numberOfShareNew (chain terminal state).
+- **PHASE 2 reconciliation (271 UI subjects)**: vendor vs zTitad — EXACT **266**,
+  TSETMC_ONLY 5, **zero count disagreements**. vendor vs latest chain-new — EXACT 242,
+  no-chain 23, DIFF_GT_5PCT 1 (خودکفا: cached chain snapshot stale vs live master; vendor
+  agrees with zTitad).
+- **PHASE 3 decision**: PRIMARY = TSETMC zTitad; CROSS-CHECK = vendor core.share_structure;
+  deterministic fallback = vendor when zTitad unavailable; both missing -> existing penalty.
+  Criteria all favor zTitad (direct count, live freshness, chain continuity 215/216, after
+  the fill 271/271 coverage, current-date semantics).
+- **PHASE 4 recompute** (share input substituted, formula untouched, cutoff-corrected
+  injection): Spearman vs production **0.9985**, 112 exact, mean |delta| 0.116, top-decile
+  overlap **1.0**; only 3 companies move >2 points — ALL GAIN valuation (vendor snapshot
+  was missing, zTitad covers them); nobody loses. (First injection run had collected_at >
+  cutoff and was rejected by the PIT gate — corrected; nothing was stored to analytics.)
+- **PHASE 5 coherence**: 216 open-ended historical chains; **terminal chain == canonical
+  current for 215/216**; 55 no-chain companies covered by the current-source rule. No
+  unexplained current-vs-history contradiction.
+- **PHASE 6 parity**: formula EXACT; input semantics consistent (current = zTitad as the
+  chain's live continuation; historical = chain + Codal knowledge); score near-exact;
+  valuation gains confined to the 5 previously-valuation-less companies. Deployment =
+  next production refresh implements PRIMARY/CROSS-CHECK/FALLBACK in the Engine share
+  loader (NOT executed in this task; no analytics writes).
+- **PHASE 7 frozen product meaning**: cross-sectional ranking/quality score; historically
+  better medium/long-horizon returns within the available universe; NOT a probability,
+  expected return, guarantee, or full-range-calibrated (observed 2.1-71.9, 80+ unobserved).
+- **PHASE 8 FINAL GATES: UI_SCORE_HISTORICAL_VALIDATION = PASS_WITH_UNIVERSE_CAVEAT ·
+  UI_SCORE_CURRENT_SHARE_SOURCE = VALIDATED · UI_SCORE_CURRENT_PRODUCTION_CONTRACT = PASS ·
+  UI_SCORE_READY_FOR_PRODUCT_USE = YES · SURVIVORSHIP_EFFECT_ON_FULL_MARKET = UNRESOLVED**
+  (per the standing correction: the absent/delisted issuers were never reconstructed or
+  scored, and the three-month LetterType=58 filer union is not a definitive market census).
+  Signal Engine NOT STARTED. STOP.
+
+## 58. Current share-source contract DEPLOYED and validated on a new run (2026-10-02)
+
+The PIT correction was applied first: the earlier synthetic-cutoff recompute was reclassified
+as a counterfactual sensitivity test only — zTitad was actually acquired 2026-10-02 and is
+never backdated. Then the approved contract was implemented and deployed:
+
+- **Migration** `sql/119_tsetmc_current_shares.sql`: market.tsetmc_current_shares (real
+  collected_at, immutable; registered in run_ddl.py). **Engine**: select_current_shares()
+  precedence (PRIMARY TSETMC_ZTITAD_CURRENT with real collected_at <= cutoff; FALLBACK BRS
+  core.share_structure; both missing -> existing penalty) wired into load()/compute();
+  historical market_pit='trade_date' runs never read the new table (no current-zTitad
+  leakage into historical as_of). **Provenance** per subject: share_source,
+  share_source_collected_at, share_source_fallback_used, share_cross_check_status.
+- **PHASE 7 tests**: 8 regression tests (eligibility before/after cutoff, latest-snapshot
+  selection, vendor fallback, both-missing penalty path, disagreement provenance, stamp
+  non-mutation, SELECT-only source audit) — all pass; **full canonical suite 188 passed**.
+- **Collector** `collect_tsetmc_current_shares.py`: 323/323 instruments fetched with REAL
+  collected_at 2026-10-02 14:55:53-15:01:18 Tehran.
+- **New versioned analytics run**: `e5998f6d-93ab-4577-b13a-7b2f89c39c02`, as_of 2026-10-02,
+  cutoff 15:15+03:30 (> acquisition), --store, 271 companies. In-memory recomputation
+  matches the stored run 271/271 exact. (A first attempt without CDF_PILOT_DB connected to
+  the migration-pilot DB and failed harmlessly at load() — nothing written.)
+- **PHASE 4 reconciliation on the new run**: share_source TSETMC_ZTITAD_CURRENT x271,
+  fallback x0; cross-check 266 AGREE + 5 TSETMC_ONLY; collected_at window 14:55:53-15:01:18.
+- **PHASE 5 score impact**: old production run (2026-10-01) vs new run: Spearman 0.9977,
+  top-quintile overlap 0.964, top-decile 0.929, movers >2/>5/>10 = 5/3/0, mean |delta| 0.177.
+  **Source-only at the same new cutoff**: Spearman 0.9984, quintile/decile overlap 1.0,
+  movers 3/2/0, mean |delta| 0.116 — the share-source effect is negligible at the current
+  date; the small total delta is dominated by the new date's market data.
+- **PHASE 6 terminal-chain consistency**: EXACT 247 · NO_CHAIN 23 ·
+  CURRENT_NEWER_THAN_CHAIN 1 (خودکفا — live master fresher than the cached chain, correctly
+  classified, never treated as a historical fact) · CONFLICT 0.
+
+**FINAL GATES: UI_SCORE_CURRENT_SHARE_SOURCE = VALIDATED ·
+UI_SCORE_CURRENT_PRODUCTION_CONTRACT = PASS · SOURCE_CONTRACT_DEPLOYED = YES ·
+PIT_BACKDATING_PRESENT = NO · UI_SCORE_READY_FOR_PRODUCT_USE = YES ·
+UI_SCORE_HISTORICAL_VALIDATION = PASS_WITH_UNIVERSE_CAVEAT (unchanged) ·
+SURVIVORSHIP_EFFECT_ON_FULL_MARKET = UNRESOLVED (unchanged).** Score formula, DQ, weights,
+and thresholds untouched. Signal Engine NOT STARTED. STOP.
+
+## 59. NEW TRACK — Signal Engine preregistered (design only; nothing executed) (2026-10-02)
+
+Separate research track opened after the UI-score validation chain closed (§54-§58). The
+UI score stays frozen and READY FOR PRODUCT USE; the Signal Engine answers a DIFFERENT
+question — entry-timing favorability given an otherwise attractive stock — and is NOT a
+rename of the UI score.
+
+- **Frozen artifact**: `signal_engine/SIGNAL_ENGINE_PREREGISTRATION_V1.md` (+ input
+  inventory `signal_engine/input_inventory.json` over the frozen grid, inventory-only — no
+  signals/ICs/returns computed).
+- **Objective/targets**: PRIMARY 63-trading-day forward adjusted EXCESS return vs the
+  same-date equal-weight eligible universe; SECONDARY 126d; 21d diagnostic; monthly cadence;
+  pClosing + validated adjustment pipeline; 252d explicitly NOT a target.
+- **Allowed inputs** (inventory measured): mom 20/30/60/90, dist_high60, drawdown_60,
+  vol_30, downside_vol_30 (97.5-100%), liq_30 (57.3% — FEATURE ONLY, no eligibility cutoff),
+  market breadth/dispersion/vol level (99.9%, ex-ante demonstrated), frozen UI score + 4
+  category scores (100%). No external macro, no new datasets, no future regime labels.
+- **Architectures (exactly two)**: A = score + timing overlay (PREFERRED — interpretable,
+  low overfit risk, sticky underlying layer); B = unified signal rank (alternative). First
+  experiment: 1 primary + max 2 ablations; no weight search/feature mining/grid search.
+- **Gates SG1-SG8 frozen with rationale** (anchored to the measured UI baselines): IC63(excess)
+  >= +0.05; pf >= 0.60 and positive in >=5 of 6 years; Q5-Q1 excess >= +2pp with bootstrap CI
+  excluding 0; IC CI excluding 0; **incremental (decisive): delta-IC63 >= +0.02 AND
+  delta(Q5-Q1 excess) >= +1.0pp vs the UI score on identical dates/universe**; turnover <= 0.50;
+  coverage >= 85%; all leakage tests L1-L6 + no PIT violation. Thresholds frozen BEFORE
+  execution, anchored to the measured baselines (UI IC63 0.154, Q5-Q1 +4.9pp, turnover 0.336).
+- **Evaluation design**: Dev 2021-23 may inform design within limits; 2024-2026 =
+  EXPLORATORY_HISTORICAL; true confirmation = shadow protocol (>=12 future monthly dates,
+  frozen logic, no replacement, no early promotion). SIGNAL_RESEARCH_READY vs
+  SIGNAL_PROMOTION_READY distinguished; only PROMOTION_READY authorizes production
+  recommendations.
+- **Product boundary**: UI score remains visible and unchanged; research labels
+  (FAVORABLE/NEUTRAL/UNFAVORABLE) are never exposed to users.
+- Unresolved blockers carried: survivorship/universe (UNRESOLVED; not a definitive census),
+  liq_30 coverage 57.3%, 21d economically weak (no 21d claims).
+
+**FINAL OUTPUTS: UI_SCORE_STATUS = READY · SIGNAL_ENGINE_PREREGISTERED = YES ·
+SIGNAL_ENGINE_EXECUTED = NO · SIGNAL_ENGINE_STARTED = NO · SIGNAL_RESEARCH_READY = YES ·
+SIGNAL_PROMOTION_READY = NO.** STOP after preregistration per the task order.
+
+## 60. Signal V1 exact experiment specification FROZEN (2026-10-02)
+
+The preregistration amendment (Parts E1-E13) is appended to
+`signal_engine/SIGNAL_ENGINE_PREREGISTRATION_V1.md` and hash-frozen BEFORE execution,
+without inspecting any Signal Engine return outcome.
+
+- **Frozen hash (SHA-256): 149ba4afd112f63443316a986ac793af60a60f572e13cf446850a6dcea3859ae**
+- Frozen: `signal-v1-A` (UI-Q5 attractiveness universe [descending UI score, Q5 =
+  rs[4*floor(n/5):n]]; timing-eligible = all 3 features present; TIMING_CORE = 1/3
+  Momentum60Rank + 1/3 DistanceFrom60DayHighRank + 1/3 InverseVolatility30Rank, midranks
+  within the timing-eligible UI-Q5; FINAL_SIGNAL_RANK_A = rank of TIMING_CORE) · ablation
+  `signal-v1-A-momentum` (1/2 Momentum60Rank + 1/2 DistanceFrom60DayHighRank) · alternative
+  `signal-v1-B` (0.50 UI_RANK + 0.50 TIMING_CORE on the full signal-eligible universe).
+- Frozen: baselines on IDENTICAL universes (A: UI rank within timing-eligible UI-Q5; B: UI
+  rank within full signal-eligible), Q1/Q5 semantics per architecture, excess target vs the
+  FULL base product universe, SG2b amended to 4-of-5 full years (2021-2025; 2026
+  descriptive), E10 turnover convention (1 - |prev ∩ cur| / |prev|; SG6 uses mean), E11
+  bootstrap (seed 20261002, B=2000, blocks 3/6 monthly dates for 63/126d, date-level unit),
+  E12 leakage tests L1-L7 (implemented with the pipeline build), E13 liq_30 NOT in V1.
+- If `signal-v1-A` fails SG1-SG8: SIGNAL_V1_PRIMARY_GATE = FAIL; A-momentum/B are NOT
+  auto-promoted; any primary switch requires a NEW preregistration.
+- **SIGNAL_RESEARCH_READY returns to YES**: the exact spec is frozen with a recorded hash,
+  and the L1-L7 leakage tests are specified for implementation with the pipeline build.
+
+**Status: UI_SCORE_STATUS = READY · SIGNAL_ENGINE_PREREGISTERED = YES ·
+SIGNAL_V1_EXACT_SPEC_FROZEN = YES · SIGNAL_ENGINE_EXECUTED = NO · SIGNAL_ENGINE_STARTED =
+NO · SIGNAL_RESEARCH_READY = YES · SIGNAL_PROMOTION_READY = NO ·
+SURVIVORSHIP_EFFECT_ON_FULL_MARKET = UNRESOLVED.** STOP — no execution in this task.
+
+## 61. SIGNAL V1 EXECUTED once — PRIMARY GATE = FAIL, no shadow eligibility (2026-10-02)
+
+Executed EXACTLY once under preregistration hash 149ba4af... (verified PASS before any run).
+Pipeline split per the frozen structural separation: `build_signal_v1_snapshot.py`
+(construction only; NO outcome-source references; snapshot frozen+hashed BEFORE outcomes)
+then `evaluate_signal_v1.py` (outcome attach + SG1-SG8). Artifacts:
+`signal_engine/output/signal_v1_snapshot.jsonl` (2,797 rows, SHA-256
+4719eced10fde8f5bcb030764fd11c1acee41671429a0018a8cd7bcd7aca472a),
+`signal_v1_integrity.json`, `signal_v1_results.json`.
+
+- **Leakage L1-L7: ALL PASS** (structural separation enforced: construction source contains
+  zero outcome/current-share references; L5/L6 drop-later invariance verified on 3 dates x
+  40 names; snapshot has no outcome columns).
+- **Coverage (SG7 PASS)**: UI-Q5 rows 2,797; timing-eligible 2,733 (**97.71%**); missing
+  Momentum60 64 / DistanceFrom60DayHigh 64 / Volatility30 61.
+- **PRIMARY signal-v1-A (63d excess, 62 dates, 2,733 rows)**: mean IC **+0.0548** (SG1 PASS
+  by 0.0048) · positive fraction **0.581** (SG2a FAIL) · annual IC63: 2021 +0.090,
+  2022 -0.076, 2023 -0.006, 2024 +0.167, 2025 +0.088 -> **3 of 5 full years (SG2b FAIL)** ·
+  **Q5-Q1 mean excess -0.20pp / median -0.92pp (SG3 FAIL - negative)** · bootstrap IC CI95
+  [-0.018, +0.122] (SG4 FAIL) · Q5-Q1 excess by date mean -0.20pp (SG3) · mean |delta| small.
+- **SG5 (decisive) FAIL**: Delta IC63 = **-0.0074** (timing UNDERPERFORMED the UI baseline on
+  identical rows); Delta Q5-Q1 excess = +0.12pp (< +1.0pp). Baseline (UI rank, identical
+  rows): IC63 +0.0622, pf 0.645, Q5-Q1 excess -0.32pp.
+- **SG6 FAIL**: mean top-timing-quintile turnover **0.633** > 0.50 (median 0.625, p90 0.875).
+- **Ablation A-momentum** (no inverse vol): IC63 +0.032, pf 0.613, spread -0.54pp, turnover
+  0.651 -> inverse volatility HELPED relative to momentum-only (A 0.055 > 0.032) but neither
+  passes anything.
+- **Architecture B**: IC63 +0.064, pf 0.645, Delta IC63 vs identical-row UI baseline
+  **+0.0018** (no increment), spread -0.15pp, turnover 0.606. B is the UI score diluted by
+  half-weight timing; no improvement over the cleaner A architecture.
+- **126d secondary**: A +0.085 (pf 0.705) but Q5-Q1 spread -2.96pp · B +0.095 / -3.31pp —
+  no rescue. **21d diagnostic**: A +0.036, spread -1.03pp — no rescue.
+- Interpretation: within the top-attractiveness quintile, chasing 60d momentum/proximity-to-
+  highs ADDS TURNOVER WITHOUT PAYOFF at 63d (Q5 mean excess NEGATIVE; Q1 best of all five on
+  means) — momentum among good companies mean-reverted at this horizon in this market.
+  Consistent with the recorded LowVolatility/momentum instability diagnostics. The UI score
+  alone remains the ranking instrument.
+
+**FINAL: SIGNAL_ENGINE_EXECUTED = YES · SIGNAL_V1_PRIMARY_GATE = FAIL ·
+SIGNAL_V1_SHADOW_ELIGIBLE = NO · SIGNAL_PROMOTION_READY = NO · SIGNAL_ENGINE_STARTED = NO ·
+UI_SCORE_STATUS = READY (unchanged) · SURVIVORSHIP_EFFECT_ON_FULL_MARKET = UNRESOLVED.**
+Per the frozen stop rule: no Signal V2, no redesign, no rescue by A-momentum/B; any future
+timing research requires a NEW preregistration with a different economic mechanism. STOP.
+
+## 62. Product state FROZEN — Signal V1 closed, product spec created (2026-10-02)
+
+- **Signal V1 formally closed**: `signal_engine/SIGNAL_V1_CLOSEOUT.md` (SIGNAL_V1_FINAL_STATUS
+  = FAIL; primary IC63 +0.0548, pf 0.581, Q5-Q1 excess -0.20pp, Delta IC63 -0.0074, Delta
+  spread +0.12pp, turnover 0.633, coverage 97.71%; SG1/SG7/SG8 PASS, SG2a/SG2b/SG3/SG4/SG5/SG6
+  FAIL). Interpretation corrected per the accepted language: the preregistered 60d-momentum /
+  60d-high-distance / inverse-30d-vol combination did not provide robust incremental timing
+  value beyond the UI score in the available historical universe; the highest timing quintile
+  did not outperform the lowest. NO causal regime claim. Artifacts preserved (prereg hash
+  149ba4af..., snapshot 4719eced..., results, validation, contract). SIGNAL_RESEARCH_PAUSED =
+  YES; resumption only with a genuinely different economic mechanism + new preregistration.
+- **Product boundary frozen**: no mechanical BUY/HOLD/SELL conversion of the UI score; no
+  "score >= X => BUY" or "top quintile => BUY" rules; the historical evidence supports
+  ranking only.
+- **Product spec created**: `product/UI_SCORE_PRODUCT_SPEC.md` — score meaning, category
+  contributions, DQ role, higher/lower semantics, frozen historical evidence, limitations,
+  explanation contract (top-3 positive / top-3 weak drivers from the existing decomposition,
+  deterministic, no generated conclusions), descriptive bands anchored to the CURRENT run
+  distribution (LOW <24.5 / BELOW AVERAGE 24.5-30.7 / AVERAGE 30.7-38.0 / ABOVE AVERAGE
+  38.0-48.2 / HIGH >48.2; percentile-labels alternative documented; distribution-based
+  only, no deployment), historical-context display decision (allowed with mandatory
+  available-universe + not-a-guarantee + no-probability caveats), and the binding
+  allowed/prohibited UI wording policy (Persian examples included).
+- **Status: UI_SCORE_STATUS = READY · UI_SCORE_PRODUCT_SPEC_READY = YES · SIGNAL_V1_CLOSED
+  = YES · SIGNAL_RESEARCH_PAUSED = YES · SIGNAL_ENGINE_STARTED = NO · SIGNAL_PROMOTION_READY
+  = NO · DATA_INTEGRITY_BLOCKERS_CLOSED = YES · SURVIVORSHIP_EFFECT_ON_FULL_MARKET =
+  UNRESOLVED.** STOP.
+
+## 63. Research bundle for external review — READY (2026-10-02)
+
+Self-contained bundle at `research_bundle/` (27 MB): monthly_pit_panel.parquet (13,409 x 97),
+daily_market_panel.parquet (837,525 x 15, zstd), event_panel.parquet (20,348),
+market_state_daily.parquet (6,163 daily rows, equal-weight covered-universe state),
+outcomes.parquet (13,409; SEPARATE from features; 21/63/126/252d adjusted + excess),
+DATA_INVENTORY.md (full field inventory incl. UNUSED_OR_UNDERUSED_DATA + provenance flags),
+DATA_DICTIONARY.md, COVERAGE_SUMMARY.csv + COVERAGE_BY_YEAR.csv, FEATURE_PROVENANCE.csv
+(94 columns: 59 used-in-UI, 6 robust-six/V2, 3 Signal V1, 35 NEVER_USED), README, and
+references/ (UI validation, Signal V1 closeout + prereg, share-source contract, product
+spec, return-path audit). Builder: historical_codal_backfill/build_research_bundle.py.
+
+Inventory findings for the next-hypothesis decision: share volume UNAVAILABLE in the TSETMC
+historical endpoint (null everywhere; trade count + trade value ARE stored); official index
+series NOT stored (7 pilot rows); liquidity_30 57.3%; sales-growth features ramp 0->69% with
+the monthly-activity backfill; PE/PS/PB ramp 52->76% with the share path; ocf_ttm not
+materialized in the frozen artifact (derivable via Engine re-run); NEVER_USED inventory
+includes return_5d/10d/120d, mom_20/90, vol_10/20/60, downside vol, drawdown_20/120,
+120d-high distance, 20d/60d-low distance, liquidity_20/60, trade_count, market-state
+variables, daily open/high/low/priceYesterday/priceChange, baseVol/market classification
+(current-only). Outcomes kept SEPARATE from features; bundle contains NO research results.
+RESEARCH_BUNDLE_READY = YES. STOP.
+
+## 64. Research bundle REPAIRED and re-exported — v2 (2026-10-02)
+
+External review found bundle-integrity defects; all repaired and documented in
+`research_bundle/BUNDLE_INTEGRITY_AUDIT.md`. Builder:
+`historical_codal_backfill/repair_research_bundle.py`.
+
+1. **Outcomes (critical)**: the v1 bundle's fwd helper divided the corporate-action FACTOR
+   chain (a1/a0-1 = 0 whenever no event fell in the window — 89% of 21d, ~2/3 of 63d
+   windows; فولاد 2021-01-31 63d = 0.0). Rebuilt as ADJUSTED PRICE returns
+   (adjp[exit]/adjp[entry]-1; adjp = pClosing x cumulative CONFIRMED factors) — identical
+   to the validated ui_score_historical_v1 implementation. **Parity: IC21 +0.1103, IC63
+   +0.1543, IC126 +0.1806, IC252 +0.1571 — reproduces the frozen UI validation.**
+2. **13,409 vs 13,481**: all 72 dropped rows = raw TSETMC cache depth (no row on/before the
+   signal date for late-listed names) — accidental loss, repaired; monthly panel now
+   13,481 rows x 102 cols (72 repaired rows carry UI outputs with NULL price features).
+3. **UI quintile convention**: bundle used DESCENDING (Q1 = highest); canonical convention
+   frozen as ASCENDING (Q1 = lowest, Q5 = highest; verified against the validated
+   ui_score_historical_analysis.py sort and the IC sign); ui_rank retained.
+4. **Daily identities**: security_id 837,525/837,525 non-null via core.securities; 238
+   symbols / 238 ids / 0 conflicts. Trade-activity flags added: security_traded,
+   zero_trade_reason (traded / market_closed_no_covered_trades / no_trade_unknown —
+   فولاد's 2026 zero stretches = carried-price no-trade rows, classified, not synthesized).
+5. **Event panel**: financial-statement events RESTORED (8,157 — the v1 statements query
+   contributed 0 rows due to a join defect); all classes mapped company -> primary
+   security (8,157 + 12,180 mapped, 0 unmapped); total 28,508 rows.
+6. **Event-timing audit**: financial_report published_at 595/8,157 (7.3%, Codal-ingested
+   subset); monthly_sales_report 0/12,180 (legacy migration carries period_end only —
+   EVENT_TIMING_PIT_READY = NO for this class); LT28 1,158/1,158 (jalali PublishDateTime
+   converted to UTC); corporate actions = ex-date only.
+7. **Reproduction test**: 50 samples x 4 horizons on the CANONICAL trading calendar —
+   **191/191 values reproduce exactly** (the v1 check's 57 mismatches were its own
+   daily-panel-date-set calendar, incl. non-trading placeholder rows — fixed);
+   فولاد 2021-01-31 63d = +0.077447 from both paths. First test run's 57 "mismatches"
+   were calendar mismatches, not value errors — classified in repair_audit trail.
+8. Independent review finding recorded (QUALITY PULLBACK REVERSAL, IC63 -0.019, unfavorable)
+   — not acted on, no V2.
+
+**Repackage: research_bundle_v2_for_review.zip — 14.46 MB, 20 files, SHA-256
+8dd9dc2ae5425f4a256f223ac1f90dde1aec6a34197a16a3095e596c391b30a6.**
+
+**GATES: RESEARCH_BUNDLE_V2_READY = YES · OUTCOME_PARITY = PASS · MONTHLY_GRID_PARITY =
+PASS · UI_QUINTILE_SEMANTICS = PASS · DAILY_IDENTITY_MAPPING = PASS ·
+EVENT_IDENTITY_MAPPING = PASS · EVENT_TIMING_PIT_READY = PARTIAL ·
+TRADE_ACTIVITY_SEMANTICS = VALIDATED.** Product boundary unchanged (UI score READY, no
+signal in product, SIGNAL_RESEARCH_PAUSED = YES). STOP.
+
+## 65. Event-timing readiness — monthly YES, financial PARTIAL, fundamental-event signal FEASIBLE (2026-10-02)
+
+Data/event-time preparation ONLY. No returns analyzed, no signals built. Artifacts:
+`research_bundle/event_stream_pit.parquet` (11,909 publication rows), `matching_audit.json`,
+`EVENT_TIMING_READINESS.md`, `reproduction_test.json` (191/191 canonical-calendar parity).
+
+- **PART 1 metadata fixes**: README counts (13,481/28,508), liquidity coverage corrected to
+  truthful qTotCap-ramp values (liq_20 69.6%, liq_30 57.0%, liq_60 36.6%), market-state
+  columns (breadth/dispersion/vol_level) materialized into the monthly panel from raw
+  caches (100% coverage), DATA_DICTIONARY quintile convention corrected to ascending
+  (Q1 = lowest, Q5 = highest).
+- **PART 2 identity audit**: `ingestion.reports` carries tracing_no/letter_type/title/
+  source_url — the identity keys needed for per-symbol recovery. 275 companies have
+  Codal-sourced reports. Legacy-migrated reports (19,081 + 12,180 monthly) have none.
+- **PART 3 backfill**: per-symbol Codal search (LetterType 58 + 6, window 1400/01/01–
+  1405/07/01) over all 238 covered symbols: **474 fresh fetches, 0 failures, ~55 min**.
+  Raw responses cached. **27,497 unique letters recovered** with real PublishDateTime
+  (jalali → UTC), TracingNo, Title, Url.
+- **PART 4 matching**: monthly — MATCH_STRONG 7,487 + MATCH_STRONG_CORRECTION 2,128 +
+  AMBIGUOUS 6 + NOT_FOUND 2,559 (symbol + jalali period-end from title, deterministic).
+  financial — MATCH_EXACT 595 (already had real published_at) + MATCH_STRONG 2,416 +
+  MATCH_STRONG_CORRECTION 399 + AMBIGUOUS 2,665 (consolidated/standalone variants) +
+  NOT_FOUND 2,082.
+- **PART 5 PIT provenance**: published_at = REAL Codal stamp (jalali → UTC); collected_at =
+  backfill acquisition time (2026-10-02); knowledge gate = published_at ≤ cutoff.
+  collected_at is lineage only.
+- **PART 6 coverage**: monthly — 9,615/12,180 = 78.9% with real publication times, 164
+  symbols, every year 2021–2026 covered. financial — 3,410/8,157 = 41.8%; the gap is
+  AMBIGUOUS (2,665: multiple letter variants per period) + NOT_FOUND (2,082).
+- **PART 7 corrections**: preserved as separate stream rows (2,128 monthly + 399 financial
+  MATCH_STRONG_CORRECTION); original stays the knowledge time; 4 superseding reports in
+  the whole canonical window — corrections are NOT sufficiently represented for standalone
+  correction-event research.
+- **PART 8 event_stream_pit**: 11,909 publication rows (monthly 11,743 + financial 166
+  matched-strong rows in the stream; the financial MATCH_EXACT 595 retain their original
+  published_at in the canonical data). Each row: published_at (real), security_id, symbol,
+  event_type, period_end, is_correction, sales/revenue/net_profit/operating_profit/EPS
+  where canonical, match_status, source identifiers.
+- **PART 9 feasibility**: FUNDAMENTAL_EVENT_SIGNAL_FEASIBLE = YES — the monthly sales path
+  (9,615 real-publication events, 164 symbols, 2021–2026) supports all four PIT-safe
+  constructions (pre-publication state, newly published info, deterministic revision vs
+  prior publication, post-publication signal timestamp). The financial path is PARTIAL
+  (41.8% with real pub times; the AMBIGUOUS financial events need variant resolution).
+- **PART 10**: UI-score delta explicitly excluded from the first event hypothesis (mixes
+  fundamental with price movement).
+- **PART 11**: trade-activity path preserved as secondary (buyer/seller direction and
+  historical volume unavailable).
+
+**FINAL GATES: MONTHLY_REPORT_EVENT_TIMING_READY = YES · FINANCIAL_REPORT_EVENT_TIMING_READY
+= PARTIAL · FUNDAMENTAL_EVENT_SIGNAL_FEASIBLE = YES · BUNDLE_METADATA_CONSISTENCY = PASS ·
+SIGNAL_V2_CREATED = NO · SIGNAL_RESEARCH_EXECUTED = NO · SIGNAL_PROMOTION_READY = NO ·
+UI_SCORE_STATUS = READY.** STOP.
+
+## 66. FUNDAMENTAL EVENT V1 PREREGISTERED — design only, nothing executed (2026-10-02)
+
+New research family opened: FUNDAMENTAL EVENT / POST-PUBLICATION REPRICING. Separate from
+Signal V1 (timing overlay) and the UI score (cross-sectional quality ranking).
+
+- **Artifact**: `fundamental_event_research/FUNDAMENTAL_EVENT_V1_PREREGISTRATION.md`
+- **Pre-outcome feasibility** (PART 15, `fundamental_event_feasibility.py` →
+  `research_bundle/fundamental_event_feasibility.json`): 11,743 monthly events with real
+  published_at + valid sales; 11,489 eligible with valid acceleration; 278 qualifying
+  dates (≥10 events); 9,810 events on qualifying dates; 164 symbols; FE1 PASS; FE8
+  concentration PASS (max security 0.9%, max year 20.7%).
+- **Frozen feature**: SALES_GROWTH_ACCELERATION = SALES_YOY_CURRENT − SALES_YOY_PREVIOUS
+  (YoY monthly sales growth change between consecutive publications). PRIMARY candidate:
+  `fundamental-event-v1-acceleration`. Ablation: `fundamental-event-v1-level` (YoY level
+  only). No other features.
+- **Gates FE1–FE8 frozen with rationale** (anchored: FE2 +0.05 = UI validation floor;
+  FE3 0.60; FE4 +2.0pp = 40% of UI full-universe spread; FE5 bootstrap CIs; FE6 +0.02 /
+  +1.0pp incremental; FE6 turnover N/A for events; FE7 leakage E1–E8; FE8 concentration).
+  Bootstrap: seed 20261003, B=2000, 63d block = 3 months.
+- **Leakage tests E1–E8 frozen** (real publication time, entry after publication, correct
+  period matching, prior-year availability, previous-publication-only YoY, corrections
+  don't overwrite, date isolation, outcome separation).
+- **Pre-outcome sample**: `research_bundle/fundamental_event_pre_outcome_panel.parquet`
+  (11,743 events with features, eligibility, entry dates, YoY values).
+- **FINAL: FUNDAMENTAL_EVENT_PREREGISTERED = YES · FUNDAMENTAL_EVENT_EXACT_SPEC_FROZEN =
+  YES (SHA-256 recorded below) · FUNDAMENTAL_EVENT_EXPERIMENT_FEASIBLE = YES ·
+  FUNDAMENTAL_EVENT_EXECUTED = NO · FUNDAMENTAL_EVENT_SHADOW_ELIGIBLE = NO ·
+  SIGNAL_ENGINE_STARTED = NO · SIGNAL_PROMOTION_READY = NO.** STOP.
+
+## 67. EVENT-STREAM INTEGRITY AUDIT — monthly PASS, panel defects found and repaired, preregistration READY (2026-10-03)
+
+FINAL pre-registration gate per handoff. Independent audit script
+`fundamental_event_research/audit_event_stream_v1.py` (re-implements the deterministic
+matcher from scratch; NO returns, NO ICs, NO outcome access). Report:
+`fundamental_event_research/EVENT_STREAM_INTEGRITY_AUDIT.md` +
+`event_stream_audit.json`. No threshold changed; nothing tuned.
+
+- **Monthly reconciliation 9,615 vs 11,743 — RESOLVED, legitimate**: 9,615 = 7,487
+  MATCH_STRONG + 2,128 MATCH_STRONG_CORRECTION canonical events; the stream's extra rows
+  were the corrections' own publication rows (2,128 latest-correction rows). Row-by-row
+  proven. Independent matcher reproduces frozen stats exactly (6 AMBIGUOUS, 2,559
+  NOT_FOUND).
+- **Financial 3,410 vs 166 — RESOLVED as a construction DEFECT**: `match_pub_times.py`
+  never emitted financial original rows; the 166 rows exist only via loop-state leak
+  (all 166 share ONE constant published_at = the last monthly letter's stamp; canonical
+  report UUIDs as source_report_id). Financial stream section QUARANTINED (not deleted);
+  financial event timing stays PARTIAL; financial stream rebuild = future task. Does not
+  affect the monthly-only preregistration.
+- **Defects found in the previous pre-outcome artifacts (both repaired here)**:
+  (a) `fundamental_event_feasibility.py` prior-year lookup was NOT restricted to the
+  event's company → every SALES_YOY_* / acceleration value in
+  `research_bundle/fundamental_event_pre_outcome_panel.parquet` is invalid (median YoY
+  +3.22, p99 +3,069 — impossible); PART 15 measured counts were wrong.
+  (b) the old stream carried only 2,128 of **2,568** correction letters (dropped 440
+  publications) and used a fixed +03:30 tz → 1,809/11,743 UTC instants 1h late inside
+  Iran's 2021/2022 DST windows (entry dates unaffected — date-based rule).
+- **Canonical artifact created**:
+  `fundamental_event_research/monthly_sales_events_pit.parquet` — 12,183 publication
+  rows (9,615 originals + 2,568 corrections), one row per actual Codal publication,
+  0 duplicate tracing_no, 100% resolvable in the raw backfill cache, corrections never
+  overwrite originals (0 order violations; 69 same-day), zone-correct UTC + Tehran local +
+  raw jalali retained. SHA-256
+  `15d39e5389dc47de82d89d62d18debfc272d88bcbda5ca95f05a886d6fadefdf`.
+- **Pre-outcome features rebuilt (frozen formulas, same-company comparators)**:
+  SALES_CURRENT · SALES_SAME_MONTH_PRIOR_YEAR · SALES_YOY_CURRENT (median +0.458 —
+  plausible) · SALES_YOY_PREVIOUS (strict immediate predecessor) ·
+  SALES_GROWTH_ACCELERATION (median +0.002) · 3-publication trajectory availability flag
+  (feasibility only). Entry rule frozen: first canonical trading date strictly AFTER the
+  Tehran publication date (E2: 9,615/9,615 exact). Corrections excluded as events
+  (`CORRECTION_VALUE_UNAVAILABLE` — corrected values were never ingested; value-fidelity
+  determination, not a threshold change).
+- **Corrected pre-outcome counts (supersede invalid PART 15 numbers; gate thresholds
+  unchanged)**: 8,270 eligible events · 161 symbols · 230 qualifying dates (≥10) · 7,662
+  events on qualifying dates · max security share 0.77% (≤5%) · max year share 21.93%
+  (≤30%). FE1 pre-check PASS · FE8 pre-check PASS. E4: 7,458 verified + 812
+  unrecoverable-but-flagged (0 hard violations; 0/9,451 sequence-order violations).
+- **Preregistration untouched**: `FUNDAMENTAL_EVENT_V1_PREREGISTRATION.md` SHA-256
+  `5dff31d525a58b6474d06956eab5abff5a93ff898f3571358ac0d3b637c66fd1` (design, formulas,
+  gates FE1–FE8, bootstrap settings, E1–E8 unchanged; measured counts corrected by the
+  audit report).
+
+**FINAL GATES: MONTHLY_EVENT_STREAM_INTEGRITY = PASS ·
+MONTHLY_EVENT_TIMESTAMP_INTEGRITY = PASS · MONTHLY_EVENT_COVERAGE = PASS ·
+MONTHLY_FUNDAMENTAL_REVISION_FEATURES_READY = YES ·
+FUNDAMENTAL_EVENT_PREREGISTRATION_READY = YES · FUNDAMENTAL_EVENT_EXECUTED = NO ·
+SIGNAL_V2_CREATED = NO · SIGNAL_ENGINE_STARTED = NO · SIGNAL_PROMOTION_READY = NO ·
+UI_SCORE_STATUS = READY.** STOP — awaiting explicit instruction to execute
+`fundamental-event-v1-acceleration` under the frozen preregistration.
+
+## 68. FUNDAMENTAL EVENT V1.1 PREREGISTERED — superseding pre-execution correction (2026-10-03)
+
+External review found material spec/sample inconsistencies in V1.0. No outcomes had been
+inspected → clean pre-execution correction. **V1.0 file+hash preserved immutable
+(5dff31d525a58b6474d06956eab5abff5a93ff898f3571358ac0d3b637c66fd1); NOT edited, NOT
+deleted.**
+
+- **New binding spec**: `fundamental_event_research/FUNDAMENTAL_EVENT_V1_PREREGISTRATION_V1_1.md`
+  — **SHA-256 c1dacaf19377c5c8f89fd15d9ed782aef5db84317b2d90031cc42d31c543d9d4** (the ONLY
+  binding execution specification).
+- **Issue 1 — UI-Q5 eligibility REMOVED**: primary universe = ALL PIT-ready eligible
+  monthly-sales publication events; UI score is ONLY the identical-row baseline
+  (PIT source frozen: monthly_pit_panel.parquet, latest signal_date ≤ entry date). Any
+  UI-conditioned variant forbidden in V1.1.
+- **Issue 4 — previous-DISTINCT-period semantics frozen**: SALES_YOY_PREVIOUS from the
+  previous distinct monthly period (latest version whose published_at ≤ current event
+  time); same-period corrections structurally excluded as predecessors (EI6).
+- **Issue 5 — comparator PIT-knownness frozen**: PUB_VERIFIED (latest pub ≤ event time) /
+  PRE_WINDOW (period before the 1400/01/01 search-window start) only; otherwise
+  ineligible. Corrected-period ORIGINALS excluded (EI5: current-value version
+  unverifiable — 2,123 events).
+- **Issue 6 — corrections**: 2,568 separate publication rows preserved
+  (is_correction, supersedes_event_id, original_event_id); corrected VALUES are not in
+  the canonical store → rows carry NULL sales, 0 eligible (frozen semantic kept; data
+  limitation documented; recovery is future work).
+- **Issue 3 — reconciliation EXACT**: 12,180 canonical monthly rows = 9,615 recovered +
+  6 AMBIGUOUS + 2,559 NOT_FOUND; stream = 12,183 publications = 9,615 originals + 2,568
+  corrections; 12,183 unique tracing_nos; 0 duplicates; 0 letters mapped to multiple
+  canonical rows; 2,128 multi-publication periods (all correction semantics). Old 11,743
+  = 9,615 + 2,128 latest-correction rows (440 earlier corrections had been dropped).
+  EVENT_STREAM_UNIQUENESS = PASS.
+- **Issue 2 — corrected primary universe (FE1/FE8 recomputed; thresholds unchanged)**:
+  6,091 eligible acceleration events · 203 qualifying dates (≥10) · 5,442 events on
+  qualifying dates · 160 symbols · years 556/962/1,213/1,327/1,268/765 · max symbol
+  concentration 1.03% (دفرا) · max year 21.79% (2024). FE1 PASS, FE8 PASS.
+- **Issue 13 — EI1–EI8 all PASS** (one row per publication; no unexplained duplicates;
+  real publication times incl. DST-correct UTC; entry strictly after publication date;
+  PIT-known current + comparators; distinct earlier previous period; corrections preserve
+  knowledge; outcomes physically inaccessible to construction code).
+- Evidence: `build_event_universe_v1_1.py` · `event_universe_v1_1.json` ·
+  `monthly_sales_events_universe_v1_1.parquet` (SHA-256 bcd69f109fd1a3be…, full hash in
+  JSON). Outcome contract + FE2–FE8 thresholds + bootstrap settings retained verbatim.
+
+**FINAL: OLD_PREREGISTRATION_PRESERVED = YES · EVENT_STREAM_COUNT_RECONCILED = YES ·
+EVENT_STREAM_UNIQUENESS = PASS · PREVIOUS_PERIOD_SEMANTICS = PASS ·
+CORRECTED_PRIMARY_UNIVERSE = PASS · FE1_PREOUTCOME = PASS · FE8_PREOUTCOME = PASS ·
+FUNDAMENTAL_EVENT_V1_1_PREREGISTERED = YES · FUNDAMENTAL_EVENT_V1_1_EXACT_SPEC_FROZEN =
+YES · FUNDAMENTAL_EVENT_EXECUTED = NO · SIGNAL_ENGINE_STARTED = NO ·
+SIGNAL_PROMOTION_READY = NO · UI_SCORE_STATUS = READY.** STOP — awaiting explicit
+execution instruction.
+
+## 69. V1.2 PRE-EXECUTION GATES — arithmetic/timestamps/dedup PASS; PRE-EVENT UI BASELINE NOT PROVABLE → NO V1.2 (2026-10-03)
+
+Three final pre-execution ambiguities audited against the FROZEN V1.1 artifact (read-only;
+`audit_prereg_gates_v1_2.py` → `event_universe_v1_2_gates.json`; NO outcomes/returns/ICs).
+
+- **EVENT_COUNT_ARITHMETIC = PASS (Issue 1)** — from the artifact: 12,183 rows = **9,615
+  originals + 2,568 corrections** (sum exact); 12,183 unique tracing_no; 9,615 unique
+  security-periods; 2,128 multi-publication periods; corrections/period = 1×1,762, 2×309,
+  3×43, 4×11, 5×3. Chain exact: 9,615 canonical periods + 2,128 latest-correction rows +
+  **440 earlier correction letters** = 12,183. The "9,618 originals" in the 2026-10-03 chat
+  summary was a reporting typo; the frozen V1.1 MD and the artifact both say 9,615.
+- **EVENT_TIME_NORMALIZATION = PASS (Issue 6)** — binding V1.1 artifact re-verified row
+  by row against the raw Codal cache: 0 incorrect UTC rows, 0 incorrect Tehran wall/date
+  rows, 0 incorrect signal-entry rows; raw jalali preserved. The 1,809-row +1h DST defect
+  exists ONLY in the quarantined legacy `research_bundle/event_stream_pit.parquet`.
+  current_incorrect_timestamp_rows = 0.
+- **ONE_SECURITY_PER_SIGNAL_DATE = PASS (Issue 4)** — 6 duplicate (entry-date × security)
+  groups / 18 rows among 6,091 eligible events, all caused by consecutive monthly
+  publications entering on the same trading day. Deterministic pre-outcome rule applied:
+  keep the latest published_at per group; 0 exact-timestamp ties (tracing_no tie-break not
+  applicable — different-period originals are not revisions). 12 rows dropped → 6,079.
+- **Final counts (Issue 5; V1.1 eligibility + dedup rule; FE1/FE8 thresholds unchanged)**:
+  6,079 eligible acceleration events · 390 unique signal-entry dates · 203 qualifying
+  dates (≥10) · 5,441 events on qualifying dates · 160 symbols · max symbol 1.04% ·
+  max year 21.78% · FE1 PASS · FE8 PASS.
+- **PRE_EVENT_UI_BASELINE_PIT_READY = NO (Issues 2–3) → NO V1.2 spec created.** The UI
+  panel (`monthly_pit_panel.parquet`) preserves only month-end `signal_date` (as_of); it
+  has NO per-snapshot knowledge-cutoff column, and its documented legacy-input rule is
+  `period_end ≤ as_of` (DATA_INVENTORY line 111). Under the candidate mapping (latest
+  signal_date strictly before publication): 6,024/6,079 events would have a baseline
+  (55 lost), median age 27d (p75 28, p90 52.7, max 213; ≤31d 89.3%, 32–62d 6.2%,
+  >62d 4.5%), and **96 events' selected snapshot provably already contains the event's
+  own period value** (filing-lag median 5d; 2.4% of filings cross a month-end). "UI
+  snapshot cutoff < event published_at" is therefore unprovable for legacy-input
+  components and DIRECTLY violated for 96 events. Per the do-not-invent rule, no baseline
+  mapping was persisted and no staleness cutoff was optimized. FE6 baseline coverage
+  figures above are DIAGNOSTIC ONLY (binding = false).
+- **Remedy path (recorded, not executed)**: rebuild/extend the UI panel to persist, per
+  snapshot row, the max `published_at` over all fundamental inputs (true knowledge
+  cutoff) using the now-recovered monthly publication times; revisit this gate with a new
+  preregistration clarification. All other V1.1 semantics (feature, entry rule, outcomes,
+  FE1–FE8, bootstrap, EI1–EI8) remain frozen and untouched.
+
+**FINAL: OLD V1.0 HASH PRESERVED (5dff31d5…) · V1.1 HASH PRESERVED AND BINDING
+(c1dacaf1…) · EVENT_COUNT_ARITHMETIC = PASS · PRE_EVENT_UI_BASELINE_PIT_READY = NO ·
+ONE_SECURITY_PER_SIGNAL_DATE = PASS · EVENT_TIME_NORMALIZATION = PASS ·
+FUNDAMENTAL_EVENT_V1_2_PREREGISTERED = NO · FUNDAMENTAL_EVENT_V1_2_EXACT_SPEC_FROZEN =
+NO · FUNDAMENTAL_EVENT_EXECUTED = NO · SIGNAL_ENGINE_STARTED = NO ·
+SIGNAL_PROMOTION_READY = NO.** STOP — execution remains blocked on the UI-baseline
+knowledge-cutoff limitation; next move is the user's.
+
+## 70. UI-SCORE PIT LINEAGE AUDIT + PIT-CORRECT RESEARCH PANEL v2 + PRE-EVENT BASELINE (2026-10-03)
+
+DATA-LINEAGE task only. Production UI score UNCHANGED. FE1–FE8 UNCHANGED. No event
+outcomes inspected beyond the explicitly authorized validation rerun of the fixed score
+(task 12). V1.0 hash 5dff31d5… and V1.1 hash c1dacaf1… preserved; V1.1 remains the binding
+execution spec. NO V1.2 created.
+
+- **Knowledge-time classification (task 2)**: monthly sales/activity → v1 basis D (legacy
+  `period_end ≤ as_of` proxy; compute_metrics.py lines 315–338) with real publication times
+  now recoverable for 9,615/12,180 periods; statement families (revenue/profits/EPS/
+  margins/ROE/coverage/cash-quality/leverage/current-ratio) → D for 7,562 legacy reports,
+  A for 595 codal; LT6 letters recover 2,815 statement rows; shares/market-cap → A
+  (share_intervals knowledge_from, already provable); PE/PS/PB → mixed C+D/A; liquidity/
+  volatility/momentum → C (trade_date frozen proxy); DQ inherits input bases.
+- **Visibility rule (frozen)**: visible_from = real DB published_at (codal) or LATEST
+  recovered (company, period) publication (conservative latest-version rule); unprovable →
+  invisible → existing DQ missing-data behavior. period_end NEVER used as publication time.
+  Cutoff convention = the original validated one: 23:59:59 UTC on the signal date.
+- **Existing panel classification (task 4)**: of 13,481 snapshots — PROVABLY_PIT_SAFE 102 ·
+  DIRECT_LEAK_CONFIRMED 4,500 · UNPROVABLE_LEGACY_KNOWLEDGE_TIME 8,879 (730d contribution
+  window, conservative). **UI_HISTORICAL_PIT_STATUS = PARTIAL.**
+- **PIT-correct rebuild (task 6)**: `ui_score_research/ui_score_historical_pit_v2.parquet`
+  — 12,604 rows, 63 frozen signal dates, 235 symbols; EXACT production Engine
+  (canonical-v1-dev, VAL_DIRECT, weights/DQ/penalties/caps/ranks untouched); the ONLY
+  change = input visibility (`build_ui_pit_panel_v2.py`, PITEngine — two SQL predicates).
+  SHA-256 543dfbf732ae9b60eff8014b2226faa806ffb85baec8794a109870c97df0639a.
+- **Validation rerun (task 12, frozen convention: per-date Spearman ≥5 pairs; quintiles
+  ≥10 rows; dependence-aware bootstrap seed 20261003 B=2000, block=4 dates≈3 months)**:
+  IC21 **0.0574** (frozen 0.1103) · IC63 **0.0853** (0.1543) · IC126 **0.1096** (0.1806) ·
+  IC252 **0.1031** (0.1571) → **UI_HISTORICAL_VALIDATION_PIT_REPAIR = MATERIALLY_WEAKER**
+  (all four horizons; a-priori materiality |ΔIC| ≥ 0.02). Positive fractions 0.73/0.79/
+  0.90/0.82. Q5−Q1 63d mean spread **+1.78pp** (frozen-era ≈ +4.9pp), bootstrap CI
+  [−2.38, +5.69]. IC63 bootstrap CI [0.047, 0.125] — positive ranking value PERSISTS but
+  is materially weaker: a material share of the frozen historical evidence came from
+  inputs not yet public at the snapshot dates. Production score unchanged; historical
+  ICs must henceforth be quoted with this caveat.
+- **Pre-event UI baseline (tasks 9–11)**:
+  `fundamental_event_research/pre_event_ui_baseline_pit.parquet` — latest v2 snapshot with
+  `knowledge_cutoff < published_at` per event. Coverage: **5,902/6,079 = 97.09%** (177
+  missing); qualifying-date events 5,302/5,441 = 97.45%. Age: median 27d, p75 28, p90 32,
+  max 213; ≤31d 89.5%, 32–62d 6.1%, >62d 4.5% (no cutoff optimized). FE6 identical-row
+  universe: **5,902 events, 196 qualifying dates (≥10 identical rows), 5,258 events, 160
+  symbols** → FE6_PREOUTCOME_SAMPLE_ADEQUATE = YES (a-priori rule ≥24 dates & ≥500 events).
+- **FINAL: UI_HISTORICAL_PIT_STATUS = PARTIAL · UI_PIT_RECONSTRUCTION_FEASIBLE = YES ·
+  UI_PIT_RESEARCH_PANEL_CREATED = YES · PRE_EVENT_UI_BASELINE_PIT_READY = YES ·
+  FE6_PREOUTCOME_SAMPLE_ADEQUATE = YES · UI_HISTORICAL_VALIDATION_PIT_REPAIR =
+  MATERIALLY_WEAKER · FUNDAMENTAL_EVENT_EXECUTED = NO · SIGNAL_ENGINE_STARTED = NO ·
+  SIGNAL_PROMOTION_READY = NO · UI_SCORE_STATUS (production) = READY.** STOP — awaiting
+  explicit instruction to execute Fundamental Event V1 under the frozen V1.1 spec.
+
+## 71. SCORE DEEP AUDIT V1 — complete diagnostic of canonical-v1-dev on the PIT-correct panel (2026-10-03)
+
+DIAGNOSTIC ONLY (task-scoped). Production score/formula/DQ/weights UNCHANGED. No Score V2
+built. No portfolio backtest. Fundamental Event V1 NOT executed.
+
+- **SCORE_AUDIT_INPUT_PARITY = PASS** — exact reproduction on
+  `ui_score_historical_pit_v2.parquet`: IC21 +0.0574 · IC63 +0.0853 · IC126 +0.1096 ·
+  IC252 +0.1031; IC63 boot CI [0.047, 0.125]; 63d Q5−Q1 +1.78pp.
+- **Formula documented & verified** (compute_metrics.py:719-790): quant = DQ×(G+P+V+M),
+  raw max 89; midrank percentiles with neutral placeholders (0.3/0.5/0.0); explicit
+  penalties (growth −6/−5; profitability −10/−4/−3 + EQ nonlinear to −8; valuation −8
+  invalid-PE); DQ = boolean coverage 0.30/0.20/0.20/0.15/0.15.
+- **Coverage under PIT gating**: statement-derived families ~4% (n≈9/date), revenue 5%,
+  PE 9%, PS/PB 2%, **Liquidity 0% (trade_value_rial 96% NULL in DB — dead weight in v1
+  AND v2)**; price metrics ~100%; monthly-sales 40-61% with 2021-22 ≈ 0 ramp.
+- **Component attribution**: strongest = SalesGrowth12M (0.109/0.121, pos 0.897),
+  SalesGrowth3M, LowVolatility, CashConversion; ≈ zero = ROE, Revenue/OpProfitGrowth,
+  IntCov, EQ, MarginTrend, PE; **negative both horizons = NetMargin, PS, PB, Leverage,
+  CurrentRatio** (small magnitudes, yearly signs flip).
+- **Redundancy**: PE↔PS 0.77 · PE↔PB 0.76 · Leverage↔CurrentRatio 0.82 (|ρ|≥0.70).
+- **Category attribution**: Growth IC63 0.0781 [0.041,0.119] · MarketRisk 0.0687
+  [0.002,0.134] · Profitability 0.0146 [−0.011,0.039] · Valuation 0.0058 [−0.017,0.027].
+- **LOCO ablation** (no reallocation, DQ preserved): removing Growth −0.011 IC63 /
+  −1.07pp spread; Profitability ±0.000; Valuation −0.003; MarketRisk +0.0003 (spread
+  −2.25pp). Nothing harmful enough to justify removal by itself.
+- **DQ helps**: pre→post IC63 0.0823→0.0853, spread 1.60→1.78pp; ~0 rows move ≥10pct.
+- **Effective weights**: accounting 93.9% vs price-derived 6.1%; Liquidity 3.4% nominal →
+  0% effective.
+- **Yearly stability**: FULL IC63 0.025/0.024/0.042/0.164/0.151/0.214 (2021→2026);
+  LOYO excluding 2021-23 → ~0.10, excluding 2024-25 → ~0.067 — ranking power concentrates
+  where fundamental visibility exists (data ramp, NOT used to exclude years).
+- **Monotonicity**: 63d Q-means upward with Q2/Q3 inversion (9.7% dates strictly
+  monotonic); 126d nearly monotone (14.8% strict); reported, not hidden.
+- **Persistence**: month-to-month rank ρ 0.930; top-decile turnover 22.5%/mo; top-quintile
+  **19.8%/mo**.
+- **Distribution**: min 2.06 · median 24.0 · p99 50.9 · max 71.27 — a scaled rank
+  composite, NOT a probability, NOT an expected return.
+- **Price dominance check**: accounting 93.9% vs price 6.1% effective mass — the score is
+  genuinely fundamental-driven; price sleeve adds 126d diversification.
+- **GATES: SCORE_V2_RESEARCH_JUSTIFIED = YES** (3 redundant pairs |ρ|≥0.70; 5
+  both-horizon-negative components; Liquidity/PS/PB nominal-effective collapse;
+  Profitability & Valuation CIs cross zero — weaker overall IC alone was NOT used as a
+  reason) **· SCORE_PORTFOLIO_BACKTEST_JUSTIFIED = YES** (positive IC63/126 CI,
+  235 symbols, ρ 0.930, 19.8% turnover) **· UI_SCORE_CURRENT_FORMULA_CHANGED = NO ·
+  SCORE_V2_CREATED = NO · FUNDAMENTAL_EVENT_EXECUTED = NO · SIGNAL_ENGINE_STARTED = NO.**
+- Files: `ui_score_research/SCORE_DEEP_AUDIT_V1.md` + `score_deep_audit_v1.json` +
+  5 required CSVs + 2 supporting CSVs (coverage, weight concentration). STOP.
+
+## 72. SCORE PORTFOLIO V1 PREREGISTERED — pre-outcome feasibility PASS, execution NOT authorized (2026-10-03)
+
+Research priority changed: AUTOMATED PERIODIC PORTFOLIO MANAGEMENT with the EXISTING
+validated score. No Score V2, no UI optimization, Fundamental Event V1 stays paused.
+
+- **Frozen spec**: `portfolio_research/SCORE_PORTFOLIO_V1_PREREGISTRATION.md` —
+  **SHA-256 10e6aa0e477b89eb73a5deacb72a4e337467fcfd2a06fd736a78e5954ecaf17c**.
+  Score source `ui_score_historical_pit_v2.parquet` (543dfbf7…), canonical-v1-dev
+  UNCHANGED incl. dead weights (Liquidity/PS/PB kept deliberately). PRIMARY
+  `score-portfolio-v1-top20` (top 20% by rank, equal weight, n = max(1, floor(0.2N)),
+  tie-break (score DESC, symbol ASC)); SECONDARY diagnostic `top10` (cannot rescue
+  primary). Monthly rebalance on the 63 frozen score dates; EXECUTION_DATE = first
+  canonical trading date strictly after the knowledge cutoff; execution price = canonical
+  pClosing; identity key = SYMBOL (score-panel is_primary security_id ≠ daily-panel
+  research-symbol mapping — documented). Tradability = daily-panel row AND
+  security_traded==True; failures → cash (no substitute, no look-ahead); existing holder
+  carried but not sellable. Cash 0%. Costs: GROSS/LOW/BASE/HIGH = 0/25/50/100 bps
+  one-way, BASE 50 = primary convention. Benchmark = equal-weight ALL eligible names,
+  identical execution/costs. Bootstrap seed 20261003, B=2000, 6-month moving blocks.
+  Gates PV1–PV8 frozen (PV2 +2.0pp net excess @50bps; PV3 bootstrap lower bound >0; PV4
+  3/5 years; PV5 DD ≤ bench+5pp; PV6 turnover ≤30%; PV7 breadth ≥20; PV8 cash ≤10%).
+- **PORTFOLIO_RETURN_SEMANTICS = PRICE_PLUS_MECHANICAL_ADJUSTMENTS** — the canonical
+  chain captures capital_increase/rights_issue/reverse_split + heuristic gaps and does
+  NOT capture cash dividends; "total shareholder return" is NOT a permitted label.
+- **Pre-outcome feasibility** (`feasibility_score_portfolio_v1.py` →
+  `score_portfolio_v1_feasibility.json` + by-date CSV): 63 rebalance dates; median 212
+  eligible names/date (79-227); Top20 median 42 holdings (min 15; PV7 pre-check PASS);
+  Top10 median 21; **0 expected failed executions on all 63 execution dates; expected
+  involuntary cash 0% (PV8 pre-check PASS)** → **PORTFOLIO_V1_FEASIBLE = YES**.
+  Coverage ramp by year inherited from the score panel (median eligible 124→221) and will
+  be reported as the DATA-COVERAGE diagnostic; NO start-year chosen.
+- **NO portfolio returns, CAGR, drawdown, or excess returns were computed in this task.**
+
+**FINAL: SCORE_PORTFOLIO_V1_PREREGISTERED = YES · SCORE_PORTFOLIO_V1_EXACT_SPEC_FROZEN =
+YES · PORTFOLIO_V1_FEASIBLE = YES · PORTFOLIO_V1_EXECUTED = NO ·
+PORTFOLIO_V1_SHADOW_ELIGIBLE = NO · SCORE_V2_CREATED = NO ·
+FUNDAMENTAL_EVENT_EXECUTED = NO · SIGNAL_ENGINE_STARTED = NO ·
+UI_SCORE_CURRENT_FORMULA_CHANGED = NO.** STOP — awaiting explicit execution instruction.
+
+## 73. PORTFOLIO V1 IDENTITY CONTRACT + CASH-DIVIDEND AUDIT — identity PASS, total-return PARTIAL (2026-10-03)
+
+Two implementation questions closed before execution. Preregistration hash verified
+immutable: 10e6aa0e… No returns computed. No spec changes.
+
+- **PART 1/2 — identity**: DB invariant: 331 security rows = 331 unique symbols = 331
+  unique ins_codes; every scored symbol maps to exactly ONE issuer/instrument. A=0, C=0,
+  D=0, E=0, F=0 normalization collisions. The 8 multi-symbol issuers are same-issuer
+  secondary instruments (fund X/X2 classes, distinct ins_codes). The daily panel's 238
+  security ids are a SEPARATE legacy namespace (all foreign to core.securities); instrument
+  identity for all 235 scored symbols is PROVEN three-way: symbol string (score panel =
+  daily panel = raw-cache index) + **ins_code (core.securities = raw-cache index,
+  235/235 exact)**. `portfolio_research/portfolio_identity_map.parquet` created:
+  portfolio_security_key = company_id:ins_code, 235 rows, mapping_status UNIQUE ×235,
+  **0 ambiguous rows**.
+- **PART 3 — feasibility recheck on the canonical identity**: identical to the symbol-only
+  run — 63 dates, median 212 eligible, Top20 median 42 holdings, **0 expected failed
+  executions, 0% involuntary cash**; 0 ambiguous rows in any selection. Previous claims
+  HOLD.
+- **PART 4/5 — dividends**: NO disclosure-level dividend data exists anywhere (0 report
+  titles, no fact metric, no dividend table, caches are letter metadata only). The only
+  dividend-like data is **4,344 `dividend_per_share_hypothesis` values inside corporate-
+  action metadata — PRICE-GAP-DERIVED (taxonomy PRICE_ADJUSTMENT_UNCLASSIFIED) and
+  therefore NOT used as dividend inputs (prohibited)**. By year (gap events/symbols):
+  2021 452/198 · 2022 465/202 · 2023 427/215 · 2024 451/213 · 2025 432/216 · 2026 277/205.
+- **KEY SEMANTICS FINDING**: all these dividend-like gaps carry
+  `adjustment_evidence_status='CONFIRMED'` — the official TSETMC gap factors are ALREADY
+  applied in the return chain. Since wealth reconstruction depends on the FACTOR (not the
+  label), the frozen V1 return stream implicitly includes the wealth effect of 2,504
+  dividend-like ex-date events (2021-2026) without any fabrication. Unprovable: official
+  gap-detection completeness and per-gap attribution (immaterial for wealth).
+- **VERDICTS: PORTFOLIO_IDENTITY_CONTRACT = PASS · PORTFOLIO_EXECUTION_MAPPING_READY =
+  YES · CASH_DIVIDEND_DATA_AVAILABLE = NO · TOTAL_RETURN_RECONSTRUCTION = PARTIAL ·
+  PORTFOLIO_V1_EXISTING_SPEC_EXECUTION_READY = YES.** Research execution readiness = YES;
+  real-money wealth interpretation readiness = PARTIAL (dividend wealth implicitly
+  included via official gap factors but unverifiable without disclosure data; the frozen
+  preregistration's PRICE_PLUS_MECHANICAL_ADJUSTMENTS terminology remains exactly right).
+- Path to a disclosure-backed total-return V1.1 (recorded, not started): collect Codal
+  AGM/board DPS + ex/entitlement dates into a canonical dividend table.
+- Files: `portfolio_identity_map.parquet`, `portfolio_identity_dividend_audit.json`,
+  `audit_identity_and_dividends.py`. STOP — awaiting execution instruction for
+  SCORE PORTFOLIO V1.
+
+## 74. SCORE PORTFOLIO V1 EXECUTED EXACTLY ONCE — PRIMARY GATE FAIL (PV3 only) (2026-10-03)
+
+Preregistration hash verified byte-for-byte before execution (10e6aa0e…); score artifact
+hash verified (543dfbf7…); identity map 235/235 UNIQUE verified; prereg UNCHANGED after
+execution (re-verified).
+
+- **Execution**: 63 monthly rebalances, 62 monthly periods (exec dates 2021-02-01 →
+  2026-07-01), sequential wealth simulation, execution = canonical pClosing on the
+  CONFIRMED adjusted chain at the first canonical trading date strictly after each score
+  date; identity key company_id:ins_code; tradability = daily-panel row AND
+  security_traded==True; **0 failed targets and 0 carried valuations across all 63
+  rebalances**; costs 0/25/50/100 bps one-way on absolute traded notional, paid from
+  portfolio cash only (no borrowing; buys scale proportionally when cash is short).
+  Benchmark = equal-weight ALL eligible names with identical rules.
+- **PV1 PASS · PV2 PASS · PV3 FAIL · PV4 PASS · PV5 PASS · PV6 PASS · PV7 PASS ·
+  PV8 PASS → SCORE_PORTFOLIO_V1_PRIMARY_GATE = FAIL** (no near-miss override).
+- **Top20 @ 50 bps**: annualized **43.03%**, cumulative **+535%** (6.35×), MDD **−25.50%**,
+  vol 35.48%, Sharpe-like 1.185, positive months 54.8%, median holdings **44**, cash ≈0%,
+  avg turnover **29.84%** (median 27.85%, p90 45.79%), notional/capital 43.7×.
+  Benchmark: 35.53% / 3.81× / MDD −29.42% / turnover 16.72%.
+- **Excess**: annualized **+7.50pp** (PV2 PASS), terminal wealth +1.54×, mean monthly
+  excess **+0.4617%**, median +0.3529%, positive-month fraction 59.7%; yearly excess
+  +4.70 / −21.33 / −0.61 / +11.41 / +25.57 / +15.09pp (2021→2026; **3 of 5 full years
+  positive → PV4 PASS**); PV5 PASS (Top20 MDD 3.9pp better than benchmark).
+- **PV3 FAIL**: 6-month-block bootstrap (seed 20261003, B=2000, block=7 periods) 95% CI
+  for mean monthly excess **[−0.343%, +1.208%]** — lower bound < 0; annualized equivalent
+  CI [−4.12%, +14.49%]; CAGR-difference CI [−4.71%, +19.44%]. The point-estimate excess is
+  positive but not robust at the preregistered dependence-aware standard.
+- **Top10 DIAGNOSTIC ONLY**: 48.15% / 6.62× / MDD −26.14% / Sharpe 1.235 / turnover 32.2% —
+  does not change the primary gate; no variant created.
+- **Implementation note (PV1 record)**: costs financed from portfolio cash only; when
+  cash+sells could not cover buys+costs, buys scaled proportionally and cash floored at 0
+  (no borrowing/margin). An initial run had a negative-cash artifact; it was corrected
+  BEFORE gates were evaluated and the corrected run is the single official execution.
+- **Data-ramp context** (no year excluded): median eligible 92→221, fundamental input
+  coverage 0% (2021) → 67% (2026) — the score was effectively price-driven early; no
+  start date preferred.
+- **FINAL: SCORE_PORTFOLIO_V1_PRIMARY_GATE = FAIL · SCORE_PORTFOLIO_V1_SHADOW_ELIGIBLE =
+  NO · PORTFOLIO_PRODUCTION_READY = NO · REAL_MONEY_AUTOMATION_READY = NO ·
+  SCORE_V2_CREATED = NO · FUNDAMENTAL_EVENT_EXECUTED = NO · SIGNAL_ENGINE_STARTED = NO ·
+  UI_SCORE_CURRENT_FORMULA_CHANGED = NO · prereg hash 10e6aa0e… PRESERVED.**
+  No strategy modification, no rescue, no re-run. STOP.
+
+## 75. PORTFOLIO V1 ACCOUNTING REPAIR RUN — root cause fixed, unit tests PASS, PRIMARY GATE PASS (conditional on parity sign-off) (2026-10-03)
+
+External review rejected the first net results (cost magnitude inconsistent with
+turnover/notional). Quarantined: PORTFOLIO_V1_NET_RESULT_VALID = NO. Old artifacts
+preserved. Prereg hash 10e6aa0e… re-verified immutable.
+
+- **Root cause found (deeper than the review's hypothesis)**: bps conversion and the cost
+  LEDGER were correct (0/0.0025/0.005/0.01; fees = 0.005 × actual notionals). The defect
+  was POSITION-FINANCING: the buy-financing factor f was applied to TARGET POSITIONS
+  instead of BUY DELTAS, destroying (1−f)×current_value of held positions at every
+  rebalance where buys exceeded cash+sells. The leak is cost-rate INDEPENDENT → BOTH gross
+  and net paths collapsed (value_pre 1.0 → 0.0002 by 2025) and the reported "+535%" was
+  growth ratios compounded across a collapsing path.
+- **Repair**: f scales BUY DELTAS only; invariant NAV_post = NAV_pre − cost asserted at
+  every rebalance (500-case randomized sweep exact). Unit tests A-E ALL PASS (A bps
+  conversion; B one-way purchase buy+fee=100; C full rotation ≈1% drag; D zero turnover;
+  E proportional reduction, cash ≥ 0).
+- **GROSS_PATH_PARITY = FAIL (documented)**: the old gross path contained the same leak
+  and was itself invalid — no valid prior gross exists to anchor parity. This parity
+  failure + root cause is the ONE item requiring reviewer sign-off before the PASS gate
+  below is treated as final (task section 9 stop rule honored: reason identified and
+  stated, not hidden).
+- **Cost reconciliation (review's section 6)**: gross→LOW/BASE/HIGH observed drag 2.08 /
+  4.13 / 8.12 pp/yr vs fees-implied 1.37 / 2.74 / 5.50 pp/yr — stable 1.48-1.52 ratio
+  across scenarios (early-fee compounding signature); total notional/capital 28.29×;
+  total fees 0.2497 initial units (BASE). The quarantined "43.7× notional, 0.04pp drag"
+  inconsistency is fully explained and eliminated.
+- **OFFICIAL REPAIRED RESULTS (BASE 50bps, PRICE_PLUS_MECHANICAL_ADJUSTMENTS)**:
+  Top20 ann **39.79%**, cum **+464.5%** (5.645×), MDD **−26.85%**, vol 35.63%, Sharpe
+  1.118, median holdings 44, cash ≈0%, turnover **29.31%**, 0 failed/0 carried.
+  Benchmark: 32.47% / 3.275× / MDD −29.50% / turnover 10.44%.
+  Excess: **+7.32pp** annualized; mean monthly +0.4973%; positive months 58.1%; yearly
+  excess +1.22 / −0.46 / −3.67 / +8.24 / +17.29 / +15.43 pp (2021→2026).
+  Bootstrap (seed 20261003, B=2000, block=7): mean monthly excess CI
+  **[+0.0653%, +0.9612%]** — lower bound > 0; annualized CI [+0.78%, +11.53%]; CAGR-diff
+  CI [+0.88%, +15.25%].
+- **Top10 DIAGNOSTIC ONLY**: 44.58% / 5.717× / MDD −27.40% / turnover 31.29%.
+- **GATES (recomputed from the repaired path): PV1-PV8 ALL PASS →
+  SCORE_PORTFOLIO_V1_PRIMARY_GATE = PASS** — conditional on reviewer sign-off of the
+  gross-parity failure explanation. **SCORE_PORTFOLIO_V1_SHADOW_ELIGIBLE = YES (per
+  frozen rule IF the gate stands) · PORTFOLIO_PRODUCTION_READY = NO ·
+  REAL_MONEY_AUTOMATION_READY = NO · SCORE_V2_CREATED = NO ·
+  FUNDAMENTAL_EVENT_EXECUTED = NO · SIGNAL_ENGINE_STARTED = NO.**
+- Files: SCORE_PORTFOLIO_V1_RESULTS_ACCOUNTING_REPAIRED.md +
+  score_portfolio_v1_results_accounting_repaired.json (all artifact hashes recorded) +
+  monthly/trades/holdings/yearly/bootstrap _accounting_repaired files. Old artifacts
+  quarantined, not deleted. STOP — awaiting reviewer sign-off on the parity explanation.
+
+## 76. PORTFOLIO V1 FINAL CERTIFICATION — all reconciliations PASS, PRIMARY GATE certified (2026-10-03)
+
+Certification of the repaired artifacts ONLY (no new execution, no parameter change).
+Prereg hash 10e6aa0e… verified immutable. Root-cause explanation ACCEPTED by the user
+(old gross path invalid; repaired run = candidate official result).
+
+- **OLD_GROSS_PATH_VALID = NO · REPAIRED_GROSS_INTERNAL_CONSISTENCY = PASS**: the repaired
+  0-bps path re-executes bit-identically (max |Δ| = 0.0) and satisfies the monthly
+  return/NAV identity to 4.4e-16.
+- **BENCHMARK_WEALTH_RECONCILIATION = PASS** — the reported "cumulative +227.5% (3.275×)"
+  was a PROSE TYPO: the artifact's 3.2755 is the CUMULATIVE RETURN (+327.55%); the
+  terminal wealth multiple is **4.2755×** (proof: 3.275^(12/62)−1 = 25.8% ≠ 32.47% CAGR,
+  while 4.2755^(12/62)−1 = 32.47% exactly). Initial NAV (post entry cost) 0.995025;
+  final NAV 4.275451; 62 monthly periods; convention wealth^(12/62)−1.
+- **TOP20_WEALTH_RECONCILIATION = PASS**: final NAV 5.645069×, cumulative +464.51%,
+  CAGR 39.79% — product(1+monthly) == path ratio exact; all summary metrics re-derived
+  from a fresh deterministic re-execution match the certified JSON.
+- **Excess wealth verified from NAVs**: 5.645069 − 4.275451 = **+1.3696×**.
+- **Return-series/NAV identity (all 9 series: Top20/Bench × 4 costs + Top10)**: max abs
+  error **8.88e-16**; external cash flows zero.
+- **TRADE_COST_LEDGER_RECONCILIATION = PASS**: Σ trade costs == Σ monthly costs (diff 0.0);
+  every trade cost = |notional| × rate exactly. Top20 BASE: buys 25.347 + sells 24.596 =
+  notional 49.943 (28.29× avg capital), fees 0.2497. Bench BASE: notional 7.865, fees
+  0.0393.
+- **SELF_FINANCING_INVARIANTS = PASS**: independent ledger replay reproduces the engine
+  path to ≤ 2.19e-9 across all 9 series; 0 negative-cash rows; 0 NAV failures;
+  0 position failures; 0 external injections. (An initial replay-check FAIL was a bug in
+  the CHECK itself — the replay dropped positions between periods; fixed and re-certified.)
+- **Turnover verified from the frozen formula**: Top20 29.31% · Bench 10.44% · Top10
+  31.29%; relationship to traded notional documented (related, not interchangeable).
+- **Yearly returns recomputed from NAV (end-date attribution — standard; supersedes the
+  repaired MD's start-attribution table)**: excess +1.81 / +0.54 / −7.69 / +9.15 / +12.15
+  pp (2021→2025) + 22.47pp (2026 descr.) → **4 of 5 full years positive → PV4 PASS**.
+- **BOOTSTRAP_INPUT_CERTIFIED = PASS**: 62 obs; excess-vector hash
+  c0a0e62b…; seed 20261003, B=2000, block=7; CI reproduced exactly
+  [+0.0653%, +0.9612%]; no stale series.
+- **GATES RE-CERTIFIED: PV1–PV8 ALL PASS → SCORE_PORTFOLIO_V1_PRIMARY_GATE = PASS ·
+  SCORE_PORTFOLIO_V1_SHADOW_ELIGIBLE = YES · PORTFOLIO_PRODUCTION_READY = NO ·
+  REAL_MONEY_AUTOMATION_READY = NO** (boundary unchanged: exploratory sample,
+  survivorship unresolved, data ramp, ~62 obs, dividend completeness unproven, no shadow
+  period yet).
+- Files: SCORE_PORTFOLIO_V1_FINAL_CERTIFICATION.md +
+  score_portfolio_v1_final_certification.json (all hashes recorded) +
+  certify_portfolio_v1.py. All prior artifacts preserved for lineage. STOP.
+
+## 77. BOOTSTRAP BLOCK-SPEC CERTIFICATION — spec means 6 monthly returns; PV3 re-certified PASS on the compliant block (2026-10-03)
+
+Prereg hash 10e6aa0e… verified immutable. The remaining spec-compliance question (frozen
+"6-month moving blocks" vs implemented block=7) resolved:
+
+- **Frozen spec (verbatim, section 9)**: "Monthly portfolio observations; seed 20261003,
+  B = 2000, 6-month moving blocks (date-level resampling); bootstrap CIs for mean monthly
+  excess return and its annualized equivalent; if technically valid, CAGR difference via
+  time-block paths. 95% intervals; block size never altered after results."
+- **BOOTSTRAP_BLOCK_SPEC = UNAMBIGUOUS_6_RETURNS**: the prereg's explicit observation
+  unit is monthly portfolio RETURN observations; a 6-month block of that series is 6
+  return observations. The endpoint-span reading does not rescue the implemented 7 either
+  (7 return observations span ~7 monthly periods, not 6). No endpoint/span convention is
+  defined anywhere in the prereg.
+- **IMPLEMENTED_BOOTSTRAP_COMPLIES_WITH_FROZEN_SPEC = NO** — block=7 was an unstated
+  implementation helper (max consecutive observations within a 182.6-day date span).
+- **PV3 recomputed on the certified excess vector with block = 6 monthly returns** (same
+  62 obs, seed 20261003, B=2000, circular moving-block mechanics unchanged):
+  mean monthly excess +0.4973% · CI95 **[+0.0303%, +0.9953%]** (lower bound > 0 → PV3
+  PASS) · annualized equivalent CI [+0.36%, +11.94%] · CAGR-difference CI
+  [+0.31%, +16.00%]. BLOCK7 CI [+0.0653%, +0.9612%] retained for the record.
+  **PV3_ROBUST_TO_BLOCK_INTERPRETATION = YES** (lower bound > 0 under BOTH 6 and 7).
+- **Certification finding (bounded)**: the engine's NAV arithmetic carries set-iteration-
+  order float nondeterminism across processes — byte-level excess-vector hashes differ
+  while elementwise agreement is ≤4.7e-16; block-7 CIs computed on three vector variants
+  agree to <1e-9 and block-6 CIs to 1.5e-17. Economically identical; documented, not a
+  strategy defect.
+- **CERTIFIED OFFICIAL PV3 BASIS**: block = 6 monthly returns, CI [+0.0303%, +0.9953%].
+  All other certified numbers (Top20 39.79%/5.6451×, Bench 32.47%/4.2755×, excess +7.32pp,
+  MDDs, turnover, fees, yearly returns) UNCHANGED.
+- **PV3_FINAL = PASS → SCORE_PORTFOLIO_V1_PRIMARY_GATE = PASS ·
+  SCORE_PORTFOLIO_V1_SHADOW_ELIGIBLE = YES · PORTFOLIO_PRODUCTION_READY = NO ·
+  REAL_MONEY_AUTOMATION_READY = NO.**
+- Files: certify_bootstrap_block_spec.py · bootstrap_block_spec_certification.json.
+  STOP.
+
+## 78. SHADOW V1 — FORWARD-ONLY PAPER PORTFOLIO CREATED AND VALIDATED (2026-10-03)
+
+SCORE_PORTFOLIO_V1 accepted (PRIMARY_GATE=PASS, SHADOW_ELIGIBLE=YES) → user commissioned a
+forward-only shadow/paper implementation of the frozen `score-portfolio-v1-top20`. No
+historical dates are shadow observations; no real orders ever.
+
+- **Frozen spec** `portfolio_shadow/SHADOW_V1_SPEC.md`, SHA-256
+  `959b56904added66812ab3726fc067112d7bc12ab3d58d8334f3c4381540df3a`, SPEC_FROZEN_AT_UTC
+  = 2026-10-03T18:45:00Z, recorded in `shadow_v1_state.json` before any rebalance.
+- **Start rule (frozen §1)**: first completed `analytics.score_runs` row (canonical-v1-dev)
+  with `completed_at > SPEC_FROZEN_AT_UTC` plus a mid-session guard (as_of < completion date
+  OR source_cutoff_at ≥ 12:45 Tehran); then monthly = earliest qualifying run whose as_of
+  falls in a strictly later calendar month. Decision inputs are read from the PERMANENT DB
+  tables (score_runs/company_scores/factor_scores), so the ephemeral canonical_v1_metrics.json
+  overwrite can never alter a frozen decision. Last pre-freeze run (as_of 2026-10-02,
+  input hash d75b8c5b…) is a TEST FIXTURE ONLY and can never qualify.
+- **Selection (frozen §3)** = prereg §3 exactly: n = max(1, floor(0.20 × N_eligible)) over
+  ALL scored companies, order (quant_score DESC, symbol ASC), equal weights before failed
+  executions. The user's "highest 20%" phrasing = the frozen percentile rule (median
+  holdings 42 in backtest); fixture rebuild produced 271 eligible → 54 selected.
+- **Identity (frozen §4)**: company_id:ins_code via core.securities, cross-checked vs the
+  certified identity map (MAP_VERIFIED / DB_RESOLVED / IDENTITY_ERROR → target stays cash).
+- **Data contracts (frozen §5, evidence-based)**: path-A prices = raw closing caches
+  (pClosing) × CONFIRMED tsetmc_gap_rule_v1 factors ONLY; path-B (market.price_observations,
+  vendor_adjusted legacy_brs_adjusted) is diagnostic-only. DB feed findings logged:
+  phantom carry-over sessions (Fri 2026-10-02 = re-stamped Wed 2026-09-30 for 276/282
+  securities; a re-stamped 9-24 row hid the real Sat 9-26 close), 1,420 intraday dup pairs,
+  token holiday sessions (5 securities). Shadow calendar: no Thu/Fri + breadth ≥ 30
+  (only 4 Thu/Fri dates ever, all collector artifacts; real sessions ≥ 230 since Aug-2026).
+  Raw caches last refreshed 2026-10-01 22:57 covering 2026-09-30 — refresh lag handled by
+  the §15b 7-day finalize deadline.
+- **Determinism (§13, engineering only)**: `deterministic_accounting.py` = byte-faithful
+  port of the certified `repair_accounting_v1.rebalance_accounts` with SORTED iteration.
+  Validation (`portfolio_shadow/tests/run_shadow_validation.py` → determinism_report.json):
+  T1 unit tests A–E PASS · T2 500-case invariant sweep PASS · T3 parity vs certified engine
+  max abs diff 5.68e-14 (≤1e-12 required; summation-order noise) · T4 observer month-close
+  behavior (carry/sell/failed-cash/scaling/NAV identity) PASS · **T5 byte-identical
+  artifacts across 3 processes with PYTHONHASHSEED 1/2/3 → SHADOW_BUILD_DETERMINISTIC=PASS**.
+- **Accounting**: CERTIFIED_REPAIRED engine semantics only (NAV_post = NAV_pre − cost exact,
+  cash ≥ 0, buy-delta scaling, position continuity, 50 bps BASE one-way); quarantined code
+  never imported. Benchmark = equal-weight ALL eligible, same engine/conventions.
+- **Artifacts (§14)**: per month, written ONCE, never overwritten: shadow_snapshot_YYYY_MM.json,
+  shadow_targets_YYYY_MM.parquet, shadow_orders_YYYY_MM.parquet,
+  shadow_portfolio_state_YYYY_MM.json (decision-time), then
+  shadow_execution_observations_YYYY_MM.parquet + shadow_execution_summary_YYYY_MM.json
+  (observer). Hashes recorded in state. No shadow month exists yet; state decisions = [].
+- **Final flags**: SHADOW_V1_SPEC_FROZEN=YES · SHADOW_BUILD_DETERMINISTIC=PASS ·
+  SHADOW_ACCOUNTING_ENGINE=CERTIFIED_REPAIRED (deterministic port, parity-proven) ·
+  SHADOW_IDENTITY_READY=YES (235/271 map-verified, 271/271 DB-resolved) ·
+  SHADOW_DATA_PIPELINE_READY=YES (with documented feed defects + cache-refresh dependency) ·
+  SHADOW_LIVE_START_READY=YES (awaiting first post-freeze production score run) ·
+  REAL_MONEY_ORDERS_ENABLED=NO · BROKER_CONNECTION_ENABLED=NO.
+- Files: portfolio_shadow/{SHADOW_V1_SPEC.md, shadow_v1_state.json, SHADOW_V1_ISSUES.md,
+  build_shadow_portfolio.py, observe_shadow_execution.py, shadow_common.py,
+  deterministic_accounting.py, tests/*}. STOP.
+
+## 79. Shadow V1 pre-launch certification — schedule/calendar/price parity, forward refresh, identity onboarding (2026-10-03)
+
+User directive after technical acceptance of the Shadow V1 harness: certify live-start readiness across
+4 axes (monthly decision-schedule parity, execution-calendar parity, forward raw-price refresh readiness,
+deterministic identity onboarding) WITHOUT starting Shadow Month #1, preserving the frozen V1 spec.
+
+**Recovered historical rule (Part 1).** All 63 certified SCORE_PORTFOLIO_V1 score dates = the LAST
+canonical trading date of the calendar month (44/63 = calendar month-end; 19/63 walked back over
+non-trading month-ends; 2026-02/03/04 skipped = coverage-gap precedent); knowledge_cutoff = EOD UTC of
+the score date, all 63. Full table: `portfolio_shadow/launch_audit/historical_decision_schedule.json`.
+
+**Schedule parity (Part 2).** V1 rule replays 63/63 over the historical series but FAILS as written on
+real production stamps (would fire mid-month, e.g. as_of 2026-10-01). NOT launched under V1. Superseding
+pre-first-decision spec `portfolio_shadow/SHADOW_V1_1_SPEC.md` frozen, sha256
+`f396b5f65474a017f7f97ff9f2d0c8679708f6e20ee104dc19dc53d06709ff0e` (V1 spec `959b5690...` preserved
+unchanged): decision month M requires the earliest post-freeze canonical-v1-dev run whose as_of_date is
+the CERTIFIABLE last canonical trading date of M (two-clause certainty: structural Thu/Fri walk-back, or
+month fully elapsed + last recorded session — rescues holiday month-ends like 2024-03), cutoff window
+[12:45 Tehran as_of, EOD UTC as_of], no backfill (decision frozen before E begins), skipped months logged.
+
+**Guard (Part 3):** OPERATIONAL_ONLY (window frozen in V1.1 §3; can only disqualify, never shift).
+
+**Calendar parity (Part 4): PASS** — 63/63 exact execution-date matches; 50 excluded low-breadth artifact
+dates (breadth 1-6), none ever a certified execution date; 0 shadow-only dates.
+
+**Price contract parity (Part 5): PASS** — 3 independent legs (certified execution pipeline chain; the
+repair_accounting_v1 chain the observer imports; independent recomputation) = ZERO difference on 229
+priced pairs of 233 samples (4 consistent-absent), covering all four corporate-action classes 2021-2026;
+229 exact-session raw pClosing checks, 0 conflicting duplicates. No vendor-adjusted BRS.
+
+**Forward refresh (Part 6): PROVEN** — `portfolio_shadow/refresh_raw_caches_forward.py`; cycle
+19:25:19-19:32:04 UTC, all fetches post-freeze; session 2026-10-03 acquired with raw pClosing and 0
+insCode mismatches; coverage 271/271 scored companies (was 238); merge append-only by (dEven,hEven),
+first-seen-wins; 172 same-day late arrivals skipped; 2207 vendor revisions ignored (field audit: 0
+pClosing changes); 6 pre-2021 Thu/Fri vendor-history dates reported + calendar-excluded.
+
+**Identity onboarding (Part 7): READY** — `portfolio_shadow/onboard_shadow_identities.py`, append-only
+`identity_onboarding_ledger.jsonl` (36 onboarded, batch ONBOARD-20261003T193414Z): 235
+HISTORICAL_MAP_VERIFIED + 36 FORWARD_MAP_VERIFIED, 0 UNRESOLVED/AMBIGUOUS of 271. Only verified
+identities receive fills; unresolved/ambiguous targets stay cash.
+
+**Harness defect fixed pre-first-use:** `raw_caches_max_date()` filename parse leaked ".json" into
+ins_code -> would always return None -> every observation would finalize by deadline as DATA_MISSING.
+
+**Eligibility layers (Part 8):** SCORE ELIGIBLE >= SELECTED TOP20 >= IDENTITY VERIFIED >= PRICE
+OBSERVABLE >= EXECUTABLE; execution failure never alters the ranking universe.
+
+**Decision #1 (Part 9) / clock (Part 10):** no genuinely qualifying run exists (predicate audit of all
+12 canonical-v1-dev runs: 0 pass — the two 2026-09-30 runs sit exactly on September's certified last
+trading date but pre-date the freeze); Decision #1 not created; SHADOW_FORWARD_CLOCK_STARTED = NO.
+
+**Certification:** `portfolio_shadow/SHADOW_V1_LAUNCH_CERTIFICATION.md` +
+`shadow_v1_launch_certification.json`. Suite T1-T5 re-executed after V1.1 changes: all PASS (T3 max diff
+5.68e-14; T5 byte-identical across seeds 1/2/3); production dry-runs no-ops. Final flags:
+SHADOW_DECISION_SCHEDULE_PARITY = FAIL(V1)/PASS(V1.1); MID_SESSION_GUARD = OPERATIONAL_ONLY;
+SHADOW_EXECUTION_CALENDAR_PARITY = PASS; SHADOW_PRICE_CONTRACT_PARITY = PASS;
+FORWARD_RAW_CACHE_REFRESH_PROVEN = YES; SHADOW_IDENTITY_ONBOARDING_READY = YES;
+SHADOW_DATA_PIPELINE_READY = YES; SHADOW_LIVE_START_READY = YES (under V1.1);
+SHADOW_FORWARD_CLOCK_STARTED = NO; REAL_MONEY_ORDERS_ENABLED = NO; BROKER_CONNECTION_ENABLED = NO.
+
+Monthly operational sequence: pipeline produces the month's last-trading-day run (e.g. 2026-10-31) ->
+refresh caches -> onboard identities -> `build_shadow_portfolio.py` (before E) -> `observe_shadow_execution.py`
+after E. STOP.
+
+## 80. SHADOW V1.1 ACCEPTED BY OPERATOR — readiness check executed, no qualifying run exists, clock NOT started (2026-10-03)
+
+Operator accepted the V1.1 launch certification (active spec `SHADOW_V1_1_SPEC.md`,
+SHA `f396b5f65474a017f7f97ff9f2d0c8679708f6e20ee104dc19dc53d06709ff0e`; V1
+`959b5690…` preserved unchanged — both re-verified byte-identical after acceptance).
+Standing instruction: build Decision #1 **only** when a real post-freeze production
+`canonical-v1-dev` run satisfies the frozen V1.1 §2/§9 rule; until then no shadow
+decision and no strategy changes. No research, backtest, Score V2, or Fundamental
+Event V1.
+
+**Readiness check (read-only, `launch_audit/decision1_readiness_check.py`, run
+2026-10-03T19:56Z):** completed `analytics.score_runs` rows after freeze
+(2026-10-03T19:40:34Z) = **0**. All 12 canonical-v1-dev completions pre-date the
+freeze (latest 2026-10-02 15:04 Tehran = test-fixture run). Decision #1 not created;
+`decisions = []`; SHADOW_FORWARD_CLOCK_STARTED = NO; REAL_MONEY_ORDERS_ENABLED = NO;
+BROKER_CONNECTION_ENABLED = NO.
+
+Earliest possible Decision #1: a run with `as_of_date = 2026-10-31` (October's last
+canonical trading date, a Saturday; structural clause (a) vacuous) completed after
+that session with `source_cutoff_at` in the V1.1 §3 window — or, via clause (b), any
+run whose as_of is October's last recorded session and built after 2026-10-31.
+Then: refresh caches -> onboard identities -> `build_shadow_portfolio.py` before the
+projected execution date -> `observe_shadow_execution.py` after it. STOP.
+
+## 81. SHADOW V1.1 HISTORICAL WALK-FORWARD REPLAY executed — parity PASS, live shadow untouched (2026-10-03/04, operator-directed)
+
+Replay of the frozen V1.1 harness over all 63 certified historical decision dates
+(2021-01 .. 2026-06) in a fully separate `portfolio_shadow_replay/` directory. Engine =
+live shadow modules (`build_shadow_portfolio` selection semantics, `observe_shadow_execution`
+close semantics, `deterministic_accounting`, certified `repair_accounting_v1` price chain);
+PIT source = `ui_score_historical_pit_v2.parquet` (SHA verified); spec SHA f396b5f6… verified.
+Label: HISTORICAL_REPLAY_ONLY — not forward validation, not promotion evidence.
+
+Result: 63/63 months; wealth 5.6451 vs bench 4.2755; MDD −26.85%; Sharpe 1.12;
+avg turnover 29.3%; median holdings 44; 171 unique securities; 583 spells (median 2 mo,
+p90 9, max 56). **SHADOW_REPLAY_PORTFOLIO_PARITY = PASS** vs `score_portfolio_v1_*_accounting_repaired`
+(all fields ≤ 3.2e-15 abs diff; 0 selection/date/count mismatches; tradability sources agree on
+all 14,805 (E,symbol) pairs; execution calendar re-derived 63/63 identical). Determinism:
+byte-identical re-run under PYTHONHASHSEED=7. Artifacts: SHADOW_V1_1_HISTORICAL_REPLAY.md,
+shadow_replay_monthly.csv, shadow_replay_targets/trades.parquet, security_holding_history.csv,
+shadow_replay_yearly.csv, shadow_replay_parity.json, replay_state.json,
+current_nonshadow_preview.csv (NON_SHADOW_CURRENT_PREVIEW from run 0d2e5bc7, as_of 2026-10-01,
+271 eligible / 54 selected; fixture run e5998f6d excluded). LIVE_SHADOW_STATE_MODIFIED = NO
+(state sha 63493408… byte-identical before/after); decisions = []; SHADOW_FORWARD_CLOCK_STARTED = NO;
+REAL_MONEY_ORDERS_ENABLED = NO; BROKER_CONNECTION_ENABLED = NO. STOP.
+
+## 82. INVESTOR VIEW FROM 1403-01 built — display-only rescaling of the certified replay (2026-10-04, operator-directed)
+
+Pure display scaling of the §81 certified replay artifacts — no strategy rerun, no accounting/cost
+change, no certified artifact modified. Window = first certified decision with score_date ≥ Farvardin
+1403 (= 2024-03-20): **2024-03-30** (1403-01-11), exec 2024-04-02, through 2026-06-30 (exec 2026-07-01)
+= 25 decision months / 24 certified return periods (final decision has no subsequent period by
+construction). Transformation: investor_capital(t) = 100,000,000 × NAV_cert(t) / NAV_cert_pre(E_first);
+benchmark anchored identically at its own pre-trade value (1.895991388206585).
+
+Result: FINAL 302,249,093 toman (+202.25% cum, +73.85% ann. over 24 periods, window MDD −20.29%) vs
+benchmark 225,499,476 (+125.50%, MDD −19.92%); excess wealth 76,749,616 toman; total costs 7,077,834
+toman (all 25 certified rebalances, 50bps BASE unchanged); avg turnover 24.86%; 134 unique securities;
+median holding 7.0 months (289 window spells, median 2, max 25 — غمینو held all 25 months). Persian
+years: 1403 +26.00% (12 mo), 1404 +76.01% (11 mo, MDD −20.29%), 1405-to-date +36.29% (2 mo; certified
+2026-02/03/04 gap absent by construction). Window-start note documented: certified first rebalance cost
+127,531 toman (~12.8bps, continuous portfolio); fresh full-notional entry (~50bps ≈ 500k) NOT applied
+per display-scaling-only instruction. Window-start carry note: entered/retained counts are relative to
+the carried certified portfolio; غپینو's SELL row in 1403-01 has no UI score (genuinely absent from that
+month's eligible panel). Builder `build_investor_view_1403.py` reads certified artifacts only, aborts on
+input-hash mismatch (monthly CSV c00f22a9… verified), embeds a Jalali calendar with Nowruz anchor asserts
+(1403/1404/1405). Outputs byte-identical under PYTHONHASHSEED=99. Files: INVESTOR_VIEW_FROM_1403.md
+(1,879 lines, 25 per-month security-decision sections), investor_view_from_1403_monthly.csv (25 rows),
+investor_view_from_1403_summary.json. Label: HISTORICAL_REPLAY_ONLY — not forward validation, not a
+guarantee, not a real-money record; PRICE_PLUS_MECHANICAL_ADJUSTMENTS, not proven full TSR.
+LIVE_SHADOW_STATE_MODIFIED = NO (state sha 63493408… unchanged); decisions = [];
+SHADOW_FORWARD_CLOCK_STARTED = NO. STOP.

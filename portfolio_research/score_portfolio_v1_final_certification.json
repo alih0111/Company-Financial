@@ -1,0 +1,444 @@
+{
+ "verification": {
+  "preregistration_sha256": "10e6aa0e477b89eb73a5deacb72a4e337467fcfd2a06fd736a78e5954ecaf17c",
+  "score_artifact_sha256": "543dfbf732ae9b60eff8014b2226faa806ffb85baec8794a109870c97df0639a",
+  "identity_map": "235/235 UNIQUE, 0 ambiguous",
+  "quarantined_run": "PORTFOLIO_V1_NET_RESULT_VALID = NO (preserved for lineage)"
+ },
+ "gross_reproducibility": {
+  "OLD_GROSS_PATH_VALID": "NO",
+  "REPAIRED_GROSS_INTERNAL_CONSISTENCY": "PASS",
+  "rerun_path_max_abs_diff": 0.0,
+  "nav_identity_max_abs_err": 4.440892098500626e-16,
+  "note": "repaired 0-bps path reproduces bit-identically from holdings/trades/prices/cash via the frozen engine"
+ },
+ "wealth": {
+  "TOP20_GROSS": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 1.0,
+   "final_nav_pre_last_rebalance": 6.561578,
+   "final_nav_post_last_rebalance": 6.561578,
+   "terminal_wealth_multiple": 6.561578,
+   "cumulative_return": 5.561578,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.439231,
+   "cagr_from_product_vs_path": 6.561578,
+   "product_of_monthly_returns": 6.561578,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "TOP20_LOW": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.997506,
+   "final_nav_pre_last_rebalance": 6.091274,
+   "final_nav_post_last_rebalance": 6.085548,
+   "terminal_wealth_multiple": 6.085548,
+   "cumulative_return": 5.085548,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.418404,
+   "cagr_from_product_vs_path": 6.100762,
+   "product_of_monthly_returns": 6.100762,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "TOP20_BASE": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.995025,
+   "final_nav_pre_last_rebalance": 5.65569,
+   "final_nav_post_last_rebalance": 5.64507,
+   "terminal_wealth_multiple": 5.64507,
+   "cumulative_return": 4.64507,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.397927,
+   "cagr_from_product_vs_path": 5.673295,
+   "product_of_monthly_returns": 5.673295,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "TOP20_HIGH": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.990099,
+   "final_nav_pre_last_rebalance": 4.87822,
+   "final_nav_post_last_rebalance": 4.859938,
+   "terminal_wealth_multiple": 4.859938,
+   "cumulative_return": 3.859938,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.357989,
+   "cagr_from_product_vs_path": 4.908538,
+   "product_of_monthly_returns": 4.908538,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "BENCH_GROSS": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 1.0,
+   "final_nav_pre_last_rebalance": 4.397092,
+   "final_nav_post_last_rebalance": 4.397092,
+   "terminal_wealth_multiple": 4.397092,
+   "cumulative_return": 3.397092,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.331937,
+   "cagr_from_product_vs_path": 4.397092,
+   "product_of_monthly_returns": 4.397092,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "BENCH_LOW": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.997506,
+   "final_nav_pre_last_rebalance": 4.336718,
+   "final_nav_post_last_rebalance": 4.335773,
+   "terminal_wealth_multiple": 4.335773,
+   "cumulative_return": 3.335773,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.328321,
+   "cagr_from_product_vs_path": 4.346612,
+   "product_of_monthly_returns": 4.346612,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "BENCH_BASE": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.995025,
+   "final_nav_pre_last_rebalance": 4.277311,
+   "final_nav_post_last_rebalance": 4.275451,
+   "terminal_wealth_multiple": 4.275451,
+   "cumulative_return": 3.275451,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.324724,
+   "cagr_from_product_vs_path": 4.296828,
+   "product_of_monthly_returns": 4.296828,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "BENCH_HIGH": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.990099,
+   "final_nav_pre_last_rebalance": 4.161307,
+   "final_nav_post_last_rebalance": 4.157701,
+   "terminal_wealth_multiple": 4.157701,
+   "cumulative_return": 3.157701,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.317583,
+   "cagr_from_product_vs_path": 4.199278,
+   "product_of_monthly_returns": 4.199278,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "TOP10_BASE": {
+   "initial_capital": 1.0,
+   "initial_nav_post_entry_cost": 0.995025,
+   "final_nav_pre_last_rebalance": 6.735625,
+   "final_nav_post_last_rebalance": 6.716595,
+   "terminal_wealth_multiple": 6.716595,
+   "cumulative_return": 5.716595,
+   "n_monthly_periods": 62,
+   "annualization": "wealth^(12/62) - 1 (monthly periods, 62 obs)",
+   "cagr_from_wealth": 0.445751,
+   "cagr_from_product_vs_path": 6.750178,
+   "product_of_monthly_returns": 6.750178,
+   "metrics_match_certified_json": true,
+   "product_equals_path_ratio": true
+  },
+  "terminal_wealth_difference_top20_base_minus_bench": 1.369619
+ },
+ "nav_identity": {
+  "max_abs_error_by_series": {
+   "TOP20_GROSS": 4.440892098500626e-16,
+   "TOP20_LOW": 1.1102230246251565e-16,
+   "TOP20_BASE": 4.440892098500626e-16,
+   "TOP20_HIGH": 4.440892098500626e-16,
+   "BENCH_GROSS": 4.440892098500626e-16,
+   "BENCH_LOW": 4.440892098500626e-16,
+   "BENCH_BASE": 4.440892098500626e-16,
+   "BENCH_HIGH": 2.220446049250313e-16,
+   "TOP10_BASE": 4.440892098500626e-16
+  },
+  "max_abs_error_overall": 4.440892098500626e-16,
+  "convention": "NAV_t = NAV_(t-1) x (1 + portfolio_return_t); external cash flows = 0 (self-financing)"
+ },
+ "ledger": {
+  "TOP20_GROSS": {
+   "cost_rate": 0.0,
+   "total_buy_notional": 28.083671,
+   "total_sell_notional": 27.083671,
+   "total_abs_traded_notional": 55.167343,
+   "sum_trade_level_costs": 0.0,
+   "sum_monthly_transaction_costs": 0.0,
+   "ledger_vs_monthly_cost_diff": 0.0,
+   "max_per_trade_cost_formula_error": 0.0,
+   "total_fees_paid_metrics": 0.0
+  },
+  "TOP20_LOW": {
+   "cost_rate": 0.0025,
+   "total_buy_notional": 26.671602,
+   "total_sell_notional": 25.802788,
+   "total_abs_traded_notional": 52.474391,
+   "sum_trade_level_costs": 0.13118598,
+   "sum_monthly_transaction_costs": 0.13118598,
+   "ledger_vs_monthly_cost_diff": 0.0,
+   "max_per_trade_cost_formula_error": 0.0,
+   "total_fees_paid_metrics": 0.13118598
+  },
+  "TOP20_BASE": {
+   "cost_rate": 0.005,
+   "total_buy_notional": 25.346616,
+   "total_sell_notional": 24.596331,
+   "total_abs_traded_notional": 49.942946,
+   "sum_trade_level_costs": 0.24971473,
+   "sum_monthly_transaction_costs": 0.24971473,
+   "ledger_vs_monthly_cost_diff": 2.7755575615628914e-17,
+   "max_per_trade_cost_formula_error": 0.0,
+   "total_fees_paid_metrics": 0.24971473
+  },
+  "TOP20_HIGH": {
+   "cost_rate": 0.01,
+   "total_buy_notional": 22.935183,
+   "total_sell_notional": 22.388419,
+   "total_abs_traded_notional": 45.323602,
+   "sum_trade_level_costs": 0.45323602,
+   "sum_monthly_transaction_costs": 0.45323602,
+   "ledger_vs_monthly_cost_diff": 5.551115123125783e-17,
+   "max_per_trade_cost_formula_error": 0.0,
+   "total_fees_paid_metrics": 0.45323602
+  },
+  "BENCH_GROSS": {
+   "cost_rate": 0.0,
+   "total_buy_notional": 4.510322,
+   "total_sell_notional": 3.510322,
+   "total_abs_traded_notional": 8.020645,
+   "sum_trade_level_costs": 0.0,
+   "sum_monthly_transaction_costs": 0.0,
+   "ledger_vs_monthly_cost_diff": 0.0,
+   "max_per_trade_cost_formula_error": 0.0,
+   "total_fees_paid_metrics": 0.0
+  },
+  "BENCH_LOW": {
+   "cost_rate": 0.0025,
+   "total_buy_notional": 4.461126,
+   "total_sell_notional": 3.480982,
+   "total_abs_traded_notional": 7.942108,
+   "sum_trade_level_costs": 0.01985527,
+   "sum_monthly_transaction_costs": 0.01985527,
+   "ledger_vs_monthly_cost_diff": 5.975289707471632e-13,
+   "max_per_trade_cost_formula_error": 0.0,
+   "total_fees_paid_metrics": 0.01985527
+  },
+  "BENCH_BASE": {
+   "cost_rate": 0.005,
+   "total_buy_notional": 4.412704,
+   "total_sell_notional": 3.452028,
+   "total_abs_traded_notional": 7.864732,
+   "sum_trade_level_costs": 0.03932366,
+   "sum_monthly_transaction_costs": 0.03932366,
+   "ledger_vs_monthly_cost_diff": 6.938893903907228e-18,
+   "max_per_trade_cost_formula_error": 0.0,
+   "total_fees_paid_metrics": 0.03932366
+  },
+  "BENCH_HIGH": {
+   "cost_rate": 0.01,
+   "total_buy_notional": 4.318118,
+   "total_sell_notional": 3.395251,
+   "total_abs_traded_notional": 7.713369,
+   "sum_trade_level_costs": 0.07713369,
+   "sum_monthly_transaction_costs": 0.07713369,
+   "ledger_vs_monthly_cost_diff": 1.3877787807814457e-17,
+   "max_per_trade_cost_formula_error": 0.0,
+   "total_fees_paid_metrics": 0.07713369
+  },
+  "TOP10_BASE": {
+   "cost_rate": 0.005,
+   "total_buy_notional": 30.235711,
+   "total_sell_notional": 29.534563,
+   "total_abs_traded_notional": 59.770274,
+   "sum_trade_level_costs": 0.29885137,
+   "sum_monthly_transaction_costs": 0.29885137,
+   "ledger_vs_monthly_cost_diff": 0.0,
+   "max_per_trade_cost_formula_error": 0.0,
+   "total_fees_paid_metrics": 0.29885137
+  }
+ },
+ "self_financing": {
+  "negative_cash_rows": 0,
+  "nav_identity_failures": 0,
+  "ledger_replay_vs_engine_max_abs_err": {
+   "TOP20_GROSS": 2.6645352591003757e-15,
+   "TOP20_LOW": 4.440892098500626e-15,
+   "TOP20_BASE": 3.552713678800501e-15,
+   "TOP20_HIGH": 1.7763568394002505e-15,
+   "BENCH_GROSS": 1.4432899320127035e-15,
+   "BENCH_LOW": 2.1910420144877207e-09,
+   "BENCH_BASE": 2.6645352591003757e-15,
+   "BENCH_HIGH": 1.7763568394002505e-15,
+   "TOP10_BASE": 2.6645352591003757e-15
+  },
+  "position_reconciliation_failures": 0,
+  "external_capital_injections": 0,
+  "verdict": "PASS"
+ },
+ "turnover": {
+  "by_scenario": {
+   "TOP20_GROSS": {
+    "avg_turnover_stored": 0.29282,
+    "avg_abs_traded_notional_fraction": 0.47916,
+    "avg_buy_fraction": 0.24752,
+    "avg_sell_fraction": 0.23164,
+    "avg_cost_fraction": 0.0
+   },
+   "TOP20_LOW": {
+    "avg_turnover_stored": 0.29295,
+    "avg_abs_traded_notional_fraction": 0.4782,
+    "avg_buy_fraction": 0.24644,
+    "avg_sell_fraction": 0.23176,
+    "avg_cost_fraction": 0.0012
+   },
+   "TOP20_BASE": {
+    "avg_turnover_stored": 0.29308,
+    "avg_abs_traded_notional_fraction": 0.47726,
+    "avg_buy_fraction": 0.24537,
+    "avg_sell_fraction": 0.23189,
+    "avg_cost_fraction": 0.00239
+   },
+   "TOP20_HIGH": {
+    "avg_turnover_stored": 0.29337,
+    "avg_abs_traded_notional_fraction": 0.47543,
+    "avg_buy_fraction": 0.24327,
+    "avg_sell_fraction": 0.23216,
+    "avg_cost_fraction": 0.00475
+   },
+   "BENCH_GROSS": {
+    "avg_turnover_stored": 0.10435,
+    "avg_abs_traded_notional_fraction": 0.08944,
+    "avg_buy_fraction": 0.05265,
+    "avg_sell_fraction": 0.03679,
+    "avg_cost_fraction": 0.0
+   },
+   "BENCH_LOW": {
+    "avg_turnover_stored": 0.10439,
+    "avg_abs_traded_notional_fraction": 0.0893,
+    "avg_buy_fraction": 0.05247,
+    "avg_sell_fraction": 0.03683,
+    "avg_cost_fraction": 0.00022
+   },
+   "BENCH_BASE": {
+    "avg_turnover_stored": 0.10443,
+    "avg_abs_traded_notional_fraction": 0.08915,
+    "avg_buy_fraction": 0.05229,
+    "avg_sell_fraction": 0.03687,
+    "avg_cost_fraction": 0.00045
+   },
+   "BENCH_HIGH": {
+    "avg_turnover_stored": 0.10452,
+    "avg_abs_traded_notional_fraction": 0.08887,
+    "avg_buy_fraction": 0.05193,
+    "avg_sell_fraction": 0.03695,
+    "avg_cost_fraction": 0.00089
+   },
+   "TOP10_BASE": {
+    "avg_turnover_stored": 0.31293,
+    "avg_abs_traded_notional_fraction": 0.51588,
+    "avg_buy_fraction": 0.26459,
+    "avg_sell_fraction": 0.25129,
+    "avg_cost_fraction": 0.00258
+   }
+  },
+  "frozen_formula": "0.5 x sum|target_w - pretrade_w| incl. cash",
+  "relationship_note": "turnover (frozen formula) counts ALL target-vs-pretrade weight deltas incl. non-executed carries; absolute traded notional fraction counts only executed notionals — related, not interchangeable (turnover ~ 1.6-2.9x traded-notional fraction here)",
+  "top20_base_avg": 0.29308,
+  "bench_base_avg": 0.10443,
+  "top10_base_avg": 0.31293
+ },
+ "yearly": {
+  "top20": {
+   "2021": -0.106417,
+   "2022": 0.157879,
+   "2023": 0.706188,
+   "2024": 0.190984,
+   "2025": 0.452046,
+   "2026": 0.849091
+  },
+  "bench": {
+   "2021": -0.12448,
+   "2022": 0.152433,
+   "2023": 0.783114,
+   "2024": 0.099484,
+   "2025": 0.33055,
+   "2026": 0.62443
+  },
+  "excess": {
+   "2021": 0.018063,
+   "2022": 0.005446,
+   "2023": -0.076927,
+   "2024": 0.0915,
+   "2025": 0.121496,
+   "2026": 0.224661
+  },
+  "pv4_window": "2021-2025 only (2026 descriptive)",
+  "positive_full_years": 4
+ },
+ "bootstrap": {
+  "n_monthly_observations": 62,
+  "excess_vector_sha256_float64": "5357db497cf1ba03c44f39d82e46b4576dd34e8b064fbac8e5f049d0c49c98b2",
+  "seed": 20261003,
+  "B": 2000,
+  "block_len_periods": 7,
+  "block_spec": "6-month moving blocks, circular, date-level resampling",
+  "reproduced_ci95_mean_monthly_excess": [
+   0.0006529464492549486,
+   0.00961235646617731
+  ],
+  "matches_certified_bootstrap": true,
+  "stale_corrupted_series_used": false
+ },
+ "gates": {
+  "PV1": "PASS",
+  "PV2": "PASS",
+  "PV3": "PASS",
+  "PV4": "PASS",
+  "PV5": "PASS",
+  "PV6": "PASS",
+  "PV7": "PASS",
+  "PV8": "PASS",
+  "SCORE_PORTFOLIO_V1_PRIMARY_GATE": "PASS",
+  "gate_values": {
+   "PV2_annualized_excess_pp": 7.32,
+   "PV3_bootstrap_lower_bound": 0.0006529464492549486,
+   "PV4_positive_full_years": 4,
+   "PV5_top20_mdd": -0.26853278059083563,
+   "PV5_bench_mdd": -0.29498965257912046,
+   "PV6_avg_turnover": 0.29307998001479646,
+   "PV7_median_holdings": 44.0,
+   "PV8_avg_cash_pct": -2.3326692807098398e-15
+  }
+ },
+ "corrections": [
+  {
+   "where": "SCORE_PORTFOLIO_V1_RESULTS_ACCOUNTING_REPAIRED.md (benchmark paragraph)",
+   "incorrect": "cumulative +227.5% (3.275x)",
+   "correct": "cumulative +327.55% (terminal wealth 4.2755x)",
+   "reason": "3.275 was the cumulative RETURN value (terminal/initial - 1) mislabeled as a wealth multiple in prose; the artifact's terminal_wealth_multiple is 4.275451 and 3.275^(12/62)-1 = 25.8% cannot produce the reported 32.47% CAGR, while 4.275^(12/62)-1 = 32.47% does"
+  },
+  {
+   "where": "Top20 BASE prose",
+   "incorrect": "none — verified",
+   "correct": "terminal 5.6451x = cumulative +464.51%; 5.645^(12/62)-1 = 39.79% consistent",
+   "reason": "artifact reconciliation passed (product of monthly returns == path ratio)"
+  }
+ ],
+ "artifacts": {
+  "score_panel": "D:\\RFA\\Company-Financial\\ui_score_research\\ui_score_historical_pit_v2.parquet",
+  "identity_map": "D:\\RFA\\Company-Financial\\portfolio_research\\portfolio_identity_map.parquet",
+  "certification_script_sha256": "e7df504c37c28f2e27d922d262ceb72329daa301447316a77f37b37a7093578f",
+  "repaired_results_json_sha256": "a4098dc842322d371ae0a25777ba1b46259436b5206d02848b4dbc313eb3ed6b",
+  "certification_md": "SCORE_PORTFOLIO_V1_FINAL_CERTIFICATION.md",
+  "certification_md_sha256": "19dcb4f9b628b24f6b384c5981bd5ef941004194acd5cb0fd0daa72f4826fbae"
+ }
+}

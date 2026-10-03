@@ -69,11 +69,12 @@ def dual_write_report(
         with transaction() as conn:
             w = CanonicalWriter(conn)
             company_id = resolve_company(conn.cursor(), legacy_company_id=legacy_company_id,
-                                         ins_code=ins_code, name=name)
+                                         ins_code=ins_code, name=name, symbol=symbol)
             if not company_id:
                 w.quarantine(entity_type="company", issue_code="identity_conflict", severity="high",
                              details={"domain": "codal_report", "source_report_id": source_report_id,
-                                      "legacy_company_id": legacy_company_id, "name": name})
+                                      "legacy_company_id": legacy_company_id, "name": name,
+                                      "symbol": symbol})
                 return DualWriteResult("codal_report", "quarantined", detail="company unresolved")
             security_id = resolve_security(conn.cursor(), legacy_company_id=legacy_company_id,
                                            ins_code=ins_code, symbol=symbol, name=name)
