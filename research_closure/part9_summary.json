@@ -1,0 +1,32 @@
+{
+ "snapshot_as_of": "2026-10-01",
+ "run_id": "0d2e5bc7-fde1-4af3-87fa-f292376beb79",
+ "universe_size": 271,
+ "n_prod_top20pct": 54,
+ "frozen_preview_run_id": "0d2e5bc7-fde1-4af3-87fa-f292376beb79",
+ "frozen_preview_as_of": "2026-10-01",
+ "same_run_as_frozen_preview": true,
+ "CURRENT_V1_HAS_LIQUIDITY_RISK": "HIGH",
+ "n_names_fail_any_guard": 7,
+ "names_failing_guards": [
+  "جم پیلن3",
+  "شبهرن",
+  "غاذر",
+  "غبشهر",
+  "فایرا",
+  "پیزد",
+  "کسرا"
+ ],
+ "n_names_cap_gt_1pct_1B": 1,
+ "n_names_cap_gt_5pct_1B": 1,
+ "max_cap_ratio_1B": 0.16838457391092493,
+ "names_max_capacity": "جم پیلن3",
+ "missing_tv30_in_top20pct": 0,
+ "v1sel_median_tv30_toman": 35559662077.683334,
+ "v3sel_median_tv30_toman": 35795595525.8,
+ "v1sel_median_td60": 0.95,
+ "v1sel_share_fail_L1": 0.12962962962962962,
+ "v1sel_share_fail_L2": 0.018518518518518517,
+ "v1sel_share_fail_L3": 0.018518518518518517,
+ "assumption": "TV30 = mean raw qTotCap (rial) over last 30 sessions; toman = rial/10"
+}

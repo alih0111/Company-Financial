@@ -502,14 +502,6 @@ const TickerTape: React.FC = () => {
             {isLive
               ? [...tapeGroups, ...tapeGroups].map((g, gi) => (
                   <React.Fragment key={`${g.name}-${gi}`}>
-                    <span
-                      className={`inline-flex shrink-0 items-center self-center rounded-full px-2.5 py-1 text-[10px] font-bold whitespace-nowrap ring-1 ${
-                        INDUSTRY_STYLE[g.name] ??
-                        "bg-gray-500/10 text-gray-500 ring-gray-500/20"
-                      }`}
-                    >
-                      {g.name}
-                    </span>
                     {g.items.map((t) => (
                       <span
                         key={`${t.key}-${gi}`}
@@ -527,6 +519,14 @@ const TickerTape: React.FC = () => {
                         {changeNode(t.change_pct)}
                       </span>
                     ))}
+                    <span
+                      className={`inline-flex shrink-0 items-center self-center rounded-full px-2.5 py-1 text-[10px] font-bold whitespace-nowrap ring-1 ${
+                        INDUSTRY_STYLE[g.name] ??
+                        "bg-gray-500/10 text-gray-500 ring-gray-500/20"
+                      }`}
+                    >
+                      {g.name}
+                    </span>
                   </React.Fragment>
                 ))
               : [...FALLBACK_TICKER, ...FALLBACK_TICKER].map((t, i) => (

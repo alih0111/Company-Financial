@@ -1,0 +1,62 @@
+{
+ "V1|2021-22_other": {
+  "median_pct_tv30": 0.480556189569529,
+  "median_pct_td60": 0.5548461752191667,
+  "share_bottom10pct_tv30": 0.11529130021047207,
+  "share_bottom10pct_td60": 0.07779272863646089,
+  "median_tv30_rial": 54602590625.65641,
+  "median_td60": 0.9756410256410255,
+  "median_zero_trade_days_60": 1.4615384615384632,
+  "median_capacity_ratio_1B": 0.008403141961630695
+ },
+ "V1|2023-26": {
+  "median_pct_tv30": 0.4981953261245317,
+  "median_pct_td60": 0.583045718819257,
+  "share_bottom10pct_tv30": 0.08398742651436923,
+  "share_bottom10pct_td60": 0.0968299893002105,
+  "median_tv30_rial": 52390516031.02992,
+  "median_td60": 0.9316239316239316,
+  "median_zero_trade_days_60": 4.102564102564103,
+  "median_capacity_ratio_1B": 0.006636697231195023
+ },
+ "V1|episode_2122": {
+  "median_pct_tv30": 0.4996944200111227,
+  "median_pct_td60": 0.6114307432996986,
+  "share_bottom10pct_tv30": 0.11019048547858658,
+  "share_bottom10pct_td60": 0.0649434560852157,
+  "median_tv30_rial": 46975621715.50606,
+  "median_td60": 0.9795454545454546,
+  "median_zero_trade_days_60": 1.2272727272727277,
+  "median_capacity_ratio_1B": 0.009651301807791675
+ },
+ "V3|2021-22_other": {
+  "median_pct_tv30": 0.3838181297912539,
+  "median_pct_td60": 0.5785170918200243,
+  "share_bottom10pct_tv30": 0.2326527792494894,
+  "share_bottom10pct_td60": 0.10064918065485282,
+  "median_tv30_rial": 35960675811.45385,
+  "median_td60": 0.9775641025641024,
+  "median_zero_trade_days_60": 1.3461538461538471,
+  "median_capacity_ratio_1B": 0.010222925110338541
+ },
+ "V3|2023-26": {
+  "median_pct_tv30": 0.4131540761032653,
+  "median_pct_td60": 0.6122357635732846,
+  "share_bottom10pct_tv30": 0.141810441087242,
+  "share_bottom10pct_td60": 0.09551505982305757,
+  "median_tv30_rial": 42775305803.54273,
+  "median_td60": 0.9333333333333331,
+  "median_zero_trade_days_60": 4.000000000000002,
+  "median_capacity_ratio_1B": 0.008197362878735586
+ },
+ "V3|episode_2122": {
+  "median_pct_tv30": 0.40838069627630935,
+  "median_pct_td60": 0.5737555994065926,
+  "share_bottom10pct_tv30": 0.22308904854318382,
+  "share_bottom10pct_td60": 0.11687776575255171,
+  "median_tv30_rial": 39343395320.19244,
+  "median_td60": 0.9712121212121212,
+  "median_zero_trade_days_60": 1.7272727272727286,
+  "median_capacity_ratio_1B": 0.039419652740229266
+ }
+}

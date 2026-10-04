@@ -471,3 +471,24 @@ RESULT|mode=daily(canonical-only)|upserted=259|matched=259|unmatched=1402
 {"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1599533", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
 {"domain": "CODAL", "authority": "CANONICAL", "outcome": "QUARANTINED_IDENTITY", "canonical_status": "quarantined", "legacy_mirror_status": "not_attempted", "has_raw": false, "tracing_no": "1599841", "retry_backlog": 18, "health": "IDENTITY_QUARANTINE"}
 2026-10-03 21:20:37,454 [INFO] canonical-only codal sync: {'scanned': 200, 'already': 37, 'new': 163, 'ingested': 0, 'quarantined': 163, 'errors': 0, 'pages': 10, 'completed': 0, 'failed': 0, 'unsupported': 0, 'fetched': 0, 'max_pages': 10, 'dry_run': False, 'authority': 'CANONICAL', 'mode': 'canonical_only_offline'}
+2026/10/04 12:02:10 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 258, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-10-04", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-04 12:06:11,278 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=258 skipped=0 mirror=not_attempted
+2026-10-04 12:06:11,301 [INFO] ✅ daily(canonical-only) انجام شد — upsert=258، تطبیق‌خورده=258، بدون‌تطبیق=908
+2026-10-04 12:06:11,301 [INFO] نمونه‌ای نمادهای بدون تطبیق: تابان, اهرم, لبن, موج, غزنجان, فنقره, دوایکس, صبا, تاپیکو, ومعادن, خساپا, آکو, بیدار, توان, وتجارت, شتاب, سمهریز, نارنج اهرم, خگستر, جهش, دارا یکم, فارس, وبانک, داروند, خگلپا
+RESULT|mode=daily(canonical-only)|upserted=258|matched=258|unmatched=908
+2026/10/04 12:06:34 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+2026/10/04 18:36:28 🔍 BRS collector args: [py/brs_prices.py daily]
+2026/10/04 18:39:52 🔍 BRS collector args: [py/brs_prices.py daily]
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 261, "canonical_skipped": 0, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-10-04", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-04 18:42:11,136 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=261 skipped=0 mirror=not_attempted
+2026-10-04 18:42:11,137 [INFO] ✅ daily(canonical-only) انجام شد — upsert=261، تطبیق‌خورده=261، بدون‌تطبیق=1380
+2026-10-04 18:42:11,137 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, تابان, طلا, سینرژی, کهربا, اهرم, گنج, لبن, موج, نقرابی, صبا, غزنجان, دوایکس, فنقره, بیدار, گوهر, خساپا, سیمین, تاپیکو, ومعادن, آکو, سیلور, داروند, ریتون, توان
+RESULT|mode=daily(canonical-only)|upserted=261|matched=261|unmatched=1380
+2026/10/04 18:42:17 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])
+{"domain": "MARKET_PRICE", "authority": "CANONICAL", "outcome": "CANONICAL_SUCCESS_LEGACY_SUCCESS", "canonical_status": "success", "canonical_inserted": 0, "canonical_skipped": 261, "legacy_mirror_status": "not_attempted", "reconciliation_status": "exact", "retry_backlog": 1, "latest_source_time": "2026-10-04", "health": "DEGRADED_LEGACY_MIRROR"}
+2026-10-04 18:45:12,418 [INFO] canonical-only daily outcome=CANONICAL_SUCCESS_LEGACY_SUCCESS inserted=0 skipped=261 mirror=not_attempted
+2026-10-04 18:45:12,418 [INFO] ✅ daily(canonical-only) انجام شد — upsert=261، تطبیق‌خورده=261، بدون‌تطبیق=1380
+2026-10-04 18:45:12,418 [INFO] نمونه‌ای نمادهای بدون تطبیق: عیار, تابان, طلا, سینرژی, کهربا, اهرم, گنج, لبن, موج, نقرابی, صبا, غزنجان, دوایکس, فنقره, بیدار, گوهر, خساپا, سیمین, تاپیکو, ومعادن, آکو, سیلور, داروند, ریتون, توان
+RESULT|mode=daily(canonical-only)|upserted=261|matched=261|unmatched=1380
+2026/10/04 18:45:18 👨‍👩‍👧‍👦 family prices synced: 11 updated, 6 manual ([حامیا غزنجان رهیاب لبن فنقره داروند])

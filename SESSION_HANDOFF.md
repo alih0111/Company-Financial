@@ -3295,3 +3295,325 @@ investor_view_from_1403_summary.json. Label: HISTORICAL_REPLAY_ONLY — not forw
 guarantee, not a real-money record; PRICE_PLUS_MECHANICAL_ADJUSTMENTS, not proven full TSR.
 LIVE_SHADOW_STATE_MODIFIED = NO (state sha 63493408… unchanged); decisions = [];
 SHADOW_FORWARD_CLOCK_STARTED = NO. STOP.
+
+## 82b. SCORE V2 RESEARCH PROGRAM executed — full 40-phase matrix; PROMOTION GATE FAIL, preserved (2026-10-03/04, operator-directed)
+
+Complete preregistered research program in separate `score_v2_research/`. Protocol frozen BEFORE
+any outcome-based computation: `SCORE_V2_RESEARCH_PROTOCOL.md` SHA
+`c4bc1998067925e64c8bc772d0e279106626d50698a91a0632ee6573102e2816`. Split 42/6/15
+(dev 2021-01..2024-06 / val 2024H2 / locked holdout 2025-01..2026-06, holdout evaluated exactly once).
+Baseline reproduction exact: V1 IC21/63/126/252 = 0.0574/0.0853/0.1096/0.1031, Top20 CAGR 39.79%,
+excess +7.32pp, MDD −26.85%, turnover 29.31% (all deltas 0.0000) through the certified engine.
+PIT contract PASS (leakage tests A/B 2,145 comparisons each, C, D, Ichimoku synthetic).
+New PIT-safe features built: raw TSETMC high/low/volume/qTotCap (canonical Ichimoku YES),
+trade_value_30d liquidity (coverage 98.5%), 11 chained-fundamental candidates (only
+profit_growth_accel passed the frozen inclusion rule: dev IC63 +0.1434, coverage 51%).
+Candidates V2-A..F + B-COV × M1/M2/M3; finalists frozen: primary V2-C|M2 (fundamental+technical,
+no Ichimoku), challenger V2-B|M1. Locked holdout: primary IC63 0.1524 < V1 0.1601 → G2 FAIL;
+IC126 0.1775 > 0.1668 (G3 pass). Portfolio (BASE 50bps, full history): V2-C CAGR 43.18% vs 39.79%,
+excess +10.71pp, MDD −25.57% (G5/G6/G7 pass) but turnover 39.0% > 35% → G8 FAIL; incremental
+block-6 bootstrap CI [−0.0014, +0.0043] spans 0 (not strong). Ichimoku ablations: YES by frozen
+criterion (dev+val only); technical block incremental YES; fundamental reweighting alone NO
+(walk-forward OOF 0.038/0.050 vs V1 0.058 on the same window). OVERFIT_RISK = SEVERE (6/9
+pre-declared warnings; improvement concentrated in 2023–2024, 2025–2026 incremental ≈ 0/negative).
+Current preview (SCORE_V2_RESEARCH_CURRENT_PREVIEW, as_of 2026-10-01, production run 0d2e5bc7,
+fixture run excluded): V2 demotes دقاضی/سباقر/غاذر/دلقما strongly, keeps کیمیا/شسپا top.
+SCORE_V2_PROMOTION_GATE = FAIL (G2, G8) → SCORE_V2_SHADOW_RESEARCH_CANDIDATE = NO; result
+preserved with root cause (val-period favorability + optimizer in-sample gap + turnover).
+Determinism: 3 full pipeline runs PYTHONHASHSEED 0/7/123 → byte-identical
+candidate_definitions.json / candidate_weights.csv / current_preview.csv / canonical score-panel
+TSV SHA `1f19e9fa…`. Artifacts: SCORE_V2_FINAL_RESEARCH_REPORT.md (+ .json), protocol, panels,
+diagnostics, holdout, portfolio, ablations, falsification, gates, tests/. All certified inputs and
+artifacts byte-identical after the program (shadow state 63493408…, replay monthly c00f22a9…).
+LIVE_SHADOW_STATE_MODIFIED = NO; SHADOW_FORWARD_CLOCK_STARTED = NO; PRODUCTION_SCORE_CHANGED = NO;
+REAL_MONEY_ORDERS_ENABLED = NO; BROKER_CONNECTION_ENABLED = NO; SQL_SERVER_USED = NO. STOP.
+
+### 82c — SCORE V2 DIAGNOSTIC PACKET (external-reviewer request, post-FAIL, read-only)
+User requested a diagnostic packet from the FROZEN score_v2_research artifacts: no re-optimization, no
+weight/model change, no holdout re-evaluation. Delivered `score_v2_research/SCORE_V2_DIAGNOSTIC_PACKET.md`
+(+ run_diagnostic_packet.py, diagnostic_packet.json, diagnostic_{holdout_per_date,per_feature_ics,monthly_path,ichimoku_ics}.csv).
+All recomputed quantities anchored to frozen aggregates (holdout ICs <=5e-4; certified-engine re-simulation
+turnover/fees identical to 1e-15; G12 yearly incremental MATCH; incremental monthly series <1e-12; churn anchors MATCH).
+Key new (post-hoc, labeled) evidence: per-date holdout IC deltas (V2−V1 IC63 mean −0.0077, pos 5/14; IC126 +0.0107, pos 9/13);
+per-feature val/holdout ICs (profit_growth_accel 0.143→0.104→0.038 decay; traded_days_ratio_60 holdout −0.015;
+PERank ~0 IC everywhere at 11.3% weight; rsi14 negative everywhere at 1.7%); churn attribution (SalesGrowth3MRank +
+traded_days_ratio_60 + profit_growth_accel + vol_20/ma60_slope/rsi14 carry ~89% of weighted rank churn); monthly path
+(2023 +7.79pp / 2024 +7.72pp incremental vs 2025 −0.95pp / 2026 −0.13pp). Verdicts: PROFIT_GROWTH_ACCEL_ROBUST = NO,
+NEW_LIQUIDITY_INFORMATION_ROBUST = NO, ICHIMOKU_UNIQUE_INFORMATION = INCONCLUSIVE, OPTIMIZER_OVERFIT_CONFIRMED = YES.
+NO_NEW_MODEL_WAS_TRAINED = YES; no pre-existing artifact modified; live shadow untouched.
+
+## 83. SCORE V3 MINIMAL RESEARCH PROGRAM executed — preregistered 15-vector grid, GATE FAIL (M6, M10), preserved (2026-10-03/04, operator-directed)
+
+Task: build a simpler, more robust score with low feature count, controlled turnover and
+minimal degrees of freedom — explicitly NOT a continuation of the V2 optimizer; no V2
+weights reused; 2025–2026 declared burned (historical evidence only). All artifacts under
+`score_v3_minimal_research/` (v3lib.py, run_v3_trackA/trackB/final/preview.py,
+compose_v3_report.py, outputs). Protocol `SCORE_V3_MINIMAL_PROTOCOL.md` SHA-frozen
+BEFORE any outcome evaluation: `27face51296fd8d50b307ab7545566accaf31785039027dd7b8b6dcf1ecdbf92`.
+
+Design frozen: 10-feature pool (4 V1 core + profit_growth_accel + vol_60/mdd_60/
+dist_high_120/mom_120/ma60_slope; valuation preregistered OUT on frozen PERank evidence).
+Exactly 5 candidates A–E × 3 fixed weight families (W1 equal-within-category, W2
+V1-anchored, W3 conservative) = 15 vectors, zero optimization. Cap semantics: nominal
+point scale with ΣW ≤ 100 free (literal sum-to-100 caps are arithmetically infeasible:
+45+25+12.5 = 82.5 < 100); SalesGrowthRank clipped to 5.0 everywhere (coverage 0.2548 < 40%).
+Track A = fixed-weight OOF on all 63 dates (identical date sets V1/V3 asserted); Track B =
+nested rolling-origin (eval years 2022–2026, past-only selection inputs with 92d/31d lags).
+
+Result: SELECTED = B-W1 (4 core + vol_60 + mdd_60; W1 weights {SGR 5.0, SG3M 12.5, NPGR 12.5,
+Stab 12.5, vol_60 12.5, mdd_60 12.5}). B-W1 vs V1: OOF IC63 0.1203 vs 0.0853, IC126 0.1481 vs
+0.1096, BASE CAGR 0.4369 vs 0.3979, turnover 0.2776 vs 0.2931, MDD −0.3085 vs −0.2685.
+Track B: folds pick B-W1 4/5 years; pooled OOF 2022–2026 IC63 0.1459 vs 0.0999, IC126
+0.1928 vs 0.1163; nested path CAGR 0.7135 vs 0.5960, MDD −0.1940 vs −0.2316 (BETTER).
+Incremental V3−V1 (BASE, n=62): mean +0.00167/mo, block-6 CI [−0.00882, +0.00980]
+(not significant), inc turnover −1.65pp, fees lower at every cost level.
+
+GATES: M1–M5, M7–M9 PASS; **M6 FAIL** (MDD −0.3085 < tolerance −0.2985; the drawdown episode
+is 2021-specific — nested 2022–26 MDD is better than V1) and **M10 FAIL** (excluding best
+year 2024 +21.1pp, remaining cumulative incremental −6.15%; 2021 −13.3pp / 2022 −5.5pp).
+→ **SCORE_V3_MINIMAL_RESEARCH_GATE = FAIL** (no rescue attempted, no threshold changed).
+OVERFIT_RISK = MODERATE (similarity set {B-W1,B-W2}; Track B disagrees 1/5 folds — fold
+2022 picked E-W1 with eligibility skipped after no combo was turnover-eligible in the
+short past window, declared as deviation). PROFIT_ACCEL_INCREMENTAL_VALUE = YES
+(D>C on IC63+CAGR within +1.5pp turnover, family-robust across W1/W2/W3);
+ICHIMOKU_COMPACT_OVERLAY_VALUE = YES per frozen rule (marginal: ΔIC63 +0.0018, ΔIC126
++0.0035, ΔCAGR +1.67pp, Δturnover +0.88pp; overlay NOT part of the formula).
+SCORE_V3_FUTURE_SHADOW_CANDIDATE = NO. Equal-weight probe ≈ B-W1 (IC63 0.1202 vs 0.1203 —
+weighting-insensitive); leave-one-out shows vol_60/mdd_60 carry the added IC (removal
+drops IC63 to 0.1055/0.1008); 100bps: V3 0.3994 vs V1 0.3580.
+Preview `SCORE_V3_MINIMAL_CURRENT_PREVIEW` on production run 0d2e5bc7 (as_of 2026-10-01,
+SELECT-only): Top-30 overlap V1↔V3 9/30, mean |rank change| 0.159; NOT published.
+Deviations logged: protocol ΣW column mis-sums (per-feature weights authoritative,
+protocol not edited); fold-2022 eligibility skip. Determinism: full pipeline re-run
+reproduced all 10 outputs byte-identically (`_determinism_before.sha`). V1 frozen anchors
+reproduced exactly. PRODUCTION_CHANGED = NO; LIVE_SHADOW_V1_1_CHANGED = NO.
+
+## 84. SCORE V3 MINIMAL — CERTIFICATION CORRECTION + FAILURE ANATOMY AUDIT (2026-10-04)
+
+Read-only audit of the frozen V3 program (task: certification correction + failure anatomy
+BEFORE any future model design). No new model, no weight/feature change, no candidate
+created; B-W1 unchanged; production/live Shadow untouched; Postgres SELECT-only.
+Artifacts: `score_v3_minimal_research/audit/` (scripts `audit_partD.py`, `audit_efgh.py`,
+`audit_abc_patch.py`; outputs `partA_caps.json`, `partB_fold_audit.csv`,
+`partB_trackB_audit.json`, `partC_ichimoku.json`, `partD_universe.json`, `partE_*`,
+`partEGH_summary.json`, `partF_loo_blocks.csv`, `partG_*`, `partH_*`; report
+`SCORE_V3_MINIMAL_CERTIFICATION_AUDIT.md`). Method: exact position-tracking replication of
+repair_accounting_v1.simulate (asserted == engine NAV path <1e-9 and == frozen
+trackA_monthly.csv <1e-10) giving exact per-security w×r decompositions (monthly identity
+sum_i w_i r_i = NAV_pre/NAV_post−1 asserted at 1e-10).
+
+Verdicts:
+- PART A caps: NOMINAL_CAP_CONTRACT_PASS = YES (frozen §5 nominal-scale enforcement).
+  NORMALIZED_EFFECTIVE_CAP_CONTRACT_PASS = NO — effective shares w/67.5: 5 features at
+  18.52% > 12.5% (SG3M/NPGR/Stab/vol_60/mdd_60), tech block 37.04% > 25%, low-coverage
+  SGR 7.41% > 5%; Growth 44.44% OK. Weights NOT repaired (audit only).
+- PART B Track B: TRACK_B_STRICT_PREREG_COMPLIANT = NO — fold 2022 only (eligible set
+  EMPTY: 2021 ex-init churn >33% for ALL 15 combos incl. V1; executed code used a
+  POST-PROTOCOL fallback = §17 steps 3–5 only → pick E-W1). Folds 2023–2026 fully
+  compliant (all pick B-W1). STRICT_VALID_FOLDS_ONLY (2023–26): V3 IC63 0.1878 vs V1
+  0.1240, IC126 0.2459 vs 0.1488, CAGR 0.8166 vs 0.6269, MDD −0.1940 vs −0.2316, inc
+  boot CI [+0.39%, +1.43%] > 0. ALL_FOLDS_AS_EXECUTED = frozen pooled record (NOT fully
+  OOF-certified due to the 2022 fallback). Caveat: strict window = the era that works;
+  B-W1 2021–22 IC63 0.0134 < V1 0.0242, cum −5.3% vs +16.3%.
+- PART C Ichimoku: corrected to INCONCLUSIVE (was mechanical YES). ΔIC63 +0.0018,
+  ΔIC126 +0.0035 inside noise; ΔCAGR +1.67pp with turnover +0.88pp WORSE; overlay
+  bootstrap NOT AVAILABLE. "Clearly improves" not met.
+- PART D preview parity: PASS. Production run 0d2e5bc7 = 271 companies; preview scored
+  all 271 (CSV rows 271, exact set match both ways). The "269" = technicals-coverage
+  count: فاسمین (sec 08ba4f4a…, co 7905533f…) and کروی (sec 84f63b9a…, co 31a4e996…) have
+  27 sessions < MIN_SESSIONS=200 → insufficient trading history; both got the SAME
+  neutral-0.5 semantics as history (contrib 625.0 each); ranks 227/235 of 271 — no Top-30
+  impact. No corrected artifact needed.
+- PART E drawdown anatomy (BASE50, exact): V3 peak 2021-03-31 (NAV 1.00095) → trough
+  2022-02-28 (NAV 0.69219), MDD −30.85%, recovery 2023-02-28 (23 rebalances underwater);
+  V1 peak 2021-08-31 (NAV 1.10001) → same trough (0.80462), −26.85%, recovery 2022-12-31.
+  Kill months: after the 2021-04-28 rebalance (V3 −12.9% vs V1 −7.3%) and especially the
+  2021-05-31 and 2021-06-30 rows (V3 −8.3%/+2.0% vs V1 +5.8%/+12.0% = −14.1pp/−10.0pp in a
+  +6.9%/+6.7% universe). Top drawdown contributors: سدور −3.79pp, سبجنو −2.77, کپشیر
+  −2.67, دارو −2.61, پرداخت −2.47, سنیر −2.12, دتوزیع −2.01, غویتا −1.92 (15/20 also held
+  by V1 at some point — V3 held them earlier/longer/heavier).
+- PART F LOO-block (descriptive): the LOW-RISK block is the driver. minus vol_60: 21–22
+  cum −5.3%→+5.6%, window MDD −30.8%→−26.5%; minus mdd_60 →+6.1%; minus BOTH (=A-W1,
+  asserted) → 2021 −2.5%, cum +27.6%, MDD −25.9%, 21–22 IC63 0.0321 (best). But the block
+  also supplies the 2023–26 edge: full IC63 0.1878 vs 0.1156 without it (≈V1 0.1240).
+  Growth-block removals barely help 2021–22. Regime-dependent payoff, not a bug.
+- PART G regime: episode bench cum −24.3%, universe cum −23.0%, mean breadth 39%, x-sec
+  vol 11.1%; V3 BEAT V1 in the 5 broad DOWN months and lost everything in the 2 broad UP
+  months (Jun–Jul 2021). V3 holdings vs V1: lower vol_60 (−0.49pp), shallower mdd_60
+  (+17.9pp), higher mom_120 (+12.8pp), but median trade_value_30d −7.8bn rial (10x smaller
+  in May 2021). YES — V3 unintentionally selected a different (less liquid, smaller)
+  risk profile despite the vol screens; trailing 60d calmness did not protect forward.
+  No PIT market-cap series (only current-share snapshots) and no sector columns exist →
+  cap proxy = trade value; sector NOT inferred.
+- PART H concentration: full cumulative incremental ratio +15.25%; excl best month
+  (2023-01-31 +6.02pp) +9.18%; excl top-5 months −8.69%; excl 2024 −1.18% (month-level;
+  M10 year-level −6.15%); 37/62 months positive; top-20 securities = 51.5% of positive
+  mass. Top positive: دفرا +6.83pp, شسپا +4.17, آریا +3.58, گشان +3.34, شرانل +3.33.
+  Top negative: غاذر −5.65pp, تپمپی −4.51, شمواد −4.49, غپینو −4.42, دارو −4.37.
+  PERFORMANCE_CONCENTRATION = HIGH (one regime 2023–24 + a handful of months; not
+  few-stock; not SEVERE since excl-best-month stays +9.2%).
+- PART I: V3_ORIGINAL_GATE = FAIL; B_W1_RESEARCH_VALUE = MEDIUM;
+  V3_MDD_FAILURE_PRIMARY_DRIVER = LOW-RISK block × 2021–22 regime (liquidity rotation);
+  V3_M10_CONCENTRATION_PRIMARY_DRIVER = single-regime dependence on 2023–24 (2024);
+  V3_RESULT_STILL_USABLE_FOR_RESEARCH = YES (evidence only);
+  V3_FUTURE_SHADOW_CANDIDATE = NO; NO_NEW_MODEL_CREATED = YES; NO_WEIGHTS_CHANGED = YES;
+  PRODUCTION_CHANGED = NO; LIVE_SHADOW_CHANGED = NO; SQL_SERVER_USED = NO.
+
+## 85. Score research closure + liquidity-guard diagnostic (2026-10-03)
+
+Task: formally close the score-model search; determine whether the V3 2021–22 failure is
+better framed as scoring vs implementation/liquidity; prepare (draft only) a prospective
+guard plan. No V4, no V3.1, no weight/threshold changes, no production/live-shadow change.
+
+**New artifacts (all in `research_closure/`, additive only):**
+- `SCORE_RESEARCH_CLOSURE.md` — V1/V2/V3 terminal verdicts + accepted failure findings +
+  search formally closed. SHA-256 `44a867437e2894b1cfd1bde335ce9d7e040c6d4b436519a02a91deb2bc63f418`.
+- `LIQUIDITY_GUARD_DEFS_FROZEN.md` — L0–L4 definitions, substitution semantics,
+  verification gates, and all decision mappings, frozen BEFORE any return was computed.
+  SHA-256 `5a3b454de6fa793fe61fdc9ed595fd7c8b704dcee89106f4e3f1cbe171e43bc4`.
+- `guard_backtest.py` + outputs (guard_variants/substitutions/substitution_events,
+  part2_liquidity_evidence + summary, part6_episode_guard + summary, part7_era_deltas,
+  guard_backtest_summary.json with diagnostics), `capacity_current_v1.py` +
+  part8_capacity_grid.csv + part9_current_v1_liquidity.csv + part9_summary.json.
+- `LIQUIDITY_GUARD_RESULTS.md` — full report. `PROSPECTIVE_LIQUIDITY_GUARD_SHADOW_PLAN.md`
+  — DRAFT, NOT approved, NOT activated.
+
+**Verification:** L0 runs asserted identical to `RA.simulate` and to the frozen
+`trackA_monthly.csv` BASE rows (V1 cagr/mdd/turnover 0.3979/−0.2685/0.2931; V3 MDD
+−0.3085; yearly == M7/M10 table); gross decomposition identity 1e-10 on every rebalance of
+every run; tracker substitution counts == independent fail-set intersections (L1 225/243,
+L4 recomputed from the guarded value_pre path); window/yearly product identity 0.00pp for
+all 10 variants. Two implementation bugs were found and fixed before any result was
+reported (guard mask applied in panel order to the score-sorted frame; event deltas using
+rank as panel index) — documented in the report's bug log.
+
+**Key findings:**
+- Part 2 (frozen rule 6a): the V3 2021–22 failure was **PRIMARILY LIQUIDITY-SCREENING** —
+  the score ranked semi-suspended names (failing-name median TD60 = 0.783, median own-rank
+  17) into the Top-20%; a pure TD60 bottom-decile floor (L1) recovers +13.56pp of the
+  21.56pp V3 2021–22 shortfall (62.9%) at +1.82pp turnover. V3's episode holdings had 2×
+  V1's bottom-decile-TV30 share and 4× the 1B-toman capacity ratio.
+- Part 5/7: V3-L1 full CAGR 46.36% (vs 43.69% L0), MDD −22.81% (vs −30.85%); but every
+  guard costs 2023–26 cum (L1: −23.6pp V1 / −26.2pp V3; L3 −12.0pp V3; L4 −101pp V3).
+  On V1 the trade is unfavorable in absolute terms (+5.4pp 21–22 vs −23.6pp 23–26).
+- Part 9: current V1 Top20% (run 0d2e5bc7, as_of 2026-10-01, same run as the frozen
+  preview) → **CURRENT_V1_HAS_LIQUIDITY_RISK = HIGH** (frozen 6b): 7/54 names fail
+  L1/L2/L3 (جم پیلن3، شبهرن، غاذر، غبشهر، فایرا، پیزد، کسرا); جم پیلن3 at 16.8% of its
+  30d ADV for a 1B-toman portfolio (TD60 0.433).
+- Part 10 (frozen 6c): **all four guards UNACCEPTABLE** (2023–26 cum drop > 10pp on at
+  least one model) → BEST_LIQUIDITY_GUARD = NONE. Nothing historically validated.
+- Part 11: **NEXT_RESEARCH_DIRECTION = B** (keep V1 + prospective liquidity-guard
+  research). Deviation disclosed: frozen §6d maps mechanically to D (guards UNACCEPTABLE +
+  risk HIGH); overridden to B with full audit note (6a=YES identifies the mechanism; L1 is
+  a concrete preregistrable candidate; B adopts nothing and defers to prospective data).
+  No thresholds or definitions altered — only the direction token deviates, with the note
+  as audit trail.
+- Part 12: `PROSPECTIVE_LIQUIDITY_GUARD_SHADOW_PLAN.md` drafted (L1 on V1, parallel
+  research computation vs untouched Shadow V1.1, start ≥ first run after 2026-11-01 and
+  explicit operator approval, 12-month horizon, pre-registered stop criteria, no orders).
+
+**Final tokens:** SCORE_RESEARCH_CLOSED_FOR_NOW=YES; V1_REMAINS_PRIMARY=YES;
+V2_REMAINS_REJECTED=YES; V3_REMAINS_REJECTED=YES;
+V3_FAILURE_PRIMARILY_LIQUIDITY_REGIME=YES; BEST_LIQUIDITY_GUARD=NONE;
+CURRENT_V1_HAS_LIQUIDITY_RISK=HIGH; NEXT_RESEARCH_DIRECTION=B;
+PROSPECTIVE_GUARD_SHADOW_WORTH_DRAFTING=YES (draft only);
+NEW_SCORE_MODEL_CREATED=NO; PRODUCTION_CHANGED=NO; LIVE_SHADOW_CHANGED=NO;
+BROKER_CONNECTED=NO; REAL_MONEY_ORDERS=NO; SQL_SERVER_USED=NO.
+
+Standing Message A wait-state unchanged; production Signal Engine still not started;
+SQL Server still disabled.
+
+## 86. LIQUIDITY-GUARD RESULTS — AUDIT CORRECTION applied (2026-10-04, operator-directed)
+
+Operator ruled the §85 liquidity results PARTIALLY ACCEPTED and ordered 5 corrections.
+All L0–L3 results, all bug-fix documentation, and all frozen files are UNCHANGED; only
+decision bookkeeping and audit documentation were edited. No rerun, no V4/V3.1, no
+threshold search, no production/live-shadow change, Postgres SELECT-only, MSSQL untouched.
+
+- **C1 — direction restored:** official preregistered result = frozen §6d mechanical
+  **NEXT_RESEARCH_DIRECTION = D (INSUFFICIENT_EVIDENCE)**. The §85 "B" override retracted;
+  B demoted to POST_HOC_RESEARCH_RECOMMENDATION = B with
+  POST_HOC_RECOMMENDATION_IS_PREREG_RESULT = NO.
+- **C2 — L4 provenance audited:** the original task PART 3 (frozen transcript
+  `~/.zcode/cli/rollout/model-io-sess_9da553ba-….jsonl`, record completed 2026-10-04T16:10:58Z
+  = 19:40:58 +0330) names verbatim "Optional L4 only if justified: portfolio-capacity rule
+  based on target notional / recent average traded value", and
+  `LIQUIDITY_GUARD_DEFS_FROZEN.md` §2 froze the exact L4 definition (C=1B toman grid
+  midpoint, 5% participation) at 19:46:28 +0330 — BEFORE the first guarded-return output
+  (`guard_variants.csv` birth 19:57:32). So: **L4_STATUS =
+  PREREGISTERED_OPTIONAL_FROZEN_BEFORE_RETURNS** (the operator's
+  EXPLORATORY_OUT_OF_ORIGINAL_SCOPE conditional does not trigger — the directive exists and
+  is quoted in the report). Per the operator ruling, L4 is nonetheless
+  **L4_OFFICIAL_SCOPE = EXCLUDED_PER_OPERATOR_RULING_2026_10_04**: official comparison /
+  BEST_LIQUIDITY_GUARD / §6d use L0–L3 only; all L4 results preserved as exploratory
+  diagnostics. Outcome-neutral: L1–L3 all UNACCEPTABLE (§6c) with or without L4 →
+  BEST_LIQUIDITY_GUARD = NONE; §6d → D; §6a never used L4.
+- **C3 — qualification:** V3_FAILURE_PRIMARILY_LIQUIDITY_REGIME = YES retained with
+  POST_HOC_DESCRIPTIVE_MECHANISM = YES and FRESH_CAUSAL_VALIDATION = NO;
+  V3_FAILURE_DIAGNOSIS_STATUS = POST_HOC_DESCRIPTIVE.
+- **C4 — plan stays a DRAFT (NOT APPROVED, NOT ACTIVATED);** plan now labels L1's candidate
+  selection explicitly POST-HOC; Shadow V1.1 and production V1 untouched.
+- **C5 — artifact audit table added** to the results report (paths, SHAs, ordering vs first
+  guarded return 19:57:32, modified-after flags, nature of modifications) + explicit
+  confirmation that the mask-alignment and rank/index fixes were implementation-only
+  (defs SHA identical before/after every code edit; frozen cross-asserts caught the mask
+  bug; final code passes every frozen gate).
+
+Artifact SHAs: `SCORE_RESEARCH_CLOSURE.md` 44a86743…f418 (unchanged);
+`LIQUIDITY_GUARD_DEFS_FROZEN.md` 5a3b454d…3bc4 (unchanged — proof no definition moved);
+`guard_backtest.py` 973f34bc…2085; `capacity_current_v1.py` f9eb6b39…edf3;
+`LIQUIDITY_GUARD_RESULTS.md` rev1 b156b0f0…f313 → **rev2
+841edc6db36e146495bab05c3a204c7874d7cbf548a0e3df6604d7fb1d517df7**;
+`PROSPECTIVE_LIQUIDITY_GUARD_SHADOW_PLAN.md` v1 3cc26ce1…9ddf →
+**056a1044ded91b41b5de6d43e6906660452943bfdaa3a1c444b95f749d64039c**.
+
+**Corrected final tokens (operator-required block):** SCORE_RESEARCH_CLOSED_FOR_NOW=YES;
+V1_REMAINS_PRIMARY=YES; V2_REMAINS_REJECTED=YES; V3_REMAINS_REJECTED=YES;
+V3_FAILURE_PRIMARILY_LIQUIDITY_REGIME=YES; V3_FAILURE_DIAGNOSIS_STATUS=POST_HOC_DESCRIPTIVE;
+BEST_LIQUIDITY_GUARD=NONE; CURRENT_V1_HAS_LIQUIDITY_RISK=HIGH;
+NEXT_RESEARCH_DIRECTION=D; NEXT_RESEARCH_DIRECTION_LABEL=INSUFFICIENT_EVIDENCE;
+POST_HOC_RESEARCH_RECOMMENDATION=B; POST_HOC_RECOMMENDATION_IS_PREREG_RESULT=NO;
+PROSPECTIVE_GUARD_SHADOW_WORTH_DRAFTING=YES (operator-set; mechanical §6e under D would be
+NO; draft dormant); PROSPECTIVE_GUARD_SHADOW_ACTIVATED=NO; NEW_SCORE_MODEL_CREATED=NO;
+PRODUCTION_CHANGED=NO; LIVE_SHADOW_CHANGED=NO; BROKER_CONNECTED=NO; REAL_MONEY_ORDERS=NO;
+SQL_SERVER_USED=NO.
+
+Standing Message A wait-state unchanged; production Signal Engine not started; SQL Server
+disabled.
+
+## 87. Final bookkeeping / semantic audit correction (2026-10-04, Revision 3)
+
+Operator ruling on §86: PARTIALLY ACCEPTED; two corrections, bookkeeping only — no backtest
+rerun, no number/threshold/score/ranking/portfolio-rule/definition change.
+
+**Correction 1 — L4 official scope.** The interim token
+`L4_OFFICIAL_SCOPE = EXCLUDED_PER_OPERATOR_RULING_2026_10_04` mischaracterized the ruling
+and is RETRACTED. Official scope read strictly from the frozen protocol:
+`L4_OFFICIAL_SCOPE = INCLUDED_PER_FROZEN_PROTOCOL` (with
+`L4_STATUS = PREREGISTERED_OPTIONAL_FROZEN_BEFORE_RETURNS`). Frozen evidence: defs §2 lists
+L4 among the "Guards (maximum 4, definitions frozen)" as "(optional, included with
+justification)" and itself supplies the a-priori justification (5% participation heuristic,
+C = 1B toman grid midpoint) before any return; §6c applies "per guard" excluding none; §6d
+BEST_LIQUIDITY_GUARD has no L4 carve-out. Include-vs-exclude invariance verified from the
+frozen mapping only (no rerun): L4 also trips UNACCEPTABLE (−53.03pp V1 / −101.09pp V3
+23–26 cum) → BEST_LIQUIDITY_GUARD = NONE either way; §6d → D either way; 6a never used L4.
+No change to either official token.
+
+**Correction 2 — prospective-plan token.** Official token corrected to
+`PROSPECTIVE_GUARD_SHADOW_WORTH_DRAFTING = NO` (mechanical frozen §6e under D; the interim
+operator-set YES retracted). Draft existence recorded separately:
+`PROSPECTIVE_GUARD_SHADOW_PLAN_DRAFT_EXISTS = YES`;
+`PROSPECTIVE_GUARD_SHADOW_PLAN_STATUS = DORMANT_POST_HOC_DRAFT`;
+`PROSPECTIVE_GUARD_SHADOW_ACTIVATED = NO`. Draft retained unchanged, NOT APPROVED, NOT
+ACTIVATED. Shadow V1.1 and production V1 untouched.
+
+**Artifacts:** `LIQUIDITY_GUARD_RESULTS.md` rev2 `841edc6d…17df7` → rev3
+`969a97c2895c90b45a6615088a81cf0d59dff347a0aa23c9bd5b8576a9287536` (rev3 header, L4 STATUS
+section, Part 5 scope note, Part 10 official-comparison paragraph, Part 11 §6e note, FINAL
+STATUS replaced); `PROSPECTIVE_LIQUIDITY_GUARD_SHADOW_PLAN.md`
+`056a1044…039c` → `e24103657bfb84fc67170ef63d71ae52e4f91493910c6618232837a13317ef36` (one
+official-status paragraph added). Unchanged, re-verified: defs `5a3b454d…3bc4`, closure
+`44a86743…f418`, `guard_backtest.py` `973f34bc…2085`.
+
+Standing Message A wait-state unchanged; production Signal Engine not started; SQL Server
+disabled.

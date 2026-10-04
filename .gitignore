@@ -30,3 +30,7 @@ canonical_postgres_v1_2_1
 integration_shadow_v1/output/price_history_canary_summary.json
 go-app/go-app-live.log
 integration_shadow_v1/output/price_history_canary_summary.json
+client/src/components/Landing.tsx
+score_v2_research/
+.gitignore
+score_v3_minimal_research/
