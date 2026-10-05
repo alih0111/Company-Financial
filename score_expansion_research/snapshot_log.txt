@@ -1,0 +1,17 @@
+snapshot run 0d2e5bc7-fde1-4af3-87fa-f292376beb79 as_of 2026-10-01 | universe rows 271
+{
+ "run_id": "0d2e5bc7-fde1-4af3-87fa-f292376beb79",
+ "run_as_of": "2026-10-01",
+ "universe_rows": 271,
+ "snapshot_symbols": 271,
+ "market_session": "2026-10-05",
+ "candidate_defined": {
+  "FUNDAMENTAL_MOMENTUM_SCORE": 165,
+  "EARNINGS_QUALITY_RESILIENCE_SCORE": 99,
+  "LIQUIDITY_CAPACITY_SCORE": 269,
+  "TECHNICAL_CONFIRMATION_SCORE": 269
+ },
+ "cap_1B_median": 0.0005059394130183749,
+ "cap_1B_frac_gt_5pct": 0.018518518518518517,
+ "writes_to_production": "NONE"
+}

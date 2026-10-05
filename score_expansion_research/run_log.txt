@@ -1,0 +1,17 @@
+SHAs verified | PIT contract: PASS
+computing tval_cv60 from raw files (certified MarketData path)...
+tval_cv60 defined on 12419 rows (184 rows below the 200-session gate)
+scores built: {'FUNDAMENTAL_MOMENTUM_SCORE': 4218, 'EARNINGS_QUALITY_RESILIENCE_SCORE': 496, 'LIQUIDITY_CAPACITY_SCORE': 12420, 'TECHNICAL_CONFIRMATION_SCORE': 12420}
+portfolios done: FUNDAMENTAL_MOMENTUM_SCORE
+portfolios done: EARNINGS_QUALITY_RESILIENCE_SCORE
+portfolios done: LIQUIDITY_CAPACITY_SCORE
+portfolios done: TECHNICAL_CONFIRMATION_SCORE
+
+=== SCORE CARD ===
+                       SCORE_NAME PIT_SAFE COVERAGE STANDALONE_INFORMATION INCREMENTAL_INFORMATION_VS_V1 REDUNDANCY_WITH_V1 REGIME_STABILITY TURNOVER_IMPACT IMPLEMENTABILITY_VALUE RESEARCH_VALUE STATUS  defined_share_of_panel
+       FUNDAMENTAL_MOMENTUM_SCORE      YES      LOW                 MEDIUM                  INCONCLUSIVE               HIGH REGIME_DEPENDENT       see part7                    n/a            LOW      C                0.334656
+EARNINGS_QUALITY_RESILIENCE_SCORE      YES      LOW                 MEDIUM                  INCONCLUSIVE                LOW REGIME_DEPENDENT       see part7                    n/a            LOW      D                0.039353
+         LIQUIDITY_CAPACITY_SCORE      YES ADEQUATE                 MEDIUM                          WEAK                LOW REGIME_DEPENDENT       see part7                   HIGH         MEDIUM      B                0.985401
+     TECHNICAL_CONFIRMATION_SCORE      YES ADEQUATE                   HIGH                           YES                LOW REGIME_DEPENDENT       see part7                    n/a           HIGH      A                0.985401
+
+DONE — artifacts in score_expansion_research/

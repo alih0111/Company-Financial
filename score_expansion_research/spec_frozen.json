@@ -1,0 +1,106 @@
+{
+  "study": "SCORE_EXPANSION_RESEARCH_V1",
+  "label": "HISTORICAL_EVIDENCE_SYNTHESIS",
+  "research_only": true,
+  "promotion": {"PRODUCTION_CHANGED": false, "SHADOW_CHANGED": false, "NEW_PRODUCTION_SCORE": false,
+                "WEIGHTS_OPTIMIZED": false, "THRESHOLDS_OPTIMIZED": false, "BROKER": false,
+                "REAL_MONEY": false, "SQL_SERVER": false},
+  "panel": {
+    "derived": "score_v2_research/pit_feature_panel.parquet",
+    "base": "ui_score_research/ui_score_historical_pit_v2.parquet",
+    "rows": 12604, "dates": 63, "first": "2021-01-31", "last": "2026-06-30",
+    "split": {"development": "<=2024-06-30 (42)", "validation": "2024-07-01..2024-12-31 (6)",
+              "locked_holdout": ">=2025-01-01 (15)"},
+    "returns": ["ret_21", "ret_63", "ret_126", "ret_252"],
+    "v1": {"score": "ui_score", "components": ["growth_score", "profitability_score",
+                                               "valuation_score", "market_score",
+                                               "data_quality_score"]}
+  },
+  "common_rules": {
+    "feature_transform": "cross-sectional midrank percentile among present values per date (v2lib.midrank_pct)",
+    "aggregation": "S = 100 * mean(available feature percentiles); missing feature excluded (renormalize); no neutral fill",
+    "gating": "S=null when n_available < min_feats",
+    "ic": {"min_pairs": 5, "spearman": "model_v2.spearman (frozen)", "horizons": [21, 63, 126, 252]},
+    "bootstrap": {"seed": 20261003, "n_boot": 2000, "ic_block_dates": 3, "portfolio_block_months": 6},
+    "qspread": {"h": [63, 126], "min_rows": 10},
+    "eras": {"E1": "2021-01..2022-12", "E2": "2023-01..2024-12", "E3": "2025-01..2026-06"}
+  },
+  "scores": {
+    "FUNDAMENTAL_MOMENTUM_SCORE": {
+      "min_feats": 5,
+      "features": [
+        {"id": "sg12", "col": "sales_growth_12m", "dir": 1, "cap": [-150, 150]},
+        {"id": "sg3", "col": "sales_growth_3m", "dir": 1, "cap": [-150, 150]},
+        {"id": "rev", "col": "revenue_growth", "dir": 1, "cap": [-200, 200]},
+        {"id": "opg", "col": "operating_profit_growth", "dir": 1, "cap": [-250, 250]},
+        {"id": "npg", "col": "net_profit_growth|eps_growth", "dir": 1, "cap": [-300, 300]},
+        {"id": "mt", "col": "margin_trend", "dir": 1, "cap": [-25, 25]},
+        {"id": "sg_accel", "col": "f_sales_growth_accel", "dir": 1, "cap": [-150, 150]},
+        {"id": "pg_accel", "col": "f_profit_growth_accel", "dir": 1, "cap": [-300, 300]},
+        {"id": "pg_cons", "col": "f_profit_growth_consistency", "dir": 1, "cap": [-100, 100]}
+      ]
+    },
+    "EARNINGS_QUALITY_RESILIENCE_SCORE": {
+      "min_feats": 5,
+      "features": [
+        {"id": "cash_conv", "col": "cash_conversion", "dir": 1, "cap": [-2, 5]},
+        {"id": "earnq", "col": "earnings_quality", "dir": -1, "cap": [0, 150], "cap_rule": "min(abs,150)"},
+        {"id": "icov", "col": "interest_coverage", "dir": 1, "cap": [0, 20],
+         "pre": "x<=0 -> -999999 sentinel"},
+        {"id": "stab", "col": "sales_stability", "dir": 1},
+        {"id": "lev", "col": "debt_ratio", "dir": -1, "cap": [0, 50]},
+        {"id": "cr", "col": "current_ratio", "dir": 1, "cap": [0, 15]},
+        {"id": "nm_stab", "col": "f_earnings_margin_stability", "dir": 1, "cap": [-40, 40]},
+        {"id": "om_delta", "col": "f_operating_margin_delta", "dir": 1, "cap": [-25, 25]}
+      ]
+    },
+    "LIQUIDITY_CAPACITY_SCORE": {
+      "min_feats": 2,
+      "features": [
+        {"id": "td60", "col": "rnk-source t_traded_days_ratio_60 (certified rank col rnk_traded_days_ratio_60)", "dir": 1},
+        {"id": "tv30", "col": "rnk-source t_trade_value_30d (certified rank col rnk_trade_value_30d)", "dir": 1},
+        {"id": "tval_cv60", "col": "NEW tval_cv60 = std(qTotCap,60,ddof=1)/mean(qTotCap,60), raw rial, sessions<=T, defined only where certified td60 defined", "dir": -1}
+      ]
+    },
+    "TECHNICAL_CONFIRMATION_SCORE": {
+      "min_feats": 6,
+      "features": [
+        {"id": "mom20", "col": "rnk_mom_20 (certified t_mom_20)", "dir": 1, "cap": [-100, 100]},
+        {"id": "mom60", "col": "rnk_mom_60 (certified t_mom_60)", "dir": 1, "cap": [-100, 100]},
+        {"id": "mom120", "col": "rnk_mom_120 (certified t_mom_120)", "dir": 1, "cap": [-100, 100]},
+        {"id": "ma60_slope", "col": "rnk_ma60_slope (certified t_ma60_slope)", "dir": 1, "cap": [-50, 50]},
+        {"id": "pvs_ma60", "col": "rnk_price_vs_ma60 (certified t_price_vs_ma60)", "dir": 1, "cap": [-80, 80]},
+        {"id": "dist_high60", "col": "rnk_dist_high_60 (certified t_dist_high_60)", "dir": 1, "cap": [-1, 0]},
+        {"id": "vam60", "col": "NEW vam60 = (c(T)/c(T-59)-1)/std(session returns,60,ddof=1), certified chain, sessions<=T", "dir": 1, "cap": [-30, 30]},
+        {"id": "vol60", "col": "rnk_vol_60 (certified t_vol_60)", "dir": -1}
+      ]
+    }
+  },
+  "incremental": {
+    "partial_rank_ic": "per-date OLS candidate_pct ~ V1_pct; Spearman(residual, ret_h)",
+    "within_bucket": "V1 quintiles per date; Spearman(candidate, ret_63) per bucket (min 4 pairs)",
+    "top20_conditional": "within V1 Top-20%: high-vs-low at candidate median, mean ret_63/126 diff; plus within IC",
+    "classification": {"YES": "CI_lower>0 for INC-IC63 or INC-IC126 AND median within-quintile IC>0 in >=4/5 quintiles",
+                       "WEAK": "median INC-IC>0 at 63 and 126, no CI excludes 0",
+                       "NO": "median INC-IC<=0 at 63 and 126",
+                       "INCONCLUSIVE": "defined on <50% of V1 defined rows"}
+  },
+  "redundancy": {"thresholds": {"HIGH": 0.7, "MEDIUM": 0.4},
+                 "overlap": "|A∩B|/k on common rows, k=round(frac*len(common))"},
+  "overlays": {"engine": "repair_accounting_v1.simulate", "bench": "V1 Top-20% frac 0.20",
+               "splits": ["upper_vs_lower_half", "tertiles"],
+               "costs": {"GROSS": 0.0, "LOW": 0.0025, "BASE": 0.005, "HIGH": 0.01},
+               "headline_cost": "BASE"},
+  "capacity": {"sizes_toman": {"100M": 1e8, "500M": 5e8, "1B": 1e9, "5B": 5e9, "10B": 1e10},
+               "cap_ratio": "(size/n_names)/TV30_toman; toman = rial/10",
+               "guards": {"L1": "pct_td60<0.10", "L2": "pct_tv30<0.10", "L3": "both<0.15"}},
+  "technical_verdict": {"NO": "REDUNDANCY in {HIGH, MEDIUM} AND INCREMENTAL != YES"},
+  "regime": {"classification": "BROADLY_STABLE iff all era median ICs same sign and max/min |era|<=3; else REGIME_DEPENDENT",
+             "concentration": ["mean IC excluding top-3 |IC| dates", "top-3 share of positive IC sum", "top-10 dates share of positive Q5Q1(63) spread sum"]},
+  "score_card_rule": {"RESEARCH_VALUE": "HIGH iff INCREMENTAL=YES and REDUNDANCY=LOW; MEDIUM iff INCREMENTAL in {YES,WEAK} and REDUNDANCY in {LOW,MEDIUM}; LOW iff INCREMENTAL=WEAK or (STANDALONE=HIGH and REDUNDANCY=HIGH); NO iff INCREMENTAL=NO; INCONCLUSIVE if coverage-inconclusive",
+                      "status": "A=RESEARCH_VALUE HIGH; B=implementation-only; C=REDUNDANCY HIGH and INCREMENTAL!=YES; D=REGIME_DEPENDENT with RESEARCH_VALUE<=MEDIUM; E=coverage INCONCLUSIVE"},
+  "snapshot": {"source": "latest completed non-fixture run of canonical-v1-dev (read-only SELECT)",
+               "fixture_excluded": "e5998f6d-93ab-4577-b13a-7b2f89c39c02",
+               "history_rule": "accel/consistency/stability via frozen anchor rule over union of certified panel rows and current run as_of",
+               "writes": "NONE to analytics.*; UI exposure: NONE"}
+}
