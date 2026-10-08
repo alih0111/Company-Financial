@@ -33,9 +33,16 @@ type AnalyticsMetadata struct {
 	FundamentalsAsOf string
 	// MarketAsOf is the latest canonical market observation trade date.
 	MarketAsOf string
-	// Stale reports whether canonical data is newer than the score run's source
-	// cutoff (i.e. ingestion has advanced past the last score computation).
+	// RunSeq is the served run's monotonic recency (not its data date).
+	RunSeq int64
+	// InputWatermark is the served run's recorded input fingerprint (raw JSON).
+	InputWatermark string
+	// Stale reports whether the inputs that exist now differ from the fingerprint
+	// the served run recorded — i.e. ingestion has advanced past the last score
+	// computation. Computed from the input watermark, not from a date comparison.
 	Stale bool
+	// StaleReasons lists the domains that moved, so a stale score is explainable.
+	StaleReasons []string
 }
 
 // SymbolPageCanonical is the canonical application-path payload for one symbol,
@@ -182,6 +189,8 @@ func (p *PG) Metadata(ctx context.Context, version string) (AnalyticsMetadata, e
 		ScoreAsOf:      info.AsOfDate,
 		SourceCutoffAt: info.SourceCutoffAt,
 		CompletedAt:    info.CompletedAt,
+		RunSeq:         info.RunSeq,
+		InputWatermark: info.InputWatermark,
 	}
 	const q = `
 		SELECT COALESCE((SELECT max(period_end_date)::text FROM fundamentals.monthly_activities), ''),
@@ -189,15 +198,15 @@ func (p *PG) Metadata(ctx context.Context, version string) (AnalyticsMetadata, e
 	if err := p.db.QueryRowContext(ctx, q).Scan(&m.FundamentalsAsOf, &m.MarketAsOf); err != nil {
 		return m, err
 	}
-	if info.SourceCutoffAt != "" {
-		if cutoff, err := parsePGTime(info.SourceCutoffAt); err == nil {
-			if fa, err := parsePGTime(m.FundamentalsAsOf); err == nil && fa.After(cutoff) {
-				m.Stale = true
-			}
-			if ma, err := parsePGTime(m.MarketAsOf); err == nil && ma.After(cutoff) {
-				m.Stale = true
-			}
+	// Staleness is exact input comparison, not a date-vs-timestamp guess: a report
+	// that arrived for a period older than the run's as_of (a backfill) moves the
+	// fingerprint, while the old rule could not see it at all.
+	if info.RunID != "" {
+		cur, err := p.currentCheapWatermark(ctx)
+		if err != nil {
+			return m, err
 		}
+		m.Stale, m.StaleReasons = stalenessFromWatermark(info.InputWatermark, cur)
 	}
 	metaCacheMu.Lock()
 	metaCacheVersion = version

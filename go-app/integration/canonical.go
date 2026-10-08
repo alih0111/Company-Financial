@@ -65,7 +65,26 @@ type ScoreVersionInfo struct {
 	SourceCutoffAt string
 	// CompletedAt is when the run finished.
 	CompletedAt string
+	// RunSeq is the run's monotonic recency. The read layer orders by this, not by
+	// AsOfDate (a data date), so a run computed from newer inputs is always served.
+	RunSeq int64
+	// InputWatermark is the run's recorded per-domain input fingerprint (raw JSON).
+	// Staleness is "the current fingerprint differs from this one".
+	InputWatermark string
 }
+
+// servingRunCTE is the single definition of "the run the read layer serves": the
+// newest completed *serving* run for a score version, by run recency.
+//
+// Do not reintroduce `ORDER BY as_of_date DESC`: as_of_date is a *data* date, not a
+// run property. Ordering by it let a run computed from newer inputs lose to a run
+// whose as_of was ahead of its inputs, and made a same-as_of recompute unservable.
+// `run_kind = 'serving'` keeps ad-hoc/PIT runs from ever being served as current.
+// Contract: integration_shadow_v1/ANALYTICS_REFRESH_CONTRACT.md
+const servingRunCTE = `SELECT id, score_version FROM analytics.score_runs
+			WHERE score_version = $1 AND status = 'completed' AND run_kind = 'serving'
+			ORDER BY run_seq DESC
+			LIMIT 1`
 
 // FactorScoreInputRow is a canonical analytics factor score. Go consumes these
 // rows verbatim; it never recomputes percentile, weight or weighted score.
@@ -260,16 +279,17 @@ func (p *PG) SelectScoreRun(ctx context.Context, version string) (ScoreVersionIn
 	}
 	const q = `
 		SELECT id::text, score_version, as_of_date::text, COALESCE(code_version, ''), status,
-		       COALESCE(source_cutoff_at::text, ''), COALESCE(completed_at::text, '')
+		       COALESCE(source_cutoff_at::text, ''), COALESCE(completed_at::text, ''),
+		       run_seq, COALESCE(input_watermark::text, '{}')
 		FROM analytics.score_runs
-		WHERE score_version = $1 AND status = 'completed'
-		ORDER BY as_of_date DESC, started_at DESC
+		WHERE score_version = $1 AND status = 'completed' AND run_kind = 'serving'
+		ORDER BY run_seq DESC
 		LIMIT 1`
 	var info ScoreVersionInfo
 	var status string
 	err := p.db.QueryRowContext(ctx, q, version).Scan(
 		&info.RunID, &info.Version, &info.AsOfDate, &info.CodeVer, &status,
-		&info.SourceCutoffAt, &info.CompletedAt)
+		&info.SourceCutoffAt, &info.CompletedAt, &info.RunSeq, &info.InputWatermark)
 	if err == sql.ErrNoRows {
 		return ScoreVersionInfo{}, nil
 	}
@@ -292,12 +312,7 @@ func (p *PG) FactorScoresByLegacyIDs(ctx context.Context, version string, ids []
 		return nil, nil
 	}
 	const q = `
-		WITH run AS (
-			SELECT id FROM analytics.score_runs
-			WHERE score_version = $1 AND status = 'completed'
-			ORDER BY as_of_date DESC, started_at DESC
-			LIMIT 1
-		),
+		WITH run AS (` + servingRunCTE + `),
 		wanted AS (SELECT unnest(string_to_array($2, ',')) AS legacy_key)
 		SELECT DISTINCT lem.legacy_key, fs.company_id::text, fs.factor_code,
 		       COALESCE(fs.raw_value, 0), COALESCE(fs.percentile, 0),
@@ -337,18 +352,23 @@ func (p *PG) MetricSnapshotsByLegacyIDs(ctx context.Context, version string, ids
 	if len(ids) == 0 {
 		return nil, nil
 	}
+	// Run-scoped: snapshots belong to the served run. The old version filtered on
+	// ms.calculation_version = score_version, which never matched (a run's
+	// calculation_version carries a suffix such as "+direct-valuation+..."), so this
+	// returned nothing and /api/detail showed no metrics at all.
 	const q = `
-		WITH wanted AS (SELECT unnest(string_to_array($2, ',')) AS legacy_key)
+		WITH run AS (` + servingRunCTE + `),
+		wanted AS (SELECT unnest(string_to_array($2, ',')) AS legacy_key)
 		SELECT DISTINCT lem.legacy_key, ms.company_id::text, ms.metric_code,
 		       ms.as_of_date::text, COALESCE(ms.value, 0), COALESCE(ms.unit, ''),
 		       COALESCE(ms.calculation_version, '')
 		FROM analytics.metric_snapshots ms
+		JOIN run r ON r.id = ms.run_id
 		JOIN core.legacy_entity_map lem
 		  ON lem.entity_type = 'company'
 		 AND lem.target_uuid = ms.company_id
 		 AND lem.legacy_key ~ '^[0-9a-f]{32}$'
 		JOIN wanted w ON w.legacy_key = lem.legacy_key
-		WHERE ($1 = '' OR ms.calculation_version IS NULL OR ms.calculation_version = $1)
 		ORDER BY lem.legacy_key, ms.metric_code`
 	rows, err := p.db.QueryContext(ctx, q, version, strings.Join(ids, ","))
 	if err != nil {
@@ -377,12 +397,7 @@ func (p *PG) ScoresByLegacyIDs(ctx context.Context, version string, ids []string
 		return nil, nil
 	}
 	const q = `
-		WITH run AS (
-			SELECT id, score_version FROM analytics.score_runs
-			WHERE score_version = $1 AND status = 'completed'
-			ORDER BY as_of_date DESC, started_at DESC
-			LIMIT 1
-		),
+		WITH run AS (` + servingRunCTE + `),
 		wanted AS (SELECT unnest(string_to_array($2, ',')) AS legacy_key)
 		SELECT DISTINCT
 		       lem.legacy_key,

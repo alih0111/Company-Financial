@@ -31,6 +31,7 @@ SQL_ORDER = [
     "001_extensions.sql", "010_core.sql", "020_ingestion.sql", "030_raw.sql",
     "040_fundamentals.sql", "050_market.sql", "060_auth.sql", "070_portfolio.sql",
     "080_analytics.sql", "090_indexes.sql", "100_family.sql", "110_family_broker.sql",
+    "121_analytics_run_identity.sql",
 ]
 
 

@@ -81,25 +81,35 @@ func GetShadowHealth(c *gin.Context) {
 		"canonical_configured": st.CanonicalConfigured,
 		"canonical_reachable":  st.CanonicalReachable,
 		"canonical_error":      st.CanonicalError,
-		"analytics_status":     analyticsStatus(st.ScoreRunID, st.ScoreAsOf),
+		"analytics_status":     analyticsStatus(st.ScoreRunID, st.ScoreStale),
 		"score_version":        st.ScoreVersion,
 		"score_run_id":         st.ScoreRunID,
 		"score_as_of":          st.ScoreAsOf,
-		"data_as_of":           st.DataAsOf,
-		"score_stale":          st.ScoreStale,
-		"sqlserver_status":     sqlStatus,
-		"sqlserver_note":       sqlNote,
-		"sqlserver_required":   sqlRequired,
-		"sqlserver_mode":       sqlMode,
-		"overall":              overall,
-		"comparison_rules":     st.ComparisonRules,
-		"shadow_timeout_ms":    st.ShadowTimeoutMS,
+		// score_computed_at lets a score whose data date did not advance still read as
+		// freshly computed; score_stale_reasons names the domains that moved.
+		"score_computed_at":   st.ScoreComputedAt,
+		"score_run_seq":       st.ScoreRunSeq,
+		"score_stale_reasons": st.ScoreStaleReasons,
+		"data_as_of":          st.DataAsOf,
+		"score_stale":         st.ScoreStale,
+		"sqlserver_status":    sqlStatus,
+		"sqlserver_note":      sqlNote,
+		"sqlserver_required":  sqlRequired,
+		"sqlserver_mode":      sqlMode,
+		"overall":             overall,
+		"comparison_rules":    st.ComparisonRules,
+		"shadow_timeout_ms":   st.ShadowTimeoutMS,
 	})
 }
 
-func analyticsStatus(runID, asOf string) string {
+// analyticsStatus reports the served score's freshness. A run exists but its inputs
+// have moved since -> STALE, which is a real health condition, not HEALTHY.
+func analyticsStatus(runID string, stale bool) string {
 	if runID == "" {
 		return "NO_COMPLETED_RUN"
+	}
+	if stale {
+		return "STALE"
 	}
 	return "HEALTHY"
 }

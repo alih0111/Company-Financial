@@ -3,11 +3,8 @@ import {
   Area,
   AreaChart,
   CartesianGrid,
-  Cell,
   ComposedChart,
   Line,
-  Pie,
-  PieChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -769,15 +766,6 @@ const FamilyAssets = () => {
     () => history.slice(-24).map((h) => ({ d: h.date_key, v: h.total })),
     [history],
   );
-
-  const allocation = useMemo(() => {
-    return [
-      { name: "سهام", value: summary?.stocks_total ?? 0, color: "#059669" },
-      { name: "طلا", value: summary?.gold_total ?? 0, color: "#f59e0b" },
-      { name: "دلار", value: summary?.dollar_total ?? 0, color: "#0ea5e9" },
-      { name: "نقد", value: summary?.total_cash ?? 0, color: "#14b8a6" },
-    ].filter((x) => x.value > 0);
-  }, [summary]);
 
   // وزن هر دسته از دارایی (سهام/طلا/دلار) برای نوار تخصیص کارت ترکیب
   const categorySplit = useMemo(() => {

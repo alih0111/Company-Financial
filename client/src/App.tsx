@@ -5,6 +5,7 @@ import { ConfirmProvider } from "./components/ConfirmDialog";
 import ChartComponent from "./components/ChartComponent";
 import PriceChart from "./components/PriceChart";
 import ScoreBreakdown from "./components/ScoreBreakdown";
+import ScoreFreshnessBadge from "./components/ScoreFreshnessBadge";
 import useCompanyData from "./hooks/useCompanyData";
 import { useDarkMode } from "./utils/theme";
 import { FaChartBar, FaArrowUp, FaArrowDown, FaBullseye } from "react-icons/fa";
@@ -201,6 +202,23 @@ const App = () => {
 
   useEffect(() => {
     loadAIData();
+  }, [loadAIData]);
+
+  // A score snapshot only changes when the refresh job stores a new run, so a tab
+  // left open keeps showing the old one. Re-fetch on focus/visibility and on an
+  // interval; the freshness badge states the as-of date either way.
+  useEffect(() => {
+    const reload = () => {
+      if (document.visibilityState === "visible") loadAIData();
+    };
+    window.addEventListener("focus", reload);
+    document.addEventListener("visibilitychange", reload);
+    const timer = window.setInterval(reload, 5 * 60 * 1000);
+    return () => {
+      window.removeEventListener("focus", reload);
+      document.removeEventListener("visibilitychange", reload);
+      window.clearInterval(timer);
+    };
   }, [loadAIData]);
 
   const bigTableData = useMemo(() => {
@@ -494,6 +512,8 @@ const App = () => {
                   onMenuClick={() => setSidebarOpen(true)}
                 />
               )}
+              {location.pathname !== "/login" &&
+                location.pathname !== "/register" && <ScoreFreshnessBadge />}
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route

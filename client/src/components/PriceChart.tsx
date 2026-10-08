@@ -33,14 +33,6 @@ type Props = {
 // سقف درخواست از سرور (برابر سقف سمت بک‌اند)
 const ALL_DAYS = 100000;
 
-const RANGES = [
-  { label: "۱ماه", days: 30 },
-  { label: "۳ماه", days: 90 },
-  { label: "۶ماه", days: 180 },
-  { label: "۱سال", days: 365 },
-  { label: "همه", days: ALL_DAYS },
-];
-
 // رنگ‌های کندل مطابق هویت سبز/قرمز مالی
 const C = {
   up: "#10b981",
@@ -222,12 +214,6 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyName, days, refreshTick]);
 
-  // انتخاب دستی بازه → وضعیت «داده تمام شد» ریست می‌شود
-  const selectRange = (d: number) => {
-    exhaustedRef.current = false;
-    setDays(d);
-  };
-
   const handleFetchPrices = async () => {
     setFetching(true);
     setFetchMsg(null);
@@ -316,11 +302,6 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
 
   // ── ساخت چارت — وقتی داده رسید و container در DOM قرار گرفت ──
   const hasData = candles.length > 0;
-  // پیل فعال = بزرگ‌ترین بازه‌ای که در مقدار فعلی days جا می‌شود
-  const activePill = RANGES.reduce(
-    (acc, r, i) => (r.days <= days ? i : acc),
-    -1,
-  );
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !hasData) return;

@@ -39,7 +39,7 @@ REPO = BASE.parent
 os.environ.setdefault("CDF_PILOT_DB", "company_financial_analytics_shadow_v121")
 sys.path.insert(0, str(HERE))
 
-from compute_metrics import Engine, SCORE_VERSION, store_run  # noqa: E402
+from compute_metrics import Engine, SCORE_VERSION, input_watermark, store_run  # noqa: E402
 from common import pg_pilot_conn as pg_conn  # noqa: E402  (path set by compute_metrics)
 
 INGESTION_STATUS = REPO / "ingestion_migration_v1" / "output" / "canonical_ingestion_status.json"
@@ -66,12 +66,19 @@ def read_ingestion_health() -> dict:
             "generated_at": doc.get("generated_at")}
 
 
-def latest_completed_run(cur, version: str):
+def latest_serving_run(cur, version: str):
+    """Newest completed *serving* run by run recency (not by data date).
+
+    `as_of_date` is a data date, so ordering by it let a run computed from newer data
+    lose to a run whose as_of was ahead of its inputs. run_seq is the run's own
+    monotonic recency and is the only correct "latest" key.
+    """
     cur.execute(
-        """SELECT id::text, as_of_date, source_cutoff_at, completed_at, status, code_version
+        """SELECT id::text, as_of_date, source_cutoff_at, completed_at, status, code_version,
+                  run_seq, input_watermark
            FROM analytics.score_runs
-           WHERE score_version=%s AND status='completed'
-           ORDER BY as_of_date DESC, started_at DESC
+           WHERE score_version=%s AND status='completed' AND run_kind='serving'
+           ORDER BY run_seq DESC
            LIMIT 1""", (version,))
     return cur.fetchone()
 
@@ -107,35 +114,48 @@ def _as_dt(v):
     return dt.datetime.fromisoformat(text)
 
 
-def evaluate_staleness(run, cutoffs: dict) -> dict:
-    """Deterministic staleness rule (see ANALYTICS_REFRESH_CONTRACT.md)."""
-    reasons = []
+def evaluate_staleness(run, current_watermark: dict) -> dict:
+    """Deterministic staleness rule: compare the run's recorded input watermark with
+    the inputs that exist now (see ANALYTICS_REFRESH_CONTRACT.md).
+
+    This replaces the old date-comparison rule, which could not see a report that
+    arrived for a period *older* than the run's as_of — precisely a backfill. The
+    fingerprint moves for any new row (any domain), any new arrival timestamp, any
+    in-place content change, and any data date beyond the run's as_of.
+    """
+    reasons: list[str] = []
     if run is None:
         return {"stale": True, "usable_run": False, "reasons": ["no_completed_run"]}
 
     run_as_of = _as_date(run[1])
     run_cutoff = _as_dt(run[2])
+    run_wm = run[7] if len(run) > 7 else None
+    if isinstance(run_wm, str):
+        run_wm = json.loads(run_wm)
 
-    month = _as_date(cutoffs.get("monthly_latest"))
-    fin = _as_date(cutoffs.get("financial_latest"))
-    market_date = _as_date(cutoffs.get("market_latest_trade_date"))
-    market_dt = _as_dt(cutoffs.get("market_latest_collected_at"))
-    reports_dt = _as_dt(cutoffs.get("reports_latest_collected_at"))
+    if not run_wm or not run_wm.get("domains"):
+        reasons.append("run predates input watermarking (no fingerprint recorded)")
 
-    if month and run_as_of and month > run_as_of:
-        reasons.append(f"monthly {month} > run as_of {run_as_of}")
-    if fin and run_as_of and fin > run_as_of:
-        reasons.append(f"financial {fin} > run as_of {run_as_of}")
-    if market_date and run_as_of and market_date > run_as_of:
-        reasons.append(f"market trade_date {market_date} > run as_of {run_as_of}")
-    if market_dt and run_cutoff and market_dt > run_cutoff:
-        reasons.append("market collected_at > source_cutoff_at")
-    if reports_dt and run_cutoff and reports_dt > run_cutoff:
-        reasons.append("reports created_at > source_cutoff_at")
+    current = (current_watermark or {}).get("domains", {})
+    prev_domains = (run_wm or {}).get("domains", {})
+    for key, cur_d in current.items():
+        prev = prev_domains.get(key) or {}
+        if prev.get("rows") != cur_d.get("rows"):
+            reasons.append(f"{key}: rows {prev.get('rows')} -> {cur_d.get('rows')}")
+        if prev.get("digest") != cur_d.get("digest"):
+            reasons.append(f"{key}: content changed")
+        cur_arr, prev_arr = _as_dt(cur_d.get("arrival")), _as_dt(prev.get("arrival"))
+        if cur_arr and prev_arr and cur_arr > prev_arr:
+            reasons.append(f"{key}: new arrival {cur_arr} > {prev_arr}")
+        cur_date = _as_date(cur_d.get("date"))
+        if cur_date and run_as_of and cur_date > run_as_of:
+            reasons.append(f"{key}: data date {cur_date} > run as_of {run_as_of}")
 
     return {"stale": bool(reasons), "usable_run": True, "reasons": reasons,
             "run_as_of": str(run_as_of) if run_as_of else None,
-            "run_source_cutoff_at": str(run_cutoff) if run_cutoff else None}
+            "run_source_cutoff_at": str(run_cutoff) if run_cutoff else None,
+            "run_watermark_digest": (run_wm or {}).get("digest"),
+            "current_watermark_digest": (current_watermark or {}).get("digest")}
 
 
 def choose_as_of_cutoff(cutoffs: dict):
@@ -162,12 +182,15 @@ def run_engine(cur, as_of: dt.date, cutoff: dt.datetime, version: str, store: bo
     digest = eng.digest()
     run_id = None
     if store:
-        store_run(eng, metrics, as_of, cutoff, digest)
-        # store_run is append-only; the newly inserted run is the most recent one.
+        # run_kind="serving" is written ONLY here: this is the one path allowed to
+        # produce a run the read layer may serve as current.
+        store_run(eng, metrics, as_of, cutoff, digest,
+                  run_kind="serving", pg=cur.connection)
+        # store_run is append-only; the newly inserted run has the highest run_seq.
         cur.execute(
             """SELECT id::text FROM analytics.score_runs
-               WHERE score_version=%s AND status='completed'
-               ORDER BY started_at DESC, as_of_date DESC LIMIT 1""", (version,))
+               WHERE score_version=%s AND status='completed' AND run_kind='serving'
+               ORDER BY run_seq DESC LIMIT 1""", (version,))
         row = cur.fetchone()
         run_id = row[0] if row else None
     return {"population": len(metrics), "digest": digest, "stored_run_id": run_id}
@@ -195,20 +218,23 @@ def orchestrate(mode: str, version: str, allow_degraded: bool, json_out: Path | 
     conn = pg_conn()
     try:
         cur = conn.cursor()
-        run = latest_completed_run(cur, version)
+        run = latest_serving_run(cur, version)
         cutoffs = canonical_data_cutoffs(cur)
-        staleness = evaluate_staleness(run, cutoffs)
+        watermark = input_watermark(cur)
+        staleness = evaluate_staleness(run, watermark)
         result = {
             "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
             "mode": mode,
             "score_version": version,
             "ingestion_health": health,
-            "latest_completed_run": {
+            "latest_serving_run": {
                 "id": run[0] if run else None,
                 "as_of_date": str(run[1]) if run else None,
                 "source_cutoff_at": str(run[2]) if run else None,
+                "run_seq": run[6] if run else None,
             },
             "data_cutoffs": {k: (str(v) if v is not None else None) for k, v in cutoffs.items()},
+            "current_watermark": watermark,
             "staleness": staleness,
             "action": "CHECK_ONLY",
             "recomputed": False,
@@ -236,6 +262,10 @@ def orchestrate(mode: str, version: str, allow_degraded: bool, json_out: Path | 
             result["recompute_as_of"] = str(as_of)
             result["recompute_cutoff"] = str(cutoff)
             outcome = run_engine(cur, as_of, cutoff, version, store=True)
+            # store_run shares this connection, so the run row, its scores and its
+            # snapshots land in one transaction: either the run is fully stored and
+            # selectable, or nothing is.
+            conn.commit()
             result["recomputed"] = True
             result["new_run"] = {**outcome, **summarize_run(cur, outcome.get("stored_run_id"))}
             result["action"] = "RECOMPUTED" if result["new_run"].get("completed") else "RECOMPUTE_INCOMPLETE"

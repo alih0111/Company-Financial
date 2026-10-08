@@ -226,19 +226,24 @@ def dual_write_financial(
             seen_statements: set[str] = set()
             for fact in facts:
                 stype = fact["statement_type"]
-                if w.find_statement(company_id, period_end_date, stype):
-                    # Statement for this (company, period, type) already exists; do
-                    # not create duplicate facts.
-                    skipped += 1
-                    seen_statements.add(stype)
-                    continue
-                sid, s_ins = w.ensure_statement(
-                    company_id=company_id, report_id=rid, report_version_id=vid, parse_run_id=pid,
-                    statement_type=stype, period_end_date=period_end_date,
-                    is_cumulative=fact.get("is_cumulative"),
-                )
-                inserted += int(s_ins)
-                skipped += int(not s_ins)
+                # Fill facts into the statement that already exists for this
+                # (company, period, type) instead of skipping: a statement first
+                # written from narrower legacy data must gain the missing facts
+                # when a richer write arrives. Creating a second statement would
+                # shadow the first in the analytics index (one version per cell),
+                # so the existing statement is reused and fact-level
+                # (statement_id, metric_code, period_order) conflict keeps this
+                # idempotent.
+                sid = w.find_statement(company_id, period_end_date, stype)
+                s_ins = False
+                if sid is None:
+                    sid, s_ins = w.ensure_statement(
+                        company_id=company_id, report_id=rid, report_version_id=vid, parse_run_id=pid,
+                        statement_type=stype, period_end_date=period_end_date,
+                        is_cumulative=fact.get("is_cumulative"),
+                    )
+                    inserted += int(s_ins)
+                    skipped += int(not s_ins)
                 seen_statements.add(stype)
                 _fid, f_ins = w.insert_fact(
                     statement_id=sid, metric_code=fact["metric_code"],

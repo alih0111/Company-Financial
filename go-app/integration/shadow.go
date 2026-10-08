@@ -40,11 +40,18 @@ type Status struct {
 	ScoreVersion        string `json:"score_version"`
 	ScoreRunID          string `json:"score_run_id,omitempty"`
 	ScoreAsOf           string `json:"score_as_of,omitempty"`
-	SourceCutoffAt      string `json:"source_cutoff_at,omitempty"`
-	DataAsOf            string `json:"data_as_of,omitempty"`
-	ScoreStale          bool   `json:"score_stale"`
-	ComparisonRules     string `json:"comparison_rules"`
-	ShadowTimeoutMS     int    `json:"shadow_timeout_ms"`
+	// ScoreComputedAt is when the served run finished. Shown next to score_as_of so a
+	// score whose data date did not advance is still visibly freshly computed.
+	ScoreComputedAt string `json:"score_computed_at,omitempty"`
+	// ScoreRunSeq is the served run's monotonic recency (the selection key).
+	ScoreRunSeq int64 `json:"score_run_seq,omitempty"`
+	// ScoreStaleReasons names the input domains that moved since the served run.
+	ScoreStaleReasons []string `json:"score_stale_reasons,omitempty"`
+	SourceCutoffAt    string   `json:"source_cutoff_at,omitempty"`
+	DataAsOf          string   `json:"data_as_of,omitempty"`
+	ScoreStale        bool     `json:"score_stale"`
+	ComparisonRules   string   `json:"comparison_rules"`
+	ShadowTimeoutMS   int      `json:"shadow_timeout_ms"`
 
 	CanaryEnabled     bool `json:"price_history_canary_enabled"`
 	CanarySymbolCount int  `json:"price_history_canary_symbol_count"`
@@ -152,6 +159,29 @@ func (s *Shadow) RefreshStatus(ctx context.Context) Status {
 	}
 	s.status.CanonicalReachable = true
 	s.status.CanonicalError = ""
+	// Run identity and staleness come from the SAME snapshot. Metadata carries both
+	// (cached score identity + input fingerprint); reading the run id from a separate
+	// SelectScoreRun paired a freshly-completed run with the previous run's stale
+	// reasons for up to metadataTTL — a false "stale" on the score just recomputed.
+	if pg, ok := s.src.(*PG); ok {
+		meta, err := pg.Metadata(ctx, s.cfg.ScoreVersion)
+		if err != nil {
+			s.status.CanonicalError = "score metadata failed: " + err.Error()
+			return s.status
+		}
+		if meta.ScoreRunID != "" {
+			s.status.ScoreRunID = meta.ScoreRunID
+			s.status.ScoreAsOf = meta.ScoreAsOf
+			s.status.ScoreComputedAt = meta.CompletedAt
+			s.status.ScoreRunSeq = meta.RunSeq
+			s.status.SourceCutoffAt = meta.SourceCutoffAt
+		}
+		s.status.DataAsOf = meta.FundamentalsAsOf
+		s.status.ScoreStale = meta.Stale
+		s.status.ScoreStaleReasons = meta.StaleReasons
+		return s.status
+	}
+	// Non-PG sources expose identity only; they carry no input fingerprint.
 	info, err := s.src.SelectScoreRun(ctx, s.cfg.ScoreVersion)
 	if err != nil {
 		s.status.CanonicalError = "score run selection failed: " + err.Error()
@@ -160,13 +190,9 @@ func (s *Shadow) RefreshStatus(ctx context.Context) Status {
 	if info.RunID != "" {
 		s.status.ScoreRunID = info.RunID
 		s.status.ScoreAsOf = info.AsOfDate
+		s.status.ScoreComputedAt = info.CompletedAt
+		s.status.ScoreRunSeq = info.RunSeq
 		s.status.SourceCutoffAt = info.SourceCutoffAt
-	}
-	if pg, ok := s.src.(*PG); ok {
-		if meta, err := pg.Metadata(ctx, s.cfg.ScoreVersion); err == nil {
-			s.status.DataAsOf = meta.FundamentalsAsOf
-			s.status.ScoreStale = meta.Stale
-		}
 	}
 	return s.status
 }

@@ -828,20 +828,140 @@ def main() -> int:
     return 0
 
 
-def store_run(eng, metrics, as_of, cutoff, digest):
-    # metric_snapshots is keyed by (as_of_date, company_id, metric_code,
-    # calculation_version), so a new valuation construction for the same as_of
-    # must carry its own calculation version instead of colliding with the run
-    # that used the old formulas. score_version (the value the reader filters
-    # on) is deliberately left unchanged.
+# Exact input watermark: one fingerprint per score-relevant input domain. A run
+# stores the fingerprint of everything that existed when it computed; staleness is
+# then "the fingerprint moved", which is exact for backfills of *older* periods too
+# (the old date-based rule could never see those, because the new rows' data date is
+# not greater than the run's as_of).
+#
+# Each domain yields (max_data_date, max_arrival, rows, content_digest):
+#   max_data_date  the newest PIT-visible period/trade date in the domain
+#   max_arrival    the newest insertion timestamp (catches any new row)
+#   rows           row count (catches inserts even without a timestamp bump)
+#   content_digest hash over the domain's content (catches in-place edits)
+#
+# Go mirrors the cheap subset (date/arrival/rows) for the /api freshness badge; the
+# digest is authoritative here. See integration_shadow_v1/ANALYTICS_REFRESH_CONTRACT.md.
+INPUT_DOMAINS = {
+    "monthly": """
+        SELECT max(period_end_date)::text FROM fundamentals.monthly_activities""",
+    "financial": """
+        SELECT max(period_end_date)::text FROM fundamentals.financial_statements""",
+    "market": """
+        SELECT max(trade_date)::text FROM market.price_observations""",
+    "shares": """
+        SELECT max(as_of_date)::text FROM core.share_structure""",
+    # Reports carry no PIT data date of their own (arrival + content are the signal).
+    "reports": """
+        SELECT NULL::text""",
+}
+
+# (rows_sql, arrival_sql, digest_sql) per domain. Kept separate from the date query so
+# the heavy digest scans only run in the orchestrator, never on an HTTP request path.
+INPUT_DOMAIN_AGGREGATES = {
+    "monthly": (
+        "SELECT count(*) FROM fundamentals.monthly_activities",
+        "SELECT max(created_at) FROM fundamentals.monthly_activities",
+        """SELECT md5(coalesce(string_agg(
+               company_id::text || '|' || period_end_date::text || '|' ||
+               coalesce(sales_amount_rial::text, '') || '|' || coalesce(report_id::text, ''),
+               ',' ORDER BY company_id, period_end_date, report_id), ''))
+           FROM fundamentals.monthly_activities""",
+    ),
+    "financial": (
+        "SELECT count(*) FROM fundamentals.financial_facts",
+        "SELECT max(created_at) FROM fundamentals.financial_facts",
+        """SELECT md5(coalesce(string_agg(
+               statement_id::text || '|' || metric_code || '|' || period_order::text || '|' ||
+               coalesce(canonical_value::text, ''),
+               ',' ORDER BY statement_id, metric_code, period_order), ''))
+           FROM fundamentals.financial_facts""",
+    ),
+    "market": (
+        "SELECT count(*) FROM market.price_observations",
+        "SELECT max(collected_at) FROM market.price_observations",
+        # 713k rows: hash-and-sum beats string_agg (no 40 MB intermediate string).
+        """SELECT sum(('x' || substr(md5(
+               security_id::text || '|' || trade_date::text || '|' || price_series || '|' ||
+               coalesce(closing_price_rial::text, '') || '|' || coalesce(volume::text, '')), 1, 15)
+               )::bit(60)::bigint)::text
+           FROM market.price_observations""",
+    ),
+    "shares": (
+        """SELECT (SELECT count(*) FROM core.share_structure)
+                + (SELECT count(*) FROM market.tsetmc_current_shares)""",
+        """SELECT greatest(
+               (SELECT max(collected_at) FROM core.share_structure),
+               (SELECT max(collected_at) FROM market.tsetmc_current_shares))""",
+        """SELECT md5(coalesce(string_agg(x, ',' ORDER BY x), '')) FROM (
+               SELECT security_id::text || '|' || shares_count::text || '|' || as_of_date::text AS x
+                 FROM core.share_structure
+               UNION ALL
+               SELECT security_id::text || '|' || shares_count::text || '|' || collected_at::text
+                 FROM market.tsetmc_current_shares) t""",
+    ),
+    "reports": (
+        "SELECT count(*) FROM ingestion.reports",
+        """SELECT greatest(max(created_at), max(updated_at)) FROM ingestion.reports""",
+        """SELECT md5(coalesce(string_agg(
+               id::text || '|' || processing_status || '|' || coalesce(supersedes_report_id::text, ''),
+               ',' ORDER BY id), ''))
+           FROM ingestion.reports""",
+    ),
+}
+
+
+def _wm_scalar(cur, sql):
+    cur.execute(sql)
+    row = cur.fetchone()
+    return row[0] if row else None
+
+
+def input_watermark(cur) -> dict:
+    """Fingerprint every score-relevant input domain as of now.
+
+    Deliberately unbounded by cutoff: a row that already existed by data date but
+    arrived *after* a run's cutoff must still move the fingerprint, otherwise a
+    same-day/backfilled arrival would be invisible (the failure this replaces).
+    """
+    domains = {}
+    for key in INPUT_DOMAIN_AGGREGATES:
+        rows_sql, arrival_sql, digest_sql = INPUT_DOMAIN_AGGREGATES[key]
+        domains[key] = {
+            "date": _wm_scalar(cur, INPUT_DOMAINS[key]),
+            "arrival": _wm_scalar(cur, arrival_sql),
+            "rows": _wm_scalar(cur, rows_sql),
+            "digest": _wm_scalar(cur, digest_sql),
+        }
+    payload = json.dumps(domains, sort_keys=True, default=str)
+    return {"v": 1, "domains": domains,
+            "digest": hashlib.sha256(payload.encode("utf-8")).hexdigest()}
+
+
+def store_run(eng, metrics, as_of, cutoff, digest, run_kind: str = "pit_backfill",
+              pg=None):
+    """Append one completed score run.
+
+    `run_kind` gates serving: only orchestrate_refresh.py passes "serving". Any ad-hoc
+    or historical invocation defaults to "pit_backfill", so an out-of-band run can
+    never become the served score (the failure that produced the 2026-10-06 run whose
+    as_of was ahead of every input date).
+
+    metric_snapshots is run-scoped (unique on run_id + company + metric), so re-scoring
+    the same as_of over corrected inputs now stores a NEW row under the new run instead
+    of aborting on the old (as_of, calculation_version) unique key.
+    """
     calc_version = SCORE_VERSION + ("+direct-valuation+fiscal-anchor-cell"
                                     if eng.valuation == VAL_DIRECT else "")
-    pg = pg_pilot_conn()
+    own_conn = pg is None
+    pg = pg or pg_pilot_conn()
     try:
         with pg.cursor() as cur:
+            watermark = input_watermark(cur)
             cur.execute("""INSERT INTO analytics.score_runs
-                (score_version, as_of_date, source_cutoff_at, status, completed_at, code_version, parameters)
-                VALUES (%s,%s,%s,'completed',now(),%s,%s) RETURNING id""",
+                (score_version, as_of_date, source_cutoff_at, status, completed_at, code_version,
+                 parameters, run_kind, input_watermark)
+                VALUES (%s,%s,%s,'completed',now(),%s,%s,%s,%s) RETURNING id""",
                 (SCORE_VERSION, as_of, cutoff, "canonical-v1-dev+report-chain-ttm+direct-valuation+fiscal-anchor-cell",
                  json.dumps({"baseline_weights_v37": BASELINE_WEIGHTS_V37,
                              "weights_validated": False, "input_hash": digest,
@@ -849,7 +969,8 @@ def store_run(eng, metrics, as_of, cutoff, digest):
                              "valuation_formulas": {
                                  "pe": PE_METHOD_DIRECT, "ps": PS_METHOD_DIRECT, "pb": PB_METHOD_DIRECT},
                              "fiscal_calendar": "codal_report_title",
-                             "implementation_revision": "report-chain-ttm-v1"})))
+                             "implementation_revision": "report-chain-ttm-v1"}),
+                 run_kind, json.dumps(watermark, default=str)))
             run_id = cur.fetchone()[0]
             for cid, v in metrics.items():
                 cur.execute("""INSERT INTO analytics.company_scores
@@ -889,16 +1010,20 @@ def store_run(eng, metrics, as_of, cutoff, digest):
                     if val is None:
                         continue
                     cur.execute("""INSERT INTO analytics.metric_snapshots
-                        (as_of_date, company_id, primary_security_id, metric_code,
+                        (run_id, as_of_date, company_id, primary_security_id, metric_code,
                          value, unit, calculation_version, source_cutoff_at, details)
-                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
-                        (as_of, cid, v["security_id"], mc, val, mu,
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                        ON CONFLICT (run_id, company_id, metric_code) DO NOTHING""",
+                        (run_id, as_of, cid, v["security_id"], mc, val, mu,
                          calc_version, cutoff,
                          json.dumps({"input_hash": digest}, ensure_ascii=False)))
-            pg.commit()
+            if own_conn:
+                pg.commit()
             print("stored score_run", run_id, "companies", len(metrics))
+        return run_id
     finally:
-        pg.close()
+        if own_conn:
+            pg.close()
 
 
 if __name__ == "__main__":

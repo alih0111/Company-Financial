@@ -104,12 +104,7 @@ func (p *PG) AllScoresCanonical(ctx context.Context, version string) ([]AllScore
 	// lookup per primary security. Avoids the per-factor/per-price N+1 and the
 	// full price_observations scan.
 	const baseQ = `
-		WITH run AS (
-			SELECT id, score_version FROM analytics.score_runs
-			WHERE score_version = $1 AND status = 'completed'
-			ORDER BY as_of_date DESC, started_at DESC
-			LIMIT 1
-		)
+		WITH run AS (` + servingRunCTE + `)
 		SELECT DISTINCT lem.legacy_key, cs.company_id::text,
 		       COALESCE(NULLIF(BTRIM(c.display_name), ''), BTRIM(c.legal_name)),
 		       COALESCE(sec.codal_symbol, ''),
@@ -176,11 +171,7 @@ func (p *PG) AllScoresCanonical(ctx context.Context, version string) ([]AllScore
 	// Attach the full canonical factor percentile set (progress-bar ranks) and
 	// any materialized raw values. Ranks come directly from analytics.factor_scores.
 	frows, err := p.db.QueryContext(ctx, `
-		WITH run AS (
-			SELECT id FROM analytics.score_runs
-			WHERE score_version = $1 AND status = 'completed'
-			ORDER BY as_of_date DESC, started_at DESC LIMIT 1
-		)
+		WITH run AS (`+servingRunCTE+`)
 		SELECT lem.legacy_key, fs.factor_code,
 		       COALESCE(fs.percentile, 0), fs.raw_value
 		FROM analytics.factor_scores fs
@@ -273,12 +264,7 @@ func (p *PG) CompanyScoreByLegacyID(ctx context.Context, version, legacyID strin
 	}
 	b.LegacyCompanyID = legacyID
 	const q = `
-		WITH run AS (
-			SELECT id, score_version FROM analytics.score_runs
-			WHERE score_version = $1 AND status = 'completed'
-			ORDER BY as_of_date DESC, started_at DESC
-			LIMIT 1
-		)
+		WITH run AS (` + servingRunCTE + `)
 		SELECT cs.company_id::text,
 		       COALESCE(NULLIF(BTRIM(c.display_name), ''), BTRIM(c.legal_name)),
 		       COALESCE(sec.codal_symbol, ''),

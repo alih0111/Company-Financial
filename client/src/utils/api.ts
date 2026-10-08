@@ -207,6 +207,32 @@ export async function getAIStockSummary(limit = 20): Promise<AIStockMetric[]> {
   return res.json();
 }
 
+/**
+ * Score freshness (public endpoint, no auth). `score_as_of` is the data visibility
+ * date of the served run; `score_computed_at` is when that run finished; `score_stale`
+ * is true when inputs have arrived since the run was computed. Without this the table
+ * shows a frozen score with no indication that it is frozen.
+ */
+export interface ShadowHealth {
+  score_version?: string;
+  score_run_id?: string;
+  score_run_seq?: number;
+  score_as_of?: string;
+  score_computed_at?: string;
+  data_as_of?: string;
+  score_stale?: boolean;
+  score_stale_reasons?: string[] | null;
+  analytics_status?: string;
+}
+
+export async function getShadowHealth(): Promise<ShadowHealth> {
+  const res = await fetch(`${API_BASE}/health/shadow`);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch score freshness: ${res.status}`);
+  }
+  return res.json();
+}
+
 // ----------------------------- Portfolio -----------------------------
 
 export interface PortfolioHoldingEnriched {

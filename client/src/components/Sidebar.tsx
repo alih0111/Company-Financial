@@ -13,10 +13,8 @@ import {
   FaSignOutAlt,
   FaShieldAlt,
   FaArrowRight,
-  FaBriefcase,
   FaTable,
   FaRobot,
-  FaGlobe,
 } from "react-icons/fa";
 import QuickSyncModal from "./QuickSyncModal";
 import SymbolSyncModal from "./SymbolSyncModal";
