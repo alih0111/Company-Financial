@@ -1,0 +1,258 @@
+[GIN-debug] [WARNING] Creating an Engine instance with the Logger and Recovery middleware already attached.
+
+[GIN-debug] [WARNING] Running in "debug" mode. Switch to "release" mode in production.
+ - using env:	export GIN_MODE=release
+ - using code:	gin.SetMode(gin.ReleaseMode)
+
+[GIN-debug] GET    /api/health/shadow        --> go-app/handlers.GetShadowHealth (4 handlers)
+[GIN-debug] GET    /api/market/ticker        --> go-app/handlers.GetMarketTicker (4 handlers)
+[GIN-debug] POST   /api/register/send-code   --> go-app/handlers.SendVerificationCode (4 handlers)
+[GIN-debug] POST   /api/register             --> go-app/handlers.Register (4 handlers)
+[GIN-debug] POST   /api/login                --> go-app/handlers.Login (4 handlers)
+[GIN-debug] GET    /api/AllCompanyScores     --> go-app/handlers.GetCompanyScores (5 handlers)
+[GIN-debug] GET    /api/SalesData            --> go-app/handlers.GetSalesData (5 handlers)
+[GIN-debug] GET    /api/CompanyNames         --> go-app/handlers.GetCompanyNames (5 handlers)
+[GIN-debug] POST   /api/GetUrl               --> go-app/handlers.GetURL (5 handlers)
+[GIN-debug] GET    /api/SalesData2           --> go-app/handlers.GetSalesData2 (5 handlers)
+[GIN-debug] POST   /api/GetUrl2              --> go-app/handlers.GetURL2 (5 handlers)
+[GIN-debug] GET    /api/CompanyScores        --> go-app/handlers.GetCompanyScores2 (5 handlers)
+[GIN-debug] GET    /api/StockPriceScore      --> go-app/handlers.StockPriceScore (5 handlers)
+[GIN-debug] POST   /api/run-script           --> go-app/handlers.RunScript (5 handlers)
+[GIN-debug] POST   /api/run-script2          --> go-app/handlers.RunScript2 (5 handlers)
+[GIN-debug] POST   /api/fetchAllData         --> go-app/handlers.BulkFetch (5 handlers)
+[GIN-debug] GET    /api/FetchFullPE          --> go-app/handlers.RunScriptPE (5 handlers)
+[GIN-debug] POST   /api/users/get-items      --> go-app/handlers.AddViewedItem (5 handlers)
+[GIN-debug] GET    /api/price-history        --> go-app/handlers.GetPriceHistory (5 handlers)
+[GIN-debug] GET    /api/market/assets        --> go-app/handlers.GetMarketAssets (5 handlers)
+[GIN-debug] POST   /api/market/collect       --> go-app/handlers.RunMarketAssetsCollector (5 handlers)
+[GIN-debug] GET    /api/qvt-v2               --> go-app/handlers/qvt.GetQvtV2Report (5 handlers)
+[GIN-debug] GET    /api/qvt-v2/discovery     --> go-app/handlers/qvt.GetQvtV2Discovery (5 handlers)
+[GIN-debug] GET    /api/export/scores        --> go-app/handlers.ExportScoresCSV (5 handlers)
+[GIN-debug] POST   /api/brs/collect          --> go-app/handlers.RunBrsCollector (5 handlers)
+[GIN-debug] POST   /api/sync-codal           --> go-app/handlers.RunSyncCodal (5 handlers)
+[GIN-debug] GET    /api/summary              --> go-app/handlers.GetAIStockSummary (5 handlers)
+[GIN-debug] GET    /api/detail               --> go-app/handlers.GetAIStockDetail (5 handlers)
+[GIN-debug] POST   /api/analyze              --> go-app/handlers.AnalyzeTopStocksWithAI (5 handlers)
+[GIN-debug] GET    /api/portfolio            --> go-app/handlers.GetPortfolio (5 handlers)
+[GIN-debug] POST   /api/portfolio            --> go-app/handlers.UpsertHolding (5 handlers)
+[GIN-debug] DELETE /api/portfolio/:company_id --> go-app/handlers.DeleteHolding (5 handlers)
+[GIN-debug] POST   /api/chat                 --> go-app/handlers.Chat (5 handlers)
+[GIN-debug] POST   /api/chat/stream          --> go-app/handlers.ChatStream (5 handlers)
+[GIN-debug] GET    /api/health/ai            --> go-app/handlers.GetAIHealth (5 handlers)
+[GIN-debug] GET    /api/family/assets        --> go-app/handlers.GetFamilyAssets (5 handlers)
+[GIN-debug] POST   /api/family/assets        --> go-app/handlers.CreateFamilyAsset (5 handlers)
+[GIN-debug] POST   /api/family/people        --> go-app/handlers.CreateFamilyPerson (5 handlers)
+[GIN-debug] POST   /api/family/prices        --> go-app/handlers.SaveFamilyPrices (5 handlers)
+[GIN-debug] POST   /api/family/sync-prices   --> go-app/handlers.SyncFamilyPrices (5 handlers)
+[GIN-debug] PUT    /api/family/holdings      --> go-app/handlers.UpsertFamilyHolding (5 handlers)
+[GIN-debug] DELETE /api/family/holdings      --> go-app/handlers.DeleteFamilyHolding (5 handlers)
+[GIN-debug] PUT    /api/family/account       --> go-app/handlers.UpdateFamilyAccount (5 handlers)
+[GIN-debug] GET    /api/family/cashflows     --> go-app/handlers.GetFamilyCashFlows (5 handlers)
+[GIN-debug] POST   /api/family/cashflows     --> go-app/handlers.AddFamilyCashFlow (5 handlers)
+[GIN-debug] DELETE /api/family/cashflows/:id --> go-app/handlers.DeleteFamilyCashFlow (5 handlers)
+[GIN-debug] GET    /api/family/history       --> go-app/handlers.GetFamilyHistory (5 handlers)
+[GIN-debug] GET    /api/family/broker        --> go-app/handlers.GetFamilyBrokerAccounts (5 handlers)
+[GIN-debug] PUT    /api/family/broker        --> go-app/handlers.UpsertFamilyBrokerAccount (5 handlers)
+[GIN-debug] DELETE /api/family/broker        --> go-app/handlers.DeleteFamilyBrokerAccount (5 handlers)
+[GIN-debug] POST   /api/family/sync-broker   --> go-app/handlers.StartFamilyBrokerSync (5 handlers)
+[GIN-debug] GET    /api/family/sync-broker/status --> go-app/handlers.GetFamilyBrokerJob (5 handlers)
+[GIN-debug] POST   /api/family/sync-broker/captcha --> go-app/handlers.SubmitFamilyBrokerCaptcha (5 handlers)
+[GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
+Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
+[GIN-debug] Listening and serving HTTP on :5000
+[GIN] 2026/10/11 - 18:24:32 | 404 |            0s |             ::1 | GET      "/api/health"
+[GIN] 2026/10/11 - 18:24:33 | 200 |    359.9652ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:25:22 | 200 |    1.3382934s |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:25:23 | 200 |    2.8392345s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:25:56 | 200 |    1.0200202s |             ::1 | GET      "/api/qvt-v2?company_id=02156686-a480-45fe-a096-d0a6b6ba6c47"
+[GIN] 2026/10/11 - 18:28:21 | 200 |    115.3222ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:28:21 | 200 |    109.1184ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:28:22 | 200 |     1.306526s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:28:22 | 200 |     10.3194ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:30:22 | 200 |    1.4954738s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:30:22 | 200 |     92.5006ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:33:23 | 200 |    2.1409159s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:33:23 | 200 |     14.6498ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:33:23 | 200 |      84.262ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:33:23 | 200 |     72.1167ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:34:04 | 204 |            0s |             ::1 | OPTIONS  "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:34:04 | 200 |     24.5423ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:34:04 | 200 |     12.0684ms |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:34:05 | 200 |     74.5682ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:34:05 | 200 |     14.2896ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:34:05 | 200 |      5.2585ms |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:34:05 | 204 |            0s |             ::1 | OPTIONS  "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:34:05 | 200 |     69.5667ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:34:06 | 200 |    239.7283ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:34:06 | 204 |            0s |             ::1 | OPTIONS  "/api/SalesData?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:34:06 | 204 |            0s |             ::1 | OPTIONS  "/api/SalesData2?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:34:06 | 204 |            0s |             ::1 | OPTIONS  "/api/CompanyScores?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:34:06 | 204 |            0s |             ::1 | OPTIONS  "/api/AllCompanyScores"
+[GIN] 2026/10/11 - 18:34:06 | 204 |            0s |             ::1 | OPTIONS  "/api/StockPriceScore?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:34:06 | 200 |     16.0009ms |             ::1 | GET      "/api/SalesData?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:34:06 | 200 |            0s |             ::1 | GET      "/api/StockPriceScore?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:34:06 | 200 |    378.5318ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:34:07 | 200 |    681.7638ms |             ::1 | GET      "/api/CompanyScores?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:34:07 | 200 |    861.6086ms |             ::1 | GET      "/api/AllCompanyScores"
+[GIN] 2026/10/11 - 18:34:07 | 200 |      875.01ms |             ::1 | GET      "/api/SalesData2?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:34:07 | 204 |            0s |             ::1 | OPTIONS  "/api/qvt-v2/discovery"
+[GIN] 2026/10/11 - 18:34:08 | 200 |    543.1757ms |             ::1 | GET      "/api/qvt-v2/discovery"
+[GIN] 2026/10/11 - 18:34:08 | 200 |    134.8459ms |             ::1 | GET      "/api/qvt-v2/discovery"
+[GIN] 2026/10/11 - 18:34:15 | 200 |    140.8687ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:34:15 | 200 |    146.5514ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:35:21 | 200 |    154.2511ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:35:23 | 200 |    1.8660697s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:38:02 | 200 |    126.6433ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:38:02 | 204 |            0s |             ::1 | OPTIONS  "/api/qvt-v2?company_id=3da407a7-55cd-41fb-b5bb-aadad01e6908"
+[GIN] 2026/10/11 - 18:38:02 | 204 |            0s |             ::1 | OPTIONS  "/api/qvt-v2?company_id=3da407a7-55cd-41fb-b5bb-aadad01e6908"
+[GIN] 2026/10/11 - 18:38:03 | 200 |      1.01644s |             ::1 | GET      "/api/qvt-v2?company_id=3da407a7-55cd-41fb-b5bb-aadad01e6908"
+[GIN] 2026/10/11 - 18:38:04 | 200 |    184.0414ms |             ::1 | GET      "/api/qvt-v2?company_id=3da407a7-55cd-41fb-b5bb-aadad01e6908"
+[GIN] 2026/10/11 - 18:38:04 | 200 |    2.2533332s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:38:21 | 200 |     34.7556ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:38:21 | 200 |     78.2679ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:39:05 | 200 |     94.3105ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:39:06 | 200 |    1.6742461s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:40:21 | 200 |      94.672ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:40:22 | 200 |    1.3693235s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:42:48 | 204 |            0s |             ::1 | OPTIONS  "/api/qvt-v2?company_id=02156686-a480-45fe-a096-d0a6b6ba6c47"
+[GIN] 2026/10/11 - 18:42:48 | 204 |            0s |             ::1 | OPTIONS  "/api/qvt-v2?company_id=02156686-a480-45fe-a096-d0a6b6ba6c47"
+[GIN] 2026/10/11 - 18:42:48 | 200 |    187.6997ms |             ::1 | GET      "/api/qvt-v2?company_id=02156686-a480-45fe-a096-d0a6b6ba6c47"
+[GIN] 2026/10/11 - 18:42:48 | 200 |    175.6795ms |             ::1 | GET      "/api/qvt-v2?company_id=02156686-a480-45fe-a096-d0a6b6ba6c47"
+[GIN] 2026/10/11 - 18:43:21 | 204 |            0s |             ::1 | OPTIONS  "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:43:21 | 200 |     86.9417ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:43:22 | 200 |    1.4907485s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:44:04 | 200 |     18.9296ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:44:05 | 200 |     67.3731ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:45:21 | 200 |    139.4856ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:45:22 | 200 |    1.4980706s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:45:48 | 200 |    225.9711ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:45:48 | 200 |     238.629ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:45:49 | 200 |    294.8544ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:45:49 | 200 |    384.7495ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:47:57 | 200 |      9.2894ms |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:47:58 | 200 |    1.0975208s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:47:58 | 200 |     56.5327ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:47:58 | 200 |      8.8197ms |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:47:58 | 200 |     16.7899ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:47:58 | 200 |     59.1515ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:47:58 | 200 |    185.5202ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:47:59 | 200 |     14.7597ms |             ::1 | GET      "/api/SalesData?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:47:59 | 200 |            0s |             ::1 | GET      "/api/StockPriceScore?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:47:59 | 200 |     51.2292ms |             ::1 | GET      "/api/AllCompanyScores"
+[GIN] 2026/10/11 - 18:47:59 | 200 |    240.6832ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:47:59 | 200 |    453.1614ms |             ::1 | GET      "/api/SalesData2?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:47:59 | 200 |    516.9117ms |             ::1 | GET      "/api/CompanyScores?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:48:00 | 200 |     647.402ms |             ::1 | GET      "/api/qvt-v2/discovery"
+[GIN] 2026/10/11 - 18:48:00 | 200 |    138.5712ms |             ::1 | GET      "/api/qvt-v2/discovery"
+[GIN] 2026/10/11 - 18:48:21 | 200 |     45.0934ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:48:21 | 200 |     62.0756ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:49:09 | 200 |     11.8743ms |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:49:09 | 200 |     91.5121ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:49:09 | 200 |     16.2893ms |             ::1 | GET      "/api/SalesData2?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:49:09 | 200 |    118.5632ms |             ::1 | GET      "/api/AllCompanyScores"
+[GIN] 2026/10/11 - 18:49:09 | 200 |            0s |             ::1 | GET      "/api/StockPriceScore?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:49:10 | 200 |    412.3577ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:49:10 | 200 |    448.4668ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:49:10 | 200 |    1.0327822s |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:49:10 | 200 |    396.1515ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:49:11 | 200 |    1.3060948s |             ::1 | GET      "/api/SalesData?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:49:12 | 200 |    230.0683ms |             ::1 | GET      "/api/qvt-v2/discovery"
+[GIN] 2026/10/11 - 18:49:12 | 200 |    2.5515338s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:49:12 | 200 |     27.7438ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:49:12 | 200 |    2.4310019s |             ::1 | GET      "/api/CompanyScores?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:49:12 | 200 |    171.1406ms |             ::1 | GET      "/api/qvt-v2/discovery"
+[GIN] 2026/10/11 - 18:49:13 | 200 |     34.8686ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:49:13 | 200 |     45.7626ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:49:13 | 200 |     98.8524ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:49:13 | 200 |    170.6414ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:50:12 | 200 |       9.215ms |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:50:12 | 200 |     94.0531ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:50:13 | 200 |    1.3552178s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:50:13 | 200 |     14.0083ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:50:13 | 200 |      13.694ms |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:50:13 | 200 |     66.5588ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:50:14 | 200 |            0s |             ::1 | GET      "/api/StockPriceScore?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:50:14 | 200 |     14.4641ms |             ::1 | GET      "/api/SalesData2?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:50:14 | 200 |     20.8563ms |             ::1 | GET      "/api/CompanyScores?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:50:14 | 200 |     411.608ms |             ::1 | GET      "/api/SalesData?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:50:14 | 200 |     575.399ms |             ::1 | GET      "/api/AllCompanyScores"
+[GIN] 2026/10/11 - 18:50:29 | 200 |     23.2629ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:50:29 | 200 |     91.6442ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:52:08 | 200 |     235.477ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:52:08 | 200 |    280.3716ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:52:10 | 200 |    2.5198984s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:52:10 | 200 |     13.9349ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:52:58 | 200 |     20.5851ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:52:58 | 200 |      61.492ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:53:18 | 200 |    199.2206ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:53:18 | 404 |            0s |             ::1 | GET      "/api/companies"
+[GIN] 2026/10/11 - 18:53:21 | 200 |    101.4078ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:53:22 | 200 |    1.4248381s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:54:09 | 200 |     19.2078ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:54:09 | 200 |     65.3963ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:55:12 | 200 |     91.7105ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:55:14 | 200 |    1.5581305s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:55:21 | 200 |      15.445ms |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:55:21 | 200 |      8.7114ms |             ::1 | GET      "/api/CompanyNames"
+[GIN] 2026/10/11 - 18:55:21 | 200 |     40.0803ms |             ::1 | GET      "/api/SalesData?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:55:21 | 200 |    214.4757ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:55:21 | 200 |            0s |             ::1 | GET      "/api/StockPriceScore?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:55:21 | 200 |     77.0322ms |             ::1 | GET      "/api/AllCompanyScores"
+[GIN] 2026/10/11 - 18:55:21 | 200 |    323.3489ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:55:21 | 200 |    112.2074ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:55:21 | 200 |    218.0555ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 18:55:21 | 200 |    484.0263ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:55:21 | 200 |    644.0072ms |             ::1 | GET      "/api/SalesData2?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:55:21 | 200 |    702.6198ms |             ::1 | GET      "/api/CompanyScores?companyName=%D8%A2%D8%B1%D8%AF%DB%8C%D9%86%D9%87"
+[GIN] 2026/10/11 - 18:55:22 | 200 |    196.6346ms |             ::1 | GET      "/api/qvt-v2"
+[GIN] 2026/10/11 - 18:55:23 | 200 |    543.9859ms |             ::1 | GET      "/api/qvt-v2/discovery"
+[GIN] 2026/10/11 - 18:55:23 | 200 |    140.9371ms |             ::1 | GET      "/api/qvt-v2/discovery"
+[GIN] 2026/10/11 - 18:58:21 | 200 |     85.9445ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 18:58:22 | 200 |    1.6946325s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:00:12 | 200 |     85.7529ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:00:14 | 200 |    1.8635721s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:00:21 | 200 |     17.8588ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:00:21 | 200 |    130.0134ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:00:50 | 200 |     22.3353ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:00:50 | 200 |     41.8321ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:00:50 | 200 |     77.8795ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:00:50 | 200 |    137.8998ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:03:21 | 200 |     91.5723ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:03:22 | 200 |    1.3840587s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:05:12 | 200 |      80.573ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:05:13 | 200 |    1.2530629s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:05:21 | 200 |     19.4206ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:05:21 | 200 |     49.9143ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:08:21 | 200 |     93.2428ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:08:22 | 200 |    1.2993557s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:10:12 | 200 |     89.5396ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:10:13 | 200 |    1.2177138s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:10:21 | 200 |     21.0535ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:10:21 | 200 |     54.5458ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:12:46 | 200 |     184.203ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:12:49 | 200 |    2.6289326s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:12:49 | 200 |     12.0647ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:12:49 | 200 |     66.5793ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:12:57 | 200 |     18.4287ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:12:57 | 200 |     52.5531ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:15:12 | 200 |     73.1841ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:15:13 | 200 |    1.3239772s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:15:21 | 200 |     17.6091ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:15:21 | 200 |     56.1457ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:16:59 | 200 |     116.545ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:17:01 | 200 |    1.5487328s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:17:57 | 200 |     17.1818ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:17:57 | 200 |     46.4791ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:20:13 | 200 |     683.859ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:20:15 | 200 |    2.8098668s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:20:21 | 200 |    122.5256ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:20:21 | 200 |    121.5837ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:22:58 | 200 |     59.5836ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:22:58 | 200 |    1.1310218s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:25:12 | 200 |     87.3595ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:25:13 | 200 |    1.2935278s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:25:21 | 200 |     18.5618ms |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 19:25:21 | 200 |      68.793ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:27:58 | 200 |     88.9787ms |             ::1 | GET      "/api/summary?limit=1000"
+[GIN] 2026/10/11 - 19:27:58 | 200 |    1.0996876s |             ::1 | GET      "/api/health/shadow"
+[GIN] 2026/10/11 - 20:48:40 | 404 |            0s |             ::1 | GET      "/api/health"

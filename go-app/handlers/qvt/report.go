@@ -7,7 +7,10 @@ package qvt
 // merged by stable company_id for the «تحلیل QVT — آزمایشی» page.
 //
 // Hard boundaries (identical to the pilot contracts):
-//   - file reads only: no database access, no ingestion, no writes of any kind
+//   - artifact file reads only for scores/coverage/warnings; the ONLY
+//     database touch is the read-only price-freshness verification
+//     (market.price_observations via a default_transaction_read_only=on
+//     session) documented in pricecheck.go — no writes of any kind
 //   - the three axes stay independent: no Q+V+T sum and no total-of-100 key
 //     is ever emitted (guarded by a walk test)
 //   - points are never renormalized over covered weight and companies are
@@ -18,6 +21,8 @@ package qvt
 //     or invented data — the UI shows the error, never sample rows
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -36,12 +41,12 @@ const qvtDisclaimer = "نسخه آزمایشی — اعتبار تاریخی ا�
 // qvtBoundaries restates the pilot contract next to the data so the UI can
 // never "forget" it without dropping the field.
 var qvtBoundaries = gin.H{
-	"axes_independent":      "Q و V و T سه محور مستقل‌اند — هیچ امتیاز کل از جمع سه محور تولید نمی‌شود",
-	"no_renormalization":    "وزن مفقود بازتوزیع نمی‌شود؛ امتیاز مشاهده‌شده هرگز بر مبنای پوشش نرمال نمی‌شود",
-	"no_final_rank":         "شرکت‌ها بر اساس امتیاز مشاهده‌شده به‌عنوان رتبه نهایی سرمایه‌گذاری مرتب نمی‌شوند؛ پوشش بین شرکت‌ها متفاوت است",
-	"independent_systems":   "Data Confidence و Risk Gate مستقل‌اند و تا اجرای واقعی «ارزیابی نشده» می‌مانند",
-	"exploratory_only":      "این خروجی آزمایشی است و سیگنال خرید/فروش نیست",
-	"historical_strict":     "خروجی بدون شواهد PIT معتبر به‌عنوان بک‌تست پذیرفته نمی‌شود (pit_status: collected_at_bounded)",
+	"axes_independent":    "Q و V و T سه محور مستقل‌اند — هیچ امتیاز کل از جمع سه محور تولید نمی‌شود",
+	"no_renormalization":  "وزن مفقود بازتوزیع نمی‌شود؛ امتیاز مشاهده‌شده هرگز بر مبنای پوشش نرمال نمی‌شود",
+	"no_final_rank":       "شرکت‌ها بر اساس امتیاز مشاهده‌شده به‌عنوان رتبه نهایی سرمایه‌گذاری مرتب نمی‌شوند؛ پوشش بین شرکت‌ها متفاوت است",
+	"independent_systems": "Data Confidence و Risk Gate دو ارزیابی مستقل فقط‌خواندنی‌اند؛ Risk Gate وضعیت ریسک را با قواعد صریح صادر می‌کند و هیچ امتیاز Q/V/T را تغییر نمی‌دهد؛ Data Confidence فقط ارزیابی کیفی شواهد بدون عدد اطمینان است",
+	"exploratory_only":    "این خروجی آزمایشی است و سیگنال خرید/فروش نیست",
+	"historical_strict":   "خروجی بدون شواهد PIT معتبر به‌عنوان بک‌تست پذیرفته نمی‌شود (pit_status: collected_at_bounded)",
 }
 
 // qvtAxisMaxWeight carries each axis's target weight so the UI renders
@@ -49,10 +54,19 @@ var qvtBoundaries = gin.H{
 var qvtAxisMaxWeight = gin.H{"quality": 40.0, "valuation": 35.0, "timing": 25.0}
 
 type qvtBundle struct {
-	dir             string
-	qPath, vPath, t string
-	qMod, vMod, tMod time.Time
-	Q, V, T         map[string]any
+	dir                 string
+	qPath, vPath, t     string
+	qMod, vMod, tMod    time.Time
+	qSHA, vSHA, tSHA    string
+	qSize, vSize, tSize int64
+	// loadStable یعنی در پایان خواندن، اندازه/زمان تغییر هر سه فایل با
+	// شروع خواندن یکی بود — محافظ خواننده در برابر refresh هم‌زمان
+	// (نویسنده‌ها فایل‌ها را درجا truncate+write می‌کنند).
+	loadStable bool
+	// manifest فقط در حالت opt-in (QVT_MANIFEST_DIR) پر می‌شود؛ nil یعنی
+	// خواندن مستقیم سه فایل.
+	manifest *qvtBundleManifest
+	Q, V, T  map[string]any
 }
 
 func qvtArtifactDir() string {
@@ -72,41 +86,98 @@ func qvtArtifactDir() string {
 	return candidates[0]
 }
 
-func qvtReadDoc(path string) (map[string]any, time.Time, error) {
+func qvtReadDoc(path string) (map[string]any, time.Time, string, int64, error) {
 	st, err := os.Stat(path)
 	if err != nil {
-		return nil, time.Time{}, err
+		return nil, time.Time{}, "", 0, err
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
-		return nil, time.Time{}, err
+		return nil, time.Time{}, "", 0, err
 	}
 	var doc map[string]any
 	if err := json.Unmarshal(raw, &doc); err != nil {
-		return nil, time.Time{}, fmt.Errorf("bad json in %s: %w", filepath.Base(path), err)
+		return nil, time.Time{}, "", 0, fmt.Errorf("bad json in %s: %w", filepath.Base(path), err)
 	}
-	return doc, st.ModTime().UTC(), nil
+	sum := sha256.Sum256(raw)
+	return doc, st.ModTime().UTC(), hex.EncodeToString(sum[:]), st.Size(), nil
 }
 
+// qvtLoadBundle هر سه آرتیفکت را می‌خواند و در پایان، اندازه/زمان تغییر
+// فایل‌ها را دوباره کنترل می‌کند. نویسنده‌ها درجا می‌نویسند (بدون
+// tmp+rename)، پس خواننده باید خودش در برابر خواندن میانه‌ی refresh مقاوم
+// باشد: اگر فایلی در میانه عوض شده باشد، خواندن حداکثر دو بار تکرار و در
+// نهایت با خطای صریح رد می‌شود — هیچ ترکیب نیمه‌کهنه سرو نمی‌شود.
 func qvtLoadBundle(dir string) (*qvtBundle, error) {
+	// حالت opt-in: وقتی QVT_MANIFEST_DIR تنظیم شده، فقط بسته نسخه‌دار
+	// خوانده می‌شود؛ هر خطا بلند و بدون fallback پنهان به فایل‌های مستقیم است.
+	if mdir := qvtManifestDir(); mdir != "" {
+		return qvtLoadBundleFromManifest(mdir)
+	}
+	var lastErr error
+	for attempt := 0; attempt < 3; attempt++ {
+		b, stable, err := qvtLoadBundleOnce(dir)
+		if err != nil {
+			lastErr = err
+		} else if stable {
+			b.loadStable = true
+			return b, nil
+		} else {
+			lastErr = fmt.Errorf("فایل‌های آرتیفکت در میانه خواندن تغییر کردند (refresh هم‌زمان) — تلاش %d", attempt+1)
+		}
+	}
+	return nil, lastErr
+}
+
+// qvtLoadBundleDirect مثل qvtLoadBundle عمل می‌کند اما حالت manifest را
+// نادیده می‌گیرد و دقیقاً از dir می‌خواند (برای بستهٔ آزمایشی ranking).
+func qvtLoadBundleDirect(dir string) (*qvtBundle, error) {
+	var lastErr error
+	for attempt := 0; attempt < 3; attempt++ {
+		b, stable, err := qvtLoadBundleOnce(dir)
+		if err != nil {
+			lastErr = err
+		} else if stable {
+			b.loadStable = true
+			return b, nil
+		} else {
+			lastErr = fmt.Errorf("فایل‌های آرتیفکت آزمایشی در میانه خواندن تغییر کردند — تلاش %d", attempt+1)
+		}
+	}
+	return nil, lastErr
+}
+
+func qvtLoadBundleOnce(dir string) (*qvtBundle, bool, error) {
+	before := map[string]fileStamp{}
+	for _, name := range []string{"v2_q_observed_report.json", "v2_value_pilot.json", "v2_t_pilot.json"} {
+		st, err := os.Stat(filepath.Join(dir, name))
+		if err != nil {
+			return nil, false, fmt.Errorf("آرتیفکت‌های پایلوت QVT V2 در دسترس نیستند — خروجی واقعی یافت نشد و هیچ داده نمونه‌ای نمایش داده نمی‌شود (فایل %s در %s: %v)", name, dir, err)
+		}
+		before[name] = fileStamp{size: st.Size(), mod: st.ModTime()}
+	}
 	b := &qvtBundle{dir: dir}
 	paths := []struct {
 		p    *string
 		m    *time.Time
+		s    *string
+		z    *int64
 		name string
 	}{
-		{&b.qPath, &b.qMod, "v2_q_observed_report.json"},
-		{&b.vPath, &b.vMod, "v2_value_pilot.json"},
-		{&b.t, &b.tMod, "v2_t_pilot.json"},
+		{&b.qPath, &b.qMod, &b.qSHA, &b.qSize, "v2_q_observed_report.json"},
+		{&b.vPath, &b.vMod, &b.vSHA, &b.vSize, "v2_value_pilot.json"},
+		{&b.t, &b.tMod, &b.tSHA, &b.tSize, "v2_t_pilot.json"},
 	}
 	for _, f := range paths {
 		full := filepath.Join(dir, f.name)
-		doc, mod, err := qvtReadDoc(full)
+		doc, mod, sha, size, err := qvtReadDoc(full)
 		if err != nil {
-			return nil, fmt.Errorf("آرتیفکت‌های پایلوت QVT V2 در دسترس نیستند — خروجی واقعی یافت نشد و هیچ داده نمونه‌ای نمایش داده نمی‌شود (فایل %s در %s: %v)", f.name, dir, err)
+			return nil, false, fmt.Errorf("آرتیفکت‌های پایلوت QVT V2 در دسترس نیستند — خروجی واقعی یافت نشد و هیچ داده نمونه‌ای نمایش داده نمی‌شود (فایل %s در %s: %v)", f.name, dir, err)
 		}
 		*f.p = full
 		*f.m = mod
+		*f.s = sha
+		*f.z = size
 		switch f.name {
 		case "v2_q_observed_report.json":
 			b.Q = doc
@@ -116,7 +187,22 @@ func qvtLoadBundle(dir string) (*qvtBundle, error) {
 			b.T = doc
 		}
 	}
-	return b, nil
+	stable := true
+	for _, name := range []string{"v2_q_observed_report.json", "v2_value_pilot.json", "v2_t_pilot.json"} {
+		st, err := os.Stat(filepath.Join(dir, name))
+		if err != nil {
+			return nil, false, fmt.Errorf("فایل %s در پایان خواندن در دسترس نیست: %v", name, err)
+		}
+		if st.Size() != before[name].size || !st.ModTime().Equal(before[name].mod) {
+			stable = false
+		}
+	}
+	return b, stable, nil
+}
+
+type fileStamp struct {
+	size int64
+	mod  time.Time
 }
 
 // qvtParseInstant accepts the two artifact formats: RFC3339
@@ -300,15 +386,25 @@ func qvtAxisViewFrom(cm map[string]any, pointsKey string, maxWeight float64) *qv
 }
 
 type qvtCompanyRow struct {
-	CompanyID        string        `json:"company_id"`
-	Symbol           string        `json:"symbol"`
-	ModelFamily      string        `json:"model_family"`
-	Industry         string        `json:"industry"`
-	Q                *qvtAxisView  `json:"q"`
-	V                *qvtAxisView  `json:"v"`
-	T                *qvtAxisView  `json:"t"`
-	AllThreeEligible bool          `json:"all_three_eligible"`
-	AnyEligible      bool          `json:"any_axis_eligible"`
+	CompanyID   string       `json:"company_id"`
+	Symbol      string       `json:"symbol"`
+	ModelFamily string       `json:"model_family"`
+	Industry    string       `json:"industry"`
+	Q           *qvtAxisView `json:"q"`
+	V           *qvtAxisView `json:"v"`
+	T           *qvtAxisView `json:"t"`
+
+	AllThreeEligible bool `json:"all_three_eligible"`
+	AnyEligible      bool `json:"any_axis_eligible"`
+
+	// وضعیت اعتبارسنجی اقتصادی مستقل (۲-ک-۲) — مستقل از امتیازها و Risk
+	// Gate؛ برای فیلتر/مرتب‌سازی UI است و هیچ امتیازی نمی‌سازد.
+	ValidationStatus        string `json:"validation_status,omitempty"`
+	ValidationStatusLabel   string `json:"validation_status_label,omitempty"`
+	Shortlisted             bool   `json:"shortlisted"`
+	ValidationNeedsReview   bool   `json:"validation_needs_review"`
+	ValidationReasonCount   int    `json:"validation_reason_count"`
+	ValidationReasonPreview string `json:"validation_reason_preview,omitempty"`
 }
 
 // qvtCheckIdentity refuses to merge companies whose stable identity fields
@@ -423,8 +519,10 @@ func qvtServeSummary(c *gin.Context, b *qvtBundle, qc, vc, tc map[string]any, as
 	}
 	sort.Strings(cids)
 
+	overlays := qvtLoadOverlays(b.dir, b)
 	rows := make([]qvtCompanyRow, 0, len(cids))
 	var nQ, nV, nT, nQV, nQT, nVT, nAll, nAny int
+	var nIndep, nReview, nConflict, nInsufficient int
 	for _, cid := range cids {
 		qcm, _ := qc[cid].(map[string]any)
 		vcm, _ := vc[cid].(map[string]any)
@@ -484,6 +582,34 @@ func qvtServeSummary(c *gin.Context, b *qvtBundle, qc, vc, tc map[string]any, as
 		if row.AnyEligible {
 			nAny++
 		}
+		// وضعیت اعتبارسنجی مستقل برای این شرکت (اگر overlay متصل باشد).
+		// overlay اعتبارسنجی مستقل فقط ۱۶ نامزد فهرست کوتاه را پوشش می‌دهد،
+		// پس وجودش خود نشانهٔ shortlist بودن است.
+		ovc := overlayForCompany(overlays, cid)
+		if iv, ok := ovc["independent_validation"].(map[string]any); ok {
+			row.Shortlisted = true
+			row.ValidationStatus, _ = iv["status"].(string)
+			row.ValidationStatusLabel, _ = iv["status_label"].(string)
+			switch row.ValidationStatus {
+			case "independently_checked":
+				nIndep++
+			case "consistent_but_not_independent":
+				nReview++
+				row.ValidationNeedsReview = true
+			case "conflicting":
+				nConflict++
+				row.ValidationNeedsReview = true
+			case "insufficient_evidence":
+				nInsufficient++
+				row.ValidationNeedsReview = true
+			}
+			if reasons, ok := iv["reasons"].([]any); ok {
+				row.ValidationReasonCount = len(reasons)
+				if len(reasons) > 0 {
+					row.ValidationReasonPreview, _ = reasons[0].(string)
+				}
+			}
+		}
 		rows = append(rows, row)
 	}
 
@@ -507,21 +633,28 @@ func qvtServeSummary(c *gin.Context, b *qvtBundle, qc, vc, tc map[string]any, as
 			"companies":          len(cids),
 		},
 		"counts": gin.H{
-			"n_total":       len(cids),
-			"n_q_eligible":  nQ,
-			"n_v_eligible":  nV,
-			"n_t_eligible":  nT,
-			"n_q_and_v":     nQV,
-			"n_q_and_t":     nQT,
-			"n_v_and_t":     nVT,
-			"n_all_three":   nAll,
+			"n_total":      len(cids),
+			"n_q_eligible": nQ,
+			"n_v_eligible": nV,
+			"n_t_eligible": nT,
+			"n_q_and_v":    nQV,
+			"n_q_and_t":    nQT,
+			"n_v_and_t":    nVT,
+			"n_all_three":  nAll,
+			"validation": gin.H{
+				"independently_checked":           nIndep,
+				"consistent_but_not_independent":  nReview,
+				"insufficient_evidence":           nInsufficient,
+				"conflicting":                     nConflict,
+			},
 		},
 		"companies": rows,
 		"sources": gin.H{
-			"q": gin.H{"file": filepath.Base(b.qPath), "modified_at": b.qMod.Format(time.RFC3339)},
-			"v": gin.H{"file": filepath.Base(b.vPath), "modified_at": b.vMod.Format(time.RFC3339)},
-			"t": gin.H{"file": filepath.Base(b.t), "modified_at": b.tMod.Format(time.RFC3339)},
+			"q": gin.H{"file": filepath.Base(b.qPath), "modified_at": b.qMod.Format(time.RFC3339), "sha256": b.qSHA, "size_bytes": b.qSize},
+			"v": gin.H{"file": filepath.Base(b.vPath), "modified_at": b.vMod.Format(time.RFC3339), "sha256": b.vSHA, "size_bytes": b.vSize},
+			"t": gin.H{"file": filepath.Base(b.t), "modified_at": b.tMod.Format(time.RFC3339), "sha256": b.tSHA, "size_bytes": b.tSize},
 		},
+		"bundle_integrity": bundleIntegrityOf(b),
 	})
 }
 
@@ -565,6 +698,37 @@ func qvtServeDetail(c *gin.Context, b *qvtBundle, qc, vc, tc map[string]any, cid
 		tAny = any(tcm)
 	}
 
+	// کنترل مستقل تازگی قیمت همین شرکت (نمایش تاریخ قیمت استفاده‌شده + حکم
+	// قاعده B1 برای Risk Gate). اگر منبع در دسترس نباشد نتیجه «ممکن نشد»
+	// سرو می‌شود — هیچ خطایی به endpoint نمی‌رسد و هیچ ادعای مانعی بدون
+	// اثبات صادر نمی‌شود.
+	policy := bundlePricePolicy(b)
+	px, _, _ := priceChecksFor([]string{cid}, qvtStr(b.V, "cutoff"), qvtStr(b.V, "as_of"), policy)
+	pc := px[cid]
+	rg := riskGateFor(cid, qcm, vcm, tcm, px)
+	// زنجیره شواهد ورودی (گام ۲-ی-۱): ردیابی فقط‌خواندنی منشأ Q/V/T
+	// همین شرکت — هیچ امتیاز یا رتبه‌ای نمی‌سازد.
+	chain := evidenceChainFor(cid, qcm, vcm, tcm, b, pc)
+	// overlayهای ممیزی مستقل (گام ۲-ک-۱): فقط وقتی snapshot_binding آنها با
+	// hash همین بسته یکی است خوانده می‌شوند؛ در غیر این صورت stale گزارش
+	// می‌شوند و هرگز بی‌صدا با داده تازه ادغام نمی‌شوند.
+	overlays := qvtLoadOverlays(b.dir, b)
+	ovc := overlayForCompany(overlays, cid)
+	ovMeta := gin.H{
+		"status": "absent",
+		"note":   "هیچ گزارش ممیزی متصل به همین snapshot یافت نشد — overlay قدیمی هرگز ادغام نمی‌شود",
+		"files":  []string{},
+	}
+	if len(overlays) > 0 {
+		files := make([]string, 0, len(overlays))
+		for _, oc := range overlays {
+			files = append(files, oc.File)
+		}
+		ovMeta = gin.H{"status": "bound", "files": files,
+			"note": "گزارش‌های ممیزی فقط وقتی مصرف می‌شوند که snapshot_binding آنها دقیقاً hash همین سه آرتیفکت باشد"}
+	}
+	actions := validationActionsFor(chain, ovc)
+
 	c.Header("Cache-Control", "no-store")
 	c.JSON(http.StatusOK, gin.H{
 		"stage":      "qvt_v2_ui_detail",
@@ -593,5 +757,29 @@ func qvtServeDetail(c *gin.Context, b *qvtBundle, qc, vc, tc map[string]any, cid
 		"policy": gin.H{
 			"q": b.Q["policy"],
 		},
+		"confidence":           discConfidenceFor(qcm, vcm, tcm),
+		"confidence_rules":     qvtConfidenceRules,
+		"risk_gate":            rg,
+		"risk_gate_rules":      qvtRiskGateRules,
+		"price_freshness":      pc,
+		"price_source":         priceSourceMeta(pc != nil && pc.Available, priceSourceNote(pc)),
+		"snapshot_consistency": snapshotConsistencyOf(b),
+		"bundle_integrity":     bundleIntegrityOf(b),
+		"evidence_chain":       chain,
+		"evidence_rules":       qvtEvidenceRules,
+		"evidence_overlay":     ovc,
+		"evidence_overlay_meta": ovMeta,
+		"validation_actions":   actions,
 	})
+}
+
+// priceSourceNote پیام کوتاه در دسترس‌بودن منبع قیمت برای این درخواست.
+func priceSourceNote(pc *priceCheck) string {
+	if pc == nil {
+		return ""
+	}
+	if pc.Available {
+		return ""
+	}
+	return pc.Note
 }

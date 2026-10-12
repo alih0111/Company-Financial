@@ -38,6 +38,7 @@ const FamilyAssets = lazy(() => import("./components/FamilyAssets"));
 const ChatPage = lazy(() => import("./components/ChatPage"));
 const MarketPage = lazy(() => import("./components/MarketPage"));
 const QvtAnalysisPage = lazy(() => import("./components/QvtAnalysisPage"));
+const QvtRankingPage = lazy(() => import("./components/QvtRankingPage"));
 
 // لودر سطح صفحه برای Suspense
 const PageLoader = () => (
@@ -116,9 +117,11 @@ const App = () => {
               ? "دارایی خانواده"
               : location.pathname === "/qvt"
                 ? "تحلیل QVT — آزمایشی"
-                : selectedCompany
-                  ? selectedCompany
-                  : "داشبورد";
+                : location.pathname === "/ranking"
+                  ? "رتبه‌بندی سهام — آزمایشی"
+                  : selectedCompany
+                    ? selectedCompany
+                    : "داشبورد";
 
   const pageSubtitle =
     location.pathname === "/Table"
@@ -133,7 +136,9 @@ const App = () => {
               ? "دارایی‌های سهام"
               : location.pathname === "/qvt"
                 ? "خروجی واقعی پایلوت V2 — سه محور مستقل Q و V و T"
-                : undefined;
+                : location.pathname === "/ranking"
+                  ? "امتیاز ۰..۱۰۰ اولویت بررسی — فقط نمادهای دارای دادهٔ معتبر Q/V/T"
+                  : undefined;
 
   const [collectingPrice, setCollectingPrice] = useState(false);
   const [priceCollectMsg, setPriceCollectMsg] = useState<string | null>(null);
@@ -169,6 +174,8 @@ const App = () => {
       document.title = "RFA | بازار";
     } else if (location.pathname === "/qvt") {
       document.title = "RFA | تحلیل QVT — آزمایشی";
+    } else if (location.pathname === "/ranking") {
+      document.title = "RFA | رتبه‌بندی سهام — آزمایشی";
     } else if (location.pathname === "/login") {
       document.title = "RFA | ورود";
     } else if (location.pathname === "/register") {
@@ -580,6 +587,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <QvtAnalysisPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/ranking"
+                    element={
+                      <ProtectedRoute>
+                        <QvtRankingPage />
                       </ProtectedRoute>
                     }
                   />

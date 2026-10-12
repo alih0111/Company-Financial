@@ -417,3 +417,6 @@ monthly_activity,MianSql2,monthly-auth-8bbc5bbccde546656d599555b9be64d9-1405/06/
 monthly_activity,MianSql2,monthly-auth-f26e919a7e723cb5fb35be3a34b11035-1405/06/31,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-08T17:54:32.476923+03:30,2026-10-08T17:54:32.782148+03:30
 monthly_activity,MianSql2,monthly-auth-b4d2079975271890006b2f38412d761d-1405/06/31,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-08T22:10:08.684752+03:30,2026-10-08T22:10:08.961019+03:30
 monthly_activity,MianSql2,monthly-auth-39c493c82f878ca7ed0a347493f150b6-1405/05/31,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-08T22:10:50.919656+03:30,2026-10-08T22:10:51.227719+03:30
+market_price,brs_prices,market-auth-1791628365,brs,not_attempted,success,262,262,0,0,262,,,0,0,2026-10-10T14:01:57.821696+03:30,2026-10-10T14:02:45.989511+03:30
+market_price,brs_prices,market-auth-1791632222,brs,not_attempted,success,262,4,258,0,262,,,0,0,2026-10-10T15:06:24.010580+03:30,2026-10-10T15:07:02.721997+03:30
+market_price,brs_prices,market-auth-1791742668,brs,not_attempted,success,262,262,0,0,262,,,0,0,2026-10-11T21:46:54.812588+03:30,2026-10-11T21:47:48.699267+03:30

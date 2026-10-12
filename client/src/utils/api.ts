@@ -933,6 +933,13 @@ export interface QvtCompanyRow {
   t: QvtAxisView;
   all_three_eligible: boolean;
   any_axis_eligible: boolean;
+  // اعتبارسنجی اقتصادی مستقل (۲-ک-۲) — فقط برای نامزدهای فهرست کوتاه پر می‌شود
+  shortlisted?: boolean;
+  validation_status?: "independently_checked" | "consistent_but_not_independent" | "insufficient_evidence" | "conflicting";
+  validation_status_label?: string;
+  validation_needs_review?: boolean;
+  validation_reason_count?: number;
+  validation_reason_preview?: string;
 }
 
 export interface QvtV2Summary {
@@ -958,9 +965,19 @@ export interface QvtV2Summary {
     n_q_and_t: number;
     n_v_and_t: number;
     n_all_three: number;
+    validation?: {
+      independently_checked?: number;
+      consistent_but_not_independent?: number;
+      insufficient_evidence?: number;
+      conflicting?: number;
+    };
   };
   companies: QvtCompanyRow[];
-  sources: Record<"q" | "v" | "t", { file: string; modified_at: string }>;
+  sources: Record<
+    "q" | "v" | "t",
+    { file: string; modified_at: string; sha256?: string; size_bytes?: number }
+  >;
+  bundle_integrity?: QvtBundleIntegrity;
 }
 
 const qvtServerError = async (res: Response, fallback: string) => {
@@ -983,5 +1000,739 @@ export async function fetchQvtV2Detail(companyId: string): Promise<any> {
     { headers: getAuthHeaders() }
   );
   if (!res.ok) throw await qvtServerError(res, "جزئیات شرکت یافت نشد");
+  return res.json();
+}
+
+// ── Data Confidence مستقل (گام ۲-ز-۱) — ارزیابی کیفی شواهد، بدون عدد اطمینان ──
+export type QvtConfidenceStatus = "findings" | "no_findings" | "not_evaluable";
+
+export interface QvtConfidenceDimension {
+  key: string;
+  title: string;
+  sources: string;
+  status: QvtConfidenceStatus;
+  reasons: string[];
+}
+
+export interface QvtConfidence {
+  overall: "findings" | "no_findings_recorded" | "not_evaluable";
+  overall_label: string;
+  overall_note: string;
+  dimension_counts: { findings: number; no_findings: number; not_evaluable: number };
+  dimensions: QvtConfidenceDimension[];
+  serious_warnings: string[];
+  serious_note: string;
+}
+
+// ── Risk Gate مستقل (گام ۲-ح-۱) — فقط‌خواندنی، با قواعد مسدودسازی صریح ──
+export type QvtRiskGateStatus =
+  | "blocked"
+  | "review_required"
+  | "insufficient_evidence"
+  | "no_verified_blocker";
+
+export interface QvtRiskFinding {
+  kind: string;
+  axis: string;
+  area: "data" | "fundamental" | "market";
+  category: string;
+  severity: string;
+  severity_label: string;
+  reason: string;
+  evidence: string[];
+  gate_effect: "blocked" | "review_required" | "none";
+  blocking_rule?: string;
+}
+
+export interface QvtRiskArea {
+  key: QvtRiskFinding["area"];
+  title: string;
+  status: QvtRiskGateStatus;
+  status_label: string;
+  findings: QvtRiskFinding[];
+  evidence_gaps: string[];
+  checks: string[];
+}
+
+export interface QvtRiskGate {
+  status: QvtRiskGateStatus;
+  status_label: string;
+  status_note: string;
+  areas: QvtRiskArea[];
+  blockers: QvtRiskFinding[];
+  review_findings: QvtRiskFinding[];
+  evidence_gaps: string[];
+  warning_kinds: string[];
+  note: string;
+}
+
+// ── کشف فرصت‌های QVT — همان snapshot، گروه‌بندی مقایسه‌پذیر و پارتو ──
+export type QvtDiscoveryModeName = "balanced" | "quality" | "value" | "timing";
+
+export interface QvtDiscoveryFactorIssue {
+  factor: string;
+  kind: string; // not_included | raw_not_valid
+  reason?: string;
+}
+
+export interface QvtDiscoveryAxis {
+  points: number | null;
+  covered_weight: number | null;
+  coverage_ratio: number | null;
+  max_weight: number;
+  scored_factors: string[];
+  factor_issues: QvtDiscoveryFactorIssue[];
+}
+
+export interface QvtDiscoveryCompany {
+  company_id: string;
+  symbol: string;
+  model_family: string;
+  industry: string;
+  q: QvtDiscoveryAxis;
+  v: QvtDiscoveryAxis;
+  t: QvtDiscoveryAxis;
+  warnings: {
+    n: number;
+    financial?: string[];
+    trading?: string[];
+  };
+  confidence: QvtConfidence;
+  risk_gate: QvtRiskGate;
+}
+
+export interface QvtDiscoveryRow {
+  company_id: string;
+  display_order: number;
+  comparability: "comparable" | "small_group" | "missing_scores";
+  pareto_layer?: number;
+  group_rank?: number;
+  group_size: number;
+  group_valid: boolean;
+  group_label: string;
+  reason: string;
+}
+
+export interface QvtDiscoveryModeResult {
+  mode: QvtDiscoveryModeName;
+  title: string;
+  order_note: string;
+  counts: {
+    companies: number;
+    ranked: number;
+    not_ranked: number;
+    groups_total: number;
+    groups_valid: number;
+  };
+  rows: QvtDiscoveryRow[];
+}
+
+// ── فهرست کوتاه کاربردی (گام ۲-ط-۱) ──
+export interface QvtPriceFreshness {
+  requested: boolean;
+  available: boolean; // منبع مستقل پاسخ داد
+  row_found: boolean; // ردیف قیمت در پنجره PIT یافت شد
+  note: string;
+  source?: string;
+  company_id?: string;
+  security_id?: string;
+  last_trade_date?: string;
+  collected_at?: string;
+  as_of_date?: string;
+  age_days?: number | null;
+  policy_days?: number | null;
+  policy_basis?: string;
+  window_rule?: string;
+  violation?: boolean | null;
+}
+
+export interface QvtShortlistEntry {
+  company_id: string;
+  symbol: string;
+  model_family: string;
+  industry: string;
+  q: QvtDiscoveryAxis;
+  v: QvtDiscoveryAxis;
+  t: QvtDiscoveryAxis;
+  warnings: {
+    n: number;
+    financial?: string[];
+    trading?: string[];
+  };
+  confidence: QvtConfidence;
+  risk_gate: QvtRiskGate;
+  pareto_layer: number | null;
+  group_rank?: number;
+  group_size: number;
+  group_label: string;
+  reason: string;
+  price_freshness: QvtPriceFreshness | null;
+  // وضعیت اعتبارسنجی اقتصادی مستقل (۲-ک-۲) — مستقل از امتیاز و Risk Gate؛
+  // غیبت یعنی «ارزیابی نشده»، نه «تأییدشده»
+  validation_status?: "independently_checked" | "consistent_but_not_independent" | "insufficient_evidence" | "conflicting";
+  validation_status_label?: string;
+  validation_needs_review?: boolean;
+  validation_reason?: string;
+}
+
+export interface QvtShortlistGroup {
+  group_label: string;
+  industry: string;
+  model_family: string;
+  group_size: number;
+  entries: QvtShortlistEntry[];
+}
+
+export interface QvtShortlist {
+  title: string;
+  basis: string;
+  not_a_signal: string;
+  counts: { groups: number; companies: number };
+  groups: QvtShortlistGroup[];
+  non_ranked: { n: number; note: string };
+}
+
+// ── فرصت‌های قابل بررسی بازار (گام ۲-ک-۷ + لایهٔ تصمیم ۲-ک-۸) ──────────────
+// هیچ امتیاز ترکیبی یا رتبه بنیادی بین صنایع ندارد؛ «نامزد جذاب» یعنی علاوه
+// بر گیت‌های شواهد، ترکیب بنیادی/ارزندگی/ورود با آستانه‌های اعلامی سیاست
+// تصمیم پاس شد — نه توصیه خرید. صفر نامزد جذاب ممکن و صادقانه است.
+export interface QvtBoardAxisStatus {
+  points: number | null;
+  max: number;
+  covered_weight: number | null;
+  coverage_ratio: number | null;
+  n_scored_factors: number;
+  n_factor_issues: number;
+  status: "computed" | "missing";
+}
+
+export interface QvtBoardEntry {
+  company_id: string;
+  symbol: string;
+  industry: string;
+  model_family: string;
+  group:
+    | "attractive_candidates"
+    | "fundamentals_waiting"
+    | "apparent_value_risk"
+    | "blocked_or_insufficient";
+  conclusion: string;
+  group_reason: string;
+  top_reason: string;
+  top_risk: string;
+  why: string[];
+  careful: string[];
+  review_when: string[];
+  q: QvtBoardAxisStatus;
+  v: QvtBoardAxisStatus;
+  t: QvtBoardAxisStatus;
+  // لایهٔ تصمیم ۲-ک-۸
+  fundamental: "strong" | "acceptable" | "weak" | "insufficient";
+  fundamental_label: string;
+  fundamental_note: string[];
+  roe_pct: number | null;
+  margin_pct: number | null;
+  leverage_pct: number | null;
+  interest_coverage_pct: number | null;
+  cash_conversion_pct?: number | null;
+  value_mean: number | null;
+  value_label: string;
+  value_cheap: boolean;
+  value_defensible: boolean;
+  value_note: string[];
+  value_basis_note?: string;
+  entry: "ok" | "neutral" | "hostile" | "insufficient";
+  entry_label: string;
+  entry_note: string[];
+  // گام ۲-ک-۹ — قید کیفیت اقتصادی (تبدیل نقد ضعیف / سود عملیاتی منفی)
+  conditional?: boolean;
+  conditional_reasons?: string[];
+  negative_operating_profit?: boolean;
+  pareto_layer?: number;
+  group_size: number;
+  group_label: string;
+  risk_gate_status: QvtRiskGateStatus;
+  risk_gate_label: string;
+  confidence_overall: string;
+  confidence_label: string;
+  price_freshness: QvtPriceFreshness | null;
+  freshness_label: string;
+  validation_status?: string;
+  validation_status_label?: string;
+  display_rank: number;
+}
+
+export interface QvtDecisionPolicy {
+  version: string;
+  q_strong_roe: number;
+  q_weak_roe: number;
+  q_strong_margin: number;
+  q_safety_min: number;
+  q_weak_factor: number;
+  q_weak_factor_n: number;
+  q_cash_min?: number;
+  v_cheap: number;
+  v_expensive: number;
+  v_multiple_min: number;
+  v_min_sector_support?: number;
+  t_momentum_ok: number;
+  t_momentum_hostile: number;
+  t_rs_hostile: number;
+  t_liq_floor_rial: number;
+  note: string;
+}
+
+export interface QvtOpportunityBoard {
+  title: string;
+  subtitle: string;
+  not_a_signal: string;
+  as_of: string;
+  default_visible: number;
+  empty_note: string;
+  systemic_caveats?: string[];
+  counts: {
+    // قرارداد صریح گام ۲-ک-۱۰: گروه‌های تصمیم mutually exclusive و مجموع‌بخش.
+    groups: {
+      attractive_candidates: number;
+      fundamentals_waiting: number;
+      apparent_value_risk: number;
+      blocked_or_insufficient: number;
+      total: number;
+      universe: number;
+      mutually_exclusive: boolean;
+      reconciles: boolean;
+    };
+    // صفت‌های مستقل از گروه — هرگز به شمارش گروه‌ها افزوده نمی‌شوند.
+    attributes: {
+      conditional_total: number;
+      conditional_in_waiting: number;
+      conditional_blocking: number;
+      negative_operating_profit: number;
+      risk_review_required: number;
+      price_freshness_verified: number;
+    };
+    n_triple_universe: number;
+    not_in_attractive_reasons: Record<string, number>;
+    blocked_breakdown: Record<string, number>;
+    // سازگاری پس‌رو (نسخه‌های قدیمی backend) — اختیاری و فقط خواندنی
+    attractive_candidates?: number;
+    fundamentals_waiting?: number;
+    apparent_value_risk?: number;
+    blocked_or_insufficient?: number;
+    conditional_candidates?: number;
+    n_conditional_blocking?: number;
+    n_price_freshness_verified?: number;
+    n_risk_review_required?: number;
+  };
+  attractive_candidates: QvtBoardEntry[];
+  fundamentals_waiting: QvtBoardEntry[];
+  apparent_value_risk: QvtBoardEntry[];
+  blocked_or_insufficient: QvtBoardEntry[];
+  decision_policy: QvtDecisionPolicy;
+  rules: Record<string, string>;
+  engine_note: string;
+}
+
+// ── پرونده تصمیم‌یار سهم (گام ۲-ک-۳ P2) — sidecar نسخه‌دار decision_dossier ──
+// فقط شواهد آرتیفکت‌های همین snapshot؛ هیچ امتیاز ترکیبی یا وزن پنهانی ندارد.
+export interface QvtDossierFactorRow {
+  factor: string;
+  fa: string;
+  direction?: "higher" | "lower";
+  score?: number | null;
+  contribution?: number | null;
+  weight?: number | null;
+  raw_value?: number | null;
+  plain?: string | null;
+  warnings?: string[];
+}
+
+export interface QvtDossierRatioRow extends QvtDossierFactorRow {
+  name: "pe" | "pb" | "ps";
+  essential?: boolean;
+  included?: boolean;
+  n_peers_sector?: number | null;
+  n_peers_family?: number | null;
+  peer_rank?: number | null;
+  n_peers?: number | null;
+  peer_values?: { symbol: string; company_id: string; value: number | null }[];
+  reliability: "reliable" | "time_limited" | "missing";
+  reliability_fa: string;
+}
+
+export interface QvtDecisionDossier {
+  company_id: string;
+  symbol: string;
+  display_name?: string | null;
+  industry?: string | null;
+  model_family?: string | null;
+  sections: {
+    quality: {
+      strengths: QvtDossierFactorRow[];
+      weaknesses: QvtDossierFactorRow[];
+      excluded_diagnostic: { factor: string; fa: string; reason: string }[];
+      coverage: { covered_weight?: number | null; missing_weight?: number | null; coverage_ratio?: number | null };
+      evidence_note: string;
+    };
+    value: {
+      ratios: QvtDossierRatioRow[];
+      caveats: string[];
+      points?: number | null;
+      covered_weight?: number | null;
+      missing_weight?: number | null;
+    };
+    market: {
+      factors: QvtDossierFactorRow[];
+      points?: number | null;
+      price: {
+        price_rial?: number | null;
+        trade_date?: string | null;
+        shares?: number | null;
+        market_cap_rial?: number | null;
+        share_source?: string | null;
+        note?: string;
+      };
+      adjustment_status: string;
+    };
+    evidence: {
+      data_confidence: {
+        status?: string | null;
+        covered_weight?: number | null;
+        pit_status_counts?: Record<string, number>;
+        missing_reasons?: Record<string, string>;
+      };
+      risk_gate: { status?: string | null; financial_warnings: string[]; note?: string | null };
+      independent_validation: {
+        status: string;
+        status_label: string;
+        status_definition?: string | null;
+        reasons: string[];
+      };
+      capital_events: {
+        outcome: string;
+        ex_date?: string | null;
+        old_shares?: number | null;
+        new_shares?: number | null;
+        funding_tags?: string[] | null;
+        codal_reference?: string | null;
+        implied_vs_recorded_rel_diff?: number | null;
+        caveat: string;
+      }[];
+      effective_dates: {
+        as_of?: string | null;
+        cutoff?: string | null;
+        winner_period_end?: string | null;
+        winner_publish_at?: string | null;
+        winner_tracing_no?: string | null;
+        price_trade_date?: string | null;
+      };
+    };
+    summary: { why_review: string[]; main_risk: string[]; needed_evidence: string[] };
+  };
+}
+
+export interface QvtPriceSourceMeta {
+  source: string;
+  window_rule: string;
+  policy_basis: string;
+  policy_source: string;
+  security_selection: string;
+  read_only: string;
+  independent_of_warning_text: string;
+  available: boolean;
+  note?: string;
+}
+
+// ── زنجیره شواهد ورودی (گام ۲-ی-۱) — قرارداد چهار وضعیتی، فقط‌خواندنی ──
+export interface QvtEvidenceField {
+  k: string;
+  v: string;
+}
+
+export interface QvtEvidenceItem {
+  key: string;
+  label: string;
+  status: "verified_from_source" | "partially_verified" | "unverified" | "conflicting";
+  status_label: string;
+  checked: boolean; // false = کنترل ممکن نشد — جدا از «داده نبود»
+  structural?: boolean; // یافته ساختاری درباره خود آرتیفکت — در جمع‌بندی محور نمی‌آید
+  source?: string;
+  summary?: string;
+  fields?: QvtEvidenceField[];
+  limitations?: string[];
+  conflicts?: string[];
+}
+
+export interface QvtAxisEvidence {
+  axis: string;
+  axis_label: string;
+  status: QvtEvidenceItem["status"];
+  status_label: string;
+  items: QvtEvidenceItem[];
+}
+
+export interface QvtEvidenceChain {
+  company_id: string;
+  overall: QvtEvidenceItem["status"];
+  overall_label: string;
+  status_counts: Record<string, number>;
+  axes: QvtAxisEvidence[];
+  notes: string[];
+}
+
+export interface QvtBundleIntegrity {
+  artifact_files: Record<
+    "q" | "v" | "t",
+    { file: string; sha256: string; size_bytes: number; modified_at: string }
+  >;
+  chain_linkage: {
+    q_to_v: Record<string, unknown>;
+    q_to_t: Record<string, unknown>;
+    v_to_t: Record<string, unknown>;
+    status: QvtEvidenceItem["status"];
+    status_label: string;
+    note: string;
+  };
+  run_identity: { status: string; limitation: string; fix_plan: string };
+  publication_atomicity: {
+    writer: string;
+    reader_mitigation: string;
+    residual_risk: string;
+  };
+  load_verified_stable: boolean;
+}
+
+export interface QvtDiscoveryResponse {
+  stage: string;
+  pilot: boolean;
+  disclaimer: string;
+  boundaries: Record<string, string>;
+  as_of: string;
+  cutoff: string;
+  universe: {
+    n_all_artifacts: number;
+    n_triple_eligible: number;
+    note: string;
+  };
+  mode_rules: Record<string, string>;
+  shortlist_rules: Record<string, unknown>;
+  confidence_rules: Record<string, unknown>;
+  risk_gate_rules: Record<string, unknown>;
+  price_source: QvtPriceSourceMeta;
+  snapshot_consistency: {
+    files: Record<
+      "q" | "v" | "t",
+      { as_of?: string; cutoff?: string; sha256?: string }
+    >;
+    consistent: boolean;
+    problems: string[];
+    note: string;
+  };
+  companies: QvtDiscoveryCompany[];
+  shortlist: QvtShortlist;
+  opportunity_board?: QvtOpportunityBoard;
+  modes: Record<QvtDiscoveryModeName, QvtDiscoveryModeResult>;
+  sources: Record<
+    "q" | "v" | "t",
+    {
+      file: string;
+      modified_at: string;
+      sha256?: string;
+      as_of?: string;
+      cutoff?: string;
+    }
+  >;
+}
+
+export async function fetchQvtV2Discovery(): Promise<QvtDiscoveryResponse> {
+  const res = await fetch(`${API_BASE}/qvt-v2/discovery`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok)
+    throw await qvtServerError(res, "کشف فرصت‌های QVT در دسترس نیست");
+  return res.json();
+}
+
+// ── رتبه‌بندی سادهٔ اولویت بررسی (گام ۲-ک-۱۱) ───────────────────────────────
+// یک شاخص آزمایشی ۰..۱۰۰ روی نمادهایی که هر سه محور Q/V/T آن‌ها دادهٔ کافی و
+// معتبر دارند. فرمول رسمی Q/V/T و وزن‌های آن دست‌نخورده است؛ امتیاز هرگز بر
+// پوشش تقسیم و وزن مفقود بازتوزیع نمی‌شود.
+export type QvtRankStatus = "buy_review" | "wait" | "weak";
+
+export interface QvtRankAxis {
+  points: number | null;
+  covered_weight: number | null;
+  max: number;
+  coverage_ratio: number | null;
+  n_scored_factors: number;
+  n_factor_issues: number;
+}
+
+export interface QvtRankedStock {
+  company_id: string;
+  symbol: string;
+  industry: string;
+  model_family: string;
+
+  rank: number;
+  score: number;
+  score_ceiling: number;
+
+  status: QvtRankStatus;
+  status_label: string;
+  status_reason: string;
+
+  main_reason: string;
+  main_risk: string;
+
+  conditional: boolean;
+  conditional_reasons: string[];
+  negative_operating_profit: boolean;
+
+  critical: boolean;
+  critical_flags: string[];
+
+  risk_gate_status: QvtRiskGateStatus;
+  risk_gate_label: string;
+  validation_status?: string;
+  validation_status_label?: string;
+
+  confidence_overall: string;
+  confidence_label: string;
+
+  coverage_min: number | null;
+  score_confidence: string;
+  score_confidence_label: string;
+
+  practical_ceiling: number;
+  full_coverage: boolean;
+  comparability: string;
+  comparability_label: string;
+
+  peer_group_size: number;
+  peer_group_valid: boolean;
+  peer_group_label: string;
+
+  extrapolated_score: number;
+  sensitivity_rank: number;
+  rank_shift: number;
+
+  q: QvtRankAxis;
+  v: QvtRankAxis;
+  t: QvtRankAxis;
+
+  board_group: string;
+  board_group_label: string;
+  group_reason: string;
+  why: string[];
+  careful: string[];
+  review_when: string[];
+}
+
+export interface QvtUnscoredAxis {
+  present: boolean;
+  eligible: boolean;
+  coverage_ratio: number | null;
+  covered_weight: number | null;
+  max: number;
+  missing_essentials: string[];
+}
+
+export interface QvtUnscoredStock {
+  company_id: string;
+  symbol: string;
+  industry: string;
+  model_family: string;
+  reason_code: string;
+  reason_label: string;
+  blocking_axes: string[];
+  q: QvtUnscoredAxis;
+  v: QvtUnscoredAxis;
+  t: QvtUnscoredAxis;
+}
+
+export interface QvtRankingResponse {
+  stage: string;
+  pilot: boolean;
+  disclaimer: string;
+  boundaries: Record<string, unknown>;
+  as_of: string;
+  cutoff: string;
+  title: string;
+  subtitle: string;
+  score_name: string;
+  not_a_signal: string;
+  score_ceiling: number;
+  universe: {
+    n_all_artifacts: number;
+    n_scored: number;
+    n_unscored: number;
+    note: string;
+  };
+  score_contract: Record<string, string>;
+  coverage_impact: {
+    n_scored: number;
+    n_full_coverage: number;
+    n_partial_coverage: number;
+    spearman_raw_vs_coverage_equalized: number;
+    spearman_score_vs_q_coverage: number;
+    max_rank_shift: number;
+    n_shift_gt5: number;
+    n_shift_gt10: number;
+    practical_ceiling_min: number;
+    practical_ceiling_max: number;
+    interpretation: string;
+  };
+  peer_group_impact: {
+    n_scored: number;
+    n_valid_group: number;
+    n_small_group: number;
+    n_group_not_evaluated: number;
+    min_group_size: number;
+    top10_small_group: number;
+    min_group_rule: number;
+    interpretation: string;
+  };
+  data_completion_plan: {
+    goal: string;
+    why_q_only: string;
+    structural_gap: string;
+    differentiating_gaps: string;
+    residual_causes: string;
+    steps: string[];
+    success_criterion: string;
+    not_a_new_score: string;
+  };
+  sensitivity_note: string;
+  status_legend: Record<string, string>;
+  experimental_bundle?: {
+    active: boolean;
+    dir: string;
+    note: string;
+  };
+  snapshot_consistency: {
+    files: Record<
+      "q" | "v" | "t",
+      { as_of?: string; cutoff?: string; sha256?: string }
+    >;
+    consistent: boolean;
+    problems: string[];
+    note: string;
+  };
+  price_source: QvtPriceSourceMeta;
+  ranked: QvtRankedStock[];
+  unscored: QvtUnscoredStock[];
+  sources: Record<
+    "q" | "v" | "t",
+    { as_of?: string; cutoff?: string; sha256?: string }
+  >;
+}
+
+export async function fetchQvtV2Ranking(): Promise<QvtRankingResponse> {
+  const res = await fetch(`${API_BASE}/qvt-v2/ranking`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok)
+    throw await qvtServerError(res, "رتبه‌بندی سهام در دسترس نیست");
   return res.json();
 }

@@ -62,6 +62,12 @@ func main() {
 		// تحلیل QVT نسخه ۲ (آزمایشی) — فقط‌خواندنی روی آرتیفکت‌های پایلوت
 		protected.GET("/qvt-v2", qvt.GetQvtV2Report)
 
+		// «کشف فرصت‌ها» QVT — همان snapshot، گروه‌بندی مقایسه‌پذیر و لایه‌های پارتو (فقط‌خواندنی)
+		protected.GET("/qvt-v2/discovery", qvt.GetQvtV2Discovery)
+
+		// رتبه‌بندی سادهٔ اولویت بررسی (۰..۱۰۰ آزمایشی) — همان snapshot، فقط‌خواندنی
+		protected.GET("/qvt-v2/ranking", qvt.GetQvtV2Ranking)
+
 		// خروجی CSV امتیازات
 		protected.GET("/export/scores", handlers.ExportScoresCSV)
 
