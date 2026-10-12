@@ -902,3 +902,86 @@ export async function collectMarketAssets(
   }
   return res.json();
 }
+
+// ── تحلیل QVT نسخه ۲ (آزمایشی) — فید فقط‌خواندنی روی آرتیفکت‌های واقعی ──
+export interface QvtAxisView {
+  present: boolean;
+  points: number | null;
+  covered_weight: number | null;
+  max_weight: number;
+  coverage_ratio: number | null;
+  coverage_threshold_met: boolean | null;
+  pilot_eligible: boolean;
+  eligibility_known: boolean;
+  essential_missing?: string[];
+  aggregation_status?: string;
+  scope_reason?: string;
+  data_confidence_status?: string;
+  risk_gate_status?: string;
+  financial_warnings?: string[];
+  trading_warnings?: string[];
+  n_warnings: number;
+}
+
+export interface QvtCompanyRow {
+  company_id: string;
+  symbol: string;
+  model_family: string;
+  industry: string;
+  q: QvtAxisView;
+  v: QvtAxisView;
+  t: QvtAxisView;
+  all_three_eligible: boolean;
+  any_axis_eligible: boolean;
+}
+
+export interface QvtV2Summary {
+  stage: string;
+  pilot: boolean;
+  disclaimer: string;
+  boundaries: Record<string, string>;
+  as_of: string;
+  cutoff: string;
+  axis_targets: { quality: number; valuation: number; timing: number };
+  consistency: {
+    checked: boolean;
+    as_of_cutoff_match: boolean;
+    identity_conflicts: number;
+    companies: number;
+  };
+  counts: {
+    n_total: number;
+    n_q_eligible: number;
+    n_v_eligible: number;
+    n_t_eligible: number;
+    n_q_and_v: number;
+    n_q_and_t: number;
+    n_v_and_t: number;
+    n_all_three: number;
+  };
+  companies: QvtCompanyRow[];
+  sources: Record<"q" | "v" | "t", { file: string; modified_at: string }>;
+}
+
+const qvtServerError = async (res: Response, fallback: string) => {
+  const body = await res.json().catch(() => null);
+  return new Error(body?.error || fallback);
+};
+
+export async function fetchQvtV2Summary(): Promise<QvtV2Summary> {
+  const res = await fetch(`${API_BASE}/qvt-v2`, {
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok)
+    throw await qvtServerError(res, "خروجی پایلوت QVT در دسترس نیست");
+  return res.json();
+}
+
+export async function fetchQvtV2Detail(companyId: string): Promise<any> {
+  const res = await fetch(
+    `${API_BASE}/qvt-v2?company_id=${encodeURIComponent(companyId)}`,
+    { headers: getAuthHeaders() }
+  );
+  if (!res.ok) throw await qvtServerError(res, "جزئیات شرکت یافت نشد");
+  return res.json();
+}

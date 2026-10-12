@@ -2,6 +2,7 @@ package main
 
 import (
 	"go-app/handlers"
+	qvt "go-app/handlers/qvt"
 	"go-app/middleware"
 	"os"
 	"time"
@@ -57,6 +58,9 @@ func main() {
 		// شاخص‌های بازار + صندوق‌های طلا/کالا (صفحه‌ی «بازار»)
 		protected.GET("/market/assets", handlers.GetMarketAssets)
 		protected.POST("/market/collect", handlers.RunMarketAssetsCollector)
+
+		// تحلیل QVT نسخه ۲ (آزمایشی) — فقط‌خواندنی روی آرتیفکت‌های پایلوت
+		protected.GET("/qvt-v2", qvt.GetQvtV2Report)
 
 		// خروجی CSV امتیازات
 		protected.GET("/export/scores", handlers.ExportScoresCSV)

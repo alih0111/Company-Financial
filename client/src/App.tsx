@@ -37,6 +37,7 @@ const Portfolio = lazy(() => import("./components/Portfolio"));
 const FamilyAssets = lazy(() => import("./components/FamilyAssets"));
 const ChatPage = lazy(() => import("./components/ChatPage"));
 const MarketPage = lazy(() => import("./components/MarketPage"));
+const QvtAnalysisPage = lazy(() => import("./components/QvtAnalysisPage"));
 
 // لودر سطح صفحه برای Suspense
 const PageLoader = () => (
@@ -113,9 +114,11 @@ const App = () => {
             ? "پورتفولیو"
             : location.pathname === "/assets"
               ? "دارایی خانواده"
-              : selectedCompany
-                ? selectedCompany
-                : "داشبورد";
+              : location.pathname === "/qvt"
+                ? "تحلیل QVT — آزمایشی"
+                : selectedCompany
+                  ? selectedCompany
+                  : "داشبورد";
 
   const pageSubtitle =
     location.pathname === "/Table"
@@ -128,7 +131,9 @@ const App = () => {
             ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
             : location.pathname === "/portfolio"
               ? "دارایی‌های سهام"
-              : undefined;
+              : location.pathname === "/qvt"
+                ? "خروجی واقعی پایلوت V2 — سه محور مستقل Q و V و T"
+                : undefined;
 
   const [collectingPrice, setCollectingPrice] = useState(false);
   const [priceCollectMsg, setPriceCollectMsg] = useState<string | null>(null);
@@ -162,6 +167,8 @@ const App = () => {
       document.title = "RFA | دارایی خانواده";
     } else if (location.pathname === "/market") {
       document.title = "RFA | بازار";
+    } else if (location.pathname === "/qvt") {
+      document.title = "RFA | تحلیل QVT — آزمایشی";
     } else if (location.pathname === "/login") {
       document.title = "RFA | ورود";
     } else if (location.pathname === "/register") {
@@ -565,6 +572,14 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <MarketPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/qvt"
+                    element={
+                      <ProtectedRoute>
+                        <QvtAnalysisPage />
                       </ProtectedRoute>
                     }
                   />
