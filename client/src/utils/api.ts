@@ -1079,6 +1079,7 @@ export interface QvtDiscoveryAxis {
   points: number | null;
   covered_weight: number | null;
   coverage_ratio: number | null;
+  coverage_threshold_met?: boolean;
   max_weight: number;
   scored_factors: string[];
   factor_issues: QvtDiscoveryFactorIssue[];
@@ -1560,6 +1561,8 @@ export async function fetchQvtV2Discovery(): Promise<QvtDiscoveryResponse> {
 export type QvtRankStatus = "buy_review" | "wait" | "weak";
 
 export interface QvtRankAxis {
+  scored_factors?: string[];
+  missing_factors?: { factor: string; label: string; weight: number; kind: string; reason: string }[];
   points: number | null;
   covered_weight: number | null;
   max: number;
@@ -1569,6 +1572,7 @@ export interface QvtRankAxis {
 }
 
 export interface QvtRankedStock {
+  timing_windows?: { factor: string; label: string; reference: string; start: string; end: string; anchor_age_days: number }[];
   company_id: string;
   symbol: string;
   industry: string;
@@ -1630,12 +1634,14 @@ export interface QvtRankedStock {
 }
 
 export interface QvtUnscoredAxis {
+  points?: number | null;
   present: boolean;
   eligible: boolean;
   coverage_ratio: number | null;
   covered_weight: number | null;
   max: number;
   missing_essentials: string[];
+  blocker_details?: string[];
 }
 
 export interface QvtUnscoredStock {
@@ -1671,6 +1677,8 @@ export interface QvtRankingResponse {
   };
   score_contract: Record<string, string>;
   coverage_impact: {
+    top10_overlap?: number;
+    top10_count?: number;
     n_scored: number;
     n_full_coverage: number;
     n_partial_coverage: number;
@@ -1710,6 +1718,18 @@ export interface QvtRankingResponse {
     dir: string;
     note: string;
   };
+  freshness?: {
+    status: "same_day" | "dated" | "future" | "unknown";
+    as_of_date: string;
+    today: string;
+    age_calendar_days: number | null;
+  };
+  data_dates?: {
+    market_data_as_of: string | null;
+    timing_market_data_as_of?: string | null;
+    computed_at: string;
+    supplemental_catalog_cutoff: string;
+  } | null;
   snapshot_consistency: {
     files: Record<
       "q" | "v" | "t",
@@ -1734,5 +1754,78 @@ export async function fetchQvtV2Ranking(): Promise<QvtRankingResponse> {
   });
   if (!res.ok)
     throw await qvtServerError(res, "رتبه‌بندی سهام در دسترس نیست");
+  return res.json();
+}
+
+export interface QvtPaperSummary {
+  research?: {
+    n_comparisons: number;
+    n_variants: number;
+    checked_scenarios: number;
+    generated_at: string;
+    promotion_ready: false;
+    status_label: string;
+    gaps: { live_unscored: number; report_recovery_candidates: number; partial_statement_candidates?: number };
+    chronological?: { n_comparisons: number; annual_decisions: number; status_label: string } | null;
+    uncertainty: { interval_95: [number, number] };
+  } | null;
+  strategy?: {
+    as_of: string;
+    snapshot_fresh: boolean;
+    status_label: string;
+    cash_weight: number;
+    source_hashes: Record<"q" | "v" | "t", string>;
+    positions: Array<{ company_id: string; symbol: string; weight: number; reason: string }>;
+    note: string;
+  } | null;
+  historical?: {
+    scope: "timing_only" | "reconstructed_subset";
+    score_ceiling: number;
+    start: string;
+    end: string;
+    n_dates: number;
+    n_symbols: number;
+    full_qvt_status: string;
+    top10: { annualized_return_pct: number; max_drawdown_pct: number; cumulative_return_pct: number };
+    benchmark: { annualized_return_pct: number; max_drawdown_pct: number; cumulative_return_pct: number };
+    cadences?: Array<{ id: "1m" | "6m"; top10: { annualized_return_pct: number; max_drawdown_pct: number; cumulative_return_pct: number }; benchmark: { annualized_return_pct: number; max_drawdown_pct: number; cumulative_return_pct: number } }>;
+    drawdown_frequency?: "daily";
+    min_complete?: number;
+    max_complete?: number;
+  } | null;
+  observer?: { enabled: boolean; status?: string; message?: string; schedule_label?: string };
+  status: string;
+  status_label: string;
+  decision_id?: string;
+  frozen_at?: string;
+  score_as_of?: string;
+  updated_at?: string;
+  source_hashes?: Record<"q" | "v" | "t", string>;
+  virtual_capital_rial?: number;
+  cash_weight?: number;
+  reference_date?: string | null;
+  valued_at?: string | null;
+  return_pct?: number | null;
+  benchmark_return_pct?: number | null;
+  real_orders: number;
+  completed_cycles?: number;
+  note?: string;
+  cost_assumption?: string;
+  skipped?: { symbol: string; reason: string }[];
+  positions: {
+    company_id: string;
+    symbol: string;
+    industry: string;
+    weight: number;
+    status_label: string;
+    reason: string;
+    risk?: string;
+    return_pct?: number | null;
+  }[];
+}
+
+export async function fetchQvtV2Paper(): Promise<QvtPaperSummary> {
+  const res = await fetch(`${API_BASE}/qvt-v2/paper`, { headers: getAuthHeaders() });
+  if (!res.ok) throw await qvtServerError(res, "آزمایش سبد در دسترس نیست");
   return res.json();
 }

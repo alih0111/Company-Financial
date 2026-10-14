@@ -1,0 +1,19 @@
+{
+  "version": "chronological-selector-research-v1",
+  "mode": "research_only",
+  "position_limit": 10,
+  "candidates": ["QVT", "QVT_BUFFER", "Q"],
+  "default_strategy": "QVT",
+  "update_schedule": "First observed eligible signal of each Gregorian calendar year",
+  "training_cutoff": "Strictly before the signal date; same-day and later outcomes excluded",
+  "minimum_history_days": 365,
+  "minimum_history_sessions": 180,
+  "training_cost_rate": 0.005,
+  "criterion": "Training CAGR percentage points minus absolute training daily drawdown percentage points",
+  "drawdown_penalty": 1.0,
+  "tie_break": "Strategy name ascending",
+  "cost_rates": [0.005, 0.01],
+  "accounting": "Continuous portfolio replay; switching is charged through actual target changes, never concatenate independent candidate NAV curves",
+  "registration_context": "Designed after seeing previous experiments. Chronological decision rules are checked, but this is not untouched out-of-sample evidence.",
+  "scope": "76-point general-company subset, current-identity historical universe, no industry or full dividends; no live weight change or promotion"
+}

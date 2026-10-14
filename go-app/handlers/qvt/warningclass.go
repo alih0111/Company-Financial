@@ -101,6 +101,16 @@ var warnKindMap = map[string]warnClass{
 		Severity: sevMarketStruct, Effect: effectReview, Serious: false, DCDim: "market",
 		Reason: "نکته ساختاری بازار و شرایط ورود: جلسات بدون معامله داخل پنجره ثبت و شمرده شده‌اند — خطای داده نیست",
 	},
+	"verified_reopening_repricing": {
+		Area: areaMarket, Category: "تغییر واقعی قیمت هنگام بازگشایی",
+		Severity: sevMarketStruct, Effect: effectReview, Serious: false, DCDim: "market",
+		Reason: "توقف معاملات و مرجع قیمت با منبع مستقل تطبیق یافته است؛ تغییر قیمت ریسک واقعی بازار است و به‌تنهایی مشکل اثبات‌شده داده نیست",
+	},
+	"shared_reference_before_calendar_window": {
+		Area: areaMarket, Category: "بازهٔ واقعی بازده طولانی‌تر از بازهٔ هدف",
+		Severity: sevMarketStruct, Effect: effectReview, Serious: false, DCDim: "temporal",
+		Reason: "قیمت پایهٔ مشترک پیش از ابتدای بازهٔ تقویمی است؛ تاریخ واقعی شروع و پایان افشا می‌شود و این فاصله به‌تنهایی خطای داده نیست",
+	},
 	"order3_recovered_from_raw_letter": {
 		Area: areaData, Category: "منشأ مقدار: بازیابی از نامه خام",
 		Severity: sevProvenance, Effect: effectNone, Serious: false, DCDim: "provenance",
@@ -157,13 +167,13 @@ func unknownClass(origin string) warnClass {
 
 // warnEvidence یک هشدار ثبت‌شده با متن واقعی و طبقه‌بندی نهایی آن.
 type warnEvidence struct {
-	Kind, Text    string
-	Axis          string // Q | V | T
-	Origin        string // financial | trading
-	Class         warnClass
-	Unknown       bool
-	StaleDays     int   // اعداد بازخوانی‌شده از متن ثبت‌شده — فقط برای نمایش
-	StalePolicy   int   // «اثبات مستقل» نیست؛ قاعده B1 به کنترل منبع قیمت نیاز دارد
+	Kind, Text     string
+	Axis           string // Q | V | T
+	Origin         string // financial | trading
+	Class          warnClass
+	Unknown        bool
+	StaleDays      int  // اعداد بازخوانی‌شده از متن ثبت‌شده — فقط برای نمایش
+	StalePolicy    int  // «اثبات مستقل» نیست؛ قاعده B1 به کنترل منبع قیمت نیاز دارد
 	StaleParseable bool // متن دو عدد داشت یا نه
 }
 

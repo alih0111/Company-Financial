@@ -31,6 +31,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	_ "time/tzdata"
 
 	"github.com/gin-gonic/gin"
 )
@@ -252,8 +253,23 @@ func qvtCheckConsistency(b *qvtBundle) (string, string, []string) {
 	if vAsOf != tAsOf {
 		problems = append(problems, fmt.Sprintf("v.as_of (%s) با t.as_of (%s) یکی نیست", vAsOf, tAsOf))
 	}
-	if !base.IsZero() && base.Format("2006-01-02") != vAsOf {
-		problems = append(problems, fmt.Sprintf("تاریخ snapshot (%s) با cutoff (%s) هم‌خوان نیست", vAsOf, base.Format("2006-01-02")))
+	zone := time.UTC
+	qZone, vZone, tZone := qvtStr(b.Q, "as_of_timezone"), qvtStr(b.V, "as_of_timezone"), qvtStr(b.T, "as_of_timezone")
+	if qZone != "" || vZone != "" || tZone != "" {
+		if qZone != vZone || vZone != tZone {
+			problems = append(problems, "منطقهٔ زمانی تاریخ سه محور هم‌خوان نیست")
+		} else if qZone == "Asia/Tehran" {
+			if location, err := time.LoadLocation(qZone); err == nil {
+				zone = location
+			} else {
+				problems = append(problems, "منطقهٔ زمانی تهران قابل بارگذاری نیست")
+			}
+		} else if qZone != "UTC" {
+			problems = append(problems, "منطقهٔ زمانی تاریخ بسته پشتیبانی نمی‌شود")
+		}
+	}
+	if !base.IsZero() && base.In(zone).Format("2006-01-02") != vAsOf {
+		problems = append(problems, fmt.Sprintf("تاریخ snapshot (%s) با cutoff (%s) هم‌خوان نیست", vAsOf, base.In(zone).Format("2006-01-02")))
 	}
 	return vAsOf, vCut, problems
 }
@@ -642,10 +658,10 @@ func qvtServeSummary(c *gin.Context, b *qvtBundle, qc, vc, tc map[string]any, as
 			"n_v_and_t":    nVT,
 			"n_all_three":  nAll,
 			"validation": gin.H{
-				"independently_checked":           nIndep,
-				"consistent_but_not_independent":  nReview,
-				"insufficient_evidence":           nInsufficient,
-				"conflicting":                     nConflict,
+				"independently_checked":          nIndep,
+				"consistent_but_not_independent": nReview,
+				"insufficient_evidence":          nInsufficient,
+				"conflicting":                    nConflict,
 			},
 		},
 		"companies": rows,
@@ -757,19 +773,19 @@ func qvtServeDetail(c *gin.Context, b *qvtBundle, qc, vc, tc map[string]any, cid
 		"policy": gin.H{
 			"q": b.Q["policy"],
 		},
-		"confidence":           discConfidenceFor(qcm, vcm, tcm),
-		"confidence_rules":     qvtConfidenceRules,
-		"risk_gate":            rg,
-		"risk_gate_rules":      qvtRiskGateRules,
-		"price_freshness":      pc,
-		"price_source":         priceSourceMeta(pc != nil && pc.Available, priceSourceNote(pc)),
-		"snapshot_consistency": snapshotConsistencyOf(b),
-		"bundle_integrity":     bundleIntegrityOf(b),
-		"evidence_chain":       chain,
-		"evidence_rules":       qvtEvidenceRules,
-		"evidence_overlay":     ovc,
+		"confidence":            discConfidenceFor(qcm, vcm, tcm),
+		"confidence_rules":      qvtConfidenceRules,
+		"risk_gate":             rg,
+		"risk_gate_rules":       qvtRiskGateRules,
+		"price_freshness":       pc,
+		"price_source":          priceSourceMeta(pc != nil && pc.Available, priceSourceNote(pc)),
+		"snapshot_consistency":  snapshotConsistencyOf(b),
+		"bundle_integrity":      bundleIntegrityOf(b),
+		"evidence_chain":        chain,
+		"evidence_rules":        qvtEvidenceRules,
+		"evidence_overlay":      ovc,
 		"evidence_overlay_meta": ovMeta,
-		"validation_actions":   actions,
+		"validation_actions":    actions,
 	})
 }
 

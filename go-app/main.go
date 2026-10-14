@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	qvt.StartQvtPaperObserver()
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -67,6 +68,7 @@ func main() {
 
 		// رتبه‌بندی سادهٔ اولویت بررسی (۰..۱۰۰ آزمایشی) — همان snapshot، فقط‌خواندنی
 		protected.GET("/qvt-v2/ranking", qvt.GetQvtV2Ranking)
+		protected.GET("/qvt-v2/paper", qvt.GetQvtV2Paper)
 
 		// خروجی CSV امتیازات
 		protected.GET("/export/scores", handlers.ExportScoresCSV)

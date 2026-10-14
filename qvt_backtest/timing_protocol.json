@@ -1,0 +1,12 @@
+{
+  "version": "qvt-timing-history-v1",
+  "frozen_before_outcome_measurement": true,
+  "score_ceiling": 20,
+  "weights": {"momentum_6m_rel": 7, "momentum_3m_rel": 5, "liquidity": 4, "low_volatility": 4},
+  "scope": "Only historically reconstructible timing factors. Neither full QVT nor the live buy_review policy.",
+  "selection": "Fixed top ten and bottom ten; baseline V1 top ten and equal weight of the identical complete timing universe",
+  "cost_rates": [0.0, 0.005, 0.01],
+  "no_optimization": true,
+  "excluded_factor": "relative_strength_6m_sector: no certified historical sector map",
+  "rules": "Other timing gates, normalization, price causality, execution, costs and limitations follow protocol.json; same weights as live T, no rescaling or neutral filling"
+}

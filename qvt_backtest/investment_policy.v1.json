@@ -1,0 +1,34 @@
+{
+  "version": "investment-research-policy-v1",
+  "mode": "research_only",
+  "real_orders_enabled": false,
+  "scope": "Complete general-family reconstructed 76-point cohort; not full live QVT",
+  "decision_cutoff": "Date-based after signal-session closing evidence; exact historical quote release time unavailable",
+  "financial_knowledge_cutoff": "Asia/Tehran signal-day midnight; publication strictly before cutoff; includes known missing/rejected report metadata",
+  "execution": "First global traded session strictly after signal; exact positive-volume gate",
+  "position_limit": 10,
+  "retention_rank": 15,
+  "cadence_months": 1,
+  "cost_rates": [0.005, 0.01],
+  "score_variants": ["QVT", "Q", "V", "T", "QV", "QT", "VT"],
+  "single_factor_ablation": true,
+  "execution_stress": {
+    "initial_capital_rial": [1000000000, 10000000000],
+    "participation_rate": 0.01,
+    "delay_sessions": 1,
+    "blocked_single_price_bars": true,
+    "scope": "Conservative sensitivity scenarios; daily bar limits do not certify queue priority; residual orders expire at rebalance"
+  },
+  "buffer_variant": "Retain existing eligible members while rank <= 15; refill by current rank; no lookahead",
+  "reference": "MATCHED_EQUAL_WEIGHT; same complete cohort and execution dates",
+  "validation": "Fixed-model chronological evaluation on previously observed history; no untouched holdout claim",
+  "uncertainty": {"method": "paired circular moving-block bootstrap of daily returns", "block_sessions": 21, "replications": 1000, "seed": 20261013},
+  "research_acceptance": {
+    "min_excess_cagr_percentage_points": 2,
+    "max_observed_drawdown_pct": 35,
+    "min_positive_year_fraction": 0.6,
+    "positive_excess_at_high_cost": true,
+    "note": "Research screening thresholds preregistered before this run; not the user's real account risk budget. Passing does not authorize promotion."
+  },
+  "mandatory_promotion_gates": ["full_policy_replay", "historical_universe", "historical_industry", "corporate_action_total_return", "investable_benchmark", "execution_capacity", "operational_shadow", "broker_access", "owner_capital_and_risk_approval"]
+}

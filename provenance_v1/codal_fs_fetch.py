@@ -149,7 +149,7 @@ def classify_letter(letter: dict) -> str | None:
     t = _norm(letter.get("Title") or "")
     if not any(m in t for m in FS_MARK):
         return None
-    if any(m in t for m in ANNUAL_MARK) and "حسابرسی" in t:
+    if any(m in t for m in ANNUAL_MARK) and "حسابرسی شده" in t and "حسابرسی نشده" not in t:
         return "annual_audited"
     if any(m in t for m in INTERIM_MARK):
         return "interim"

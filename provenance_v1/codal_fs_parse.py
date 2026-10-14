@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import re
 
-ZERO_WIDTH = "\u200c\u200e\u200f\u202a-\u202e"
+ZERO_WIDTH = "\u200c\u200e\u200f\u202a\u202b\u202c\u202d\u202e"
 ARABIC_TO_PERSIAN = str.maketrans({"ي": "ی", "ى": "ی", "ك": "ک", "ۀ": "ه", "ة": "ه", "أ": "ا", "إ": "ا", "ٱ": "ا"})
 PERSIAN_DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹٠١٢٣٤٥٦٧٨٩", "01234567890123456789")
 
@@ -78,13 +78,13 @@ def to_number(text: str):
     neg = False
     if t.startswith("(") and t.endswith(")"):
         neg, t = True, t[1:-1]
-    t = t.replace(",", "").replace("٫", ".").translate(PERSIAN_DIGITS)
+    t = t.replace(",", "").replace("٬", "").replace("٫", ".").translate(PERSIAN_DIGITS)
     t = t.replace("−", "-")
     m = re.fullmatch(r"[+-]?\d+(?:\.\d+)?", t.strip())
     if not m:
         return None
     v = float(t)
-    return -v if neg else v
+    return -abs(v) if neg else v
 
 
 def _cells(row_html: str) -> list[str]:
@@ -102,9 +102,36 @@ def html_unescape(t: str) -> str:
 
 
 def _rows(table_html: str) -> list[list[str]]:
-    out = []
+    out, spans = [], {}
     for m in re.finditer(r"<tr[^>]*>(.*?)</tr>", table_html, re.S | re.I):
-        cs = _cells(m.group(1))
+        cs, col = [], 0
+        pending = {}
+        def inherited():
+            nonlocal col
+            while col in spans:
+                text, remaining = spans[col]
+                cs.append(text)
+                if remaining > 1:
+                    pending[col] = (text, remaining - 1)
+                col += 1
+        for cell in re.finditer(r"<t[dh]\b([^>]*)>(.*?)</t[dh]>", m.group(1), re.S | re.I):
+            inherited()
+            attrs, body = cell.groups()
+            def span(name):
+                match = re.search(rf'\b{name}\s*=\s*[\"\x27]?(\d+)', attrs, re.I)
+                value = int(match.group(1)) if match else 1
+                if not 1 <= value <= 128:
+                    raise ValueError('unsupported table span')
+                return value
+            width, height = span('colspan'), span('rowspan')
+            text = norm(html_unescape(re.sub(r'<[^>]+>', ' ', body)))
+            for _ in range(width):
+                cs.append(text)
+                if height > 1:
+                    pending[col] = (text, height - 1)
+                col += 1
+        inherited()
+        spans = pending
         if any(c.strip() for c in cs):
             out.append(cs)
     return out
@@ -194,7 +221,7 @@ def _caption_kind(caption: str):
     return None
 
 
-def parse_report(html: str) -> dict:
+def parse_report(html: str, *, parent_only: bool = False) -> dict:
     """HTML کدال → {statements: {stype: {metric: {order: value}}}, period_headers,
     consolidation}.
 
@@ -209,10 +236,27 @@ def parse_report(html: str) -> dict:
         if ck is None:
             continue
         stype, consolidated = ck
+        # A share price and parent-company equity must use the same accounting
+        # basis. Coverage collection explicitly opts in; older callers retain
+        # their original consolidated preference.
+        if parent_only and consolidated:
+            continue
+        if parent_only and "میلیونریال" not in norm_title(caption):
+            continue
         rows = _rows(t)
         if len(rows) < 3:
             continue
         wanted = {norm_title(v): k[1] for k, v in ROW_TITLES.items() if k[0] == stype}
+        if parent_only and stype == 'income_statement':
+            wanted[norm_title('جمع درآمدهای عملیاتی')] = 'revenue'
+            wanted[norm_title('سود (زیان) پایه هر سهم (ریال)')] = 'eps'
+        if parent_only and stype == "balance_sheet":
+            for title, metric in {
+                "جمع حقوق صاحبان سهام": "total_equity",
+                "جمع دارائیها": "total_assets",
+                "جمع دارائیهای جاری": "current_assets",
+            }.items():
+                wanted[norm_title(title)] = metric
         header, header_dates = None, []
         for r in rows[:4]:
             dates = [d for d in (jalali_in(c) for c in r) if d]
@@ -235,20 +279,29 @@ def parse_report(html: str) -> dict:
             if prev["consolidated"] == consolidated and prev["hits"] >= hits:
                 continue
         bucket: dict[str, dict] = {}
+        ambiguous_metrics = set()
         for r in rows:
             if len(r) <= date_cols[0]:
                 continue
             metric = wanted.get(norm_title(r[0]))
             if metric is None:
                 continue
+            if parent_only and metric in bucket:
+                ambiguous_metrics.add(metric)
             v1 = to_number(r[date_cols[0]])
-            v2 = to_number(r[date_cols[1]])
+            v2 = to_number(r[date_cols[1]]) if len(r) > date_cols[1] else None
             if v1 is not None:
                 bucket.setdefault(metric, {})[1] = v1
             if v2 is not None:
                 bucket.setdefault(metric, {})[2] = v2
+            if parent_only and len(date_cols) >= 3 and len(r) > date_cols[2]:
+                v3 = to_number(r[date_cols[2]])
+                if v3 is not None:
+                    bucket.setdefault(metric, {})[3] = v3
+        for metric in ambiguous_metrics:
+            bucket.pop(metric, None)
         picked[stype] = {"hits": hits, "bucket": bucket, "consolidated": consolidated,
-                         "headers": [header_dates[0], header_dates[1]]}
+                         "headers": header_dates if parent_only else [header_dates[0], header_dates[1]]}
     out = {"statements": {}, "period_headers": {}, "consolidation": {}}
     for stype, info in picked.items():
         out["statements"][stype] = info["bucket"]

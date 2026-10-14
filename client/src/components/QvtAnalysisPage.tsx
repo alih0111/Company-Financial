@@ -12,7 +12,6 @@ import {
   type QvtDiscoveryModeName,
   type QvtDiscoveryResponse,
   type QvtDiscoveryRow,
-  type QvtOpportunityBoard,
   type QvtEvidenceChain,
   type QvtEvidenceItem,
   type QvtBundleIntegrity,
@@ -202,6 +201,11 @@ type QvtDetail = {
   cutoff: string;
   confidence?: QvtConfidence;
   risk_gate?: QvtRiskGate;
+  evidence_overlay?: OverlayCompany;
+  evidence_overlay_meta?: OverlayMeta;
+  evidence_chain?: QvtEvidenceChain;
+  bundle_integrity?: QvtBundleIntegrity;
+  validation_actions?: ValidationAction[];
 };
 
 const FactorRows: React.FC<{ factors: Record<string, any> }> = ({
@@ -1840,12 +1844,10 @@ const ShortlistComparePanel: React.FC<{
 }> = ({ items, onRemove, onClear }) => {
   const [cols, setCols] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
-  const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
-    setErr(null);
     Promise.all(
       items.map((it) =>
         fetchQvtV2Detail(it.company_id)
@@ -3390,13 +3392,6 @@ const BoardAxisChip: React.FC<{ axis: "q" | "v" | "t"; s: QvtBoardAxisStatus }> 
       {cov ? ` · پوشش ${cov}` : ""}
     </Chip>
   );
-};
-
-const BOARD_CONCLUSION_TONE: Record<string, "neutral" | "warn" | "off" | "ok" | "danger"> = {
-  attractive_candidates: "ok",
-  fundamentals_waiting: "warn",
-  apparent_value_risk: "danger",
-  blocked_or_insufficient: "off",
 };
 
 const BOARD_FUND_TONE: Record<string, "ok" | "neutral" | "warn" | "danger" | "off"> = {

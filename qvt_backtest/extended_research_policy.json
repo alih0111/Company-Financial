@@ -1,0 +1,15 @@
+{
+  "version": "extended-q-fixed-comparison-v1",
+  "mode": "research_only",
+  "score_ceiling": 89,
+  "additional_weights": {"margin_trend": 3, "revenue_growth": 4, "interest_coverage": 3, "earnings_quality": 3},
+  "variants": ["CORE76_COMMON", "EXTENDED89_COMMON", "MATCHED_EQUAL_WEIGHT"],
+  "cost_rates": [0.005, 0.01],
+  "minimum_population": 20,
+  "position_limit": 10,
+  "normalization": "Retain the original frozen core-factor percentiles for both variants; new factors P1/P99 midrank within the shared extended-complete date cohort; no neutral fill or weight redistribution",
+  "cohort": "Original core-complete rows with all four extended values, fresh financial period and no older-income fallback; same cohort for every strategy",
+  "scope": "89-point diagnostic, no historical industry or full live policy; no live weight activation",
+  "hypothesis": "Adding existing designed Q factors improves net selection relative to the identical restricted core cohort; compare before any model promotion",
+  "registration_context": "Core-history results already observed; this is an additional fixed hypothesis, not independent untouched validation"
+}

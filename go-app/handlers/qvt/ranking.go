@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -72,13 +73,39 @@ var rankStatusLabels = map[string]string{
 // rankScoreCeiling سقف نظری شاخص = مجموع سقف وزن‌های رسمی سه محور.
 const rankScoreCeiling = 100.0
 
+// Freshness belongs to this bundle, independently of the V1 health endpoint.
+// Calendar age is descriptive and does not claim a missing trading session.
+func rankingFreshness(asOf string, now time.Time) gin.H {
+	zone := time.FixedZone("Tehran", 3*60*60+30*60)
+	today := now.In(zone).Format("2006-01-02")
+	day := asOf
+	if len(day) > 10 {
+		day = day[:10]
+	}
+	stamp, err := time.Parse("2006-01-02", day)
+	if err != nil {
+		return gin.H{"status": "unknown", "as_of_date": day, "today": today, "age_calendar_days": nil}
+	}
+	current, _ := time.Parse("2006-01-02", today)
+	age := int(current.Sub(stamp).Hours() / 24)
+	status := "dated"
+	if age == 0 {
+		status = "same_day"
+	} else if age < 0 {
+		status = "future"
+	}
+	return gin.H{"status": status, "as_of_date": day, "today": today, "age_calendar_days": age}
+}
+
 type rankAxis struct {
-	Points        *float64 `json:"points"`
-	CoveredWeight *float64 `json:"covered_weight"`
-	Max           float64  `json:"max"`
-	CoverageRatio *float64 `json:"coverage_ratio"`
-	NScored       int      `json:"n_scored_factors"`
-	NIssues       int      `json:"n_factor_issues"`
+	Points         *float64            `json:"points"`
+	CoveredWeight  *float64            `json:"covered_weight"`
+	Max            float64             `json:"max"`
+	CoverageRatio  *float64            `json:"coverage_ratio"`
+	NScored        int                 `json:"n_scored_factors"`
+	NIssues        int                 `json:"n_factor_issues"`
+	ScoredFactors  []string            `json:"scored_factors"`
+	MissingFactors []rankMissingFactor `json:"missing_factors"`
 }
 
 type rankEntry struct {
@@ -89,6 +116,7 @@ type rankEntry struct {
 
 	Rank         int     `json:"rank"`
 	Score        float64 `json:"score"`
+	rawScore     float64
 	ScoreCeiling float64 `json:"score_ceiling"`
 
 	Status       string `json:"status"`
@@ -126,10 +154,10 @@ type rankEntry struct {
 	//   FullCoverage یعنی پوشش این نماد با بیشترین پوشش مشاهده‌شده در هر سه محور
 	//   برابر است؛ در این حالت امتیازش مستقیماً با سایر نمادهای FullCoverage
 	//   مقایسه‌پذیر است.
-	PracticalCeiling float64 `json:"practical_ceiling"`
-	FullCoverage     bool    `json:"full_coverage"`
-	Comparability    string  `json:"comparability"`
-	ComparabilityLabel string `json:"comparability_label"`
+	PracticalCeiling   float64 `json:"practical_ceiling"`
+	FullCoverage       bool    `json:"full_coverage"`
+	Comparability      string  `json:"comparability"`
+	ComparabilityLabel string  `json:"comparability_label"`
 
 	// اندازه و اعتبار گروه همتای متوازن (خانواده + صنعت + پوشش فاکتور یکسان).
 	// اگر کمتر از ۵ همتا باشد، رتبهٔ نسبی درون‌صنعت معتبر نیست و فقط قرائت
@@ -151,21 +179,24 @@ type rankEntry struct {
 	V rankAxis `json:"v"`
 	T rankAxis `json:"t"`
 
-	BoardGroup      string   `json:"board_group"`
-	BoardGroupLabel string   `json:"board_group_label"`
-	GroupReason     string   `json:"group_reason"`
-	Why             []string `json:"why"`
-	Careful         []string `json:"careful"`
-	ReviewWhen      []string `json:"review_when"`
+	BoardGroup      string             `json:"board_group"`
+	BoardGroupLabel string             `json:"board_group_label"`
+	GroupReason     string             `json:"group_reason"`
+	Why             []string           `json:"why"`
+	Careful         []string           `json:"careful"`
+	ReviewWhen      []string           `json:"review_when"`
+	TimingWindows   []rankTimingWindow `json:"timing_windows"`
 }
 
 type rankUnscoredAxis struct {
+	Points            *float64 `json:"points"`
 	Present           bool     `json:"present"`
 	Eligible          bool     `json:"eligible"`
 	CoverageRatio     *float64 `json:"coverage_ratio"`
 	CoveredWeight     *float64 `json:"covered_weight"`
 	Max               float64  `json:"max"`
 	MissingEssentials []string `json:"missing_essentials"`
+	BlockerDetails    []string `json:"blocker_details,omitempty"`
 }
 
 type rankUnscored struct {
@@ -315,7 +346,7 @@ func buildRankedEntries(board gin.H) []*rankEntry {
 			qa, va, ta := rankAxisFromBoard(e.Q), rankAxisFromBoard(e.V), rankAxisFromBoard(e.T)
 			out = append(out, &rankEntry{
 				CompanyID: e.CompanyID, Symbol: e.Symbol, Industry: e.Industry, ModelFamily: e.ModelFamily,
-				Score: rankRound1(score), ScoreCeiling: rankScoreCeiling,
+				Score: rankRound1(score), rawScore: score, ScoreCeiling: rankScoreCeiling,
 				Status: status, StatusLabel: rankStatusLabels[status], StatusReason: statusReason,
 				MainReason: e.TopReason, MainRisk: e.TopRisk,
 				Conditional: e.Conditional, ConditionalReasons: condReasons,
@@ -326,17 +357,17 @@ func buildRankedEntries(board gin.H) []*rankEntry {
 				ConfidenceOverall: e.ConfidenceOverall, ConfidenceLabel: e.ConfidenceLabel,
 				CoverageMin: minCov, ScoreConfidence: confCode, ScoreConfidenceLabel: confLabel,
 				PracticalCeiling: rankRound1(rankCW(qa) + rankCW(va) + rankCW(ta)),
-				PeerGroupSize: e.GroupSize, PeerGroupValid: e.GroupSize >= 5,
+				PeerGroupSize:    e.GroupSize, PeerGroupValid: e.GroupSize >= 5,
 				PeerGroupLabel: e.GroupLabel,
-				Q: qa, V: va, T: ta,
+				Q:              qa, V: va, T: ta,
 				BoardGroup: e.Group, BoardGroupLabel: rankBoardGroupLabel(e.Group),
 				GroupReason: e.GroupReason, Why: why, Careful: careful, ReviewWhen: reviewWhen,
 			})
 		}
 	}
 	sort.SliceStable(out, func(i, j int) bool {
-		if out[i].Score != out[j].Score {
-			return out[i].Score > out[j].Score
+		if out[i].rawScore != out[j].rawScore {
+			return out[i].rawScore > out[j].rawScore
 		}
 		if out[i].Symbol != out[j].Symbol {
 			return out[i].Symbol < out[j].Symbol
@@ -483,16 +514,21 @@ func rankSpearman(a, b []float64) float64 {
 // rankCoverageImpact سنجه‌های اثر پوشش بر رتبه‌بندی را از خود داده می‌سازد
 // (شفاف و بازتولیدپذیر) تا ادعای «مقایسه‌پذیری» بدون عدد مطرح نشود.
 func rankCoverageImpact(entries []*rankEntry) gin.H {
-	if len(entries) == 0 {
-		return gin.H{"n": 0}
-	}
 	raw := make([]float64, 0, len(entries))
 	ext := make([]float64, 0, len(entries))
 	qcov := make([]float64, 0, len(entries))
 	nFull, nPartial := 0, 0
 	maxShift, nShift5, nShift10 := 0, 0, 0
 	minCeil, maxCeil := 0.0, 0.0
+	topCount := len(entries)
+	if topCount > 10 {
+		topCount = 10
+	}
+	topOverlap := 0
 	for _, e := range entries {
+		if e.Rank <= topCount && e.SensitivityRank <= topCount {
+			topOverlap++
+		}
 		raw = append(raw, e.Score)
 		ext = append(ext, e.ExtrapolatedScore)
 		if e.Q.CoverageRatio != nil {
@@ -531,9 +567,9 @@ func rankCoverageImpact(entries []*rankEntry) gin.H {
 		rank2[i] = float64(e.SensitivityRank)
 	}
 	return gin.H{
-		"n_scored":     len(entries),
-		"n_full_coverage": nFull,
-		"n_partial_coverage": nPartial,
+		"n_scored":                           len(entries),
+		"n_full_coverage":                    nFull,
+		"n_partial_coverage":                 nPartial,
 		"spearman_raw_vs_coverage_equalized": rankRound3(rankSpearman(rank1, rank2)),
 		"spearman_score_vs_q_coverage":       rankRound3(rankSpearman(raw, qcov)),
 		"max_rank_shift":                     maxShift,
@@ -541,9 +577,9 @@ func rankCoverageImpact(entries []*rankEntry) gin.H {
 		"n_shift_gt10":                       nShift10,
 		"practical_ceiling_min":              minCeil,
 		"practical_ceiling_max":              maxCeil,
-		"interpretation": "رتبه‌بندی خام با رتبه‌بندی هم‌پوشش (تحلیل حساسیت) همبستگی بسیار بالا دارد و " +
-			"فهرست ده‌نماد برتر پایدار است؛ اما میان امتیاز و پوشش بنیادی همبستگی مثبت ملایمی وجود دارد، " +
-			"پس این امتیاز یک شاخص «مشاهده‌شدهٔ» آزمایشی است و نه رتبه‌بندی اقتصادی کاملاً مقایسه‌پذیر.",
+		"top10_overlap":                      topOverlap,
+		"top10_count":                        topCount,
+		"interpretation":                     fmt.Sprintf("از %d نماد بالای فهرست، %d نماد در تحلیل حساسیت پوشش نیز در همان فهرست باقی می‌مانند. تفاوت پوشش داده بر امتیاز اثر دارد؛ این تحلیل، دقت پیش‌بینی یا سودآوری را اثبات نمی‌کند.", topCount, topOverlap),
 	}
 }
 
@@ -575,13 +611,13 @@ func rankPeerGroupImpact(entries []*rankEntry) gin.H {
 		}
 	}
 	return gin.H{
-		"n_scored":           len(entries),
-		"n_valid_group":      nValid,
-		"n_small_group":      nSmall,
+		"n_scored":              len(entries),
+		"n_valid_group":         nValid,
+		"n_small_group":         nSmall,
 		"n_group_not_evaluated": nNotEval,
-		"min_group_size":     minSize,
-		"top10_small_group":  top10Small,
-		"min_group_rule":     5,
+		"min_group_size":        minSize,
+		"top10_small_group":     top10Small,
+		"min_group_rule":        5,
 		"interpretation": "گروه همتای متوازن (خانواده + صنعت + پوشش فاکتور یکسان) باید حداقل ۵ عضو داشته باشد " +
 			"تا رتبهٔ نسبی درون‌صنعت معتبر باشد. برای گروه‌های کوچک‌تر، سیستم رتبهٔ نسبی صنعت را صادر نمی‌کند و " +
 			"فقط قرائت مطلق (پرسنتایل خانواده) را نشان می‌دهد؛ یک گروه دوشرکتی هرگز معادل مقایسهٔ صنعتی معتبر " +
@@ -595,30 +631,19 @@ func rankRound3(x float64) float64 { return math.Round(x*1000) / 1000 }
 // از قرارداد آرتیفکت Q توضیح می‌دهد (بدون ساخت امتیاز جدید).
 func rankCoveragePlan() gin.H {
 	return gin.H{
-		"goal": "یکسان‌سازی پوشش محور بنیادی (Q) میان نامزدها تا امتیاز مشاهده‌شده به یک رتبه‌بندی اقتصادی قابل مقایسه تبدیل شود.",
-		"why_q_only": "پوشش ارزندگی (V) برای همهٔ نامزدها کامل (۳۵/۳۵) و پوشش ورود (T) تقریباً کامل (۲۵/۲۵) است؛ " +
-			"تفاوت مقایسه‌پذیری فقط از محور بنیادی می‌آید.",
-		"structural_gap": "عامل margin_trend (وزن ۳) برای هیچ‌یک از نامزدها resolve نشده؛ این یک شکاف ساختاری مشترک است " +
-			"و به‌تنهایی باعث بیانصافی بین نمادها نمی‌شود، اما سقف عملی Q را همه‌جا پایین می‌آورد.",
-		"differentiating_gaps": "تفاوت پوشش بین نمادها فقط از سه عامل بنیادی می‌آید: earnings_quality (وزن ۳)، " +
-			"interest_coverage (وزن ۳) و cash_conversion (وزن ۴).",
-		"residual_causes": "بازیابی درون‌گزارشی گام ۲-ب-۸ قبلاً اجرا و تمام شده است (finance_cost ۱۰۳ از ۱۲۵، other_nonop ۹۲ از ۱۲۵). " +
-			"پس‌ماندهٔ ۲۳ نماد ناقص از چهار علت مستند و غیرقابل‌رفع با دادهٔ فعلی است: " +
-			"(۱) ۵ نماد raw_not_applicable — نسبت اقتصاداً بی‌معنا (بدون هزینهٔ مالی، یا سود عملیاتی نامثبت) که نباید پر شود؛ " +
-			"(۲) ۹ نماد row_identity_failed، (۳) ۳ نماد window_columns_unprovable و (۴) ۳ نماد no_payload_letter — ستون مقایسه‌ای سال قبل در گزارش ذخیره‌شده نیست و بازیابی از آرشیو نامه‌های خام با دروازهٔ هویت رد شده است؛ " +
-			"به‌علاوه ۳ نماد (حکشتی/نان/کنور) صورت جریان نقد عملیاتی‌شان در انبار غایب است (cash_conversion مفقود). " +
-			"هیچ‌کدام با حدس، زنجیرهٔ بین‌گزارشی (خلاف قرارداد DIRECT_ONLY) یا بازتوزیع وزن پر نمی‌شود.",
+		"goal":                 "تکمیل دادهٔ معتبر هر سه محور و روشن‌کردن موانع واقعی هر نماد.",
+		"why_q_only":           "پوشش بنیادی، ارزندگی و شرایط ورود از بستهٔ جاری خوانده می‌شود؛ دلیل هر مورد ناقص در فهرست نمادهای بدون امتیاز آمده است.",
+		"structural_gap":       "بعضی عوامل بنیادی هنوز خارج از دامنهٔ پیاده‌سازی یا سیاست محاسبه هستند؛ مدل بنیادی خانواده‌های بانک، بیمه و سرمایه‌گذاری نیز مستقل باید تکمیل شود.",
+		"differentiating_gaps": "سقف عملی هر سهم از وزن عوامل معتبر همان سهم محاسبه می‌شود؛ فقدان داده یا غیرقابل‌استفاده‌بودن یک نسبت، عملکرد صفر محسوب نمی‌شود.",
+		"residual_causes":      "کمبود صورت مالی، سابقهٔ کوتاه یا قیمت قدیمی، جهش مشکوک در تاریخچهٔ تعدیل‌شده، نسبت اقتصادی نامعتبر و کمبود همتا علت‌های جدا هستند و راه‌حل یکسان ندارند.",
 		"steps": []string{
-			"بررسی مجدد نکردن مقادیر: بازیابی order-3 قبلاً با دروازهٔ بازتولید دقیق سفارش‌های ۱ و ۲ انجام شده؛ بازکردن آن دروازه یعنی حدس — مجاز نیست.",
-			"فاز تکمیل داده (برای همه ۲۷۱ نماد، با مجوز جداگانه): گردآوری نامهٔ خام گمشده و گزارش جریان نقد برای موارد no_payload_letter و ocf مفقود.",
-			"برای row_identity_failed و window_columns_unprovable: بازبینی روش استخراج ردیف/ستون با شواهد قطعی، نه شل‌کردن دروازه.",
-			"margin_trend (وزن ۳): پایهٔ TTM سال قبل برای همه قرنطینه است؛ رفع آن نیازمند پاک‌سازی دادهٔ بالادستی است، نه جایگزین.",
-			"بررسی علت unresolved بودن margin_trend (raw_missing/insufficient_peers) و رفع آن در لایهٔ داده.",
-			"موارد raw_not_applicable (اقتصاداً بی‌معنا) نباید به‌زور پر شوند؛ سقف آن‌ها به‌درستی متفاوت می‌ماند و باید افشا شود.",
+			"جمع‌آوری گزارش شرکت اصلی با هویت، واحد، تاریخ ستون و زمان انتشار قابل اثبات.",
+			"تکمیل تاریخچهٔ تعدیل‌شده و بررسی رویدادهای شرکتی؛ حفظ توقف ارزیابی روی جهش مشکوک.",
+			"تکمیل مدل تخصصی گروه‌های خارج از دامنه؛ پرنکردن نسبت نامعتبر با دادهٔ ساختگی.",
+			"تولید هم‌زمان هر سه محور با cutoff واقعی و اعلام آخرین تاریخ قیمت.",
 		},
-		"success_criterion": "اگر سه عامل diferenciating تکمیل شوند، پوشش Q همهٔ ۶۲ نماد به بیشترین مقدار مشاهده‌شده (۳۱) می‌رسد " +
-			"و امتیاز مشاهده‌شده در سطح کراس‌سکشن قابل‌مقایسه می‌شود؛ آن‌گاه می‌توان رتبه‌بندی را «مقایسه‌پذیر» نامید (هنوز نه پیش‌بینی‌کننده، تا بک‌تست PIT).",
-		"not_a_new_score": "این برنامه هیچ وزن یا عامل جدیدی نمی‌سازد؛ فقط دادهٔ مفقود همان عوامل رسمی را تکمیل می‌کند.",
+		"success_criterion": "کاهش نقص قابل رفع با شواهد معتبر؛ همهٔ نمادها الزاماً از دروازهٔ امتیاز کامل عبور نمی‌کنند.",
+		"not_a_new_score":   "وزن مفقود بازتوزیع نمی‌شود و فرمول امتیاز با افزایش پوشش تغییر نمی‌کند.",
 	}
 }
 
@@ -629,6 +654,12 @@ func rankAxisElig(cm map[string]any, max float64) rankUnscoredAxis {
 		return a
 	}
 	a.Present = true
+	for _, key := range []string{"q_observed_points", "v_observed_points", "t_observed_points"} {
+		if points, ok := qvtFloat(cm, key); ok {
+			a.Points = &points
+			break
+		}
+	}
 	if b, ok := cm["pilot_eligible"].(bool); ok {
 		a.Eligible = b
 	}
@@ -647,7 +678,44 @@ func rankAxisElig(cm map[string]any, max float64) rankUnscoredAxis {
 			}
 		}
 	}
+	if qvtStr(cm, "aggregation_status") == "family_out_of_scope" {
+		a.BlockerDetails = append(a.BlockerDetails, "مدل بنیادی تخصصی این گروه هنوز پیاده‌سازی نشده است؛ جمع‌آوری بیشتر به‌تنهایی این مانع را رفع نمی‌کند")
+	}
+	factors, _ := cm["factors"].(map[string]any)
+	for _, fid := range a.MissingEssentials {
+		factor, _ := factors[fid].(map[string]any)
+		detail := rankBlockerDetail(fid, factor)
+		if detail != "" {
+			a.BlockerDetails = append(a.BlockerDetails, detail)
+		}
+	}
 	return a
+}
+
+func rankBlockerDetail(fid string, factor map[string]any) string {
+	reason := qvtStr(factor, "validation_reason")
+	status := qvtStr(factor, "normalization_status")
+	switch {
+	case strings.HasPrefix(reason, "insufficient_history_"):
+		return "سابقهٔ قیمت برای بازهٔ لازم کافی نیست"
+	case strings.HasPrefix(reason, "suspected_unadjusted_gap"):
+		return "جهش مشکوک در قیمت تعدیل‌شده؛ تاریخچه و رویداد شرکتی باید راستی‌آزمایی شود"
+	case strings.HasPrefix(reason, "price_stale"):
+		return "قیمت قدیمی است و نیاز به تازه‌سازی دارد"
+	case strings.HasPrefix(reason, "window_span_too_long"):
+		return "توقف یا فاصلهٔ طولانی معاملات؛ شرایط ورود قابل محاسبه نیست"
+	case strings.HasPrefix(reason, "return_window_mismatch"):
+		return "تاریخ شروع یا پایان بازده با بازهٔ مقایسهٔ بازار یکسان نیست؛ مقایسه معتبر نیست"
+	case strings.HasPrefix(reason, "insufficient_sector_benchmark"):
+		return "تعداد همتای صنعت با بازهٔ زمانی یکسان کافی نیست"
+	case status == "not_ranked_raw_not_applicable" && fid == "pe":
+		return "سود دوازده‌ماهه مثبت نیست؛ نسبت P/E معتبر قابل محاسبه نیست و این کمبود داده محسوب نمی‌شود"
+	case status == "not_ranked_raw_not_applicable" && fid == "pb":
+		return "حقوق مالکانه مثبت نیست؛ نسبت P/B معتبر قابل محاسبه نیست و این کمبود داده محسوب نمی‌شود"
+	case status == "insufficient_peers":
+		return "تعداد همتای معتبر برای مقایسه کافی نیست"
+	}
+	return ""
 }
 
 var rankAxisNames = map[string]string{"Q": "بنیادی (Q)", "V": "ارزندگی (V)", "T": "ورود (T)"}
@@ -703,6 +771,9 @@ func buildUnscored(qc, vc, tc map[string]any, scored map[string]bool) []*rankUns
 			var reason string
 			var code string
 			switch {
+			case len(b.axis.BlockerDetails) > 0:
+				reason = name + ": " + strings.Join(b.axis.BlockerDetails, "؛ ")
+				code = "blocked_" + strings.ToLower(b.key)
 			case !b.axis.Present:
 				reason = "دادهٔ " + name + " در snapshot ثبت نشده"
 				code = "no_data_" + strings.ToLower(b.key)
@@ -732,7 +803,7 @@ func buildUnscored(qc, vc, tc map[string]any, scored map[string]bool) []*rankUns
 			parts = append(parts, "دادهٔ معتبر کافی برای امتیازدهی ثبت نشده")
 		}
 		u.ReasonCode = primaryCode
-		u.ReasonLabel = strings.Join(parts, "؛ ") + " — تا تکمیل دادهٔ معتبر، امتیاز ساخته نمی‌شود."
+		u.ReasonLabel = strings.Join(parts, "؛ ") + " — امتیاز کامل تا رفع موانع محاسبه نمی‌شود."
 		out = append(out, u)
 	}
 	return out
@@ -748,25 +819,22 @@ func rankPct(v *float64) string {
 // rankScoreContract قرارداد آشکار امتیاز برای ممیزی از خود UI.
 func rankScoreContract() gin.H {
 	return gin.H{
-		"version":    "qvt-ranking-contract-v2",
-		"score_name": "امتیاز مشاهده‌شدهٔ آزمایشی",
-		"formula":    "score = q_observed_points + v_observed_points + t_observed_points",
-		"weights": "ساختار وزن رسمی حفظ شده: بنیادی ۴۰٪ (Q) + ارزندگی ۳۵٪ (V) + شرایط ورود ۲۵٪ (T)؛ سقف نظری امتیاز ۱۰۰",
-		"full_coverage_meaning": "سقف نظری ۱۰۰ است و سقف عملی بیشینه در این snapshot ۹۱. «پوشش کامل» یعنی پوشش این نماد با بیشترین پوشش مشاهده‌شده در هر سه محور برابر است: " +
-			"Q = ۳۱ از ۴۰ (نه ۴۰)، V = ۳۵ از ۳۵، T = ۲۵ از ۲۵ → سقف عملی ۹۱ (نه ۱۰۰). " +
-			"۹ امتیاز مفقود Q ساختاری است و به عملکرد مربوط نیست: ۳ وزن roe_stability (پیاده‌نشده) + ۳ وزن earnings_growth (خارج از سیاست) + " +
-			"۳ وزن margin_trend که پایهٔ TTM سال قبلش برای همه قرنطینه است. پس «پوشش کامل» به‌معنای کامل بودن همهٔ ۴۰ امتیاز بنیادی نیست",
-		"no_redistribution": "امتیاز هرگز بر covered_weight تقسیم نمی‌شود و وزن عامل مفقود به عامل مشاهده‌شده بازتوزیع نمی‌شود (قرارداد رسمی آرتیفکت Q)؛ در نتیجه پوشش ناقص، سقف امتیاز را محافظه‌کارانه پایین می‌آورد و این برای هر شرکت افشا می‌شود",
-		"no_fabrication": "عامل مفقود هرگز صفر فرض نمی‌شود؛ شرکت فاقد دادهٔ کافی امتیاز نمی‌گیرد و با دلیل دقیق در فهرست «بدون امتیاز معتبر» می‌آید",
-		"eligibility": "امتیاز فقط برای نامزدی صادر می‌شود که هر سه محور Q/V/T او در همین snapshot واجد شرایط (pilot_eligible) باشند — در این snapshot ۶۲ نماد",
-		"critical_not_hidden": "مانع اثبات‌شدهٔ دروازهٔ ریسک، اعتبارسنجی متناقض یا قید کیفیت اقتصادی هم‌ردیف امتیاز نمایش داده می‌شود و شرکت دارای مانع هرگز وضعیت «قابل بررسی برای خرید» نمی‌گیرد",
-		"status_map": "وضعیت از گروه تصمیم سیاست رسمی نگاشت می‌شود: جذاب→قابل بررسی برای خرید، منتظر/مشروط→انتظار، ارزان‌نما و بدون‌پرونده→ضعیف؛ مانع اثبات‌شدهٔ ریسک همیشه→ضعیف",
+		"version":               "qvt-ranking-contract-v2",
+		"score_name":            "امتیاز مشاهده‌شدهٔ آزمایشی",
+		"formula":               "score = q_observed_points + v_observed_points + t_observed_points",
+		"weights":               "ساختار وزن رسمی حفظ شده: بنیادی ۴۰٪ (Q) + ارزندگی ۳۵٪ (V) + شرایط ورود ۲۵٪ (T)؛ سقف نظری امتیاز ۱۰۰",
+		"full_coverage_meaning": "سقف نظری ۱۰۰ است؛ سقف عملی از مجموع وزن عوامل معتبر همان نماد به دست می‌آید. پوشش کامل یعنی بیشترین پوشش مشاهده‌شدهٔ بسته در هر محور، نه لزوماً همهٔ عوامل نظری. حداقل و حداکثر سقف عملی در تحلیل پوشش همین پاسخ گزارش می‌شود",
+		"no_redistribution":     "امتیاز هرگز بر covered_weight تقسیم نمی‌شود و وزن عامل مفقود به عامل مشاهده‌شده بازتوزیع نمی‌شود (قرارداد رسمی آرتیفکت Q)؛ در نتیجه پوشش ناقص، سقف امتیاز را محافظه‌کارانه پایین می‌آورد و این برای هر شرکت افشا می‌شود",
+		"no_fabrication":        "عامل مفقود هرگز صفر فرض نمی‌شود؛ شرکت فاقد دادهٔ کافی امتیاز نمی‌گیرد و با دلیل دقیق در فهرست «بدون امتیاز معتبر» می‌آید",
+		"eligibility":           "امتیاز فقط برای نمادی صادر می‌شود که هر سه محور بنیادی، ارزندگی و شرایط ورود او در همین بسته واجد شرایط باشند؛ تعداد از دادهٔ همین بسته محاسبه می‌شود",
+		"critical_not_hidden":   "مانع اثبات‌شدهٔ دروازهٔ ریسک، اعتبارسنجی متناقض یا قید کیفیت اقتصادی هم‌ردیف امتیاز نمایش داده می‌شود و شرکت دارای مانع هرگز وضعیت «قابل بررسی برای خرید» نمی‌گیرد",
+		"status_map":            "وضعیت از گروه تصمیم سیاست رسمی نگاشت می‌شود: جذاب→قابل بررسی برای خرید، منتظر/مشروط→انتظار، ارزان‌نما و بدون‌پرونده→ضعیف؛ مانع اثبات‌شدهٔ ریسک همیشه→ضعیف",
 		"comparability": "این امتیاز مجموع امتیازهای مشاهده‌شدهٔ سه محور است، نه یک رتبه‌بندی اقتصادی کاملاً مقایسه‌پذیر: " +
-			"پوشش محور بنیادی بین نامزدها یکسان نیست (۵۲.۵٪ تا ۷۷.۵٪) و پوشش کمتر سقف امتیاز را پایین می‌آورد " +
+			"پوشش داده بین نامزدها ممکن است یکسان نباشد و پوشش کمتر سقف امتیاز را پایین می‌آورد " +
 			"(نه عملکرد را). آرتیفکت رسمی Q خود تصریح می‌کند که شرکت‌ها هرگز بر پایهٔ q_observed_points رتبه‌بندی نمی‌شوند چون پوشش تفاوت دارد. " +
 			"به همین دلیل نام آن «امتیاز مشاهده‌شدهٔ آزمایشی» است و تا اثبات مقایسه‌پذیری، رتبه‌بندی رسمی اقتصادی نیست. " +
 			"هر سهم «سقف عملی» (مجموع وزن پوشش‌داده‌شده) و «کامل بودن پوشش» خود را نشان می‌دهد",
-		"weights_untouched": "هیچ وزن رسمی Q/V/T تغییر نکرده و هیچ عامل جدیدی ساخته نشده؛ تحلیل حساسیت (rank_shift/sensitivity_rank) فقط برای سنجش اثر پوشش است و امتیاز رسمی نیست",
+		"weights_untouched":     "هیچ وزن رسمی Q/V/T تغییر نکرده و هیچ عامل جدیدی ساخته نشده؛ تحلیل حساسیت (rank_shift/sensitivity_rank) فقط برای سنجش اثر پوشش است و امتیاز رسمی نیست",
 		"is_experimental_index": "این یک شاخص آزمایشی مستقل برای اولویت بررسی است، نه فرمول رسمی QVT و نه توصیه خرید/فروش. هیچ ادعای دقت پیش‌بینی بدون بک‌تست PIT معتبر وجود ندارد",
 	}
 }
@@ -828,6 +896,7 @@ func GetQvtV2Ranking(c *gin.Context) {
 	})
 
 	ranked := buildRankedEntries(board)
+	rankAttachEvidence(ranked, qc, vc, tc)
 	scoredIDs := map[string]bool{}
 	for _, r := range ranked {
 		scoredIDs[r.CompanyID] = true
@@ -841,6 +910,8 @@ func GetQvtV2Ranking(c *gin.Context) {
 		"disclaimer": qvtDisclaimer,
 		"boundaries": qvtBoundaries,
 		"as_of":      asOf,
+		"freshness":  rankingFreshness(asOf, time.Now()),
+		"data_dates": b.Q["data_dates"],
 		"cutoff":     cutoff,
 		"title":      "رتبه‌بندی سادهٔ اولویت بررسی",
 		"score_name": "امتیاز مشاهده‌شدهٔ آزمایشی",
@@ -858,9 +929,9 @@ func GetQvtV2Ranking(c *gin.Context) {
 			"note": "کل نمادهای سه آرتیفکت نمایش داده می‌شوند؛ فقط نمادهای دارای دادهٔ کافی و معتبر " +
 				"امتیاز می‌گیرند و بقیه در فهرست «بدون امتیاز معتبر» با دلیل دقیق می‌آیند",
 		},
-		"score_contract":      rankScoreContract(),
-		"coverage_impact":     rankCoverageImpact(ranked),
-		"peer_group_impact":   rankPeerGroupImpact(ranked),
+		"score_contract":       rankScoreContract(),
+		"coverage_impact":      rankCoverageImpact(ranked),
+		"peer_group_impact":    rankPeerGroupImpact(ranked),
 		"data_completion_plan": rankCoveragePlan(),
 		"sensitivity_note": "sensitivity_rank و rank_shift یک تحلیل حساسیت غیررسمی‌اند: اگر وزن پوشش‌داده‌شدهٔ " +
 			"هر محور با بیشترین پوشش مشاهده‌شده یکسان می‌شد، این نماد چه رتبه‌ای می‌گرفت. این اعداد امتیاز رسمی " +
@@ -874,13 +945,11 @@ func GetQvtV2Ranking(c *gin.Context) {
 		"experimental_bundle": gin.H{
 			"active": expDir != "",
 			"dir":    expDir,
-			"note": "بستهٔ آزمایشی ۲-ک-۱۳: Q/V با فکت‌های بازپرکردهٔ کدال بازمحاسبه" +
-				" شده‌اند و T همان آرتیفکت رسمی تغییرناپذیر است. اگر active=false،" +
-				" همین صفحه دقیقاً اسنپ‌شات رسمی را نشان می‌دهد.",
+			"note":   "پوشش بنیادی و ارزندگی با داده‌های تکمیلی کدال محاسبه شده است؛ تاریخ رتبه‌بندی و محور شرایط ورود همان تاریخ اعلام‌شدهٔ بسته است.",
 		},
-		"price_source":         priceSourceMeta(pxAvail, pxNote),
-		"ranked":               ranked,
-		"unscored":             unscored,
+		"price_source": priceSourceMeta(pxAvail, pxNote),
+		"ranked":       ranked,
+		"unscored":     unscored,
 		"sources": gin.H{
 			"q": gin.H{"as_of": qvtStr(b.Q, "as_of"), "sha256": b.qSHA},
 			"v": gin.H{"as_of": qvtStr(b.V, "as_of"), "cutoff": qvtStr(b.V, "cutoff"), "sha256": b.vSHA},

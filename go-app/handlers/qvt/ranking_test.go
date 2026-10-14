@@ -25,9 +25,21 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+func TestRankingFreshnessUsesBundleDateAndTehranDay(t *testing.T) {
+	now := time.Date(2026, 10, 12, 21, 0, 0, 0, time.UTC)
+	result := rankingFreshness("2026-10-08", now)
+	if result["today"] != "2026-10-13" || result["age_calendar_days"] != 5 || result["status"] != "dated" {
+		t.Fatalf("unexpected freshness: %v", result)
+	}
+	if rankingFreshness("invalid", now)["status"] != "unknown" {
+		t.Fatal("unparseable bundle date must not be reported fresh")
+	}
+}
 
 func rankBoard(t *testing.T, w *boardWorld) gin.H {
 	t.Helper()
@@ -155,8 +167,8 @@ func TestRankingCriticalRiskNeverHiddenBehindHighScore(t *testing.T) {
 func TestRankingSortedAndRankContiguous(t *testing.T) {
 	w := newBoardWorld()
 	pts := []struct {
-		id, sym      string
-		qp, vp, tp   float64
+		id, sym    string
+		qp, vp, tp float64
 	}{{"a", "ز", 10, 10, 10}, {"b", "الف", 20, 20, 20}, {"c", "م", 15, 15, 15}}
 	for _, p := range pts {
 		w.add(boardCase{id: p.id, sym: p.sym, q: boardQGood(), v: boardVCheap(), t: boardTGood(),
@@ -430,5 +442,16 @@ func TestRankingSpearmanHelper(t *testing.T) {
 	rev := []float64{5, 4, 3, 2, 1}
 	if v := rankSpearman(x, rev); v > -0.999 {
 		t.Fatalf("reversed vectors spearman = %v want ~-1", v)
+	}
+}
+
+func TestRankingBlockersDistinguishEconomicAndDataLimits(t *testing.T) {
+	loss := rankBlockerDetail("pe", map[string]any{"normalization_status": "not_ranked_raw_not_applicable"})
+	if !strings.Contains(loss, "کمبود داده محسوب نمی‌شود") {
+		t.Fatalf("loss maker must not be described as absent financial data: %s", loss)
+	}
+	gap := rankBlockerDetail("momentum_6m_rel", map[string]any{"validation_reason": "suspected_unadjusted_gap_in_window: evidence"})
+	if !strings.Contains(gap, "رویداد شرکتی") {
+		t.Fatalf("adjustment refusal must retain actionable cause: %s", gap)
 	}
 }

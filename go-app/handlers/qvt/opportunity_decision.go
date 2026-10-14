@@ -43,12 +43,12 @@ type boardDecisionPolicy struct {
 	Version string `json:"version"`
 
 	// بنیادی (Q) — پرسنتایل عوامل رسمی
-	QStrongRoe      float64 `json:"q_strong_roe"`       // roe_level ≥ این → سودآوری قوی
-	QWeakRoe        float64 `json:"q_weak_roe"`         // roe_level < این → بنیادی ضعیف
-	QStrongMargin   float64 `json:"q_strong_margin"`    // margins ≥ این برای «قوی»
-	QSafetyMin      float64 `json:"q_safety_min"`       // حداقل یکی از اهرم/پوشش بهره ≥ این برای «قوی»
-	QWeakFactor     float64 `json:"q_weak_factor"`      // آستانهٔ «فاکتور ضعیف» برای قاعدهٔ گستردگی
-	QWeakFactorN    int     `json:"q_weak_factor_n"`    // ≥ این تعداد از ۴ عامل هسته زیر آستانه → ضعیف
+	QStrongRoe    float64 `json:"q_strong_roe"`    // roe_level ≥ این → سودآوری قوی
+	QWeakRoe      float64 `json:"q_weak_roe"`      // roe_level < این → بنیادی ضعیف
+	QStrongMargin float64 `json:"q_strong_margin"` // margins ≥ این برای «قوی»
+	QSafetyMin    float64 `json:"q_safety_min"`    // حداقل یکی از اهرم/پوشش بهره ≥ این برای «قوی»
+	QWeakFactor   float64 `json:"q_weak_factor"`   // آستانهٔ «فاکتور ضعیف» برای قاعدهٔ گستردگی
+	QWeakFactorN  int     `json:"q_weak_factor_n"` // ≥ این تعداد از ۴ عامل هسته زیر آستانه → ضعیف
 
 	// کیفیت سود (Q) — گام ۲-ک-۹: تبدیل نقد، ضعف پنهان‌شده پشت ROE قوی را آشکار می‌کند
 	QCashMin float64 `json:"q_cash_min"` // پرسنتایل cash_conversion < این → قید کیفیت تبدیل نقد (جلوگیری از پنهان‌شدن ضعف بنیادی)
@@ -153,29 +153,29 @@ func boardFactorStats(cm map[string]any) map[string]boardFactorStat {
 
 // نتیجهٔ تصمیم برای یک شرکت — همهٔ اعداد قابل ردیابی به آرتیفکت همان snapshot.
 type boardDecision struct {
-	Fundamental      string   `json:"fundamental"`       // strong | acceptable | weak | insufficient
-	FundamentalLabel string   `json:"fundamental_label"`
-	FundamentalNote  []string `json:"fundamental_note"`  // اعداد واقعی
-	RoePct           *float64 `json:"roe_pct"`           // پرسنتایل عوامل هسته Q — جدا از متن
-	MarginPct        *float64 `json:"margin_pct"`
-	LevPct           *float64 `json:"leverage_pct"`
-	IcPct            *float64 `json:"interest_coverage_pct"`
+	Fundamental       string   `json:"fundamental"` // strong | acceptable | weak | insufficient
+	FundamentalLabel  string   `json:"fundamental_label"`
+	FundamentalNote   []string `json:"fundamental_note"` // اعداد واقعی
+	RoePct            *float64 `json:"roe_pct"`          // پرسنتایل عوامل هسته Q — جدا از متن
+	MarginPct         *float64 `json:"margin_pct"`
+	LevPct            *float64 `json:"leverage_pct"`
+	IcPct             *float64 `json:"interest_coverage_pct"`
 	CashConversionPct *float64 `json:"cash_conversion_pct"` // پرسنتایل تبدیل نقد (گام ۲-ک-۹)
-	ValueMean        *float64 `json:"value_mean"`        // میانگین سادهٔ پرسنتایل عوامل V مشاهده‌شده
-	ValueCheap       bool     `json:"value_cheap"`
-	ValueDefensible  bool     `json:"value_defensible"`  // ارزان + گروه همتای معتبر + تکیه بر P/E یا P/B
-	ValueLabel       string   `json:"value_label"`
-	ValueNote        []string `json:"value_note"`
-	ValueBasisNote   string   `json:"value_basis_note,omitempty"` // هشدار مبنای سرمایه/قیمت در ارزندگی
-	Entry            string   `json:"entry"`             // ok | neutral | hostile | insufficient
-	EntryLabel       string   `json:"entry_label"`
-	EntryNote        []string `json:"entry_note"`
-	Attractive       bool     `json:"attractive"`
+	ValueMean         *float64 `json:"value_mean"`          // میانگین سادهٔ پرسنتایل عوامل V مشاهده‌شده
+	ValueCheap        bool     `json:"value_cheap"`
+	ValueDefensible   bool     `json:"value_defensible"` // ارزان + گروه همتای معتبر + تکیه بر P/E یا P/B
+	ValueLabel        string   `json:"value_label"`
+	ValueNote         []string `json:"value_note"`
+	ValueBasisNote    string   `json:"value_basis_note,omitempty"` // هشدار مبنای سرمایه/قیمت در ارزندگی
+	Entry             string   `json:"entry"`                      // ok | neutral | hostile | insufficient
+	EntryLabel        string   `json:"entry_label"`
+	EntryNote         []string `json:"entry_note"`
+	Attractive        bool     `json:"attractive"`
 	// گام ۲-ک-۹ — قیدهای اقتصادی/اعتباری که «جذاب بدون قید» را ناممکن می‌کنند
 	Conditional        bool     `json:"conditional"`
 	ConditionalReasons []string `json:"conditional_reasons"`
 	NegOperatingProfit bool     `json:"negative_operating_profit"`
-	Blockers           []string `json:"blockers"`   // چرا الان جذاب نیست — ترتیبی و عددی
+	Blockers           []string `json:"blockers"`    // چرا الان جذاب نیست — ترتیبی و عددی
 	ReviewWhen         []string `json:"review_when"` // شرایط پایش و بررسی مجدد — سنجش‌پذیر
 }
 
@@ -385,7 +385,7 @@ func boardDecideT(pol boardDecisionPolicy, tcm map[string]any) (string, []string
 		add("مومنتوم ۶ماههٔ نسبی مشاهده نشده — پنجرهٔ محاسبه ناکافی؛ ورود قابل قضاوت نیست")
 		return boardEntryInsufficient, note
 	}
-	add("مومنتوم ۶ماههٔ نسبی = %s%% (پرسنتایل %s)", pctFmt(*m6.RawValue), fmtScore(m6.Score))
+	add("اختلاف بازده با بازار در بازهٔ هدف ۶ماهه = %s واحد درصد (پرسنتایل %s)", pctFmt(*m6.RawValue), fmtScore(m6.Score))
 	if liq.RawValue != nil {
 		add("نقدشوندگی واقعی ≈ %s میلیارد ریال ارزش معامله روزانه (پرسنتایل %s)", bnFmt(*liq.RawValue), fmtScore(liq.Score))
 		if *liq.RawValue < pol.TLiqFloorRial {
@@ -397,7 +397,7 @@ func boardDecideT(pol boardDecisionPolicy, tcm map[string]any) (string, []string
 		return boardEntryInsufficient, note
 	}
 	if rs.RawValue != nil {
-		add("قدرت نسبی ۶ماهه در برابر صنعت = %s%% (پرسنتایل %s)", pctFmt(*rs.RawValue), fmtScore(rs.Score))
+		add("اختلاف بازده با صنعت در بازهٔ هدف ۶ماهه = %s واحد درصد (پرسنتایل %s)", pctFmt(*rs.RawValue), fmtScore(rs.Score))
 	}
 	if *m6.Score >= pol.TMomentumOK {
 		return boardEntryOK, note

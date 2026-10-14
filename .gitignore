@@ -36,3 +36,4 @@ score_v3_minimal_research/
 go-app/go-app-live.log
 go-app/go-app-live.log.err
 integration_shadow_v1/output/
+qvt_backtest/tests/__pycache__/

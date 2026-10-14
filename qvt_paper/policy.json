@@ -1,0 +1,16 @@
+{
+  "version": "qvt-paper-forward-v1",
+  "mode": "reference_only",
+  "virtual_capital_rial": 100000000,
+  "max_positions": 10,
+  "position_weight": 0.10,
+  "max_industry_weight": 0.30,
+  "one_way_cost_rate": 0.005,
+  "selection": "buy_review; full factor coverage; no critical, conditional or negative operating profit; exact factor profile within model family",
+  "schedule": "first forward snapshot of each Gregorian month; selections never revised within that month",
+  "execution_reference": "first independently observed market session strictly after the actual decision date in Tehran; official unadjusted weighted closing price",
+  "calendar": "Saturday through Wednesday; at least 30 frozen-universe securities with positive traded volume",
+  "corporate_actions": "unexplained yesterday-price/previous-close discontinuity blocks price returns; no invented adjustment or dividend",
+  "benchmark": "equal weight of the same frozen complete-factor universe, including low ranks; not a market index",
+  "limitations": "Reference performance is hypothetical. Queue priority, executable bid/ask, slippage, taxes, corporate actions and actual fills are not certified. Cost is an experimental assumption, not a broker tariff. No brokerage connection or live orders."
+}

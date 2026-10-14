@@ -1,0 +1,18 @@
+{
+  "version": "qvt-historical-subset-v1",
+  "purpose": "Diagnostic replay of the historically reconstructible subset; not certification of the current full QVT ranking or buy_review decision policy",
+  "source": "Frozen ui_score_historical_pit_v2 plus archived official TSETMC daily records and confirmed causal adjustment chain",
+  "score_ceiling": 76,
+  "weights": {"roe_level": 7, "margins": 6, "cash_conversion": 4, "leverage": 4, "pe": 13, "pb": 12, "ps": 10, "momentum_6m_rel": 7, "momentum_3m_rel": 5, "liquidity": 4, "low_volatility": 4},
+  "missing_live_factors": ["roe_stability", "margin_trend", "earnings_quality", "interest_coverage", "revenue_growth", "earnings_growth", "relative_strength_6m_sector"],
+  "financial_gates": "All included raw fields finite; net_profit_ttm, revenue_ttm, roe, pe, pb, ps positive; debt ratio nonnegative; no neutral filling",
+  "population": "Same complete factor set each date; symbols present in frozen panel and current general model family; no certified historical industry map, so family ranking only",
+  "normalization": "Current QVT directions, 60/40 margin component blend, existing QVT P1/P99 bounds and midrank; no weight redistribution or rescaling to 100",
+  "timing": "Reuse current QVT raw timing gates and identical start/end benchmark alignment; only dated records <= signal date, causal factors for corporate events <= signal date",
+  "strategies": ["QVT_SUBSET_TOP10", "QVT_SUBSET_BOTTOM10", "V1_MATCHED_TOP10", "MATCHED_EQUAL_WEIGHT"],
+  "selection": "Top/bottom ten by score, tie symbol ascending; same complete eligible universe for every strategy; no profitability tuning",
+  "cost_rates": [0.0, 0.005, 0.01],
+  "accounting": "Reuse certified repair_accounting_v1 unchanged; monthly signal dates; execution first global session strictly after signal; failed targets cash, unsellable positions carried; no replacement",
+  "annualization": "Actual elapsed days between first and final execution dates, including gaps; no synthetic missing months",
+  "limitations": ["76 of 100 designed points only; no live status/risk-policy replay", "Old financial snapshot is not recomputed with the new Codal corrections", "Current identity/model family mapping and fixed archived universe imply survivorship limits", "No historical sector-relative normalization or sector strength", "Historical windows already used by earlier research; no untouched holdout and no optimization allowed", "Price plus mechanical adjustments, not total shareholder return", "Positive daily trades do not prove queue fills, slippage or portfolio capacity", "Monthly observed drawdown may miss intramonth loss"]
+}
