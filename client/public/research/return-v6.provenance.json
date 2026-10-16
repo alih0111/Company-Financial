@@ -1,0 +1,10 @@
+{
+  "run_id": "v6_20261016T144712827439Z",
+  "ranking_source_run": "v5_20261016T132527480952Z",
+  "ranking_as_of": "2026-10-14",
+  "ranking_sha256": "961bebbce6cdb817c69104e7208081a3f58367d7a4510b63dff21c8a2c764244",
+  "artifact_sha256": "4afef003dcdc9aa43fb55cf3347f94f21b646c34791dab65a4eb3ea30f367b20",
+  "comparison_sha256": "24840c41b07924ab7428266593a2c57b54fdb658c5fbdad9de08ba6a3549f336",
+  "freshness_claim": "historical published-as-of financial input, not latest publications of entire market",
+  "accepted_method_changed": false
+}

@@ -1,0 +1,9 @@
+{
+  "run_id": "v5_20261016T132527480952Z",
+  "artifact": "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v5\\v5_20261016T132527480952Z\\research_snapshot.json",
+  "artifact_sha256": "961bebbce6cdb817c69104e7208081a3f58367d7a4510b63dff21c8a2c764244",
+  "comparison_sha256": "8b046ed085c12302312e24ac1d98781fbe4d792ebc76c8eb614e67fb5d43d6c3",
+  "source_ranking_sha256": "fdb6f9bd65d4d22571dfb2518e519c4ae38cb337a4acc73e717b2b363ae005a2",
+  "source_manifest_sha256": "cfa05d306f22bc68a4a25a24d61eb379017d4f1f9c0b12230a891a82068dd161",
+  "supplemental_producer_sha256": "9737567097d003acf860fe447fb93100f54e9b86ae66cd69233c02b07d7c7e0b"
+}

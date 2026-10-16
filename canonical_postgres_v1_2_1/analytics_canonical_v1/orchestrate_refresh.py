@@ -38,9 +38,13 @@ REPO = BASE.parent
 # CDF_PILOT_DB at import time).
 os.environ.setdefault("CDF_PILOT_DB", "company_financial_analytics_shadow_v121")
 sys.path.insert(0, str(HERE))
+sys.path.insert(0, str(REPO / 'provenance_v1'))
 
 from compute_metrics import Engine, SCORE_VERSION, input_watermark, store_run  # noqa: E402
 from common import pg_pilot_conn as pg_conn  # noqa: E402  (path set by compute_metrics)
+from verified_screen import VerifiedScreenEngine, source_manifest  # noqa: E402
+import complete_ranking_coverage as verified_sources  # noqa: E402
+import hashlib
 
 INGESTION_STATUS = REPO / "ingestion_migration_v1" / "output" / "canonical_ingestion_status.json"
 OUT = REPO / "integration_shadow_v1" / "output"
@@ -173,12 +177,29 @@ def choose_as_of_cutoff(cutoffs: dict):
     ]
     cutoff_candidates = [c for c in cutoff_candidates if c is not None]
     cutoff = max(cutoff_candidates) if cutoff_candidates else dt.datetime.now(dt.timezone.utc)
+    # Financial caches are actual arrivals too; DB timestamps alone would omit
+    # verified reports collected after the last canonical ingestion.
+    now = dt.datetime.now(dt.timezone.utc)
+    for path in (verified_sources.OUT / 'facts').glob('*.json'):
+        rec = verified_sources.read(path)
+        if rec.get('rules_version') != 3:
+            continue
+        for fact in rec.get('facts', []):
+            observed = _as_dt(fact.get('collected_at'))
+            if observed and observed.tzinfo and observed <= now:
+                cutoff = max(cutoff, observed)
     return as_of, cutoff
 
 
 def run_engine(cur, as_of: dt.date, cutoff: dt.datetime, version: str, store: bool):
-    eng = Engine(as_of, cutoff)
+    if version != SCORE_VERSION:
+        raise ValueError('requested score version does not match the active engine')
+    eng = VerifiedScreenEngine(as_of, cutoff)
+    prior = latest_serving_run(cur, version)
+    eng.previous_serving_run_id = prior[0] if prior else None
     metrics = eng.compute()
+    if source_manifest() != eng.financial_input_evidence['source_manifest']:
+        raise RuntimeError('verified sources changed during calculation; refusing publication')
     digest = eng.digest()
     run_id = None
     if store:
@@ -222,6 +243,14 @@ def orchestrate(mode: str, version: str, allow_degraded: bool, json_out: Path | 
         cutoffs = canonical_data_cutoffs(cur)
         watermark = input_watermark(cur)
         staleness = evaluate_staleness(run, watermark)
+        source_digest = hashlib.sha256(json.dumps(source_manifest(), sort_keys=True).encode()).hexdigest()
+        recorded = {}
+        if run:
+            cur.execute('SELECT parameters FROM analytics.score_runs WHERE id=%s', (run[0],))
+            recorded = (cur.fetchone()[0] or {}).get('verified_financial_input', {})
+        if recorded.get('source_digest') != source_digest:
+            staleness['stale'] = True
+            staleness['reasons'].append('verified financial inputs or adapter changed')
         result = {
             "generated_at": dt.datetime.now(dt.timezone.utc).isoformat(),
             "mode": mode,
@@ -259,6 +288,9 @@ def orchestrate(mode: str, version: str, allow_degraded: bool, json_out: Path | 
 
         if result["action"] == "RECOMPUTE":
             as_of, cutoff = choose_as_of_cutoff(cutoffs)
+            if run:
+                as_of = max(as_of, _as_date(run[1]))
+                cutoff = max(cutoff, _as_dt(run[2]))
             result["recompute_as_of"] = str(as_of)
             result["recompute_cutoff"] = str(cutoff)
             outcome = run_engine(cur, as_of, cutoff, version, store=True)

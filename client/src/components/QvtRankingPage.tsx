@@ -398,7 +398,7 @@ function RankedTable({
       <table className="w-full text-right text-[12px] border-collapse">
         <thead>
           <tr className="bg-gray-50/80 dark:bg-gray-800/60 text-gray-500 dark:text-gray-400 text-[11px]">
-            <th className="px-2 py-2 font-medium">رتبه</th>
+            <th className="px-2 py-2 font-medium">رتبهٔ امتیاز</th>
             <th className="px-2 py-2 font-medium">نماد</th>
             <th className="px-2 py-2 font-medium">امتیاز</th>
             {detailed && <>
@@ -735,7 +735,7 @@ export default function QvtRankingPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("all");
   const [industry, setIndustry] = useState("");
-  const [sortAxis, setSortAxis] = useState("score");
+  const [sortAxis, setSortAxis] = useState("review");
   const [coverageProfile, setCoverageProfile] = useState("");
   const [detailed, setDetailed] = useState(false);
   const [paper, setPaper] = useState<QvtPaperSummary | null>(null);
@@ -804,6 +804,15 @@ export default function QvtRankingPage() {
       (!coverageProfile || factorProfile(stock) === coverageProfile) &&
       (filter === "all" || (filter === "watched" ? watched.includes(stock.company_id) : stock.status === filter)))
       .sort((a, b) => {
+        if (sortAxis === "review") {
+          const priority = (s: QvtRankedStock) => {
+            if (s.critical || s.negative_operating_profit) return 4;
+            if (s.status === "weak") return 3;
+            if (s.status === "buy_review" && !s.conditional) return 0;
+            return s.conditional ? 2 : 1;
+          };
+          return priority(a) - priority(b) || b.score - a.score || a.rank - b.rank;
+        }
         const value = (s: QvtRankedStock) => sortAxis === "score" ? s.score : s[sortAxis as "q" | "v" | "t"].points ?? -Infinity;
         return value(b) - value(a) || a.rank - b.rank;
       });
@@ -961,11 +970,11 @@ export default function QvtRankingPage() {
             </select>
             <button type="button" aria-pressed={detailed} onClick={() => {
               setDetailed((value) => !value);
-              if (detailed) { setSortAxis("score"); setCoverageProfile(""); setIndustry(""); }
+              if (detailed) { setSortAxis("review"); setCoverageProfile(""); setIndustry(""); }
             }} className="rounded-xl border border-gray-200 dark:border-gray-700 px-3 py-2 text-xs text-gray-600 dark:text-gray-300">{detailed ? "نمای ساده" : "فیلترها و ستون‌های بیشتر"}</button>
             {detailed && <>
             <select aria-label="مرتب‌سازی" value={sortAxis} onChange={(event) => setSortAxis(event.target.value)} className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs dark:text-gray-100">
-              <option value="score">ترتیب: امتیاز کل</option><option value="q">ترتیب: بنیادی</option><option value="v">ترتیب: ارزندگی</option><option value="t">ترتیب: شرایط ورود</option>
+              <option value="review">ترتیب: اولویت بررسی</option><option value="score">ترتیب: امتیاز کل</option><option value="q">ترتیب: بنیادی</option><option value="v">ترتیب: ارزندگی</option><option value="t">ترتیب: شرایط ورود</option>
             </select>
             <select aria-label="مقایسه با عوامل یکسان" value={coverageProfile} onChange={(event) => setCoverageProfile(event.target.value)} className="max-w-sm rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs dark:text-gray-100">
               <option value="">همهٔ پوشش‌ها</option>
@@ -977,6 +986,9 @@ export default function QvtRankingPage() {
             </select>
             </>}
           </div>
+          {sortAxis === "review" && <p className="text-xs text-gray-500 dark:text-gray-400 px-1">
+            ابتدا نمادهای قابل بررسیِ بدون قید کیفیت، سپس انتظار و موارد نیازمند بررسی بیشتر؛ در هر گروه، امتیاز بالاتر اول است. ستون رتبهٔ امتیاز، جایگاه عددی قبلی را نشان می‌دهد.
+          </p>}
           {matches.length === 0 ? (
             <p className="text-sm text-gray-400 dark:text-gray-500">
               نمادی با این شرایط پیدا نشد.
@@ -1001,7 +1013,7 @@ export default function QvtRankingPage() {
                   className="text-[12px] px-3 py-1.5 rounded-xl bg-white/60 dark:bg-gray-800/40 ring-1 ring-gray-200/70 dark:ring-gray-700/50 text-gray-600 dark:text-gray-300 hover:bg-gray-100/70 dark:hover:bg-gray-700/40"
                 >
                   {showAll
-                    ? "نمایش ۱۰ مورد برتر"
+                    ? "نمایش ۱۰ مورد اول"
                     : `نمایش همهٔ ${matches.length} نماد امتیازدار`}
                 </button>
               )}

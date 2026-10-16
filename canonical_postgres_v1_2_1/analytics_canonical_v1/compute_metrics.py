@@ -553,7 +553,8 @@ class Engine:
 
             def rtt(metric, fy, fm, tag):
                 # is_annual True only with explicit evidence (a 12-month title).
-                is_annual = True if cell_durations.get((fy, fm)) == 12 else None
+                duration = cell_durations.get((fy, fm))
+                is_annual = duration == 12 if duration in (3, 6, 9, 12) else None
                 anchor = prev_annual_cell(cell_durations, fy, fm)
                 v, p = resolve_ttm(rep, metric, fy, fm, annual_month=ann_month,
                                    is_annual=is_annual, prev_annual_cell=anchor)
@@ -962,14 +963,20 @@ def store_run(eng, metrics, as_of, cutoff, digest, run_kind: str = "pit_backfill
                 (score_version, as_of_date, source_cutoff_at, status, completed_at, code_version,
                  parameters, run_kind, input_watermark)
                 VALUES (%s,%s,%s,'completed',now(),%s,%s,%s,%s) RETURNING id""",
-                (SCORE_VERSION, as_of, cutoff, "canonical-v1-dev+report-chain-ttm+direct-valuation+fiscal-anchor-cell",
+                (SCORE_VERSION, as_of, cutoff, "canonical-v1-dev+report-chain-ttm+direct-valuation+fiscal-anchor-cell" +
+                 ("+verified-financial-inputs-v1" if hasattr(eng, "financial_input_evidence") else ""),
                  json.dumps({"baseline_weights_v37": BASELINE_WEIGHTS_V37,
                              "weights_validated": False, "input_hash": digest,
                              "valuation_mode": eng.valuation,
                              "valuation_formulas": {
                                  "pe": PE_METHOD_DIRECT, "ps": PS_METHOD_DIRECT, "pb": PB_METHOD_DIRECT},
                              "fiscal_calendar": "codal_report_title",
-                             "implementation_revision": "report-chain-ttm-v1"}),
+                             "implementation_revision": "report-chain-ttm-v1",
+                             **({"verified_financial_input": {
+                                 **eng.financial_input_evidence,
+                                 "metric_digest": digest,
+                                 "previous_run_id": getattr(eng, "previous_serving_run_id", None)
+                             }} if hasattr(eng, "financial_input_evidence") else {})}),
                  run_kind, json.dumps(watermark, default=str)))
             run_id = cur.fetchone()[0]
             for cid, v in metrics.items():

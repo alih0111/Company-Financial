@@ -40,10 +40,10 @@ type canonicalStockMetric struct {
 	InterestCoverage      *float64 `json:"interest_coverage"`
 	NonOperatingPct       *float64 `json:"non_operating_pct"`
 
-	NetProfitMargin12M    *float64 `json:"net_profit_margin_12m"`
-	OperatingMargin12M    *float64 `json:"operating_margin_12m"`
-	OperatingMarginTrend  *float64 `json:"operating_margin_trend"`
-	PSRatio               *float64 `json:"ps_ratio"`
+	NetProfitMargin12M   *float64 `json:"net_profit_margin_12m"`
+	OperatingMargin12M   *float64 `json:"operating_margin_12m"`
+	OperatingMarginTrend *float64 `json:"operating_margin_trend"`
+	PSRatio              *float64 `json:"ps_ratio"`
 
 	LatestEPS          *float64 `json:"latest_eps"`
 	LatestOperatingEPS *float64 `json:"latest_operating_eps"`
@@ -72,16 +72,16 @@ type canonicalStockMetric struct {
 	ValuationScore     float64 `json:"valuation_score"`
 	MarketScore        float64 `json:"market_score"`
 
-	GrowthPenalty        float64 `json:"growth_penalty"`
-	ProfitabilityPenalty float64 `json:"profitability_penalty"`
-	ValuationPenalty     float64 `json:"valuation_penalty"`
-	MarketPenalty        float64 `json:"market_penalty"`
-	ProfitReportAgeMonths int    `json:"profit_report_age_months"`
-	MarketDataAgeDays    int    `json:"market_data_age_days"`
-	StaleDataFlag        bool   `json:"stale_data_flag"`
-	TTMNetProfit         *float64 `json:"ttm_net_profit"`
-	TTMEPS               *float64 `json:"ttm_eps"`
-	ScoreVersion         string `json:"score_version"`
+	GrowthPenalty         float64  `json:"growth_penalty"`
+	ProfitabilityPenalty  float64  `json:"profitability_penalty"`
+	ValuationPenalty      float64  `json:"valuation_penalty"`
+	MarketPenalty         float64  `json:"market_penalty"`
+	ProfitReportAgeMonths int      `json:"profit_report_age_months"`
+	MarketDataAgeDays     int      `json:"market_data_age_days"`
+	StaleDataFlag         bool     `json:"stale_data_flag"`
+	TTMNetProfit          *float64 `json:"ttm_net_profit"`
+	TTMEPS                *float64 `json:"ttm_eps"`
+	ScoreVersion          string   `json:"score_version"`
 
 	// Factor percentile ranks (0..1) — progress-bar fills.
 	SalesGrowthRank           float64 `json:"sales_growth_rank"`
@@ -122,7 +122,7 @@ func buildCanonicalStockMetric(r integration.AllScoreInputRow) canonicalStockMet
 		QuantScore: r.QuantScore, DataQualityScore: r.DataQualityScore, HasEnoughData: true,
 
 		SalesGrowth12M: raw("SalesGrowth"), SalesGrowth3M: raw("SalesGrowth3M"),
-		SalesStability: raw("Stability"),
+		SalesStability:           raw("Stability"),
 		OperatingProfitGrowthYoY: raw("OperatingProfitGrowth"),
 		NetProfitGrowth4Reports:  raw("NetProfitGrowth"),
 		OperatingMargin12M:       raw("OperatingMargin"),
@@ -147,10 +147,10 @@ func buildCanonicalStockMetric(r integration.AllScoreInputRow) canonicalStockMet
 		ScoreVersion: r.ScoreVersion,
 
 		SalesGrowthRank: rank("SalesGrowth"), SalesGrowth3MRank: rank("SalesGrowth3M"),
-		RevenueGrowthRank: rank("RevenueGrowth"),
+		RevenueGrowthRank:         rank("RevenueGrowth"),
 		OperatingProfitGrowthRank: rank("OperatingProfitGrowth"),
-		NetProfitGrowthRank: rank("NetProfitGrowth"),
-		OperatingMarginRank: rank("OperatingMargin"), NetMarginRank: rank("NetMargin"),
+		NetProfitGrowthRank:       rank("NetProfitGrowth"),
+		OperatingMarginRank:       rank("OperatingMargin"), NetMarginRank: rank("NetMargin"),
 		MarginTrendRank: rank("MarginTrend"), InterestCoverageRank: rank("InterestCoverage"),
 		EarningsQualityRank: rank("EarningsQuality"), PERank: rank("PE"),
 		PSRank: rank("PS"), LiquidityRank: rank("Liquidity"), StabilityRank: rank("Stability"),
@@ -163,7 +163,27 @@ func buildCanonicalStockMetric(r integration.AllScoreInputRow) canonicalStockMet
 
 func buildCanonicalSummary(rows []integration.AllScoreInputRow, limit int) []canonicalStockMetric {
 	sorted := append([]integration.AllScoreInputRow(nil), rows...)
-	sort.Slice(sorted, func(i, j int) bool { return sorted[i].QuantScore > sorted[j].QuantScore })
+	sort.Slice(sorted, func(i, j int) bool {
+		if sorted[i].QuantScore != sorted[j].QuantScore {
+			return sorted[i].QuantScore > sorted[j].QuantScore
+		}
+		return sorted[i].LegacyCompanyID < sorted[j].LegacyCompanyID
+	})
+	// Several legacy identifiers can resolve to the same canonical issuer.
+	// Remove aliases before the limit so they cannot occupy multiple top slots.
+	unique := sorted[:0]
+	seen := make(map[string]bool)
+	for _, row := range sorted {
+		identity := row.CanonicalID
+		if identity == "" {
+			identity = "legacy:" + row.LegacyCompanyID
+		}
+		if !seen[identity] {
+			unique = append(unique, row)
+			seen[identity] = true
+		}
+	}
+	sorted = unique
 	if limit > 0 && len(sorted) > limit {
 		sorted = sorted[:limit]
 	}

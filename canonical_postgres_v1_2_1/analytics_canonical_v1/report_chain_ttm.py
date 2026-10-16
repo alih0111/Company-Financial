@@ -41,7 +41,7 @@ def _cell_get(report, fy, fm, metric, order=1):
     return d.get(order)
 
 
-def direct_ttm(report, metric, fy, fm):
+def direct_ttm(report, metric, fy, fm, is_annual=None):
     """A: within-report period_order 1 + 3 - 2 (or 1 when month==12)."""
     d = report.get((fy, fm), {}).get(metric)
     if not d:
@@ -49,7 +49,7 @@ def direct_ttm(report, metric, fy, fm):
     cur = d.get(1)
     if cur is None:
         return None, PROV_INSUFFICIENT
-    if fm == DEFAULT_ANNUAL_MONTH:
+    if is_annual is True or (is_annual is None and fm == DEFAULT_ANNUAL_MONTH):
         return cur, PROV_DIRECT
     prior_fy = d.get(3)
     prior_ytd = d.get(2)
@@ -103,7 +103,12 @@ def resolve_ttm(report, metric, fy, fm, annual_month=None, is_annual=None,
         cur = _cell_get(report, fy, fm, metric, 1)
         if cur is not None:
             return cur, PROV_ANNUAL_REPORT
-    v, prov = direct_ttm(report, metric, fy, fm)
+    # Month 12 can be an interim window for a non-Esfand issuer. Explicit
+    # duration/calendar evidence overrides the legacy month-12 shorthand.
+    direct_annual = is_annual
+    if direct_annual is None and annual_month is not None:
+        direct_annual = fm == annual_month
+    v, prov = direct_ttm(report, metric, fy, fm, is_annual=direct_annual)
     if v is not None:
         return v, prov
     if metric in FLOW_CUMULATIVE:

@@ -85,7 +85,8 @@ def test_in_place_content_change_is_stale():
     assert any("content changed" in x for x in r["reasons"])
 
 
-def test_choose_as_of_cutoff_prefers_latest_dates():
+def test_choose_as_of_cutoff_prefers_latest_dates(tmp_path, monkeypatch):
+    monkeypatch.setattr(orf.verified_sources, 'OUT', tmp_path)
     cutoffs = {
         "monthly_latest": dt.date(2026, 9, 22),
         "financial_latest": dt.date(2026, 8, 22),
@@ -96,6 +97,19 @@ def test_choose_as_of_cutoff_prefers_latest_dates():
     as_of, cutoff = orf.choose_as_of_cutoff(cutoffs)
     assert as_of == dt.date(2026, 9, 25)
     assert cutoff == dt.datetime.fromisoformat("2026-09-25T20:41:55+03:30")
+
+
+def test_verified_arrival_extends_cutoff_but_future_arrival_does_not(tmp_path, monkeypatch):
+    import json
+    monkeypatch.setattr(orf.verified_sources, 'OUT', tmp_path)
+    (tmp_path / 'facts').mkdir()
+    (tmp_path / 'facts/c.json').write_text(json.dumps({'rules_version': 3, 'facts': [
+        {'collected_at': '2026-10-12T08:00:00+00:00'},
+        {'collected_at': '2099-10-12T08:00:00+00:00'}]}), encoding='utf8')
+    asof, cutoff = orf.choose_as_of_cutoff({'market_latest_trade_date': dt.date(2026, 10, 10),
+        'market_latest_collected_at': dt.datetime(2026, 10, 10, tzinfo=dt.timezone.utc)})
+    assert asof == dt.date(2026, 10, 10)
+    assert cutoff == dt.datetime(2026, 10, 12, 8, tzinfo=dt.timezone.utc)
 
 
 def test_ingestion_health_missing_is_not_degraded(tmp_path, monkeypatch):

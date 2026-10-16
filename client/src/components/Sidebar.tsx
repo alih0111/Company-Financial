@@ -53,6 +53,7 @@ const NAV_ITEMS: {
   // { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
   { to: "/ranking", label: "رتبه‌بندی سهام (آزمایشی)", icon: <FaBullseye size={13} /> },
+  { to: "/ranking/research", label: "رتبه‌بندی پژوهشی S2", icon: <FaFlask size={13} /> },
   { to: "/qvt", label: "تحلیل QVT — آزمایشی", icon: <FaFlask size={13} /> },
   { to: "/chat", label: "دستیار سرمایه‌گذاری", icon: <FaRobot size={13} /> },
   // { to: "/portfolio", label: "پورتفولیو", icon: <FaBriefcase size={13} /> },
@@ -201,6 +202,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <NavLink
             key={item.to}
             to={item.to}
+            end
             onClick={onClose}
             className={({ isActive }) =>
               `flex items-center gap-2.5 h-10 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${

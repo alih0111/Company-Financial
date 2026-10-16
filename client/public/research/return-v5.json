@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "research_version": "V5",
+  "run_id": "v5_20261016T132527480952Z",
+  "status": "historical_research",
+  "method": "S2 / F0",
+  "method_version": "V4 verified local source recovery; unchanged shared S2",
+  "as_of": "2026-10-14",
+  "eligible_count": 101,
+  "universe_count": 254,
+  "displayed_count": 10,
+  "coverage_status": "limited_local_population",
+  "coverage_breakdown": {
+    "rankable_execution_uncertified": 101,
+    "unprocessed_or_unlinked_report": 88,
+    "insufficient_evidence": 48,
+    "outside_economic_model": 9,
+    "rankable_but_trade_filter_failed": 8
+  },
+  "price_archive_endpoint": "2026-10-14",
+  "current_ranking_available": false,
+  "current_ranking_reason": "این snapshot آرشیوی است؛ کامل‌بودن آخرین انتشارها و رویدادهای ورقه احراز نشده است.",
+  "note": "جامعهٔ ۲۵۴تایی کل بازار نیست. کمبود داده با ضعیف‌بودن سهم فرق دارد. امتیاز نسبی، درصد سود یا احتمال موفقیت نیست.",
+  "reason": null,
+  "input_sha256": "e9e63a4b767869f25239fd735bf318db4d4ca2c751f441fb64f303709f070e67",
+  "method_sha256": "281e7665f84d5a37119800e71af7f3da07020ea9d07999b218546f6adabb1490",
+  "audit_sha256": "376375519f5846210b8b9d1fff000e26954f021f01a95163faeb0c4c2169bf83",
+  "rows": [
+    {
+      "rank": 1,
+      "symbol": "چخزر",
+      "name": "چخزر",
+      "company_id": "6b37d7eb-bf15-4794-b372-1160e633add9",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 255.92 و هم‌فصل قبل 61.54 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 36.00٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    },
+    {
+      "rank": 2,
+      "symbol": "فایرا",
+      "name": "فایرا",
+      "company_id": "32f8a06d-02b7-4ac8-88bf-4c5e2adcaa8e",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 9,988.15 و هم‌فصل قبل 928.25 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 26.40٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    },
+    {
+      "rank": 3,
+      "symbol": "سپید",
+      "name": "سپید",
+      "company_id": "5f495881-e8f4-460a-a502-64de22b67c20",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 4,063.24 و هم‌فصل قبل 62.50 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 24.82٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    },
+    {
+      "rank": 4,
+      "symbol": "غاذر",
+      "name": "غاذر",
+      "company_id": "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 115.34 و هم‌فصل قبل 17.03 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 24.14٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    },
+    {
+      "rank": 5,
+      "symbol": "فگستر",
+      "name": "فگستر",
+      "company_id": "9fce58d2-2eab-45ed-b51c-54fa00f2c77f",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 312.53 و هم‌فصل قبل 31.95 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 24.13٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    },
+    {
+      "rank": 6,
+      "symbol": "دقاضی",
+      "name": "دقاضی",
+      "company_id": "ee0218dc-af71-478d-a572-b65b7cb82a8b",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 1,603.09 و هم‌فصل قبل 358.50 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 23.80٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    },
+    {
+      "rank": 7,
+      "symbol": "سباقر",
+      "name": "سباقر",
+      "company_id": "afe098e0-23f0-4621-8de1-c63940975d5f",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 887.34 و هم‌فصل قبل 204.45 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 23.18٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    },
+    {
+      "rank": 8,
+      "symbol": "شغدیر",
+      "name": "شغدیر",
+      "company_id": "4fc440bf-7dbc-4c28-a1be-a45cd1ba0652",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 1,273.41 و هم‌فصل قبل 95.71 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 21.65٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    },
+    {
+      "rank": 9,
+      "symbol": "ددانا",
+      "name": "ددانا",
+      "company_id": "83ec683f-eb5f-4ccc-abde-96641f1a0bf1",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 2,775.95 و هم‌فصل قبل 626.90 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 19.94٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    },
+    {
+      "rank": 10,
+      "symbol": "دالبر",
+      "name": "دالبر",
+      "company_id": "056508cf-1280-47bc-a9ca-80a03a1e944e",
+      "reason1": "افزایش سود عملیاتی؛ فصل جاری 2,035.78 و هم‌فصل قبل 483.94 میلیارد تومان",
+      "reason2": "تغییر سود / میانگین دارایی: 19.49٪؛ درصد بازده سهم نیست",
+      "data_date": "2026-10-14",
+      "financial_period_end": "2026-06-21",
+      "data_status": "دادهٔ کافی برای پژوهش؛ معامله‌پذیری و بازده اقتصادی تأیید نشده",
+      "sufficiency": "research_eligible_execution_uncertified"
+    }
+  ],
+  "limitations": [
+    "نام کامل حقوقی شرکت‌ها بدون منبع معتبر تکمیل نشده؛ نماد معتبر موجود نمایش داده می‌شود.",
+    "اسناد استحقاق، وصول سود، حق‌تقدم و تقویم رسمی کامل نیست؛ بازده اقتصادی تأیید نشده است.",
+    "رتبه از همان تابع امتیازدهی بک‌تست محاسبه می‌شود؛ روش تولیدی ارتقا نیافته است."
+  ],
+  "validity_label": "رتبه‌بندی پژوهشی S2؛ مقایسهٔ بازده شاخصی، دفتر اقتصادی کامل هنوز نامعلوم",
+  "performance_status": "برندهٔ معتبر تازه مشخص نشده؛ روش S2 حفظ شده است.",
+  "performance_note": "۱۰۰ میلیون تومان اولیه؛ هزینهٔ فرضی هر سمت ۰٫۵٪؛ تقویم استنباطی. NAV شاخصی پول قابل برداشت یا نقد آمادهٔ خرید نیست. عملکرد واقعی حساب وجود ندارد.",
+  "performance": [
+    {
+      "method": "existing_choose",
+      "final_toman": 169720521.28278625,
+      "start": "2024-11-02",
+      "end": "2026-02-25",
+      "max_drawdown_percent": 20.43390865819205,
+      "book_cash_toman": 0.132214206457138,
+      "ledger": "شاخص تعدیل‌شده",
+      "economic_final_toman": null,
+      "stale_price_weight": 0.0
+    },
+    {
+      "method": "balanced",
+      "final_toman": 121277902.48053014,
+      "start": "2024-11-02",
+      "end": "2026-02-25",
+      "max_drawdown_percent": 30.42032728111861,
+      "book_cash_toman": 11562119.168393468,
+      "ledger": "شاخص تعدیل‌شده",
+      "economic_final_toman": null,
+      "stale_price_weight": 0.0
+    },
+    {
+      "method": "S2_monthly",
+      "final_toman": 168649509.20043048,
+      "start": "2024-11-02",
+      "end": "2026-02-25",
+      "max_drawdown_percent": 24.54295238831283,
+      "book_cash_toman": 14576430.430241909,
+      "ledger": "شاخص تعدیل‌شده",
+      "economic_final_toman": null,
+      "stale_price_weight": 0.0
+    },
+    {
+      "method": "S2_biweekly",
+      "final_toman": 174888883.29562107,
+      "start": "2024-11-02",
+      "end": "2026-02-25",
+      "max_drawdown_percent": 20.03046141043462,
+      "book_cash_toman": 0.0229884542524814,
+      "ledger": "شاخص تعدیل‌شده",
+      "economic_final_toman": null,
+      "stale_price_weight": 0.0
+    },
+    {
+      "method": "profit_growth",
+      "final_toman": 173062426.11345494,
+      "start": "2024-11-02",
+      "end": "2026-02-25",
+      "max_drawdown_percent": 23.785444401870983,
+      "book_cash_toman": 1129759.379819844,
+      "ledger": "شاخص تعدیل‌شده",
+      "economic_final_toman": null,
+      "stale_price_weight": 0.0
+    },
+    {
+      "method": "equal_weight_all",
+      "final_toman": 148009660.56544492,
+      "start": "2024-11-02",
+      "end": "2026-02-25",
+      "max_drawdown_percent": 23.02232625586833,
+      "book_cash_toman": 8.110666064178916e-06,
+      "ledger": "شاخص تعدیل‌شده",
+      "economic_final_toman": null,
+      "stale_price_weight": 0.0044629902835855
+    },
+    {
+      "method": "S2_buffer15_monthly",
+      "final_toman": 166277599.93217057,
+      "start": "2024-11-02",
+      "end": "2026-02-25",
+      "max_drawdown_percent": 22.80256910243293,
+      "book_cash_toman": 0.1868486374616623,
+      "ledger": "شاخص تعدیل‌شده",
+      "economic_final_toman": null,
+      "stale_price_weight": 0.0
+    },
+    {
+      "method": "S2_buffer15_biweekly",
+      "final_toman": 176068317.52619666,
+      "start": "2024-11-02",
+      "end": "2026-02-25",
+      "max_drawdown_percent": 21.1138981949853,
+      "book_cash_toman": 0.0028761219795159,
+      "ledger": "شاخص تعدیل‌شده",
+      "economic_final_toman": null,
+      "stale_price_weight": 0.0
+    }
+  ],
+  "metadata_completeness": "اطلاعات گزارش‌ها با منابع منجمد V4 و ۲۲۵ نسخهٔ بازیابی‌شده تطبیق شده؛ جامعیت همهٔ اطلاعیه‌های تازه احراز نشده است.",
+  "economic_example": "آزمون مستند پکویر: برای دارندهٔ فرضی ۱۰۰ سهم، ۵۸٬۰۰۰ ریال طلب سود ثبت شد؛ در سناریوی برنامهٔ ناشر در آخر بازهٔ پرداخت به نقد تبدیل می‌شود، و در سناریوی عدم استفادهٔ مجدد طلب باقی می‌ماند. این آزمون، بازده کل راهبرد نیست.",
+  "performance_run_id": "v5_20261016T132527480952Z",
+  "buffer_portfolios": [
+    {
+      "method": "S2_buffer15_monthly",
+      "as_of": "2026-02-25",
+      "symbols": [
+        "قلرست",
+        "کاسپین",
+        "سصوفی",
+        "زکشت",
+        "چخزر",
+        "سقاین",
+        "سهرمز",
+        "شبریز",
+        "کطبس",
+        "کپشیر"
+      ],
+      "ledger": "adjusted index positions; not today's ranking, not actual broker shares"
+    },
+    {
+      "method": "S2_buffer15_biweekly",
+      "as_of": "2026-02-25",
+      "symbols": [
+        "کاسپین",
+        "دارو",
+        "سصوفی",
+        "شبریز",
+        "چخزر",
+        "زکشت",
+        "قلرست",
+        "سقاین",
+        "سهرمز",
+        "کپشیر"
+      ],
+      "ledger": "adjusted index positions; not today's ranking, not actual broker shares"
+    }
+  ]
+}

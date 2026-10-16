@@ -1,0 +1,19 @@
+{
+  "run_id": "v3_20261016T090423998625Z",
+  "presentation_version": 1,
+  "source_ranking_path": "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v3\\v3_20261016T090423998625Z\\latest_research_ranking.json",
+  "source_ranking_sha256": "a92716d8f9910458de6d13ea3ad6c3f09df9b3daa113762734f354ae735d7df3",
+  "source_audit_sha256": "0b308ac848324a3e6d3f05ed2f4e8fb2573e70b2b629a36b6d0e7e8c83242310",
+  "presentation_path": "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v3_presentations\\v3_20261016T090423998625Z\\p1\\ranking.json",
+  "presentation_sha256": "5a7ea06e300919e32306463579f831ca61bce92f910f03b58f067ca7890bcbe0",
+  "static_sha256": "5a7ea06e300919e32306463579f831ca61bce92f910f03b58f067ca7890bcbe0",
+  "allowed_changes": [
+    "reason1",
+    "note",
+    "presentation_version",
+    "source_ranking_sha256"
+  ],
+  "portfolio_executions": 0,
+  "score_rank_identity_and_input_hash_unchanged": true,
+  "reason": "signed S2 explanations; negative score is not described as improvement; sealed original financial outputs retained"
+}

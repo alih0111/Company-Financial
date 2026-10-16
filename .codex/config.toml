@@ -1,0 +1,5 @@
+# Select the model and reasoning effort manually in the chat.
+# No project-level model override or automatic subagent delegation.
+
+[agents]
+enabled = false
