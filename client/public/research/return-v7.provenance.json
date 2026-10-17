@@ -1,0 +1,8 @@
+{
+  "run_id": "v7_20261016T195745152277Z",
+  "snapshot_sha256": "e155daacd02eb915ee337a792fb89d3c54233a4ce8c44f32e05bd3730c25627f",
+  "comparison_sha256": "35acc3e5a464ed1f9b0f53200d4083cad00244ce1084b233b2b017c3c3889063",
+  "input_freeze_sha256": "b92ad95ec773448876589d4436245ebad6717e6a93f2dda9aa543e6c2b4c6536",
+  "case_sha256": "574362096e6ddfc10bc546ac9b466e33bb193e963ab69cf38ce55394641db552",
+  "accepted_method_changed": false
+}

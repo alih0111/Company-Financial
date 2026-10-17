@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import ResearchTradeHistory from "./ResearchTradeHistory";
+import ResearchV7Results from "./ResearchV7Results";
 import { FaArrowLeft, FaCheckCircle, FaFlask, FaSyncAlt } from "react-icons/fa";
 
 export interface ResearchRow {
@@ -140,5 +142,5 @@ export default function ResearchRankingPage() {
   }, [attempt]);
   if (error) return <div role="alert" dir="rtl" className="rounded-2xl border border-red-200 bg-red-50 p-8 text-red-800"><p>{error}</p><button type="button" className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2" onClick={() => setAttempt((value) => value + 1)}><FaSyncAlt /> تلاش دوباره</button></div>;
   if (!data) return <div role="status" dir="rtl" className="rounded-2xl bg-white p-12 text-center text-gray-500 dark:bg-gray-800">در حال دریافت رتبه‌بندی پژوهشی…</div>;
-  return <ResearchRankingView data={data} />;
+  return <><ResearchRankingView data={data} /><div dir="rtl" className="mt-6 space-y-6 text-gray-800 dark:text-gray-100"><ResearchV7Results sourceRun={data.run_id} /><ResearchTradeHistory runId={data.run_id} /></div></>;
 }

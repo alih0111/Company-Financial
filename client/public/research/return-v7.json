@@ -1,0 +1,522 @@
+{
+  "schema_version": 1,
+  "run_id": "v7_20261016T195745152277Z",
+  "source_V6_run": "v6_20261016T144712827439Z",
+  "start": "2024-10-30",
+  "end": "2026-02-25",
+  "method_promoted": false,
+  "status": "هیچ نامزد تازه‌ای واجد شرایط نشد؛ S2 حفظ شد.",
+  "comparison": [
+    {
+      "method": "S2_biweekly_common",
+      "label": "S2 · دوهفته‌ای · جامعهٔ مشترک",
+      "final_toman": 181019038.03066844,
+      "drawdown_percent": 20.06697088449889,
+      "cost_toman": 8768239.899879988,
+      "maximum_weight_percent": 12.08464838915602
+    },
+    {
+      "method": "S2_120_common",
+      "label": "S2 · هر ۱۲۰ جلسه",
+      "final_toman": 144084934.83874702,
+      "drawdown_percent": 23.23882253380652,
+      "cost_toman": 2507984.876461604,
+      "maximum_weight_percent": 15.26950030369732
+    },
+    {
+      "method": "momentum_biweekly_common",
+      "label": "روند · دوهفته‌ای",
+      "final_toman": 147180892.83882806,
+      "drawdown_percent": 25.622415326870602,
+      "cost_toman": 10508976.231761971,
+      "maximum_weight_percent": 12.224832690883849
+    },
+    {
+      "method": "momentum_120_common",
+      "label": "روند · هر ۱۲۰ جلسه",
+      "final_toman": 124732724.1239583,
+      "drawdown_percent": 26.19882198384198,
+      "cost_toman": 1975956.665048121,
+      "maximum_weight_percent": 14.64158465988788
+    },
+    {
+      "method": "S2_natural",
+      "label": "S2 حفظ‌شده · جامعهٔ طبیعی",
+      "final_toman": 174888883.29562107,
+      "drawdown_percent": 20.03046141043462,
+      "cost_toman": 8231172.633296686,
+      "maximum_weight_percent": 12.06103248063155
+    },
+    {
+      "method": "existing_choose",
+      "label": "انتخابگر قبلی",
+      "final_toman": 169720521.28278625,
+      "drawdown_percent": 20.43390865819205,
+      "cost_toman": 7924616.139457618,
+      "maximum_weight_percent": 11.95532380212052
+    }
+  ],
+  "initial_hold": {
+    "final_toman": 126688434.00821546,
+    "drawdown_percent": 23.05119344804034,
+    "cost_toman": 452479.342836506,
+    "maximum_weight_percent": 15.698416893307476
+  },
+  "kaspian_growth": [
+    {
+      "window": "V6",
+      "first_fill": "2024-11-02",
+      "mark_date": "2026-02-25",
+      "index_price_growth_multiple": 3.2170158580608605,
+      "hypothetical_100m_fully_invested_marked_toman": 320101080.4040658,
+      "hypothetical_after_0_5pct_exit_fee_toman": 318500575.00204545,
+      "hypothetical_not_capacity_compliant": true,
+      "actual_capacity_limited_toman": 114338851.3957076,
+      "actual_initial_bought_toman": 6482255.243991601,
+      "actual_maximum_weight_percent": 22.588887746363888,
+      "actual_account_drawdown_percent": 6.08943058631118,
+      "single_index_drawdown_percent": 26.957637997432606,
+      "residual_initial_cash_toman": 93485333.47978844,
+      "reason": "initial whole-order cap =1% trailing20 median traded value; expires after5 attempts; no elective later topups",
+      "economic_return_known": false,
+      "terminal_sale": "not executed; marked research NAV only",
+      "raw_price_scale_warning": "raw pClosing after corporate actions cannot be compared to earlier raw pFirst as total return"
+    },
+    {
+      "window": "user_Aban1403_Esfand1404",
+      "first_fill": "2024-10-22",
+      "mark_date": "2026-02-25",
+      "index_price_growth_multiple": 3.330641142230781,
+      "hypothetical_100m_fully_invested_marked_toman": 331407078.8289334,
+      "hypothetical_after_0_5pct_exit_fee_toman": null,
+      "hypothetical_not_capacity_compliant": true,
+      "actual_capacity_limited_toman": 114975993.54755406,
+      "actual_initial_bought_toman": 6439511.786925531,
+      "actual_maximum_weight_percent": 23.075787808691572,
+      "actual_account_drawdown_percent": 6.2206873425227505,
+      "single_index_drawdown_percent": 26.957637997432606,
+      "residual_initial_cash_toman": 93528290.65413985,
+      "reason": "initial whole-order cap =1% trailing20 median traded value; expires after5 attempts; no elective later topups",
+      "economic_return_known": false,
+      "terminal_sale": "not executed; marked research NAV only",
+      "raw_price_scale_warning": "raw pClosing after corporate actions cannot be compared to earlier raw pFirst as total return"
+    }
+  ],
+  "kaspian_decisions": [
+    {
+      "date": "2024-10-30",
+      "rank": 12,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2024-11-06",
+      "rank": 13,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2024-11-20",
+      "rank": 14,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2024-12-04",
+      "rank": 14,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2024-12-18",
+      "rank": 13,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-01-01",
+      "rank": 12,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-01-15",
+      "rank": 16,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-01-29",
+      "rank": 25,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-02-11",
+      "rank": 24,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-02-26",
+      "rank": 26,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-03-12",
+      "rank": 28,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-03-26",
+      "rank": 27,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-04-09",
+      "rank": 28,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-04-23",
+      "rank": 30,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-04-30",
+      "rank": 29,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 0.0,
+      "why": "داده کافی بود اما رتبه پایین‌تر از ده بود.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-05-07",
+      "rank": 1,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 0.0,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-05-21",
+      "rank": 1,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 0.0,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "خرید در 2025-05-24",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-06-03",
+      "rank": 1,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 10.63156071278044,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "کاهش تا وزن هدف ۱۰٪ در بازچینی",
+      "execution": "فروش در 2025-06-07",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-07-02",
+      "rank": 2,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 9.17262847745548,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "خرید در 2025-07-08",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-07-16",
+      "rank": null,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 10.81943078328028,
+      "why": "شرط نقدشوندگی/تعداد جلسات معامله برقرار نبود.",
+      "sell_reason": "خروج از هدف به علت شرط داده/نقدشوندگی",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-07-30",
+      "rank": null,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 11.1995829369699,
+      "why": "شرط نقدشوندگی/تعداد جلسات معامله برقرار نبود.",
+      "sell_reason": "خروج از هدف به علت شرط داده/نقدشوندگی",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-08-13",
+      "rank": null,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 11.91643923716587,
+      "why": "شرط نقدشوندگی/تعداد جلسات معامله برقرار نبود.",
+      "sell_reason": "خروج از هدف به علت شرط داده/نقدشوندگی",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-08-27",
+      "rank": null,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 11.480571873749069,
+      "why": "شرط نقدشوندگی/تعداد جلسات معامله برقرار نبود.",
+      "sell_reason": "خروج از هدف به علت شرط داده/نقدشوندگی",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-09-09",
+      "rank": null,
+      "selected": false,
+      "target_weight_percent": 0.0,
+      "actual_weight_percent": 11.74777011024401,
+      "why": "شرط نقدشوندگی/تعداد جلسات معامله برقرار نبود.",
+      "sell_reason": "خروج از هدف به علت شرط داده/نقدشوندگی",
+      "execution": "فروش در 2025-09-13",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-09-24",
+      "rank": 5,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 8.03491048462248,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "خرید در 2025-09-27",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-10-08",
+      "rank": 5,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 10.10039473010432,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "کاهش تا وزن هدف ۱۰٪ در بازچینی",
+      "execution": "فروش در 2025-10-11",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-10-22",
+      "rank": 3,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 10.31991549549532,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "کاهش تا وزن هدف ۱۰٪ در بازچینی",
+      "execution": "فروش در 2025-10-25",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-10-29",
+      "rank": 3,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 10.206156308744049,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "کاهش تا وزن هدف ۱۰٪ در بازچینی",
+      "execution": "فروش در 2025-11-01",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-11-05",
+      "rank": 3,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 9.94683262060599,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-11-19",
+      "rank": 3,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 9.88024533570158,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-12-03",
+      "rank": 3,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 9.65804113116497,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "خرید در 2025-12-07",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-12-17",
+      "rank": 3,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 11.25322150575613,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "کاهش تا وزن هدف ۱۰٪ در بازچینی",
+      "execution": "فروش در 2025-12-20",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2025-12-31",
+      "rank": 3,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 10.64878071648243,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "کاهش تا وزن هدف ۱۰٪ در بازچینی",
+      "execution": "فروش در 2026-01-04",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2026-01-14",
+      "rank": 4,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 9.38974927425696,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "خرید در 2026-01-18",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2026-01-28",
+      "rank": 7,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 9.73029871513673,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "خرید در 2026-01-31",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2026-02-10",
+      "rank": 7,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 8.90416790670519,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "فروش تازه‌ای در این تصمیم ثبت نشده",
+      "execution": "خرید در 2026-02-14",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    },
+    {
+      "date": "2026-02-25",
+      "rank": 7,
+      "selected": true,
+      "target_weight_percent": 10.0,
+      "actual_weight_percent": 10.29665433583907,
+      "why": "در ده رتبهٔ اول S2 بود؛ هدف هر سهم ۱۰٪ سبد است.",
+      "sell_reason": "کاهش تا وزن هدف ۱۰٪ در بازچینی",
+      "execution": "بدون fill؛ ثبت هدف به معنی انجام معامله نیست",
+      "holding_reason": "در روش فعلی، نگهداری/وزن در هر بازچینی دوباره تعیین می‌شود؛ در آزمایش ۱۲۰جلسه‌ای رتبهٔ میان‌دوره خروج اختیاری نمی‌سازد."
+    }
+  ],
+  "case_note": "کاسپین مثال انتخاب‌شده با اطلاع از نتیجه است؛ رشد شاخص سهم، سود نقدی قابل برداشت یا بازده یک سبد ده‌سهمی را اثبات نمی‌کند. فروش انتهای اسفند تأیید نشده است.",
+  "winner_note": "برندگان پسینی فقط برای تشخیص‌اند؛ جامعهٔ ۲۵۴ هویت محلی کل بازار نیست و تاریخ‌های هم‌پوشان مستقل نیستند.",
+  "limitations": [
+    "بازده اقتصادی کامل نامعلوم است.",
+    "پنجرهٔ اصلی تا ۲۵ فوریهٔ ۲۰۲۶ است؛ دادهٔ غایبِ اسفند به تعطیلی رسمی تعبیر نشده.",
+    "کاهش هزینه در نگهداری بلندتر، افت بازده و ریسک را جبران نکرد.",
+    "دو بلوک کامل داریم؛ نتیجه بر گذشتهٔ مصرف‌شده است."
+  ]
+}
