@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "run_id": "v12_20261018T183000Z",
+  "status": "historical_research",
+  "title": "نامزد پژوهشی تاریخی",
+  "data_end": "2026-02-25",
+  "comparison": [
+    {
+      "path": "weight_only_24m",
+      "initial_toman": 100000000.0,
+      "final_toman": 204647731.23836413,
+      "net_return_pct": 104.64773123836414,
+      "cost_toman": 22635356.420370825,
+      "trades": 984,
+      "buys": 553,
+      "sells": 431,
+      "max_drawdown_pct": 30.822498458208425,
+      "start_date": "2023-04-03",
+      "end_date": "2026-02-25"
+    },
+    {
+      "path": "staged_weight_selected_policy",
+      "initial_toman": 100000000.0,
+      "final_toman": 278438424.6716226,
+      "net_return_pct": 178.43842467162258,
+      "cost_toman": 17701549.551075965,
+      "trades": 181,
+      "buys": 122,
+      "sells": 59,
+      "max_drawdown_pct": 39.18939481772868,
+      "start_date": "2023-04-03",
+      "end_date": "2026-02-25"
+    },
+    {
+      "path": "staged_weight_base_policy",
+      "initial_toman": 100000000.0,
+      "final_toman": 229640924.8134789,
+      "net_return_pct": 129.64092481347885,
+      "cost_toman": 23636900.26598639,
+      "trades": 944,
+      "buys": 514,
+      "sells": 430,
+      "max_drawdown_pct": 26.258714065198184,
+      "start_date": "2023-04-03",
+      "end_date": "2026-02-25"
+    },
+    {
+      "path": "baseline_exact_current",
+      "initial_toman": 100000000.0,
+      "final_toman": 228438012.93151015,
+      "net_return_pct": 128.43801293151017,
+      "cost_toman": 23947323.599442832,
+      "trades": 999,
+      "buys": 565,
+      "sells": 434,
+      "max_drawdown_pct": 30.52274745325715,
+      "start_date": "2023-04-03",
+      "end_date": "2026-02-25"
+    },
+    {
+      "path": "baseline_normalized",
+      "initial_toman": 100000000.0,
+      "final_toman": 228438012.93151015,
+      "net_return_pct": 128.43801293151017,
+      "cost_toman": 23947323.599442832,
+      "trades": 999,
+      "buys": 565,
+      "sells": 434,
+      "max_drawdown_pct": 30.52274745325715,
+      "start_date": "2023-04-03",
+      "end_date": "2026-02-25"
+    }
+  ],
+  "current_ranking_available": false,
+  "limitations": [
+    "این بازه holdout مستقل نیست.",
+    "بازده شاخص تعدیل‌شده تمام سود نقدی/حق‌تقدم را تضمین نمی‌کند.",
+    "full fill در open معتبر بدون اثر بازار فرض شده است."
+  ],
+  "universe_count": 254
+}

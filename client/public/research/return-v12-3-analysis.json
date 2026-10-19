@@ -1,0 +1,126 @@
+{
+  "run_id": "repair_20261019T145821493996Z",
+  "status": "historical_analysis_available_current_ranking_blocked",
+  "source_audit": {
+    "verified_codal_cache_files": 237,
+    "verified_fact_cache_files": 256,
+    "resolver_tests_passed": 23,
+    "unresolved_identity_count": 833,
+    "current_scored_count": 0,
+    "eligible_market_denominator": null
+  },
+  "portfolio_attribution": [
+    {
+      "path": "w0__P_base",
+      "opening_toman": 100000000,
+      "price_pnl_toman": 152385336.53095266,
+      "fees_toman": 23947323.59944281,
+      "nav_change_from_attribution_toman": 128438012.93150982,
+      "ending_toman_from_nav": 228438012.93151015,
+      "reconciliation_residual_toman": 3.2782554626464844e-07,
+      "trade_count": 999,
+      "buy_count": 565,
+      "sell_count": 434,
+      "top5_positive_contribution_toman": 52719189.13735295,
+      "top5_share_of_positive_symbol_contributions_pct": 28.192664310133093,
+      "top5_symbols": "دارو:11908159.81 | سغرب:11852973.63 | دعبید:9924492.02 | سپیدار:9777634.35 | زفکا:9255929.33"
+    },
+    {
+      "path": "w0__P_fixed",
+      "opening_toman": 100000000,
+      "price_pnl_toman": 175056076.87376896,
+      "fees_toman": 15283885.942083094,
+      "nav_change_from_attribution_toman": 159772190.93168584,
+      "ending_toman_from_nav": 259772190.93168604,
+      "reconciliation_residual_toman": 2.086162567138672e-07,
+      "trade_count": 222,
+      "buy_count": 128,
+      "sell_count": 94,
+      "top5_positive_contribution_toman": 181923506.22395223,
+      "top5_share_of_positive_symbol_contributions_pct": 81.24083458347421,
+      "top5_symbols": "حفاری:69672424.92 | سپیدار:50761241.10 | دارو:36026577.63 | ساربیل:14838134.88 | کپارس:10625127.69"
+    },
+    {
+      "path": "w0__P_staged",
+      "opening_toman": 100000000,
+      "price_pnl_toman": 252186165.8110301,
+      "fees_toman": 17898591.095607903,
+      "nav_change_from_attribution_toman": 234287574.71542218,
+      "ending_toman_from_nav": 334287574.7154224,
+      "reconciliation_residual_toman": 2.086162567138672e-07,
+      "trade_count": 157,
+      "buy_count": 88,
+      "sell_count": 69,
+      "top5_positive_contribution_toman": 267797022.8999313,
+      "top5_share_of_positive_symbol_contributions_pct": 77.36512177451024,
+      "top5_symbols": "حفاری:151575084.75 | سپیدار:57146428.62 | ساربیل:24841106.33 | دارو:20644424.46 | کپارس:13589978.75"
+    }
+  ],
+  "cadence_controls": [
+    {
+      "path": "w0_N10_equal_exit1_cadence21",
+      "cadence_sessions": 21,
+      "final_toman": 208312259.77825278,
+      "fees_toman": 17790193.038839035,
+      "trade_count": 490,
+      "start_date": "2023-04-03",
+      "end_date": "2026-02-25",
+      "sessions": 690
+    },
+    {
+      "path": "w0_N10_equal_exit1_cadence63",
+      "cadence_sessions": 63,
+      "final_toman": 170386009.0871166,
+      "fees_toman": 8197089.678532533,
+      "trade_count": 205,
+      "start_date": "2023-04-03",
+      "end_date": "2026-02-25",
+      "sessions": 690
+    }
+  ],
+  "holding_metrics": [
+    {
+      "path": "w0_N10_equal_exit1_cadence21",
+      "mean_calendar_days_to_sell": 90.6138888888889,
+      "mean_effective_holdings": 10.757971014492753,
+      "mean_cash_toman": 1698714.3987602093
+    },
+    {
+      "path": "w0_N10_equal_exit1_cadence63",
+      "mean_calendar_days_to_sell": 147.95454545454547,
+      "mean_effective_holdings": 10.728985507246376,
+      "mean_cash_toman": 4262670.527285633
+    }
+  ],
+  "method_status": "current policy selection unavailable: no PIT-complete V12 policy-selection window",
+  "notice": "کنترل‌های اصلاح‌شده با شش مسیر قبلی هم‌دوره‌اند؛ نتایج ۲۰۲۱ کنترل‌های قبلی قابل مقایسه نبودند. این تحلیل تاریخی است و رتبهٔ جاری یا پیش‌بینی نیست.",
+  "control_period": {
+    "created_at_utc": "2026-10-19T14:58:21.493996+00:00",
+    "correction": "Old controls began in 2021; comparison paths began in 2023.",
+    "start_index": 477,
+    "end_index_exclusive": 1167,
+    "start_date": "2023-04-03",
+    "end_date": "2026-02-25",
+    "sessions": 690,
+    "controls": [
+      21,
+      63
+    ],
+    "n": 10,
+    "exit_mult": 1,
+    "allocation": "equal",
+    "anchor": 0,
+    "initial_toman": 100000000,
+    "fee_each_side": 0.005,
+    "source_hashes": {
+      "ranking_research\\return_v12_3\\repair_controls.py": "409aa58368382372b6730139565db440af0dc8e615884a6879b9eee494c5d3a8",
+      "ranking_research\\return_v11\\core.py": "1a05a880438f0ada765b7bb5174e1eae561170df81ad8f13a7dc3e8005acabf5",
+      "ranking_research\\output\\return_v11\\v11_20261018T120000Z\\tensors_P3.pkl": "b94d3e5a2b9838b69144c35ffd747a862f2a1a22eb74b2a8f01eb1f3efc157a8",
+      "ranking_research\\output\\return_v12_2\\v12_2_20261019T114500Z\\comparison_six_paths.csv": "267fa8a1bef3d4c50e09ecae7c0d04172452f42fb8100e7f4e5f62aaf7583b6d",
+      "ranking_research\\output\\return_v12_2\\v12_2_20261019T114500Z\\model_manifest.json": "6ba7ee7e0b7a31039d57bf732c4c4d7c08984e07d059798596764b561ce7ccf5",
+      "ranking_research\\output\\return_v12_3\\v12_3_20261019T143000Z\\cadence_controls.csv": "47ed77e93092b5ade497595dfb5ce6edda01b035ce43d23aa3b5446925ebfaa3",
+      "ranking_research\\output\\return_v12_3\\v12_3_20261019T143000Z\\delivery_manifest.json": "aa23323e5fc5fd7fd930bdfbdfb1a69c9df8d16ce387fac0707f077d378dea8b"
+    },
+    "independent_holdout": false
+  }
+}

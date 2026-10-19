@@ -40,6 +40,8 @@ const MarketPage = lazy(() => import("./components/MarketPage"));
 const QvtAnalysisPage = lazy(() => import("./components/QvtAnalysisPage"));
 const QvtRankingPage = lazy(() => import("./components/CashRankingPage"));
 const ResearchRankingPage = lazy(() => import("./components/ResearchRankingPage"));
+const ResearchV11Results = lazy(() => import("./components/ResearchV11Results"));
+const ResearchV12_1RankingPage = lazy(() => import("./components/ResearchV12_1RankingPage"));
 
 // لودر سطح صفحه برای Suspense
 const PageLoader = () => (
@@ -108,6 +110,8 @@ const App = () => {
   const pageTitle =
     location.pathname === "/ranking/research"
       ? "رتبه‌بندی پژوهشی S2"
+      : location.pathname === "/ranking/research/v12-1"
+        ? "رتبه‌بندی پژوهشی — وزن‌های V12"
       : location.pathname === "/Table"
       ? "غربال بازار"
       : location.pathname === "/market"
@@ -129,6 +133,8 @@ const App = () => {
   const pageSubtitle =
     location.pathname === "/ranking/research"
       ? "پژوهش V5؛ مقایسهٔ بازده و پوشش داده در همین صفحه درج شده است"
+      : location.pathname === "/ranking/research/v12-1"
+        ? "رتبه‌بندی پژوهشی V12؛ وضعیت بازار و پوشش در snapshot مشخص است"
       : location.pathname === "/Table"
       ? "غربال و مقایسه‌ی همه‌ی شرکت‌های بازار"
       : location.pathname === "/market"
@@ -181,6 +187,8 @@ const App = () => {
       document.title = "RFA | تحلیل QVT — آزمایشی";
     } else if (location.pathname === "/ranking/research") {
       document.title = "RFA | رتبه‌بندی پژوهشی S2";
+    } else if (location.pathname === "/ranking/research/v12-1") {
+      document.title = "RFA | رتبه‌بندی پژوهشی — وزن‌های V12";
     } else if (location.pathname === "/ranking") {
       document.title = "RFA | رتبه‌بندی سهام — آزمایشی";
     } else if (location.pathname === "/login") {
@@ -535,7 +543,8 @@ const App = () => {
               )}
               {location.pathname !== "/login" &&
                 location.pathname !== "/register" &&
-                location.pathname !== "/ranking/research" && <ScoreFreshnessBadge />}
+                location.pathname !== "/ranking/research" &&
+                location.pathname !== "/ranking/research/v12-1" && <ScoreFreshnessBadge />}
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route
@@ -602,9 +611,13 @@ const App = () => {
                     path="/ranking/research"
                     element={
                       <ProtectedRoute>
-                        <ResearchRankingPage />
+                        <><ResearchRankingPage /><ResearchV11Results /></>
                       </ProtectedRoute>
                     }
+                  />
+                  <Route
+                    path="/ranking/research/v12-1"
+                    element={<ProtectedRoute><ResearchV12_1RankingPage /></ProtectedRoute>}
                   />
                   <Route
                     path="/ranking"

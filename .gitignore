@@ -38,4 +38,9 @@ go-app/go-app-live.log.err
 integration_shadow_v1/output/
 qvt_backtest/tests/__pycache__/
 docs/
+!docs/
+docs/*
+!docs/RETURN_V10_FINAL.fa.md
+!docs/SOL61_RETURN_V10_HANDOFF.fa.md
+!docs/engine_change_log.fa.md
 ranking_research/

@@ -54,6 +54,7 @@ const NAV_ITEMS: {
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
   { to: "/ranking", label: "رتبه‌بندی سهام (آزمایشی)", icon: <FaBullseye size={13} /> },
   { to: "/ranking/research", label: "رتبه‌بندی پژوهشی S2", icon: <FaFlask size={13} /> },
+  { to: "/ranking/research/v12-1", label: "رتبه‌بندی پژوهشی V12", icon: <FaFlask size={13} /> },
   { to: "/qvt", label: "تحلیل QVT — آزمایشی", icon: <FaFlask size={13} /> },
   { to: "/chat", label: "دستیار سرمایه‌گذاری", icon: <FaRobot size={13} /> },
   // { to: "/portfolio", label: "پورتفولیو", icon: <FaBriefcase size={13} /> },

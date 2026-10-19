@@ -1056,11 +1056,12 @@ def resolve_matched_symbols_canonical(table_name="MarketPriceHistory"):
     data = fetch_all_symbols()
     if not isinstance(data, list):
         raise RuntimeError(f"AllSymbols returned non-list: {type(data).__name__}")
+    resolved = canonical_hook.resolve_legacy_keys_for_market(data) if canonical_hook else {}
     matched, unmatched = [], []
-    for item in data:
+    for ix, item in enumerate(data):
         sym = item.get("l18")
         name = item.get("l30")
-        key = canonical_hook.resolve_legacy_key(symbol=sym, name=name) if canonical_hook else None
+        key = resolved.get(ix)
         if key:
             matched.append({
                 "instrument_code": str(item.get("id") or item.get("isin") or sym or ""),

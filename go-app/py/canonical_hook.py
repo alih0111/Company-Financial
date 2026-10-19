@@ -111,6 +111,46 @@ def resolve_legacy_key(name: str | None = None, symbol: str | None = None,
         return None
 
 
+def resolve_legacy_keys_for_market(items: list[dict]) -> dict[int, str]:
+    """Resolve a daily market batch in one read-only canonical query.
+
+    This is equivalent to ``resolve_legacy_key`` for the BRS symbol/name
+    predicates, while avoiding one database connection per instrument.
+    Returned keys are indexed by the original input row position.
+    """
+    if not items or not _load():
+        return {}
+    from canonical_ingest.db import connect
+    symbols = [str(x.get("l18") or "") for x in items]
+    names = [str(x.get("l30") or "") for x in items]
+    sql = """
+        SELECT i.ord, (
+          SELECT lem.legacy_key
+          FROM core.legacy_entity_map lem
+          JOIN core.companies c ON c.id = lem.target_uuid
+            AND lem.entity_type = 'company'
+          LEFT JOIN core.securities sec ON sec.company_id = c.id
+          LEFT JOIN core.security_aliases sa ON sa.security_id = sec.id
+          WHERE lem.legacy_key ~ '^[0-9a-f]{32}$'
+            AND (
+              sec.codal_symbol = i.symbol OR sec.brs_name = i.symbol
+              OR sa.alias_value = i.symbol OR c.display_name = i.name
+              OR c.legal_name = i.name OR sa.alias_value = i.name
+            )
+          LIMIT 1
+        ) AS legacy_key
+        FROM unnest(%s::text[], %s::text[])
+          WITH ORDINALITY AS i(symbol, name, ord)
+    """
+    try:
+        with connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(sql, (symbols, names))
+                return {int(pos) - 1: str(key) for pos, key in cur.fetchall() if key}
+    except Exception:
+        return {}
+
+
 def facts_from_values(*, report_date: str | None = None, values: dict | None = None) -> list:
     """Build normalized in-memory financial facts from parsed values.
 
