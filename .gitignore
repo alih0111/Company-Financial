@@ -44,3 +44,4 @@ docs/*
 !docs/SOL61_RETURN_V10_HANDOFF.fa.md
 !docs/engine_change_log.fa.md
 ranking_research/
+client/public/research/

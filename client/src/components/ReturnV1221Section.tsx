@@ -1,0 +1,22 @@
+import type { ReactNode } from "react";
+
+type Rec=Record<string,any>;
+export type V1221={run_id:string;status:string;contract_sha256:string;data_window:{start_jalali:string;end_jalali:string};coverage_gate:Rec;coverage_by_candidate_horizon:Rec[];monthly_registry:Rec[];continuous_registry:Rec[];missing_due_dates:Rec[];validation:Rec;download_files:string[]};
+const n=(x:unknown)=>Number(x??0).toLocaleString("fa-IR");
+export default function ReturnV1221Section({data}:{data:V1221|null}){
+ if(!data)return null;
+ const dl=(name:string):ReactNode=><a key={name} className="underline" href={`${import.meta.env.BASE_URL}research/${name}`} download>{name.replace("return-v12-21-","")}</a>;
+ const routes=[...data.monthly_registry,...data.continuous_registry];
+ return <section className="space-y-4 rounded-3xl border border-amber-300 bg-amber-50/60 p-4 sm:p-6 dark:border-amber-900 dark:bg-amber-950/20">
+  <h2 className="text-xl font-bold">V12.21 — تقویم بازبینی با مبدأ d0</h2>
+  <p className="text-sm leading-7">فقط R1 (P1، valuation_0) و R3 (P3، w0) تعریف شدند. d0 اولین جلسهٔ محلی از/پس از شروع با امتیاز دقیق است؛ بازبینی‌های بعدی هر ۶۳ جلسه از همان مبدأ، حتی در صورت fill با تأخیر. دادهٔ محلی {data.data_window.start_jalali} تا {data.data_window.end_jalali}.</p>
+  <p className="rounded-xl border border-amber-400 p-3 text-sm font-semibold leading-7">دروازهٔ پوشش شکست خورد: {n(data.coverage_gate.personal_due_checks)} موعد بررسی شد و {n(data.coverage_gate.missing_exact_score_checks)} موعد score دقیق ندارد. مطابق قرارداد، NAV و بازده محاسبه نشد؛ هیچ مسیر ناقصی کوتاه یا حذف نشده است.</p>
+  <h3 className="font-bold">پوشش برحسب نامزد و افق</h3>
+  <div className="overflow-x-auto"><table className="w-full min-w-[900px] text-right text-xs"><thead><tr>{["نامزد","افق جلسه","مسیر ثبت","افق موجود","پوشش score کامل","موعد score موجود","موعد score مفقود"].map(x=><th className="p-2" key={x}>{x}</th>)}</tr></thead><tbody>{data.coverage_by_candidate_horizon.map(x=><tr className="border-t" key={`${x.candidate}-${x.horizon_sessions}`}><th>{x.candidate}</th><td>{n(x.horizon_sessions)}</td><td>{n(x.registered)}</td><td>{n(x.complete_horizon)}</td><td>{n(x.complete_score_coverage)}</td><td>{n(x.covered_due_checks)}</td><td>{n(x.missing_due_checks)}</td></tr>)}</tbody></table></div>
+  <details className="rounded-xl border p-3"><summary className="cursor-pointer font-semibold">دفتر کامل مسیرها: {n(routes.length)} مسیر</summary><div className="mt-3 max-h-[32rem] overflow-auto"><table className="w-full min-w-[1250px] text-right text-xs"><thead className="sticky top-0 bg-amber-100 dark:bg-amber-950"><tr>{["شناسه","نامزد","افق","شروع شمسی","d0 شمسی","باقی‌ماندهٔ d0 پیمانهٔ ۶۳","پایان شمسی","موعد مفقود","وضعیت"].map(x=><th className="p-2" key={x}>{x}</th>)}</tr></thead><tbody>{routes.map(x=><tr className="border-t" key={x.route_id}><th dir="ltr">{x.route_id}</th><td>{x.candidate}</td><td>{x.horizon_sessions??"پیوسته"}</td><td>{x.start_jalali}</td><td>{x.d0_jalali}</td><td>{x.phase_residue_mod_63}</td><td>{x.endpoint_jalali}</td><td>{n(x.missing_personal_reviews)}</td><td>{x.status}</td></tr>)}</tbody></table></div></details>
+  <details className="rounded-xl border p-3"><summary className="cursor-pointer font-semibold">موعدهای بدون score دقیق: {n(data.missing_due_dates.length)}</summary><div className="mt-3 max-h-[28rem] overflow-auto"><table className="w-full min-w-[900px] text-right text-xs"><thead className="sticky top-0 bg-amber-100 dark:bg-amber-950"><tr>{["مسیر","نامزد","d0","شمارهٔ موعد","موعد شمسی","score دقیق"].map(x=><th className="p-2" key={x}>{x}</th>)}</tr></thead><tbody>{data.missing_due_dates.map((x,i)=><tr className="border-t" key={`${x.route_id}-${x.due_number}-${i}`}><th dir="ltr">{x.route_id}</th><td>{x.candidate}</td><td>{x.d0_jalali}</td><td>{n(x.due_number)}</td><td>{x.due_jalali}</td><td>{x.coverage_status}</td></tr>)}</tbody></table></div></details>
+  <p className="text-xs leading-6">کنترل صحت دفتر و گیت: {data.validation.integrity_status}. نتیجه‌ای برای سوددهی یا مقایسه با فازهای V12.19 و ترکیب V12.20 به‌دست نیامده است، چون دروازهٔ دادهٔ موعدها پیش از بازده شکست خورد. هیچ وزن یا روش دیگری جست‌وجو نشد.</p>
+  <div className="flex flex-wrap gap-3 text-xs">{data.download_files.map(dl)}<a className="underline" href={`${import.meta.env.BASE_URL}research/return-v12-21.json`} download>خلاصهٔ کامل V12.21</a></div>
+  <p className="text-xs">شبکه ۰ · کدال ۰ · DB ۰ · پیش‌فرض غربال ثابت · مصنوعات قبلی حفظ شدند · مرورگر اجرا نشد.</p>
+ </section>;
+}

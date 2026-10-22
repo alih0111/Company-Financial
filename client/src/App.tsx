@@ -111,7 +111,7 @@ const App = () => {
     location.pathname === "/ranking/research"
       ? "رتبه‌بندی پژوهشی S2"
       : location.pathname === "/ranking/research/v12-1"
-        ? "رتبه‌بندی پژوهشی — وزن‌های V12"
+          ? "رتبه‌بندی پژوهشی — رتبهٔ جاری V12.5"
       : location.pathname === "/Table"
       ? "غربال بازار"
       : location.pathname === "/market"
@@ -134,7 +134,7 @@ const App = () => {
     location.pathname === "/ranking/research"
       ? "پژوهش V5؛ مقایسهٔ بازده و پوشش داده در همین صفحه درج شده است"
       : location.pathname === "/ranking/research/v12-1"
-        ? "رتبه‌بندی پژوهشی V12؛ وضعیت بازار و پوشش در snapshot مشخص است"
+          ? "رتبهٔ جاری با پوشش و تازگی منبع در snapshot مشخص است"
       : location.pathname === "/Table"
       ? "غربال و مقایسه‌ی همه‌ی شرکت‌های بازار"
       : location.pathname === "/market"
@@ -188,7 +188,7 @@ const App = () => {
     } else if (location.pathname === "/ranking/research") {
       document.title = "RFA | رتبه‌بندی پژوهشی S2";
     } else if (location.pathname === "/ranking/research/v12-1") {
-      document.title = "RFA | رتبه‌بندی پژوهشی — وزن‌های V12";
+        document.title = "RFA | رتبهٔ جاری پژوهشی V12.5";
     } else if (location.pathname === "/ranking") {
       document.title = "RFA | رتبه‌بندی سهام — آزمایشی";
     } else if (location.pathname === "/login") {
