@@ -9,6 +9,7 @@ import ReturnV1224Section from "./ReturnV1224Section";
 import ReturnV1225Section from "./ReturnV1225Section";
 import ReturnV1226Section from "./ReturnV1226Section";
 import ReturnV1227Section from "./ReturnV1227Section";
+import FutureEvaluationV1228Section from "./FutureEvaluationV1228Section";
 
 type Factor = { factor: string; raw_value: number | null; percentile: number; weight: number; weighted_contribution: number; missing_reason?: string | null; price_provenance?: { observation_count:number; first_date:string|null; last_date:string|null; series_sha256:string; source_collected_at:string; volatility_formula:string; momentum_formula:string; adjustment_method:string; adjustment_version:string } };
 type Row = { security_id:string; company_id:string; symbol:string; rank:number; score:number; rank_before_v12_4:number; rank_delta:number; observed_factors:number; adjusted_price_date?:string|null; latest_financial_period:string|null; financial_collected_at:string|null; incomplete_warning:boolean; factors:Factor[]; group_contributions:number[] };
@@ -353,6 +354,7 @@ export default function ResearchV123Current() {
     <ReturnV1225Section />
     <ReturnV1226Section />
     <ReturnV1227Section />
+      <FutureEvaluationV1228Section />
     <div className="flex flex-wrap gap-3"><button className="rounded-lg border p-2 text-sm" disabled={loading} onClick={()=>setAttempt(x=>x+1)}>بازخوانی فایل‌های محلی</button><span className="self-center text-xs">ساخت آفلاین: python -B -m ranking_research.return_v12_6.build_delivery</span></div>
   </main>;
 }

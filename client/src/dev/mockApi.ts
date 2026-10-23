@@ -217,8 +217,12 @@ const routes: Route[] = [
 ];
 
 // توکن JWT ساختگی (فقط decode سمت کلاینت می‌شود)
-const b64url = (obj: unknown) =>
-  btoa(JSON.stringify(obj)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+const b64url = (obj: unknown) => {
+  const bytes = new TextEncoder().encode(JSON.stringify(obj));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+};
 
 export const installMockApi = () => {
   const origFetch = window.fetch.bind(window);

@@ -37,11 +37,7 @@ const Portfolio = lazy(() => import("./components/Portfolio"));
 const FamilyAssets = lazy(() => import("./components/FamilyAssets"));
 const ChatPage = lazy(() => import("./components/ChatPage"));
 const MarketPage = lazy(() => import("./components/MarketPage"));
-const QvtAnalysisPage = lazy(() => import("./components/QvtAnalysisPage"));
-const QvtRankingPage = lazy(() => import("./components/CashRankingPage"));
-const ResearchRankingPage = lazy(() => import("./components/ResearchRankingPage"));
-const ResearchV11Results = lazy(() => import("./components/ResearchV11Results"));
-const ResearchV12_1RankingPage = lazy(() => import("./components/ResearchV12_1RankingPage"));
+const RankingHubPage = lazy(() => import("./components/RankingHubPage"));
 
 // لودر سطح صفحه برای Suspense
 const PageLoader = () => (
@@ -107,11 +103,10 @@ const App = () => {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  const isRankingSection = ["/ranking", "/ranking/legacy-cash", "/qvt", "/ranking/research", "/ranking/research/v12-1"].includes(location.pathname);
   const pageTitle =
-    location.pathname === "/ranking/research"
-      ? "رتبه‌بندی پژوهشی S2"
-      : location.pathname === "/ranking/research/v12-1"
-          ? "رتبه‌بندی پژوهشی — رتبهٔ جاری V12.5"
+    isRankingSection
+      ? "رتبه‌بندی"
       : location.pathname === "/Table"
       ? "غربال بازار"
       : location.pathname === "/market"
@@ -122,19 +117,13 @@ const App = () => {
             ? "پورتفولیو"
             : location.pathname === "/assets"
               ? "دارایی خانواده"
-              : location.pathname === "/qvt"
-                ? "تحلیل QVT — آزمایشی"
-                : location.pathname === "/ranking"
-                  ? "رتبه‌بندی سهام — آزمایشی"
-                  : selectedCompany
+              : selectedCompany
                     ? selectedCompany
                     : "داشبورد";
 
   const pageSubtitle =
-    location.pathname === "/ranking/research"
-      ? "پژوهش V5؛ مقایسهٔ بازده و پوشش داده در همین صفحه درج شده است"
-      : location.pathname === "/ranking/research/v12-1"
-          ? "رتبهٔ جاری با پوشش و تازگی منبع در snapshot مشخص است"
+    isRankingSection
+      ? "مدل منتخب، وضعیت داده و ارزیابی آینده"
       : location.pathname === "/Table"
       ? "غربال و مقایسه‌ی همه‌ی شرکت‌های بازار"
       : location.pathname === "/market"
@@ -145,11 +134,7 @@ const App = () => {
             ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
             : location.pathname === "/portfolio"
               ? "دارایی‌های سهام"
-              : location.pathname === "/qvt"
-                ? "خروجی واقعی پایلوت V2 — سه محور مستقل Q و V و T"
-                : location.pathname === "/ranking"
-                  ? "امتیاز ۰..۱۰۰ اولویت بررسی — فقط نمادهای دارای دادهٔ معتبر Q/V/T"
-                  : undefined;
+              : undefined;
 
   const [collectingPrice, setCollectingPrice] = useState(false);
   const [priceCollectMsg, setPriceCollectMsg] = useState<string | null>(null);
@@ -188,9 +173,11 @@ const App = () => {
     } else if (location.pathname === "/ranking/research") {
       document.title = "RFA | رتبه‌بندی پژوهشی S2";
     } else if (location.pathname === "/ranking/research/v12-1") {
-        document.title = "RFA | رتبهٔ جاری پژوهشی V12.5";
+        document.title = "RFA | مدل منتخب و ارزیابی آینده";
+    } else if (location.pathname === "/ranking/legacy-cash") {
+      document.title = "RFA | آرشیو ارزندگی با پشتوانهٔ نقد";
     } else if (location.pathname === "/ranking") {
-      document.title = "RFA | رتبه‌بندی سهام — آزمایشی";
+      document.title = "RFA | رتبه‌بندی مدل منتخب";
     } else if (location.pathname === "/login") {
       document.title = "RFA | ورود";
     } else if (location.pathname === "/register") {
@@ -543,8 +530,7 @@ const App = () => {
               )}
               {location.pathname !== "/login" &&
                 location.pathname !== "/register" &&
-                location.pathname !== "/ranking/research" &&
-                location.pathname !== "/ranking/research/v12-1" && <ScoreFreshnessBadge />}
+                !isRankingSection && <ScoreFreshnessBadge />}
               <Suspense fallback={<PageLoader />}>
                 <Routes>
                   <Route
@@ -601,31 +587,23 @@ const App = () => {
                   />
                   <Route
                     path="/qvt"
-                    element={
-                      <ProtectedRoute>
-                        <QvtAnalysisPage />
-                      </ProtectedRoute>
-                    }
+                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
                   />
                   <Route
                     path="/ranking/research"
-                    element={
-                      <ProtectedRoute>
-                        <><ResearchRankingPage /><ResearchV11Results /></>
-                      </ProtectedRoute>
-                    }
+                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
                   />
                   <Route
                     path="/ranking/research/v12-1"
-                    element={<ProtectedRoute><ResearchV12_1RankingPage /></ProtectedRoute>}
+                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="/ranking/legacy-cash"
+                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
                   />
                   <Route
                     path="/ranking"
-                    element={
-                      <ProtectedRoute>
-                        <QvtRankingPage />
-                      </ProtectedRoute>
-                    }
+                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
                   />
                   <Route
                     path="/assets"

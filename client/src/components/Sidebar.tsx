@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Select from "react-select";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import {
   FaChartLine,
   FaChartPie,
@@ -16,7 +16,6 @@ import {
   FaTable,
   FaRobot,
   FaFlask,
-  FaBullseye,
 } from "react-icons/fa";
 import QuickSyncModal from "./QuickSyncModal";
 import SymbolSyncModal from "./SymbolSyncModal";
@@ -52,10 +51,7 @@ const NAV_ITEMS: {
   { to: "/dashboard", label: "داشبورد شرکت", icon: <FaChartLine size={13} /> },
   // { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
-  { to: "/ranking", label: "رتبه‌بندی سهام (آزمایشی)", icon: <FaBullseye size={13} /> },
-  { to: "/ranking/research", label: "رتبه‌بندی پژوهشی S2", icon: <FaFlask size={13} /> },
-  { to: "/ranking/research/v12-1", label: "رتبه‌بندی پژوهشی V12", icon: <FaFlask size={13} /> },
-  { to: "/qvt", label: "تحلیل QVT — آزمایشی", icon: <FaFlask size={13} /> },
+  { to: "/ranking", label: "رتبه‌بندی", icon: <FaFlask size={13} /> },
   { to: "/chat", label: "دستیار سرمایه‌گذاری", icon: <FaRobot size={13} /> },
   // { to: "/portfolio", label: "پورتفولیو", icon: <FaBriefcase size={13} /> },
   {
@@ -78,6 +74,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onClose,
   onDataCollected,
 }) => {
+  const location = useLocation();
+  const isRankingPath = ["/ranking", "/qvt", "/ranking/research", "/ranking/research/v12-1"].includes(location.pathname);
   const [toolsOpen, setToolsOpen] = useState(true);
   const [loadingBrsDaily, setLoadingBrsDaily] = useState(false);
   const [loadingBrsBackfill, setLoadingBrsBackfill] = useState(false);
@@ -205,19 +203,22 @@ const Sidebar: React.FC<SidebarProps> = ({
             to={item.to}
             end
             onClick={onClose}
-            className={({ isActive }) =>
-              `flex items-center gap-2.5 h-10 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-                isActive
+            className={({ isActive }) => {
+              const active = isActive || (item.to === "/ranking" && isRankingPath);
+              return `flex items-center gap-2.5 h-10 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                active
                   ? "bg-gradient-to-l from-emerald-500/15 to-teal-500/10 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/25 shadow-sm"
                   : "text-gray-600 dark:text-gray-300 hover:bg-gray-100/80 dark:hover:bg-gray-700/40 hover:text-gray-800 dark:hover:text-white"
-              }`
-            }
+              }`;
+            }}
           >
-            {({ isActive }) => (
+            {({ isActive }) => {
+              const active = isActive || (item.to === "/ranking" && isRankingPath);
+              return (
               <>
                 <span
                   className={`flex items-center justify-center w-7 h-7 rounded-lg text-sm transition ${
-                    isActive
+                    active
                       ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/25"
                       : "bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400"
                   }`}
@@ -226,7 +227,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </span>
                 {item.label}
               </>
-            )}
+              );
+            }}
           </NavLink>
         ))}
       </nav>
