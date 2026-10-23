@@ -1,0 +1,62 @@
+{
+  "label": "TEST_FIXTURE",
+  "algorithm": "SHA-256",
+  "self_excluded": true,
+  "files": [
+    {
+      "path": ".gitignore",
+      "size_bytes": 3509,
+      "sha256": "645b5573e095d74e19aa462514f11c34200e36d533f37e382f78462c3c881791"
+    },
+    {
+      "path": "ranking_research/paper_account_store.py",
+      "size_bytes": 11142,
+      "sha256": "98fde7a40cb01b1a2474d3af8c4e9fb6f6f01c5f372a4cc71775b76981f8e21e"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/apply_paper_fill.py",
+      "size_bytes": 22001,
+      "sha256": "9f71e34c483c63130cfb82da4548509ccee8c00d968b7daa8ba4f4144d1e40e8"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/register_paper_decision.py",
+      "size_bytes": 7692,
+      "sha256": "5f36eacdf20e75f64c3c782a25dfbbcec242f0d019678930fd3841f29dbb3d64"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/check_paper_account.py",
+      "size_bytes": 18466,
+      "sha256": "4870ec598cfcc38f5dd7de262b0d9bb1ae9f7ea5958cff6f61751d9ba6d0253f"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_account_atomic.py",
+      "size_bytes": 38299,
+      "sha256": "0139342be6fd7dc6ca012a5f80caab8dd1878078bf1fd1df7522e419a528409f"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_cycle_http.py",
+      "size_bytes": 2020,
+      "sha256": "4d815998c492157b2e867ec0701e9764558c9f5b69e5935bcd768357ed6ea92d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-01b/REPORT.fa.md",
+      "size_bytes": 9855,
+      "sha256": "37a8b158602cc968f1d9c95896f8e31f4f236c1325a94b148ba8ff39c8529ef9"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-01b/result.json",
+      "size_bytes": 3117,
+      "sha256": "8ed9ba7464a27d505d161f0297ca0256b7fe16f3e8a72e39d671668bffe97218"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-01b/evidence/acceptance.json",
+      "size_bytes": 8048,
+      "sha256": "432b1a20e6858071b8bf89f434ceecf2ad4b288303e00002c1044b494b33d7e0"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-01b/evidence/collect_evidence.py",
+      "size_bytes": 9361,
+      "sha256": "5503a7f7eab05cf82ef32d989d7fda991e348ccd077d5afa05da3ff4ff295272"
+    }
+  ]
+}

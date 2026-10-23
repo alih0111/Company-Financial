@@ -49,6 +49,7 @@ client/public/research/
 # Daily paper-cycle source files; keep research outputs and archives ignored.
 !ranking_research/
 ranking_research/*
+!ranking_research/paper_account_store.py
 !ranking_research/future_eval_v12_30/
 ranking_research/future_eval_v12_30/*
 !ranking_research/future_eval_v12_30/paper_cycle.py
@@ -65,9 +66,32 @@ ranking_research/future_eval_v12_30/*
 !ranking_research/future_eval_v12_30/build_latest_supported_v12_37_impl.py
 !ranking_research/future_eval_v12_30/rebuild_latest_supported_v12_37.py
 !ranking_research/future_eval_v12_30/apply_paper_fill.py
+!ranking_research/future_eval_v12_30/register_paper_decision.py
+!ranking_research/future_eval_v12_30/check_paper_account.py
 !ranking_research/future_eval_v12_30/check_paper_order.ps1
 !ranking_research/future_eval_v12_30/refresh_paper_decision_status.py
 !ranking_research/tests/
 ranking_research/tests/*
 !ranking_research/tests/test_paper_cycle_http.py
 !ranking_research/tests/test_paper_account_atomic.py
+
+# Narrow source/delivery exceptions for paper-account task 01A.
+!docs/paper_portfolio_delivery/
+docs/paper_portfolio_delivery/*
+!docs/paper_portfolio_delivery/task-01a/
+docs/paper_portfolio_delivery/task-01a/*
+!docs/paper_portfolio_delivery/task-01a/REPORT.fa.md
+!docs/paper_portfolio_delivery/task-01a/result.json
+!docs/paper_portfolio_delivery/task-01a/evidence/
+docs/paper_portfolio_delivery/task-01a/evidence/*
+!docs/paper_portfolio_delivery/task-01a/evidence/*.json
+
+# Narrow task-01B delivery files; preserve the global docs ignore rule.
+!docs/paper_portfolio_delivery/task-01b/
+docs/paper_portfolio_delivery/task-01b/*
+!docs/paper_portfolio_delivery/task-01b/REPORT.fa.md
+!docs/paper_portfolio_delivery/task-01b/result.json
+!docs/paper_portfolio_delivery/task-01b/evidence/
+docs/paper_portfolio_delivery/task-01b/evidence/*
+!docs/paper_portfolio_delivery/task-01b/evidence/*.json
+!docs/paper_portfolio_delivery/task-01b/evidence/collect_evidence.py

@@ -1,0 +1,78 @@
+{
+  "task_id": "01b",
+  "status": "PASS",
+  "parent_task_01_status": "PASS",
+  "changed_files": [
+    ".gitignore",
+    "ranking_research/paper_account_store.py",
+    "ranking_research/future_eval_v12_30/apply_paper_fill.py",
+    "ranking_research/tests/test_paper_account_atomic.py",
+    "docs/paper_portfolio_delivery/task-01b/REPORT.fa.md",
+    "docs/paper_portfolio_delivery/task-01b/result.json",
+    "docs/paper_portfolio_delivery/task-01b/evidence/acceptance.json",
+    "docs/paper_portfolio_delivery/task-01b/evidence/collect_evidence.py",
+    "docs/paper_portfolio_delivery/task-01b/evidence/artifact-manifest.json"
+  ],
+  "tests": [
+    {
+      "command": "& .venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py -q",
+      "result": "59 passed in 7.74s",
+      "exit_code": 0
+    },
+    {
+      "command": "& .venv/Scripts/python.exe -X utf8 -m py_compile ranking_research/paper_account_store.py ranking_research/future_eval_v12_30/apply_paper_fill.py ranking_research/future_eval_v12_30/register_paper_decision.py ranking_research/future_eval_v12_30/check_paper_account.py",
+      "result": "passed",
+      "exit_code": 0
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed; line-ending warnings only",
+      "exit_code": 0
+    }
+  ],
+  "acceptance_results": [
+    {
+      "id": "typed_append_only_history",
+      "status": "PASS",
+      "evidence": "ranking_research/tests/test_paper_account_atomic.py; tests reject true/1/1.0 mutations through both writer APIs and accept object key reordering"
+    },
+    {
+      "id": "fill_replay_receipt_and_conflicts",
+      "status": "PASS",
+      "evidence": "docs/paper_portfolio_delivery/task-01b/evidence/acceptance.json"
+    },
+    {
+      "id": "preview_four_outcomes_unchanged",
+      "status": "PASS",
+      "evidence": "docs/paper_portfolio_delivery/task-01b/evidence/acceptance.json"
+    },
+    {
+      "id": "process_crash_atomicity_and_recovery",
+      "status": "PASS",
+      "evidence": "docs/paper_portfolio_delivery/task-01b/evidence/acceptance.json; subprocess exits 71/72 preserve old bytes, 73/74 preserve complete new state"
+    },
+    {
+      "id": "concurrent_rmw_and_fill",
+      "status": "PASS",
+      "evidence": "docs/paper_portfolio_delivery/task-01b/evidence/acceptance.json; explicit LOCKED/retry and one fill/event"
+    },
+    {
+      "id": "decision_mark_and_legacy_route",
+      "status": "PASS",
+      "evidence": "ranking_research/tests/test_paper_account_atomic.py"
+    },
+    {
+      "id": "protected_state",
+      "status": "PASS",
+      "evidence": "docs/paper_portfolio_delivery/task-01b/evidence/acceptance.json protected_hashes_read_only"
+    }
+  ],
+  "evidence_files": [
+    "docs/paper_portfolio_delivery/task-01b/evidence/acceptance.json",
+    "docs/paper_portfolio_delivery/task-01b/evidence/collect_evidence.py",
+    "docs/paper_portfolio_delivery/task-01b/evidence/artifact-manifest.json"
+  ],
+  "existing_account_modified": false,
+  "official_ledger_modified": false,
+  "model_contract_changed": false
+}

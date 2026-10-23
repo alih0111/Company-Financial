@@ -1,0 +1,229 @@
+{
+  "label": "TEST_FIXTURE",
+  "scope": "temporary accounts/raw/manifests only; no network or scheduler",
+  "pytest": {
+    "command": "& .venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py -q",
+    "passed": 59,
+    "failed": 0
+  },
+  "buy_independent_expected": {
+    "starting_cash_toman": 100000,
+    "close_rial": 1234,
+    "shares": 806,
+    "gross_toman": 99460,
+    "fee_toman": 497,
+    "cash_after_toman": 43,
+    "nav_toman": 99503,
+    "pnl_toman": -497
+  },
+  "regression_assertions": [
+    {
+      "test": "test_event_history_rejects_json_scalar_type_rewrite",
+      "result": "PASS",
+      "covers": [
+        "read_modify_write",
+        "write_account_atomic",
+        "true_vs_1",
+        "1_vs_1.0",
+        "bytes_preserved"
+      ]
+    },
+    {
+      "test": "test_event_history_object_key_order_does_not_change_event",
+      "result": "PASS"
+    },
+    {
+      "test": "test_fill_entrypoint_replay_and_source_conflict_are_idempotent",
+      "result": "PASS",
+      "covers": [
+        "same_fill_replay",
+        "price_revision_conflict",
+        "calendar_raw_hash_revision_conflict"
+      ]
+    },
+    {
+      "test": "test_fill_replay_revalidates_raw_and_succeeds_after_mark",
+      "result": "PASS",
+      "covers": [
+        "post_mark_byte_noop",
+        "raw_hash_rejection"
+      ]
+    },
+    {
+      "test": "test_fill_replay_rejects_inconsistent_order_or_missing_fill_event",
+      "result": "PASS"
+    },
+    {
+      "test": "test_replay_ignores_manifest_key_order_and_manifest_path",
+      "result": "PASS"
+    },
+    {
+      "test": "test_explicit_observation_commits_once_and_only_through_shared_writer",
+      "result": "PASS",
+      "covers": [
+        "missing_bar",
+        "expiry",
+        "late_ambiguity"
+      ]
+    },
+    {
+      "test": "test_decision_entrypoint_commits_append_only_to_temporary_account",
+      "result": "PASS"
+    },
+    {
+      "test": "test_mark_half_up_scenario_matches_independent_expected_numbers",
+      "result": "PASS"
+    }
+  ],
+  "replay_and_preview_cases": [
+    {
+      "case": "fill_apply_then_two_replays",
+      "label": "TEST_FIXTURE",
+      "first_status": "FILL_APPLIED",
+      "replay_statuses": [
+        "FILL_ALREADY_APPLIED",
+        "FILL_ALREADY_APPLIED"
+      ],
+      "fill_event_id": "paper-fill-fixture-order-20261023",
+      "cash_toman": 43,
+      "holding_count": 1,
+      "shares": 806,
+      "gross_toman": 99460,
+      "fee_toman": 497,
+      "nav_toman": 99503,
+      "pnl_toman": -497,
+      "event_count": 1,
+      "before_replay_sha256": "7a1eb2cb8c32f2cabaa7af68d7537e79f45b0554b582c59c2f0002b1c599abf2",
+      "after_replay_sha256": "7a1eb2cb8c32f2cabaa7af68d7537e79f45b0554b582c59c2f0002b1c599abf2",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "valid_revised_price_source_conflict",
+      "label": "TEST_FIXTURE",
+      "error": "FILL_REPLAY_CONFLICT; correction requires a separate append-only correction event",
+      "before_sha256": "9af93be3b9d7f5d06d7fe71039c7d61d749c19ad2731f43280ae23e548a77b6f",
+      "after_sha256": "9af93be3b9d7f5d06d7fe71039c7d61d749c19ad2731f43280ae23e548a77b6f",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "preview_eligible",
+      "label": "TEST_FIXTURE",
+      "status": "FILL_ELIGIBLE_PREVIEW_ONLY",
+      "expected_status": "FILL_ELIGIBLE_PREVIEW_ONLY",
+      "fill_applied": false,
+      "before_sha256": "da521bf24f025b8e0cbf90bbfbff4879c6af318fe8c4540b634fbe6128bdc2af",
+      "after_sha256": "da521bf24f025b8e0cbf90bbfbff4879c6af318fe8c4540b634fbe6128bdc2af",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "preview_no_bar",
+      "label": "TEST_FIXTURE",
+      "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+      "expected_status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+      "fill_applied": false,
+      "before_sha256": "da521bf24f025b8e0cbf90bbfbff4879c6af318fe8c4540b634fbe6128bdc2af",
+      "after_sha256": "da521bf24f025b8e0cbf90bbfbff4879c6af318fe8c4540b634fbe6128bdc2af",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "preview_expiry",
+      "label": "TEST_FIXTURE",
+      "status": "EXPIRED_NO_FILL",
+      "expected_status": "EXPIRED_NO_FILL",
+      "fill_applied": false,
+      "before_sha256": "da521bf24f025b8e0cbf90bbfbff4879c6af318fe8c4540b634fbe6128bdc2af",
+      "after_sha256": "da521bf24f025b8e0cbf90bbfbff4879c6af318fe8c4540b634fbe6128bdc2af",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "preview_late",
+      "label": "TEST_FIXTURE",
+      "status": "LATE_FILL_TIMING_AMBIGUOUS",
+      "expected_status": "LATE_FILL_TIMING_AMBIGUOUS",
+      "fill_applied": false,
+      "before_sha256": "da521bf24f025b8e0cbf90bbfbff4879c6af318fe8c4540b634fbe6128bdc2af",
+      "after_sha256": "da521bf24f025b8e0cbf90bbfbff4879c6af318fe8c4540b634fbe6128bdc2af",
+      "bytes_unchanged": true
+    }
+  ],
+  "subprocess": [
+    {
+      "case": "atomic_crash_write",
+      "exit_code": 71,
+      "cut_point": "write",
+      "old_sha256": "1130bd6436286d85d4c8e7acdc567053460b8d9bc03f8a9d47c2991dc88b6f29",
+      "post_crash_sha256": "1130bd6436286d85d4c8e7acdc567053460b8d9bc03f8a9d47c2991dc88b6f29",
+      "cash_toman": 99899,
+      "holding_count": 1,
+      "event_count": 1,
+      "json_valid": true,
+      "recoverable": true
+    },
+    {
+      "case": "atomic_crash_pre_replace",
+      "exit_code": 72,
+      "cut_point": "pre_replace",
+      "old_sha256": "1130bd6436286d85d4c8e7acdc567053460b8d9bc03f8a9d47c2991dc88b6f29",
+      "post_crash_sha256": "1130bd6436286d85d4c8e7acdc567053460b8d9bc03f8a9d47c2991dc88b6f29",
+      "cash_toman": 99899,
+      "holding_count": 1,
+      "event_count": 1,
+      "json_valid": true,
+      "recoverable": true
+    },
+    {
+      "case": "atomic_crash_post_replace",
+      "exit_code": 73,
+      "cut_point": "post_replace",
+      "old_sha256": "1130bd6436286d85d4c8e7acdc567053460b8d9bc03f8a9d47c2991dc88b6f29",
+      "post_crash_sha256": "ebc93630f78ae9c850433b971c1413d278faf38d5d0908aa17d106ed55c81fba",
+      "cash_toman": 99899,
+      "holding_count": 1,
+      "event_count": 2,
+      "json_valid": true,
+      "recoverable": true
+    },
+    {
+      "case": "concurrent_rmw",
+      "first_exit_code": 0,
+      "second_exit_code": 0,
+      "second_result": "PAPER_ACCOUNT_LOCKED; no account event was written",
+      "retry_exit_code": 0,
+      "retry_result": "COMMITTED",
+      "final_event_ids": [
+        "fixture-init",
+        "process-one",
+        "process-two"
+      ]
+    },
+    {
+      "case": "fill_crash_post_replace",
+      "child_exit_code": 74,
+      "cut_point": "after os.replace before CLI success",
+      "recovery_status": "FILL_ALREADY_APPLIED",
+      "before_replay_sha256": "e521652f08fa64988cc1129e51d92205e4fa4d971941da38619cc0bb13dddebe",
+      "after_replay_sha256": "e521652f08fa64988cc1129e51d92205e4fa4d971941da38619cc0bb13dddebe",
+      "cash_toman": 43,
+      "holding_count": 1,
+      "event_count": 1
+    },
+    {
+      "case": "concurrent_fill",
+      "first_exit_code": 0,
+      "second_exit_code": 0,
+      "second_result": "{\"status\": \"FILL_ALREADY_APPLIED\", \"fill_applied\": false, \"fill_event_id\": \"paper-fill-fixture-order-20261023\", \"cash_toman\": 43}",
+      "lock_retry": true,
+      "cash_toman": 43,
+      "holding_count": 1,
+      "event_count": 1
+    }
+  ],
+  "protected_hashes_read_only": {
+    "existing_account": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+    "pinned_rules": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+    "model_contract": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8"
+  },
+  "limitations": [
+    "Crash tests cover process termination at injected points, not power loss or disk/controller failure."
+  ]
+}

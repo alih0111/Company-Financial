@@ -40,6 +40,18 @@ test("market source errors do not get labeled as a routine closure", () => {
   }).state, "source_error");
 });
 
+test("a verified special closure or session is distinct from weekly closure", () => {
+  const confirmedThursday = assessMarketState({
+    checkedAtUtc: "2026-10-23T07:33:43Z",
+    lastConfirmedSession: "2026-10-21",
+    latestQuoteDate: "2026-10-21",
+    calendarVerified: true,
+    confirmedSessions: ["2026-10-22"],
+  });
+  assert.equal(confirmedThursday.state, "confirmed_session_missing_data");
+  assert.equal(confirmedThursday.missedSession, "2026-10-22");
+});
+
 test("a confirmed later market session with an older candidate quote is reported as missing data", () => {
   const result = assessMarketState({
     checkedAtUtc: "2026-10-25T07:30:00Z",

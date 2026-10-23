@@ -43,6 +43,47 @@ def parse_stamp(value: str | None) -> dt.datetime | None:
     return stamp.replace(tzinfo=dt.timezone.utc) if stamp.tzinfo is None else stamp.astimezone(dt.timezone.utc)
 
 
+def invalid_response_retry_at(value: str | None, now: dt.datetime | None = None) -> str:
+    """Respect an HTTP Retry-After header; otherwise cool down invalid challenge pages for one day."""
+    current = now or dt.datetime.now(dt.timezone.utc)
+    if value:
+        try:
+            return (current + dt.timedelta(seconds=max(0.0, float(value)))).isoformat()
+        except (TypeError, ValueError):
+            try:
+                from email.utils import parsedate_to_datetime
+                target = parsedate_to_datetime(value)
+                if target.tzinfo is None:
+                    target = target.replace(tzinfo=dt.timezone.utc)
+                return max(current, target.astimezone(dt.timezone.utc)).isoformat()
+            except (TypeError, ValueError, OverflowError):
+                pass
+    return (current + dt.timedelta(hours=24)).isoformat()
+
+
+def challenge_cooldown_until(items: dict, now: dt.datetime | None = None) -> str | None:
+    current = now or dt.datetime.now(dt.timezone.utc)
+    candidates = []
+    for item in items.values():
+        evidence = item.get("invalid_response_evidence") or {}
+        if evidence.get("kind") not in ("codal_captcha_page", "codal_rate_limit_page"):
+            continue
+        received = parse_stamp(evidence.get("retrieved_at_utc"))
+        if received and received <= current:
+            candidates.append(received + dt.timedelta(hours=24))
+    future = [value for value in candidates if value > current]
+    return max(future).isoformat() if future else None
+
+
+def deferred_identity_coverage(previously_checked: int, universe: int = 254) -> dict:
+    """Do not report old checkpoint checks as work performed in this deferred run."""
+    return {"companies_checked": 0, "companies_new_reports": 0, "companies_no_new_reports": 0,
+            "companies_failed": 0, "companies_unchecked": universe,
+            "companies_previously_checked": min(universe, max(0, previously_checked)),
+            "frozen_identity_coverage": 0, "pagination_complete": False,
+            "previous_checkpoint_complete": previously_checked >= universe}
+
+
 def merge_cached_report_items(*sources: dict) -> dict:
     """Merge local manifests/checkpoints while retaining the richest body evidence."""
     merged: dict = {}
@@ -306,7 +347,8 @@ def main() -> int:
         feed = {"letter_type": letter_type, "state": "started", "last_successful_retrieval_utc": None,
                 "latest_published_at": None, "pages": 0, "reports_seen": 0, "frozen_symbol_reports": 0,
                 "companies_checked": 0, "companies_new_reports": 0, "companies_no_new_reports": 0,
-                "companies_failed": 0, "frozen_identity_coverage": 0,
+                "companies_failed": 0, "companies_unchecked": 254, "companies_previously_checked": 0,
+                "frozen_identity_coverage": 0,
                 "new_reports": 0, "report_bodies_received": 0, "report_body_errors": [],
                 "report_ids": [], "error": None, "raw_pages": [], "search_window_policy": "per-identity archive watermark minus 7-day overlap; 365 days for identities without local watermark; all reported pages fetched",
                 "identities_checked_path": None, "coverage_basis": "successful_exact-symbol_query_with_consistent_page_total"}
@@ -317,6 +359,8 @@ def main() -> int:
         if resume.get("state") == "complete":
             resume = {}
         audits = list(resume.get("audits", []))
+        checkpoint_checked_symbols = {str(x.get("symbol")) for x in audits
+            if str(x.get("status", "")).startswith("checked_")}
         report_items = merge_cached_report_items(cached_items, resume.get("report_items", {}))
         # Persist the discovered archive locally before continuing. This is a
         # file-only step and ensures a later run can retry missing bodies without
@@ -331,6 +375,7 @@ def main() -> int:
             "cache_manifest": str(cache_path.relative_to(ROOT)).replace("\\", "/")}
         feed["raw_pages"] = list(resume.get("raw_pages", []))
         feed["pages"] = int(resume.get("pages", 0))
+        feed["pages_fetched_this_run"] = 0
         feed["reports_seen"] = sum(int(x.get("reports_in_window", 0)) for x in audits)
         feed["report_bodies_received"] = 0
         run_started = dt.datetime.now(dt.timezone.utc)
@@ -338,6 +383,9 @@ def main() -> int:
         cursor = resume.get("cursor")
         newest = resume.get("latest_published_at")
         retry_at = resume.get("next_attempt_at_utc")
+        cooldown_until = challenge_cooldown_until(report_items)
+        if cooldown_until and (not retry_at or not parse_stamp(retry_at) or parse_stamp(cooldown_until) > parse_stamp(retry_at)):
+            retry_at = cooldown_until
         if retry_at and parse_stamp(retry_at) and parse_stamp(retry_at) > dt.datetime.now(dt.timezone.utc):
             audit_by_symbol = {str(x.get("symbol")): x for x in audits}
             if cursor and cursor.get("symbol"):
@@ -345,27 +393,37 @@ def main() -> int:
             full_audit = []
             for row in symbols_df.itertuples(index=False):
                 sym, cid = str(row.symbol), str(row.company_id)
-                full_audit.append(audit_by_symbol.get(sym, {"symbol": sym, "company_id": cid,
-                    "status": "not_checked_rate_limited", "watermark_utc": watermarks[letter_type].get(cid),
-                    "from_date_jalali": window_start(watermarks[letter_type].get(cid)),
+                prior = audit_by_symbol.get(sym, {})
+                full_audit.append({"symbol": sym, "company_id": cid,
+                    "status": "deferred_until_retry", "prior_checkpoint_status": prior.get("status"),
+                    "watermark_utc": watermarks[letter_type].get(cid),
+                    "from_date_jalali": prior.get("from_date_jalali") or window_start(watermarks[letter_type].get(cid)),
                     "to_date_jalali": jalali_day(dt.datetime.now(dt.timezone.utc)), "pages_fetched": 0,
-                    "expected_pages": None, "reports_in_window": 0, "new_reports": 0,
-                    "report_ids": [], "error": "feed_deferred_until_retry_after"}))
+                    "prior_checkpoint_pages_fetched": prior.get("pages_fetched", 0),
+                    "expected_pages": prior.get("expected_pages"), "reports_in_window": prior.get("reports_in_window", 0),
+                    "new_reports": 0, "report_ids": prior.get("report_ids", []),
+                    "error": "feed_deferred_before_this_run; prior checkpoint retained"})
             audit_path = out / f"identity-checks-{key}.json"
             save_json(audit_path, {"letter_type": letter_type, "search_window_policy": feed["search_window_policy"], "identities": full_audit})
-            checked = sum(str(x.get("status", "")).startswith("checked_") for x in full_audit)
-            feed.update({"state": "deferred_rate_limited", "next_attempt_at_utc": retry_at,
-                "error": "Codal requested a later retry; this feed was not contacted.",
+            deferred_coverage = deferred_identity_coverage(len(checkpoint_checked_symbols))
+            feed.update({"state": "deferred_until_retry", "next_attempt_at_utc": retry_at,
+                "error": "The previous source response requires a later retry; this feed was not contacted.",
                 "rate_limit": resume.get("rate_limit"),
-                "report_ids": list(report_items.values()), "new_reports": sum(int(x.get("new_reports", 0)) for x in full_audit),
+                "deferred_reason": resume.get("deferred_reason") or ("recent_invalid_response_cooldown" if cooldown_until else None),
+                "report_ids": list(report_items.values()), "new_reports": 0,
                 "archived_report_items": len(report_items),
-                "companies_checked": checked, "companies_new_reports": sum(x.get("status") == "checked_with_new_reports" for x in full_audit),
-                "companies_no_new_reports": sum(x.get("status") == "checked_no_new_reports" for x in full_audit),
-                "companies_failed": 254 - checked, "frozen_identity_coverage": checked,
+                **deferred_coverage, "pages_fetched_this_run": 0,
                 "latest_published_at": newest,
                 "last_successful_retrieval_utc": max((x.get("retrieved_at_utc") for x in feed["raw_pages"] if x.get("retrieved_at_utc")), default=None),
-                "pagination_complete": checked == 254,
+                "pagination_complete": False,
                 "identities_checked_path": str(audit_path.relative_to(ROOT)).replace("\\", "/")})
+            save_json(resume_path, {"state": "deferred_invalid_response" if cooldown_until else "rate_limited",
+                "audits": audits, "report_items": report_items, "raw_pages": feed["raw_pages"],
+                "pages": feed["pages"], "cursor": cursor, "latest_published_at": newest,
+                "next_attempt_at_utc": retry_at,
+                "deferred_reason": feed.get("deferred_reason"), "rate_limit": feed.get("rate_limit")})
+            save_json(cache_path, {"schema_version": 1, "letter_type": letter_type,
+                "updated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(), "report_items": report_items})
             report["feeds"][key] = feed
             continue
         completed_symbols = {str(x.get("symbol")) for x in audits if str(x.get("status", "")).startswith("checked_")}
@@ -419,6 +477,7 @@ def main() -> int:
                         "report_count": len(page.reports), **page_http}
                     feed["raw_pages"].append(page_meta)
                     feed["pages"] += 1
+                    feed["pages_fetched_this_run"] += 1
                     for report_item in page.reports:
                         if report_item.ticker != symbol:
                             continue
@@ -492,12 +551,15 @@ def main() -> int:
             if identity_index % 10 == 0:
                 time.sleep(0.5)
         feed["report_ids"] = list(report_items.values())
-        feed["new_reports"] = sum(int(x.get("new_reports", 0)) for x in audits)
+        run_audits = [x for x in audits if str(x.get("symbol")) not in checkpoint_checked_symbols]
+        feed["new_reports"] = sum(int(x.get("new_reports", 0)) for x in run_audits)
         feed["archived_report_items"] = len(report_items)
-        feed["companies_checked"] = sum(x["status"].startswith("checked_") for x in audits)
-        feed["companies_new_reports"] = sum(x["status"] == "checked_with_new_reports" for x in audits)
-        feed["companies_no_new_reports"] = sum(x["status"] == "checked_no_new_reports" for x in audits)
-        feed["companies_failed"] = 254 - feed["companies_checked"]
+        feed["companies_checked"] = sum(x["status"].startswith("checked_") for x in run_audits)
+        feed["companies_new_reports"] = sum(x["status"] == "checked_with_new_reports" for x in run_audits)
+        feed["companies_no_new_reports"] = sum(x["status"] == "checked_no_new_reports" for x in run_audits)
+        feed["companies_failed"] = sum(x["status"] in ("failed", "failed_rate_limited") for x in run_audits)
+        feed["companies_previously_checked"] = len(checkpoint_checked_symbols)
+        feed["companies_unchecked"] = 254 - feed["companies_checked"] - feed["companies_failed"]
         audit_path = out / f"identity-checks-{key}.json"
         audit_by_symbol = {str(x.get("symbol")): x for x in audits}
         full_audit = [audit_by_symbol.get(str(row.symbol), {"symbol": str(row.symbol), "company_id": str(row.company_id),
@@ -550,6 +612,7 @@ def main() -> int:
                     with response:
                         body = response.read(8 * 1024 * 1024 + 1)
                         http_status, http_date, content_type = response.status, response.headers.get("Date"), response.headers.get("Content-Type")
+                        response_retry_after = response.headers.get("Retry-After")
                     if len(body) > 8 * 1024 * 1024:
                         raise ValueError("report_body_over_8mb")
                     if http_status != 200:
@@ -569,6 +632,19 @@ def main() -> int:
                             "latest_published_at": newest})
                         save_json(cache_path, {"schema_version": 1, "letter_type": letter_type,
                             "updated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(), "report_items": report_items})
+                        if invalid_kind in ("codal_captcha_page", "codal_rate_limit_page"):
+                            next_attempt = invalid_response_retry_at(response_retry_after)
+                            feed["deferred_reason"] = invalid_kind
+                            feed["rate_limit"] = {"attempts": attempts, "retry_after_seconds": wait,
+                                "retry_after_header": response_retry_after, "next_attempt_at_utc": next_attempt,
+                                "source_stopped": True, "stage": "report_body", "http_status": http_status}
+                            stop_feed = True
+                            save_json(resume_path, {"state": "deferred_invalid_response", "audits": audits,
+                                "report_items": report_items, "raw_pages": feed["raw_pages"], "pages": feed["pages"],
+                                "cursor": {"stage": "report_body", "tracing_no": item["tracing_no"]},
+                                "latest_published_at": newest, "next_attempt_at_utc": next_attempt,
+                                "deferred_reason": invalid_kind, "rate_limit": feed["rate_limit"]})
+                            break
                         continue
                     body_path = raw_dir / f"letter-{letter_type}-tracing-{item['tracing_no']}.body.gz"
                     body_path.write_bytes(gzip.compress(body, compresslevel=6))
@@ -608,11 +684,13 @@ def main() -> int:
                 time.sleep(1.0)
         feed["reports_seen"] = sum(int(x.get("reports_in_window", 0)) for x in audits)
         feed["frozen_symbol_reports"] = feed["reports_seen"]
-        feed.update({"state": "received" if feed["companies_checked"] == 254 and not feed["report_body_errors"] else "partial",
+        total_checked = feed["companies_checked"] + feed["companies_previously_checked"]
+        feed.update({"state": "received" if total_checked == 254 and not feed["companies_unchecked"] and not feed["report_body_errors"] else "partial",
                      "last_successful_retrieval_utc": max((x.get("retrieved_at_utc") for x in feed["raw_pages"] if x.get("retrieved_at_utc")), default=None),
-                     "latest_published_at": newest, "frozen_identity_coverage": feed["companies_checked"],
-                     "pagination_complete": feed["companies_checked"] == 254,
-                     "error": page_error if feed["companies_checked"] < 254 else None,
+                     "latest_published_at": newest, "frozen_identity_coverage": total_checked,
+                     "pagination_complete": total_checked == 254 and not feed["companies_unchecked"],
+                     "previous_checkpoint_complete": len(checkpoint_checked_symbols) == 254,
+                     "error": page_error if feed["companies_unchecked"] else None,
                      "next_attempt_at_utc": (feed.get("rate_limit") or {}).get("next_attempt_at_utc")})
         feed["archive_reuse"].update({
             "fresh_report_metadata": feed["new_reports"],

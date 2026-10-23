@@ -11,6 +11,7 @@ import sys
 import time
 import uuid
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[2]
 PYTHON = ROOT / ".venv/Scripts/python.exe"
@@ -21,6 +22,27 @@ CHECK = PUBLIC / "paper-account-check.json"
 CONTRACT = ROOT / "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json"
 RULES = ROOT / "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json"
 TZ = dt.timezone.utc
+TEHRAN = ZoneInfo("Asia/Tehran")
+
+
+def is_weekly_stock_market_closure(now: dt.datetime | None = None) -> bool:
+    """Iranian listed equities do not trade on Thursday or Friday."""
+    local = (now or dt.datetime.now(dt.timezone.utc)).astimezone(TEHRAN)
+    return local.weekday() in (3, 4)
+
+
+def latest_complete_market_manifest() -> Path | None:
+    market_root = OUT / "market"
+    manifests = sorted(market_root.glob("*/manifest.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    for path in manifests:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+            if (int(data.get("completed_count", 0)) == 254 and int(data.get("failed_count", 1)) == 0
+                    and data.get("dataset_id") == "v12_35_official_tsetmc_frozen_254"):
+                return path
+        except (OSError, ValueError, TypeError):
+            continue
+    return None
 
 
 def sha(path: Path) -> str:
@@ -245,8 +267,17 @@ def task_status() -> dict:
     script = ("$t=Get-ScheduledTask -TaskName 'CompanyFinancial-PaperCycle' -ErrorAction SilentlyContinue; "
               "if($null -eq $t){ @{installed=$false} | ConvertTo-Json -Compress; exit }; "
               "$i=Get-ScheduledTaskInfo -TaskName 'CompanyFinancial-PaperCycle'; "
-              "@{installed=$true;state=$t.State.ToString();next_run_time=$i.NextRunTime.ToString('o');"
-              "last_run_time=$i.LastRunTime.ToString('o');last_task_result=$i.LastTaskResult} | ConvertTo-Json -Compress")
+              "$a=$t.Actions[0]; $tr=$t.Triggers[0]; "
+              "@{installed=$true;state=$t.State.ToString();enabled=($t.State.ToString() -ne 'Disabled' -and $tr.Enabled);next_run_time=$i.NextRunTime.ToString('o');"
+              "last_run_time=$i.LastRunTime.ToString('o');last_task_result=$i.LastTaskResult;"
+              "run_as=$t.Principal.UserId;logon_type=$t.Principal.LogonType.ToString();"
+              "start_when_available=$t.Settings.StartWhenAvailable;wake_to_run=$t.Settings.WakeToRun;"
+              "multiple_instances=$t.Settings.MultipleInstances.ToString();"
+              "execution_time_limit=$t.Settings.ExecutionTimeLimit.ToString();"
+              "restart_count=$t.Settings.RestartCount;restart_interval=$t.Settings.RestartInterval.ToString();"
+              "action_path=$a.Execute;action_arguments=$a.Arguments;working_directory=$a.WorkingDirectory;"
+              "trigger_start_boundary=$tr.StartBoundary.ToString();trigger_days_interval=$tr.DaysInterval;"
+              "number_of_missed_runs=$i.NumberOfMissedRuns} | ConvertTo-Json -Compress")
     fallback_path = OUT / "task-config.json"
     configured = json.loads(fallback_path.read_text(encoding="utf-8")) if fallback_path.exists() else {}
     try:
@@ -316,6 +347,25 @@ def main() -> int:
     started = dt.datetime.now(TZ).isoformat()
     stages: list[dict] = []
     try:
+        archive_reprocess_stage = run_stage("codal_archive_local_reprocessing", [str(PYTHON),
+            str(ROOT / "ranking_research/future_eval_v12_30/reprocess_codal_archive.py"),
+            "--run-id", f"archive-reprocess-{run_id.removeprefix('paper-cycle-')}"], 1800)
+        if archive_reprocess_stage.get("exit_code") == 0:
+            reprocess_summary_path = OUT / "codal" / f"archive-reprocess-{run_id.removeprefix('paper-cycle-')}" / "archive-reprocess-summary.json"
+            archive_reprocess_summary = json.loads(reprocess_summary_path.read_text(encoding="utf-8"))
+            archive_reprocess_stage["status"] = (
+                "local_bodies_reprocessed_with_quarantined_documents"
+                if archive_reprocess_summary.get("parse_errors") else
+                "local_archive_bodies_reprocessed" if archive_reprocess_summary.get("archive_bodies_reused")
+                else "no_verified_local_bodies")
+            archive_reprocess_stage["summary"] = json.dumps({k: archive_reprocess_summary.get(k) for k in
+                ("archive_bodies_reused", "financial_parsed", "sales_parsed", "parse_errors", "network_requests")}, ensure_ascii=False)
+        else:
+            archive_reprocess_summary = {}
+            archive_reprocess_stage["status"] = "local_archive_reprocessing_failed"
+        stages.append(archive_reprocess_stage)
+
+        weekly_closure = is_weekly_stock_market_closure()
         reuse_dir = os.environ.get("PAPER_CYCLE_REUSE_MARKET_DIR")
         reuse_manifest_path = Path(reuse_dir) / "manifest.json" if reuse_dir else None
         reuse_ok = False
@@ -326,7 +376,26 @@ def main() -> int:
                 reuse_ok = 0 <= age <= 7200
             except Exception:
                 reuse_ok = False
-        if reuse_ok:
+        closure_market_manifest = latest_complete_market_manifest() if weekly_closure else None
+        if weekly_closure and closure_market_manifest:
+            market_manifest_path = closure_market_manifest
+            market_dir = closure_market_manifest.parent.relative_to(ROOT)
+            closure_manifest = json.loads(closure_market_manifest.read_text(encoding="utf-8"))
+            market_stage = {"stage": "market_prices_254", "status": "natural_weekly_closure_prices_not_requested",
+                "started_at_utc": dt.datetime.now(TZ).isoformat(), "finished_at_utc": dt.datetime.now(TZ).isoformat(),
+                "exit_code": None, "request_skipped": True,
+                "summary": "Thursday/Friday stock-market closure; no price endpoint was called. The last complete official market package is reused with original data and receipt dates.",
+                "reused_market_manifest": str(closure_market_manifest.relative_to(ROOT)).replace("\\", "/"),
+                "reused_market_manifest_sha256": sha(closure_market_manifest),
+                "reused_latest_quote_dates": closure_manifest.get("latest_quote_dates")}
+        elif weekly_closure:
+            market_dir = Path("ranking_research/output/paper_cycle/market") / "no-market-package-on-weekly-closure"
+            market_manifest_path = ROOT / market_dir / "manifest.json"
+            market_stage = {"stage": "market_prices_254", "status": "natural_weekly_closure_no_cached_package",
+                "started_at_utc": dt.datetime.now(TZ).isoformat(), "finished_at_utc": dt.datetime.now(TZ).isoformat(),
+                "exit_code": None, "request_skipped": True,
+                "summary": "Thursday/Friday stock-market closure; no price endpoint was called. No complete prior package was available."}
+        elif reuse_ok:
             market_dir = Path(reuse_dir).resolve().relative_to(ROOT)
             market_partial = int(candidate.get("completed_count", 0)) != int(candidate.get("universe_count", 254))
             market_stage = {"stage": "market_prices_254",
@@ -339,7 +408,8 @@ def main() -> int:
                 str(ROOT / "ranking_research/future_eval_v12_30/acquire_official_tsetmc_v12_35.py"),
                 "--output-dir", str(market_dir)], 5400)
         stages.append(market_stage)
-        market_manifest_path = ROOT / market_dir / "manifest.json"
+        if not weekly_closure or not closure_market_manifest:
+            market_manifest_path = ROOT / market_dir / "manifest.json"
 
         reuse_codal_dir = os.environ.get("PAPER_CYCLE_REUSE_CODAL_DIR")
         reuse_codal_manifest = Path(reuse_codal_dir) / "manifest.json" if reuse_codal_dir else None
@@ -531,7 +601,8 @@ def main() -> int:
         codal = json.loads(codal_manifest_path.read_text(encoding="utf-8")) if codal_manifest_path.exists() else {}
         prepared = json.loads(prepared_inputs_path.read_text(encoding="utf-8")) if prepared_inputs_path and prepared_inputs_path.exists() else {}
         market_count = int(market.get("completed_count", 0))
-        market_stage["status"] = "complete" if market_count == 254 and market.get("failed_count", 1) == 0 else ("partial" if market_count else "failed")
+        if market_stage.get("status") != "natural_weekly_closure_prices_not_requested":
+            market_stage["status"] = "complete" if market_count == 254 and market.get("failed_count", 1) == 0 else ("partial" if market_count else "failed")
         codal_feeds = codal.get("feeds", {})
         by_name = {x["stage"]: x for x in stages}
         financial_source = codal_feeds.get("financial", {})
@@ -575,7 +646,8 @@ def main() -> int:
                     identities = []
             starts = [x.get("from_date_jalali") for x in identities if x.get("from_date_jalali")]
             ends = [x.get("to_date_jalali") for x in identities if x.get("to_date_jalali")]
-            return {"pages_fetched": feed_source.get("pages"),
+            return {"pages_fetched": feed_source.get("pages_fetched_this_run", feed_source.get("pages")),
+                    "checkpoint_pages_fetched": feed_source.get("pages"),
                     "pagination_complete": feed_source.get("pagination_complete"),
                     "search_window_policy": feed_source.get("search_window_policy"),
                     "search_window_from_min": min(starts) if starts else None,
@@ -609,7 +681,9 @@ def main() -> int:
             cycle_blockers.append(calendar_fetch_stage.get("status", "order_calendar_unavailable"))
         if o00_stage.get("status") != "verified":
             cycle_blockers.append("o00_global_history_extension_unavailable")
-        if market_count != 254 or market.get("failed_count", 1) != 0:
+        if weekly_closure and market_stage.get("status") == "natural_weekly_closure_no_cached_package":
+            cycle_blockers.append("no_complete_market_package_available_during_weekly_closure")
+        elif market_count != 254 or market.get("failed_count", 1) != 0:
             cycle_blockers.append("market_prices_incomplete")
         if financial_source.get("state") not in ("received", "empty"):
             cycle_blockers.append("financial_codal_incremental_incomplete")
@@ -655,14 +729,16 @@ def main() -> int:
                                                        "sha256": sha(ROOT / ranking_out / "extraction_manifest.json") if (ROOT / ranking_out / "extraction_manifest.json").is_file() else None},
                        "account_sha256": sha(ACCOUNT)},
             "stages": stages,
+            "local_archive_reprocessing": archive_reprocess_summary,
             "cycle_blockers": cycle_blockers,
             "stage_statuses": {
+                "codal_archive_local_reprocessing": archive_reprocess_stage["status"],
                 "market_prices_254": market_stage["status"],
                 "calendar_for_order": "verified_recent_window" if calendar_state == "verified" else "unavailable_or_unverified",
                 "calendar_for_o00": o00_stage["status"],
                 "sales_factor_timing_calendar": sales_calendar_stage["status"],
-                "financial_incremental_discovery": f"{financial_source.get('companies_checked', 0)}/254 checked; {financial_source.get('companies_new_reports', 0)} with new reports; {financial_source.get('companies_no_new_reports', 0)} without; {financial_source.get('companies_failed', 254)} failed/unreviewed",
-                "sales_incremental_discovery": f"{sales_source.get('companies_checked', 0)}/254 checked; {sales_source.get('companies_new_reports', 0)} with new reports; {sales_source.get('companies_no_new_reports', 0)} without; {sales_source.get('companies_failed', 254)} failed/unreviewed",
+                "financial_incremental_discovery": f"{financial_source.get('companies_checked', 0)}/254 checked this run; {financial_source.get('companies_new_reports', 0)} with new reports; {financial_source.get('companies_no_new_reports', 0)} without; {financial_source.get('companies_failed', 0)} failed; {financial_source.get('companies_unchecked', 254)} unchecked/deferred; prior checkpoint {financial_source.get('companies_previously_checked', 0)}",
+                "sales_incremental_discovery": f"{sales_source.get('companies_checked', 0)}/254 checked this run; {sales_source.get('companies_new_reports', 0)} with new reports; {sales_source.get('companies_no_new_reports', 0)} without; {sales_source.get('companies_failed', 0)} failed; {sales_source.get('companies_unchecked', 254)} unchecked/deferred; prior checkpoint {sales_source.get('companies_previously_checked', 0)}",
                 "ranking": ranking_stage["status"],
                 "codal_report_extraction": extraction_stage["status"],
                 "factor_input_preparation": factor_stage["status"],
@@ -689,15 +765,22 @@ def main() -> int:
             "last_successful_full_cycle": None,
             "schedule": {"task_name": "CompanyFinancial-PaperCycle", "daily_local_time": "22:30",
                          "timezone": "Asia/Tehran", "start_when_available": True,
+                         "missed_run_behavior": "StartWhenAvailable; runs after the PC becomes available, but WakeToRun is disabled and interactive logon is required.",
+                         "last_task_result_is_cycle_success": False,
                          "window_requires_user_session": True, **task_status()},
             "data_sources": {
-                "market": {"state": market_stage["status"], "latest_successful_retrieval_utc": source_retrieval_time(market.get("records", []), "daily"),
+                "market": {"state": market_stage["status"],
+                    "market_day_status": "weekly_closed" if weekly_closure else "unknown_without_verified_session_calendar",
+                    "exceptional_closure_status": "not_verified_by_authoritative_market_notice",
+                    "fetch_skipped": bool(market_stage.get("request_skipped")),
+                    "latest_successful_retrieval_utc": source_retrieval_time(market.get("records", []), "daily"),
                     "latest_data_date": max((x.get("latest_quote_date") or "" for x in market.get("records", [])), default=None) or None,
                     "coverage": {"completed": market_count, "universe": 254, "failed": market.get("failed_count")},
                     "failed_identities": [{"company_id": x.get("company_id"), "symbol": x.get("symbol"),
                         "latest_data_date": x.get("latest_quote_date"), "error": x.get("errors", [])}
                         for x in market.get("records", []) if not x.get("daily") or not x.get("latest_quote_date")],
-                    "error": None if market_count == 254 and market.get("failed_count", 0) == 0 else "One or more identity fetches failed; cached historical data is not counted as a successful current retrieval.",
+                    "error": None if (market_count == 254 and market.get("failed_count", 0) == 0) or weekly_closure else "One or more identity fetches failed; cached historical data is not counted as a successful current retrieval.",
+                    "closure_evidence": "Thursday/Friday weekly non-trading schedule; exceptional holidays and exchange-wide suspensions require a verified official notice/calendar.",
                     "manifest": str(market_manifest_path.relative_to(ROOT)).replace("\\", "/") if market_manifest_path.exists() else None},
                 "share_changes": {
                     "state": "complete" if market.get("share_change_failed_count", 254) == 0 else "partial",
@@ -722,8 +805,8 @@ def main() -> int:
                     "source_provenance": o00_payload.get("source_provenance"),
                     "local_to_locked_mapping_path": o00_payload.get("local_to_locked_mapping_path"),
                     "error": o00_payload.get("error", "O00 official global calendar remains unverified; order window is separate.")},
-                "financial": {"state": financial_source.get("state", "not_run"), **discovery_audit(financial_source), "archive_reuse": financial_source.get("archive_reuse", {}), "last_successful_retrieval_utc": financial_source.get("last_successful_retrieval_utc"), "latest_accepted_candidate_receipt_utc": accepted_receipt_time("financial"), "latest_body_received_at_utc": latest_body_receipt_time(financial_source), "latest_data_date": financial_source.get("latest_published_at"), "companies_checked": financial_source.get("companies_checked", 0), "companies_new_reports": financial_source.get("companies_new_reports", 0), "companies_no_new_reports": financial_source.get("companies_no_new_reports", 0), "companies_failed": financial_source.get("companies_failed", 254), "coverage_universe": 254, "new_reports": financial_source.get("new_reports", 0), "report_bodies_received": financial_source.get("report_bodies_received", 0), "documents_extracted": len(prepared.get("financial", [])), "extraction_errors": sum(e.get("feed") == "financial" for e in prepared.get("errors", [])), "report_body_errors": len(financial_source.get("report_body_errors", [])), "retry_after": financial_source.get("rate_limit"), "error": financial_source.get("error"), "document_admission_count": financial_admitted, "raw_manifest": str(codal_manifest_path.relative_to(ROOT)).replace("\\", "/") if codal_manifest_path.exists() else None, "ranking_admission": f"{financial_admitted} factors admitted after cutoff/version validation; held reports remain traceable in admission manifest"},
-                "sales": {"state": sales_source.get("state", "not_run"), **discovery_audit(sales_source), "archive_reuse": sales_source.get("archive_reuse", {}), "last_successful_retrieval_utc": sales_source.get("last_successful_retrieval_utc"), "latest_accepted_candidate_receipt_utc": accepted_receipt_time("sales"), "latest_body_received_at_utc": latest_body_receipt_time(sales_source), "latest_data_date": sales_source.get("latest_published_at"), "companies_checked": sales_source.get("companies_checked", 0), "companies_new_reports": sales_source.get("companies_new_reports", 0), "companies_no_new_reports": sales_source.get("companies_no_new_reports", 0), "companies_failed": sales_source.get("companies_failed", 254), "coverage_universe": 254, "new_reports": sales_source.get("new_reports", 0), "report_bodies_received": sales_source.get("report_bodies_received", 0), "documents_extracted": len(prepared.get("sales", [])), "extraction_errors": sum(e.get("feed") == "sales" for e in prepared.get("errors", [])), "report_body_errors": len(sales_source.get("report_body_errors", [])), "retry_after": sales_source.get("rate_limit"), "error": sales_source.get("error"), "document_admission_count": sales_admitted, "raw_manifest": str(codal_manifest_path.relative_to(ROOT)).replace("\\", "/") if codal_manifest_path.exists() else None, "ranking_admission": f"{sales_admitted} factors admitted only with authenticated next-session evidence; held reports remain traceable in admission manifest"},
+                "financial": {"state": financial_source.get("state", "not_run"), **discovery_audit(financial_source), "archive_reuse": financial_source.get("archive_reuse", {}), "last_successful_retrieval_utc": financial_source.get("last_successful_retrieval_utc"), "latest_accepted_candidate_receipt_utc": accepted_receipt_time("financial"), "latest_body_received_at_utc": latest_body_receipt_time(financial_source), "latest_data_date": financial_source.get("latest_published_at"), "companies_checked": financial_source.get("companies_checked", 0), "companies_new_reports": financial_source.get("companies_new_reports", 0), "companies_no_new_reports": financial_source.get("companies_no_new_reports", 0), "companies_failed": financial_source.get("companies_failed", 0), "companies_unchecked": financial_source.get("companies_unchecked", 254), "companies_previously_checked": financial_source.get("companies_previously_checked", 0), "coverage_universe": 254, "new_reports": financial_source.get("new_reports", 0), "report_bodies_received": financial_source.get("report_bodies_received", 0), "documents_extracted": len(prepared.get("financial", [])), "extraction_errors": sum(e.get("feed") == "financial" for e in prepared.get("errors", [])), "report_body_errors": len(financial_source.get("report_body_errors", [])), "retry_after": financial_source.get("rate_limit"), "next_attempt_at_utc": financial_source.get("next_attempt_at_utc"), "error": financial_source.get("error"), "document_admission_count": financial_admitted, "raw_manifest": str(codal_manifest_path.relative_to(ROOT)).replace("\\", "/") if codal_manifest_path.exists() else None, "ranking_admission": f"{financial_admitted} factors admitted after cutoff/version validation; held reports remain traceable in admission manifest"},
+                "sales": {"state": sales_source.get("state", "not_run"), **discovery_audit(sales_source), "archive_reuse": sales_source.get("archive_reuse", {}), "last_successful_retrieval_utc": sales_source.get("last_successful_retrieval_utc"), "latest_accepted_candidate_receipt_utc": accepted_receipt_time("sales"), "latest_body_received_at_utc": latest_body_receipt_time(sales_source), "latest_data_date": sales_source.get("latest_published_at"), "companies_checked": sales_source.get("companies_checked", 0), "companies_new_reports": sales_source.get("companies_new_reports", 0), "companies_no_new_reports": sales_source.get("companies_no_new_reports", 0), "companies_failed": sales_source.get("companies_failed", 0), "companies_unchecked": sales_source.get("companies_unchecked", 254), "companies_previously_checked": sales_source.get("companies_previously_checked", 0), "coverage_universe": 254, "new_reports": sales_source.get("new_reports", 0), "report_bodies_received": sales_source.get("report_bodies_received", 0), "documents_extracted": len(prepared.get("sales", [])), "extraction_errors": sum(e.get("feed") == "sales" for e in prepared.get("errors", [])), "report_body_errors": len(sales_source.get("report_body_errors", [])), "retry_after": sales_source.get("rate_limit"), "next_attempt_at_utc": sales_source.get("next_attempt_at_utc"), "error": sales_source.get("error"), "document_admission_count": sales_admitted, "raw_manifest": str(codal_manifest_path.relative_to(ROOT)).replace("\\", "/") if codal_manifest_path.exists() else None, "ranking_admission": f"{sales_admitted} factors admitted only with authenticated next-session evidence; held reports remain traceable in admission manifest"},
                 "corporate_actions": {"state": "candidate_share_change_evidence_refreshed"},
             },
             "ranking_input_admission": {"fresh_market_prices": bool(rank_env), "fresh_financial_reports": bool(financial_admitted), "fresh_monthly_sales": bool(sales_admitted),

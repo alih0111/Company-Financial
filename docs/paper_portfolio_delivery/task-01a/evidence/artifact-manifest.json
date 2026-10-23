@@ -1,0 +1,20 @@
+{
+  "label": "TEST_FIXTURE",
+  "files": [
+    {
+      "path": "docs/paper_portfolio_delivery/task-01a/REPORT.fa.md",
+      "size_bytes": 7653,
+      "sha256": "de7ec9d78725e288f5dcf753c9a51559cdd29b48b0b70ba1bdf88e62dda17e06"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-01a/result.json",
+      "size_bytes": 3337,
+      "sha256": "a316c1471bed5cd18f56031f5028a47420232893d38d0a313d24c5ba1135ff69"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-01a/evidence/acceptance.json",
+      "size_bytes": 4923,
+      "sha256": "6d0dee4d941f08ad54794ec3b8fa15dc4acaeff651a1fea8c3e6c1077ff7024a"
+    }
+  ]
+}

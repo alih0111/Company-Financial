@@ -1,0 +1,41 @@
+{
+  "task_id": "01a",
+  "status": "PASS",
+  "parent_task_01_status": "PARTIAL",
+  "changed_files": [
+    ".gitignore",
+    "ranking_research/paper_account_store.py",
+    "ranking_research/future_eval_v12_30/apply_paper_fill.py",
+    "ranking_research/future_eval_v12_30/register_paper_decision.py",
+    "ranking_research/future_eval_v12_30/check_paper_account.py",
+    "ranking_research/tests/test_paper_account_atomic.py",
+    "docs/paper_portfolio_delivery/task-01a/REPORT.fa.md",
+    "docs/paper_portfolio_delivery/task-01a/result.json",
+    "docs/paper_portfolio_delivery/task-01a/evidence/acceptance.json",
+    "docs/paper_portfolio_delivery/task-01a/evidence/artifact-manifest.json"
+  ],
+  "tests": [
+    {"command": "& .venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py -q", "passed": 37, "failed": 0},
+    {"command": "& .venv/Scripts/python.exe -X utf8 -m py_compile ranking_research/paper_account_store.py ranking_research/future_eval_v12_30/apply_paper_fill.py ranking_research/future_eval_v12_30/register_paper_decision.py ranking_research/future_eval_v12_30/check_paper_account.py", "passed": 4, "failed": 0},
+    {"command": "read-only validate_account(current paper-portfolio.json)", "passed": 1, "failed": 0}
+  ],
+  "acceptance_results": [
+    {"criterion": "Explicit minimum account/holding/event/accounting schema and strict whole-toman validation", "status": "PASS", "evidence": "37-test suite; evidence/acceptance.json validator_rejections"},
+    {"criterion": "Reject bad reported P&L, cash types/range, missing required fields, wrong NAV, noninteger shares, invalid prices without replacing existing bytes", "status": "PASS", "evidence": "12 independent TEST_FIXTURE mutations with matching before/after SHA-256"},
+    {"criterion": "Append-only event history uses independent snapshot; nested edit/delete/reorder rejected and append accepted", "status": "PASS", "evidence": "test_transaction_rejects_old_event_nested_mutation_delete_or_reorder; test_transaction_allows_appending_a_valid_event"},
+    {"criterion": "Shared commit applies history and schema protections to all supported writers", "status": "PASS", "evidence": "apply/register/check call write_account_atomic; it locks, validates existing/new account and event prefix before replacement; decision entrypoint regression"},
+    {"criterion": "ROUND_HALF_UP rial-to-toman mark 1,005 rial, NAV and P&L example; previous 806-share buy arithmetic", "status": "PASS", "evidence": "evidence/acceptance.json plus mark and buy regression tests"},
+    {"criterion": "Required source/delivery files are not ignored and appear in Git status", "status": "PASS", "evidence": "narrow .gitignore exceptions; git check-ignore -q and git status --short --untracked-files=all"}
+  ],
+  "evidence_files": [
+    "docs/paper_portfolio_delivery/task-01a/evidence/acceptance.json",
+    "docs/paper_portfolio_delivery/task-01a/evidence/artifact-manifest.json"
+  ],
+  "existing_account_modified": false,
+  "official_ledger_modified": false,
+  "model_contract_changed": false,
+  "remaining_blockers": [
+    "Task 01B: operational fill replay idempotency and conflict response",
+    "Task 01B: crash injection around replace, lock release and concurrent read-modify-write commits"
+  ]
+}

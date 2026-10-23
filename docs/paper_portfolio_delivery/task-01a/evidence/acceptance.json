@@ -1,0 +1,129 @@
+{
+  "label": "TEST_FIXTURE",
+  "validator_rejections": [
+    {
+      "case": "pnl_display_wrong",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_PNL_MISMATCH",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "cash_minus_half",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_INVALID_CASH",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "cash_bool",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_INVALID_CASH",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "cash_string",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_INVALID_CASH",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "cash_fraction",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_INVALID_CASH",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "cash_nan",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_INVALID_CASH",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "cash_infinity",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_INVALID_CASH",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "missing_accounting",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_REQUIRED_FIELD_MISSING",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "missing_cash",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_REQUIRED_FIELD_MISSING",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "wrong_nav",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_NAV_MISMATCH",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "fractional_shares",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_INVALID_SHARE_COUNT",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    },
+    {
+      "case": "infinite_price",
+      "rejected": true,
+      "error": "PAPER_ACCOUNT_INVALID_PRICE:last_price_rial",
+      "before_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "after_sha256": "76f7b04a5028bdb53ff9efda27359bd8c8b5e15aacfd814a674339cf11dbd1d7",
+      "bytes_unchanged": true
+    }
+  ],
+  "all_rejections_preserved_bytes": true,
+  "history": {
+    "case": "nested_old_event_mutation",
+    "rejected": true,
+    "error": "PAPER_ACCOUNT_EVENT_HISTORY_REWRITE_FORBIDDEN",
+    "before_sha256": "298a1bf9b791a8cbc2d17332da1339eba6ccba7baf488a438bf66cc11b412054",
+    "after_sha256": "298a1bf9b791a8cbc2d17332da1339eba6ccba7baf488a438bf66cc11b412054",
+    "bytes_unchanged": true
+  },
+  "buy": {
+    "cash_initial_toman": 100000,
+    "price_rial": 1234,
+    "shares": 806,
+    "gross_toman": 99460,
+    "fee_toman": 497,
+    "cash_after_toman": 43,
+    "holding_value_toman": 99460,
+    "nav_toman": 99503,
+    "pnl_toman": -497
+  },
+  "mark": {
+    "shares": 1,
+    "close_rial": 1005,
+    "holding_value_toman": 101,
+    "cash_toman": 99899,
+    "nav_toman": 100000,
+    "pnl_toman": 0
+  }
+}
