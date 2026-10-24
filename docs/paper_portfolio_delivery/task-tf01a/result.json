@@ -1,0 +1,205 @@
+{
+  "task": "TF-01A",
+  "title": "limited fixes to the token-free public calendar before any wiring",
+  "status": "PASS_TF01A_ONLY",
+  "delivered_at_utc": "2026-10-23T21:13:07.358069+00:00",
+  "explicit_non_goals": [
+    "TF-02 adapter",
+    "TF-03 trial run",
+    "fill permission",
+    "consumer wiring",
+    "official calendar completeness",
+    "O00 readiness"
+  ],
+  "baseline": {
+    "independent_tests_before": 72,
+    "scoped_run_now": 87,
+    "new_tests": 30,
+    "network_in_pytest": false,
+    "syntax_check": "py_compile OK"
+  },
+  "review_case_adaptation": {
+    "probe_original": "docs/paper_portfolio_delivery/task-tf01/review/reproduce.py (untouched)",
+    "probe_adapted": "docs/paper_portfolio_delivery/task-tf01a/evidence/reproduce_fixed.py",
+    "all_ten_cases_show_fixed_behaviour": true,
+    "schema_changes": [
+      "schema_version 1->2",
+      "parser tsetmc_public_index_calendar_v1@1.1.0",
+      "completion_confirmed -> corroborated + within_assumed_completion",
+      "COMPLETION_CORROBORATED_THROUGH_WATERMARK removed",
+      "source_health/readiness added",
+      "per-source coverage + anchors",
+      "pre_window_index_range_difference -> pre_window_history_start_difference",
+      "session counts null when unknown"
+    ]
+  },
+  "live_runs": {
+    "final": {
+      "manifest_path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T210632330575Z.json",
+      "manifest_sha256": "b8cb3a4c94258b8abeec5ec7de46d199fe49edf05df7c473ff4830595be1546c",
+      "run_id": "20261023T210632330575Z",
+      "quality": "CORROBORATED_PUBLIC",
+      "readiness_state": "USABLE_COMPLETION_UNVERIFIED",
+      "completion_state": "COMPLETION_UNVERIFIED",
+      "completion_observation": "AGREES",
+      "assumed_completion": "20261021",
+      "sessions_after_decision": "NO_NEW_SESSION",
+      "session_count": 0,
+      "conflicts": 0,
+      "coverage": {
+        "primary": [
+          "20081204",
+          "20261021"
+        ],
+        "secondary": [
+          "20140319",
+          "20261021"
+        ],
+        "corroborated_intersection": [
+          "20140319",
+          "20261021"
+        ]
+      },
+      "stock_cross": {
+        "records": 254,
+        "eligible": 1,
+        "skipped_listed": 253,
+        "skipped_reason": "unclassified_no_identity_evidence",
+        "eligible_evidence": "live GetInstrumentInfo raw for غاذر"
+      },
+      "self_replay_field_equality": "all true"
+    },
+    "cli_replay": {
+      "manifest_path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T210713634854Z.json",
+      "manifest_sha256": "e1e4799009630ab48fe5e36567c7036abbd4d74ff5111dbfb34ae42cc2c2c767",
+      "mode": "replay",
+      "pinned_clock": true,
+      "field_equality_vs_source": "all true"
+    },
+    "transient_failure_run": {
+      "manifest_path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T210206670875Z.json",
+      "manifest_sha256": "1613b5122054cd276385bc4f0f9e43344a6d4124772656d06034eda6ce68b5ee",
+      "what_it_proved": "single-source network failure -> explicit FETCH_FAILED",
+      "defects_it_revealed_and_fixed": [
+        "stock witnesses cascaded on an empty session set -> gated by pre-cross quality",
+        "replay lost failed-source error codes -> now preserved"
+      ],
+      "locked_by_tests": [
+        "test_cross_check_not_evaluated_when_index_quality_unusable",
+        "test_replay_preserves_failed_source_error_code"
+      ]
+    }
+  },
+  "three_separate_concepts": {
+    "observation_quality": "quality=CORROBORATED_PUBLIC (index dates agree, anchors present)",
+    "completion_confirmation": "always COMPLETION_UNVERIFIED here; agreement feeds assumed_completion (named assumption, policy_version 1.1), never an official confirmation",
+    "fill_permission": "readiness.fill_capable=false always; no consumer wired"
+  },
+  "files": [
+    {
+      "path": "ranking_research/future_eval_v12_30/acquire_public_market_calendar.py",
+      "bytes": 66799,
+      "sha256": "c0f3d410e06471995e2c60652fca8fcb17e6512361c83a65812f7eea37849de1"
+    },
+    {
+      "path": "ranking_research/tests/test_public_market_calendar.py",
+      "bytes": 38975,
+      "sha256": "8bc8531db7f61210aafe2e4f5c295a2a53efd5e022abc00433463a4307ce14a2"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 4563,
+      "sha256": "2ad1cd984ce0e74b7bcaab65133f798affa5cc6354aefa5ba884b8acc6aa9f14"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf01a/REPORT.fa.md",
+      "bytes": 10504,
+      "sha256": "8e66cce91f1d1ce5dcbaafe0f67bc9c04822d72202d649ae90b4efee37612200"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf01a/evidence/reproduce_fixed.py",
+      "bytes": 9509,
+      "sha256": "20d782dd7a89357f61eed9ac72ff0537a3c5c454bdc44046ff745c39c69583a0"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf01a/evidence/reproduce_fixed.results.json",
+      "bytes": 7359,
+      "sha256": "ce18466ff39201c14cbc8b7007cdfb3e9f80f5f07f4285a04cdac512b770d44b"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf01a/evidence/manifest.live.20261023T210632330575Z.json",
+      "bytes": 1756579,
+      "sha256": "b8cb3a4c94258b8abeec5ec7de46d199fe49edf05df7c473ff4830595be1546c"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf01a/evidence/manifest.replay.20261023T210713634854Z.json",
+      "bytes": 1756796,
+      "sha256": "e1e4799009630ab48fe5e36567c7036abbd4d74ff5111dbfb34ae42cc2c2c767"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf01a/evidence/manifest.live-transient-failure.20261023T210206670875Z.json",
+      "bytes": 1794714,
+      "sha256": "1613b5122054cd276385bc4f0f9e43344a6d4124772656d06034eda6ce68b5ee"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T210632330575Z.json",
+      "bytes": 1756579,
+      "sha256": "b8cb3a4c94258b8abeec5ec7de46d199fe49edf05df7c473ff4830595be1546c"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T210713634854Z.json",
+      "bytes": 1756796,
+      "sha256": "e1e4799009630ab48fe5e36567c7036abbd4d74ff5111dbfb34ae42cc2c2c767"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T210206670875Z.json",
+      "bytes": 1794714,
+      "sha256": "1613b5122054cd276385bc4f0f9e43344a6d4124772656d06034eda6ce68b5ee"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/candidate_instrument.20261023T210632330575Z.bin.gz",
+      "bytes": 652,
+      "sha256": "94b27a37a31f7d6a4e7e6536ca048e34d7b15d920bc88f0b3eddfe5e2e471540"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/identity.20261023T210632330575Z.bin.gz",
+      "bytes": 3499,
+      "sha256": "e5f4329eb81dd99be5a77279a3e7cb0f436f9a1981b92ce2c21728e075624383"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/last_possible.20261023T210632330575Z.bin.gz",
+      "bytes": 31,
+      "sha256": "505de11b35a4572138785d65ed947c9c49a9ee0d61e7ab3cec1a9038c97f3eb0"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/primary_history.20261023T210632330575Z.bin.gz",
+      "bytes": 68070,
+      "sha256": "c0a6f8421788413bcf53ea976f0f9f34a235027d3b4903b87c13afaafcf54b05"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/secondary_history.20261023T210632330575Z.bin.gz",
+      "bytes": 45858,
+      "sha256": "a7ef7e523178883589879fb6bd8b18cab1d301abb3acf6332ee5e34a82677ad7"
+    }
+  ],
+  "previous_delivery_hash_discrepancy": {
+    "reported_in": "docs/paper_portfolio_delivery/task-tf01/REPORT.fa.md command table",
+    "cause": "stdout hash computed over the LF JSON payload while Path.write_text on Windows wrote CRLF; result.json hashed the file bytes and matched disk",
+    "old_files_modified": false,
+    "fixed_by": "write with newline='\n' + exclusive open + hash of final file bytes (test_manifest_write_is_exclusive_and_hash_matches_file)"
+  },
+  "flags": {
+    "existing_account_modified": false,
+    "official_ledger_modified": false,
+    "model_contract_changed": false,
+    "ledger_files_before_equal_after": {
+      "client/public/research/v12-36/paper-portfolio.json": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "ranking_research/output/return_v12_27/v12_27_1_20261022_delivery_corrections_01/analysis_contract.locked.json": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+      "ranking_research/output/return_v12_23/v12_23_20261021_fresh_local_baseline_01/global/analysis_contract.locked.json": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+      "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/o00_session_calendar.csv": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441"
+    }
+  },
+  "raw_hash_basis": "uncompressed response bytes (gzip container, sha256 over decompressed body)"
+}

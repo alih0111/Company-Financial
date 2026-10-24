@@ -95,3 +95,36 @@ docs/paper_portfolio_delivery/task-01b/*
 docs/paper_portfolio_delivery/task-01b/evidence/*
 !docs/paper_portfolio_delivery/task-01b/evidence/*.json
 !docs/paper_portfolio_delivery/task-01b/evidence/collect_evidence.py
+
+# Narrow TF-01 (token-free public calendar) source and delivery files.
+!ranking_research/future_eval_v12_30/acquire_public_market_calendar.py
+!ranking_research/tests/test_public_market_calendar.py
+!docs/paper_portfolio_delivery/task-tf01/
+docs/paper_portfolio_delivery/task-tf01/*
+!docs/paper_portfolio_delivery/task-tf01/REPORT.fa.md
+!docs/paper_portfolio_delivery/task-tf01/result.json
+!docs/paper_portfolio_delivery/task-tf01/evidence/
+docs/paper_portfolio_delivery/task-tf01/evidence/*
+!docs/paper_portfolio_delivery/task-tf01/evidence/*.json
+
+# Narrow TF-01A (token-free calendar fixes) source and delivery files.
+!docs/paper_portfolio_delivery/task-tf01a/
+docs/paper_portfolio_delivery/task-tf01a/*
+!docs/paper_portfolio_delivery/task-tf01a/REPORT.fa.md
+!docs/paper_portfolio_delivery/task-tf01a/result.json
+!docs/paper_portfolio_delivery/task-tf01a/evidence/
+docs/paper_portfolio_delivery/task-tf01a/evidence/*
+!docs/paper_portfolio_delivery/task-tf01a/evidence/*.json
+!docs/paper_portfolio_delivery/task-tf01a/evidence/*.py
+
+# Narrow TF-02 (shared calendar interface + experimental wiring) files.
+!ranking_research/paper_calendar.py
+!ranking_research/paper_calendar_policy.public-paper-v1.json
+!ranking_research/tests/test_paper_calendar_interface.py
+!docs/paper_portfolio_delivery/task-tf02/
+docs/paper_portfolio_delivery/task-tf02/*
+!docs/paper_portfolio_delivery/task-tf02/REPORT.fa.md
+!docs/paper_portfolio_delivery/task-tf02/result.json
+!docs/paper_portfolio_delivery/task-tf02/evidence/
+docs/paper_portfolio_delivery/task-tf02/evidence/*
+!docs/paper_portfolio_delivery/task-tf02/evidence/*.json

@@ -1,0 +1,68 @@
+{
+  "stdout": {
+    "manifest": "D:/tmp/tf02-replay-tairgx5p/manifest.20261024T124624844122Z.json",
+    "manifest_sha256": "d9f2291533dee2d4e53334e83e013083820337a5fe2d2dc5319c8c504e9356e9",
+    "mode": "replay",
+    "run_id": "20261024T124624844122Z",
+    "quality": "CORROBORATED_PUBLIC",
+    "readiness_state": "USABLE_COMPLETION_UNVERIFIED",
+    "completion_state": "COMPLETION_UNVERIFIED",
+    "completion_observation": "AGREES",
+    "assumed_completion": "20261021",
+    "coverage": {
+      "primary": {
+        "start": "20081204",
+        "end": "20261021"
+      },
+      "secondary": {
+        "start": "20140319",
+        "end": "20261021"
+      },
+      "observed_union": {
+        "start": "20081204",
+        "end": "20261021"
+      },
+      "corroborated_intersection": {
+        "start": "20140319",
+        "end": "20261021"
+      },
+      "window_start": "20261022",
+      "cross_check_window_start": "20260823",
+      "basis": "per-source observation ranges; the union is observation only, the intersection is corroboration"
+    },
+    "sessions_after_decision": "NO_NEW_SESSION",
+    "session_count": 0,
+    "conflicts": 0,
+    "stock_cross_symbols": 1,
+    "stock_cross_counts": {
+      "records": 254,
+      "eligible": 1,
+      "skipped_listed": 253
+    },
+    "offline_replay": {
+      "quality": true,
+      "readiness": true,
+      "coverage": true,
+      "completion": true,
+      "observed_sessions": true,
+      "sessions_after_decision": true,
+      "candidate": true,
+      "stock_cross_check": true,
+      "conflicts": true,
+      "problems": true
+    }
+  },
+  "mode": "replay",
+  "field_equality": {
+    "quality": true,
+    "readiness": true,
+    "coverage": true,
+    "completion": true,
+    "observed_sessions": true,
+    "sessions_after_decision": true,
+    "candidate": true,
+    "stock_cross_check": true,
+    "conflicts": true,
+    "problems": true
+  }
+}

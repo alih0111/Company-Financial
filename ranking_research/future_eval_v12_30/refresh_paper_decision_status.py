@@ -9,6 +9,12 @@ import gzip
 from pathlib import Path
 import sys
 
+try:
+    from ranking_research import paper_calendar
+except ImportError:  # direct-file execution
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from ranking_research import paper_calendar
+
 ROOT = Path(__file__).resolve().parents[2]
 ACCOUNT = ROOT / "client/public/research/v12-36/paper-portfolio.json"
 OUT = ROOT / "ranking_research/output/paper_v12_38_first_fill"
@@ -17,21 +23,41 @@ LOCAL_CALENDAR = ROOT / "score_v2_research/_cache/calendar.parquet"
 
 
 def sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--session-calendar-manifest", type=Path,
                         help="Explicit official market-wide calendar manifest for this check")
+    parser.add_argument("--calendar-provider", choices=("nscstart", "public"),
+                        default="nscstart",
+                        help="Calendar profile shown in this status check")
+    parser.add_argument("--public-calendar-manifest", type=Path, default=None,
+                        help="Pinned public-index calendar manifest (public provider)")
+    parser.add_argument("--public-calendar-manifest-sha256", default=None)
+    parser.add_argument("--calendar-policy", type=Path,
+                        default=paper_calendar.DEFAULT_PUBLIC_POLICY_PATH)
+    parser.add_argument("--reference-now-utc", default=None,
+                        help="Injected evaluation clock (ISO) for calendar freshness")
+    parser.add_argument("--account", type=Path, default=ACCOUNT)
+    parser.add_argument("--evidence-manifest", type=Path, default=None,
+                        help="Explicit candidate evidence manifest (default: latest-manifest.json)")
+    parser.add_argument("--output-dir", type=Path, default=OUT)
+    parser.add_argument("--public-output-dir", type=Path, default=PUBLIC)
     parser.add_argument("--execution-attempt-status", default="not_attempted",
                         help="Status emitted by the locked paper-order evaluator")
     args = parser.parse_args()
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    account = json.loads(ACCOUNT.read_text(encoding="utf-8"))
-    latest_ref = json.loads((OUT / "latest-manifest.json").read_text(encoding="utf-8"))
-    evidence_path = ROOT / latest_ref["manifest_path"]
+    account_path = args.account
+    out_dir, public_dir = args.output_dir, args.public_output_dir
+    account = json.loads(account_path.read_text(encoding="utf-8"))
+    if args.evidence_manifest:
+        evidence_path = args.evidence_manifest.resolve()
+    else:
+        latest_ref = json.loads((OUT / "latest-manifest.json").read_text(encoding="utf-8"))
+        evidence_path = ROOT / latest_ref["manifest_path"]
     evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
     decision = account.get("active_decision")
     order = account.get("paper_order")
@@ -95,8 +121,78 @@ def main() -> None:
                            "تقویم نماد به‌تنهایی جایگزین این منبع بازار نیست.")
     elif calendar_error:
         calendar_access += f" بررسی manifest تقویم ارائه‌شده ناموفق بود: {calendar_error}."
+
+    public_calendar_block = None
+    if args.calendar_provider == "public":
+        if not args.public_calendar_manifest or not args.public_calendar_manifest_sha256:
+            raise SystemExit("PUBLIC_CALENDAR_MANIFEST_AND_SHA256_REQUIRED")
+        if args.reference_now_utc:
+            now_utc = dt.datetime.fromisoformat(args.reference_now_utc)
+            now_utc = now_utc if now_utc.tzinfo else now_utc.replace(tzinfo=dt.timezone.utc)
+        else:
+            now_utc = dt.datetime.now(dt.timezone.utc)
+        policy = paper_calendar.load_policy(args.calendar_policy)
+        try:
+            answer = paper_calendar.resolve_public_calendar(
+                manifest_path=args.public_calendar_manifest.resolve(),
+                expected_manifest_sha256=args.public_calendar_manifest_sha256,
+                policy=policy, policy_sha256=sha(args.calendar_policy),
+                candidate={"symbol": order["symbol"],
+                           "ins_code": str(evidence.get("ins_code", ""))},
+                decision_local_date=decision["decision_local_date"],
+                decision_at_utc=dt.datetime.fromisoformat(decision["decided_at_utc"]),
+                now_utc=now_utc, consumption_mode="live-preview")
+        except paper_calendar.CalendarRefusal as exc:
+            raise SystemExit(f"{exc.code}; {exc.detail}" if exc.detail else exc.code) from None
+        sessions = answer["sessions_after_decision"]
+        cand = answer["candidate"]
+        archive_end = None
+        by_symbol = ((answer["evaluation"].get("stock_cross_check") or {}).get("by_symbol") or {})
+        if order["symbol"] in by_symbol and by_symbol[order["symbol"]]:
+            archive_end = max(by_symbol[order["symbol"]])
+        if cand["trade_status"] != "checked":
+            trade_state = "evidence_gap_candidate_not_covered"
+        elif (sessions["first_session"] is not None and archive_end is not None
+              and archive_end < sessions["first_session"]):
+            trade_state = "evidence_gap_archive_ends_before_target_day"
+        else:
+            trade_state = "candidate_data_covers_target_day"
+        public_calendar_block = {
+            "provider": "public-index",
+            "policy": {"id": answer["policy"]["id"], "version": answer["policy"]["version"],
+                       "sha256": answer["policy"]["sha256"]},
+            "manifest": answer["manifest"],
+            "quality": answer["quality"],
+            "quality_recomputed_from_raw": True,
+            "freshness": {"state": answer["freshness"]["state"],
+                          "rules": answer["freshness"]["rules"]},
+            "calendar_ready": answer["readiness"]["calendar_ready"],
+            "blocking_reasons": answer["readiness"]["blocking_reasons"],
+            "completion": answer["completion"],
+            "sessions_after_decision": {"state": sessions["state"], "count": sessions["count"],
+                                        "first_session": sessions["first_session"],
+                                        "count_is_unknown": sessions["count"] is None},
+            "display_label_fa": answer["display_label_fa"],
+            "candidate_trade_evidence": {
+                "trade_status": cand["trade_status"],
+                "no_positive_trade_sessions": cand["no_positive_trade_sessions"],
+                "archive_end": archive_end,
+                "state": trade_state,
+                "note": ("zero observed new sessions and an unknown session count are "
+                         "different states; a candidate no-trade claim requires candidate "
+                         "data covering that day — an archive ending before the target day "
+                         "is an evidence gap, never a suspension/no-trade verdict"),
+            },
+        }
     no_session_data = not latest_possible_iso or latest_possible_iso <= decision["decision_local_date"]
     first_eligible_session = eligible_sessions[0]["DEven"] if eligible_sessions else None
+    public_session_count = None
+    if public_calendar_block:
+        # one uniform answer source: the same first-session/count the fill and
+        # cycle paths consume; zero observed sessions is never conflated with
+        # an unknown count
+        first_eligible_session = public_calendar_block["sessions_after_decision"]["first_session"]
+        public_session_count = public_calendar_block["sessions_after_decision"]["count"]
     exact_first_rows = [x for x in candidate_source.get("latest_positive_volume_rows", [])
                         if first_eligible_session and str(x.get("dEven", "")) == first_eligible_session]
     no_post_decision = (
@@ -114,7 +210,40 @@ def main() -> None:
         {"id": "post_decision_market_session", "state": "no_session_observed" if no_session_data else ("calendar_unverified" if not session_calendar else ("quote_missing" if not exact_first_rows else "evidence_available_pending_gates")), "title": "هنوز دادهٔ جلسهٔ پس از تصمیم موجود نیست" if no_session_data else ("جلسهٔ پس از تصمیم گزارش شده؛ تطبیق تقویم بازار ناقص است" if not session_calendar else ("قیمت جلسهٔ نخست هنوز موجود نیست" if not exact_first_rows else "دادهٔ جلسهٔ نخست موجود است؛ گیت اجرای سفارش باقی است")), "details": no_post_decision},
         {"id": "authoritative_market_calendar", "state": "verified" if session_calendar else "incomplete", "title": "دسترسی به منبع معتبر تقویم ناقص است" if not session_calendar else "تقویم رسمی بازار دریافت و اعتبارسنجی شد", "details": calendar_access},
     ]
+    if public_calendar_block:
+        ready = public_calendar_block["calendar_ready"]
+        count = public_calendar_block["sessions_after_decision"]["count"]
+        trade = public_calendar_block["candidate_trade_evidence"]
+        if not ready:
+            barrier_state = "blocked"
+            barrier_title = "تقویم عمومی برای این مصرف آماده نیست"
+            barrier_details = ("شواهد تقویم عمومی پین و بازمحاسبه شد، اما این سیاست اجازهٔ مصرف نمی‌دهد: "
+                               + "، ".join(public_calendar_block["blocking_reasons"]))
+        elif count is None:
+            barrier_state = "unknown_session_count"
+            barrier_title = "شمارش جلسهٔ پس از تصمیم نامعلوم است"
+            barrier_details = (f"وضعیت {public_calendar_block['sessions_after_decision']['state']}: "
+                               "شمارش نامعلوم است، نه صفر؛ اجرا متوقف می‌ماند.")
+        elif count == 0:
+            barrier_state = "no_new_session"
+            barrier_title = "هنوز جلسهٔ پذیرفته‌شدهٔ جدیدی مشاهده نشده است"
+            barrier_details = ("دریافت موفق بوده و آخرین جلسهٔ تکمیل‌شده همان مانده است؛ صفر جلسهٔ "
+                               "مشاهده‌شدهٔ جدید با «شمارش نامعلوم» یکسان نیست.")
+        else:
+            barrier_state = "first_session_available"
+            barrier_title = "نخستین جلسهٔ پذیرفته‌شدهٔ تقویم عمومی موجود است"
+            barrier_details = (f"نخستین جلسهٔ قابل استفاده {public_calendar_block['sessions_after_decision']['first_session']} "
+                               f"با {count} جلسهٔ پذیرفته‌شدهٔ پس از تصمیم؛ "
+                               + public_calendar_block["display_label_fa"])
+        barrier_details += (f" شاهد معاملهٔ نامزد: {trade['state']}"
+                            + (f" (پایان آرشیو {trade['archive_end']})" if trade["archive_end"] else "")
+                            + ".")
+        barriers.append({"id": "public_calendar", "state": barrier_state,
+                         "title": barrier_title, "details": barrier_details,
+                         "display_label_fa": public_calendar_block["display_label_fa"]})
     blockers = [no_post_decision, calendar_access]
+    if public_calendar_block:
+        blockers.append(barriers[-1]["details"])
     if args.execution_attempt_status == "LATE_FILL_TIMING_AMBIGUOUS":
         details = "شواهد قیمت نخستین جلسه فقط پس از پایان سومین جلسهٔ مهلت سفارش در دسترس دیده شد. زمان ثبت رویداد پیش از انقضا قابل اثبات نیست؛ fill و انقضا هر دو متوقف‌اند تا ابهام طبق قواعد روشن شود."
         barriers.append({"id": "late_fill_timing", "state": "ambiguous", "title": "زمان ثبت اجرای دیرهنگام مبهم است", "details": details})
@@ -135,7 +264,9 @@ def main() -> None:
         "candidate_post_decision_daily_rows": len(exact_first_rows),
         "first_eligible_session": first_eligible_session,
         "calendar_retrieved_at_utc": session_calendar.get("retrieved_at_utc") if session_calendar else None,
-        "eligible_sessions_after_decision": len(eligible_sessions),
+        "eligible_sessions_after_decision": (public_session_count if public_calendar_block
+                                             else len(eligible_sessions)),
+        "public_calendar": public_calendar_block,
         "barriers": barriers,
         "calendar_sources_checked": [
             {"source": "TSETMC LastPossibleDeven", "scope": "latest completed session only; not future session schedule", "retrieved_at_utc": last_source.get("retrieved_at_utc"), "url": last_source.get("url")},
@@ -158,13 +289,14 @@ def main() -> None:
             "balanced": account["cash_toman"] + account["accounting"]["holdings_value_toman"] == account["accounting"]["total_value_toman"],
             "pnl_basis": "از fill ثبت‌شده؛ تا پیش از fill صفر",
         },
-        "source_sha256": {"account": sha(ACCOUNT), "ranking": sha(ROOT / "client/public/research/v12-36/latest-ranking.json"), "evidence_manifest": sha(evidence_path), "local_calendar": sha(LOCAL_CALENDAR)},
+        "source_sha256": {"account": sha(account_path), "ranking": sha(ROOT / "client/public/research/v12-36/latest-ranking.json"), "evidence_manifest": sha(evidence_path), "local_calendar": sha(LOCAL_CALENDAR)},
         "official_ledger_touched": False,
     }
-    PUBLIC.mkdir(parents=True, exist_ok=True)
-    (PUBLIC / "paper-account-check.json").write_text(json.dumps(status, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    (OUT / "paper-account-check.json").write_text(json.dumps(status, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    (PUBLIC / "paper-decision-record.json").write_text(json.dumps({"decision": decision, "order": order}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    public_dir.mkdir(parents=True, exist_ok=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (public_dir / "paper-account-check.json").write_text(json.dumps(status, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (out_dir / "paper-account-check.json").write_text(json.dumps(status, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (public_dir / "paper-decision-record.json").write_text(json.dumps({"decision": decision, "order": order}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     report = [
         "# وضعیت سفارش آزمایشی V12.38",
         "",
@@ -192,9 +324,24 @@ def main() -> None:
         "",
         f"آشتی نقد/دارایی: {status['cash_reconciliation']['cash_toman']} + {status['cash_reconciliation']['holdings_value_toman']} = {status['cash_reconciliation']['total_value_toman']} تومان؛ برابر بودن: `{status['cash_reconciliation']['balanced']}`. دفتر رسمی دست‌نخورده است.",
     ]
-    (OUT / "execution_status.fa.md").write_text("\n".join(report) + "\n", encoding="utf-8")
+    if public_calendar_block:
+        report += [
+            "",
+            "## تقویم عمومی (پروفایل آزمایشی)",
+            "",
+            f"- {barriers[-1]['title']} — {barriers[-1]['details']}",
+            f"- کیفیت بازمحاسبه‌شده از raw: `{public_calendar_block['quality']}`؛ تازگی: `{public_calendar_block['freshness']['state']}`.",
+            f"- برچسب نمایش: {public_calendar_block['display_label_fa']}",
+            "",
+            "- مسیر عمومی بدون توکن: دو شاخص بورس تهران + LastPossibleDeven از endpointهای عمومی؛ پایان جلسه فرض ثبت‌شدهٔ سیاست است، نه گواه رسمی.",
+        ]
+    (out_dir / "execution_status.fa.md").write_text("\n".join(report) + "\n", encoding="utf-8")
+    try:
+        evidence_rel = str(evidence_path.relative_to(ROOT)).replace("\\", "/")
+    except ValueError:
+        evidence_rel = str(evidence_path)
     print(json.dumps({"checked_at_utc": status["checked_at_utc"], "decision_at_utc": decision["decided_at_utc"],
-                      "order_id": order["order_id"], "fill_recorded": False, "evidence_manifest": str(evidence_path.relative_to(ROOT)).replace("\\", "/"), "barriers": barriers,
+                      "order_id": order["order_id"], "fill_recorded": False, "evidence_manifest": evidence_rel, "barriers": barriers,
                       "cash_reconciliation": status["cash_reconciliation"]}, ensure_ascii=False))
 
 

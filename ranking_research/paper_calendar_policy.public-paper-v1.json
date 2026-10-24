@@ -1,0 +1,50 @@
+{
+  "policy_id": "public-paper-v1",
+  "version": "1.0.0",
+  "status": "proposed-experimental; not activated on the current paper account; activation and migration are TF-03",
+  "provider": "public-index",
+  "dataset_id": "tsetmc_public_index_calendar_v1",
+  "conditions": {
+    "required_quality": "CORROBORATED_PUBLIC",
+    "required_sources_ok": ["identity", "primary_history", "secondary_history", "last_possible", "candidate_instrument"],
+    "require_decision_anchor_per_index": true,
+    "require_market_scope_match": true,
+    "forbid_conflicts": true,
+    "require_completion_assumption": {
+      "basis": "last_possible_components_agree",
+      "tail_alignment": "both index history tails must equal the assumed-completion watermark value",
+      "note": "acceptance of this assumption lives here in the policy consumer only; the collector keeps completion_officially_confirmed=false"
+    },
+    "freshness": {
+      "version": "public-paper-freshness@1",
+      "max_source_age_hours": 6,
+      "future_tolerance_minutes": 5,
+      "require_retrieval_after_decision": true,
+      "note": "operational assumption for the first new runs, not exchange law; boundaries are enforced at the recorded evaluation clock, so an exact replay of an old receipt validates at its own execution time"
+    }
+  },
+  "order_economics": {
+    "unchanged_from": "paper-execution-rules/1.2.0-user-approved",
+    "price": "first accepted public-calendar session close (official pClosing) only; a later session price never substitutes for the first session",
+    "shares": "integer shares; lot is one share; the 1.2.0 floor rule with the 0.005 fee assumption",
+    "rial_to_toman": "divide by 10 with ROUND_HALF_UP",
+    "fee_per_side": 0.005,
+    "expiry_sessions": 3,
+    "expiry_basis": "accepted sessions of this same public profile"
+  },
+  "capabilities": {
+    "order_fill_preview": true,
+    "order_fill_apply_on_experimental_account": true,
+    "sales_pit_timing": false,
+    "official_future_calendar": false,
+    "o00_history_extension": false
+  },
+  "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+  "non_grants": [
+    "official completeness of the observed calendar",
+    "NSCStart equivalence or any fabricated NSCEnd field",
+    "sell-admission point-in-time timing",
+    "O00 official global history extension",
+    "real-market execution proof or queue priority"
+  ]
+}

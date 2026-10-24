@@ -1,0 +1,237 @@
+{
+  "fixture_scope": "TEST_FIXTURE except the read-only pinned repo live manifest used by the CLI replay case; raw re-verification is read-only",
+  "network_requests": 0,
+  "adapted_from": "docs/paper_portfolio_delivery/task-tf01/review/reproduce.py (untouched)",
+  "schema": "v2 (parser tsetmc_public_index_calendar_v1@1.1.0)",
+  "cases": [
+    {
+      "id": "candidate_payload_missing",
+      "accepted_as_corroborated": false,
+      "blocking_quality": "CANDIDATE_IDENTITY_INVALID",
+      "session_count": null,
+      "actual": {
+        "quality": "CANDIDATE_IDENTITY_INVALID",
+        "readiness_state": "BLOCKED_CANDIDATE_IDENTITY_INVALID",
+        "completion": "COMPLETION_UNVERIFIED",
+        "completion_observation": "AGREES",
+        "assumed_completion": null,
+        "decision_sessions": {
+          "state": "UNKNOWN_QUALITY_CANDIDATE_IDENTITY_INVALID",
+          "session_count": null,
+          "assumed_eligible_session_count": null,
+          "sessions": null,
+          "first_assumed_session": null
+        },
+        "candidate_state": "INVALID_PAYLOAD",
+        "source_health": {
+          "primary_history": {
+            "state": "OK"
+          },
+          "secondary_history": {
+            "state": "OK"
+          },
+          "identity": {
+            "state": "OK"
+          },
+          "last_possible": {
+            "state": "OK"
+          },
+          "candidate_instrument": {
+            "state": "FAILED",
+            "candidate_state": "INVALID_PAYLOAD"
+          }
+        },
+        "problems": {
+          "CANDIDATE_IDENTITY_INVALID": [
+            {
+              "state": "INVALID_PAYLOAD",
+              "detail": "instrumentInfo object missing or not an object",
+              "response_ins_code": null,
+              "expected_ins_code": "35158826900216508"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "candidate_wrong_inscode",
+      "accepted_as_corroborated": false,
+      "blocking_quality": "CANDIDATE_IDENTITY_INVALID",
+      "session_count": null,
+      "actual": {
+        "quality": "CANDIDATE_IDENTITY_INVALID",
+        "readiness_state": "BLOCKED_CANDIDATE_IDENTITY_INVALID",
+        "completion": "COMPLETION_UNVERIFIED",
+        "completion_observation": "AGREES",
+        "assumed_completion": null,
+        "decision_sessions": {
+          "state": "UNKNOWN_QUALITY_CANDIDATE_IDENTITY_INVALID",
+          "session_count": null,
+          "assumed_eligible_session_count": null,
+          "sessions": null,
+          "first_assumed_session": null
+        },
+        "candidate_state": "WRONG_INS_CODE",
+        "source_health": {
+          "primary_history": {
+            "state": "OK"
+          },
+          "secondary_history": {
+            "state": "OK"
+          },
+          "identity": {
+            "state": "OK"
+          },
+          "last_possible": {
+            "state": "OK"
+          },
+          "candidate_instrument": {
+            "state": "FAILED",
+            "candidate_state": "WRONG_INS_CODE"
+          }
+        },
+        "problems": {
+          "CANDIDATE_IDENTITY_INVALID": [
+            {
+              "state": "WRONG_INS_CODE",
+              "detail": "response insCode does not match the pinned candidate identity",
+              "response_ins_code": "999",
+              "expected_ins_code": "35158826900216508"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "completion_source_network_failure",
+      "accepted_as_corroborated": false,
+      "blocking_quality": "FETCH_FAILED",
+      "session_count": null,
+      "actual": {
+        "quality": "FETCH_FAILED",
+        "readiness_state": "BLOCKED_FETCH_FAILED",
+        "completion": "COMPLETION_UNVERIFIED",
+        "completion_observation": "SOURCE_FAILED",
+        "assumed_completion": null,
+        "decision_sessions": {
+          "state": "UNKNOWN_QUALITY_FETCH_FAILED",
+          "session_count": null,
+          "assumed_eligible_session_count": null,
+          "sessions": null,
+          "first_assumed_session": null
+        },
+        "candidate_state": "OK",
+        "source_health": {
+          "primary_history": {
+            "state": "OK"
+          },
+          "secondary_history": {
+            "state": "OK"
+          },
+          "identity": {
+            "state": "OK"
+          },
+          "last_possible": {
+            "state": "FAILED",
+            "error_code": "NETWORK_ERROR"
+          },
+          "candidate_instrument": {
+            "state": "OK",
+            "candidate_state": "OK"
+          }
+        },
+        "problems": {
+          "FETCH_FAILED": [
+            {
+              "source": "last_possible",
+              "error": "NETWORK_ERROR"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "empty_secondary_before_decision",
+      "actual_quality": "INSUFFICIENT_COVERAGE",
+      "coverage_reasons": [
+        "source_history_empty"
+      ],
+      "single_source_sessions_marked_confirmed": 0,
+      "session_count": null
+    },
+    {
+      "id": "secondary_has_no_anchor_before_decision",
+      "actual_quality": "CONFLICT",
+      "anchor_problems": [
+        {
+          "source": "secondary_history",
+          "reason": "source_missing_decision_anchor",
+          "source_first_date": "20260905",
+          "anchor_required_on_or_before": "20260902",
+          "detail": "this index has no row on/before the decision day, so it cannot corroborate continuity across the decision point"
+        }
+      ]
+    },
+    {
+      "id": "secondary_starts_after_decision_but_no_exact_day_row",
+      "actual_quality": "INSUFFICIENT_COVERAGE",
+      "anchor_problems": [
+        {
+          "source": "secondary_history",
+          "reason": "source_missing_decision_anchor",
+          "source_first_date": "20260905",
+          "anchor_required_on_or_before": "20260902",
+          "detail": "this index has no row on/before the decision day, so it cannot corroborate continuity across the decision point"
+        }
+      ],
+      "session_count": null,
+      "first_session": null
+    },
+    {
+      "id": "candidate_traded_all_sessions",
+      "trade_status": "checked",
+      "actual_missing_trade_sessions": [],
+      "expected_missing_trade_sessions": []
+    },
+    {
+      "id": "foreign_market_non_equity_archive_not_filtered",
+      "eligible_symbols": [
+        "TSE_OK"
+      ],
+      "skipped": [
+        {
+          "TEST_IFB": "other_market"
+        }
+      ],
+      "counts": {
+        "records": 2,
+        "eligible": 1,
+        "skipped_listed": 1
+      },
+      "calendar_quality": "CONFLICT",
+      "conflicts": [
+        {
+          "type": "stock_trade_date_outside_calendar",
+          "date": "20260910",
+          "iso": "2026-09-10",
+          "symbols_count": 1,
+          "symbols_sample": [
+            "TSE_OK"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "offline_drops_source_provenance",
+      "live_retrieved_sources": 5,
+      "replay_retrieved_sources": 5
+    },
+    {
+      "id": "offline_cli_depends_on_current_account",
+      "actual": {
+        "replayed_from_pinned": true,
+        "mode": "replay"
+      }
+    }
+  ]
+}

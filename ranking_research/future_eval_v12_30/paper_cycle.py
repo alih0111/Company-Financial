@@ -24,6 +24,12 @@ RULES = ROOT / "ranking_research/output/paper_v12_38_first_fill/execution_rules_
 TZ = dt.timezone.utc
 TEHRAN = ZoneInfo("Asia/Tehran")
 
+try:
+    from ranking_research import paper_calendar
+except ImportError:  # direct-file execution
+    sys.path.insert(0, str(ROOT))
+    from ranking_research import paper_calendar
+
 
 def is_weekly_stock_market_closure(now: dt.datetime | None = None) -> bool:
     """Iranian listed equities do not trade on Thursday or Friday."""
@@ -331,7 +337,156 @@ def acquire_cycle_lock(lock_path: Path) -> int | None:
     return None
 
 
+def acquire_order_calendar(*, provider: str, run_id: str, out_root: Path,
+                           account_path: Path | None = None,
+                           calendar_policy_path: Path | None = None,
+                           reference_now_utc: str | None = None,
+                           run_stage_fn=None) -> dict:
+    """One auditable order-calendar acquisition stage for one provider.
+
+    ``nscstart`` keeps the token-gated current behavior unchanged. ``public``
+    is not conditional on any token: it runs the token-free public collector
+    into a run-scoped directory and consumes ONLY that same run's manifest —
+    a failed or manifest-less run never falls back to an older manifest by
+    glob/mtime. The order's own profile stays pinned by the account, so a
+    public acquisition against an account not bound to the public policy is
+    reported as a profile mismatch, never as fill permission.
+    """
+    account_path = account_path or ACCOUNT
+    stage_fn = run_stage_fn or run_stage
+    result = {"provider": provider, "stage": None, "manifest_path": None,
+              "calendar_state": "unavailable", "profile_mismatch": False,
+              "answer_summary": None, "token_required": provider == "nscstart"}
+    if provider == "nscstart":
+        calendar_manifest_path = None
+        if os.environ.get("TSETMC_READONLY_BEARER_TOKEN") and os.environ.get("TSETMC_CREDENTIAL_IDENTITY_STATE", "matched_task_identity") == "matched_task_identity":
+            calendar_fetch_stage = stage_fn("order_calendar_recent_acquisition", [str(PYTHON),
+                str(ROOT / "ranking_research/future_eval_v12_30/acquire_tsetmc_open_sessions.py")], 180)
+            if calendar_fetch_stage.get("exit_code") == 0:
+                manifests = sorted((ROOT / "ranking_research/output/paper_v12_38_first_fill/session_calendar").glob("NSCStart.*.manifest.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+                if manifests:
+                    calendar_manifest_path = manifests[0]
+                    os.environ["TSETMC_CALENDAR_MANIFEST"] = str(calendar_manifest_path)
+                    calendar_fetch_stage["status"] = "received_recent_order_calendar"
+                else:
+                    calendar_fetch_stage["status"] = "manifest_missing_after_successful_process"
+            else:
+                fetch_error = str(calendar_fetch_stage.get("error") or "")
+                if "TSETMC_TOKEN_INVALID_OR_EXPIRED_HTTP_401" in fetch_error:
+                    calendar_fetch_stage["status"] = "credential_invalid_or_expired"
+                elif "TSETMC_PERMISSION_DENIED_HTTP_403" in fetch_error:
+                    calendar_fetch_stage["status"] = "credential_permission_denied"
+                else:
+                    calendar_fetch_stage["status"] = "calendar_fetch_failed_non_auth"
+        else:
+            calendar_fetch_stage = {"stage": "order_calendar_recent_acquisition",
+                "status": "blocked_missing_credential" if os.environ.get("TSETMC_CREDENTIAL_STATE") == "absent" else "blocked_credential_unreadable_or_identity_mismatch",
+                "exit_code": None, "error": "No authenticated NSCStart request was attempted; no token value was present in the report."}
+        result["stage"] = calendar_fetch_stage
+        result["manifest_path"] = calendar_manifest_path
+        result["calendar_state"] = ("verified_recent_window" if calendar_manifest_path
+                                    else calendar_fetch_stage.get("status", "unavailable"))
+        return result
+    if provider != "public":
+        raise ValueError(f"unknown calendar provider {provider!r}")
+
+    account = json.loads(Path(account_path).read_text(encoding="utf-8"))
+    decision = account.get("active_decision") or {}
+    order = account.get("paper_order") or {}
+    window_start = str(decision.get("decision_local_date", "")).replace("-", "")
+    if not window_start:
+        stage = {"stage": "order_calendar_public_acquisition",
+                 "status": "blocked_no_pinned_decision_date", "exit_code": None}
+        result["stage"] = stage
+        result["calendar_state"] = "blocked_no_pinned_decision_date"
+        return result
+    out_dir = Path(out_root) / "public_calendar" / run_id
+    stage = stage_fn("order_calendar_public_acquisition", [str(PYTHON),
+        str(ROOT / "ranking_research/future_eval_v12_30/acquire_public_market_calendar.py"),
+        "--window-start", window_start, "--output-dir", str(out_dir),
+        "--cross-check-lookback-days", "60"], 900)
+    result["stage"] = stage
+    if stage.get("exit_code") != 0:
+        # A failed acquisition never selects an older manifest by glob/mtime.
+        stage["status"] = "calendar_public_acquisition_failed_no_fallback"
+        result["calendar_state"] = "blocked_public_acquisition_failed"
+        return result
+    latest = out_dir / "latest-manifest.json"
+    if not latest.is_file():
+        stage["status"] = "manifest_missing_after_successful_process_no_fallback"
+        result["calendar_state"] = "blocked_public_manifest_missing"
+        return result
+    reference = json.loads(latest.read_text(encoding="utf-8"))
+    manifest_path = Path(reference.get("manifest_path", ""))
+    if not manifest_path.is_absolute():
+        manifest_path = ROOT / manifest_path
+    if not manifest_path.is_file() or sha(manifest_path) != reference.get("manifest_sha256"):
+        stage["status"] = "public_manifest_hash_mismatch"
+        result["calendar_state"] = "blocked_public_manifest_hash_mismatch"
+        return result
+    result["manifest_path"] = manifest_path
+    stage["status"] = "received_public_order_calendar"
+    # Adapter resolution: the same pinned evidence the fill/status paths use.
+    try:
+        policy_path = calendar_policy_path or paper_calendar.DEFAULT_PUBLIC_POLICY_PATH
+        policy = paper_calendar.load_policy(policy_path)
+        manifest_doc = json.loads(manifest_path.read_text(encoding="utf-8"))
+        pinned_candidate = manifest_doc.get("candidate") or {}
+        if reference_now_utc:
+            now = dt.datetime.fromisoformat(reference_now_utc)
+            now = now if now.tzinfo else now.replace(tzinfo=dt.timezone.utc)
+        else:
+            now = dt.datetime.now(dt.timezone.utc)
+        answer = paper_calendar.resolve_public_calendar(
+            manifest_path=manifest_path,
+            expected_manifest_sha256=reference["manifest_sha256"],
+            policy=policy, policy_sha256=sha(policy_path),
+            candidate={"symbol": order.get("symbol", ""),
+                       "ins_code": str(pinned_candidate.get("ins_code", ""))},
+            decision_local_date=decision.get("decision_local_date", ""),
+            decision_at_utc=dt.datetime.fromisoformat(decision["decided_at_utc"]),
+            now_utc=now, consumption_mode="live-preview")
+    except (paper_calendar.CalendarRefusal, KeyError, ValueError) as exc:
+        code = getattr(exc, "code", type(exc).__name__)
+        stage["status"] = f"public_calendar_refused:{code}"
+        result["calendar_state"] = f"blocked_public_{code.lower()}"
+        return result
+    binding = decision.get("calendar_policy") or {}
+    result["profile_mismatch"] = binding.get("id") != policy["policy_id"]
+    sessions = answer["sessions_after_decision"]
+    result["answer_summary"] = {
+        "first_session": sessions["first_session"],
+        "session_count": sessions["count"],
+        "session_count_is_unknown": sessions["count"] is None,
+        "state": sessions["state"],
+        "calendar_ready": answer["readiness"]["calendar_ready"],
+        "blocking_reasons": answer["readiness"]["blocking_reasons"],
+        "quality": answer["quality"],
+        "freshness_state": answer["freshness"]["state"],
+    }
+    if result["profile_mismatch"]:
+        result["calendar_state"] = "blocked_calendar_profile_mismatch"
+        stage["status"] = ("acquired_public_calendar_but_order_profile_not_bound;"
+                           " no order consumption")
+    elif not answer["readiness"]["calendar_ready"]:
+        result["calendar_state"] = "blocked_public_calendar_not_ready"
+        stage["status"] = "public_calendar_not_ready;" + ",".join(
+            answer["readiness"]["blocking_reasons"][:3])
+    else:
+        result["calendar_state"] = "verified_public_calendar"
+        stage["status"] = ("verified_public_calendar_no_new_session"
+                           if sessions["count"] == 0 else "verified_public_calendar")
+    return result
+
+
 def main() -> int:
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--calendar-provider", choices=("nscstart", "public"),
+                        default=os.environ.get("PAPER_CYCLE_CALENDAR_PROVIDER", "nscstart"),
+                        help="explicit order-calendar profile for this cycle; the order's own "
+                             "consumption profile stays pinned by the account/rules")
+    args = parser.parse_args()
     if not PYTHON.is_file():
         print("BLOCKED_RUNTIME: project .venv Python was not found", file=sys.stderr)
         return 2
@@ -465,30 +620,10 @@ def main() -> int:
             o00_payload = {}
             o00_stage["status"] = "validation_failed"
         stages.append(o00_stage)
-        calendar_manifest_path = None
-        if os.environ.get("TSETMC_READONLY_BEARER_TOKEN") and os.environ.get("TSETMC_CREDENTIAL_IDENTITY_STATE", "matched_task_identity") == "matched_task_identity":
-            calendar_fetch_stage = run_stage("order_calendar_recent_acquisition", [str(PYTHON),
-                str(ROOT / "ranking_research/future_eval_v12_30/acquire_tsetmc_open_sessions.py")], 180)
-            if calendar_fetch_stage.get("exit_code") == 0:
-                manifests = sorted((ROOT / "ranking_research/output/paper_v12_38_first_fill/session_calendar").glob("NSCStart.*.manifest.json"), key=lambda p: p.stat().st_mtime, reverse=True)
-                if manifests:
-                    calendar_manifest_path = manifests[0]
-                    os.environ["TSETMC_CALENDAR_MANIFEST"] = str(calendar_manifest_path)
-                    calendar_fetch_stage["status"] = "received_recent_order_calendar"
-                else:
-                    calendar_fetch_stage["status"] = "manifest_missing_after_successful_process"
-            else:
-                fetch_error = str(calendar_fetch_stage.get("error") or "")
-                if "TSETMC_TOKEN_INVALID_OR_EXPIRED_HTTP_401" in fetch_error:
-                    calendar_fetch_stage["status"] = "credential_invalid_or_expired"
-                elif "TSETMC_PERMISSION_DENIED_HTTP_403" in fetch_error:
-                    calendar_fetch_stage["status"] = "credential_permission_denied"
-                else:
-                    calendar_fetch_stage["status"] = "calendar_fetch_failed_non_auth"
-        else:
-            calendar_fetch_stage = {"stage": "order_calendar_recent_acquisition",
-                "status": "blocked_missing_credential" if os.environ.get("TSETMC_CREDENTIAL_STATE") == "absent" else "blocked_credential_unreadable_or_identity_mismatch",
-                "exit_code": None, "error": "No authenticated NSCStart request was attempted; no token value was present in the report."}
+        calendar_stage_info = acquire_order_calendar(provider=args.calendar_provider,
+                                                     run_id=run_id, out_root=OUT)
+        calendar_fetch_stage = calendar_stage_info["stage"]
+        calendar_manifest_path = calendar_stage_info["manifest_path"]
         stages.append(calendar_fetch_stage)
 
         market = json.loads(market_manifest_path.read_text(encoding="utf-8")) if market_manifest_path.exists() else {}
@@ -510,16 +645,25 @@ def main() -> int:
             except Exception:
                 factor_eval_date = None
         sales_timing_calendar_manifest_path = calendar_manifest_path
+        if calendar_stage_info["provider"] == "public":
+            sales_status = ("public_calendar_validated_sales_capability_not_granted"
+                            if sales_timing_calendar_manifest_path
+                            else "blocked_missing_market_wide_sessions")
+        else:
+            sales_status = ("verified_market_wide_sessions" if sales_timing_calendar_manifest_path
+                            else "blocked_missing_market_wide_sessions")
         sales_calendar_stage = {"stage": "sales_factor_timing_calendar_validation",
-            "status": "verified_market_wide_sessions" if sales_timing_calendar_manifest_path else "blocked_missing_market_wide_sessions",
+            "status": sales_status,
             "manifest": str(sales_timing_calendar_manifest_path.relative_to(ROOT)).replace("\\", "/") if sales_timing_calendar_manifest_path else None,
+            "provider": calendar_stage_info["provider"],
             "purpose": "assign the locked monthly-sales factor's first eligible signal session after publication; does not consume order review state or O00 index"}
         stages.append(sales_calendar_stage)
         factor_args = [str(PYTHON), str(ROOT / "ranking_research/future_eval_v12_30/build_codal_factor_inputs.py"),
             str(codal_manifest_path), "--evaluation-date", factor_eval_date or "2026-10-21", "--output-dir", str(factor_input_dir)] if codal_manifest_path.exists() else None
         if factor_args:
             if sales_timing_calendar_manifest_path:
-                factor_args.extend(["--sales-timing-calendar-manifest", str(sales_timing_calendar_manifest_path)])
+                factor_args.extend(["--sales-timing-calendar-manifest", str(sales_timing_calendar_manifest_path),
+                                    "--sales-timing-calendar-provider", args.calendar_provider])
             factor_stage = run_stage("factor_input_preparation", factor_args, 1200)
             if factor_stage.get("exit_code") == 0:
                 admission_path = factor_input_dir / "admission.json"
@@ -598,6 +742,10 @@ def main() -> int:
         finished = dt.datetime.now(TZ).isoformat()
         calendar_state = next((x.get("state") for x in check.get("barriers", [])
                                if x.get("id") == "authoritative_market_calendar"), "unavailable")
+        if calendar_stage_info["provider"] == "public":
+            # the public profile is adapter-driven, not read back from the
+            # NSCStart-based check file
+            calendar_state = calendar_stage_info["calendar_state"]
         codal = json.loads(codal_manifest_path.read_text(encoding="utf-8")) if codal_manifest_path.exists() else {}
         prepared = json.loads(prepared_inputs_path.read_text(encoding="utf-8")) if prepared_inputs_path and prepared_inputs_path.exists() else {}
         market_count = int(market.get("completed_count", 0))
@@ -664,7 +812,7 @@ def main() -> int:
             codal_stage["status"] = "partial_incomplete_acquisition"
         else:
             codal_stage["status"] = "partial_or_failed"
-        if calendar_state == "verified":
+        if calendar_state in ("verified", "verified_public_calendar"):
             by_name["order_review_and_order_calendar"]["status"] = "reviewed"
         else:
             by_name["order_review_and_order_calendar"]["status"] = "calendar_unavailable_or_unverified"
@@ -677,7 +825,7 @@ def main() -> int:
             and int(check.get("cash_reconciliation", {}).get("holdings_value_toman", -1)) == 0
             and not account.get("holdings"))
         cycle_blockers = []
-        if calendar_state != "verified":
+        if calendar_state not in ("verified", "verified_public_calendar"):
             cycle_blockers.append(calendar_fetch_stage.get("status", "order_calendar_unavailable"))
         if o00_stage.get("status") != "verified":
             cycle_blockers.append("o00_global_history_extension_unavailable")
@@ -734,7 +882,9 @@ def main() -> int:
             "stage_statuses": {
                 "codal_archive_local_reprocessing": archive_reprocess_stage["status"],
                 "market_prices_254": market_stage["status"],
-                "calendar_for_order": "verified_recent_window" if calendar_state == "verified" else "unavailable_or_unverified",
+                "calendar_for_order": ("verified_recent_window" if calendar_state == "verified"
+                                       else "verified_public_calendar_window" if calendar_state == "verified_public_calendar"
+                                       else "unavailable_or_unverified"),
                 "calendar_for_o00": o00_stage["status"],
                 "sales_factor_timing_calendar": sales_calendar_stage["status"],
                 "financial_incremental_discovery": f"{financial_source.get('companies_checked', 0)}/254 checked this run; {financial_source.get('companies_new_reports', 0)} with new reports; {financial_source.get('companies_no_new_reports', 0)} without; {financial_source.get('companies_failed', 0)} failed; {financial_source.get('companies_unchecked', 254)} unchecked/deferred; prior checkpoint {financial_source.get('companies_previously_checked', 0)}",
@@ -751,10 +901,13 @@ def main() -> int:
                          "last_locked_panel_index": 1165, "next_scheduled_global_index": 1197,
                          "next_review": "unknown until the complete official global session history from 2026-02-24 is validated; index 1197 is a target index, not a date or next-due claim",
                          "o00_calendar_coverage_verified": global_cal_ok,
-                         "order_calendar_coverage": {"state": "verified_recent_window" if calendar_state == "verified" else "unavailable_or_unverified",
+                         "order_calendar_coverage": {"state": ("verified_recent_window" if calendar_state == "verified"
+                                 else "verified_public_calendar_window" if calendar_state == "verified_public_calendar"
+                                 else "unavailable_or_unverified"),
                              "sessions_after_decision": check.get("eligible_sessions_after_decision"),
                              "decision_local_date": (check.get("decision") or {}).get("decision_local_date"),
-                             "sufficient_for_order": bool(calendar_state == "verified" and (check.get("eligible_sessions_after_decision") or 0) > 0)}},
+                             "sufficient_for_order": bool(calendar_state in ("verified", "verified_public_calendar")
+                                 and (check.get("eligible_sessions_after_decision") or 0) > 0)}},
             "paper_account": {"account_id": account["account_id"], "cash_toman": account["cash_toman"],
                               "holdings_count": len(account.get("holdings", [])),
                               "order_id": account.get("paper_order", {}).get("order_id"),
@@ -790,7 +943,7 @@ def main() -> int:
                     "error": None if market.get("share_change_failed_count", 254) == 0 else "Share-change endpoint failed for one or more identities.",
                     "manifest": str(market_manifest_path.relative_to(ROOT)).replace("\\", "/") if market_manifest_path.exists() else None,
                     "ranking_admission": "latest effective share count used when present; archived snapshot inherited for one identity without a change record"},
-                "calendar_for_order": {"state": "verified" if calendar_state == "verified" else "unavailable_or_unverified", "latest_complete_session": check.get("latest_official_completed_session"), "coverage": check.get("eligible_sessions_after_decision"), "error": None if calendar_state == "verified" else "Official recent market calendar not validated; TSETMC read-only credential may be absent or rejected."},
+                "calendar_for_order": {"state": ("verified" if calendar_state == "verified" else "verified_public_calendar" if calendar_state == "verified_public_calendar" else "unavailable_or_unverified"), "latest_complete_session": check.get("latest_official_completed_session"), "coverage": check.get("eligible_sessions_after_decision"), "error": None if calendar_state == "verified" else "Official recent market calendar not validated; TSETMC read-only credential may be absent or rejected."},
                 "calendar_for_sales_factor_timing": {"state": sales_calendar_stage["status"], "manifest": sales_calendar_stage["manifest"],
                     "purpose": sales_calendar_stage["purpose"], "independent_of_order_gate": True, "independent_of_o00": True},
                 "calendar_for_o00": {"state": o00_stage["status"], "coverage_from": "2026-02-25", "target_global_index": 1197,
@@ -820,6 +973,7 @@ def main() -> int:
                 "task_identity_state": os.environ.get("TSETMC_CREDENTIAL_IDENTITY_STATE", "not_checked"),
                 "stored_dpapi_file_present": os.environ.get("TSETMC_CREDENTIAL_STATE", "") not in ("absent", "not_checked"),
                 "remote_validity": ("accepted" if calendar_state == "verified" else
+                    "public_calendar_no_credential_used" if calendar_state == "verified_public_calendar" else
                     "not_attempted_absent" if os.environ.get("TSETMC_CREDENTIAL_STATE") == "absent" else
                     "dpapi_unreadable_or_user_mismatch" if os.environ.get("TSETMC_CREDENTIAL_STATE") == "dpapi_unreadable_or_user_mismatch" else
                     "task_identity_mismatch" if os.environ.get("TSETMC_CREDENTIAL_STATE") == "task_identity_mismatch" else

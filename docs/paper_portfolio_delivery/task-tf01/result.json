@@ -1,0 +1,151 @@
+{
+  "task": "TF-01",
+  "title": "token-free public market calendar collector and evaluator",
+  "status": "PASS_TF01_ONLY",
+  "delivered_at_utc": "2026-10-23T19:00:20.483849+00:00",
+  "explicit_non_goals": [
+    "fill execution permission",
+    "official calendar completeness",
+    "O00 readiness",
+    "TF-02 adapter",
+    "TF-03 trial run"
+  ],
+  "tests": {
+    "new_passed": 13,
+    "new_failed": 0,
+    "regression_passed": 59,
+    "regression_failed": 0,
+    "network_in_tests": false,
+    "fixtures_artificial_only": true,
+    "token_env_used_in_tests": false
+  },
+  "live_run": {
+    "manifest_path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T182831259743Z.json",
+    "manifest_sha256": "0e38c0cc8bfde4bb95cba6a07686bc649fca12721011db89f3d125f9b4f6b634",
+    "run_id": "20261023T182831259743Z",
+    "window_start": "20261022",
+    "market_scope": "TSE",
+    "quality": "CORROBORATED_PUBLIC",
+    "completeness_certified": false,
+    "coverage_start": "20081204",
+    "coverage_end": "20261021",
+    "completion_state": "COMPLETION_CORROBORATED_THROUGH_WATERMARK",
+    "completion_watermark": "20261021",
+    "last_possible_sample": "20261021;20261021",
+    "sessions_after_decision": "NO_NEW_SESSION",
+    "first_confirmed_session": null,
+    "conflicts": 0,
+    "pre_window_index_range_difference_count": 1279,
+    "index_identity_matches": 2,
+    "index_identity_failures": 0,
+    "candidate": {
+      "symbol": "غاذر",
+      "ins_code": "35158826900216508",
+      "scope": "TSE",
+      "category_state": "common_stock_board",
+      "flow": 1,
+      "flowTitle": "بازار بورس"
+    },
+    "stock_cross_check": {
+      "symbols_checked": 254,
+      "symbols_skipped": 0,
+      "window_start": "20260823",
+      "trade_dates_outside_calendar": 0,
+      "input": "ranking_research/output/return_v12_35/official_tsetmc_20261022 (hash-verified raws, no DB)"
+    },
+    "self_offline_replay": {
+      "session_dates_equal": true,
+      "quality_equal": true,
+      "watermark_equal": true
+    }
+  },
+  "offline_replay_run": {
+    "manifest_path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T182911289428Z.json",
+    "manifest_sha256": "7db9f4cf35ee1b56ad0cc75fbe0e801be52115d40318cd9cb9f4661a9e35c4e9",
+    "run_id": "20261023T182911289428Z",
+    "mode": "offline",
+    "session_dates_equal": true
+  },
+  "first_live_run_defect_record": {
+    "manifest": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T182304705548Z.json",
+    "quality": "CONFLICT",
+    "conflicts": 1279,
+    "cause": "index comparison ran over the full history instead of the decision window",
+    "fix": "comparison scoped to window per policy 3; pre-window history-start differences recorded as range differences; stock cross-check given its own explicit lookback window",
+    "covered_by_test": "test_single_index_or_stock_witness_disagreement_is_conflict"
+  },
+  "files": [
+    {
+      "path": "ranking_research/future_eval_v12_30/acquire_public_market_calendar.py",
+      "bytes": 45578,
+      "sha256": "34bcc600131d302cce6bb3a2e05f34b55a2a2158fec5d985667375232834a950"
+    },
+    {
+      "path": "ranking_research/tests/test_public_market_calendar.py",
+      "bytes": 19795,
+      "sha256": "86b5a6c17a4fbfdff80b0463aecf816da9caacbe2283d733289249ac396ae439"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf01/REPORT.fa.md",
+      "bytes": 12827,
+      "sha256": "3c99398642552f6090a316b09af868598f7ea4816b9aacbec42ca76101fe7399"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf01/evidence/manifest.live.20261023T182831259743Z.json",
+      "bytes": 1723125,
+      "sha256": "0e38c0cc8bfde4bb95cba6a07686bc649fca12721011db89f3d125f9b4f6b634"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf01/evidence/manifest.offline-replay.20261023T182911289428Z.json",
+      "bytes": 1721307,
+      "sha256": "7db9f4cf35ee1b56ad0cc75fbe0e801be52115d40318cd9cb9f4661a9e35c4e9"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T182831259743Z.json",
+      "bytes": 1723125,
+      "sha256": "0e38c0cc8bfde4bb95cba6a07686bc649fca12721011db89f3d125f9b4f6b634"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/manifest.20261023T182911289428Z.json",
+      "bytes": 1721307,
+      "sha256": "7db9f4cf35ee1b56ad0cc75fbe0e801be52115d40318cd9cb9f4661a9e35c4e9"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/candidate_instrument.20261023T182831259743Z.bin.gz",
+      "bytes": 651,
+      "sha256": "19bbe3ca67ab973ac95b61bd3737e7b08385036ed0553a4b55bdb392e358b2cc"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/identity.20261023T182831259743Z.bin.gz",
+      "bytes": 3499,
+      "sha256": "3da5a546dfaf53fa6560b2180445e9cc1aeec06e99786866a019f32ce611faec"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/last_possible.20261023T182831259743Z.bin.gz",
+      "bytes": 31,
+      "sha256": "5c99d980ea1a23de83633d48aac82542c8986fcef2bdddf92134a76ce203fcc4"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/primary_history.20261023T182831259743Z.bin.gz",
+      "bytes": 68066,
+      "sha256": "bc5192085bfa94d503611ef10784a22e1c5e0d6e2167fd5eb424dca8233370aa"
+    },
+    {
+      "path": "ranking_research/output/public_market_calendar_tf01/raw/secondary_history.20261023T182831259743Z.bin.gz",
+      "bytes": 46197,
+      "sha256": "84d2a5cc0c996fe767bf596a34e74ce8f0f04694a3c0c6d1cba485eb108d1aca"
+    }
+  ],
+  "flags": {
+    "existing_account_modified": false,
+    "official_ledger_modified": false,
+    "model_contract_changed": false,
+    "baseline_head": "9d02afc65576576540cf8ac077b43e9e85fe93a0",
+    "hashes_before_equal_after": {
+      "client/public/research/v12-36/paper-portfolio.json": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8"
+    }
+  },
+  "raw_hash_basis": "uncompressed response bytes (gzip container, sha256 over decompressed body)"
+}

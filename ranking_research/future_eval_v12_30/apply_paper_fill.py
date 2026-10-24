@@ -13,10 +13,12 @@ from decimal import Decimal
 from pathlib import Path
 try:
     from ranking_research import paper_account_store
+    from ranking_research import paper_calendar
 except ImportError:  # direct-file loader used by the Windows lock regression test
     import sys
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from ranking_research import paper_account_store
+    from ranking_research import paper_calendar
 
 ROOT = Path(__file__).resolve().parents[2]
 ACCOUNT = ROOT / "client/public/research/v12-36/paper-portfolio.json"
@@ -43,10 +45,29 @@ def expiry_outcome(session_count: int, expiry_sessions: int, first_session_fill_
     return "late_fill_timing_ambiguous" if first_session_fill_eligible else "expire"
 
 
+def holding_price_status(public_profile: bool = False) -> str:
+    base = ("اجرای فرضی با محدودیت دادهٔ صف؛ close روزانه fill یا اولویت واقعی را اثبات نمی‌کند.")
+    if public_profile:
+        return (base + " پایان جلسه بر پایهٔ فرض ثبت‌شدهٔ سیاست تقویم عمومی است؛ "
+                "بدون گواه کامل‌بودن تقویم.")
+    return base
+
+
 def calendar_covers_order_window(sessions: list[dict], decision_day: str) -> bool:
-    dates = [str(row.get("DEven", "")) for row in sessions]
-    return (len(dates) == 20 and all(len(day) == 8 and day.isdigit() for day in dates)
-            and len(set(dates)) == 20 and min(dates) <= decision_day)
+    return paper_calendar.nscstart_covers_order_window(sessions, decision_day)
+
+
+def resolve_now(args: argparse.Namespace) -> dt.datetime:
+    """Injected evaluation clock for calendar freshness; defaults to the real clock."""
+    if args.reference_now_utc:
+        now = dt.datetime.fromisoformat(args.reference_now_utc)
+        return now if now.tzinfo else now.replace(tzinfo=dt.timezone.utc)
+    return dt.datetime.now(dt.timezone.utc)
+
+
+def _refuse(exc: "paper_calendar.CalendarRefusal") -> SystemExit:
+    detail = f"; {exc.detail}" if exc.detail else ""
+    return SystemExit(f"{exc.code}{detail}")
 
 
 def write_account_atomic(account: dict) -> None:
@@ -98,9 +119,22 @@ def account_write_lock():
 def run_locked() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--session-calendar-manifest", type=Path, required=True,
-                        help="A saved manifest/raw response from the documented official NSCStart endpoint.")
+                        help="Saved calendar evidence: an NSCStart manifest (nscstart provider) "
+                             "or a pinned public-index calendar manifest (public provider).")
     parser.add_argument("--evidence-manifest", type=Path, required=True,
                         help="Explicit versioned candidate evidence manifest from acquire_paper_candidate_evidence.py.")
+    parser.add_argument("--calendar-provider", choices=("nscstart", "public"),
+                        default="nscstart",
+                        help="Calendar source profile. The default keeps the current pinned "
+                             "NSCStart path unchanged; 'public' is the token-free experimental "
+                             "profile and requires an account/order/rules binding to it.")
+    parser.add_argument("--calendar-manifest-sha256", default=None,
+                        help="Pinned sha256 of the calendar manifest (required for --calendar-provider public).")
+    parser.add_argument("--calendar-policy", type=Path,
+                        default=paper_calendar.DEFAULT_PUBLIC_POLICY_PATH,
+                        help="Versioned public calendar policy document (public provider only).")
+    parser.add_argument("--reference-now-utc", default=None,
+                        help="Injected evaluation clock (ISO) for calendar freshness checks.")
     parser.add_argument("--apply-fill", action="store_true", help="Apply a validated fill once to the paper account.")
     parser.add_argument("--observe-order-state", action="store_true", help="Explicitly persist non-fill order-window evidence.")
     args = parser.parse_args()
@@ -140,43 +174,102 @@ def run_locked() -> None:
     evidence_path = args.evidence_manifest.resolve()
     sessions_doc = json.loads(session_path.read_text(encoding="utf-8"))
     evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
-    if sessions_doc.get("source") != "TSETMC documented API MarketInfo/NSCStart" or not sessions_doc.get("raw_sha256"):
-        raise SystemExit("OFFICIAL_SESSION_CALENDAR_SOURCE_OR_HASH_MISSING")
-    if sessions_doc.get("retrieved_at_utc", "") < decision["decided_at_utc"]:
-        raise SystemExit("SESSION_CALENDAR_WAS_RETRIEVED_BEFORE_DECISION")
-    session_raw_path = ROOT / sessions_doc.get("raw_path", "")
-    session_raw = json.loads(verified_gzip_raw(session_raw_path, sessions_doc["raw_sha256"],
-                                               "OFFICIAL_SESSION_CALENDAR_RAW_HASH_MISMATCH"))
-    normalized_session_rows = [{"DEven": str(x["DEven"]), "HEven": x.get("HEven"), "NSCEnd": str(x.get("NSCEnd", ""))} for x in session_raw.get("Data", [])]
-    if normalized_session_rows != sessions_doc.get("sessions"):
-        raise SystemExit("OFFICIAL_SESSION_CALENDAR_MANIFEST_RAW_MISMATCH")
     decision_day = decision["decision_local_date"].replace("-", "")
-    if not calendar_covers_order_window(normalized_session_rows, decision_day):
-        raise SystemExit("CALENDAR_WINDOW_DOES_NOT_COVER_DECISION_OR_FULL_20_SESSION_WINDOW")
-    source_entries = evidence.get("sources", [])
-    if not isinstance(source_entries, list) or any(not isinstance(x, dict) or not isinstance(x.get("key"), str) for x in source_entries):
-        raise SystemExit("OFFICIAL_SOURCE_MANIFEST_INVALID")
-    source_map = {x["key"]: x for x in source_entries}
-    if len(source_map) != len(source_entries):
-        raise SystemExit("OFFICIAL_SOURCE_MANIFEST_DUPLICATE_KEY")
-    for key in ("candidate_daily", "candidate_share_changes", "last_possible_session"):
-        if key not in source_map or not source_map[key].get("raw_sha256"):
-            raise SystemExit(f"REQUIRED_OFFICIAL_SOURCE_MISSING:{key}")
-        if source_map[key].get("retrieved_at_utc", "") < decision["decided_at_utc"]:
-            raise SystemExit(f"OFFICIAL_SOURCE_PREDATES_DECISION:{key}")
-        raw_path = ROOT / source_map[key].get("raw_path", "")
-        verified_gzip_raw(raw_path, source_map[key]["raw_sha256"], f"OFFICIAL_RAW_HASH_MISMATCH:{key}")
-    if (evidence.get("candidate", {}).get("company_id") != order["company_id"]
-            or str(evidence.get("ins_code", "")) != str(source_map["candidate_daily"].get("url", "").rsplit("/", 2)[-2])):
-        raise SystemExit("CANDIDATE_IDENTITY_OR_INSCODE_MISMATCH")
-    rows = [x for x in sessions_doc.get("sessions", [])
-            if str(x.get("DEven", "")) > decision["decision_local_date"].replace("-", "") and str(x.get("NSCEnd")) == "1"]
-    rows.sort(key=lambda x: str(x["DEven"]))
-    if not rows:
-        raise SystemExit("NO_COMPLETED_OFFICIAL_SESSION_AFTER_DECISION")
-    first = rows[0]
-    first_day = str(first["DEven"])
-    sessions_count = len(rows)
+    now_utc = resolve_now(args)
+    consumption_mode = ("exact-replay" if has_prior_fill
+                        else "fixture-apply" if args.apply_fill else "live-preview")
+
+    def validate_evidence_sources() -> dict:
+        source_entries = evidence.get("sources", [])
+        if not isinstance(source_entries, list) or any(not isinstance(x, dict) or not isinstance(x.get("key"), str) for x in source_entries):
+            raise SystemExit("OFFICIAL_SOURCE_MANIFEST_INVALID")
+        source_map = {x["key"]: x for x in source_entries}
+        if len(source_map) != len(source_entries):
+            raise SystemExit("OFFICIAL_SOURCE_MANIFEST_DUPLICATE_KEY")
+        for key in ("candidate_daily", "candidate_share_changes", "last_possible_session"):
+            if key not in source_map or not source_map[key].get("raw_sha256"):
+                raise SystemExit(f"REQUIRED_OFFICIAL_SOURCE_MISSING:{key}")
+            if source_map[key].get("retrieved_at_utc", "") < decision["decided_at_utc"]:
+                raise SystemExit(f"OFFICIAL_SOURCE_PREDATES_DECISION:{key}")
+            raw_path = ROOT / source_map[key].get("raw_path", "")
+            verified_gzip_raw(raw_path, source_map[key]["raw_sha256"], f"OFFICIAL_RAW_HASH_MISMATCH:{key}")
+        if (evidence.get("candidate", {}).get("company_id") != order["company_id"]
+                or str(evidence.get("ins_code", "")) != str(source_map["candidate_daily"].get("url", "").rsplit("/", 2)[-2])):
+            raise SystemExit("CANDIDATE_IDENTITY_OR_INSCODE_MISMATCH")
+        return source_map
+
+    calendar_receipt = None
+    calendar_label_fa = None
+    if args.calendar_provider == "public":
+        # The public profile is a separately bound policy: an old order pinned
+        # to the previous rules hash never silently converts to it.
+        policy = paper_calendar.load_policy(args.calendar_policy)
+        policy_sha = sha(args.calendar_policy)
+        binding = decision.get("calendar_policy") or {}
+        rules_doc = json.loads(rules_bytes)
+        order_binding = order.get("calendar_policy") or {}
+        if (binding.get("id") != policy["policy_id"] or binding.get("sha256") != policy_sha
+                or (rules_doc.get("calendar_policy") or {}).get("id") != policy["policy_id"]
+                or (rules_doc.get("calendar_policy") or {}).get("sha256") != policy_sha
+                or (order_binding and (order_binding.get("id") != policy["policy_id"]
+                                       or order_binding.get("sha256") != policy_sha))):
+            raise SystemExit("CALENDAR_POLICY_MISMATCH; this account/decision/rules are not "
+                             "bound to the requested public calendar policy version")
+        if not args.calendar_manifest_sha256:
+            raise SystemExit("CALENDAR_MANIFEST_SHA256_REQUIRED")
+        source_map = validate_evidence_sources()
+        try:
+            answer = paper_calendar.resolve_public_calendar(
+                manifest_path=session_path,
+                expected_manifest_sha256=args.calendar_manifest_sha256,
+                policy=policy, policy_sha256=policy_sha,
+                candidate={"symbol": order["symbol"],
+                           "ins_code": str(evidence.get("ins_code", ""))},
+                decision_local_date=decision["decision_local_date"],
+                decision_at_utc=dt.datetime.fromisoformat(decision["decided_at_utc"]),
+                now_utc=now_utc, consumption_mode=consumption_mode)
+        except paper_calendar.CalendarRefusal as exc:
+            raise _refuse(exc) from None
+        calendar_label_fa = answer["display_label_fa"]
+        calendar_receipt = {"provider": "public-index",
+                            "policy_id": policy["policy_id"], "policy_sha256": policy_sha,
+                            "manifest": str(session_path),
+                            "manifest_sha256": args.calendar_manifest_sha256,
+                            "completion_type": answer["completion"]["type"],
+                            "assumed_completion": answer["completion"].get("value"),
+                            "label_fa": calendar_label_fa}
+        if not answer["readiness"]["calendar_ready"]:
+            raise SystemExit("CALENDAR_NOT_READY;"
+                             + ",".join(answer["readiness"]["blocking_reasons"]))
+        state = answer["sessions_after_decision"]["state"]
+        if answer["eligible_session_count"] is None:
+            raise SystemExit(f"SESSION_COUNT_UNKNOWN;{state}")
+        sessions_count = answer["eligible_session_count"]
+        if sessions_count == 0:
+            # Successful acquisition with no new accepted session: not an error,
+            # and never a reason to fabricate a session or touch the account.
+            print(json.dumps({"status": state, "first_session": None, "session_count": 0,
+                              "fill_applied": False, "cash_toman": account["cash_toman"],
+                              "calendar_label_fa": calendar_label_fa,
+                              "reason": ("acquisition succeeded; no new session is accepted "
+                                         "for execution under this calendar policy yet")},
+                             ensure_ascii=False))
+            return
+        first_day = answer["first_usable_session"]
+        latest_session = answer["sessions_after_decision"]["sessions"][-1]
+    else:
+        try:
+            answer = paper_calendar.resolve_nscstart_calendar(
+                manifest_path=session_path,
+                decision_local_date=decision["decision_local_date"],
+                decision_at_utc=dt.datetime.fromisoformat(decision["decided_at_utc"]),
+                now_utc=now_utc, consumption_mode=consumption_mode, root=ROOT)
+        except paper_calendar.CalendarRefusal as exc:
+            raise _refuse(exc) from None
+        source_map = validate_evidence_sources()
+        first_day = answer["first_usable_session"]
+        sessions_count = answer["eligible_session_count"]
+        latest_session = answer["sessions_after_decision"]["sessions"][-1]
     order["eligible_session_count_observed"] = max(order.get("eligible_session_count_observed", 0), sessions_count)
     if order.get("designated_execution_session") and order["designated_execution_session"] != first_day:
         raise SystemExit("FIRST_ELIGIBLE_SESSION_CONFLICT_WITH_PINNED_ORDER")
@@ -189,7 +282,14 @@ def run_locked() -> None:
                 if str(x.get("dEven", "")) == first_day and str(x.get("insCode", "")) == ins_code]
     if len(day_rows) > 1:
         raise SystemExit("DUPLICATE_CANDIDATE_BAR_FOR_FIRST_SESSION")
-    if source_map["last_possible_session"].get("reported_last_possible_session", "")[:8] < first_day:
+    if args.calendar_provider == "public":
+        # session confirmation came from the public adapter's re-computed
+        # completion assumption (policy-checked); the NSCStart-specific
+        # reported_last_possible_session field does not exist in this profile
+        if not (calendar_receipt and answer["completion"]["officially_confirmed"] is False
+                and answer["completion"].get("value") and answer["completion"]["value"] >= first_day):
+            raise SystemExit("SESSION_NOT_CONFIRMED_BY_PUBLIC_COMPLETION_ASSUMPTION")
+    elif source_map["last_possible_session"].get("reported_last_possible_session", "")[:8] < first_day:
         raise SystemExit("SESSION_NOT_CONFIRMED_BY_LAST_POSSIBLE_SESSION_ENDPOINT")
     if day_rows:
         bar = day_rows[0]
@@ -218,16 +318,22 @@ def run_locked() -> None:
         "CASH_BELOW_ONE_SHARE_PLUS_ASSUMED_FEE" if shares <= 0 else None
     )
     if args.apply_fill and eligibility_reason is None:
+        calendar_source_sha = ({"calendar_raw": sessions_doc["raw_sha256"]}
+                               if args.calendar_provider == "nscstart"
+                               else {"calendar_manifest": args.calendar_manifest_sha256})
         receipt = {
-            "version": 1, "account_id": account["account_id"], "decision_id": decision["decision_id"],
+            "version": 2 if calendar_receipt else 1,
+            "account_id": account["account_id"], "decision_id": decision["decision_id"],
             "order_id": order["order_id"], "designated_session": first_day, "rules_sha256": sha(RULES),
             "ins_code": ins_code, "symbol": order["symbol"], "company_id": order["company_id"],
             "shares": shares, "close_rial": close_rial, "gross_toman": gross, "fee_toman": fee,
-            "source_sha256": {"calendar_raw": sessions_doc["raw_sha256"], **{
+            "source_sha256": {**calendar_source_sha, **{
                 key: source_map[key]["raw_sha256"] for key in
                 ("candidate_daily", "candidate_share_changes", "last_possible_session")}},
             "cash_before_toman": cash_for_order,
         }
+        if calendar_receipt:
+            receipt["calendar"] = calendar_receipt
         if has_prior_fill or account.get("holdings"):
             old_receipt = order.get("fill_receipt")
             if not has_prior_fill or not old_receipt or not account.get("holdings"):
@@ -275,10 +381,13 @@ def run_locked() -> None:
         return
     if eligibility_reason:
         if expiry == "continue" and args.observe_order_state:
-            record_order_observation(account, order, first_day, sessions_count, str(rows[-1]["DEven"]))
-        print(json.dumps({"status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE", "first_session": first_day,
-                          "candidate_bar": bool(day_rows), "volume": volume, "fill_applied": False,
-                          "eligibility": eligibility_reason, "cash_toman": account["cash_toman"]}, ensure_ascii=False))
+            record_order_observation(account, order, first_day, sessions_count, latest_session)
+        pending = {"status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE", "first_session": first_day,
+                   "candidate_bar": bool(day_rows), "volume": volume, "fill_applied": False,
+                   "eligibility": eligibility_reason, "cash_toman": account["cash_toman"]}
+        if calendar_receipt:
+            pending["calendar_label_fa"] = calendar_label_fa
+        print(json.dumps(pending, ensure_ascii=False))
         return
     if args.apply_fill:
         event_id = f"paper-fill-{order['order_id']}-{first_day}"
@@ -286,13 +395,15 @@ def run_locked() -> None:
             raise SystemExit("DUPLICATE_FILL_EVENT_ID")
         now = dt.datetime.now(dt.timezone.utc).isoformat()
         account["cash_toman"] -= gross + fee
+        public_fill = calendar_receipt is not None
+        price_status = holding_price_status()
         holding = {"symbol": order["symbol"], "company_id": order["company_id"], "shares": shares,
             "purchase_price_rial": close_rial, "purchase_price_toman": float(price_toman),
             "purchase_at_utc": f"{first_day} close (first official session after decision; recorded {now})",
             "cost_basis_toman": gross, "fee_toman": fee, "last_price_rial": close_rial,
             "last_price_date": f"{first_day[:4]}-{first_day[4:6]}-{first_day[6:8]}",
             "market_value_toman": gross, "unrealized_pnl_toman": -fee,
-            "price_status": "اجرای فرضی با محدودیت دادهٔ صف؛ close روزانه fill یا اولویت واقعی را اثبات نمی‌کند."}
+            "price_status": price_status}
         account["holdings"] = [holding]
         account["accounting"] = {"holdings_value_toman": gross, "total_value_toman": account["cash_toman"] + gross,
             "profit_loss_toman": -fee, "last_price_status": holding["price_status"]}
@@ -305,13 +416,23 @@ def run_locked() -> None:
         account["candidate_status"] = "اجرای فرضی با محدودیت دادهٔ صف؛ fill بازار واقعی/تأییدشده نیست"
         account["waiting_reason"] = "موقعیت فقط در حساب آزمایشی ثبت شده است؛ صف/اولویت اجرا از close روزانه اثبات نمی‌شود."
         account["event_log"].append({"event_id": event_id, "type": "PAPER_FILL_DAILY_CLOSE_LIMITED_QUEUE", "at_utc": now,
-            "reason": "قیمت پایانی و حجم مثبت در نخستین جلسهٔ رسمی بعد از تصمیم، با هویت insCode منطبق و منابع بعد از تصمیم ثبت شدند.",
-            "details": f"{order['symbol']}; session={first_day}; shares={shares}; close_rial={close_rial}; gross_toman={gross}; assumed_fee_toman={fee}; cash_after={account['cash_toman']}; order={order['order_id']}; evidence_sha256={sha(evidence_path)}; queue not evidenced."})
+            "reason": ("قیمت پایانی و حجم مثبت در نخستین جلسهٔ پذیرفته‌شدهٔ تقویم عمومی بعد از تصمیم، با هویت insCode منطبق و منابع بعد از تصمیم ثبت شدند؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم."
+                       if public_fill else
+                       "قیمت پایانی و حجم مثبت در نخستین جلسهٔ رسمی بعد از تصمیم، با هویت insCode منطبق و منابع بعد از تصمیم ثبت شدند."),
+            "details": f"{order['symbol']}; session={first_day}; shares={shares}; close_rial={close_rial}; gross_toman={gross}; assumed_fee_toman={fee}; cash_after={account['cash_toman']}; order={order['order_id']}; evidence_sha256={sha(evidence_path)}; calendar_provider={args.calendar_provider}; calendar_manifest_sha256={(calendar_receipt or {}).get('manifest_sha256')}; queue not evidenced."})
         write_account_atomic(account)
-    print(json.dumps({"status": "FILL_APPLIED" if args.apply_fill else "FILL_ELIGIBLE_PREVIEW_ONLY",
-                      "first_session": first_day, "close_rial": close_rial, "volume": volume,
-                      "fill_applied": args.apply_fill, "cash_toman": account["cash_toman"],
-                      "source_manifest_sha256": sha(evidence_path)}, ensure_ascii=False))
+    payload = {"status": "FILL_APPLIED" if args.apply_fill else "FILL_ELIGIBLE_PREVIEW_ONLY",
+               "first_session": first_day, "close_rial": close_rial, "volume": volume,
+               "fill_applied": args.apply_fill, "cash_toman": account["cash_toman"],
+               "source_manifest_sha256": sha(evidence_path)}
+    if calendar_receipt:
+        payload["calendar"] = {"provider": "public-index",
+                               "policy_id": calendar_receipt["policy_id"],
+                               "manifest_sha256": calendar_receipt["manifest_sha256"],
+                               "assumed_completion": calendar_receipt["assumed_completion"],
+                               "completion_type": calendar_receipt["completion_type"]}
+        payload["calendar_label_fa"] = calendar_label_fa
+    print(json.dumps(payload, ensure_ascii=False))
 
 
 def main() -> None:

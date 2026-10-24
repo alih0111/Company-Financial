@@ -1,0 +1,359 @@
+{
+  "schema_version": 3,
+  "checked_at_utc": "2026-10-24T12:43:07.284434+00:00",
+  "account_id": "paper-p1-v12-36-initial",
+  "account_created_at_utc": "2026-10-22T16:40:24.949464+00:00",
+  "decision": {
+    "decision_id": "paper-decision-34db4548f10296c7d2f8",
+    "decided_at_utc": "2026-10-22T18:07:30.569571+00:00",
+    "decision_local_date": "2026-10-22",
+    "decision_kind": "PAPER_ONLY_BUY_DECISION_NOT_O00",
+    "candidate": {
+      "symbol": "غاذر",
+      "company_id": "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+      "rank": 1,
+      "score": 60.8593449339933,
+      "coverage": 0.9999999999999999
+    },
+    "ranking": {
+      "dataset_id": "v12_36_statement_type_aware_existing_archives_20261021",
+      "artifact_id": "v12_36_statement_type_aware_existing_archives_20261021-ranking-2026-10-21",
+      "evaluation_date": "2026-10-21",
+      "status": "PREPARATION_UNCONFIRMED",
+      "artifact_sha256": "25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224",
+      "scored": 166,
+      "universe": 254
+    },
+    "execution_rules": {
+      "rule_id": "paper-execution-rules/1.2.0-user-approved",
+      "sha256": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "path": "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json"
+    },
+    "evidence_manifest_sha256": "5eb1ed64b0e28f7e221d5259260ac3962c9e1e033f7b4c6c936635df3a210ed2",
+    "coverage_limitation": "رتبه‌بندی P1 آماده‌سازی تأییدنشده است؛ فقط 166 از 254 نماد امتیاز دارند و 88 بدون امتیازند. این تصمیم تک‌سهمی از رتبهٔ اول قابل امتیازدهی می‌آید؛ پوشش محدودیت تصمیم است."
+  },
+  "order": {
+    "order_id": "paper-order-36e82cfbab46c8646da3",
+    "decision_id": "paper-decision-34db4548f10296c7d2f8",
+    "symbol": "غاذر",
+    "company_id": "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+    "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+    "created_at_utc": "2026-10-22T18:07:30.569571+00:00",
+    "designated_execution_session": null,
+    "designated_execution_price_rial": null,
+    "expires_after_official_sessions": 3,
+    "eligible_session_count_observed": 0,
+    "fill_event_id": null,
+    "waiting_reason": "منبع رسمی اکنون آخرین جلسهٔ کامل را 2026-10-21 اعلام می‌کند؛ هنوز جلسه‌ای بعد از تصمیم ثبت نشده است. تاریخ جلسهٔ بعد را حدس نمی‌زنیم. قیمت نامزد نیز فعلاً تا 2026-10-21 است.",
+    "queue_limitation": "اجرای فرضی با محدودیت دادهٔ صف؛ پیکربندی مبتنی بر close روزانه صف/اولویت/اجرای واقعی را اثبات نمی‌کند.",
+    "source_manifest": "ranking_research/output/paper_v12_38_first_fill/manifest.json",
+    "source_manifest_sha256": "5eb1ed64b0e28f7e221d5259260ac3962c9e1e033f7b4c6c936635df3a210ed2"
+  },
+  "execution_attempt_status": "not_attempted",
+  "execution_ready": false,
+  "fill_recorded": false,
+  "latest_official_completed_session": "2026-10-21",
+  "candidate_latest_positive_price_date": "2026-10-21",
+  "candidate_post_decision_quotes": [],
+  "candidate_post_decision_daily_rows": 0,
+  "first_eligible_session": null,
+  "calendar_retrieved_at_utc": null,
+  "eligible_sessions_after_decision": 0,
+  "public_calendar": {
+    "provider": "public-index",
+    "policy": {
+      "id": "public-paper-v1",
+      "version": "1.0.0",
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+    },
+    "manifest": {
+      "path": "D:\\RFA\\Company-Financial\\ranking_research\\output\\public_market_calendar_tf02\\manifest.20261024T123955774571Z.json",
+      "sha256": "ee23813fe7510239681c66ded86220093921adf2d463149880e6b64ffb0f3301",
+      "run_id": "20261024T123955774571Z",
+      "mode": "live",
+      "reference_now_utc": "2026-10-24T12:39:55.774571+00:00"
+    },
+    "quality": "CORROBORATED_PUBLIC",
+    "quality_recomputed_from_raw": true,
+    "freshness": {
+      "state": "FRESH",
+      "rules": {
+        "version": "public-paper-freshness@1",
+        "max_source_age_hours": 6,
+        "future_tolerance_minutes": 5,
+        "require_retrieval_after_decision": true,
+        "note": "operational assumption for the first new runs, not exchange law; boundaries are enforced at the recorded evaluation clock, so an exact replay of an old receipt validates at its own execution time"
+      }
+    },
+    "calendar_ready": true,
+    "blocking_reasons": [],
+    "completion": {
+      "type": "named_operational_assumption",
+      "name": "assumed_completion_via_last_possible_agreement",
+      "value": "20261021",
+      "basis": "LastPossibleDeven component agreement plus alignment of both index history tails with that value; an explicitly named operational assumption accepted by this policy version, never an official confirmation",
+      "officially_confirmed": false,
+      "policy_id": "public-paper-v1",
+      "policy_version_of_assumption": "public-calendar-policy@1.1",
+      "tail_primary": "20261021",
+      "tail_secondary": "20261021",
+      "tails_aligned_with_assumption": true
+    },
+    "sessions_after_decision": {
+      "state": "NO_NEW_SESSION",
+      "count": 0,
+      "first_session": null,
+      "count_is_unknown": false
+    },
+    "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+    "candidate_trade_evidence": {
+      "trade_status": null,
+      "no_positive_trade_sessions": null,
+      "archive_end": null,
+      "state": "evidence_gap_candidate_not_covered",
+      "note": "zero observed new sessions and an unknown session count are different states; a candidate no-trade claim requires candidate data covering that day — an archive ending before the target day is an evidence gap, never a suspension/no-trade verdict"
+    }
+  },
+  "barriers": [
+    {
+      "id": "post_decision_market_session",
+      "state": "no_session_observed",
+      "title": "هنوز دادهٔ جلسهٔ پس از تصمیم موجود نیست",
+      "details": "آخرین جلسهٔ کامل اعلام‌شده 2026-10-21 است؛ پس از تاریخ تصمیم 2026-10-22 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود."
+    },
+    {
+      "id": "authoritative_market_calendar",
+      "state": "incomplete",
+      "title": "دسترسی به منبع معتبر تقویم ناقص است",
+      "details": "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد."
+    },
+    {
+      "id": "public_calendar",
+      "state": "no_new_session",
+      "title": "هنوز جلسهٔ پذیرفته‌شدهٔ جدیدی مشاهده نشده است",
+      "details": "دریافت موفق بوده و آخرین جلسهٔ تکمیل‌شده همان مانده است؛ صفر جلسهٔ مشاهده‌شدهٔ جدید با «شمارش نامعلوم» یکسان نیست. شاهد معاملهٔ نامزد: evidence_gap_candidate_not_covered.",
+      "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+    }
+  ],
+  "calendar_sources_checked": [
+    {
+      "source": "TSETMC LastPossibleDeven",
+      "scope": "latest completed session only; not future session schedule",
+      "retrieved_at_utc": "2026-10-23T19:01:53.308757+00:00",
+      "url": "https://service.tsetmc.com/tsev2/data/TseClient2.aspx?t=LastPossibleDeven"
+    },
+    {
+      "source": "TSETMC GetInstrumentCalendar / GetClosingPriceDailyList for غاذر",
+      "scope": "symbol observations only; not a market-wide calendar",
+      "retrieved_at_utc": "2026-10-23T19:01:54.667570+00:00",
+      "url": "https://cdn.tsetmc.com/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0"
+    },
+    {
+      "source": "score_v2_research/_cache/calendar.parquet",
+      "scope": "local market session rows",
+      "through": "2026-10-03",
+      "row_count": 7826,
+      "usable_for_post_decision": false
+    },
+    {
+      "source": "TSETMC documented API MarketInfo/NSCStart",
+      "scope": "market session list with DEven/NSCEnd; documented route uses bearer authorization",
+      "available_in_current_run": false,
+      "retrieved_at_utc": null,
+      "note": "one official route; does not establish that all other official routes require a token"
+    }
+  ],
+  "blockers": [
+    "آخرین جلسهٔ کامل اعلام‌شده 2026-10-21 است؛ پس از تاریخ تصمیم 2026-10-22 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود.",
+    "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد.",
+    "دریافت موفق بوده و آخرین جلسهٔ تکمیل‌شده همان مانده است؛ صفر جلسهٔ مشاهده‌شدهٔ جدید با «شمارش نامعلوم» یکسان نیست. شاهد معاملهٔ نامزد: evidence_gap_candidate_not_covered.",
+    "قیمت/حجم مثبت نامزد غاذر پس از تصمیم در آخرین دریافت موجود نیست؛ دریافت تازه پس از شکل‌گیری جلسه لازم است. فقط قیمت پایانی همان نخستین جلسهٔ واجد شرایط قابل استفاده است."
+  ],
+  "required_data": [
+    "یک تقویم بازار رسمی و فقط‌خواندنی که جلسه‌ها را مستقل از نماد فهرست کند و تاریخ اولین جلسه پس از تصمیم را پوشش دهد؛ NSCStart یکی از مسیرهای رسمی است و در مستندات برای آن bearer token ذکر شده است. اگر این مسیر انتخاب شد، توکن را فقط در متغیر محیطی موقت PowerShell بگذارید؛ وارد فایل عمومی، گزارش، کد یا Git نکنید.",
+    "پس از ثبت جلسهٔ واجد شرایط، دریافت تازهٔ قیمت روزانهٔ غاذر برای همان تاریخ از GetClosingPriceDailyList؛ پاسخ خام، URL، زمان و hash در مسیر نسخه‌دار.",
+    "فرمان واحد بررسی دستی: powershell -ExecutionPolicy Bypass -File ranking_research\\future_eval_v12_30\\check_paper_order.ps1؛ توکن فقط‌خواندنی را در SecureString prompt وارد کنید. اسکریپت تقویم و قیمت را می‌گیرد، گیت‌ها را بررسی و فقط در صورت احراز شروط همان سفارش را یک‌بار ثبت می‌کند."
+  ],
+  "source_evidence": [
+    {
+      "key": "last_possible_session",
+      "url": "https://service.tsetmc.com/tsev2/data/TseClient2.aspx?t=LastPossibleDeven",
+      "http_status": 200,
+      "http_date": "Fri, 23 Oct 2026 19:01:50 GMT",
+      "retrieved_at_utc": "2026-10-23T19:01:53.308757+00:00",
+      "raw_path": "ranking_research/output/paper_v12_38_first_fill/raw/last_possible_session.20261023T190153079888Z.bin.gz",
+      "raw_sha256": "c0273e0469bf44d6e2d2528778e7d33da85610fdf5c5d51bb5469ee26fac2eb4",
+      "reported_last_possible_session": "20261021;20261021"
+    },
+    {
+      "key": "candidate_daily",
+      "url": "https://cdn.tsetmc.com/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0",
+      "http_status": 200,
+      "http_date": "Fri, 23 Oct 2026 19:01:54 GMT",
+      "retrieved_at_utc": "2026-10-23T19:01:54.667570+00:00",
+      "raw_path": "ranking_research/output/paper_v12_38_first_fill/raw/candidate_daily.20261023T190153079888Z.bin.gz",
+      "raw_sha256": "44914db4ea4d236fd4c3bd4bfda7c855f43e3cd6aa3f5e8bae844d77c547b515",
+      "latest_source_dates": [
+        "20261021",
+        "20261020",
+        "20261019",
+        "20261018",
+        "20261017",
+        "20261014",
+        "20261013",
+        "20261012",
+        "20261011",
+        "20261010"
+      ],
+      "latest_positive_volume_rows": [
+        {
+          "dEven": 20261021,
+          "hEven": 122949,
+          "insCode": "35158826900216508",
+          "pClosing": 39840.0,
+          "pDrCotVal": 40230.0,
+          "qTotTran5J": 9644385.0,
+          "qTotCap": 384230807260.0
+        },
+        {
+          "dEven": 20261020,
+          "hEven": 122955,
+          "insCode": "35158826900216508",
+          "pClosing": 39080.0,
+          "pDrCotVal": 38610.0,
+          "qTotTran5J": 11219020.0,
+          "qTotCap": 438392128600.0
+        },
+        {
+          "dEven": 20261019,
+          "hEven": 122958,
+          "insCode": "35158826900216508",
+          "pClosing": 38010.0,
+          "pDrCotVal": 38020.0,
+          "qTotTran5J": 3998187.0,
+          "qTotCap": 151958186410.0
+        },
+        {
+          "dEven": 20261018,
+          "hEven": 123003,
+          "insCode": "35158826900216508",
+          "pClosing": 36920.0,
+          "pDrCotVal": 37920.0,
+          "qTotTran5J": 11096881.0,
+          "qTotCap": 409676906890.0
+        },
+        {
+          "dEven": 20261017,
+          "hEven": 122840,
+          "insCode": "35158826900216508",
+          "pClosing": 37200.0,
+          "pDrCotVal": 37040.0,
+          "qTotTran5J": 2601324.0,
+          "qTotCap": 96762259090.0
+        },
+        {
+          "dEven": 20261014,
+          "hEven": 122932,
+          "insCode": "35158826900216508",
+          "pClosing": 38180.0,
+          "pDrCotVal": 38230.0,
+          "qTotTran5J": 16685602.0,
+          "qTotCap": 637006610410.0
+        },
+        {
+          "dEven": 20261013,
+          "hEven": 122948,
+          "insCode": "35158826900216508",
+          "pClosing": 37120.0,
+          "pDrCotVal": 37120.0,
+          "qTotTran5J": 6009259.0,
+          "qTotCap": 223036461600.0
+        },
+        {
+          "dEven": 20261012,
+          "hEven": 122925,
+          "insCode": "35158826900216508",
+          "pClosing": 36040.0,
+          "pDrCotVal": 36320.0,
+          "qTotTran5J": 22978569.0,
+          "qTotCap": 828166509590.0
+        },
+        {
+          "dEven": 20261011,
+          "hEven": 123000,
+          "insCode": "35158826900216508",
+          "pClosing": 35270.0,
+          "pDrCotVal": 35250.0,
+          "qTotTran5J": 12321403.0,
+          "qTotCap": 434627362510.0
+        },
+        {
+          "dEven": 20261010,
+          "hEven": 122956,
+          "insCode": "35158826900216508",
+          "pClosing": 36340.0,
+          "pDrCotVal": 36250.0,
+          "qTotTran5J": 11696438.0,
+          "qTotCap": 425056796150.0
+        }
+      ]
+    },
+    {
+      "key": "candidate_calendar",
+      "url": "https://cdn.tsetmc.com/api/ClosingPrice/GetInstrumentCalendar/35158826900216508",
+      "http_status": 200,
+      "http_date": "Fri, 23 Oct 2026 19:01:56 GMT",
+      "retrieved_at_utc": "2026-10-23T19:01:56.036866+00:00",
+      "raw_path": "ranking_research/output/paper_v12_38_first_fill/raw/candidate_calendar.20261023T190153079888Z.bin.gz",
+      "raw_sha256": "46921e2cb00fc6cc4f53c9090bc88ad8e9642cecb5a81edace1842dc662959c6",
+      "latest_source_dates": [
+        "20261021",
+        "20261020",
+        "20261019",
+        "20261018",
+        "20261017",
+        "20261014",
+        "20261013",
+        "20261012",
+        "20261011",
+        "20261010"
+      ]
+    },
+    {
+      "key": "candidate_share_changes",
+      "url": "https://cdn.tsetmc.com/api/Instrument/GetInstrumentShareChange/35158826900216508",
+      "http_status": 200,
+      "http_date": "Fri, 23 Oct 2026 19:01:57 GMT",
+      "retrieved_at_utc": "2026-10-23T19:01:57.288834+00:00",
+      "raw_path": "ranking_research/output/paper_v12_38_first_fill/raw/candidate_share_changes.20261023T190153079888Z.bin.gz",
+      "raw_sha256": "2f2e0af304c1c3a083b0d63248b876f201b9c9865cbd266d2fde4538fda811c7",
+      "latest_source_dates": [
+        "20260509",
+        "20230531",
+        "20201229",
+        "20150620",
+        "20150616",
+        "20150427",
+        "20121231",
+        "20110613"
+      ]
+    }
+  ],
+  "cash_reconciliation": {
+    "initial_toman": 100000000,
+    "cash_toman": 100000000,
+    "holdings_count": 0,
+    "holdings_value_toman": 0,
+    "total_value_toman": 100000000,
+    "profit_loss_toman": 0,
+    "balanced": true,
+    "pnl_basis": "از fill ثبت‌شده؛ تا پیش از fill صفر"
+  },
+  "source_sha256": {
+    "account": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+    "ranking": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+    "evidence_manifest": "77868d90a455a304884c3de62cb7a0739c8664a88a8e61b303ec67a7b6f54a1c",
+    "local_calendar": "fbe245c91a632747462f65be6a47eed460c738e13872c1758b7f4f0a95fce31d"
+  },
+  "official_ledger_touched": false
+}
