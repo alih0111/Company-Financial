@@ -1,0 +1,452 @@
+{
+  "schema_version": 2,
+  "dataset_id": "tsetmc_public_index_calendar_v1",
+  "provider": "public unauthenticated TSETMC cdn/service endpoints",
+  "parser_version": "tsetmc_public_index_calendar_v1@1.2.0",
+  "policy_version": "public-calendar-policy@1.1",
+  "mode": "live",
+  "run_id": "20261024T120500000000Z",
+  "reference_now_utc": "2026-10-24T12:05:00+00:00",
+  "market_scope": "TSE",
+  "window_start": "20261023",
+  "policy": {
+    "policy_version": "public-calendar-policy@1.1",
+    "market_scope": "TSE",
+    "indices": [
+      {
+        "role": "primary",
+        "ins_code": "32097828799138957",
+        "expected_name": "شاخص كل",
+        "proven_in": "token-free-plan evidence live-probe.json (شاخص كل identity match)"
+      },
+      {
+        "role": "secondary",
+        "ins_code": "67130298613737946",
+        "expected_name": "شاخص كل (هم وزن)",
+        "proven_in": "token-free-plan evidence live-probe.json (شاخص كل (هم وزن))"
+      }
+    ],
+    "window_start": "20261023",
+    "cross_check_window_start": "20261023",
+    "identical_duplicate_policy": "identical duplicate rows are deduplicated and counted",
+    "conflict_policy": "any primary/secondary date disagreement in the decision window, or a positive-volume eligible stock date outside both indices, is a CONFLICT; operations depending on that window halt",
+    "watermark_policy": "LastPossibleDeven component agreement is an observation feeding an explicitly named assumed_completion; official completion stays unverified",
+    "market_title_map": {
+      "بازار بورس": "TSE",
+      "بازار فرابورس": "IFB"
+    },
+    "common_stock_board_prefixes": [
+      "بازار اول",
+      "بازار دوم"
+    ],
+    "weekend_policy": "Thursday/Friday absence is advisory only; sessions are never generated",
+    "future_date_policy": "dates after the Tehran-local reference day are rejected",
+    "coverage_policy": "each index must have a decision-day anchor (a row on/before window_start) and non-empty history; the union of two histories never substitutes per-source coverage"
+  },
+  "nscstart_compatible": false,
+  "completeness_certified": false,
+  "index_identities": {
+    "matches": [
+      {
+        "role": "primary",
+        "ins_code": "32097828799138957",
+        "lVal30": "شاخص كل",
+        "note": "identity endpoint dEven/hEven are ignored for session dating"
+      },
+      {
+        "role": "secondary",
+        "ins_code": "67130298613737946",
+        "lVal30": "شاخص كل (هم وزن)",
+        "note": "identity endpoint dEven/hEven are ignored for session dating"
+      }
+    ],
+    "failures": []
+  },
+  "candidate": {
+    "symbol": "TEST",
+    "ins_code": "35158826900216508"
+  },
+  "sources": [
+    {
+      "key": "identity",
+      "url": "https://cdn.tsetmc.com/api/Index/GetIndexB1LastAll/All/1",
+      "http_status": 200,
+      "http_date": "Fri, 23 Oct 2026 12:00:00 GMT",
+      "request_started_at_utc": "2026-10-24T12:05:00+00:00",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "raw_path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/identity.20261024T120500000000Z.bin.gz",
+      "raw_sha256": "1dcc015b3060d3436c22eda164c2b5a7a957bff8721467d162ebc48f5b1acaae",
+      "raw_bytes": 378,
+      "raw_content_sha256_basis": "uncompressed response bytes",
+      "request_attempts": 1,
+      "retry_wait_seconds": 0.0,
+      "state": "OK"
+    },
+    {
+      "key": "primary_history",
+      "url": "https://cdn.tsetmc.com/api/Index/GetIndexB2History/32097828799138957",
+      "http_status": 200,
+      "http_date": "Fri, 23 Oct 2026 12:00:00 GMT",
+      "request_started_at_utc": "2026-10-24T12:05:00+00:00",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "raw_path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/primary_history.20261024T120500000000Z.bin.gz",
+      "raw_sha256": "cc2be2c1b31058acadd931d01f96f22e159bf025ac3bc5c679ad908c9afb0805",
+      "raw_bytes": 275,
+      "raw_content_sha256_basis": "uncompressed response bytes",
+      "request_attempts": 1,
+      "retry_wait_seconds": 0.0,
+      "state": "OK"
+    },
+    {
+      "key": "secondary_history",
+      "url": "https://cdn.tsetmc.com/api/Index/GetIndexB2History/67130298613737946",
+      "http_status": 200,
+      "http_date": "Fri, 23 Oct 2026 12:00:00 GMT",
+      "request_started_at_utc": "2026-10-24T12:05:00+00:00",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "raw_path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/secondary_history.20261024T120500000000Z.bin.gz",
+      "raw_sha256": "6d3381a254fc2532e384d474276a61aceca5368f7e7d23ef56db4e6d37badf5d",
+      "raw_bytes": 275,
+      "raw_content_sha256_basis": "uncompressed response bytes",
+      "request_attempts": 1,
+      "retry_wait_seconds": 0.0,
+      "state": "OK"
+    },
+    {
+      "key": "last_possible",
+      "url": "https://service.tsetmc.com/tsev2/data/TseClient2.aspx?t=LastPossibleDeven",
+      "http_status": 200,
+      "http_date": "Fri, 23 Oct 2026 12:00:00 GMT",
+      "request_started_at_utc": "2026-10-24T12:05:00+00:00",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "raw_path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/last_possible.20261024T120500000000Z.bin.gz",
+      "raw_sha256": "e9ed09f31a3e883ec2d2fcbc553ba39bb22f7a9b8a2f2cc3b07fa53097b977bc",
+      "raw_bytes": 17,
+      "raw_content_sha256_basis": "uncompressed response bytes",
+      "request_attempts": 1,
+      "retry_wait_seconds": 0.0,
+      "state": "OK",
+      "reported_text": "20261024;20261024"
+    },
+    {
+      "key": "candidate_instrument",
+      "url": "https://cdn.tsetmc.com/api/Instrument/GetInstrumentInfo/35158826900216508",
+      "http_status": 200,
+      "http_date": "Fri, 23 Oct 2026 12:00:00 GMT",
+      "request_started_at_utc": "2026-10-24T12:05:00+00:00",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "raw_path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/candidate_instrument.20261024T120500000000Z.bin.gz",
+      "raw_sha256": "48b9bf5ba6bf1902719d27363b40da4014cc01b50b4f1074a61c4e7f7503b84e",
+      "raw_bytes": 362,
+      "raw_content_sha256_basis": "uncompressed response bytes",
+      "request_attempts": 1,
+      "retry_wait_seconds": 0.0,
+      "state": "OK",
+      "expected_ins_code": "35158826900216508",
+      "symbol": "TEST"
+    }
+  ],
+  "coverage_start": "20261023",
+  "coverage_end": "20261024",
+  "corroborated_coverage": {
+    "start": "20261023",
+    "end": "20261024"
+  },
+  "completion_watermark": {
+    "state": "COMPLETION_UNVERIFIED",
+    "watermark_observation": "AGREES",
+    "components": [
+      "20261024",
+      "20261024"
+    ],
+    "sample": "20261024;20261024",
+    "assumed_completion": {
+      "value": "20261024",
+      "policy_version": "public-calendar-policy@1.1",
+      "basis_observation": "components_agree",
+      "assumption": "agreement of the two undocumented LastPossibleDeven components marks the latest completed session; this is an operational assumption, not an official confirmation",
+      "sample": "20261024;20261024"
+    },
+    "note": "no public referable evidence defines the LastPossibleDeven components' meaning; agreement is only an observation, so official completion stays unverified in this version"
+  },
+  "observed_sessions": [
+    {
+      "date": "20261023",
+      "iso": "2026-10-23",
+      "in_primary": true,
+      "in_secondary": true,
+      "corroborated": true,
+      "within_assumed_completion": true
+    },
+    {
+      "date": "20261024",
+      "iso": "2026-10-24",
+      "in_primary": true,
+      "in_secondary": true,
+      "corroborated": true,
+      "within_assumed_completion": true
+    }
+  ],
+  "conflicts": [],
+  "quality": "CORROBORATED_PUBLIC",
+  "readiness": {
+    "calendar_usable": true,
+    "completion_officially_confirmed": false,
+    "fill_capable": false,
+    "state": "USABLE_COMPLETION_UNVERIFIED",
+    "blocking_reasons": [],
+    "note": "three separate concepts: observation quality (quality), completion confirmation (completion/readiness.completion_officially_confirmed) and fill permission (readiness.fill_capable); consumers must never derive permission from quality alone"
+  },
+  "sessions_after_decision": {
+    "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+    "session_count": 1,
+    "assumed_eligible_session_count": 1,
+    "sessions": [
+      {
+        "date": "20261024",
+        "iso": "2026-10-24",
+        "in_primary": true,
+        "in_secondary": true,
+        "corroborated": true,
+        "within_assumed_completion": true
+      }
+    ],
+    "first_assumed_session": "20261024",
+    "sessions_beyond_assumed_completion": []
+  },
+  "stock_cross_check": {
+    "by_symbol": {
+      "TEST": [
+        "20261023",
+        "20261024"
+      ]
+    },
+    "symbols_checked": 1,
+    "max_symbols": null,
+    "counts": {
+      "records": 1,
+      "eligible": 1,
+      "skipped_listed": 0
+    },
+    "by_classification": {
+      "eligible_common_stock": 1
+    },
+    "skipped": [],
+    "identity_input": {
+      "map_entries": 1,
+      "evidence_sources": [
+        "fixture"
+      ],
+      "note": "eligibility requires per-symbol traceable market/type evidence; symbols without evidence are skipped, never assumed same-market",
+      "map": {
+        "TEST": {
+          "ins_code": "35158826900216508",
+          "flowTitle": "بازار بورس",
+          "cgrValCotTitle": "بازار دوم (تابلوی فرعی) بورس",
+          "evidence_source": "fixture"
+        }
+      }
+    },
+    "daily_inputs": {
+      "TEST": {
+        "path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\missing_first_session_bar\\calendar-source\\snapshot\\TEST.daily.json.gz",
+        "sha256": "8237acbb0d2fa2d43a17bbbe01850a1bc47797e1dabbf2eb1988c3f2646b3355",
+        "foreign_rows": 0,
+        "invalid_volume_rows": 0
+      }
+    },
+    "snapshot_manifest_path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/snapshot/manifest.json",
+    "snapshot_manifest_sha256": "19017bb6b5dda9ecc8131d3b3afa50d0333c6e50dfb20d9d2122cb7fc29972dd",
+    "snapshot_dir": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/snapshot",
+    "snapshot_retrieved_at_utc": "2026-10-22T13:00:00+00:00"
+  },
+  "evaluation": {
+    "schema_version": 2,
+    "parser_version": "tsetmc_public_index_calendar_v1@1.2.0",
+    "policy_version": "public-calendar-policy@1.1",
+    "quality": "CORROBORATED_PUBLIC",
+    "readiness": {
+      "calendar_usable": true,
+      "completion_officially_confirmed": false,
+      "fill_capable": false,
+      "state": "USABLE_COMPLETION_UNVERIFIED",
+      "blocking_reasons": [],
+      "note": "three separate concepts: observation quality (quality), completion confirmation (completion/readiness.completion_officially_confirmed) and fill permission (readiness.fill_capable); consumers must never derive permission from quality alone"
+    },
+    "completeness_certified": false,
+    "coverage": {
+      "primary": {
+        "start": "20261023",
+        "end": "20261024"
+      },
+      "secondary": {
+        "start": "20261023",
+        "end": "20261024"
+      },
+      "observed_union": {
+        "start": "20261023",
+        "end": "20261024"
+      },
+      "corroborated_intersection": {
+        "start": "20261023",
+        "end": "20261024"
+      },
+      "window_start": "20261023",
+      "cross_check_window_start": "20261023",
+      "basis": "per-source observation ranges; the union is observation only, the intersection is corroboration"
+    },
+    "completion": {
+      "state": "COMPLETION_UNVERIFIED",
+      "watermark_observation": "AGREES",
+      "components": [
+        "20261024",
+        "20261024"
+      ],
+      "sample": "20261024;20261024",
+      "assumed_completion": {
+        "value": "20261024",
+        "policy_version": "public-calendar-policy@1.1",
+        "basis_observation": "components_agree",
+        "assumption": "agreement of the two undocumented LastPossibleDeven components marks the latest completed session; this is an operational assumption, not an official confirmation",
+        "sample": "20261024;20261024"
+      },
+      "note": "no public referable evidence defines the LastPossibleDeven components' meaning; agreement is only an observation, so official completion stays unverified in this version"
+    },
+    "observed_sessions": [
+      {
+        "date": "20261023",
+        "iso": "2026-10-23",
+        "in_primary": true,
+        "in_secondary": true,
+        "corroborated": true,
+        "within_assumed_completion": true
+      },
+      {
+        "date": "20261024",
+        "iso": "2026-10-24",
+        "in_primary": true,
+        "in_secondary": true,
+        "corroborated": true,
+        "within_assumed_completion": true
+      }
+    ],
+    "conflicts": [],
+    "pre_window_history_start_difference": null,
+    "pre_window_overlapping_range_difference": null,
+    "sessions_after_decision": {
+      "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+      "session_count": 1,
+      "assumed_eligible_session_count": 1,
+      "sessions": [
+        {
+          "date": "20261024",
+          "iso": "2026-10-24",
+          "in_primary": true,
+          "in_secondary": true,
+          "corroborated": true,
+          "within_assumed_completion": true
+        }
+      ],
+      "first_assumed_session": "20261024",
+      "sessions_beyond_assumed_completion": []
+    },
+    "no_positive_evidence_days": [],
+    "weekend_pattern_days": [],
+    "index_identities": {
+      "matches": [
+        {
+          "role": "primary",
+          "ins_code": "32097828799138957",
+          "lVal30": "شاخص كل",
+          "note": "identity endpoint dEven/hEven are ignored for session dating"
+        },
+        {
+          "role": "secondary",
+          "ins_code": "67130298613737946",
+          "lVal30": "شاخص كل (هم وزن)",
+          "note": "identity endpoint dEven/hEven are ignored for session dating"
+        }
+      ],
+      "failures": []
+    },
+    "candidate": {
+      "state": "OK",
+      "ins_code": "35158826900216508",
+      "lVal30": "fixture-symbol",
+      "lVal18AFC": "FIX",
+      "flow": 1,
+      "flowTitle": "بازار بورس",
+      "cgrValCot": "N2",
+      "cgrValCotTitle": "بازار دوم (تابلوی فرعی) بورس",
+      "scope": "TSE",
+      "category_state": "common_stock_board",
+      "flow_title_map": {
+        "بازار بورس": "TSE",
+        "بازار فرابورس": "IFB"
+      },
+      "common_stock_board_prefixes": [
+        "بازار اول",
+        "بازار دوم"
+      ],
+      "trade_status": "checked",
+      "no_positive_trade_sessions": [],
+      "no_trade_note": "absent candidate rows never remove a market session; suspension is not concluded without symbol-specific evidence"
+    },
+    "stock_cross_check": {
+      "eligible_symbols_checked": 1,
+      "by_symbol": {
+        "TEST": [
+          "20261023",
+          "20261024"
+        ]
+      },
+      "positive_trade_dates": [
+        "20261023",
+        "20261024"
+      ],
+      "trade_dates_outside_calendar": []
+    },
+    "parse": {
+      "primary": {
+        "dates": 2,
+        "identical_duplicate_rows": 0,
+        "rejects": []
+      },
+      "secondary": {
+        "dates": 2,
+        "identical_duplicate_rows": 0,
+        "rejects": []
+      }
+    },
+    "source_health": {
+      "primary_history": {
+        "state": "OK"
+      },
+      "secondary_history": {
+        "state": "OK"
+      },
+      "identity": {
+        "state": "OK"
+      },
+      "last_possible": {
+        "state": "OK"
+      },
+      "candidate_instrument": {
+        "state": "OK",
+        "candidate_state": "OK"
+      }
+    },
+    "problems": {},
+    "limitations": [
+      "completeness_certified=false: both indices come from one provider and are not independent; agreement does not certify that every market session is present.",
+      "LastPossibleDeven component semantics are not officially documented; component agreement feeds an explicitly named assumed_completion, never an official confirmation.",
+      "Identity endpoint rows carry dEven=0; they are used for identity only, never for session dates.",
+      "This dataset is not an NSCStart equivalent; no NSCEnd field is fabricated.",
+      "No future sessions are predicted; Thursday/Friday patterns are advisory only and never generate sessions.",
+      "Days absent from all sources are NO_POSITIVE_EVIDENCE, never definite market closure.",
+      "Whether the identity endpoint enumerates non-TSE indices was not established.",
+      "Archive cross-check eligibility requires per-symbol traceable identity evidence; unproven symbols are skipped, never assumed same-market.",
+      "End of the usual market day clock time is not used as completion evidence."
+    ]
+  }
+}

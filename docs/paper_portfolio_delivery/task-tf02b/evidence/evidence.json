@@ -1,0 +1,1359 @@
+{
+  "task": "TF-02B",
+  "date": "2026-10-24",
+  "network_requests": 0,
+  "token_used": false,
+  "live_account_written": false,
+  "direct_acquire_order_calendar_only": true,
+  "cases": {
+    "apply_public_public": {
+      "error": null,
+      "stdout": {
+        "status": "FILL_APPLIED",
+        "first_session": "20260902",
+        "sessions_after_decision": 2,
+        "close_rial": 1234.0,
+        "volume": 10000.0,
+        "fill_applied": true,
+        "cash_toman": 43,
+        "source_manifest_sha256": "a28b90e963a5c174485d48c1181514451382eca4ef04e4c7e131039c20372c2c",
+        "calendar": {
+          "provider": "public-index",
+          "policy_id": "public-paper-v1",
+          "manifest_sha256": "0f3e7ff93ffb45250af68a50256a5ac8a43a3f59061274f519dda826fae16d7f",
+          "assumed_completion": "20260905",
+          "completion_type": "named_operational_assumption"
+        },
+        "calendar_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+      },
+      "account": {
+        "account_sha256": "7b484b135736c6bdcb637fe94014043e073a6f62c6b24e1fa6dad67e4f7cedee",
+        "event_count": 1,
+        "fill_event_present": true,
+        "receipt_present": true,
+        "cash_toman": 43
+      }
+    },
+    "apply_legacy_nscstart": {
+      "error": null,
+      "stdout": {
+        "status": "FILL_APPLIED",
+        "first_session": "20261023",
+        "sessions_after_decision": 2,
+        "close_rial": 1234.0,
+        "volume": 10000.0,
+        "fill_applied": true,
+        "cash_toman": 43,
+        "source_manifest_sha256": "49f33ee831a017b3c104f18d95ea5e5baae992b1fcf6dd7bc5faa00ebfb4f9bf"
+      },
+      "account": {
+        "account_sha256": "829ddad576181d2e120368ed4eb65841debdab6c8c792b3f3b9a12fedaf94a5d",
+        "event_count": 1,
+        "fill_event_present": true,
+        "receipt_present": true,
+        "cash_toman": 43
+      }
+    },
+    "apply_public_nscstart": {
+      "error": "CALENDAR_POLICY_MISMATCH; selected provider 'nscstart' differs from pinned 'public-index'",
+      "stdout": null,
+      "account_before": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      },
+      "account_after": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      }
+    },
+    "apply_public_default": {
+      "error": "CALENDAR_POLICY_MISMATCH; selected provider 'nscstart' differs from pinned 'public-index'",
+      "stdout": null,
+      "account_before": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      },
+      "account_after": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      }
+    },
+    "apply_public_observation": {
+      "error": "CALENDAR_POLICY_MISMATCH; selected provider 'nscstart' differs from pinned 'public-index'",
+      "stdout": null,
+      "account_before": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      },
+      "account_after": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      }
+    },
+    "apply_legacy_public": {
+      "error": "CALENDAR_POLICY_MISMATCH; calendar_policy binding must be an object at all four levels",
+      "stdout": null,
+      "account_before": {
+        "account_sha256": "03da69e57d9cd5b1f1ddc9b9731c1b508a78cb13c947c711a82a084a5505be65",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      },
+      "account_after": {
+        "account_sha256": "03da69e57d9cd5b1f1ddc9b9731c1b508a78cb13c947c711a82a084a5505be65",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      }
+    },
+    "apply_unbound_legacy_public": {
+      "error": "CALENDAR_POLICY_MISMATCH; legacy account has no public policy binding",
+      "stdout": null,
+      "account_before": {
+        "account_sha256": "f4c25ca02c07f31f0e4b2f99ec60023a0ec4221768d882d78c8667430516835d",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      },
+      "account_after": {
+        "account_sha256": "f4c25ca02c07f31f0e4b2f99ec60023a0ec4221768d882d78c8667430516835d",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      }
+    },
+    "rules_whitespace_mismatch": {
+      "fill": {
+        "error": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin",
+        "stdout": null
+      },
+      "status": {
+        "schema_version": 3,
+        "checked_at_utc": "2026-10-24T19:56:43.870776+00:00",
+        "account_id": "TEST_FIXTURE_PUBLIC",
+        "account_created_at_utc": "2026-09-01T09:00:00+00:00",
+        "decision": {
+          "decision_id": "fixture-decision-public",
+          "decided_at_utc": "2026-09-01T10:00:00+00:00",
+          "decision_local_date": "2026-09-01",
+          "execution_rules": {
+            "sha256": "275dea04e84b74a0e0c9cec657d82f3915126a5567f45c09fa48f2f52bb4c25a"
+          },
+          "calendar_policy": {
+            "id": "public-paper-v1",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          }
+        },
+        "order": {
+          "order_id": "fixture-order-public",
+          "decision_id": "fixture-decision-public",
+          "company_id": "fixture-company",
+          "symbol": "TEST",
+          "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+          "expires_after_official_sessions": 3,
+          "eligible_session_count_observed": 0,
+          "fill_event_id": null,
+          "calendar_policy": {
+            "id": "public-paper-v1",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          }
+        },
+        "execution_attempt_status": "not_attempted",
+        "execution_ready": false,
+        "fill_recorded": false,
+        "latest_official_completed_session": null,
+        "candidate_latest_positive_price_date": null,
+        "candidate_post_decision_quotes": [],
+        "candidate_post_decision_daily_rows": 0,
+        "first_eligible_session": "20260902",
+        "calendar_retrieved_at_utc": null,
+        "eligible_sessions_after_decision": 2,
+        "public_calendar": {
+          "provider": "public-index",
+          "policy": {
+            "id": "public-paper-v1",
+            "version": "1.0.0",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          },
+          "manifest": {
+            "path": "C:\\Users\\aliheyd\\AppData\\Local\\Temp\\tf02b-evidence-4im5ym7f\\pkg\\package\\manifest.20261023T120000000000Z.json",
+            "sha256": "0f3e7ff93ffb45250af68a50256a5ac8a43a3f59061274f519dda826fae16d7f",
+            "run_id": "20261023T120000000000Z",
+            "mode": "live",
+            "reference_now_utc": "2026-10-23T12:00:00+00:00"
+          },
+          "account_compatibility": {
+            "state": "mismatch",
+            "levels_checked": [
+              "account",
+              "decision",
+              "order",
+              "rules"
+            ],
+            "mismatch_detail": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin"
+          },
+          "quality": "CORROBORATED_PUBLIC",
+          "quality_recomputed_from_raw": true,
+          "freshness": {
+            "state": "FRESH",
+            "rules": {
+              "version": "public-paper-freshness@1",
+              "max_source_age_hours": 6,
+              "future_tolerance_minutes": 5,
+              "require_retrieval_after_decision": true,
+              "note": "operational assumption for the first new runs, not exchange law; boundaries are enforced at the recorded evaluation clock, so an exact replay of an old receipt validates at its own execution time"
+            }
+          },
+          "calendar_ready": false,
+          "blocking_reasons": [
+            "CALENDAR_POLICY_MISMATCH"
+          ],
+          "completion": {
+            "type": "named_operational_assumption",
+            "name": "assumed_completion_via_last_possible_agreement",
+            "value": "20260905",
+            "basis": "LastPossibleDeven component agreement plus alignment of both index history tails with that value; an explicitly named operational assumption accepted by this policy version, never an official confirmation",
+            "officially_confirmed": false,
+            "policy_id": "public-paper-v1",
+            "policy_version_of_assumption": "public-calendar-policy@1.1",
+            "tail_primary": "20260905",
+            "tail_secondary": "20260905",
+            "tails_aligned_with_assumption": true
+          },
+          "sessions_after_decision": {
+            "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+            "count": 2,
+            "first_session": "20260902",
+            "count_is_unknown": false
+          },
+          "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+          "candidate_trade_evidence": {
+            "trade_status": "checked",
+            "no_positive_trade_sessions": [],
+            "archive_end": "20260905",
+            "state": "candidate_data_covers_target_day",
+            "note": "zero observed new sessions and an unknown session count are different states; a candidate no-trade claim requires candidate data covering that day — an archive ending before the target day is an evidence gap, never a suspension/no-trade verdict"
+          }
+        },
+        "calendar_provider_compatibility": {
+          "state": "mismatch",
+          "levels_checked": [
+            "account",
+            "decision",
+            "order",
+            "rules"
+          ],
+          "mismatch_detail": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin"
+        },
+        "barriers": [
+          {
+            "id": "post_decision_market_session",
+            "state": "no_session_observed",
+            "title": "هنوز دادهٔ جلسهٔ پس از تصمیم موجود نیست",
+            "details": "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-09-01 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود."
+          },
+          {
+            "id": "authoritative_market_calendar",
+            "state": "incomplete",
+            "title": "دسترسی به منبع معتبر تقویم ناقص است",
+            "details": "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد."
+          },
+          {
+            "id": "calendar_provider_contract",
+            "state": "blocked",
+            "title": "انتخاب provider با قرارداد pinشده سازگار نیست",
+            "details": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin"
+          },
+          {
+            "id": "public_calendar",
+            "state": "account_profile_mismatch",
+            "title": "این حساب/سفارش/قواعد به سیاست تقویم عمومی مقید نشده‌اند",
+            "details": "کیفیت دادهٔ تقویم عمومی جداگانه گزارش می‌شود، اما مصرف آن برای این حساب مجاز نیست: PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin؛ مهاجرت/فعال‌سازی حساب، TF-03 است و در بررسی وضعیت انجام نمی‌شود. شاهد معاملهٔ نامزد: candidate_data_covers_target_day (پایان آرشیو 20260905).",
+            "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+          }
+        ],
+        "calendar_sources_checked": [
+          {
+            "source": "TSETMC LastPossibleDeven",
+            "scope": "latest completed session only; not future session schedule",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "url": null
+          },
+          {
+            "source": "TSETMC GetInstrumentCalendar / GetClosingPriceDailyList for غاذر",
+            "scope": "symbol observations only; not a market-wide calendar",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "url": "https://example.invalid/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0"
+          },
+          {
+            "source": "score_v2_research/_cache/calendar.parquet",
+            "scope": "local market session rows",
+            "through": "2026-10-03",
+            "row_count": 7826,
+            "usable_for_post_decision": true
+          },
+          {
+            "source": "TSETMC documented API MarketInfo/NSCStart",
+            "scope": "market session list with DEven/NSCEnd; documented route uses bearer authorization",
+            "available_in_current_run": false,
+            "retrieved_at_utc": null,
+            "note": "one official route; does not establish that all other official routes require a token"
+          }
+        ],
+        "blockers": [
+          "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-09-01 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود.",
+          "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد.",
+          "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin",
+          "کیفیت دادهٔ تقویم عمومی جداگانه گزارش می‌شود، اما مصرف آن برای این حساب مجاز نیست: PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin؛ مهاجرت/فعال‌سازی حساب، TF-03 است و در بررسی وضعیت انجام نمی‌شود. شاهد معاملهٔ نامزد: candidate_data_covers_target_day (پایان آرشیو 20260905).",
+          "قیمت/حجم مثبت نامزد غاذر پس از تصمیم در آخرین دریافت موجود نیست؛ دریافت تازه پس از شکل‌گیری جلسه لازم است. فقط قیمت پایانی همان نخستین جلسهٔ واجد شرایط قابل استفاده است."
+        ],
+        "required_data": [
+          "یک تقویم بازار رسمی و فقط‌خواندنی که جلسه‌ها را مستقل از نماد فهرست کند و تاریخ اولین جلسه پس از تصمیم را پوشش دهد؛ NSCStart یکی از مسیرهای رسمی است و در مستندات برای آن bearer token ذکر شده است. اگر این مسیر انتخاب شد، توکن را فقط در متغیر محیطی موقت PowerShell بگذارید؛ وارد فایل عمومی، گزارش، کد یا Git نکنید.",
+          "پس از ثبت جلسهٔ واجد شرایط، دریافت تازهٔ قیمت روزانهٔ غاذر برای همان تاریخ از GetClosingPriceDailyList؛ پاسخ خام، URL، زمان و hash در مسیر نسخه‌دار.",
+          "فرمان واحد بررسی دستی: powershell -ExecutionPolicy Bypass -File ranking_research\\future_eval_v12_30\\check_paper_order.ps1؛ توکن فقط‌خواندنی را در SecureString prompt وارد کنید. اسکریپت تقویم و قیمت را می‌گیرد، گیت‌ها را بررسی و فقط در صورت احراز شروط همان سفارش را یک‌بار ثبت می‌کند."
+        ],
+        "source_evidence": [
+          {
+            "key": "candidate_daily",
+            "url": "https://example.invalid/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "daily.gz",
+            "raw_sha256": "7f3bd9bf17d98b5657849004f49b8e0f0f9093cd8527a31f70abaf3113021a7f"
+          },
+          {
+            "key": "candidate_share_changes",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "candidate_share_changes.gz",
+            "raw_sha256": "b2d9fb0936459e77a0e712add291b9952e59cb41aa6f7ea6bccd8f9afae44db0"
+          },
+          {
+            "key": "last_possible_session",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "last_possible_session.gz",
+            "raw_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+          }
+        ],
+        "cash_reconciliation": {
+          "initial_toman": 100000,
+          "cash_toman": 100000,
+          "holdings_count": 0,
+          "holdings_value_toman": 0,
+          "total_value_toman": 100000,
+          "profit_loss_toman": 0,
+          "balanced": true,
+          "pnl_basis": "از fill ثبت‌شده؛ تا پیش از fill صفر"
+        },
+        "source_sha256": {
+          "account": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+          "ranking": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+          "evidence_manifest": "a28b90e963a5c174485d48c1181514451382eca4ef04e4c7e131039c20372c2c",
+          "local_calendar": "fbe245c91a632747462f65be6a47eed460c738e13872c1758b7f4f0a95fce31d"
+        },
+        "official_ledger_touched": false
+      },
+      "cycle": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "status": "blocked:PINNED_EXECUTION_RULES_HASH_MISMATCH",
+          "exit_code": null
+        },
+        "manifest_path": null,
+        "calendar_state": "blocked_calendar_profile_mismatch",
+        "profile_mismatch": true,
+        "answer_summary": null,
+        "token_required": false,
+        "profile_mismatch_detail": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin"
+      },
+      "account_before": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      },
+      "account_after": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      }
+    },
+    "rules_semantic_mismatch": {
+      "fill": {
+        "error": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin",
+        "stdout": null
+      },
+      "status": {
+        "schema_version": 3,
+        "checked_at_utc": "2026-10-24T19:56:44.015018+00:00",
+        "account_id": "TEST_FIXTURE_PUBLIC",
+        "account_created_at_utc": "2026-09-01T09:00:00+00:00",
+        "decision": {
+          "decision_id": "fixture-decision-public",
+          "decided_at_utc": "2026-09-01T10:00:00+00:00",
+          "decision_local_date": "2026-09-01",
+          "execution_rules": {
+            "sha256": "275dea04e84b74a0e0c9cec657d82f3915126a5567f45c09fa48f2f52bb4c25a"
+          },
+          "calendar_policy": {
+            "id": "public-paper-v1",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          }
+        },
+        "order": {
+          "order_id": "fixture-order-public",
+          "decision_id": "fixture-decision-public",
+          "company_id": "fixture-company",
+          "symbol": "TEST",
+          "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+          "expires_after_official_sessions": 3,
+          "eligible_session_count_observed": 0,
+          "fill_event_id": null,
+          "calendar_policy": {
+            "id": "public-paper-v1",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          }
+        },
+        "execution_attempt_status": "not_attempted",
+        "execution_ready": false,
+        "fill_recorded": false,
+        "latest_official_completed_session": null,
+        "candidate_latest_positive_price_date": null,
+        "candidate_post_decision_quotes": [],
+        "candidate_post_decision_daily_rows": 0,
+        "first_eligible_session": "20260902",
+        "calendar_retrieved_at_utc": null,
+        "eligible_sessions_after_decision": 2,
+        "public_calendar": {
+          "provider": "public-index",
+          "policy": {
+            "id": "public-paper-v1",
+            "version": "1.0.0",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          },
+          "manifest": {
+            "path": "C:\\Users\\aliheyd\\AppData\\Local\\Temp\\tf02b-evidence-4im5ym7f\\pkg\\package\\manifest.20261023T120000000000Z.json",
+            "sha256": "0f3e7ff93ffb45250af68a50256a5ac8a43a3f59061274f519dda826fae16d7f",
+            "run_id": "20261023T120000000000Z",
+            "mode": "live",
+            "reference_now_utc": "2026-10-23T12:00:00+00:00"
+          },
+          "account_compatibility": {
+            "state": "mismatch",
+            "levels_checked": [
+              "account",
+              "decision",
+              "order",
+              "rules"
+            ],
+            "mismatch_detail": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin"
+          },
+          "quality": "CORROBORATED_PUBLIC",
+          "quality_recomputed_from_raw": true,
+          "freshness": {
+            "state": "FRESH",
+            "rules": {
+              "version": "public-paper-freshness@1",
+              "max_source_age_hours": 6,
+              "future_tolerance_minutes": 5,
+              "require_retrieval_after_decision": true,
+              "note": "operational assumption for the first new runs, not exchange law; boundaries are enforced at the recorded evaluation clock, so an exact replay of an old receipt validates at its own execution time"
+            }
+          },
+          "calendar_ready": false,
+          "blocking_reasons": [
+            "CALENDAR_POLICY_MISMATCH"
+          ],
+          "completion": {
+            "type": "named_operational_assumption",
+            "name": "assumed_completion_via_last_possible_agreement",
+            "value": "20260905",
+            "basis": "LastPossibleDeven component agreement plus alignment of both index history tails with that value; an explicitly named operational assumption accepted by this policy version, never an official confirmation",
+            "officially_confirmed": false,
+            "policy_id": "public-paper-v1",
+            "policy_version_of_assumption": "public-calendar-policy@1.1",
+            "tail_primary": "20260905",
+            "tail_secondary": "20260905",
+            "tails_aligned_with_assumption": true
+          },
+          "sessions_after_decision": {
+            "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+            "count": 2,
+            "first_session": "20260902",
+            "count_is_unknown": false
+          },
+          "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+          "candidate_trade_evidence": {
+            "trade_status": "checked",
+            "no_positive_trade_sessions": [],
+            "archive_end": "20260905",
+            "state": "candidate_data_covers_target_day",
+            "note": "zero observed new sessions and an unknown session count are different states; a candidate no-trade claim requires candidate data covering that day — an archive ending before the target day is an evidence gap, never a suspension/no-trade verdict"
+          }
+        },
+        "calendar_provider_compatibility": {
+          "state": "mismatch",
+          "levels_checked": [
+            "account",
+            "decision",
+            "order",
+            "rules"
+          ],
+          "mismatch_detail": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin"
+        },
+        "barriers": [
+          {
+            "id": "post_decision_market_session",
+            "state": "no_session_observed",
+            "title": "هنوز دادهٔ جلسهٔ پس از تصمیم موجود نیست",
+            "details": "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-09-01 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود."
+          },
+          {
+            "id": "authoritative_market_calendar",
+            "state": "incomplete",
+            "title": "دسترسی به منبع معتبر تقویم ناقص است",
+            "details": "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد."
+          },
+          {
+            "id": "calendar_provider_contract",
+            "state": "blocked",
+            "title": "انتخاب provider با قرارداد pinشده سازگار نیست",
+            "details": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin"
+          },
+          {
+            "id": "public_calendar",
+            "state": "account_profile_mismatch",
+            "title": "این حساب/سفارش/قواعد به سیاست تقویم عمومی مقید نشده‌اند",
+            "details": "کیفیت دادهٔ تقویم عمومی جداگانه گزارش می‌شود، اما مصرف آن برای این حساب مجاز نیست: PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin؛ مهاجرت/فعال‌سازی حساب، TF-03 است و در بررسی وضعیت انجام نمی‌شود. شاهد معاملهٔ نامزد: candidate_data_covers_target_day (پایان آرشیو 20260905).",
+            "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+          }
+        ],
+        "calendar_sources_checked": [
+          {
+            "source": "TSETMC LastPossibleDeven",
+            "scope": "latest completed session only; not future session schedule",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "url": null
+          },
+          {
+            "source": "TSETMC GetInstrumentCalendar / GetClosingPriceDailyList for غاذر",
+            "scope": "symbol observations only; not a market-wide calendar",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "url": "https://example.invalid/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0"
+          },
+          {
+            "source": "score_v2_research/_cache/calendar.parquet",
+            "scope": "local market session rows",
+            "through": "2026-10-03",
+            "row_count": 7826,
+            "usable_for_post_decision": true
+          },
+          {
+            "source": "TSETMC documented API MarketInfo/NSCStart",
+            "scope": "market session list with DEven/NSCEnd; documented route uses bearer authorization",
+            "available_in_current_run": false,
+            "retrieved_at_utc": null,
+            "note": "one official route; does not establish that all other official routes require a token"
+          }
+        ],
+        "blockers": [
+          "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-09-01 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود.",
+          "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد.",
+          "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin",
+          "کیفیت دادهٔ تقویم عمومی جداگانه گزارش می‌شود، اما مصرف آن برای این حساب مجاز نیست: PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin؛ مهاجرت/فعال‌سازی حساب، TF-03 است و در بررسی وضعیت انجام نمی‌شود. شاهد معاملهٔ نامزد: candidate_data_covers_target_day (پایان آرشیو 20260905).",
+          "قیمت/حجم مثبت نامزد غاذر پس از تصمیم در آخرین دریافت موجود نیست؛ دریافت تازه پس از شکل‌گیری جلسه لازم است. فقط قیمت پایانی همان نخستین جلسهٔ واجد شرایط قابل استفاده است."
+        ],
+        "required_data": [
+          "یک تقویم بازار رسمی و فقط‌خواندنی که جلسه‌ها را مستقل از نماد فهرست کند و تاریخ اولین جلسه پس از تصمیم را پوشش دهد؛ NSCStart یکی از مسیرهای رسمی است و در مستندات برای آن bearer token ذکر شده است. اگر این مسیر انتخاب شد، توکن را فقط در متغیر محیطی موقت PowerShell بگذارید؛ وارد فایل عمومی، گزارش، کد یا Git نکنید.",
+          "پس از ثبت جلسهٔ واجد شرایط، دریافت تازهٔ قیمت روزانهٔ غاذر برای همان تاریخ از GetClosingPriceDailyList؛ پاسخ خام، URL، زمان و hash در مسیر نسخه‌دار.",
+          "فرمان واحد بررسی دستی: powershell -ExecutionPolicy Bypass -File ranking_research\\future_eval_v12_30\\check_paper_order.ps1؛ توکن فقط‌خواندنی را در SecureString prompt وارد کنید. اسکریپت تقویم و قیمت را می‌گیرد، گیت‌ها را بررسی و فقط در صورت احراز شروط همان سفارش را یک‌بار ثبت می‌کند."
+        ],
+        "source_evidence": [
+          {
+            "key": "candidate_daily",
+            "url": "https://example.invalid/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "daily.gz",
+            "raw_sha256": "7f3bd9bf17d98b5657849004f49b8e0f0f9093cd8527a31f70abaf3113021a7f"
+          },
+          {
+            "key": "candidate_share_changes",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "candidate_share_changes.gz",
+            "raw_sha256": "b2d9fb0936459e77a0e712add291b9952e59cb41aa6f7ea6bccd8f9afae44db0"
+          },
+          {
+            "key": "last_possible_session",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "last_possible_session.gz",
+            "raw_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+          }
+        ],
+        "cash_reconciliation": {
+          "initial_toman": 100000,
+          "cash_toman": 100000,
+          "holdings_count": 0,
+          "holdings_value_toman": 0,
+          "total_value_toman": 100000,
+          "profit_loss_toman": 0,
+          "balanced": true,
+          "pnl_basis": "از fill ثبت‌شده؛ تا پیش از fill صفر"
+        },
+        "source_sha256": {
+          "account": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+          "ranking": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+          "evidence_manifest": "a28b90e963a5c174485d48c1181514451382eca4ef04e4c7e131039c20372c2c",
+          "local_calendar": "fbe245c91a632747462f65be6a47eed460c738e13872c1758b7f4f0a95fce31d"
+        },
+        "official_ledger_touched": false
+      },
+      "cycle": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "status": "blocked:PINNED_EXECUTION_RULES_HASH_MISMATCH",
+          "exit_code": null
+        },
+        "manifest_path": null,
+        "calendar_state": "blocked_calendar_profile_mismatch",
+        "profile_mismatch": true,
+        "answer_summary": null,
+        "token_required": false,
+        "profile_mismatch_detail": "PINNED_EXECUTION_RULES_HASH_MISMATCH; execution rules bytes do not match active decision pin"
+      },
+      "account_before": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      },
+      "account_after": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      }
+    },
+    "rules_missing": {
+      "fill": {
+        "error": "PINNED_EXECUTION_RULES_UNREADABLE; FileNotFoundError",
+        "stdout": null
+      },
+      "status": {
+        "schema_version": 3,
+        "checked_at_utc": "2026-10-24T19:56:44.137809+00:00",
+        "account_id": "TEST_FIXTURE_PUBLIC",
+        "account_created_at_utc": "2026-09-01T09:00:00+00:00",
+        "decision": {
+          "decision_id": "fixture-decision-public",
+          "decided_at_utc": "2026-09-01T10:00:00+00:00",
+          "decision_local_date": "2026-09-01",
+          "execution_rules": {
+            "sha256": "275dea04e84b74a0e0c9cec657d82f3915126a5567f45c09fa48f2f52bb4c25a"
+          },
+          "calendar_policy": {
+            "id": "public-paper-v1",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          }
+        },
+        "order": {
+          "order_id": "fixture-order-public",
+          "decision_id": "fixture-decision-public",
+          "company_id": "fixture-company",
+          "symbol": "TEST",
+          "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+          "expires_after_official_sessions": 3,
+          "eligible_session_count_observed": 0,
+          "fill_event_id": null,
+          "calendar_policy": {
+            "id": "public-paper-v1",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          }
+        },
+        "execution_attempt_status": "not_attempted",
+        "execution_ready": false,
+        "fill_recorded": false,
+        "latest_official_completed_session": null,
+        "candidate_latest_positive_price_date": null,
+        "candidate_post_decision_quotes": [],
+        "candidate_post_decision_daily_rows": 0,
+        "first_eligible_session": "20260902",
+        "calendar_retrieved_at_utc": null,
+        "eligible_sessions_after_decision": 2,
+        "public_calendar": {
+          "provider": "public-index",
+          "policy": {
+            "id": "public-paper-v1",
+            "version": "1.0.0",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          },
+          "manifest": {
+            "path": "C:\\Users\\aliheyd\\AppData\\Local\\Temp\\tf02b-evidence-4im5ym7f\\pkg\\package\\manifest.20261023T120000000000Z.json",
+            "sha256": "0f3e7ff93ffb45250af68a50256a5ac8a43a3f59061274f519dda826fae16d7f",
+            "run_id": "20261023T120000000000Z",
+            "mode": "live",
+            "reference_now_utc": "2026-10-23T12:00:00+00:00"
+          },
+          "account_compatibility": {
+            "state": "mismatch",
+            "levels_checked": [
+              "account",
+              "decision",
+              "order",
+              "rules"
+            ],
+            "mismatch_detail": "PINNED_EXECUTION_RULES_UNREADABLE"
+          },
+          "quality": "CORROBORATED_PUBLIC",
+          "quality_recomputed_from_raw": true,
+          "freshness": {
+            "state": "FRESH",
+            "rules": {
+              "version": "public-paper-freshness@1",
+              "max_source_age_hours": 6,
+              "future_tolerance_minutes": 5,
+              "require_retrieval_after_decision": true,
+              "note": "operational assumption for the first new runs, not exchange law; boundaries are enforced at the recorded evaluation clock, so an exact replay of an old receipt validates at its own execution time"
+            }
+          },
+          "calendar_ready": false,
+          "blocking_reasons": [
+            "CALENDAR_POLICY_MISMATCH"
+          ],
+          "completion": {
+            "type": "named_operational_assumption",
+            "name": "assumed_completion_via_last_possible_agreement",
+            "value": "20260905",
+            "basis": "LastPossibleDeven component agreement plus alignment of both index history tails with that value; an explicitly named operational assumption accepted by this policy version, never an official confirmation",
+            "officially_confirmed": false,
+            "policy_id": "public-paper-v1",
+            "policy_version_of_assumption": "public-calendar-policy@1.1",
+            "tail_primary": "20260905",
+            "tail_secondary": "20260905",
+            "tails_aligned_with_assumption": true
+          },
+          "sessions_after_decision": {
+            "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+            "count": 2,
+            "first_session": "20260902",
+            "count_is_unknown": false
+          },
+          "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+          "candidate_trade_evidence": {
+            "trade_status": "checked",
+            "no_positive_trade_sessions": [],
+            "archive_end": "20260905",
+            "state": "candidate_data_covers_target_day",
+            "note": "zero observed new sessions and an unknown session count are different states; a candidate no-trade claim requires candidate data covering that day — an archive ending before the target day is an evidence gap, never a suspension/no-trade verdict"
+          }
+        },
+        "calendar_provider_compatibility": {
+          "state": "mismatch",
+          "levels_checked": [
+            "account",
+            "decision",
+            "order",
+            "rules"
+          ],
+          "mismatch_detail": "PINNED_EXECUTION_RULES_UNREADABLE"
+        },
+        "barriers": [
+          {
+            "id": "post_decision_market_session",
+            "state": "no_session_observed",
+            "title": "هنوز دادهٔ جلسهٔ پس از تصمیم موجود نیست",
+            "details": "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-09-01 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود."
+          },
+          {
+            "id": "authoritative_market_calendar",
+            "state": "incomplete",
+            "title": "دسترسی به منبع معتبر تقویم ناقص است",
+            "details": "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد."
+          },
+          {
+            "id": "calendar_provider_contract",
+            "state": "blocked",
+            "title": "انتخاب provider با قرارداد pinشده سازگار نیست",
+            "details": "PINNED_EXECUTION_RULES_UNREADABLE"
+          },
+          {
+            "id": "public_calendar",
+            "state": "account_profile_mismatch",
+            "title": "این حساب/سفارش/قواعد به سیاست تقویم عمومی مقید نشده‌اند",
+            "details": "کیفیت دادهٔ تقویم عمومی جداگانه گزارش می‌شود، اما مصرف آن برای این حساب مجاز نیست: PINNED_EXECUTION_RULES_UNREADABLE؛ مهاجرت/فعال‌سازی حساب، TF-03 است و در بررسی وضعیت انجام نمی‌شود. شاهد معاملهٔ نامزد: candidate_data_covers_target_day (پایان آرشیو 20260905).",
+            "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+          }
+        ],
+        "calendar_sources_checked": [
+          {
+            "source": "TSETMC LastPossibleDeven",
+            "scope": "latest completed session only; not future session schedule",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "url": null
+          },
+          {
+            "source": "TSETMC GetInstrumentCalendar / GetClosingPriceDailyList for غاذر",
+            "scope": "symbol observations only; not a market-wide calendar",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "url": "https://example.invalid/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0"
+          },
+          {
+            "source": "score_v2_research/_cache/calendar.parquet",
+            "scope": "local market session rows",
+            "through": "2026-10-03",
+            "row_count": 7826,
+            "usable_for_post_decision": true
+          },
+          {
+            "source": "TSETMC documented API MarketInfo/NSCStart",
+            "scope": "market session list with DEven/NSCEnd; documented route uses bearer authorization",
+            "available_in_current_run": false,
+            "retrieved_at_utc": null,
+            "note": "one official route; does not establish that all other official routes require a token"
+          }
+        ],
+        "blockers": [
+          "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-09-01 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود.",
+          "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد.",
+          "PINNED_EXECUTION_RULES_UNREADABLE",
+          "کیفیت دادهٔ تقویم عمومی جداگانه گزارش می‌شود، اما مصرف آن برای این حساب مجاز نیست: PINNED_EXECUTION_RULES_UNREADABLE؛ مهاجرت/فعال‌سازی حساب، TF-03 است و در بررسی وضعیت انجام نمی‌شود. شاهد معاملهٔ نامزد: candidate_data_covers_target_day (پایان آرشیو 20260905).",
+          "قیمت/حجم مثبت نامزد غاذر پس از تصمیم در آخرین دریافت موجود نیست؛ دریافت تازه پس از شکل‌گیری جلسه لازم است. فقط قیمت پایانی همان نخستین جلسهٔ واجد شرایط قابل استفاده است."
+        ],
+        "required_data": [
+          "یک تقویم بازار رسمی و فقط‌خواندنی که جلسه‌ها را مستقل از نماد فهرست کند و تاریخ اولین جلسه پس از تصمیم را پوشش دهد؛ NSCStart یکی از مسیرهای رسمی است و در مستندات برای آن bearer token ذکر شده است. اگر این مسیر انتخاب شد، توکن را فقط در متغیر محیطی موقت PowerShell بگذارید؛ وارد فایل عمومی، گزارش، کد یا Git نکنید.",
+          "پس از ثبت جلسهٔ واجد شرایط، دریافت تازهٔ قیمت روزانهٔ غاذر برای همان تاریخ از GetClosingPriceDailyList؛ پاسخ خام، URL، زمان و hash در مسیر نسخه‌دار.",
+          "فرمان واحد بررسی دستی: powershell -ExecutionPolicy Bypass -File ranking_research\\future_eval_v12_30\\check_paper_order.ps1؛ توکن فقط‌خواندنی را در SecureString prompt وارد کنید. اسکریپت تقویم و قیمت را می‌گیرد، گیت‌ها را بررسی و فقط در صورت احراز شروط همان سفارش را یک‌بار ثبت می‌کند."
+        ],
+        "source_evidence": [
+          {
+            "key": "candidate_daily",
+            "url": "https://example.invalid/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "daily.gz",
+            "raw_sha256": "7f3bd9bf17d98b5657849004f49b8e0f0f9093cd8527a31f70abaf3113021a7f"
+          },
+          {
+            "key": "candidate_share_changes",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "candidate_share_changes.gz",
+            "raw_sha256": "b2d9fb0936459e77a0e712add291b9952e59cb41aa6f7ea6bccd8f9afae44db0"
+          },
+          {
+            "key": "last_possible_session",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "last_possible_session.gz",
+            "raw_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+          }
+        ],
+        "cash_reconciliation": {
+          "initial_toman": 100000,
+          "cash_toman": 100000,
+          "holdings_count": 0,
+          "holdings_value_toman": 0,
+          "total_value_toman": 100000,
+          "profit_loss_toman": 0,
+          "balanced": true,
+          "pnl_basis": "از fill ثبت‌شده؛ تا پیش از fill صفر"
+        },
+        "source_sha256": {
+          "account": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+          "ranking": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+          "evidence_manifest": "a28b90e963a5c174485d48c1181514451382eca4ef04e4c7e131039c20372c2c",
+          "local_calendar": "fbe245c91a632747462f65be6a47eed460c738e13872c1758b7f4f0a95fce31d"
+        },
+        "official_ledger_touched": false
+      },
+      "cycle": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "status": "blocked:PINNED_EXECUTION_RULES_UNREADABLE",
+          "exit_code": null
+        },
+        "manifest_path": null,
+        "calendar_state": "blocked_calendar_profile_mismatch",
+        "profile_mismatch": true,
+        "answer_summary": null,
+        "token_required": false,
+        "profile_mismatch_detail": "PINNED_EXECUTION_RULES_UNREADABLE; "
+      },
+      "account_before": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      },
+      "account_after": {
+        "account_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+        "event_count": 0,
+        "fill_event_present": false,
+        "receipt_present": false,
+        "cash_toman": 100000
+      }
+    },
+    "rules_new_pin_control": {
+      "fill": {
+        "error": null,
+        "stdout": {
+          "status": "FILL_ELIGIBLE_PREVIEW_ONLY",
+          "first_session": "20260902",
+          "sessions_after_decision": 2,
+          "close_rial": 1234.0,
+          "volume": 10000.0,
+          "fill_applied": false,
+          "cash_toman": 100000,
+          "source_manifest_sha256": "a28b90e963a5c174485d48c1181514451382eca4ef04e4c7e131039c20372c2c",
+          "calendar": {
+            "provider": "public-index",
+            "policy_id": "public-paper-v1",
+            "manifest_sha256": "0f3e7ff93ffb45250af68a50256a5ac8a43a3f59061274f519dda826fae16d7f",
+            "assumed_completion": "20260905",
+            "completion_type": "named_operational_assumption"
+          },
+          "calendar_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+        }
+      },
+      "status": {
+        "schema_version": 3,
+        "checked_at_utc": "2026-10-24T19:56:44.280256+00:00",
+        "account_id": "TEST_FIXTURE_PUBLIC",
+        "account_created_at_utc": "2026-09-01T09:00:00+00:00",
+        "decision": {
+          "decision_id": "fixture-decision-public",
+          "decided_at_utc": "2026-09-01T10:00:00+00:00",
+          "decision_local_date": "2026-09-01",
+          "execution_rules": {
+            "sha256": "4d1275e0d04b45e3cb27e04bd5d2014aa243d973a5075ae235cf4fa3391391a2"
+          },
+          "calendar_policy": {
+            "id": "public-paper-v1",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          }
+        },
+        "order": {
+          "order_id": "fixture-order-public",
+          "decision_id": "fixture-decision-public",
+          "company_id": "fixture-company",
+          "symbol": "TEST",
+          "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+          "expires_after_official_sessions": 3,
+          "eligible_session_count_observed": 0,
+          "fill_event_id": null,
+          "calendar_policy": {
+            "id": "public-paper-v1",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          }
+        },
+        "execution_attempt_status": "not_attempted",
+        "execution_ready": false,
+        "fill_recorded": false,
+        "latest_official_completed_session": null,
+        "candidate_latest_positive_price_date": null,
+        "candidate_post_decision_quotes": [],
+        "candidate_post_decision_daily_rows": 0,
+        "first_eligible_session": "20260902",
+        "calendar_retrieved_at_utc": null,
+        "eligible_sessions_after_decision": 2,
+        "public_calendar": {
+          "provider": "public-index",
+          "policy": {
+            "id": "public-paper-v1",
+            "version": "1.0.0",
+            "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+          },
+          "manifest": {
+            "path": "C:\\Users\\aliheyd\\AppData\\Local\\Temp\\tf02b-evidence-4im5ym7f\\pkg\\package\\manifest.20261023T120000000000Z.json",
+            "sha256": "0f3e7ff93ffb45250af68a50256a5ac8a43a3f59061274f519dda826fae16d7f",
+            "run_id": "20261023T120000000000Z",
+            "mode": "live",
+            "reference_now_utc": "2026-10-23T12:00:00+00:00"
+          },
+          "account_compatibility": {
+            "state": "compatible",
+            "levels_checked": [
+              "account",
+              "decision",
+              "order",
+              "rules"
+            ],
+            "mismatch_detail": null
+          },
+          "quality": "CORROBORATED_PUBLIC",
+          "quality_recomputed_from_raw": true,
+          "freshness": {
+            "state": "FRESH",
+            "rules": {
+              "version": "public-paper-freshness@1",
+              "max_source_age_hours": 6,
+              "future_tolerance_minutes": 5,
+              "require_retrieval_after_decision": true,
+              "note": "operational assumption for the first new runs, not exchange law; boundaries are enforced at the recorded evaluation clock, so an exact replay of an old receipt validates at its own execution time"
+            }
+          },
+          "calendar_ready": true,
+          "blocking_reasons": [],
+          "completion": {
+            "type": "named_operational_assumption",
+            "name": "assumed_completion_via_last_possible_agreement",
+            "value": "20260905",
+            "basis": "LastPossibleDeven component agreement plus alignment of both index history tails with that value; an explicitly named operational assumption accepted by this policy version, never an official confirmation",
+            "officially_confirmed": false,
+            "policy_id": "public-paper-v1",
+            "policy_version_of_assumption": "public-calendar-policy@1.1",
+            "tail_primary": "20260905",
+            "tail_secondary": "20260905",
+            "tails_aligned_with_assumption": true
+          },
+          "sessions_after_decision": {
+            "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+            "count": 2,
+            "first_session": "20260902",
+            "count_is_unknown": false
+          },
+          "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+          "candidate_trade_evidence": {
+            "trade_status": "checked",
+            "no_positive_trade_sessions": [],
+            "archive_end": "20260905",
+            "state": "candidate_data_covers_target_day",
+            "note": "zero observed new sessions and an unknown session count are different states; a candidate no-trade claim requires candidate data covering that day — an archive ending before the target day is an evidence gap, never a suspension/no-trade verdict"
+          }
+        },
+        "calendar_provider_compatibility": {
+          "state": "compatible",
+          "levels_checked": [
+            "account",
+            "decision",
+            "order",
+            "rules"
+          ],
+          "mismatch_detail": null
+        },
+        "barriers": [
+          {
+            "id": "post_decision_market_session",
+            "state": "no_session_observed",
+            "title": "هنوز دادهٔ جلسهٔ پس از تصمیم موجود نیست",
+            "details": "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-09-01 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود."
+          },
+          {
+            "id": "authoritative_market_calendar",
+            "state": "incomplete",
+            "title": "دسترسی به منبع معتبر تقویم ناقص است",
+            "details": "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد."
+          },
+          {
+            "id": "public_calendar",
+            "state": "first_session_available",
+            "title": "نخستین جلسهٔ پذیرفته‌شدهٔ تقویم عمومی موجود است",
+            "details": "نخستین جلسهٔ قابل استفاده 20260902 با 2 جلسهٔ پذیرفته‌شدهٔ پس از تصمیم؛ سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم شاهد معاملهٔ نامزد: candidate_data_covers_target_day (پایان آرشیو 20260905).",
+            "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+          }
+        ],
+        "calendar_sources_checked": [
+          {
+            "source": "TSETMC LastPossibleDeven",
+            "scope": "latest completed session only; not future session schedule",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "url": null
+          },
+          {
+            "source": "TSETMC GetInstrumentCalendar / GetClosingPriceDailyList for غاذر",
+            "scope": "symbol observations only; not a market-wide calendar",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "url": "https://example.invalid/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0"
+          },
+          {
+            "source": "score_v2_research/_cache/calendar.parquet",
+            "scope": "local market session rows",
+            "through": "2026-10-03",
+            "row_count": 7826,
+            "usable_for_post_decision": true
+          },
+          {
+            "source": "TSETMC documented API MarketInfo/NSCStart",
+            "scope": "market session list with DEven/NSCEnd; documented route uses bearer authorization",
+            "available_in_current_run": false,
+            "retrieved_at_utc": null,
+            "note": "one official route; does not establish that all other official routes require a token"
+          }
+        ],
+        "blockers": [
+          "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-09-01 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود.",
+          "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد.",
+          "نخستین جلسهٔ قابل استفاده 20260902 با 2 جلسهٔ پذیرفته‌شدهٔ پس از تصمیم؛ سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم شاهد معاملهٔ نامزد: candidate_data_covers_target_day (پایان آرشیو 20260905).",
+          "قیمت/حجم مثبت نامزد غاذر پس از تصمیم در آخرین دریافت موجود نیست؛ دریافت تازه پس از شکل‌گیری جلسه لازم است. فقط قیمت پایانی همان نخستین جلسهٔ واجد شرایط قابل استفاده است."
+        ],
+        "required_data": [
+          "یک تقویم بازار رسمی و فقط‌خواندنی که جلسه‌ها را مستقل از نماد فهرست کند و تاریخ اولین جلسه پس از تصمیم را پوشش دهد؛ NSCStart یکی از مسیرهای رسمی است و در مستندات برای آن bearer token ذکر شده است. اگر این مسیر انتخاب شد، توکن را فقط در متغیر محیطی موقت PowerShell بگذارید؛ وارد فایل عمومی، گزارش، کد یا Git نکنید.",
+          "پس از ثبت جلسهٔ واجد شرایط، دریافت تازهٔ قیمت روزانهٔ غاذر برای همان تاریخ از GetClosingPriceDailyList؛ پاسخ خام، URL، زمان و hash در مسیر نسخه‌دار.",
+          "فرمان واحد بررسی دستی: powershell -ExecutionPolicy Bypass -File ranking_research\\future_eval_v12_30\\check_paper_order.ps1؛ توکن فقط‌خواندنی را در SecureString prompt وارد کنید. اسکریپت تقویم و قیمت را می‌گیرد، گیت‌ها را بررسی و فقط در صورت احراز شروط همان سفارش را یک‌بار ثبت می‌کند."
+        ],
+        "source_evidence": [
+          {
+            "key": "candidate_daily",
+            "url": "https://example.invalid/api/ClosingPrice/GetClosingPriceDailyList/35158826900216508/0",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "daily.gz",
+            "raw_sha256": "7f3bd9bf17d98b5657849004f49b8e0f0f9093cd8527a31f70abaf3113021a7f"
+          },
+          {
+            "key": "candidate_share_changes",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "candidate_share_changes.gz",
+            "raw_sha256": "b2d9fb0936459e77a0e712add291b9952e59cb41aa6f7ea6bccd8f9afae44db0"
+          },
+          {
+            "key": "last_possible_session",
+            "retrieved_at_utc": "2026-10-23T12:04:00+00:00",
+            "raw_path": "last_possible_session.gz",
+            "raw_sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+          }
+        ],
+        "cash_reconciliation": {
+          "initial_toman": 100000,
+          "cash_toman": 100000,
+          "holdings_count": 0,
+          "holdings_value_toman": 0,
+          "total_value_toman": 100000,
+          "profit_loss_toman": 0,
+          "balanced": true,
+          "pnl_basis": "از fill ثبت‌شده؛ تا پیش از fill صفر"
+        },
+        "source_sha256": {
+          "account": "36113f80d59a12cfef22fc279a08b0edcf1378facaca495ef49a67f41c4ecafd",
+          "ranking": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+          "evidence_manifest": "a28b90e963a5c174485d48c1181514451382eca4ef04e4c7e131039c20372c2c",
+          "local_calendar": "fbe245c91a632747462f65be6a47eed460c738e13872c1758b7f4f0a95fce31d"
+        },
+        "official_ledger_touched": false
+      },
+      "cycle": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "exit_code": 0,
+          "status": "verified_public_calendar"
+        },
+        "manifest_path": "C:\\Users\\aliheyd\\AppData\\Local\\Temp\\tf02b-evidence-4im5ym7f\\new-pin-cycle\\public_calendar\\rules-new-pin-d4be91f6e6794eb28c76078f0e4823de\\manifest.json",
+        "calendar_state": "verified_public_calendar",
+        "profile_mismatch": false,
+        "answer_summary": {
+          "first_session": "20260902",
+          "session_count": 2,
+          "session_count_is_unknown": false,
+          "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+          "calendar_ready": true,
+          "blocking_reasons": [],
+          "quality": "CORROBORATED_PUBLIC",
+          "freshness_state": "FRESH"
+        },
+        "token_required": false
+      }
+    },
+    "acquisition": {
+      "healthy": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "exit_code": 0,
+          "status": "verified_public_calendar"
+        },
+        "manifest_path": "C:\\Users\\aliheyd\\AppData\\Local\\Temp\\tf02b-evidence-4im5ym7f\\acq-out-healthy\\public_calendar\\cycle-id-differs-from-collector-4900ec6c5892472ab99322c88b34765a\\manifest.json",
+        "calendar_state": "verified_public_calendar",
+        "profile_mismatch": false,
+        "answer_summary": {
+          "first_session": "20260902",
+          "session_count": 2,
+          "session_count_is_unknown": false,
+          "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+          "calendar_ready": true,
+          "blocking_reasons": [],
+          "quality": "CORROBORATED_PUBLIC",
+          "freshness_state": "FRESH"
+        },
+        "token_required": false
+      },
+      "no_output": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "exit_code": 0,
+          "status": "manifest_missing_after_successful_process_no_fallback"
+        },
+        "manifest_path": null,
+        "calendar_state": "blocked_public_manifest_missing",
+        "profile_mismatch": false,
+        "answer_summary": null,
+        "token_required": false
+      },
+      "outside": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "exit_code": 0,
+          "status": "public_manifest_outside_invocation"
+        },
+        "manifest_path": null,
+        "calendar_state": "blocked_public_manifest_outside_invocation",
+        "profile_mismatch": false,
+        "answer_summary": null,
+        "token_required": false
+      },
+      "run_id_mismatch": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "exit_code": 0,
+          "status": "public_pointer_manifest_run_id_mismatch"
+        },
+        "manifest_path": null,
+        "calendar_state": "blocked_public_pointer_manifest_run_id_mismatch",
+        "profile_mismatch": false,
+        "answer_summary": null,
+        "token_required": false
+      },
+      "hash_mismatch": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "exit_code": 0,
+          "status": "public_manifest_hash_mismatch"
+        },
+        "manifest_path": null,
+        "calendar_state": "blocked_public_manifest_hash_mismatch",
+        "profile_mismatch": false,
+        "answer_summary": null,
+        "token_required": false
+      },
+      "failed_old_pointer": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "exit_code": 7,
+          "status": "calendar_public_acquisition_failed_no_fallback"
+        },
+        "manifest_path": null,
+        "calendar_state": "blocked_public_acquisition_failed",
+        "profile_mismatch": false,
+        "answer_summary": null,
+        "token_required": false
+      }
+    },
+    "two_invocations": {
+      "first": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "exit_code": 0,
+          "status": "verified_public_calendar"
+        },
+        "manifest_path": "C:\\Users\\aliheyd\\AppData\\Local\\Temp\\tf02b-evidence-4im5ym7f\\two\\public_calendar\\two-de30046c81664ea48f663e1dea25fd50\\manifest.json",
+        "calendar_state": "verified_public_calendar",
+        "profile_mismatch": false,
+        "answer_summary": {
+          "first_session": "20260902",
+          "session_count": 2,
+          "session_count_is_unknown": false,
+          "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+          "calendar_ready": true,
+          "blocking_reasons": [],
+          "quality": "CORROBORATED_PUBLIC",
+          "freshness_state": "FRESH"
+        },
+        "token_required": false
+      },
+      "first_manifest_sha256_after_second": "41beec3f84997e773b626069d32d35d7a4970fe4b7a577774e2886b41aa6c000",
+      "first_manifest_sha256_before_second": "41beec3f84997e773b626069d32d35d7a4970fe4b7a577774e2886b41aa6c000",
+      "second": {
+        "provider": "public",
+        "stage": {
+          "stage": "order_calendar_public_acquisition",
+          "exit_code": 0,
+          "status": "verified_public_calendar"
+        },
+        "manifest_path": "C:\\Users\\aliheyd\\AppData\\Local\\Temp\\tf02b-evidence-4im5ym7f\\two\\public_calendar\\two-41cc47d27c734cb88dd092ffaa303bc8\\manifest.json",
+        "calendar_state": "verified_public_calendar",
+        "profile_mismatch": false,
+        "answer_summary": {
+          "first_session": "20260902",
+          "session_count": 2,
+          "session_count_is_unknown": false,
+          "state": "HAS_SESSIONS_WITHIN_ASSUMED_COMPLETION",
+          "calendar_ready": true,
+          "blocking_reasons": [],
+          "quality": "CORROBORATED_PUBLIC",
+          "freshness_state": "FRESH"
+        },
+        "token_required": false
+      }
+    }
+  },
+  "protected_files": {
+    "client/public/research/v12-36/paper-portfolio.json": {
+      "baseline_before": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "after": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "unchanged": true
+    },
+    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": {
+      "baseline_before": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "after": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "unchanged": true
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": {
+      "baseline_before": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "after": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "unchanged": true
+    },
+    "ranking_research/output/return_v12_27/v12_27_1_20261022_delivery_corrections_01/analysis_contract.locked.json": {
+      "baseline_before": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+      "after": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+      "unchanged": true
+    },
+    "ranking_research/output/return_v12_23/v12_23_20261021_fresh_local_baseline_01/global/analysis_contract.locked.json": {
+      "baseline_before": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+      "after": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+      "unchanged": true
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/o00_session_calendar.csv": {
+      "baseline_before": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441",
+      "after": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441",
+      "unchanged": true
+    }
+  },
+  "test_command": ".venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_public_market_calendar.py ranking_research/tests/test_paper_calendar_interface.py ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py ranking_research/tests/test_paper_calendar_tf02a_regressions.py ranking_research/tests/test_paper_calendar_tf02b_regressions.py -q --basetemp D:/RFA/Company-Financial/.pytest_tmp_tf02b_deliver",
+  "test_result": {
+    "passed": 168,
+    "failed": 0,
+    "duration_seconds": 453.99,
+    "unique_tf02b_regressions": 19,
+    "existing_suite": 149
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "task": "TF-02A",
+  "date": "2026-10-24",
+  "verdict": "PASS",
+  "summary_fa": "هر پنج گروه نقص بازبینی مستقل TF-02 با regression مستقل بسته شد؛ ۱۴۹ آزمون پاس (۱۱۱ موجود + ۳۸ جدید)؛ حساب جاری و دفتر رسمی فقط hash شدند.",
+  "groups": {
+    "1_consistent_decision_window_basis": {
+      "status": "PASS",
+      "fix": "paper_calendar.resolve_public_calendar: DECISION_DATE_TIME_INCONSISTENT + CALENDAR_WINDOW_MISMATCH (outer/inner/decision) + CALENDAR_MANIFEST_INTERNAL_INCONSISTENT (market_scope/policy_version/indices)",
+      "tests": [
+        "test_g1_control_two_session_package_first_and_count",
+        "test_g1_window_disagreement_refused_before_any_account_change",
+        "test_g1_duplicated_field_disagreement_refused",
+        "test_g1_decision_datetime_must_describe_the_same_teheran_day"
+      ],
+      "evidence": "evidence/evidence.20261024T175135733088Z.json#refusals.inner_window_mismatch_wrong_day_price"
+    },
+    "2_nscstart_order_and_shared_readiness_gate": {
+      "status": "PASS",
+      "fix": "resolve_nscstart_calendar sorts derived sessions; apply_paper_fill applies one CALENDAR_NOT_READY gate after both providers, before any write",
+      "tests": [
+        "test_g2_nscstart_first_latest_count_ignore_row_order",
+        "test_g2_predating_nscstart_manifest_blocks_the_fill_entrypoint",
+        "test_g2_healthy_nscstart_fixture_still_buys_from_the_entrypoint"
+      ],
+      "evidence": "evidence/evidence.20261024T175135733088Z.json#nscstart_predating_manifest"
+    },
+    "3_pinned_cross_check_from_raw": {
+      "status": "PASS",
+      "fix": "adapter replays the announced stock_cross_check via tf._replay_stock_cross and feeds the rebuilt set into evaluation; refresh candidate witness now consumes it",
+      "tests": [
+        "test_g3_broken_pinned_cross_inputs_refused_at_consumption",
+        "test_g3_rebuilt_conflict_closes_readiness",
+        "test_g3_empty_one_and_limited_selections_still_consume",
+        "test_g3_refresh_consumes_candidate_witness_and_short_archive_is_gap"
+      ],
+      "evidence": "evidence/evidence.20261024T175135733088Z.json#refusals.corrupted_pinned_cross_raw"
+    },
+    "4_next_day_replay_at_recorded_clock": {
+      "status": "PASS",
+      "fix": "receipt.calendar gains validated_at_utc + evidence_manifest_sha256 (version stays 2, documented); exact replay proves execution identity + pinned-input equality, then recovers the clock from the receipt; clockless receipts are explicitly unprovable",
+      "tests": [
+        "test_g4_next_day_replay_succeeds_via_recorded_clock",
+        "test_g4_replay_refuses_changed_inputs_or_unprovable_clock",
+        "test_g4_fresh_account_does_not_buy_with_the_old_raw_next_day",
+        "test_g4_crash_harness_atomicity_and_clock_rules"
+      ],
+      "evidence": "evidence/evidence.20261024T175135733088Z.json#public_fill_then_next_day_replay,crash_harness"
+    },
+    "5_shared_four_level_binding": {
+      "status": "PASS",
+      "fix": "paper_calendar.check_public_policy_binding shared by apply/refresh/cycle; refresh reports account_compatibility separately (barrier account_profile_mismatch); cycle takes rules_path",
+      "tests": [
+        "test_g5_binding_is_mandatory_and_consistent_at_every_level",
+        "test_g5_one_input_consistent_across_fill_status_and_cycle",
+        "test_g5_cycle_with_fake_acquisition_outcomes",
+        "test_g5_real_account_copy_reports_mismatch_in_refresh_and_keeps_ledger",
+        "test_cycle_public_acquisition_never_falls_back_to_old_manifest (existing)"
+      ],
+      "evidence": "evidence/evidence.20261024T175135733088Z.json#refusals.wrong_account_and_missing_order_binding,real_copy_refresh_mismatch"
+    }
+  },
+  "tests": {
+    "command": ".venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_public_market_calendar.py ranking_research/tests/test_paper_calendar_interface.py ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py ranking_research/tests/test_paper_calendar_tf02a_regressions.py -q --basetemp D:/RFA/Company-Financial/.pytest_tmp_tf02a",
+    "passed": 149,
+    "failed": 0,
+    "duration_seconds": 364.79,
+    "breakdown": {
+      "test_public_market_calendar": 34,
+      "test_paper_calendar_interface": 18,
+      "test_paper_account_atomic": 56,
+      "test_paper_cycle_http": 3,
+      "test_paper_calendar_tf02a_regressions": 38
+    },
+    "previous_baseline_preserved": 111
+  },
+  "flags": {
+    "network_requests": 0,
+    "token_requested_or_used": false,
+    "product_live_cycle_run": false,
+    "commits_made_by_agent": 0,
+    "review_probe_rewritten": false,
+    "ledger_files_before_equal_after": {
+      "client/public/research/v12-36/paper-portfolio.json": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "ranking_research/output/return_v12_27/v12_27_1_20261022_delivery_corrections_01/analysis_contract.locked.json": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+      "ranking_research/output/return_v12_23/v12_23_20261021_fresh_local_baseline_01/global/analysis_contract.locked.json": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+      "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/o00_session_calendar.csv": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441"
+    },
+    "ledger_files_all_match": true
+  },
+  "open_items": [
+    "public-paper-v1 remains a proposed experimental policy; not activated on the current account",
+    "account activation/migration and an operational trial run are TF-03 and require explicit approval"
+  ]
+}

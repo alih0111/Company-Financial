@@ -4,6 +4,7 @@ from __future__ import annotations
 import datetime as dt
 import hashlib
 import json
+import argparse
 import sys
 from pathlib import Path
 try:
@@ -23,13 +24,17 @@ def file_sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def _main_locked() -> None:
+def _main_locked(args: argparse.Namespace) -> None:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    account = json.loads(ACCOUNT.read_text(encoding="utf-8"))
-    ranking = json.loads(RANKING.read_text(encoding="utf-8"))
-    rules = json.loads(RULES.read_text(encoding="utf-8"))
-    evidence = json.loads(EVIDENCE.read_text(encoding="utf-8"))
+    account_path, ranking_path = args.account.resolve(), args.ranking.resolve()
+    rules_path, evidence_path = args.rules.resolve(), args.evidence.resolve()
+    policy_path = args.calendar_policy.resolve()
+    account = json.loads(account_path.read_text(encoding="utf-8"))
+    ranking = json.loads(ranking_path.read_text(encoding="utf-8"))
+    rules_bytes = rules_path.read_bytes()
+    rules = json.loads(rules_bytes)
+    evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
     if account.get("active_decision") or account.get("paper_order"):
         raise SystemExit("ACTIVE_PAPER_DECISION_OR_ORDER_ALREADY_EXISTS; append-only manual review required")
     candidate = account["ranking"]["top_candidate"]
@@ -41,12 +46,25 @@ def _main_locked() -> None:
     p1 = [x for x in ranking.get("rows", []) if x.get("company_id") == candidate["company_id"]]
     if len(p1) != 1 or p1[0].get("methods", {}).get("P1", {}).get("rank") != 1:
         raise SystemExit("CANDIDATE_NOT_RANK_ONE_IN_PINNED_P1_ARTIFACT")
-    now = dt.datetime.now(dt.timezone.utc).isoformat()
-    local_date = dt.datetime.now(dt.timezone(dt.timedelta(hours=3, minutes=30))).date().isoformat()
+    if args.fixture_clock and not args.fixture:
+        raise SystemExit("FIXTURE_CLOCK_REQUIRES_EXPLICIT_FIXTURE_MODE")
+    instant = dt.datetime.fromisoformat(args.fixture_clock) if args.fixture_clock else dt.datetime.now(dt.timezone.utc)
+    if instant.tzinfo is None:
+        instant = instant.replace(tzinfo=dt.timezone.utc)
+    instant = instant.astimezone(dt.timezone.utc)
+    now = instant.isoformat()
+    local_date = instant.astimezone(dt.timezone(dt.timedelta(hours=3, minutes=30))).date().isoformat()
     decision_id = "paper-decision-" + hashlib.sha256(
         f"{account['account_id']}|{now}|{ranking['artifact_sha256']}".encode()).hexdigest()[:20]
     order_id = "paper-order-" + hashlib.sha256(f"{decision_id}|{candidate['company_id']}".encode()).hexdigest()[:20]
-    rules_sha = file_sha(RULES)
+    rules_sha = hashlib.sha256(rules_bytes).hexdigest()
+    policy_binding = None
+    if args.calendar_provider == "public":
+        policy = json.loads(policy_path.read_text(encoding="utf-8"))
+        policy_binding = {"id": policy["policy_id"], "sha256": file_sha(policy_path),
+                          "provider": policy["provider"], "version": policy["version"]}
+        if rules.get("calendar_policy") != policy_binding:
+            raise SystemExit("PUBLIC_POLICY_RULES_BINDING_MISMATCH")
     decision = {
         "decision_id": decision_id, "decided_at_utc": now,
         "decision_local_date": local_date, "decision_kind": "PAPER_ONLY_BUY_DECISION_NOT_O00",
@@ -56,10 +74,12 @@ def _main_locked() -> None:
                     "status": ranking["status"], "artifact_sha256": ranking["artifact_sha256"],
                     "scored": ranking.get("scored_count", {}).get("P1"), "universe": 254},
         "execution_rules": {"rule_id": rules["rule_id"], "sha256": rules_sha,
-                            "path": str(RULES.relative_to(ROOT)).replace("\\", "/")},
-        "evidence_manifest_sha256": file_sha(EVIDENCE),
+                            "path": str(rules_path)},
+        "evidence_manifest_sha256": file_sha(evidence_path),
         "coverage_limitation": "رتبه‌بندی P1 آماده‌سازی تأییدنشده است؛ فقط 166 از 254 نماد امتیاز دارند و 88 بدون امتیازند. این تصمیم تک‌سهمی از رتبهٔ اول قابل امتیازدهی می‌آید؛ پوشش محدودیت تصمیم است.",
     }
+    if policy_binding:
+        decision["calendar_policy"] = policy_binding
     order = {
         "order_id": order_id, "decision_id": decision_id,
         "symbol": candidate["symbol"], "company_id": candidate["company_id"],
@@ -72,9 +92,11 @@ def _main_locked() -> None:
         "fill_event_id": None,
         "waiting_reason": "منبع رسمی اکنون آخرین جلسهٔ کامل را 2026-10-21 اعلام می‌کند؛ هنوز جلسه‌ای بعد از تصمیم ثبت نشده است. تاریخ جلسهٔ بعد را حدس نمی‌زنیم. قیمت نامزد نیز فعلاً تا 2026-10-21 است.",
         "queue_limitation": "اجرای فرضی با محدودیت دادهٔ صف؛ پیکربندی مبتنی بر close روزانه صف/اولویت/اجرای واقعی را اثبات نمی‌کند.",
-        "source_manifest": str(EVIDENCE.relative_to(ROOT)).replace("\\", "/"),
-        "source_manifest_sha256": file_sha(EVIDENCE),
+        "source_manifest": str(evidence_path),
+        "source_manifest_sha256": file_sha(evidence_path),
     }
+    if policy_binding:
+        order["calendar_policy"] = policy_binding
     account["active_decision"] = decision
     account["paper_order"] = order
     account["assumptions_version"] = rules["rule_id"]
@@ -98,14 +120,26 @@ def _main_locked() -> None:
          "reason": order["waiting_reason"],
          "details": f"سفارش داخلی تک‌سهمی؛ مبنا close نخستین جلسهٔ رسمی بعد از تصمیم؛ fee فرضی 0.5%؛ انقضا بعد از 3 جلسه؛ {order['queue_limitation']}"},
     ])
-    paper_account_store.write_account_atomic(ACCOUNT, account)
+    if policy_binding:
+        account["calendar_policy"] = policy_binding
+    paper_account_store.write_account_atomic(account_path, account)
     print(json.dumps({"decision": decision, "order": order, "cash_toman": account["cash_toman"],
                       "holdings": len(account["holdings"]), "official_ledger_linked": account["official_future_evaluation_ledger_linked"]}, ensure_ascii=False))
 
 
 def main() -> None:
-    with paper_account_store.account_write_lock(ACCOUNT):
-        _main_locked()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--account", type=Path, default=ACCOUNT)
+    parser.add_argument("--ranking", type=Path, default=RANKING)
+    parser.add_argument("--rules", type=Path, default=RULES)
+    parser.add_argument("--evidence", type=Path, default=EVIDENCE)
+    parser.add_argument("--calendar-policy", type=Path, default=ROOT / "ranking_research/paper_calendar_policy.public-paper-v1.json")
+    parser.add_argument("--calendar-provider", choices=("nscstart", "public"), default="nscstart")
+    parser.add_argument("--fixture", action="store_true", help="explicitly label a synthetic fixture execution")
+    parser.add_argument("--fixture-clock", help="fixture-only ISO clock; never for operational decisions")
+    args, _unknown = parser.parse_known_args()
+    with paper_account_store.account_write_lock(args.account.resolve()):
+        _main_locked(args)
 
 
 if __name__ == "__main__":

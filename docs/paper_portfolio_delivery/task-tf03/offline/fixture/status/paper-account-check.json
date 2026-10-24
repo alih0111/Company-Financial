@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "checked_at_utc": "2026-10-24T21:37:40.097343+00:00",
+  "account_id": "TF03_SYNTHETIC_TEMP",
+  "ranking_dataset_id": "TF03_SYNTHETIC_FIXTURE",
+  "ranking_evaluation_date": "2026-10-23",
+  "ranking_status": "FIXTURE_ONLY_NOT_REAL_RANKING",
+  "p1_scored_count": 1,
+  "candidate": {
+    "company_id": "fixture-company",
+    "symbol": "TEST",
+    "rank": 1,
+    "score": 1.0,
+    "coverage": 1.0
+  },
+  "first_eligible_session": "2026-10-24",
+  "calendar_local_through": "2026-10-26",
+  "tsetmc_retrieved_at_utc": null,
+  "candidate_post_decision_daily_rows": 2,
+  "first_session_quote": {
+    "dEven": "20261024",
+    "date": "2026-10-24",
+    "insCode": "35158826900216508",
+    "pClosing": 1234,
+    "close_rial": 1234,
+    "qTotTran5J": 10000,
+    "volume": 10000
+  },
+  "execution_rule_proposal": {
+    "rule_id": "paper-execution-rules/1.1.0-proposed",
+    "execution_mode": "اجرای فرضی با محدودیت دادهٔ صف",
+    "decision_time_utc": "2026-10-23T06:00:00+00:00",
+    "earliest_eligible_session": "2026-10-24",
+    "price_basis": "قیمت پایانی رسمی TSETMC در نخستین جلسهٔ مجاز، فقط پس از تصمیم؛ اجرای صف/قیمت قابل‌دسترس را اثبات نمی‌کند.",
+    "quantity_formula": "floor(cash_toman / (close_rial/10 * (1 + fee_rate))); تعداد صحیح، lot موقت ۱ سهم.",
+    "fee_rate": 0.005,
+    "non_execution": "جلسهٔ مجاز یا قیمت/حجم پس از تصمیم ناموجود، نماد بدون معامله، دادهٔ هویتی ناسازگار، توقف یا رویداد شرکتی حل‌نشده => عدم اجرا و حفظ وجه نقد.",
+    "expiry_rule": "پس از سه جلسهٔ رسمی واجد شرایط بدون fill مستند، ثبت عدم اجرا و بستن سفارش فرضی؛ فرض آزمایشی تا تأیید کاربر.",
+    "approval_status": "نیازمند انتخاب/تأیید کاربر؛ هیچ سفارش یا fill این بررسی ایجاد نمی‌کند."
+  },
+  "execution_ready": false,
+  "simulated_fill": null,
+  "blockers": [
+    "قواعد اجرای مبتنی بر قیمت روزانه، lot، کارمزد و عدم اجرا هنوز فرض آزمایشی‌اند و باید یک‌جا تأیید یا اصلاح شوند."
+  ],
+  "required_data": [
+    "تقویم رسمی TSETMC/O00 از 2026-10-22 تا جلسهٔ واجد شرایط بعدی، با تاریخ‌های جلسه و تعطیلی.",
+    "دادهٔ روزانهٔ رسمی TSETMC برای TEST از نخستین جلسهٔ پس از تصمیم: تاریخ، company_id/insCode، close، volume و raw response/hash/retrieved_at.",
+    "برای اجرای تأییدشده: دادهٔ صف/معاملهٔ قابل انتساب به سفارش؛ در نبود آن فقط حالت محدودشدهٔ مبتنی بر close روزانه قابل انتخاب است.",
+    "انتخاب کاربر دربارهٔ نرخ هزینهٔ آزمایشی، lot یک‌سهمی، قیمت پایانی به‌عنوان مبنای شبیه‌سازی و مهلت انقضای سفارش."
+  ],
+  "cash_reconciliation": {
+    "initial_toman": 100000,
+    "cash_toman": 43,
+    "holdings_count": 1,
+    "holdings_value_toman": 99944,
+    "total_value_toman": 99987,
+    "profit_loss_toman": -13,
+    "balanced": true
+  },
+  "source_sha256": {
+    "account": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+    "ranking": "97a1fe094c21cb0b4492c850bfcc4235045b1f12d112f7ae5417a80ba0a9994d",
+    "tsetmc_manifest": "95331381dd74b4f33b6d1167ab8c58d80c7068580dcf66bd749c368672fca892",
+    "calendar": "eeca6e858b1e11d407ffd42365982ef17b930db3f8aea9711403da9ccad66207"
+  },
+  "source_paths": {
+    "ranking": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\fixture\\ranking.json",
+    "tsetmc_manifest": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\fixture\\market-manifest.json",
+    "calendar": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\fixture\\calendar.parquet"
+  },
+  "official_ledger_touched": false
+}

@@ -173,7 +173,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside
-      className={`fixed left-0 top-0 z-40 h-full w-80 p-6 overflow-y-auto bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl shadow-2xl shadow-emerald-500/5 dark:shadow-emerald-500/10 border-r border-gray-200/80 dark:border-gray-700/60 flex flex-col gap-3 transition-transform duration-300 ease-in-out lg:sticky lg:top-4 lg:h-auto lg:max-h-[97vh] lg:mb-0 lg:mr-0 lg:rounded-3xl lg:border lg:translate-x-0 ${
+      className={`theme-transition fixed left-0 top-0 z-40 h-full w-80 p-6 overflow-y-auto bg-white/95 dark:bg-[#101a2f]/95 backdrop-blur-xl shadow-2xl shadow-emerald-500/5 dark:shadow-black/50 border-r border-gray-200/80 dark:border-white/[0.06] flex flex-col gap-3 transition-transform duration-300 ease-out-expo lg:sticky lg:top-4 lg:h-auto lg:max-h-[97vh] lg:mb-0 lg:mr-0 lg:rounded-3xl lg:border lg:translate-x-0 ${
         open ? "translate-x-0" : "-translate-x-full"
       }`}
     >
@@ -233,7 +233,14 @@ const Sidebar: React.FC<SidebarProps> = ({
         ))}
       </nav>
 
+      {/* ── جست‌وجوی شرکت ── */}
       <div>
+        <label
+          htmlFor="company"
+          className="mb-1.5 block px-1 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide"
+        >
+          انتخاب شرکت
+        </label>
         <Select
           inputId="company"
           options={companyOptions}
@@ -471,11 +478,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           </>
         )}
         {!isAdmin && (
-          <div className="shadow-sm mt-1 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-gray-700/40 h-4/6 flex flex-1 flex-col bg-white/40 dark:bg-gray-700/20">
+          <div className="shadow-sm mt-1 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-white/[0.06] h-4/6 flex flex-1 flex-col bg-white/40 dark:bg-white/[0.03]">
             <div className="p-4 pb-2 flex justify-between items-center">
               <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                 مرور سود
               </h3>
+              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 tabular-nums">
+                {companyProfits.length.toLocaleString("fa-IR")}
+              </span>
             </div>
 
             <div className="overflow-auto direction-rtl flex-1 p-2 pt-0">
@@ -531,13 +541,13 @@ const Sidebar: React.FC<SidebarProps> = ({
               localStorage.removeItem("token");
               window.location.href = "/login";
             }}
-            className="group flex items-center justify-between w-full h-10 px-3 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/60 dark:bg-gray-700/30 hover:bg-gray-900 dark:hover:bg-gray-100 transition-all duration-300 shadow-sm"
+            className="group flex items-center justify-between w-full h-10 px-3 rounded-2xl border border-gray-200/70 dark:border-white/[0.07] bg-white/60 dark:bg-white/[0.03] hover:border-red-400/50 dark:hover:border-red-500/40 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-300 shadow-sm"
           >
             <span className="flex items-center gap-2 min-w-0">
               <span className="flex items-center justify-center w-6 h-6 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 text-white text-[10px] font-black shrink-0">
                 {(username || "؟").trim().charAt(0).toUpperCase()}
               </span>
-              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:text-white dark:group-hover:text-gray-900 truncate transition-colors">
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-200 group-hover:text-red-700 dark:group-hover:text-red-300 truncate transition-colors">
                 {username}
               </span>
               {isAdmin && (
@@ -548,7 +558,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 />
               )}
             </span>
-            <span className="flex items-center gap-1.5 text-[10px] font-semibold text-gray-400 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors">
+            <span className="flex items-center gap-1.5 text-[10px] font-semibold text-gray-400 group-hover:text-red-500 dark:group-hover:text-red-400 transition-colors">
               خروج
               <FaSignOutAlt size={11} />
             </span>

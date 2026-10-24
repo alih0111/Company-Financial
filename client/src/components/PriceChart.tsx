@@ -588,7 +588,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
             <span className="text-gray-400">Vol {volFmt(hover.vol)}</span>
           </>
         ) : (
-          <span className="text-gray-400 dark:text-gray-500" dir="rtl">
+          <span className="text-gray-500 dark:text-gray-400" dir="rtl">
             {candles.length > 0
               ? `${candles.length} کندل — با نشانگر روی نمودار حرکت کنید`
               : ""}
@@ -600,7 +600,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       {stats && (
         <div className="grid grid-cols-4 gap-2 mb-4">
           <div className="rounded-xl bg-gray-50 dark:bg-gray-800/40 p-2.5 text-center border border-gray-100 dark:border-gray-700/40">
-            <div className="text-[10px] text-gray-400 dark:text-gray-500 font-medium mb-0.5">
+            <div className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mb-0.5">
               آخرین قیمت
             </div>
             <div className="text-sm font-bold text-gray-800 dark:text-white tabular-nums">
@@ -660,7 +660,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
 
       {loading ? (
         <div className="h-[600px] flex items-center justify-center">
-          <div className="flex items-center gap-3 text-gray-400 dark:text-gray-500">
+          <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
             <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
               <circle
                 className="opacity-25"
@@ -684,7 +684,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         <p className="text-center text-red-500 py-10">{error}</p>
       ) : candles.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-gray-400 dark:text-gray-500 mb-4">
+          <p className="text-gray-500 dark:text-gray-400 mb-4">
             داده‌ای برای این نماد موجود نیست
           </p>
           {isAdmin && (

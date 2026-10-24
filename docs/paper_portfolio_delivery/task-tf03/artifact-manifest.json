@@ -1,0 +1,828 @@
+{
+  "schema_version": 1,
+  "task": "TF-03",
+  "file_count": 164,
+  "manifest_excludes_itself": true,
+  "files": [
+    {
+      "path": ".gitignore",
+      "size_bytes": 8777,
+      "sha256": "0e16a7aba456b6c947014981e049d6adcf697f4cd591146d3856eec1250e8ef2"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/REPORT.fa.md",
+      "size_bytes": 7599,
+      "sha256": "7b0465b71ba0d455a04332c9efd4df98e6d2bdd275131c96179fe909d34f7c60"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/RUNBOOK.fa.md",
+      "size_bytes": 6950,
+      "sha256": "ebeec06fa584eed6de237cbddbb7a39098eb9affa8300d62c0363432ca5eb7b8"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/draft/execution_rules_public.json",
+      "size_bytes": 2695,
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/draft/public-paper-account.json",
+      "size_bytes": 4107,
+      "sha256": "1a22e1a787ca88b1bb14280701f76e32a4cda6dbe457af6f43dabe40cc6bb2ad"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/evidence/path-hashes.json",
+      "size_bytes": 2168,
+      "sha256": "7699f037ba3e1d8461d5bc6cac74439d2330532530bb58ca63d08233fbf8d3a1"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/evidence/test-run.json",
+      "size_bytes": 691,
+      "sha256": "7f2c0b846d9581d05018456f3594983e22602fd14407c0cafaa3fc49d5855322"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/evidence/write-target-audit.json",
+      "size_bytes": 4715,
+      "sha256": "7651f72a54a50ef03dd360e10353215b09cf12bf4e820bfa1fd91a39c3268165"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/history/TF03-PARTIAL-INITIAL-20261025T203000Z/REPORT.fa.md",
+      "size_bytes": 3586,
+      "sha256": "d732be98f89196f4c8a9a1aeea906d63038af9d75f804e91eb5b328380458d7a"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/history/TF03-PARTIAL-INITIAL-20261025T203000Z/artifact-manifest.json",
+      "size_bytes": 2183,
+      "sha256": "974d5ad11ef45a20e70975ae0721fa767d57b86884daefa438186d28d756ba2b"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/history/TF03-PARTIAL-INITIAL-20261025T203000Z/result.json",
+      "size_bytes": 2219,
+      "sha256": "029f45a8defca2c0b8e1d5ae700a0fd715701770b1b6268073f64c8b5d3c813a"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/latest-manifest.json",
+      "size_bytes": 255,
+      "sha256": "1b065f115612593975275656856a20d3db9f78ae4959e59adae527ea5ac2c869"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/manifest.20261024T202214019873Z.json",
+      "size_bytes": 1755656,
+      "sha256": "85d98190b2a904532614165213973ca671a86e14692c757ebf7647e7e6fd981e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/candidate_instrument.20261024T202214019873Z.bin.gz",
+      "size_bytes": 651,
+      "sha256": "0c371fb15d5e8830196288f06e7dc967f3c7dbb9c8bb9044bba6e0e597c703f0"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/identity.20261024T202214019873Z.bin.gz",
+      "size_bytes": 3499,
+      "sha256": "3b896a0a8b29531e7d6fa1941bfa1e5e70a488320acf37cbfc3a879f2bf94bba"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/last_possible.20261024T202214019873Z.bin.gz",
+      "size_bytes": 31,
+      "sha256": "e6311e3d7652bd4047c51355e41e0e51f99538de7e96dba53e47245579ddbc5d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/primary_history.20261024T202214019873Z.bin.gz",
+      "size_bytes": 68088,
+      "sha256": "94581cd86dcef85b8ae3c9c4811943cb40a572a354fe3e00d619c8cf183ec9dd"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/secondary_history.20261024T202214019873Z.bin.gz",
+      "size_bytes": 45875,
+      "sha256": "cbbd28a0446d9bbf20ac334818458d8840c8add6b284117091ef4b7cf5500203"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/calendar-fixture/package/manifest.20261024T120500000000Z.json",
+      "size_bytes": 17385,
+      "sha256": "d9eb1ad5187e00a4b8d9cf68da4c50fe0206d5424f44c13b2c7b7124e8f79cd5"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/calendar-fixture/package/raw/candidate_instrument.20261024T120500000000Z.bin.gz",
+      "size_bytes": 197,
+      "sha256": "a134969039c7afa6ccb2d5141ddf8568cb82aaae02e098615860c4237bd53a27"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/calendar-fixture/package/raw/identity.20261024T120500000000Z.bin.gz",
+      "size_bytes": 174,
+      "sha256": "e250bc5da0ae18292788d72834d354b47145316a8b1d31c3c9e2bd589b9f97b0"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/calendar-fixture/package/raw/last_possible.20261024T120500000000Z.bin.gz",
+      "size_bytes": 31,
+      "sha256": "d8f0a25e15fb9db7cf220ff3dd26185c72f4bcf32c470145c9345fc821bc9e0f"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/calendar-fixture/package/raw/primary_history.20261024T120500000000Z.bin.gz",
+      "size_bytes": 129,
+      "sha256": "cf99da985e0c312cf72d168665a17c1cf281dc88801723cd289935897c962c87"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/calendar-fixture/package/raw/secondary_history.20261024T120500000000Z.bin.gz",
+      "size_bytes": 129,
+      "sha256": "e03b70bd5c8fa28c17983d0e8d9d77641b2a7328ec0aea1d95782c23dbd9fa5f"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/calendar-fixture/snapshot/TEST.daily.json.gz",
+      "size_bytes": 127,
+      "sha256": "865c9792b750c41591d6dc6de8078ba070a5b8fd059a28a25971d39a258f551d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/calendar-fixture/snapshot/manifest.json",
+      "size_bytes": 363,
+      "sha256": "f1429dd2013000c013f06c77c07de8ee5b96904bf41dedb481cf9f2249be128f"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/account.json",
+      "size_bytes": 12268,
+      "sha256": "e7f6c02b0d1d338a64d2e9533a649108ea9fbfd9b58e02cade706ecf9365e030"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/calendar.json",
+      "size_bytes": 17385,
+      "sha256": "d9eb1ad5187e00a4b8d9cf68da4c50fe0206d5424f44c13b2c7b7124e8f79cd5"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/calendar.parquet",
+      "size_bytes": 1229,
+      "sha256": "eeca6e858b1e11d407ffd42365982ef17b930db3f8aea9711403da9ccad66207"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/candidate_daily.json.gz",
+      "size_bytes": 167,
+      "sha256": "c56bc73c66112b661c4483c27a7494eceffe61c1f6c939746257ecf48242501e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/candidate_share_changes.json.gz",
+      "size_bytes": 48,
+      "sha256": "f2f603ec61905cedeab490e58f14b065fc3e27155019ccf4ec42487ddfb55e40"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/cycle-output/execution_status.fa.md",
+      "size_bytes": 4870,
+      "sha256": "69de14a6141a07ae99dbb659ef1fd6848cead560b6c6217e9b18d69d1f12b9ed"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/cycle-output/paper-account-check.json",
+      "size_bytes": 15311,
+      "sha256": "0563baf044b8088ae34e55e6031144c49fc951fb4fa443e7759ecb57481f60b5"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/cycle-output/paper-cycle-20261024T213729968694Z-e637cd41.order-review.json",
+      "size_bytes": 5944,
+      "sha256": "053a3f307b784f68d17443ef534f266e8597543d9bb275bec306f2116f19de58"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/cycle-public/paper-account-check.json",
+      "size_bytes": 15311,
+      "sha256": "0563baf044b8088ae34e55e6031144c49fc951fb4fa443e7759ecb57481f60b5"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/cycle-public/paper-decision-record.json",
+      "size_bytes": 3166,
+      "sha256": "073d68722da38ca9db483d05d7bcae4a278e850f2b0a0eeeb8485bb72bef02b6"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/evidence.json",
+      "size_bytes": 1438,
+      "sha256": "65167260315004b879a3a223b8bed71f5a8e927b114c65467ddc9211a5b1bad3"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/last_possible_session.json.gz",
+      "size_bytes": 38,
+      "sha256": "228b017a3d5b27423404c8cf85b4fd2a6af0444347ade24436b7d828958913f9"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/market-manifest.json",
+      "size_bytes": 607,
+      "sha256": "95331381dd74b4f33b6d1167ab8c58d80c7068580dcf66bd749c368672fca892"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/public/paper-account-check.json",
+      "size_bytes": 4278,
+      "sha256": "c4a998461fe9bcb904c69229f03a3d22e635d2d444fc4c7c6831154133d8a005"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/ranking.json",
+      "size_bytes": 505,
+      "sha256": "97a1fe094c21cb0b4492c850bfcc4235045b1f12d112f7ae5417a80ba0a9994d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/rules.json",
+      "size_bytes": 2695,
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/status/paper-account-check-events.jsonl",
+      "size_bytes": 702,
+      "sha256": "bf51b04aff525cd25258365ede0c8026faffd721ecc453ec5cb1b173d0e17253"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/status/paper-account-check.json",
+      "size_bytes": 4278,
+      "sha256": "c4a998461fe9bcb904c69229f03a3d22e635d2d444fc4c7c6831154133d8a005"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/lifecycle-evidence.json",
+      "size_bytes": 96589,
+      "sha256": "ac9a815db0b7a336ec470285cc112b0db9738a3801745aceaa927b3dcd744549"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/network-block/sitecustomize.py",
+      "size_bytes": 160,
+      "sha256": "f30da9ce15a4a539891474728a854662ef2c7718efb669f0fe38c6ef54caa13e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/account.json",
+      "size_bytes": 8269,
+      "sha256": "b727fe7ba3c098953dca25af2ca457bfc35a9fd17b31c60f74e31fd5f3648015"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/calendar-source/package/manifest.20261026T120500000000Z.json",
+      "size_bytes": 19509,
+      "sha256": "4d7716ed229d46d5815ce52ff2b7c8c973cd4fe154fda0e7ea9776712985a825"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/calendar-source/package/raw/candidate_instrument.20261026T120500000000Z.bin.gz",
+      "size_bytes": 197,
+      "sha256": "ab3982eb2430cc3ed79105f53c50377e96c9c19c94ca903011794e22766cad11"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/calendar-source/package/raw/identity.20261026T120500000000Z.bin.gz",
+      "size_bytes": 174,
+      "sha256": "6450e9917371101af8cf9722b83340b0521d913d45043b43eae25adfdff6f162"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/calendar-source/package/raw/last_possible.20261026T120500000000Z.bin.gz",
+      "size_bytes": 30,
+      "sha256": "7088b2cd5bd1a16e672323652f92220d0dfb84804ddd438865b0b5a41a8f7b7c"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/calendar-source/package/raw/primary_history.20261026T120500000000Z.bin.gz",
+      "size_bytes": 137,
+      "sha256": "622d1839b8a60ceb6c3391955c10348f139d7e25a86ba561a4b679fb87af3338"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/calendar-source/package/raw/secondary_history.20261026T120500000000Z.bin.gz",
+      "size_bytes": 137,
+      "sha256": "87b2314f5d57086a0c20dd00137c35746c3cb9c6049725132abe266c79ab6cfa"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/calendar-source/snapshot/TEST.daily.json.gz",
+      "size_bytes": 134,
+      "sha256": "32554c918ee8f65644c305c8ce39b097a163d4db45c62c0c3364a3fa8f04553e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/calendar-source/snapshot/manifest.json",
+      "size_bytes": 402,
+      "sha256": "602489394b5de366c770c00b4dd5e439ba0624055f7ec17f8dda24eff899d182"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/candidate_daily.gz",
+      "size_bytes": 44,
+      "sha256": "7d3ae68fa27fef3b09e549508b071ae9e96011fabd1291fb5e724b60612b7870"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/candidate_share_changes.gz",
+      "size_bytes": 48,
+      "sha256": "a38a87d89fb8ca6b30e1a1f4db4ebee3fe499f18a22e65f551919c473b0f2c2b"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/evidence.json",
+      "size_bytes": 1540,
+      "sha256": "f3d202070e8f2009baa74608e555391e0ddd0b31b19e6b864369a61068a37c0b"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/last_possible_session.gz",
+      "size_bytes": 38,
+      "sha256": "77a687b1bd88e0f28bf0fe49d041f8d151b0ae075fa066983bc41bddd124c702"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/ranking.json",
+      "size_bytes": 505,
+      "sha256": "97a1fe094c21cb0b4492c850bfcc4235045b1f12d112f7ae5417a80ba0a9994d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/expired_with_three_sessions/rules.json",
+      "size_bytes": 2695,
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/account.json",
+      "size_bytes": 8245,
+      "sha256": "9cf4a05754571e04bb51aef2afa5bf60fd63bef12e2be114f133c4d9181b5a6e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/calendar-source/package/manifest.20261024T120500000000Z.json",
+      "size_bytes": 17587,
+      "sha256": "f2f04a23d558c9ed2bef8d52278a7f329f8bf784611060ec9bfaeb8f6f730aaa"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/calendar-source/package/raw/candidate_instrument.20261024T120500000000Z.bin.gz",
+      "size_bytes": 197,
+      "sha256": "dbcc9edb84849251256389988bfe39197700de8a5dd7a8062382ead3ddb06f60"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/calendar-source/package/raw/identity.20261024T120500000000Z.bin.gz",
+      "size_bytes": 174,
+      "sha256": "3fa91e0d89558d7f6176701bab5e60c436732adc25661f47f9c41181fb2b814a"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/calendar-source/package/raw/last_possible.20261024T120500000000Z.bin.gz",
+      "size_bytes": 31,
+      "sha256": "f74a5284c1f9c133a4b419edcabe3ae344ac6b8d28194897d1e6d90f3600c9e8"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/calendar-source/package/raw/primary_history.20261024T120500000000Z.bin.gz",
+      "size_bytes": 129,
+      "sha256": "5688618df2bb35b0d1b559d6cf598b2f6c67cbc0c5ea0e7e66ebcd51635f8880"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/calendar-source/package/raw/secondary_history.20261024T120500000000Z.bin.gz",
+      "size_bytes": 129,
+      "sha256": "ac046b672cfe1ea1961473d2dcdba0d1e44693190bda5b6fac968d571428ea9a"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/calendar-source/snapshot/TEST.daily.json.gz",
+      "size_bytes": 127,
+      "sha256": "07a63af0d56c2eb8217ee3b69fac6d9d22187a841315f5d9cee3210b448c83e8"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/calendar-source/snapshot/manifest.json",
+      "size_bytes": 390,
+      "sha256": "4591d57364b30e6164e8cc7c860c359cbab450c80245ec28367cf535960957ca"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/candidate_daily.gz",
+      "size_bytes": 148,
+      "sha256": "dbe20c0fcd4b8d60c5b3b34485c098c9a5b38558839bd10961fbf05968abf567"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/candidate_share_changes.gz",
+      "size_bytes": 48,
+      "sha256": "6f32621b23bd3446c019e38109538946ac48e29f21a0d2a3e2bcbd66c320edb4"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/cycle-output/execution_status.fa.md",
+      "size_bytes": 4729,
+      "sha256": "97b4314be154ddbbb0f8d5374bc6abb317b22f6dc6e77bc45f17714aca76fe6d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/cycle-output/paper-account-check.json",
+      "size_bytes": 13622,
+      "sha256": "a803bd643ba95a91bfc572b3315d11af4fc0cd8abf76672c071cd10c55c325eb"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/cycle-output/paper-cycle-20261024T213821781691Z-3448bfcf.order-review.json",
+      "size_bytes": 5757,
+      "sha256": "4801e8ce43a24574f9e0e010137d9494e3a88f0dcc3f3b6031af1ac5f4d79981"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/cycle-public/paper-account-check.json",
+      "size_bytes": 13622,
+      "sha256": "a803bd643ba95a91bfc572b3315d11af4fc0cd8abf76672c071cd10c55c325eb"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/cycle-public/paper-decision-record.json",
+      "size_bytes": 3204,
+      "sha256": "4958fd3d5e7dfdb91f93b552b9f20fcf4e4aaddbd9fa77a927167be495afc80c"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/evidence.json",
+      "size_bytes": 1504,
+      "sha256": "f1ab671057190130453a464ce41cf493310da19c3162c2c925a1576d455a4325"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/last_possible_session.gz",
+      "size_bytes": 40,
+      "sha256": "7cc551d186fa4dcf859d199e903cfcc2cd42cb57bd74860d1980e0a186ff3932"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/ranking.json",
+      "size_bytes": 505,
+      "sha256": "97a1fe094c21cb0b4492c850bfcc4235045b1f12d112f7ae5417a80ba0a9994d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/invalid_quality/rules.json",
+      "size_bytes": 2695,
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/account.json",
+      "size_bytes": 8263,
+      "sha256": "c0654c907dfb67ae7ce88d24aba338b38aec91da112f207c05a8a64492398a51"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/calendar-source/package/manifest.20261026T120500000000Z.json",
+      "size_bytes": 19485,
+      "sha256": "75ff5b455d66563a295931abe3760dd1ec2f4762bfd81309417b4a18c685bb84"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/calendar-source/package/raw/candidate_instrument.20261026T120500000000Z.bin.gz",
+      "size_bytes": 197,
+      "sha256": "b65b63bd5cf07fda5c1e65a99d8fbde35ef657549b779c3e7fbf062515f20cd6"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/calendar-source/package/raw/identity.20261026T120500000000Z.bin.gz",
+      "size_bytes": 174,
+      "sha256": "c77b4b5f1aab0e4d919fce71391af914a11747f0b1e4cb9fab49735131a19c1c"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/calendar-source/package/raw/last_possible.20261026T120500000000Z.bin.gz",
+      "size_bytes": 30,
+      "sha256": "253bdf5a31644256125295873098e666f33253998faa367f0547c4f41b9a68d0"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/calendar-source/package/raw/primary_history.20261026T120500000000Z.bin.gz",
+      "size_bytes": 137,
+      "sha256": "697de5c5a0914430eb09d17859e7da9585a1c094924eccff43c762e825266642"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/calendar-source/package/raw/secondary_history.20261026T120500000000Z.bin.gz",
+      "size_bytes": 137,
+      "sha256": "868ef2a74768ed953ebb60a41889815cf0d69d40e47633571b87d3649c271c29"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/calendar-source/snapshot/TEST.daily.json.gz",
+      "size_bytes": 134,
+      "sha256": "e3ea0a0884aed94cbd5329876f23a3ab07347f3862c83155af9dce69054e6b79"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/calendar-source/snapshot/manifest.json",
+      "size_bytes": 399,
+      "sha256": "57ac2a0fbf755d22ad5ddf057d9f6bd75bb0bf5f02fef7fb9c0d985c7719a569"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/candidate_daily.gz",
+      "size_bytes": 148,
+      "sha256": "49368edb6743392a0a317c608f63944f69e15b6bfd60b56ec471f4cd4050357f"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/candidate_share_changes.gz",
+      "size_bytes": 48,
+      "sha256": "c25343b284ab2b1f8dec820b28c97b9824a3ee2233dcff3bb3b9033fe684a9cc"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/evidence.json",
+      "size_bytes": 1531,
+      "sha256": "31b8d95962178fe2159bafd2033277d935cceef651706c463dae4d797f8c9d64"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/last_possible_session.gz",
+      "size_bytes": 38,
+      "sha256": "ff8d574ee99d309659f484bf46a6e37858af2a039e4e21612555e369228e95e8"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/ranking.json",
+      "size_bytes": 505,
+      "sha256": "97a1fe094c21cb0b4492c850bfcc4235045b1f12d112f7ae5417a80ba0a9994d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/late_ambiguous_first_bar/rules.json",
+      "size_bytes": 2695,
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/account.json",
+      "size_bytes": 8265,
+      "sha256": "d22d519da5743fcebba517b68b7d550ab49f68ec8c19996099f3fb51b37f4dae"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/manifest.20261024T120500000000Z.json",
+      "size_bytes": 17667,
+      "sha256": "53e83cd6b2feffc35eadb5243069309dbd144d513ea94a6fed60f741cd1054ea"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/candidate_instrument.20261024T120500000000Z.bin.gz",
+      "size_bytes": 197,
+      "sha256": "21d1ec6c07cef10e30f03460cc2d84be21962bff9e562f985a6293a2d09165b2"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/identity.20261024T120500000000Z.bin.gz",
+      "size_bytes": 174,
+      "sha256": "c7d03d050b087948f51c8b7375174cceda5d3cbb82536f407fdae76069253cf5"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/last_possible.20261024T120500000000Z.bin.gz",
+      "size_bytes": 31,
+      "sha256": "add72b20157e50ae588331db2b8e42d91184ec4ca065a64f58600cc0f073982d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/primary_history.20261024T120500000000Z.bin.gz",
+      "size_bytes": 129,
+      "sha256": "61f11c81ff3c0d11d443c38746c61b0ac61b1a4325d6be62c3fe5a730c0dcbb6"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/package/raw/secondary_history.20261024T120500000000Z.bin.gz",
+      "size_bytes": 129,
+      "sha256": "8b3e336a07ded3df889597bf5897b602feeeaf57c2bc7181e8a22c5c37e5385e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/snapshot/TEST.daily.json.gz",
+      "size_bytes": 127,
+      "sha256": "ba2ba9c876794aa4627cd6cdd902cc0dc1c484f93c250505abd1a8c44c0b8805"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/calendar-source/snapshot/manifest.json",
+      "size_bytes": 400,
+      "sha256": "19017bb6b5dda9ecc8131d3b3afa50d0333c6e50dfb20d9d2122cb7fc29972dd"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/candidate_daily.gz",
+      "size_bytes": 147,
+      "sha256": "8a6bbc4042faa5c999a34a60208a421fd4cd89260b7f43652ca76196002a1b6a"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/candidate_share_changes.gz",
+      "size_bytes": 48,
+      "sha256": "7fc94352af1a579eb2ae49c2b18c5c4bfe081d00a087aa16d400d6fc770c89fc"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/evidence.json",
+      "size_bytes": 1534,
+      "sha256": "3f6a21678e904eb141c5b0e6683c645ddf92c01308a9016b8cf7ce13b2f4fdbf"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/last_possible_session.gz",
+      "size_bytes": 40,
+      "sha256": "88f06c247acfc3ffd57a9811a427e452ca64ec368a3b24078812b7070c430dbe"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/ranking.json",
+      "size_bytes": 505,
+      "sha256": "97a1fe094c21cb0b4492c850bfcc4235045b1f12d112f7ae5417a80ba0a9994d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/missing_first_session_bar/rules.json",
+      "size_bytes": 2695,
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/account.json",
+      "size_bytes": 8243,
+      "sha256": "e11aba30e389ffead302ec8ae2ead4a9adbfa4bec2483279640dccf7b37d30f6"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/calendar-source/package/manifest.20261023T120500000000Z.json",
+      "size_bytes": 16498,
+      "sha256": "45f89de6c3c031595c2801642ae41bcc2ea61bda23b0e187d244788969686879"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/calendar-source/package/raw/candidate_instrument.20261023T120500000000Z.bin.gz",
+      "size_bytes": 197,
+      "sha256": "8870235bc9551e956018cfd7a7913def57e9eb8d6592923335778f206e7f93af"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/calendar-source/package/raw/identity.20261023T120500000000Z.bin.gz",
+      "size_bytes": 174,
+      "sha256": "95a57bc9089b3affbcc71602e776af1d34cd0eae957031c8ef091e12d77c69d6"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/calendar-source/package/raw/last_possible.20261023T120500000000Z.bin.gz",
+      "size_bytes": 31,
+      "sha256": "9accf9885c015e010eac81dc4d49d9d42a486853d3b5d6eee30614638bc412c7"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/calendar-source/package/raw/primary_history.20261023T120500000000Z.bin.gz",
+      "size_bytes": 121,
+      "sha256": "f68652b51612fc4ba7bf98a48a4a681d67d28314513adfaedd3ff35aaf680602"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/calendar-source/package/raw/secondary_history.20261023T120500000000Z.bin.gz",
+      "size_bytes": 121,
+      "sha256": "b0b06d1923b2b26e1eeb821260de953bb83a0d95f0367a91e54b83f965f4f0a8"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/calendar-source/snapshot/TEST.daily.json.gz",
+      "size_bytes": 119,
+      "sha256": "b7764122ab81c37dc3872cfb7af2ec4942f88355a613463997d1f001764a6810"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/calendar-source/snapshot/manifest.json",
+      "size_bytes": 389,
+      "sha256": "ffa50150c56f7cb02f8ce2fd213f5d8fa7aae08c1175690d6a8dc7429b763886"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/candidate_daily.gz",
+      "size_bytes": 44,
+      "sha256": "f6cc6e0fd979c11d27016b44203f55c9012417ef6722a9915f93ddb2b4b02d5e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/candidate_share_changes.gz",
+      "size_bytes": 48,
+      "sha256": "1e5e0634cbf310680c228885155126b08cb86fdc1e31ad870225c01e8da66b13"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/cycle-output/execution_status.fa.md",
+      "size_bytes": 4797,
+      "sha256": "1d91511c7aded32dd170f853dfc48d8c0527c58bb238ba99d613b0215e5ed78f"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/cycle-output/paper-account-check.json",
+      "size_bytes": 15290,
+      "sha256": "ffc8fe42fd1b6a3cec13ee7c3b9e938b0d0d43f49df99554b48843327af98cda"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/cycle-output/paper-cycle-20261024T213808903630Z-86ed9a5f.order-review.json",
+      "size_bytes": 6008,
+      "sha256": "e9e2ebe01a8a43d702e95d667bd75bdebcd61881e2d7603798af31d13a37d25f"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/cycle-public/paper-account-check.json",
+      "size_bytes": 15290,
+      "sha256": "ffc8fe42fd1b6a3cec13ee7c3b9e938b0d0d43f49df99554b48843327af98cda"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/cycle-public/paper-decision-record.json",
+      "size_bytes": 3202,
+      "sha256": "408af0fd570434fa37437fd4ac400b303fef16112cdaa9eb3839b23f7b64d542"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/evidence.json",
+      "size_bytes": 1501,
+      "sha256": "7a73cde8c6db3b9de61c4a0fbaf3861bf12e514be7ec52008527ce70ae448158"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/last_possible_session.gz",
+      "size_bytes": 40,
+      "sha256": "b543cac432618f73a3d861ba7cf0830b5cb8e8b2e6a6fd03cf7705d02ed6d97c"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/ranking.json",
+      "size_bytes": 505,
+      "sha256": "97a1fe094c21cb0b4492c850bfcc4235045b1f12d112f7ae5417a80ba0a9994d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/no_new_session/rules.json",
+      "size_bytes": 2695,
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/account.json",
+      "size_bytes": 8249,
+      "sha256": "d3e0c71a19e9b34ca190e25882885ccc1b7b9188aec456aa02774afcf23463a6"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/calendar-source/package/manifest.20261024T120500000000Z.json",
+      "size_bytes": 17603,
+      "sha256": "42ff19e72776cb8ce89981afa773494b38d535c8017564a51b03783e100304d6"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/calendar-source/package/raw/candidate_instrument.20261024T120500000000Z.bin.gz",
+      "size_bytes": 197,
+      "sha256": "0edc2dd88d3789596e2b79e93551a6aaa2f326a020ac73103e2798756ffd00e2"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/calendar-source/package/raw/identity.20261024T120500000000Z.bin.gz",
+      "size_bytes": 174,
+      "sha256": "8cd8ded68bbf400920806150abf7b615f24c59954c27e1bd2a6a9fbe2ec83c4e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/calendar-source/package/raw/last_possible.20261024T120500000000Z.bin.gz",
+      "size_bytes": 31,
+      "sha256": "9afbb1ff6589336c1a3c69b6b31e8a582395038294e169f55233c1d53030382c"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/calendar-source/package/raw/primary_history.20261024T120500000000Z.bin.gz",
+      "size_bytes": 129,
+      "sha256": "d145e690f0e598839a40987bbf93382fbc0d924979cfc94a105a17a1adda9815"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/calendar-source/package/raw/secondary_history.20261024T120500000000Z.bin.gz",
+      "size_bytes": 129,
+      "sha256": "a170d0916748e11ed6966c479e6f653724f6a87fb5d971a8e49421fb45168853"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/calendar-source/snapshot/TEST.daily.json.gz",
+      "size_bytes": 127,
+      "sha256": "923784ffb71cc20b6a63d2226b44a5cfbd58a8c1acba7e20d14e4f90ebacb1f5"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/calendar-source/snapshot/manifest.json",
+      "size_bytes": 392,
+      "sha256": "2566f5e3c6be433ae2f73621f35a7400fbefe604ece29fec239c74a56b0970f1"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/candidate_daily.gz",
+      "size_bytes": 148,
+      "sha256": "b4eedad72744d4975c7d5b4a5b9d00028d395f67e5be7fbe798f832abc5a5b70"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/candidate_share_changes.gz",
+      "size_bytes": 48,
+      "sha256": "5534ec93d67c31d3e83665b797e73b8aa55bf5724b3b589d66bcf0590a7bb9eb"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/evidence.json",
+      "size_bytes": 1510,
+      "sha256": "c294d74e0041066b782d1d5f8f93642e66371c58cd660fe852cb124464d7ca6d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/last_possible_session.gz",
+      "size_bytes": 40,
+      "sha256": "1056db403206fda4fe4e518dd06a1d324f83114288e8afb1898eb2f6f9f004de"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/ranking.json",
+      "size_bytes": 505,
+      "sha256": "97a1fe094c21cb0b4492c850bfcc4235045b1f12d112f7ae5417a80ba0a9994d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline/scenarios/provider_mismatch/rules.json",
+      "size_bytes": 2695,
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/result.json",
+      "size_bytes": 4722,
+      "sha256": "4c3bac7b87237e5a8a8ff291756f1ab8800afde2c67f28bf84aade58396d3dcf"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/run_offline_lifecycle.py",
+      "size_bytes": 16942,
+      "sha256": "3bf0e7afc3ecb11cb56a366fd6503290e3d90302b5f0a4dc44348d322c38b1cd"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/acquire_paper_candidate_evidence.py",
+      "size_bytes": 6927,
+      "sha256": "7a1f08f36af1d9c88994b00ec5760b29f953607fd8abf966bc0f127bbfeeb026"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/apply_paper_fill.py",
+      "size_bytes": 32817,
+      "sha256": "c67c2a874729322c48c483c946100b9e829352d5f18c0e4f5d985cae90f4cf61"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/check_paper_account.py",
+      "size_bytes": 19093,
+      "sha256": "beb039fe16d2d2edd2875742ecba0a1dcc22e9162b9ddc8e32d6270204d6e493"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/check_paper_order.ps1",
+      "size_bytes": 8146,
+      "sha256": "16ace961a3ee68f87de4972b65646667aec39d112c8342341a4ea866cab7ef3e"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/create_public_paper_account.py",
+      "size_bytes": 5006,
+      "sha256": "8c0b3531076b634fe90b31adb5a7b6461ea6f00a595eb5ada0ee914f4e3fc0cd"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/paper_cycle.py",
+      "size_bytes": 83112,
+      "sha256": "3c6a4f392c98c14913117ec924ecc557b8158fc6a9107764527ed072e66cc799"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/refresh_paper_decision_status.py",
+      "size_bytes": 34664,
+      "sha256": "3c28d24b65c6233b4b725a240767da5fb08c67f83b0d233cf2e744def442f209"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/register_paper_decision.py",
+      "size_bytes": 9806,
+      "sha256": "92d0ee3cf379bdffb0f3d754ec2edc21ca7643f295e8ee9cc7ddf496f279d109"
+    },
+    {
+      "path": "ranking_research/paper_calendar.py",
+      "size_bytes": 36748,
+      "sha256": "8c9950a2fca7a9a9959384d6e7f96e5f4bff0040a718cf407b87c4f730917b64"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_account_atomic.py",
+      "size_bytes": 38299,
+      "sha256": "0139342be6fd7dc6ca012a5f80caab8dd1878078bf1fd1df7522e419a528409f"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_interface.py",
+      "size_bytes": 40195,
+      "sha256": "d7ffa3fbd1be5913a3af8cab6cbb0b331e441254506052f11c3738de4b05c8f0"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_tf02a_regressions.py",
+      "size_bytes": 42057,
+      "sha256": "575a8fc2abdbd7f86ea2432090166f7f1640f82907aef62e1760e0686dc3b9b2"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_tf02b_regressions.py",
+      "size_bytes": 13585,
+      "sha256": "8d483e995faa18cc00e4b9473e310fe851702a2e31b4eb58be83cd79d59697f8"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_tf03_regressions.py",
+      "size_bytes": 3379,
+      "sha256": "853295eb7055b5d772b7e4395c0f979dd54c1facd429101c6290767591324701"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_cycle_http.py",
+      "size_bytes": 2020,
+      "sha256": "4d815998c492157b2e867ec0701e9764558c9f5b69e5935bcd768357ed6ea92d"
+    },
+    {
+      "path": "ranking_research/tests/test_public_market_calendar.py",
+      "size_bytes": 47439,
+      "sha256": "1ab4f8ebb2dc13a9eb48f6a57ae3689316bb33bb0970bb8843ca4c6301b47e28"
+    }
+  ]
+}

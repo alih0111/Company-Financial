@@ -1,0 +1,234 @@
+{
+  "account_id": "TF03_SYNTHETIC_TEMP",
+  "accounting": {
+    "holdings_value_toman": 99944,
+    "total_value_toman": 99987,
+    "profit_loss_toman": -13,
+    "last_price_status": "ارزش‌گذاری با آخرین close روزانهٔ TSETMC؛ شواهد صف/اجرا ندارد."
+  },
+  "assumptions": [
+    {
+      "id": "decision",
+      "label": "زمان و مبنای تصمیم",
+      "value": "2026-10-23T06:00:00+00:00 UTC؛ رتبه‌بندی ثابت‌شده در active_decision",
+      "status": "ثبت‌شده"
+    },
+    {
+      "id": "price",
+      "label": "قیمت فرضی اجرا",
+      "value": "قیمت پایانی TSETMC در نخستین جلسهٔ رسمی پس از تصمیم",
+      "status": "فرض آزمایشی؛ محدودیت دادهٔ صف"
+    },
+    {
+      "id": "lot",
+      "label": "lot",
+      "value": "یک سهم؛ تعداد صحیح",
+      "status": "فرض آزمایشی پذیرفته‌شده"
+    },
+    {
+      "id": "fee",
+      "label": "هزینه",
+      "value": "۰٫۵٪ در هر سمت",
+      "status": "فرض آزمایشی پذیرفته‌شده؛ هزینهٔ واقعی نیست"
+    },
+    {
+      "id": "expiry",
+      "label": "انقضا",
+      "value": "پایان سومین جلسهٔ رسمی پس از تصمیم، طبق قاعدهٔ نسخه‌دار",
+      "status": "فرض آزمایشی پذیرفته‌شده"
+    }
+  ],
+  "assumptions_version": "paper-execution-rules/1.2.0-user-approved",
+  "candidate_status": "اجرای فرضی با محدودیت دادهٔ صف؛ fill بازار واقعی/تأییدشده نیست",
+  "cash_toman": 43,
+  "contract": {
+    "exit_rank": 1,
+    "id": "future-evaluation-v12.28-p1-p3-o00-g0",
+    "model": "P1",
+    "review_cadence_sessions": 63,
+    "selection_rule": "P1 رتبهٔ اول؛ تک‌سهمی، بازبینی هر ۶۳ جلسه طبق O00؛ خروج/تعویض فقط در بازبینی مقرر.",
+    "sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+    "target_count": 1,
+    "weight_id": "valuation_0"
+  },
+  "created_at_tehran": "2026-10-23T09:30:00+03:30",
+  "created_at_utc": "2026-10-23T06:00:00+00:00",
+  "currency": "IRR-toman",
+  "decision_at_utc": "2026-10-23T06:00:00+00:00",
+  "decision_kind": "PAPER_ACCOUNT_CREATED_AND_CANDIDATE_RECORDED; NOT_AN_O00_DECISION",
+  "event_log": [
+    {
+      "event_id": "tf03-fixture-init",
+      "type": "ACCOUNT_CREATED",
+      "at_utc": "2026-10-23T06:00:00+00:00",
+      "reason": "synthetic fixture",
+      "details": "fixture only"
+    },
+    {
+      "event_id": "paper-decision-3e413c0bb9882c28e361",
+      "type": "PAPER_BUY_DECISION_RECORDED",
+      "at_utc": "2026-10-23T06:00:00+00:00",
+      "reason": "ثبت تصمیم تازه پس از پذیرش قواعد اجرای آزمایشی؛ بدون انتقال به گذشته.",
+      "details": "TEST؛ P1 rank 1؛ dataset=TF03_SYNTHETIC_FIXTURE; ranking_sha256=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; rules=paper-execution-rules/1.2.0-user-approved sha256=c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683; امتیازدار 166/254."
+    },
+    {
+      "event_id": "paper-order-73610cd727cd6a706a34",
+      "type": "PAPER_ORDER_PENDING",
+      "at_utc": "2026-10-23T06:00:00+00:00",
+      "reason": "منبع رسمی اکنون آخرین جلسهٔ کامل را 2026-10-21 اعلام می‌کند؛ هنوز جلسه‌ای بعد از تصمیم ثبت نشده است. تاریخ جلسهٔ بعد را حدس نمی‌زنیم. قیمت نامزد نیز فعلاً تا 2026-10-21 است.",
+      "details": "سفارش داخلی تک‌سهمی؛ مبنا close نخستین جلسهٔ رسمی بعد از تصمیم؛ fee فرضی 0.5%؛ انقضا بعد از 3 جلسه؛ اجرای فرضی با محدودیت دادهٔ صف؛ پیکربندی مبتنی بر close روزانه صف/اولویت/اجرای واقعی را اثبات نمی‌کند."
+    },
+    {
+      "event_id": "paper-fill-paper-order-73610cd727cd6a706a34-20261024",
+      "type": "PAPER_FILL_DAILY_CLOSE_LIMITED_QUEUE",
+      "at_utc": "2026-10-24T21:37:34.845918+00:00",
+      "reason": "قیمت پایانی و حجم مثبت در نخستین جلسهٔ پذیرفته‌شدهٔ تقویم عمومی بعد از تصمیم، با هویت insCode منطبق و منابع بعد از تصمیم ثبت شدند؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم.",
+      "details": "TEST; session=20261024; shares=806; close_rial=1234.0; gross_toman=99460; assumed_fee_toman=497; cash_after=43; order=paper-order-73610cd727cd6a706a34; evidence_sha256=65167260315004b879a3a223b8bed71f5a8e927b114c65467ddc9211a5b1bad3; calendar_provider=public; calendar_manifest_sha256=d9eb1ad5187e00a4b8d9cf68da4c50fe0206d5424f44c13b2c7b7124e8f79cd5; queue not evidenced."
+    },
+    {
+      "event_id": "paper-mark-2026-10-25",
+      "type": "PAPER_MARK_TO_MARKET",
+      "at_utc": "2026-10-24T21:37:40.227838+00:00",
+      "reason": "درخواست به‌روزرسانی داخلی با close روزانهٔ تازه و حجم مثبت.",
+      "details": "TEST؛ 806 سهم؛ close 1240 ریال در 2026-10-25؛ ارزش 99944 تومان؛ سود/زیان تحقق‌نیافته -13 تومان."
+    }
+  ],
+  "execution_recorded": true,
+  "holdings": [
+    {
+      "symbol": "TEST",
+      "company_id": "fixture-company",
+      "shares": 806,
+      "purchase_price_rial": 1234.0,
+      "purchase_price_toman": 123.4,
+      "purchase_at_utc": "20261024 close (first official session after decision; recorded 2026-10-24T21:37:34.845918+00:00)",
+      "cost_basis_toman": 99460,
+      "fee_toman": 497,
+      "last_price_rial": 1240.0,
+      "last_price_date": "2026-10-25",
+      "market_value_toman": 99944,
+      "unrealized_pnl_toman": -13,
+      "price_status": "ارزش‌گذاری با آخرین close روزانهٔ TSETMC؛ شواهد صف/اجرا ندارد."
+    }
+  ],
+  "initial_capital_toman": 100000,
+  "official_future_evaluation_ledger_linked": false,
+  "official_ledger_event_count_changed": false,
+  "order_created": true,
+  "ranking": {
+    "dataset_id": "TF03_SYNTHETIC_FIXTURE",
+    "evaluation_date": "2026-10-23",
+    "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "top_candidate": {
+      "company_id": "fixture-company",
+      "symbol": "TEST",
+      "rank": 1,
+      "score": 1.0,
+      "coverage": 1.0
+    }
+  },
+  "real_order_submitted": false,
+  "schema_version": 1,
+  "status": "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE",
+  "waiting_reason": "موقعیت فقط در حساب آزمایشی ثبت شده است؛ صف/اولویت اجرا از close روزانه اثبات نمی‌شود.",
+  "calendar_policy": {
+    "id": "public-paper-v1",
+    "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+    "provider": "public-index",
+    "version": "1.0.0"
+  },
+  "active_decision": {
+    "decision_id": "paper-decision-3e413c0bb9882c28e361",
+    "decided_at_utc": "2026-10-23T06:00:00+00:00",
+    "decision_local_date": "2026-10-23",
+    "decision_kind": "PAPER_ONLY_BUY_DECISION_NOT_O00",
+    "candidate": {
+      "symbol": "TEST",
+      "company_id": "fixture-company",
+      "rank": 1,
+      "score": 1.0,
+      "coverage": 1.0
+    },
+    "ranking": {
+      "dataset_id": "TF03_SYNTHETIC_FIXTURE",
+      "artifact_id": "tf03-synthetic-ranking",
+      "evaluation_date": "2026-10-23",
+      "status": "FIXTURE_ONLY_NOT_REAL_RANKING",
+      "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "scored": 1,
+      "universe": 254
+    },
+    "execution_rules": {
+      "rule_id": "paper-execution-rules/1.2.0-user-approved",
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683",
+      "path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\fixture\\rules.json"
+    },
+    "evidence_manifest_sha256": "65167260315004b879a3a223b8bed71f5a8e927b114c65467ddc9211a5b1bad3",
+    "coverage_limitation": "رتبه‌بندی P1 آماده‌سازی تأییدنشده است؛ فقط 166 از 254 نماد امتیاز دارند و 88 بدون امتیازند. این تصمیم تک‌سهمی از رتبهٔ اول قابل امتیازدهی می‌آید؛ پوشش محدودیت تصمیم است.",
+    "calendar_policy": {
+      "id": "public-paper-v1",
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+      "provider": "public-index",
+      "version": "1.0.0"
+    }
+  },
+  "paper_order": {
+    "order_id": "paper-order-73610cd727cd6a706a34",
+    "decision_id": "paper-decision-3e413c0bb9882c28e361",
+    "symbol": "TEST",
+    "company_id": "fixture-company",
+    "status": "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE",
+    "created_at_utc": "2026-10-23T06:00:00+00:00",
+    "designated_execution_session": "20261024",
+    "designated_execution_price_rial": 1234.0,
+    "expires_after_official_sessions": 3,
+    "eligible_session_count_observed": 1,
+    "fill_event_id": "paper-fill-paper-order-73610cd727cd6a706a34-20261024",
+    "waiting_reason": "منبع رسمی اکنون آخرین جلسهٔ کامل را 2026-10-21 اعلام می‌کند؛ هنوز جلسه‌ای بعد از تصمیم ثبت نشده است. تاریخ جلسهٔ بعد را حدس نمی‌زنیم. قیمت نامزد نیز فعلاً تا 2026-10-21 است.",
+    "queue_limitation": "اجرای فرضی با محدودیت دادهٔ صف؛ close روزانه fill یا اولویت واقعی را اثبات نمی‌کند.",
+    "source_manifest": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\fixture\\evidence.json",
+    "source_manifest_sha256": "65167260315004b879a3a223b8bed71f5a8e927b114c65467ddc9211a5b1bad3",
+    "calendar_policy": {
+      "id": "public-paper-v1",
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+      "provider": "public-index",
+      "version": "1.0.0"
+    },
+    "fill_source_manifest": "docs/paper_portfolio_delivery/task-tf03/offline/fixture/evidence.json",
+    "fill_source_manifest_sha256": "65167260315004b879a3a223b8bed71f5a8e927b114c65467ddc9211a5b1bad3",
+    "fill_receipt": {
+      "version": 2,
+      "account_id": "TF03_SYNTHETIC_TEMP",
+      "decision_id": "paper-decision-3e413c0bb9882c28e361",
+      "order_id": "paper-order-73610cd727cd6a706a34",
+      "designated_session": "20261024",
+      "rules_sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683",
+      "ins_code": "35158826900216508",
+      "symbol": "TEST",
+      "company_id": "fixture-company",
+      "shares": 806,
+      "close_rial": 1234.0,
+      "gross_toman": 99460,
+      "fee_toman": 497,
+      "source_sha256": {
+        "calendar_manifest": "d9eb1ad5187e00a4b8d9cf68da4c50fe0206d5424f44c13b2c7b7124e8f79cd5",
+        "candidate_daily": "2614add74d0bd8491020514ab30a408cfa953345ab8acccf5d377710c74214ba",
+        "candidate_share_changes": "b2d9fb0936459e77a0e712add291b9952e59cb41aa6f7ea6bccd8f9afae44db0",
+        "last_possible_session": "2dd178bd0da3a1ecb9db3985a3ef55bb986930ea67de7ec4ed08eeb4c558a5dd"
+      },
+      "cash_before_toman": 100000,
+      "calendar": {
+        "provider": "public-index",
+        "policy_id": "public-paper-v1",
+        "policy_sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+        "manifest": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\fixture\\calendar.json",
+        "manifest_sha256": "d9eb1ad5187e00a4b8d9cf68da4c50fe0206d5424f44c13b2c7b7124e8f79cd5",
+        "completion_type": "named_operational_assumption",
+        "assumed_completion": "20261024",
+        "validated_at_utc": "2026-10-24T12:05:00+00:00",
+        "evidence_manifest_sha256": "65167260315004b879a3a223b8bed71f5a8e927b114c65467ddc9211a5b1bad3",
+        "label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+      }
+    }
+  }
+}

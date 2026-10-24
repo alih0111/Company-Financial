@@ -154,7 +154,7 @@ const Chip: React.FC<{
 // سلول یک محور در جدول: امتیاز مشاهده‌شده + پوشش واقعی + وضعیت واجد شرایط
 const AxisCell: React.FC<{ a: QvtAxisView; axis: "q" | "v" | "t" }> = ({ a, axis }) => {
   if (!a.present) {
-    return <span className="text-xs text-gray-400 dark:text-gray-500">بدون داده</span>;
+    return <span className="text-xs text-gray-500 dark:text-gray-400">بدون داده</span>;
   }
   const eligibleTone = a.eligibility_known ? (a.pilot_eligible ? "ok" : "off") : "warn";
   const eligibleText = a.eligibility_known
@@ -168,14 +168,14 @@ const AxisCell: React.FC<{ a: QvtAxisView; axis: "q" | "v" | "t" }> = ({ a, axis
         <span className="text-sm font-bold tabular-nums text-gray-800 dark:text-gray-100">
           {fmt(a.points)}
         </span>
-        <span className="text-[10px] text-gray-400 dark:text-gray-500 tabular-nums">
+        <span className="text-[10px] text-gray-500 dark:text-gray-400 tabular-nums">
           از {a.max_weight % 1 === 0 ? a.max_weight : fmt(a.max_weight, 1)}
         </span>
         <Chip tone={eligibleTone as "ok" | "off" | "warn"}>{eligibleText}</Chip>
       </div>
       <div className="flex items-center gap-1">
         <span
-          className="text-[10px] tabular-nums text-gray-400 dark:text-gray-500"
+          className="text-[10px] tabular-nums text-gray-500 dark:text-gray-400"
           title={`پوشش واقعی ${AXIS_TITLES[axis]}`}
         >
           پوشش {fmt(a.covered_weight, 1)} ({fmtPct(a.coverage_ratio, 0)})
@@ -216,7 +216,7 @@ const FactorRows: React.FC<{ factors: Record<string, any> }> = ({
     <div className="overflow-x-auto">
       <table className="w-full text-xs border-separate border-spacing-y-1">
         <thead>
-          <tr className="text-[10px] text-gray-400 dark:text-gray-500 text-right">
+          <tr className="text-[10px] text-gray-500 dark:text-gray-400 text-right">
             <th className="px-2 py-1">فاکتور</th>
             <th className="px-2 py-1">وزن</th>
             <th className="px-2 py-1">جهت</th>
@@ -271,7 +271,7 @@ const FactorRows: React.FC<{ factors: Record<string, any> }> = ({
                   {/* آرتیفکت Q مقدار خام فاکتورها را صادر نمی‌کند — پیام صریح،
                       نه مقدار فرضی */}
                   {f.raw_value == null ? (
-                    <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                    <span className="text-[10px] text-gray-500 dark:text-gray-400">
                       مقدار خام در خروجی موجود نیست
                     </span>
                   ) : (
@@ -318,7 +318,7 @@ const AxisDetail: React.FC<{
 }> = ({ axis, data, maxWeight }) => {
   if (!data) {
     return (
-      <p className="text-xs text-gray-400 dark:text-gray-500 px-1">
+      <p className="text-xs text-gray-500 dark:text-gray-400 px-1">
         برای این محور داده‌ای در آرتیفکت پایلوت نیست.
       </p>
     );
@@ -338,7 +338,7 @@ const AxisDetail: React.FC<{
           </b>{" "}
           از {maxWeight}
         </span>
-        <span className="text-[11px] tabular-nums text-gray-400 dark:text-gray-500">
+        <span className="text-[11px] tabular-nums text-gray-500 dark:text-gray-400">
           پوشش {fmt(data.covered_weight, 1)} از {maxWeight} ({fmtPct(data.coverage_ratio, 0)})
         </span>
         {data.pilot_eligible === true && <Chip tone="ok">واجد شرایط پایلوت ✓</Chip>}
@@ -360,7 +360,7 @@ const AxisDetail: React.FC<{
           <p className="text-[11px] font-semibold text-gray-500 dark:text-gray-400 mb-1">
             محدودیت‌های ثبت‌شده (بدون بازتوزیع وزن):
           </p>
-          <ul className="list-disc pr-5 text-[10px] leading-4 text-gray-400 dark:text-gray-500 space-y-0.5">
+          <ul className="list-disc pr-5 text-[10px] leading-4 text-gray-500 dark:text-gray-400 space-y-0.5">
             {data.limitations.map((l: string, i: number) => (
               <li key={i}>{l}</li>
             ))}
@@ -445,7 +445,7 @@ const ConfidenceDetailBlock: React.FC<{ cf: QvtConfidence }> = ({ cf }) => (
             <Chip tone={DC_STATUS_TONE[d.status] ?? "off"}>{DC_STATUS_SHORT[d.status] ?? d.status}</Chip>
             <b className="text-[11px] text-gray-700 dark:text-gray-200">{d.title}</b>
           </div>
-          <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 leading-4" dir="auto">
+          <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-1 leading-4" dir="auto">
             منابع بررسی‌شده: {d.sources}
           </p>
           {(d.reasons ?? []).length > 0 ? (
@@ -470,7 +470,7 @@ const ConfidenceDetailBlock: React.FC<{ cf: QvtConfidence }> = ({ cf }) => (
         <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-4 mt-0.5">{cf.serious_note}</p>
       </div>
     )}
-    <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-4 mt-2">
+    <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-4 mt-2">
       دروازه ریسک به‌صورت مستقل در بلوک بعدی ارزیابی می‌شود؛ این بلوک هیچ ارزیابی ریسک یا
       امتیاز اطمینان عددی ارائه نمی‌دهد و هیچ امتیاز Q/V/T را تغییر نمی‌دهد.
     </p>
@@ -543,7 +543,7 @@ const RiskFindingRow: React.FC<{ f: QvtRiskFinding }> = ({ f }) => (
     </div>
     <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-4 mt-1">{f.reason}</p>
     <ul
-      className="list-disc pr-5 text-[10px] leading-4 text-gray-400 dark:text-gray-500 space-y-0.5 mt-1"
+      className="list-disc pr-5 text-[10px] leading-4 text-gray-500 dark:text-gray-400 space-y-0.5 mt-1"
       dir="auto"
     >
       {f.evidence.map((e, i) => (
@@ -587,7 +587,7 @@ const RiskGateDetailBlock: React.FC<{ rg: QvtRiskGate }> = ({ rg }) => (
               <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">
                 شکاف شواهد (بررسی ناتمام — نه خطای اثبات‌شده):
               </p>
-              <ul className="list-disc pr-5 text-[10px] leading-4 text-gray-400 dark:text-gray-500 space-y-0.5 mt-0.5">
+              <ul className="list-disc pr-5 text-[10px] leading-4 text-gray-500 dark:text-gray-400 space-y-0.5 mt-0.5">
                 {a.evidence_gaps.map((g, i) => (
                   <li key={i} dir="auto">{g}</li>
                 ))}
@@ -598,7 +598,7 @@ const RiskGateDetailBlock: React.FC<{ rg: QvtRiskGate }> = ({ rg }) => (
             <summary className="text-[10px] text-sky-600 dark:text-sky-400 cursor-pointer">
               بررسی‌های انجام‌شده این حوزه
             </summary>
-            <ul className="list-disc pr-5 text-[10px] leading-4 text-gray-400 dark:text-gray-500 space-y-0.5 mt-0.5">
+            <ul className="list-disc pr-5 text-[10px] leading-4 text-gray-500 dark:text-gray-400 space-y-0.5 mt-0.5">
               {a.checks.map((c, i) => (
                 <li key={i}>{c}</li>
               ))}
@@ -607,7 +607,7 @@ const RiskGateDetailBlock: React.FC<{ rg: QvtRiskGate }> = ({ rg }) => (
         </div>
       ))}
     </div>
-    <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-4 mt-2">{rg.note}</p>
+    <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-4 mt-2">{rg.note}</p>
   </div>
 );
 
@@ -644,7 +644,7 @@ const CandidateEvidenceBlock: React.FC<{ c: QvtShortlistEntry }> = ({ c }) => {
   const sub = (t: string) => (
     <p className="text-[10px] font-bold text-gray-600 dark:text-gray-300 mt-2 mb-0.5">{t}</p>
   );
-  const none = <span className="text-[10px] text-gray-400 dark:text-gray-500">— ثبت‌شده‌ای نیست</span>;
+  const none = <span className="text-[10px] text-gray-500 dark:text-gray-400">— ثبت‌شده‌ای نیست</span>;
   return (
     <div className="rounded-2xl border border-emerald-200/60 dark:border-emerald-900/40 bg-emerald-50/40 dark:bg-emerald-900/10 p-3">
       <p className="text-[11px] font-bold text-emerald-700 dark:text-emerald-300 mb-0.5">
@@ -692,7 +692,7 @@ const CandidateEvidenceBlock: React.FC<{ c: QvtShortlistEntry }> = ({ c }) => {
 
       {sub("پوشش و محدودیت داده‌ها")}
       {issues.length === 0 ? (
-        <span className="text-[10px] text-gray-400 dark:text-gray-500">
+        <span className="text-[10px] text-gray-500 dark:text-gray-400">
           همه فاکتورهای موردنیاز امتیاز گرفته‌اند — نسبت یا مقدار خام مفقودی ثبت نشده
         </span>
       ) : (
@@ -709,7 +709,7 @@ const CandidateEvidenceBlock: React.FC<{ c: QvtShortlistEntry }> = ({ c }) => {
       {sub("ریسک‌های ثبت‌شده (دروازه ریسک)")}
       <p className="text-[10px] text-gray-500 dark:text-gray-400">
         وضعیت: {c.risk_gate?.status_label ?? "—"}{" "}
-        <span className="text-gray-400 dark:text-gray-500">
+        <span className="text-gray-500 dark:text-gray-400">
           (هیچ وضعیتی به معنی تأیید یا کم‌ریسک بودن نیست)
         </span>
       </p>
@@ -746,7 +746,7 @@ const CandidateEvidenceBlock: React.FC<{ c: QvtShortlistEntry }> = ({ c }) => {
         </ul>
       )}
 
-      <p className="text-[9px] text-gray-400 dark:text-gray-500 leading-4 mt-2">
+      <p className="text-[9px] text-gray-500 dark:text-gray-400 leading-4 mt-2">
         این خلاصه فقط از شواهد ثبت‌شده ساخته می‌شود و توصیه خرید/فروش نیست؛ Data
         Confidence و Risk Gate حق تغییر امتیازها یا لایه‌های پارتو را ندارند.
       </p>
@@ -969,7 +969,7 @@ const EgAuditBlock: React.FC<{ audit: any }> = ({ audit }) => {
           </ul>
         </details>
       )}
-      <p className="text-[9px] text-gray-400 dark:text-gray-500 leading-4" dir="auto">
+      <p className="text-[9px] text-gray-500 dark:text-gray-400 leading-4" dir="auto">
         {audit.in_official_composite
           ? "هر دو جزء معتبر است (ترکیب رسمی قابل‌تشکیل) — اما فاکتور با policy exclusion گام ۲-ب-۶ همچنان از تجمیع رسمی Q خارج است."
           : "ترکیب رسمی فاکتور برای این شرکت قابل‌تشکیل نیست (یک جزء بدون پایهٔ قابل‌اتکا) — هیچ درصد جایگزینی ساخته نشده."}
@@ -1030,7 +1030,7 @@ const DiagnosticQFactorsSection: React.FC<{ qd: any | null; egAudit?: any | null
           <p className="text-[9px] leading-4 text-gray-500 dark:text-gray-400 mt-0.5" dir="auto">
             {egAudit._meta.economic_quality_note}
           </p>
-          <p className="text-[9px] leading-4 text-gray-400 dark:text-gray-500 mt-0.5" dir="auto">
+          <p className="text-[9px] leading-4 text-gray-500 dark:text-gray-400 mt-0.5" dir="auto">
             {egAudit._meta.disclaimer}
           </p>
         </div>
@@ -1145,7 +1145,7 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
               </ul>
             </details>
           )}
-          <p className="text-[9px] text-gray-400 dark:text-gray-500 leading-4 mt-1.5">
+          <p className="text-[9px] text-gray-500 dark:text-gray-400 leading-4 mt-1.5">
             پوشش وزنی Q: {Number(q.coverage?.covered_weight ?? 0).toFixed(1)} از ۴۰
             {(q.coverage?.missing_weight ?? 0) > 0 &&
               ` · مفقود: ${Number(q.coverage.missing_weight).toFixed(1)} (هیچ وزن مفقودی بازتوزیع نشده)`}
@@ -1161,7 +1161,7 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
           </p>
           <table className="w-full text-[10px]">
             <thead>
-              <tr className="text-gray-400 dark:text-gray-500 text-right">
+              <tr className="text-gray-500 dark:text-gray-400 text-right">
                 <th className="font-semibold px-1 py-0.5">نسبت</th>
                 <th className="font-semibold px-1 py-0.5">مقدار</th>
                 <th className="font-semibold px-1 py-0.5">جایگاه در همتا</th>
@@ -1272,7 +1272,7 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
             </p>
           </div>
         ))}
-        <p className="text-[9px] text-gray-400 dark:text-gray-500 leading-4 mt-1.5">
+        <p className="text-[9px] text-gray-500 dark:text-gray-400 leading-4 mt-1.5">
           Data Confidence و Risk Gate همان قرارداد قبلی‌اند و حق تغییر امتیاز یا لایهٔ پارتو ندارند؛
           این پرونده فقط شواهد را کنار هم می‌گذارد.
         </p>
@@ -1331,7 +1331,7 @@ const IndependentValidationSection: React.FC<{ iv: any | null }> = ({ iv }) => {
           </Chip>
         )}
       </div>
-      <p className="text-[9px] text-gray-400 dark:text-gray-500 leading-4 mt-1">
+      <p className="text-[9px] text-gray-500 dark:text-gray-400 leading-4 mt-1">
         این وضعیت کیفیت شواهد است — نه تأیید قطعی صحت اقتصادی، مناسب‌بودن
         سرمایه‌گذاری یا مجوز ورود؛ «verified_from_source» هم تأیید کامل منشأ
         خارجی اطلاعات نیست.
@@ -1458,7 +1458,7 @@ const OverlayEvidenceSection: React.FC<{
           </Chip>
         )}
         {uniqueDates.length > 0 && (
-          <span className="text-[9px] text-gray-400 dark:text-gray-500" dir="ltr">
+          <span className="text-[9px] text-gray-500 dark:text-gray-400" dir="ltr">
             {uniqueDates.join(" · ")}
           </span>
         )}
@@ -1487,7 +1487,7 @@ const OverlayEvidenceSection: React.FC<{
         </div>
       )}
       {meta?.files && meta.files.length > 0 && (
-        <p className="text-[9px] text-gray-400 dark:text-gray-500 mt-1" dir="ltr">
+        <p className="text-[9px] text-gray-500 dark:text-gray-400 mt-1" dir="ltr">
           {meta.files.join(" · ")}
         </p>
       )}
@@ -1520,7 +1520,7 @@ const EvidenceSourcesBlock: React.FC<{
         <div className="mt-1 rounded-lg bg-white/60 dark:bg-gray-900/30 ring-1 ring-gray-200/60 dark:ring-gray-700/40 px-2 py-1">
           {it.fields!.map((f, i) => (
             <p key={i} className="text-[10px] text-gray-600 dark:text-gray-300 leading-4" dir="auto">
-              <span className="text-gray-400 dark:text-gray-500">{f.k}: </span>
+              <span className="text-gray-500 dark:text-gray-400">{f.k}: </span>
               {f.v}
             </p>
           ))}
@@ -1565,7 +1565,7 @@ const EvidenceSourcesBlock: React.FC<{
           </Chip>
         ))}
       </div>
-      <p className="text-[9px] text-gray-400 dark:text-gray-500 leading-4 mt-1.5">
+      <p className="text-[9px] text-gray-500 dark:text-gray-400 leading-4 mt-1.5">
         {chain.notes[0]}
       </p>
 
@@ -1681,7 +1681,7 @@ const DetailPanel: React.FC<{
             {symbol || "—"}
           </h3>
           {detail && (
-            <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">
+            <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-0.5">
               {detail.company.industry} · خانواده {detail.company.model_family} ·{" "}
               <span dir="ltr" className="font-mono">{detail.company.company_id}</span>
             </p>
@@ -1703,7 +1703,7 @@ const DetailPanel: React.FC<{
       </div>
 
       {loading && (
-        <p className="text-sm text-gray-400 dark:text-gray-500 py-6 text-center">
+        <p className="text-sm text-gray-500 dark:text-gray-400 py-6 text-center">
           در حال بارگذاری جزئیات…
         </p>
       )}
@@ -1894,7 +1894,7 @@ const ShortlistComparePanel: React.FC<{
           <table className="w-full text-[10px] border-separate border-spacing-x-2">
             <thead>
               <tr>
-                <th className="text-right text-gray-400 dark:text-gray-500 font-semibold w-28">محور مقایسه</th>
+                <th className="text-right text-gray-500 dark:text-gray-400 font-semibold w-28">محور مقایسه</th>
                 {items.map((it) => (
                   <th key={it.company_id} className="text-right">
                     <span className="inline-flex items-center gap-1">
@@ -2070,11 +2070,11 @@ const SEV_RANK: Record<string, number> = {
 // سلول «تاریخ قیمت استفاده‌شده و تازگی آن» — فقط از کنترل مستقل واقعی؛
 // اگر منبع در دسترس نباشد صریح گفته می‌شود و هیچ عددی جایگزین نمی‌شود.
 const PriceFreshnessCell: React.FC<{ pf: QvtPriceFreshness | null }> = ({ pf }) => {
-  if (!pf) return <span className="text-[10px] text-gray-400 dark:text-gray-500">—</span>;
+  if (!pf) return <span className="text-[10px] text-gray-500 dark:text-gray-400">—</span>;
   if (!pf.available)
     return (
       <span
-        className="block text-[10px] leading-4 text-gray-400 dark:text-gray-500"
+        className="block text-[10px] leading-4 text-gray-500 dark:text-gray-400"
         title={pf.note}
       >
         کنترل مستقل تازگی ممکن نشد
@@ -2083,7 +2083,7 @@ const PriceFreshnessCell: React.FC<{ pf: QvtPriceFreshness | null }> = ({ pf }) 
   if (!pf.row_found)
     return (
       <span
-        className="block text-[10px] leading-4 text-gray-400 dark:text-gray-500"
+        className="block text-[10px] leading-4 text-gray-500 dark:text-gray-400"
         title={pf.note}
       >
         ردیف قیمتی در منبع یافت نشد
@@ -2255,7 +2255,7 @@ const PriorityCandidatesSection: React.FC<{
         >
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 pt-2">
             <b className="text-[11px] text-gray-700 dark:text-gray-200">{g.group_label}</b>
-            <span className="text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
+            <span className="text-[10px] tabular-nums text-gray-500 dark:text-gray-400">
               {shown.length} نامزد{valFilter !== "all" ? ` از ${g.entries.length}` : ""} · {g.group_size} همتای مقایسه‌پذیر
             </span>
             <select
@@ -2354,21 +2354,21 @@ const PriorityCandidatesSection: React.FC<{
                     </td>
                     <td className="px-2 py-1.5 tabular-nums text-gray-600 dark:text-gray-300 whitespace-nowrap">
                       {e.q.points == null ? "—" : fmt(e.q.points, 1)}
-                      <span className="text-[9px] text-gray-400 dark:text-gray-500">
+                      <span className="text-[9px] text-gray-500 dark:text-gray-400">
                         {" "}
                         ({fmtPct(e.q.coverage_ratio, 0)})
                       </span>
                     </td>
                     <td className="px-2 py-1.5 tabular-nums text-gray-600 dark:text-gray-300 whitespace-nowrap">
                       {e.v.points == null ? "—" : fmt(e.v.points, 1)}
-                      <span className="text-[9px] text-gray-400 dark:text-gray-500">
+                      <span className="text-[9px] text-gray-500 dark:text-gray-400">
                         {" "}
                         ({fmtPct(e.v.coverage_ratio, 0)})
                       </span>
                     </td>
                     <td className="px-2 py-1.5 tabular-nums text-gray-600 dark:text-gray-300 whitespace-nowrap">
                       {e.t.points == null ? "—" : fmt(e.t.points, 1)}
-                      <span className="text-[9px] text-gray-400 dark:text-gray-500">
+                      <span className="text-[9px] text-gray-500 dark:text-gray-400">
                         {" "}
                         ({fmtPct(e.t.coverage_ratio, 0)})
                       </span>
@@ -2384,7 +2384,7 @@ const PriorityCandidatesSection: React.FC<{
                     </td>
                     <td className="px-2 py-1.5 max-w-[220px]">
                       {topFindings(e).length === 0 ? (
-                        <span className="text-[10px] text-gray-400 dark:text-gray-500" title="به معنی نبود ریسک یا تأیید کامل نیست">
+                        <span className="text-[10px] text-gray-500 dark:text-gray-400" title="به معنی نبود ریسک یا تأیید کامل نیست">
                           بدون یافته ثبت‌شده
                         </span>
                       ) : (
@@ -2446,11 +2446,11 @@ const DiscoveryAxisCell: React.FC<{ a: QvtDiscoveryCompany["q"] }> = ({ a }) => 
       <span className="text-sm font-bold tabular-nums text-gray-800 dark:text-gray-100">
         {a.points == null ? "—" : fmt(a.points)}
       </span>
-      <span className="text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
+      <span className="text-[10px] tabular-nums text-gray-500 dark:text-gray-400">
         از {a.max_weight}
       </span>
     </div>
-    <span className="text-[10px] tabular-nums text-gray-400 dark:text-gray-500">
+    <span className="text-[10px] tabular-nums text-gray-500 dark:text-gray-400">
       پوشش {a.covered_weight == null ? "—" : fmt(a.covered_weight, 1)} (
       {fmtPct(a.coverage_ratio, 0)})
     </span>
@@ -2613,7 +2613,7 @@ const ReviewableWithLimitsSection: React.FC<{
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-3 py-6 text-center text-gray-400 dark:text-gray-500">
+                <td colSpan={9} className="px-3 py-6 text-center text-gray-500 dark:text-gray-400">
                   شرکتی با این فیلترها یافت نشد
                 </td>
               </tr>
@@ -2628,7 +2628,7 @@ const ReviewableWithLimitsSection: React.FC<{
                 </td>
                 <td className="px-2 py-1.5 text-[10px] text-gray-500 dark:text-gray-400 whitespace-nowrap">
                   {row.group_label}
-                  <span className="block text-gray-400 dark:text-gray-500">
+                  <span className="block text-gray-500 dark:text-gray-400">
                     {row.group_size} عضو گروه ·{" "}
                     {row.group_valid ? "گروه معتبر" : "گروه کمتر از حداقل"}
                   </span>
@@ -2886,7 +2886,7 @@ const DiscoveryView: React.FC<{
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh] text-gray-400 dark:text-gray-500">
+      <div className="flex items-center justify-center min-h-[40vh] text-gray-500 dark:text-gray-400">
         <span className="text-sm font-medium">
           در حال بارگذاری کشف فرصت‌ها از خروجی واقعی…
         </span>
@@ -2947,14 +2947,14 @@ const DiscoveryView: React.FC<{
           <span className="tabular-nums">
             هشدار جدی ثبت‌شده: <b>{dcSummary.serious}</b> شرکت · بدون هشدار جدی ثبت‌شده:{" "}
             {dcSummary.noSerious} شرکت
-            <span className="text-gray-400 dark:text-gray-500"> (≠ بدون ریسک / ≠ تأیید داده)</span>
+            <span className="text-gray-500 dark:text-gray-400"> (≠ بدون ریسک / ≠ تأیید داده)</span>
           </span>
           <span className="tabular-nums">
             دروازه ریسک — نیازمند بررسی: <b>{rgSummary.counts.review_required ?? 0}</b> · مسدود:{" "}
             {rgSummary.counts.blocked ?? 0} · شواهد ناکافی:{" "}
             {rgSummary.counts.insufficient_evidence ?? 0} · بدون مانع اثبات‌شده:{" "}
             {rgSummary.counts.no_verified_blocker ?? 0}
-            <span className="text-gray-400 dark:text-gray-500">
+            <span className="text-gray-500 dark:text-gray-400">
               {" "}
               (هیچ‌کدام به معنی تأیید یا کم‌ریسک بودن نیست)
             </span>
@@ -2965,13 +2965,13 @@ const DiscoveryView: React.FC<{
           >
             سازگاری snapshot سه فایل:{" "}
             <b>{data.snapshot_consistency?.consistent ? "هم‌خوان ✓" : "ناهم‌خوان ✗"}</b>
-            <span className="text-gray-400 dark:text-gray-500">
+            <span className="text-gray-500 dark:text-gray-400">
               {" "}
               (سطح فایل — جدا از اعتبار زمانی داده داخلی هر شرکت)
             </span>
           </span>
         </div>
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-4 mt-1.5">
+        <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-4 mt-1.5">
           {modeResult.order_note}
         </p>
         <details className="mt-1.5">
@@ -3125,7 +3125,7 @@ const DiscoveryView: React.FC<{
           <option value="insufficient_evidence">شواهد ناکافی برای تصمیم</option>
           <option value="no_verified_blocker">بدون مانع اثبات‌شده (≠ تأیید)</option>
         </select>
-        <span className="text-[11px] text-gray-400 dark:text-gray-500">
+        <span className="text-[11px] text-gray-500 dark:text-gray-400">
           {sorted.length} شرکت در نمایش
         </span>
       </div>
@@ -3165,7 +3165,7 @@ const DiscoveryView: React.FC<{
             <tbody>
               {pageRows.length === 0 && (
                 <tr>
-                  <td colSpan={12} className="px-3 py-8 text-center text-gray-400 dark:text-gray-500">
+                  <td colSpan={12} className="px-3 py-8 text-center text-gray-500 dark:text-gray-400">
                     شرکتی با این فیلترها یافت نشد
                   </td>
                 </tr>
@@ -3175,7 +3175,7 @@ const DiscoveryView: React.FC<{
                   key={row.company_id}
                   className="border-t border-gray-100/80 dark:border-gray-700/40 hover:bg-emerald-50/40 dark:hover:bg-emerald-900/10 transition-colors align-top"
                 >
-                  <td className="px-2.5 py-2 tabular-nums text-gray-400 dark:text-gray-500">
+                  <td className="px-2.5 py-2 tabular-nums text-gray-500 dark:text-gray-400">
                     {(safePage - 1) * DISC_PAGE_SIZE + i + 1}
                   </td>
                   <td className="px-2.5 py-2 font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap">
@@ -3606,7 +3606,7 @@ const OpportunityBoardView: React.FC<{
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[30vh] text-gray-400 dark:text-gray-500">
+      <div className="flex items-center justify-center min-h-[30vh] text-gray-500 dark:text-gray-400">
         <span className="text-sm font-medium">در حال محاسبهٔ فرصت‌های قابل بررسی از شواهد واقعی…</span>
       </div>
     );
@@ -3807,7 +3807,7 @@ const OpportunityBoardView: React.FC<{
             <BoardCompactRow key={e.company_id} e={e} onOpenDetail={onOpenDetail} />
           ))}
           {board.apparent_value_risk.length === 0 && (
-            <p className="text-[10px] text-gray-400 dark:text-gray-500">الگوی «ارزان‌نمای پرریسک» در جامعهٔ فعلی ثبت نشده است.</p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">الگوی «ارزان‌نمای پرریسک» در جامعهٔ فعلی ثبت نشده است.</p>
           )}
         </div>
         {board.apparent_value_risk.length > 6 && (
@@ -3844,7 +3844,7 @@ const OpportunityBoardView: React.FC<{
             <BoardCompactRow key={e.company_id} e={e} onOpenDetail={onOpenDetail} />
           ))}
           {board.blocked_or_insufficient.length === 0 && (
-            <p className="text-[10px] text-gray-400 dark:text-gray-500">موردی با مانع یا شواهد ناکافی در جامعهٔ سه‌محوری نیست.</p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">موردی با مانع یا شواهد ناکافی در جامعهٔ سه‌محوری نیست.</p>
           )}
         </div>
         {board.blocked_or_insufficient.length > 6 && (
@@ -3877,7 +3877,7 @@ const OpportunityBoardView: React.FC<{
                   </p>
                 ))}
             </div>
-            <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-4 mt-1" dir="auto">
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-4 mt-1" dir="auto">
               {board.decision_policy.note}
             </p>
           </div>
@@ -3889,7 +3889,7 @@ const OpportunityBoardView: React.FC<{
             </li>
           ))}
         </ul>
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 leading-4 mt-1.5" dir="auto">
+        <p className="text-[10px] text-gray-500 dark:text-gray-400 leading-4 mt-1.5" dir="auto">
           {board.engine_note}
         </p>
       </details>
@@ -3964,7 +3964,7 @@ const QvtAnalysisPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh] text-gray-400 dark:text-gray-500">
+      <div className="flex items-center justify-center min-h-[50vh] text-gray-500 dark:text-gray-400">
         <span className="text-sm font-medium">در حال بارگذاری خروجی واقعی QVT…</span>
       </div>
     );
@@ -3977,7 +3977,7 @@ const QvtAnalysisPage: React.FC = () => {
           خروجی QVT قابل نمایش نیست
         </h2>
         <p className="text-sm text-red-500/90 dark:text-red-400/80 leading-6">{error}</p>
-        <p className="text-xs text-gray-400 dark:text-gray-500 mt-3 leading-5">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-3 leading-5">
           این صفحه فقط خروجی واقعی پایلوت V2 را نمایش می‌دهد و عمداً هیچ داده نمونه یا
           امتیاز فرضی ندارد. پس از تولید دوباره آرتیفکت‌های پایلوت (Q و V و T با یک
           اسنپ‌شات یکسان) صفحه به‌طور خودکار در reload بعدی پر می‌شود.
@@ -4038,7 +4038,7 @@ const QvtAnalysisPage: React.FC = () => {
         >
           همه شرکت‌ها ({summary.counts.n_total})
         </button>
-        <span className="text-[11px] text-gray-400 dark:text-gray-500">
+        <span className="text-[11px] text-gray-500 dark:text-gray-400">
           {view === "board"
             ? "نمای پیش‌فرض ساده — چند نامزد قابل‌دفاع با دلیل و ریسک هرکدام، از شواهد واقعی همین snapshot"
             : view === "discover"
@@ -4081,7 +4081,7 @@ const QvtAnalysisPage: React.FC = () => {
             <p className="text-lg font-bold tabular-nums text-gray-800 dark:text-gray-100">
               {s.value}
             </p>
-            <p className="text-[10px] text-gray-400 dark:text-gray-500">{s.label}</p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">{s.label}</p>
           </div>
         ))}
       </div>
@@ -4126,10 +4126,10 @@ const QvtAnalysisPage: React.FC = () => {
             </button>
           ))}
         </span>
-        <span className="text-[11px] text-gray-400 dark:text-gray-500">
+        <span className="text-[11px] text-gray-500 dark:text-gray-400">
           {rows.length} شرکت در نمایش
         </span>
-        <span className="mr-auto text-[10px] text-gray-400 dark:text-gray-500" dir="ltr">
+        <span className="mr-auto text-[10px] text-gray-500 dark:text-gray-400" dir="ltr">
           {summary.sources.q.file} · {summary.sources.v.file} · {summary.sources.t.file}
         </span>
       </div>
@@ -4152,7 +4152,7 @@ const QvtAnalysisPage: React.FC = () => {
             <tbody>
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-gray-400 dark:text-gray-500">
+                  <td colSpan={7} className="px-3 py-8 text-center text-gray-500 dark:text-gray-400">
                     شرکتی با این جست‌وجو/فیلتر یافت نشد
                   </td>
                 </tr>
@@ -4167,7 +4167,7 @@ const QvtAnalysisPage: React.FC = () => {
                 >
                   <td className="px-3 py-2 font-bold text-gray-800 dark:text-gray-100 whitespace-nowrap">
                     {r.symbol}
-                    <span className="mr-1.5 text-[9px] font-normal text-gray-400 dark:text-gray-500">
+                    <span className="mr-1.5 text-[9px] font-normal text-gray-500 dark:text-gray-400">
                       {r.model_family === "general" ? "" : r.model_family}
                     </span>
                     {r.validation_status && (
@@ -4228,7 +4228,7 @@ const QvtAnalysisPage: React.FC = () => {
 
       {/* مرزهای قرارداد — پایین جدول */}
       <div className="rounded-2xl border border-gray-200/60 dark:border-gray-700/40 bg-white/50 dark:bg-gray-800/20 p-3">
-        <ul className="list-disc pr-5 text-[10px] leading-4 text-gray-400 dark:text-gray-500 space-y-0.5">
+        <ul className="list-disc pr-5 text-[10px] leading-4 text-gray-500 dark:text-gray-400 space-y-0.5">
           {Object.values(summary.boundaries).map((b, i) => (
             <li key={i}>{b}</li>
           ))}

@@ -1,0 +1,61 @@
+{
+  "task": "TF-02A",
+  "note": "sizes and SHA-256 over the final on-disk bytes of every changed file; this manifest never hashes itself",
+  "files": [
+    {
+      "path": "ranking_research/paper_calendar.py",
+      "bytes": 34343,
+      "sha256": "0010763c244561e23910705b6783f775deba4a9d85ca5e17076bb5ea9b0bc8fb"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/apply_paper_fill.py",
+      "bytes": 31822,
+      "sha256": "3992efd750550b31c9c0339f45ddf281859407b6322ec382b48e3330863ef3d8"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/refresh_paper_decision_status.py",
+      "bytes": 33391,
+      "sha256": "3504ab6336a41bca04b1b5004f7400d3035a435e3c3de024077bf4eafeb8a126"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/paper_cycle.py",
+      "bytes": 77470,
+      "sha256": "4cf52b8b0909f4d32a726df2c1b16aed39e27f95ec5f8f6ce4fcd32876dca467"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_interface.py",
+      "bytes": 40142,
+      "sha256": "fd4d49541e5b0d0f61989267e07740fdcfd6864e917e15f2b5e5a2a5681ae730"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_tf02a_regressions.py",
+      "bytes": 41671,
+      "sha256": "e213e9e2f2147181d1650124706bcc8cb67ffefa0512b3fc3e2ac3fd8c98c0e2"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 5758,
+      "sha256": "451643fae717a12ce57c6d6dd05758f91ee0bb9f76b410a6bd5d85e6cb9bb5bb"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02a/REPORT.fa.md",
+      "bytes": 20609,
+      "sha256": "5246b665beae90da5964c3149b99f273284109383fc84632d596838e116e88d2"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02a/result.json",
+      "bytes": 6169,
+      "sha256": "41af5a452d5bb5a30c01e380a29ebd2a85f0f06441ad70711bfd8704a123f7a2"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02a/evidence/generate_evidence.py",
+      "bytes": 15612,
+      "sha256": "6690e0b5ad3ff1031eeb82d44ae4527f51f87b8682dde6c6d1641d97be2b792c"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02a/evidence/evidence.20261024T175135733088Z.json",
+      "bytes": 13253,
+      "sha256": "e606c12528aef2c0aceb3f3769101e481927c2a4c07de86a63c23667b604aec4"
+    }
+  ]
+}

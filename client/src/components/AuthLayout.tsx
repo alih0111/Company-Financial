@@ -37,8 +37,9 @@ const AuthLayout: React.FC<Props> = ({ darkMode, toggleDarkMode, children }) => 
       <div className="w-full max-w-md animate-scale-in">
         {/* لوگو */}
         <div className="mb-6 flex flex-col items-center gap-3">
-          <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-500/25 text-2xl animate-float">
+          <div className="relative flex h-14 w-14 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-xl shadow-emerald-500/25 text-2xl animate-float">
             <FaChartLine />
+            <span className="absolute inset-0 rounded-3xl ring-1 ring-white/20" />
           </div>
           <div className="text-center leading-tight">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-emerald-600/80 dark:text-emerald-400/80">
@@ -49,11 +50,13 @@ const AuthLayout: React.FC<Props> = ({ darkMode, toggleDarkMode, children }) => 
         </div>
 
         {/* کارت شیشه‌ای */}
-        <div className="rounded-3xl border border-gray-200/70 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl shadow-2xl shadow-emerald-500/10 p-7">
+        <div className="relative overflow-hidden rounded-3xl border border-gray-200/70 dark:border-white/[0.08] bg-white/80 dark:bg-[#131c31]/80 backdrop-blur-xl shadow-2xl shadow-emerald-500/10 dark:shadow-black/50 p-7">
+          {/* خط گرادیانی بالای کارت */}
+          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-l from-emerald-500 via-teal-400 to-emerald-500 opacity-80" />
           {children}
         </div>
 
-        <p className="mt-5 text-center text-[11px] text-gray-400 dark:text-gray-500">
+        <p className="mt-5 text-center text-[11px] text-gray-500 dark:text-gray-400">
           سامانهٔ تحلیل بنیادی و کوانت شرکت‌های بورسی
         </p>
       </div>

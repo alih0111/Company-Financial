@@ -43,7 +43,14 @@ interface StockDataPoint {
   Close: number;
 }
 
-export default function useCompanyData() {
+// enabled=false داده‌ای نمی‌گیرد — برای صفحاتی که داده‌ی شرکت نمایش نمی‌دهند
+// (لندینگ/ورود/ثبت‌نام) تا کال بی‌دلیل به بک‌اند زده نشود.
+// کش ماژول‌سطح برای امتیاز همه‌ی شرکت‌ها — به شرکت انتخابی وابسته نیست،
+// پس با هر تغییر نماد نباید دوباره از سرور گرفته شود.
+let allScoreCache: { at: number; data: AllScoreModel[] } | null = null;
+const ALL_SCORE_TTL_MS = 5 * 60 * 1000;
+
+export default function useCompanyData(enabled = true) {
   const [companyOptions, setCompanyOptions] = useState<
     { value: string; label: string }[]
   >([]);
@@ -108,10 +115,10 @@ export default function useCompanyData() {
   }, [searchParams, setSearchParams]);
 
   useEffect(() => {
-    loadCompanyOptions();
-  }, [loadCompanyOptions]);
+    if (enabled) loadCompanyOptions();
+  }, [enabled, loadCompanyOptions]);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (force = false) => {
     if (!selectedCompany) return;
     setLoadingData(true);
 
@@ -122,6 +129,12 @@ export default function useCompanyData() {
     setStockPriceScore(undefined);
     setStockPrice([]);
     // setAllDataScore(undefined);
+
+    const cachedAllScore = allScoreCache;
+    const allScoreFresh =
+      !force &&
+      !!cachedAllScore &&
+      Date.now() - cachedAllScore.at < ALL_SCORE_TTL_MS;
 
     try {
       const [
@@ -135,7 +148,9 @@ export default function useCompanyData() {
         fetchSalesData(selectedCompany),
         fetchSalesData2(selectedCompany),
         fetchSalesDataScore(selectedCompany),
-        fetchSalesDataAllScore(),
+        allScoreFresh && cachedAllScore
+          ? Promise.resolve(cachedAllScore.data)
+          : fetchSalesDataAllScore(),
         // fetchStockPrice(selectedCompany),
         fetchStockPriceScore(selectedCompany),
       ]);
@@ -159,7 +174,11 @@ export default function useCompanyData() {
       }
 
       if (resultAllScore.status === "fulfilled") {
-        setAllDataScore(resultAllScore.value || []);
+        const allScoreValue = (resultAllScore.value as AllScoreModel[]) || [];
+        if (!allScoreFresh) {
+          allScoreCache = { at: Date.now(), data: allScoreValue };
+        }
+        setAllDataScore(allScoreValue);
       } else {
         console.error("Error fetching score data:", resultAllScore.reason);
       }
@@ -183,8 +202,8 @@ export default function useCompanyData() {
   }, [selectedCompany]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (enabled) fetchData();
+  }, [enabled, fetchData]);
 
   return {
     companyOptions,
@@ -198,6 +217,7 @@ export default function useCompanyData() {
     stockPriceScore,
     loadingData,
     loadingCompanies,
-    refreshData: fetchData,
+    // به‌روزرسانی دستی (پس از جمع‌آوری داده) کش را هم می‌شکند
+    refreshData: () => fetchData(true),
   };
 }

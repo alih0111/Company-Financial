@@ -340,6 +340,7 @@ def acquire_cycle_lock(lock_path: Path) -> int | None:
 def acquire_order_calendar(*, provider: str, run_id: str, out_root: Path,
                            account_path: Path | None = None,
                            calendar_policy_path: Path | None = None,
+                           rules_path: Path | None = None,
                            reference_now_utc: str | None = None,
                            run_stage_fn=None) -> dict:
     """One auditable order-calendar acquisition stage for one provider.
@@ -357,6 +358,22 @@ def acquire_order_calendar(*, provider: str, run_id: str, out_root: Path,
     result = {"provider": provider, "stage": None, "manifest_path": None,
               "calendar_state": "unavailable", "profile_mismatch": False,
               "answer_summary": None, "token_required": provider == "nscstart"}
+    account = json.loads(Path(account_path).read_text(encoding="utf-8"))
+    rules_path = Path(rules_path or RULES)
+    try:
+        rules_bytes = rules_path.read_bytes()
+        rules_doc = json.loads(rules_bytes)
+        paper_calendar.check_provider_contract(account=account, provider=provider,
+                                               rules_bytes=rules_bytes,
+                                               rules_doc=rules_doc)
+    except (OSError, ValueError, paper_calendar.CalendarRefusal) as exc:
+        code = getattr(exc, "code", "PINNED_EXECUTION_RULES_UNREADABLE")
+        result["profile_mismatch"] = True
+        result["profile_mismatch_detail"] = f"{code}; {getattr(exc, 'detail', '')}"
+        result["calendar_state"] = "blocked_calendar_profile_mismatch"
+        result["stage"] = {"stage": "order_calendar_" + provider + "_acquisition",
+                           "status": f"blocked:{code}", "exit_code": None}
+        return result
     if provider == "nscstart":
         calendar_manifest_path = None
         if os.environ.get("TSETMC_READONLY_BEARER_TOKEN") and os.environ.get("TSETMC_CREDENTIAL_IDENTITY_STATE", "matched_task_identity") == "matched_task_identity":
@@ -390,7 +407,6 @@ def acquire_order_calendar(*, provider: str, run_id: str, out_root: Path,
     if provider != "public":
         raise ValueError(f"unknown calendar provider {provider!r}")
 
-    account = json.loads(Path(account_path).read_text(encoding="utf-8"))
     decision = account.get("active_decision") or {}
     order = account.get("paper_order") or {}
     window_start = str(decision.get("decision_local_date", "")).replace("-", "")
@@ -400,7 +416,10 @@ def acquire_order_calendar(*, provider: str, run_id: str, out_root: Path,
         result["stage"] = stage
         result["calendar_state"] = "blocked_no_pinned_decision_date"
         return result
-    out_dir = Path(out_root) / "public_calendar" / run_id
+    out_dir = Path(out_root) / "public_calendar" / f"{run_id}-{uuid.uuid4().hex}"
+    if out_dir.exists():
+        raise RuntimeError("PUBLIC_CALENDAR_INVOCATION_DESTINATION_EXISTS")
+    out_dir.mkdir(parents=True, exist_ok=False)
     stage = stage_fn("order_calendar_public_acquisition", [str(PYTHON),
         str(ROOT / "ranking_research/future_eval_v12_30/acquire_public_market_calendar.py"),
         "--window-start", window_start, "--output-dir", str(out_dir),
@@ -417,14 +436,30 @@ def acquire_order_calendar(*, provider: str, run_id: str, out_root: Path,
         result["calendar_state"] = "blocked_public_manifest_missing"
         return result
     reference = json.loads(latest.read_text(encoding="utf-8"))
+    if not isinstance(reference, dict) or not isinstance(reference.get("run_id"), str):
+        stage["status"] = "public_pointer_invalid"
+        result["calendar_state"] = "blocked_public_pointer_invalid"
+        return result
     manifest_path = Path(reference.get("manifest_path", ""))
     if not manifest_path.is_absolute():
         manifest_path = ROOT / manifest_path
+    resolved_out = out_dir.resolve()
+    resolved_manifest = manifest_path.resolve()
+    if not resolved_manifest.is_relative_to(resolved_out):
+        stage["status"] = "public_manifest_outside_invocation"
+        result["calendar_state"] = "blocked_public_manifest_outside_invocation"
+        return result
     if not manifest_path.is_file() or sha(manifest_path) != reference.get("manifest_sha256"):
         stage["status"] = "public_manifest_hash_mismatch"
         result["calendar_state"] = "blocked_public_manifest_hash_mismatch"
         return result
     result["manifest_path"] = manifest_path
+    manifest_doc = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if reference.get("run_id") != manifest_doc.get("run_id"):
+        stage["status"] = "public_pointer_manifest_run_id_mismatch"
+        result["manifest_path"] = None
+        result["calendar_state"] = "blocked_public_pointer_manifest_run_id_mismatch"
+        return result
     stage["status"] = "received_public_order_calendar"
     # Adapter resolution: the same pinned evidence the fill/status paths use.
     try:
@@ -451,8 +486,20 @@ def acquire_order_calendar(*, provider: str, run_id: str, out_root: Path,
         stage["status"] = f"public_calendar_refused:{code}"
         result["calendar_state"] = f"blocked_public_{code.lower()}"
         return result
-    binding = decision.get("calendar_policy") or {}
-    result["profile_mismatch"] = binding.get("id") != policy["policy_id"]
+    # Shared four-level binding check (account/decision/order/rules): the same
+    # check the fill and status consumers run, so the three consumers can never
+    # disagree about which policy this account is allowed to consume.
+    try:
+        paper_calendar.check_public_policy_binding(
+            account=account, rules_doc=rules_doc, policy=policy,
+            policy_sha256=sha(policy_path))
+        result["profile_mismatch"] = False
+    except paper_calendar.CalendarRefusal as exc:
+        result["profile_mismatch"] = True
+        result["profile_mismatch_detail"] = f"{exc.code}; {exc.detail}" if exc.detail else exc.code
+    except (OSError, ValueError) as exc:
+        result["profile_mismatch"] = True
+        result["profile_mismatch_detail"] = f"RULES_UNREADABLE; {type(exc).__name__}: {exc}"
     sessions = answer["sessions_after_decision"]
     result["answer_summary"] = {
         "first_session": sessions["first_session"],
@@ -481,12 +528,31 @@ def acquire_order_calendar(*, provider: str, run_id: str, out_root: Path,
 
 def main() -> int:
     import argparse
+    global OUT, PUBLIC, ACCOUNT, CHECK
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--calendar-provider", choices=("nscstart", "public"),
                         default=os.environ.get("PAPER_CYCLE_CALENDAR_PROVIDER", "nscstart"),
                         help="explicit order-calendar profile for this cycle; the order's own "
                              "consumption profile stays pinned by the account/rules")
+    parser.add_argument("--order-review-only", action="store_true",
+                        help="Run only the isolated order wrapper; skips ranking, market, Codal, O00 and scheduler stages.")
+    parser.add_argument("--account", type=Path, default=ACCOUNT)
+    parser.add_argument("--rules", type=Path, default=RULES)
+    parser.add_argument("--output-dir", type=Path, default=OUT)
+    parser.add_argument("--public-output-dir", type=Path, default=PUBLIC)
+    parser.add_argument("--evidence-manifest", type=Path)
+    parser.add_argument("--calendar-manifest", type=Path)
+    parser.add_argument("--calendar-manifest-sha256")
+    parser.add_argument("--reference-now-utc", help="Clock injection is permitted only with --fixture.")
+    parser.add_argument("--fixture", action="store_true", help="Explicit fixture-only mode for synthetic clocks.")
+    parser.add_argument("--apply-fill", action="store_true",
+                        help="Explicitly apply a paper fill in the order-review-only branch; default is preview.")
     args = parser.parse_args()
+    OUT, PUBLIC = args.output_dir.resolve(), args.public_output_dir.resolve()
+    ACCOUNT, CHECK = args.account.resolve(), PUBLIC / "paper-account-check.json"
+    if args.reference_now_utc and not args.fixture:
+        print("FIXTURE_CLOCK_REQUIRES_EXPLICIT_FIXTURE_MODE", file=sys.stderr)
+        return 2
     if not PYTHON.is_file():
         print("BLOCKED_RUNTIME: project .venv Python was not found", file=sys.stderr)
         return 2
@@ -499,6 +565,42 @@ def main() -> int:
         return 0
 
     run_id = f"paper-cycle-{dt.datetime.now(TZ).strftime('%Y%m%dT%H%M%S%fZ')}-{uuid.uuid4().hex[:8]}"
+    if args.order_review_only:
+        try:
+            if args.calendar_provider == "public" and (not args.calendar_manifest or not args.calendar_manifest_sha256):
+                print("PUBLIC_ORDER_REVIEW_REQUIRES_EXPLICIT_MANIFEST_AND_SHA256", file=sys.stderr)
+                return 2
+            if not args.evidence_manifest:
+                print("ORDER_REVIEW_REQUIRES_EXPLICIT_EVIDENCE_MANIFEST", file=sys.stderr)
+                return 2
+            wrapper = ROOT / "ranking_research/future_eval_v12_30/check_paper_order.ps1"
+            command = ["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
+                "-File", str(wrapper), "-SkipTokenPrompt", "-CalendarProvider", args.calendar_provider,
+                "-AccountPath", str(ACCOUNT), "-RulesPath", str(args.rules.resolve()),
+                "-EvidenceManifest", str(args.evidence_manifest.resolve()), "-OutputDir", str(OUT),
+                "-PublicOutputDir", str(PUBLIC)]
+            if args.reference_now_utc:
+                command += ["-ReferenceNowUtc", args.reference_now_utc, "-Fixture"]
+            if args.calendar_manifest:
+                command += ["-CalendarManifest", str(args.calendar_manifest.resolve()),
+                            "-CalendarManifestSha256", args.calendar_manifest_sha256 or ""]
+            if args.apply_fill:
+                command.append("-ApplyFill")
+            stage = run_stage("order_review_wrapper", command, 300)
+            result = {"schema_version": 1, "run_id": run_id, "branch": "order_review_only",
+                "calendar_provider": args.calendar_provider, "apply_requested": args.apply_fill,
+                "account": str(ACCOUNT), "rules": str(args.rules.resolve()),
+                "evidence_manifest": str(args.evidence_manifest.resolve()),
+                "calendar_manifest": str(args.calendar_manifest.resolve()) if args.calendar_manifest else None,
+                "calendar_manifest_sha256": args.calendar_manifest_sha256,
+                "wrapper_stage": stage, "live_account_activated": False, "scheduler_touched": False}
+            atomic_json(OUT / f"{run_id}.order-review.json", result)
+            print(json.dumps(result, ensure_ascii=False))
+            return 0 if stage.get("exit_code") == 0 else 1
+        finally:
+            os.close(lock_fd)
+            try: lock_path.unlink()
+            except FileNotFoundError: pass
     started = dt.datetime.now(TZ).isoformat()
     stages: list[dict] = []
     try:

@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaSignInAlt } from "react-icons/fa";
+import {
+  FaUser,
+  FaLock,
+  FaEye,
+  FaEyeSlash,
+  FaSignInAlt,
+  FaExclamationCircle,
+} from "react-icons/fa";
 import { useDarkMode } from "../utils/theme";
 import AuthLayout from "./AuthLayout";
 import { API_BASE } from "../config";
@@ -32,67 +39,84 @@ const Login = () => {
       } else {
         setError(data.error || "ورود ناموفق بود");
       }
-    } catch (err) {
+    } catch {
       setError("خطای شبکه — دوباره تلاش کنید.");
     } finally {
       setLoading(false);
     }
   };
 
+  const labelCls =
+    "mb-1.5 block text-xs font-semibold text-gray-600 dark:text-gray-300";
   const inputCls =
-    "w-full rounded-xl border border-gray-200 dark:border-gray-600 bg-white/70 dark:bg-gray-900/50 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 py-2.5 pr-10 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500 transition-all duration-200";
+    "w-full rounded-xl border border-gray-200 dark:border-gray-600/80 dark:bg-gray-900/40 bg-white/70 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 py-2.5 pr-10 pl-10 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 hover:border-gray-300 dark:hover:border-gray-500";
 
   return (
     <AuthLayout darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
       <h1 className="text-xl font-bold text-gray-800 dark:text-white mb-1 text-center">
         ورود به حساب
       </h1>
-      <p className="text-xs text-gray-400 text-center mb-6">
+      <p className="text-xs text-gray-500 dark:text-gray-400 text-center mb-6">
         برای دیدن داشبورد، اطلاعات حساب خود را وارد کنید
       </p>
 
       {error && (
-        <div className="animate-scale-in mb-4 rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-4 py-2.5 text-sm text-red-600 dark:text-red-300 text-center">
+        <div className="animate-scale-in mb-4 flex items-center justify-center gap-2 rounded-xl border border-red-200 dark:border-red-500/30 bg-red-50 dark:bg-red-500/10 px-4 py-2.5 text-sm text-red-600 dark:text-red-300 text-center">
+          <FaExclamationCircle size={13} className="shrink-0" />
           {error}
         </div>
       )}
 
       <form onSubmit={handleLogin} className="space-y-4">
-        <div className="relative">
-          <FaUser className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
-          <input
-            type="text"
-            placeholder="نام کاربری"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className={inputCls}
-            autoFocus
-          />
+        <div>
+          <label htmlFor="login-username" className={labelCls}>
+            نام کاربری
+          </label>
+          <div className="relative">
+            <FaUser className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+            <input
+              id="login-username"
+              type="text"
+              placeholder="مثلاً ali"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className={inputCls}
+              autoComplete="username"
+              autoFocus
+            />
+          </div>
         </div>
 
-        <div className="relative">
-          <FaLock className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm" />
-          <input
-            type={showPass ? "text" : "password"}
-            placeholder="گذرواژه"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputCls}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPass((v) => !v)}
-            aria-label={showPass ? "پنهان کردن گذرواژه" : "نمایش گذرواژه"}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition"
-          >
-            {showPass ? <FaEyeSlash /> : <FaEye />}
-          </button>
+        <div>
+          <label htmlFor="login-password" className={labelCls}>
+            گذرواژه
+          </label>
+          <div className="relative">
+            <FaLock className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+            <input
+              id="login-password"
+              type={showPass ? "text" : "password"}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className={inputCls}
+              autoComplete="current-password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass((v) => !v)}
+              aria-label={showPass ? "پنهان کردن گذرواژه" : "نمایش گذرواژه"}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition"
+            >
+              {showPass ? <FaEyeSlash /> : <FaEye />}
+            </button>
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={loading || !username || !password}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-500/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/30 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-500/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/30 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
         >
           {loading ? (
             <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
@@ -100,7 +124,7 @@ const Login = () => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
           ) : (
-            <FaSignInAlt size={13} />
+            <FaSignInAlt size={13} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
           )}
           {loading ? "در حال ورود…" : "ورود"}
         </button>

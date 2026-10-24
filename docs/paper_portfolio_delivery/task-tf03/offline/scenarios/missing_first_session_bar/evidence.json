@@ -1,0 +1,34 @@
+{
+  "dataset_id": "TF03_SYNTHETIC_FIXTURE",
+  "candidate": {
+    "company_id": "fixture-company",
+    "symbol": "TEST"
+  },
+  "ins_code": "35158826900216508",
+  "sources": [
+    {
+      "key": "candidate_daily",
+      "url": "https://example.invalid/35158826900216508/0",
+      "raw_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\missing_first_session_bar\\candidate_daily.gz",
+      "raw_sha256": "e36f5a74c057bf74e949549d0c1b5b3eb5be70e021abc5963902aec141513707",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "http_status": 200
+    },
+    {
+      "key": "candidate_share_changes",
+      "url": "https://example.invalid/35158826900216508/0",
+      "raw_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\missing_first_session_bar\\candidate_share_changes.gz",
+      "raw_sha256": "b2d9fb0936459e77a0e712add291b9952e59cb41aa6f7ea6bccd8f9afae44db0",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "http_status": 200
+    },
+    {
+      "key": "last_possible_session",
+      "url": "https://example.invalid/35158826900216508/0",
+      "raw_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\missing_first_session_bar\\last_possible_session.gz",
+      "raw_sha256": "564c561cc8ac7c98c199cacd6739eaa49c4892a5abb52ba7d955a8ffab50e209",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "http_status": 200
+    }
+  ]
+}

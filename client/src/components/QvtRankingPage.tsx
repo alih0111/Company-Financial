@@ -214,7 +214,7 @@ function AxisBar({
           style={{ width: `${Math.max(0, Math.min(100, (ratio || 0) * 100))}%` }}
         />
       </div>
-      <div className="flex items-center justify-between text-[10px] mt-1 text-gray-400 dark:text-gray-500 tabular-nums">
+      <div className="flex items-center justify-between text-[10px] mt-1 text-gray-500 dark:text-gray-400 tabular-nums">
         <span>پوشش {pct(axis.coverage_ratio)}</span>
         <span>{axis.n_scored_factors} عامل</span>
         {axis.n_factor_issues > 0 && (
@@ -458,7 +458,7 @@ function RankedTable({
                       <CoverageChip s={s} />
                       {detailed && <PeerGroupChip s={s} />}
                     </div>
-                    <div className="text-[10px] text-gray-400 dark:text-gray-500">
+                    <div className="text-[10px] text-gray-500 dark:text-gray-400">
                       {s.industry}
                     </div>
                   </td>
@@ -467,7 +467,7 @@ function RankedTable({
                     className={`px-2 py-2 tabular-nums font-bold ${scoreTone(s.score)}`}
                   >
                     {num(s.score)}
-                    {detailed && <span className="text-[9px] font-normal text-gray-400 dark:text-gray-500">
+                    {detailed && <span className="text-[9px] font-normal text-gray-500 dark:text-gray-400">
                       {" "}
                       / {num(s.practical_ceiling, 0)}
                     </span>}
@@ -549,7 +549,7 @@ function PortfolioReview({
       </div>
 
       {holdings.length === 0 ? (
-        <p className="text-sm text-gray-400 dark:text-gray-500 px-1">
+        <p className="text-sm text-gray-500 dark:text-gray-400 px-1">
           سبدی ثبت نشده است. پس از افزودن سهم در صفحهٔ «پورتفولیو»، اینجا وضعیت
           QVT هر سهم و راهنمای نگهداری/بررسی فروش نمایش داده می‌شود.
         </p>
@@ -711,7 +711,7 @@ function UnscoredTable({ rows }: { rows: QvtUnscoredStock[] }) {
               <tr>
                 <td
                   colSpan={6}
-                  className="px-2 py-4 text-center text-gray-400 dark:text-gray-500"
+                  className="px-2 py-4 text-center text-gray-500 dark:text-gray-400"
                 >
                   موردی یافت نشد.
                 </td>
@@ -821,7 +821,7 @@ export default function QvtRankingPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[40vh] text-gray-400 dark:text-gray-500 text-sm">
+      <div className="flex items-center justify-center min-h-[40vh] text-gray-500 dark:text-gray-400 text-sm">
         در حال بارگذاری رتبه‌بندی…
       </div>
     );
@@ -896,7 +896,7 @@ export default function QvtRankingPage() {
       {/* خلاصهٔ بالای صفحه */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
         <div className="rounded-2xl border border-gray-200/60 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/30 p-3">
-          <p className="text-[10px] text-gray-400 dark:text-gray-500">
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">
             نمادهای امتیازدار
           </p>
           <p className="text-xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400">
@@ -904,19 +904,19 @@ export default function QvtRankingPage() {
           </p>
         </div>
         <div className="rounded-2xl border border-gray-200/60 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/30 p-3">
-          <p className="text-[10px] text-gray-400 dark:text-gray-500">نیازمند تکمیل داده</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">نیازمند تکمیل داده</p>
           <p className="text-xl font-bold tabular-nums text-gray-500 dark:text-gray-400">
             {u.n_unscored}
           </p>
         </div>
         <div className="rounded-2xl border border-gray-200/60 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/30 p-3">
-          <p className="text-[10px] text-gray-400 dark:text-gray-500">نمادهای تحت بررسی</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">نمادهای تحت بررسی</p>
           <p className="text-xl font-bold tabular-nums text-gray-700 dark:text-gray-200">
             {u.n_all_artifacts}
           </p>
         </div>
         <div className="rounded-2xl border border-gray-200/60 dark:border-gray-700/40 bg-white/60 dark:bg-gray-800/30 p-3">
-          <p className="text-[10px] text-gray-400 dark:text-gray-500">تاریخ دادهٔ رتبه‌بندی</p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400">تاریخ دادهٔ رتبه‌بندی</p>
           <p className="text-sm font-bold tabular-nums text-gray-700 dark:text-gray-200 mt-1">
             {data.as_of}
           </p>
@@ -990,7 +990,7 @@ export default function QvtRankingPage() {
             ابتدا نمادهای قابل بررسیِ بدون قید کیفیت، سپس انتظار و موارد نیازمند بررسی بیشتر؛ در هر گروه، امتیاز بالاتر اول است. ستون رتبهٔ امتیاز، جایگاه عددی قبلی را نشان می‌دهد.
           </p>}
           {matches.length === 0 ? (
-            <p className="text-sm text-gray-400 dark:text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               نمادی با این شرایط پیدا نشد.
             </p>
           ) : (
@@ -1003,7 +1003,7 @@ export default function QvtRankingPage() {
                 detailed={detailed}
                 onWatch={(id) => setWatched((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id])}
               />
-              <p className="text-[11px] text-gray-400 dark:text-gray-500 px-1">
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 px-1">
                 برای دیدن جزئیات Q/V/T، دلیل، ریسک و شرط‌های بررسی مجدد، روی هر
                 سهم کلیک کنید. امتیاز فقط «اولویت بررسی» است، نه توصیه خرید.
               </p>

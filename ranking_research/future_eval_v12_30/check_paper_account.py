@@ -63,10 +63,14 @@ def _main_locked():
     parser.add_argument("--expiry-sessions", type=int, help="Required with simulation; order expiry in official sessions.")
     parser.add_argument("--mark-to-market", action="store_true",
         help="Append a paper-only mark-to-market event from a new positive-volume daily close for the held identity.")
+    parser.add_argument("--account", type=Path, default=ACCOUNT)
+    parser.add_argument("--output-dir", type=Path, default=RUN)
+    parser.add_argument("--public-output-dir", type=Path, default=PUBLIC)
     args = parser.parse_args()
     if args.simulate_fill_daily_close_limited_queue:
         raise SystemExit("LEGACY_SIMULATION_RETIRED: use apply_paper_fill.py --apply-fill with pinned execution_rules_v1_2_0")
-    account = json.loads(ACCOUNT.read_text(encoding="utf-8"))
+    account_path = args.account.resolve()
+    account = json.loads(account_path.read_text(encoding="utf-8"))
     ranking = json.loads(args.ranking.read_text(encoding="utf-8"))
     manifest = json.loads(args.tsetmc_manifest.read_text(encoding="utf-8"))
     created = pd.Timestamp(account["created_at_utc"])
@@ -159,7 +163,7 @@ def _main_locked():
             {"event_id": f"paper-fill-{first_quote['date']}", "type": "SIMULATED_FILL_DAILY_CLOSE_LIMITED_QUEUE", "at_utc": event_at,
              "reason": "close و volume مثبت TSETMC در جلسهٔ پس از تصمیم؛ صف سفارش از دادهٔ روزانه قابل اثبات نیست.",
              "details": f"تعداد {shares}؛ قیمت {first_quote['close_rial']} ریال؛ بهای {gross} تومان؛ هزینهٔ فرضی {fee}؛ کسر کل {total_cost} تومان."}])
-        paper_account_store.write_account_atomic(ACCOUNT, account)
+        paper_account_store.write_account_atomic(account_path, account)
         simulated_fill = {"symbol": candidate["symbol"], "session": str(first_quote["date"]), "shares": shares,
             "price_rial": float(first_quote["close_rial"]), "gross_toman": gross, "fee_toman": fee,
             "cash_after_toman": account["cash_toman"], "status": limited_status}
@@ -178,7 +182,7 @@ def _main_locked():
         account["event_log"].append({"event_id": f"paper-mark-{mark['date']}", "type": "PAPER_MARK_TO_MARKET", "at_utc": event_at,
             "reason": "درخواست به‌روزرسانی داخلی با close روزانهٔ تازه و حجم مثبت.",
             "details": f"{held['symbol']}؛ {held['shares']} سهم؛ close {mark['close_rial']} ریال در {mark['date']}؛ ارزش {held['market_value_toman']} تومان؛ سود/زیان تحقق‌نیافته {held['unrealized_pnl_toman']} تومان."})
-        paper_account_store.write_account_atomic(ACCOUNT, account)
+        paper_account_store.write_account_atomic(account_path, account)
     status = {
         "schema_version": 1, "checked_at_utc": now, "account_id": account["account_id"],
         "ranking_dataset_id": ranking.get("dataset_id"), "ranking_evaluation_date": ranking.get("evaluation_date"),
@@ -201,10 +205,12 @@ def _main_locked():
         "source_paths": {"ranking": str(args.ranking), "tsetmc_manifest": str(args.tsetmc_manifest), "calendar": str(args.calendar)},
         "official_ledger_touched": False,
     }
-    RUN.mkdir(parents=True, exist_ok=True)
-    (RUN / "paper-account-check.json").write_text(json.dumps(status, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    (PUBLIC / "paper-account-check.json").write_text(json.dumps(status, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
-    log = RUN / "paper-account-check-events.jsonl"
+    run_dir, public_dir = args.output_dir.resolve(), args.public_output_dir.resolve()
+    run_dir.mkdir(parents=True, exist_ok=True)
+    public_dir.mkdir(parents=True, exist_ok=True)
+    (run_dir / "paper-account-check.json").write_text(json.dumps(status, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    (public_dir / "paper-account-check.json").write_text(json.dumps(status, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
+    log = run_dir / "paper-account-check-events.jsonl"
     with log.open("a", encoding="utf-8") as f:
         f.write(json.dumps({"type": "READINESS_CHECK", "at_utc": now, "execution_ready": status["execution_ready"],
             "cash_toman": account["cash_toman"], "holdings_count": len(account["holdings"]), "blockers": blockers,
@@ -214,7 +220,11 @@ def _main_locked():
 
 
 def main():
-    with paper_account_store.account_write_lock(ACCOUNT):
+    import argparse as _argparse
+    parser = _argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--account", type=Path, default=ACCOUNT)
+    selected, _ = parser.parse_known_args()
+    with paper_account_store.account_write_lock(selected.account.resolve()):
         return _main_locked()
 
 

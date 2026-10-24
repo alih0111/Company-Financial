@@ -1,0 +1,82 @@
+{
+  "task": "TF-02B",
+  "verdict": "PASS",
+  "manifest_excludes_self": true,
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 6840,
+      "sha256": "0741db1decf82a21a31810910f296c702c64c6dc7ed13918f392550f03bde45a"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/REPORT.fa.md",
+      "bytes": 4636,
+      "sha256": "3a39ab191b82238ac52c995273a611fd08f69c7dcb7c14555f81da05d6debb6b"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/evidence/evidence.json",
+      "bytes": 77035,
+      "sha256": "2f6a0b680fbeeb984fd9299029ea975d08e7ae566cc1fb5a6957f3c4fd90ac0d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/evidence/generate_evidence.py",
+      "bytes": 12667,
+      "sha256": "9c982e093e5f67025c87f5178e22b4b557719326b93f8b32f5b351ad89131b69"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/historical/TF02B-PARTIAL-20261024T2210Z/REPORT.fa.md",
+      "bytes": 1938,
+      "sha256": "d99f2ac7302085c6b66c3769ba10c6246b4eb447597a32ef4d157bab2d4296b9"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/historical/TF02B-PARTIAL-20261024T2210Z/artifact-manifest.json",
+      "bytes": 633,
+      "sha256": "77d1917c9df88d8b580a41d8fe7f372a252e5e07f1789a29f00e44952f89dce8"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/historical/TF02B-PARTIAL-20261024T2210Z/result.json",
+      "bytes": 4202,
+      "sha256": "ab90569879b3f4158722b8a7fb8671449dc7353527ea32c6c515c3f54bd7f571"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/result.json",
+      "bytes": 8099,
+      "sha256": "206dfede0c7eecf64487f2bcfc26c45adbbc96900eacfc80fd3fe0e67f0c7bdc"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/apply_paper_fill.py",
+      "bytes": 32372,
+      "sha256": "9711842618ee7ccbb2b4b719ca86ddc5a31874cf7c6f7eb20f3bc1ce08418cfe"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/paper_cycle.py",
+      "bytes": 79332,
+      "sha256": "7a8695d18a6d5bcd846921b9f53eb618c5dce9f723a5e636a35c188d4bc7897a"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/refresh_paper_decision_status.py",
+      "bytes": 34664,
+      "sha256": "3c28d24b65c6233b4b725a240767da5fb08c67f83b0d233cf2e744def442f209"
+    },
+    {
+      "path": "ranking_research/paper_calendar.py",
+      "bytes": 36748,
+      "sha256": "8c9950a2fca7a9a9959384d6e7f96e5f4bff0040a718cf407b87c4f730917b64"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_interface.py",
+      "bytes": 40195,
+      "sha256": "d7ffa3fbd1be5913a3af8cab6cbb0b331e441254506052f11c3738de4b05c8f0"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_tf02a_regressions.py",
+      "bytes": 42057,
+      "sha256": "575a8fc2abdbd7f86ea2432090166f7f1640f82907aef62e1760e0686dc3b9b2"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_tf02b_regressions.py",
+      "bytes": 13585,
+      "sha256": "8d483e995faa18cc00e4b9473e310fe851702a2e31b4eb58be83cd79d59697f8"
+    }
+  ]
+}

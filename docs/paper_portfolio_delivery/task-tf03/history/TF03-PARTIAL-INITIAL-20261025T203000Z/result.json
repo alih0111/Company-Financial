@@ -1,0 +1,42 @@
+{
+  "task": "TF-03",
+  "verdict": "PARTIAL",
+  "offline_lifecycle": "NOT_RUN",
+  "cycle_integration": "BLOCKED",
+  "live_preview": "PASS_LIMITED_NO_NEW_SESSION",
+  "activation_package": "BLOCKED_UNQUALIFIED_RANKING",
+  "live_account_activated": false,
+  "scheduler_activated": false,
+  "official_ledger_modified": false,
+  "account_legacy_modified": false,
+  "token_used": false,
+  "live": {
+    "command_exit_code": 0,
+    "manifest": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/manifest.20261024T202214019873Z.json",
+    "manifest_sha256": "85d98190b2a904532614165213973ca671a86e14692c757ebf7647e7e6fd981e",
+    "quality": "CORROBORATED_PUBLIC",
+    "readiness": "USABLE_COMPLETION_UNVERIFIED",
+    "completion_state": "COMPLETION_UNVERIFIED",
+    "assumed_completion": "20261024",
+    "sessions_after_decision": "NO_NEW_SESSION",
+    "session_count": 0,
+    "conflicts": 0,
+    "stock_cross_symbols": 1,
+    "http_statuses": [200, 200, 200, 200, 200]
+  },
+  "ranking": {
+    "evaluation_date": "2026-10-21",
+    "status": "PREPARATION_UNCONFIRMED",
+    "p1_scored": 166,
+    "universe": 254,
+    "eligible_for_fresh_start": false
+  },
+  "protected_hashes": {
+    "client/public/research/v12-36/paper-portfolio.json": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+    "ranking_research/output/return_v12_27/v12_27_1_20261022_delivery_corrections_01/analysis_contract.locked.json": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+    "ranking_research/output/return_v12_23/v12_23_20261021_fresh_local_baseline_01/global/analysis_contract.locked.json": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/o00_session_calendar.csv": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441"
+  }
+}

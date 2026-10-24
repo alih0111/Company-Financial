@@ -200,6 +200,91 @@ def _validate_consumption_mode(mode: str) -> None:
         raise CalendarRefusal("CALENDAR_CONSUMPTION_MODE_INVALID", str(mode))
 
 
+def check_public_policy_binding(*, account: dict, rules_doc: dict,
+                                policy: dict, policy_sha256: str) -> dict:
+    """Mandatory, consistent four-level binding of the public calendar policy.
+
+    The binding is required at the account, decision, order and rules level.
+    A missing binding at any level is itself a mismatch — absence never
+    relaxes the check — and every present id/sha256 (and, when recorded,
+    version/provider) field must equal the pinned policy document. A legacy
+    account without the binding stays readable under its own rules; selecting
+    the public profile for it simply refuses. No auto-migration ever happens
+    inside a read or a fill.
+    """
+    levels = {
+        "account": (account or {}).get("calendar_policy"),
+        "decision": ((account or {}).get("active_decision") or {}).get("calendar_policy"),
+        "order": ((account or {}).get("paper_order") or {}).get("calendar_policy"),
+        "rules": (rules_doc or {}).get("calendar_policy"),
+    }
+    for level, binding in levels.items():
+        if not isinstance(binding, dict):
+            raise CalendarRefusal(
+                "CALENDAR_POLICY_MISMATCH",
+                f"{level} level carries no calendar_policy binding; the public profile "
+                "is explicitly bound at every level or refused (no auto-migration)")
+        if binding.get("id") != policy["policy_id"] or binding.get("sha256") != policy_sha256:
+            raise CalendarRefusal(
+                "CALENDAR_POLICY_MISMATCH",
+                f"{level} level binding id={binding.get('id')!r} "
+                f"sha256={str(binding.get('sha256'))[:16]}… does not equal the pinned "
+                f"policy id={policy['policy_id']!r} sha256={policy_sha256[:16]}…")
+        if "version" in binding and binding["version"] != policy.get("version"):
+            raise CalendarRefusal(
+                "CALENDAR_POLICY_MISMATCH",
+                f"{level} level binding version={binding['version']!r} != policy "
+                f"version={policy.get('version')!r}")
+        if "provider" in binding and binding["provider"] != policy.get("provider"):
+            raise CalendarRefusal(
+                "CALENDAR_POLICY_MISMATCH",
+                f"{level} level binding provider={binding['provider']!r} != policy "
+                f"provider={policy.get('provider')!r}")
+    return {"policy_id": policy["policy_id"], "policy_sha256": policy_sha256,
+            "provider": policy["provider"], "version": policy["version"],
+            "bound_levels": ("account", "decision", "order", "rules")}
+
+
+def check_provider_contract(*, account: dict, provider: str,
+                            rules_bytes: bytes | None = None,
+                            rules_doc: dict | None = None) -> None:
+    """Enforce provider choice against the account's pinned calendar contract."""
+    levels = [account or {}, (account or {}).get("active_decision") or {},
+              (account or {}).get("paper_order") or {}, rules_doc or {}]
+    present = ["calendar_policy" in x for x in levels]
+    bindings = [x.get("calendar_policy") for x in levels]
+    if any(present) and not all(present):
+        raise CalendarRefusal("CALENDAR_POLICY_MISMATCH",
+                              "incomplete account/decision/order calendar policy binding")
+    if any(present) and any(not isinstance(x, dict) for x in bindings):
+        raise CalendarRefusal("CALENDAR_POLICY_MISMATCH",
+                              "calendar_policy binding must be an object at all four levels")
+    if all(present):
+        ids = {x.get("id") for x in bindings}
+        providers = {x.get("provider") for x in bindings if x.get("provider") is not None}
+        if len(ids) != 1 or len(providers) > 1:
+            raise CalendarRefusal("CALENDAR_POLICY_MISMATCH",
+                                  "contradictory account/decision/order calendar policy binding")
+        bound = (next(iter(providers)) if providers else
+                 "public-index" if next(iter(ids)) == "public-paper-v1" else
+                 "nscstart" if next(iter(ids)) == "nscstart" else None)
+        selected = {"public": "public-index", "nscstart": "nscstart"}.get(provider)
+        if selected != bound:
+            raise CalendarRefusal("CALENDAR_POLICY_MISMATCH",
+                                  f"selected provider {selected!r} differs from pinned {bound!r}")
+    elif provider == "public":
+        raise CalendarRefusal("CALENDAR_POLICY_MISMATCH",
+                              "legacy account has no public policy binding")
+    if rules_bytes is not None:
+        try:
+            pin = ((account or {}).get("active_decision") or {}).get("execution_rules", {}).get("sha256")
+        except AttributeError:
+            pin = None
+        if not isinstance(pin, str) or sha_bytes(rules_bytes) != pin:
+            raise CalendarRefusal("PINNED_EXECUTION_RULES_HASH_MISMATCH",
+                                  "execution rules bytes do not match active decision pin")
+
+
 def nscstart_covers_order_window(sessions: list, decision_day: str) -> bool:
     """The NSCStart 20-session window contract, unchanged."""
     dates = [str(row.get("DEven", "")) for row in sessions]
@@ -254,11 +339,13 @@ def resolve_nscstart_calendar(*, manifest_path: Path, decision_local_date: str,
         [{"key": "nscstart_calendar", "retrieved_at_utc": manifest.get("retrieved_at_utc")}],
         decision_at_utc=decision_at_utc, now_utc=now_utc,
         rules=policy["conditions"]["freshness"])
-    completed = [row["DEven"] for row in recomputed
-                 if row["DEven"] > decision_day and row["NSCEnd"] == "1"]
+    # Derived sessions are consumed in date order: first/latest/count never
+    # depend on the order the official response happened to list its rows in.
+    completed = sorted(row["DEven"] for row in recomputed
+                       if row["DEven"] > decision_day and row["NSCEnd"] == "1")
     if not completed:
         raise CalendarRefusal("NO_COMPLETED_OFFICIAL_SESSION_AFTER_DECISION")
-    dates = [row["DEven"] for row in recomputed]
+    dates = sorted(row["DEven"] for row in recomputed)
     return {
         "interface_version": INTERFACE_VERSION,
         "provider": "nscstart",
@@ -325,6 +412,16 @@ def resolve_public_calendar(*, manifest_path: Path, expected_manifest_sha256: st
                             consumption_mode: str) -> dict:
     """Pin, recompute and policy-check the token-free public calendar evidence."""
     _validate_consumption_mode(consumption_mode)
+    # One Tehran-day basis for the decision: the local date and the UTC
+    # instant must describe the same calendar day, or the window anchor is
+    # ambiguous and every downstream session count would be two-interpretable.
+    decision_day = str(decision_local_date).replace("-", "")
+    local_day = tf.tehran_local_date(decision_at_utc)
+    if local_day != decision_day:
+        raise CalendarRefusal(
+            "DECISION_DATE_TIME_INCONSISTENT",
+            f"decision_at_utc={decision_at_utc.isoformat()} is Tehran-local {local_day} "
+            f"but decision_local_date pins {decision_day}; these must describe one day")
     if policy.get("provider") != "public-index" or policy.get("dataset_id") != tf.DATASET_ID:
         raise CalendarRefusal("CALENDAR_POLICY_PROVIDER_MISMATCH",
                               f"policy {policy.get('policy_id')} is not a public-index policy "
@@ -346,11 +443,46 @@ def resolve_public_calendar(*, manifest_path: Path, expected_manifest_sha256: st
     if set(keys) != set(tf.SOURCE_KEYS):
         raise CalendarRefusal("CALENDAR_MANIFEST_SOURCE_KEYS_INVALID",
                               f"expected {sorted(tf.SOURCE_KEYS)}, got {sorted(set(keys))}")
-    decision_day = str(decision_local_date).replace("-", "")
-    if str(manifest.get("window_start", "")) != decision_day:
-        raise CalendarRefusal("CALENDAR_WINDOW_MISMATCH",
-                              f"manifest window_start={manifest.get('window_start')!r} "
-                              f"is not the decision day {decision_day!r}")
+    inner_policy = manifest.get("policy")
+    if not isinstance(inner_policy, dict):
+        raise CalendarRefusal("CALENDAR_MANIFEST_INTERNAL_INCONSISTENT",
+                              "manifest.policy is missing/not an object")
+    # The window basis is checked on every place it is recorded: the top-level
+    # window_start, the inner policy window the evaluation actually uses, and
+    # the decision day must all be one value. A fresh correct hash only proves
+    # the file is unchanged, never that its fields agree with each other.
+    inner_window = str(inner_policy.get("window_start", ""))
+    outer_window = str(manifest.get("window_start", ""))
+    if outer_window != decision_day or inner_window != decision_day:
+        raise CalendarRefusal(
+            "CALENDAR_WINDOW_MISMATCH",
+            f"window bases disagree: manifest.window_start={outer_window!r}, "
+            f"policy.window_start={inner_window!r}, decision day={decision_day!r}; "
+            "the evaluation window must be the decision day on every level")
+    # Duplicated evaluation-relevant fields may not carry two interpretations:
+    # market scope, collector policy version and the pinned index identities
+    # are each recorded twice in a genuine manifest and must agree with the
+    # registered TSE profiles. (Collector policy naming and consumer policy
+    # naming stay separate contracts and are never string-compared.)
+    if str(manifest.get("market_scope", "")) != str(inner_policy.get("market_scope", "")):
+        raise CalendarRefusal(
+            "CALENDAR_MANIFEST_INTERNAL_INCONSISTENT",
+            f"market_scope={manifest.get('market_scope')!r} vs policy.market_scope="
+            f"{inner_policy.get('market_scope')!r}")
+    if str(manifest.get("policy_version", "")) != str(inner_policy.get("policy_version", "")):
+        raise CalendarRefusal(
+            "CALENDAR_MANIFEST_INTERNAL_INCONSISTENT",
+            f"policy_version={manifest.get('policy_version')!r} vs "
+            f"policy.policy_version={inner_policy.get('policy_version')!r}")
+    pinned_indices = {str(p.get("role")): str(p.get("ins_code"))
+                      for p in inner_policy.get("indices", []) if isinstance(p, dict)}
+    registered_indices = {str(p.get("role")): str(p.get("ins_code"))
+                          for p in tf.TSE_INDEX_PROFILES}
+    if pinned_indices != registered_indices:
+        raise CalendarRefusal(
+            "CALENDAR_MANIFEST_INTERNAL_INCONSISTENT",
+            f"policy.indices={pinned_indices} are not the registered TSE index "
+            f"profiles {registered_indices}")
     pinned_candidate = manifest.get("candidate") or {}
     if (str(pinned_candidate.get("ins_code", "")) != str(candidate.get("ins_code", ""))
             or str(pinned_candidate.get("symbol", "")) != str(candidate.get("symbol", ""))):
@@ -364,6 +496,25 @@ def resolve_public_calendar(*, manifest_path: Path, expected_manifest_sha256: st
     # Recompute from the saved raws: stored manifest quality/session fields are
     # never taken as truth by a consumer.
     sources = tf.sources_from_records(records)
+    # An announced cross-check set is itself pinned evidence: it is rebuilt
+    # from the pinned snapshot with the collector's own replay logic (same
+    # selection, cap, identity map and raw hashes). The stored by_symbol alone
+    # is never a witness. An absent cross-check is a different, allowed state —
+    # "not announced" is not "announced and broken".
+    pinned_stock_meta = manifest.get("stock_cross_check")
+    stock_cross_replay = None
+    if pinned_stock_meta is not None:
+        if not isinstance(pinned_stock_meta, dict):
+            raise CalendarRefusal("STOCK_CROSS_META_INVALID",
+                                  "stock_cross_check must be an object when present")
+        try:
+            stock_cross_replay = tf._replay_stock_cross(pinned_stock_meta, inner_policy)
+        except SystemExit as exc:
+            raise CalendarRefusal("STOCK_CROSS_REPLAY_FAILED", str(exc)) from None
+        except (OSError, ValueError) as exc:
+            raise CalendarRefusal("STOCK_CROSS_REPLAY_FAILED",
+                                  f"{type(exc).__name__}: {exc}") from None
+        sources["stock_cross"] = {"by_symbol": stock_cross_replay["by_symbol"]}
     evaluation = tf.evaluate_public_calendar(policy=manifest["policy"], sources=sources,
                                              now_utc=now_utc)
     if manifest.get("quality") not in (None, evaluation["quality"]):
@@ -436,6 +587,16 @@ def resolve_public_calendar(*, manifest_path: Path, expected_manifest_sha256: st
         "quality": evaluation["quality"],
         "quality_recomputed_from_raw": True,
         "conflicts": evaluation["conflicts"],
+        "stock_cross_check": (None if stock_cross_replay is None else {
+            "rebuilt_from_pinned_raw": True,
+            "eligible_symbols_checked": len(stock_cross_replay["by_symbol"]),
+            "max_symbols": stock_cross_replay.get("max_symbols"),
+            "snapshot_manifest_sha256": pinned_stock_meta.get("snapshot_manifest_sha256"),
+            "note": ("rebuilt with the collector's own replay logic: same selection, "
+                     "cap, identity map and hash-verified raws; the recomputed set "
+                     "feeds quality and conflict evaluation, and the stored "
+                     "by_symbol alone is never a witness"),
+        }),
         "freshness": freshness,
         "coverage": evaluation["coverage"],
         "completion": completion,

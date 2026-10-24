@@ -135,13 +135,25 @@ def run_locked() -> None:
                         help="Versioned public calendar policy document (public provider only).")
     parser.add_argument("--reference-now-utc", default=None,
                         help="Injected evaluation clock (ISO) for calendar freshness checks.")
+    parser.add_argument("--account", type=Path, default=ACCOUNT)
+    parser.add_argument("--rules", type=Path, default=RULES)
     parser.add_argument("--apply-fill", action="store_true", help="Apply a validated fill once to the paper account.")
     parser.add_argument("--observe-order-state", action="store_true", help="Explicitly persist non-fill order-window evidence.")
     args = parser.parse_args()
     account = json.loads(ACCOUNT.read_text(encoding="utf-8"))
     paper_account_store.validate_account(account)
     decision, order = account["active_decision"], account["paper_order"]
-    rules_bytes = RULES.read_bytes()
+    try:
+        rules_bytes = RULES.read_bytes()
+        rules_doc = json.loads(rules_bytes)
+        paper_calendar.check_provider_contract(account=account,
+                                               provider=args.calendar_provider,
+                                               rules_bytes=rules_bytes,
+                                               rules_doc=rules_doc)
+    except (OSError, ValueError) as exc:
+        raise SystemExit(f"PINNED_EXECUTION_RULES_UNREADABLE; {type(exc).__name__}") from None
+    except paper_calendar.CalendarRefusal as exc:
+        raise _refuse(exc) from None
     if hashlib.sha256(rules_bytes).hexdigest() != decision["execution_rules"]["sha256"]:
         raise SystemExit("PINNED_EXECUTION_RULES_HASH_MISMATCH")
     has_prior_fill = bool(order.get("fill_event_id"))
@@ -200,24 +212,54 @@ def run_locked() -> None:
 
     calendar_receipt = None
     calendar_label_fa = None
+    replayed_at_recorded_clock = None
     if args.calendar_provider == "public":
         # The public profile is a separately bound policy: an old order pinned
-        # to the previous rules hash never silently converts to it.
+        # to the previous rules hash never silently converts to it. The binding
+        # is mandatory at every level — a missing binding is itself a mismatch.
         policy = paper_calendar.load_policy(args.calendar_policy)
         policy_sha = sha(args.calendar_policy)
-        binding = decision.get("calendar_policy") or {}
-        rules_doc = json.loads(rules_bytes)
-        order_binding = order.get("calendar_policy") or {}
-        if (binding.get("id") != policy["policy_id"] or binding.get("sha256") != policy_sha
-                or (rules_doc.get("calendar_policy") or {}).get("id") != policy["policy_id"]
-                or (rules_doc.get("calendar_policy") or {}).get("sha256") != policy_sha
-                or (order_binding and (order_binding.get("id") != policy["policy_id"]
-                                       or order_binding.get("sha256") != policy_sha))):
-            raise SystemExit("CALENDAR_POLICY_MISMATCH; this account/decision/rules are not "
-                             "bound to the requested public calendar policy version")
+        try:
+            paper_calendar.check_public_policy_binding(
+                account=account, rules_doc=rules_doc,
+                policy=policy, policy_sha256=policy_sha)
+        except paper_calendar.CalendarRefusal as exc:
+            raise _refuse(exc) from None
         if not args.calendar_manifest_sha256:
             raise SystemExit("CALENDAR_MANIFEST_SHA256_REQUIRED")
         source_map = validate_evidence_sources()
+        if has_prior_fill:
+            # Exact replay of this same execution: before any past clock may be
+            # used, the identity of that execution and the equality of every
+            # pinned input with the recorded receipt must be established. The
+            # exact-replay mode alone never waives the freshness contract.
+            prior_receipt = order.get("fill_receipt") or {}
+            prior_calendar = prior_receipt.get("calendar") or {}
+            if not prior_calendar:
+                raise SystemExit("FILL_REPLAY_UNVERIFIABLE_LEGACY_STATE; "
+                                 "the recorded fill has no public calendar receipt")
+            if (prior_calendar.get("manifest_sha256") != args.calendar_manifest_sha256
+                    or prior_calendar.get("policy_sha256") != policy_sha
+                    or prior_calendar.get("evidence_manifest_sha256") != sha(evidence_path)
+                    or prior_receipt.get("order_id") != order.get("order_id")
+                    or prior_receipt.get("decision_id") != decision.get("decision_id")
+                    or prior_receipt.get("account_id") != account.get("account_id")):
+                raise SystemExit("FILL_REPLAY_INPUTS_CHANGED; the offered pinned inputs "
+                                 "differ from the recorded execution; the previous "
+                                 "receipt is never rewritten")
+            if not prior_calendar.get("validated_at_utc"):
+                raise SystemExit("FILL_REPLAY_VALIDATION_CLOCK_UNPROVABLE; this receipt "
+                                 "predates clock recording; no execution time is fabricated")
+            try:
+                replayed_at_recorded_clock = paper_calendar.parse_utc(
+                    prior_calendar["validated_at_utc"],
+                    field="fill_receipt.calendar.validated_at_utc")
+            except paper_calendar.CalendarRefusal as exc:
+                raise _refuse(exc) from None
+            # The validation clock is recovered from the receipt — not from
+            # today's clock and not from a manual flag; freshness of the same
+            # pinned evidence validates at its own recorded execution time.
+            now_utc = replayed_at_recorded_clock
         try:
             answer = paper_calendar.resolve_public_calendar(
                 manifest_path=session_path,
@@ -237,26 +279,9 @@ def run_locked() -> None:
                             "manifest_sha256": args.calendar_manifest_sha256,
                             "completion_type": answer["completion"]["type"],
                             "assumed_completion": answer["completion"].get("value"),
+                            "validated_at_utc": now_utc.astimezone(dt.timezone.utc).isoformat(),
+                            "evidence_manifest_sha256": sha(evidence_path),
                             "label_fa": calendar_label_fa}
-        if not answer["readiness"]["calendar_ready"]:
-            raise SystemExit("CALENDAR_NOT_READY;"
-                             + ",".join(answer["readiness"]["blocking_reasons"]))
-        state = answer["sessions_after_decision"]["state"]
-        if answer["eligible_session_count"] is None:
-            raise SystemExit(f"SESSION_COUNT_UNKNOWN;{state}")
-        sessions_count = answer["eligible_session_count"]
-        if sessions_count == 0:
-            # Successful acquisition with no new accepted session: not an error,
-            # and never a reason to fabricate a session or touch the account.
-            print(json.dumps({"status": state, "first_session": None, "session_count": 0,
-                              "fill_applied": False, "cash_toman": account["cash_toman"],
-                              "calendar_label_fa": calendar_label_fa,
-                              "reason": ("acquisition succeeded; no new session is accepted "
-                                         "for execution under this calendar policy yet")},
-                             ensure_ascii=False))
-            return
-        first_day = answer["first_usable_session"]
-        latest_session = answer["sessions_after_decision"]["sessions"][-1]
     else:
         try:
             answer = paper_calendar.resolve_nscstart_calendar(
@@ -267,9 +292,29 @@ def run_locked() -> None:
         except paper_calendar.CalendarRefusal as exc:
             raise _refuse(exc) from None
         source_map = validate_evidence_sources()
-        first_day = answer["first_usable_session"]
-        sessions_count = answer["eligible_session_count"]
-        latest_session = answer["sessions_after_decision"]["sessions"][-1]
+    # Common consumption gate for every provider: an unresolved readiness is a
+    # hard stop for fill, expiry and observation alike — the real blocking
+    # reason is preserved and the account is untouched.
+    if not answer["readiness"]["calendar_ready"]:
+        raise SystemExit("CALENDAR_NOT_READY;"
+                         + ",".join(answer["readiness"]["blocking_reasons"]))
+    state = answer["sessions_after_decision"]["state"]
+    if answer["eligible_session_count"] is None:
+        raise SystemExit(f"SESSION_COUNT_UNKNOWN;{state}")
+    sessions_count = answer["eligible_session_count"]
+    if sessions_count == 0:
+        # Successful acquisition with no new accepted session: not an error,
+        # and never a reason to fabricate a session or touch the account.
+        print(json.dumps({"status": state, "first_session": None, "session_count": 0,
+                          "fill_applied": False, "cash_toman": account["cash_toman"],
+                          **({"calendar_label_fa": calendar_label_fa}
+                             if calendar_receipt else {}),
+                          "reason": ("acquisition succeeded; no new session is accepted "
+                                     "for execution under this calendar policy yet")},
+                         ensure_ascii=False))
+        return
+    first_day = answer["first_usable_session"]
+    latest_session = answer["sessions_after_decision"]["sessions"][-1]
     order["eligible_session_count_observed"] = max(order.get("eligible_session_count_observed", 0), sessions_count)
     if order.get("designated_execution_session") and order["designated_execution_session"] != first_day:
         raise SystemExit("FIRST_ELIGIBLE_SESSION_CONFLICT_WITH_PINNED_ORDER")
@@ -339,8 +384,15 @@ def run_locked() -> None:
             if not has_prior_fill or not old_receipt or not account.get("holdings"):
                 raise SystemExit("FILL_REPLAY_UNVERIFIABLE_LEGACY_STATE; holding/order lacks trusted v1 receipt")
             _verify_replay_state(account, order, old_receipt, receipt)
-            print(json.dumps({"status": "FILL_ALREADY_APPLIED", "fill_applied": False,
-                              "fill_event_id": order["fill_event_id"], "cash_toman": account["cash_toman"]}, ensure_ascii=False))
+            replay_payload = {"status": "FILL_ALREADY_APPLIED", "fill_applied": False,
+                              "fill_event_id": order["fill_event_id"],
+                              "cash_toman": account["cash_toman"]}
+            if replayed_at_recorded_clock is not None:
+                # freshness of the same pinned evidence was validated at the
+                # receipt's own recorded clock, not at today's clock
+                replay_payload["replayed_at_recorded_validation_clock"] = \
+                    replayed_at_recorded_clock.isoformat()
+            print(json.dumps(replay_payload, ensure_ascii=False))
             return
         if has_prior_fill:
             raise SystemExit("FILL_REPLAY_UNVERIFIABLE_LEGACY_STATE; fill has no trusted v1 receipt")
@@ -422,7 +474,8 @@ def run_locked() -> None:
             "details": f"{order['symbol']}; session={first_day}; shares={shares}; close_rial={close_rial}; gross_toman={gross}; assumed_fee_toman={fee}; cash_after={account['cash_toman']}; order={order['order_id']}; evidence_sha256={sha(evidence_path)}; calendar_provider={args.calendar_provider}; calendar_manifest_sha256={(calendar_receipt or {}).get('manifest_sha256')}; queue not evidenced."})
         write_account_atomic(account)
     payload = {"status": "FILL_APPLIED" if args.apply_fill else "FILL_ELIGIBLE_PREVIEW_ONLY",
-               "first_session": first_day, "close_rial": close_rial, "volume": volume,
+               "first_session": first_day, "sessions_after_decision": sessions_count,
+               "close_rial": close_rial, "volume": volume,
                "fill_applied": args.apply_fill, "cash_toman": account["cash_toman"],
                "source_manifest_sha256": sha(evidence_path)}
     if calendar_receipt:
@@ -436,6 +489,12 @@ def run_locked() -> None:
 
 
 def main() -> None:
+    global ACCOUNT, RULES
+    paths = argparse.ArgumentParser(add_help=False)
+    paths.add_argument("--account", type=Path, default=ACCOUNT)
+    paths.add_argument("--rules", type=Path, default=RULES)
+    selected, _ = paths.parse_known_args()
+    ACCOUNT, RULES = selected.account.resolve(), selected.rules.resolve()
     with account_write_lock():
         run_locked()
 

@@ -1,0 +1,271 @@
+{
+  "public_fill_then_next_day_replay": {
+    "first_run": {
+      "exit_code": 0,
+      "stdout": "{\"status\": \"FILL_APPLIED\", \"first_session\": \"20260902\", \"sessions_after_decision\": 2, \"close_rial\": 1234.0, \"volume\": 10000.0, \"fill_applied\": true, \"cash_toman\": 43, \"source_manifest_sha256\": \"a28b90e963a5c174485d48c1181514451382eca4ef04e4c7e131039c20372c2c\", \"calendar\": {\"provider\": \"public-index\", \"policy_id\": \"public-paper-v1\", \"manifest_sha256\": \"d8d2e5dd0d33054287cbffbb5082a45b2d266f2f32cec72332c562361a9b122f\", \"assumed_completion\": \"20260905\", \"completion_type\": \"named_operational_assumption\"}, \"calendar_label_fa\": \"سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم\"}",
+      "stderr": ""
+    },
+    "first_run_state": {
+      "cash_toman": 43,
+      "holding_count": 1,
+      "event_count": 1,
+      "has_receipt": true,
+      "order_status": "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE"
+    },
+    "receipt_calendar": {
+      "policy_id": "public-paper-v1",
+      "manifest_sha256": "d8d2e5dd0d33054287cbffbb5082a45b2d266f2f32cec72332c562361a9b122f",
+      "validated_at_utc": "2026-10-23T12:05:00+00:00",
+      "evidence_manifest_sha256": "a28b90e963a5c174485d48c1181514451382eca4ef04e4c7e131039c20372c2c",
+      "completion_type": "named_operational_assumption",
+      "assumed_completion": "20260905"
+    },
+    "recorded_validation_clock": "2026-10-23T12:05:00+00:00",
+    "next_day_retry_clock": "2026-10-24T12:00:00+00:00",
+    "next_day_retry": {
+      "exit_code": 0,
+      "stdout": "{\"status\": \"FILL_ALREADY_APPLIED\", \"fill_applied\": false, \"fill_event_id\": \"paper-fill-fixture-order-public-20260902\", \"cash_toman\": 43, \"replayed_at_recorded_validation_clock\": \"2026-10-23T12:05:00+00:00\"}",
+      "stderr": ""
+    },
+    "state_after_replay": {
+      "cash_toman": 43,
+      "holding_count": 1,
+      "event_count": 1,
+      "has_receipt": true,
+      "order_status": "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE"
+    },
+    "account_sha256_before_replay": "091952f34bbc80db73a8b7a6f1bebf53786f526a7a79afb043e510993a11a6a4",
+    "account_sha256_after_replay": "091952f34bbc80db73a8b7a6f1bebf53786f526a7a79afb043e510993a11a6a4",
+    "bytes_unchanged_by_replay": true
+  },
+  "refusals": {
+    "inner_window_mismatch_wrong_day_price": {
+      "run": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "CALENDAR_WINDOW_MISMATCH; window bases disagree: manifest.window_start='20260901', policy.window_start='20260902', decision day='20260901'; the evaluation window must be the decision day on every level"
+      },
+      "account_sha_before": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+      "account_sha_after": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+      "bytes_unchanged": true,
+      "state": {
+        "cash_toman": 100000,
+        "holding_count": 0,
+        "event_count": 0,
+        "has_receipt": false,
+        "order_status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE"
+      }
+    },
+    "fresh_account_next_day_stale": {
+      "run": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "CALENDAR_NOT_READY;FRESHNESS_SOURCE_STALE:identity,FRESHNESS_SOURCE_STALE:primary_history,FRESHNESS_SOURCE_STALE:secondary_history,FRESHNESS_SOURCE_STALE:last_possible,FRESHNESS_SOURCE_STALE:candidate_instrument"
+      },
+      "account_sha_before": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+      "account_sha_after": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+      "bytes_unchanged": true,
+      "state": {
+        "cash_toman": 100000,
+        "holding_count": 0,
+        "event_count": 0,
+        "has_receipt": false,
+        "order_status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE"
+      }
+    },
+    "corrupted_pinned_cross_raw": {
+      "run": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "STOCK_CROSS_REPLAY_FAILED; REPLAY_RAW_CHANGED; 1 pinned daily raw(s) no longer match"
+      },
+      "account_sha_before": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+      "account_sha_after": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+      "bytes_unchanged": true,
+      "state": {
+        "cash_toman": 100000,
+        "holding_count": 0,
+        "event_count": 0,
+        "has_receipt": false,
+        "order_status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE"
+      }
+    },
+    "wrong_account_and_missing_order_binding": {
+      "run": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "CALENDAR_POLICY_MISMATCH; account level binding id='WRONG_ACCOUNT_POLICY' sha256=0000000000000000… does not equal the pinned policy id='public-paper-v1' sha256=4cbcedd864361621…"
+      },
+      "account_sha_before": "8fa935a68f6b0aad00a9f483e7736c601afca493dd3a283db91d6a1346d499da",
+      "account_sha_after": "8fa935a68f6b0aad00a9f483e7736c601afca493dd3a283db91d6a1346d499da",
+      "bytes_unchanged": true,
+      "state": {
+        "cash_toman": 100000,
+        "holding_count": 0,
+        "event_count": 0,
+        "has_receipt": false,
+        "order_status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE"
+      }
+    }
+  },
+  "nscstart_predating_manifest": {
+    "run": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "CALENDAR_NOT_READY;SOURCE_RETRIEVED_BEFORE_DECISION"
+    },
+    "account_sha_before": "f4c25ca02c07f31f0e4b2f99ec60023a0ec4221768d882d78c8667430516835d",
+    "account_sha_after": "f4c25ca02c07f31f0e4b2f99ec60023a0ec4221768d882d78c8667430516835d",
+    "bytes_unchanged": true,
+    "state": {
+      "cash_toman": 100000,
+      "holding_count": 0,
+      "event_count": 0,
+      "has_receipt": false,
+      "order_status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE"
+    }
+  },
+  "crash_harness": {
+    "pre_state_sha256": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+    "cut_before_replace": {
+      "run": {
+        "exit_code": 75,
+        "stdout": "",
+        "stderr": ""
+      },
+      "exit_code_expected": 75,
+      "account_sha_after": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+      "bytes_unchanged": true
+    },
+    "next_day_retry_of_uncommitted_fill": {
+      "run": {
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": "CALENDAR_NOT_READY;FRESHNESS_SOURCE_STALE:identity,FRESHNESS_SOURCE_STALE:primary_history,FRESHNESS_SOURCE_STALE:secondary_history,FRESHNESS_SOURCE_STALE:last_possible,FRESHNESS_SOURCE_STALE:candidate_instrument"
+      },
+      "refused": true,
+      "account_sha_after": "bd027b1cec825b05f0eb37044f243ba370f30abc2b86ecfb8e1043d0f66dabb3",
+      "bytes_unchanged": true
+    },
+    "cut_after_replace": {
+      "run": {
+        "exit_code": 74,
+        "stdout": "",
+        "stderr": ""
+      },
+      "exit_code_expected": 74,
+      "state": {
+        "cash_toman": 43,
+        "holding_count": 1,
+        "event_count": 1,
+        "has_receipt": true,
+        "order_status": "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE"
+      }
+    },
+    "next_day_replay_after_commit": {
+      "run": {
+        "exit_code": 0,
+        "stdout": "{\"status\": \"FILL_ALREADY_APPLIED\", \"fill_applied\": false, \"fill_event_id\": \"paper-fill-fixture-order-public-20260902\", \"cash_toman\": 43, \"replayed_at_recorded_validation_clock\": \"2026-10-23T12:05:00+00:00\"}",
+        "stderr": ""
+      },
+      "state": {
+        "cash_toman": 43,
+        "holding_count": 1,
+        "event_count": 1,
+        "has_receipt": true,
+        "order_status": "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE"
+      },
+      "account_sha256_before_replay": "e527b588fe3dc0b581b04e48c5100ba238602a750bb8a94cdf7a763f78127193",
+      "account_sha256_after_replay": "e527b588fe3dc0b581b04e48c5100ba238602a750bb8a94cdf7a763f78127193",
+      "bytes_unchanged": true
+    }
+  },
+  "real_copy_refresh_mismatch": {
+    "exit_code": 0,
+    "public_calendar": {
+      "provider": "public-index",
+      "policy": {
+        "id": "public-paper-v1",
+        "version": "1.0.0",
+        "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+      },
+      "account_compatibility": {
+        "state": "mismatch",
+        "levels_checked": [
+          "account",
+          "decision",
+          "order",
+          "rules"
+        ],
+        "mismatch_detail": "CALENDAR_POLICY_MISMATCH; account level carries no calendar_policy binding; the public profile is explicitly bound at every level or refused (no auto-migration)"
+      },
+      "quality": null,
+      "quality_recomputed_from_raw": false,
+      "resolve_refusal": "CALENDAR_WINDOW_MISMATCH; window bases disagree: manifest.window_start='20260901', policy.window_start='20260901', decision day='20261022'; the evaluation window must be the decision day on every level",
+      "freshness": {
+        "state": "NOT_RESOLVED"
+      },
+      "calendar_ready": false,
+      "blocking_reasons": [
+        "CALENDAR_POLICY_MISMATCH",
+        "CALENDAR_WINDOW_MISMATCH; window bases disagree: manifest.window_start='20260901', policy.window_start='20260901', decision day='20261022'; the evaluation window must be the decision day on every level"
+      ],
+      "completion": null,
+      "sessions_after_decision": {
+        "state": "NOT_RESOLVED",
+        "count": null,
+        "first_session": null,
+        "count_is_unknown": true
+      },
+      "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+      "candidate_trade_evidence": null
+    },
+    "barrier": {
+      "id": "public_calendar",
+      "state": "account_profile_mismatch",
+      "title": "این حساب/سفارش/قواعد به سیاست تقویم عمومی مقید نشده‌اند",
+      "details": "کیفیت دادهٔ تقویم عمومی جداگانه گزارش می‌شود، اما مصرف آن برای این حساب مجاز نیست: CALENDAR_POLICY_MISMATCH; account level carries no calendar_policy binding; the public profile is explicitly bound at every level or refused (no auto-migration)؛ مهاجرت/فعال‌سازی حساب، TF-03 است و در بررسی وضعیت انجام نمی‌شود.",
+      "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+    },
+    "real_files_hashes": {
+      "client/public/research/v12-36/paper-portfolio.json": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646"
+    },
+    "real_files_unchanged": true
+  },
+  "protected_files": {
+    "client/public/research/v12-36/paper-portfolio.json": {
+      "recorded_sha256": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "current_sha256": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "match": true
+    },
+    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": {
+      "recorded_sha256": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "current_sha256": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "match": true
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": {
+      "recorded_sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "current_sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "match": true
+    },
+    "ranking_research/output/return_v12_27/v12_27_1_20261022_delivery_corrections_01/analysis_contract.locked.json": {
+      "recorded_sha256": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+      "current_sha256": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+      "match": true
+    },
+    "ranking_research/output/return_v12_23/v12_23_20261021_fresh_local_baseline_01/global/analysis_contract.locked.json": {
+      "recorded_sha256": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+      "current_sha256": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+      "match": true
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/o00_session_calendar.csv": {
+      "recorded_sha256": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441",
+      "current_sha256": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441",
+      "match": true
+    }
+  },
+  "generated_at_utc": "2026-10-24T17:51:35.733129+00:00",
+  "fixtures": "TEST_FIXTURE",
+  "network_requests": 0
+}

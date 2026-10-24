@@ -1,0 +1,22 @@
+{
+  "artifact_id": "tf03-synthetic-ranking",
+  "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "dataset_id": "TF03_SYNTHETIC_FIXTURE",
+  "evaluation_date": "2026-10-23",
+  "status": "FIXTURE_ONLY_NOT_REAL_RANKING",
+  "scored_count": {
+    "P1": 1
+  },
+  "rows": [
+    {
+      "company_id": "fixture-company",
+      "symbol": "TEST",
+      "methods": {
+        "P1": {
+          "rank": 1,
+          "score": 1.0
+        }
+      }
+    }
+  ]
+}

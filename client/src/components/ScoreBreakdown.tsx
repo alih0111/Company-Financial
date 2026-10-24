@@ -104,7 +104,7 @@ const FactorRow: React.FC<{ f: Factor; dark: boolean }> = ({ f, dark }) => {
         >
           {f.label}
         </span>
-        <span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0">
+        <span className="text-[10px] text-gray-500 dark:text-gray-400 shrink-0">
           ({f.weight})
         </span>
         <span
@@ -150,7 +150,7 @@ const FactorRow: React.FC<{ f: Factor; dark: boolean }> = ({ f, dark }) => {
             بدون داده → {(rank != null ? rank * 100 : 0).toFixed(0)}%
           </span>
         ) : (
-          <span className="text-[10px] text-gray-400 dark:text-gray-500 shrink-0 w-24 text-left tabular-nums">
+          <span className="text-[10px] text-gray-500 dark:text-gray-400 shrink-0 w-24 text-left tabular-nums">
              {rank != null ? (rank * 100).toFixed(0) : "؟"}%
           </span>
         )}
@@ -646,7 +646,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
             <span className="text-3xl font-extrabold tabular-nums" style={{ color: scoreColor }}>
               {score.toFixed(0)}
             </span>
-            <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">از ۱۰۰</span>
+            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium">از ۱۰۰</span>
           </div>
         </div>
 
@@ -804,7 +804,7 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
                       : undefined
                   }
                 >
-                  {earned.toFixed(1)}<span className="text-gray-400 dark:text-gray-500 font-normal">/{cat.maxScore}</span>
+                  {earned.toFixed(1)}<span className="text-gray-500 dark:text-gray-400 font-normal">/{cat.maxScore}</span>
                 </span>
               </div>
 

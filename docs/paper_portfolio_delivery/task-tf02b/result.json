@@ -1,0 +1,148 @@
+{
+  "task": "TF-02B",
+  "date": "2026-10-24",
+  "verdict": "PASS",
+  "scope": "PASS applies only to TF-02B requirements and fixtures; no TF-03 or live-account activation.",
+  "groups": {
+    "provider_contract": {
+      "status": "PASS",
+      "entrypoints": [
+        "apply.main",
+        "refresh.main",
+        "acquire_order_calendar"
+      ],
+      "cases": [
+        "public/public succeeds and applies on temp account",
+        "legacy/nscstart succeeds and applies on temp account",
+        "public/nscstart, omitted/default provider, preview and observation refuse before any write",
+        "legacy/public refuses",
+        "status and cycle report CALENDAR_POLICY_MISMATCH before credential/stage"
+      ],
+      "tests": [
+        "test_tf02b_public_bound_account_cannot_use_legacy_or_default_provider (4 parameter cases)",
+        "test_tf02b_legacy_account_cannot_select_public_provider",
+        "test_tf02b_unbound_legacy_fixture_rejected_by_public_apply",
+        "test_tf02b_provider_mismatch_reason_matches_status_and_cycle",
+        "test_public_preview_then_apply_then_replay_is_byte_exact",
+        "test_g2_healthy_nscstart_fixture_still_buys_from_the_entrypoint"
+      ],
+      "evidence": "evidence/evidence.json#cases.apply_*"
+    },
+    "pinned_rules_bytes": {
+      "status": "PASS",
+      "contract": "SHA-256 of one rules bytes snapshot matches active_decision pin; the same parsed snapshot is used for policy binding. No pin is rewritten.",
+      "cases": [
+        "healthy same-input control",
+        "whitespace mismatch",
+        "semantic mismatch",
+        "missing/unreadable rules",
+        "new semantic rules fixture with matching new temp pin",
+        "cycle stage mutates file after acquisition begins; original validated snapshot is consumed"
+      ],
+      "tests": [
+        "test_tf02b_rules_hash_mismatch_blocks_fill_status_and_acquisition (2 parameter cases)",
+        "test_tf02b_missing_rules_is_controlled_in_status_and_cycle",
+        "test_tf02b_new_rules_snapshot_with_matching_pin_is_accepted",
+        "test_tf02b_cycle_uses_rules_snapshot_if_stage_changes_file"
+      ],
+      "evidence": "evidence/evidence.json#cases.rules_*"
+    },
+    "acquisition_invocation_binding": {
+      "status": "PASS",
+      "cases": [
+        "valid artifact bundle produced by fake collector inside invocation destination, including raw/manifest/pointer",
+        "successful stage without output",
+        "manifest outside invocation destination",
+        "pointer/manifest run_id mismatch",
+        "manifest hash mismatch",
+        "failed stage with stale pointer does not consume it",
+        "two successful invocations use distinct manifests and preserve first output"
+      ],
+      "tests": [
+        "test_tf02b_acquisition_faults_never_consume_manifest (5 parameter cases)",
+        "test_tf02b_two_acquisitions_consume_own_bundles_and_preserve_first",
+        "test_g5_one_input_consistent_across_fill_status_and_cycle",
+        "test_cycle_public_acquisition_never_falls_back_to_old_manifest"
+      ],
+      "evidence": "evidence/evidence.json#cases.acquisition,two_invocations"
+    }
+  },
+  "tests": {
+    "command": ".venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_public_market_calendar.py ranking_research/tests/test_paper_calendar_interface.py ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py ranking_research/tests/test_paper_calendar_tf02a_regressions.py ranking_research/tests/test_paper_calendar_tf02b_regressions.py -q --basetemp D:/RFA/Company-Financial/.pytest_tmp_tf02b_deliver",
+    "result": "168 passed, 0 failed",
+    "duration_seconds": 453.99,
+    "files": {
+      "test_public_market_calendar.py": 34,
+      "test_paper_calendar_interface.py": 18,
+      "test_paper_account_atomic.py": 56,
+      "test_paper_cycle_http.py": 3,
+      "test_paper_calendar_tf02a_regressions.py": 38,
+      "test_paper_calendar_tf02b_regressions.py": 19
+    },
+    "total_unique": 168,
+    "new_tf02b_unique": 19,
+    "new_tf02b_test_ids": [
+      "test_tf02b_rules_hash_mismatch_blocks_fill_status_and_acquisition[whitespace]",
+      "test_tf02b_rules_hash_mismatch_blocks_fill_status_and_acquisition[semantic]",
+      "test_tf02b_missing_rules_is_controlled_in_status_and_cycle",
+      "test_tf02b_new_rules_snapshot_with_matching_pin_is_accepted",
+      "test_tf02b_public_provider_rejected_before_nscstart_cycle_stage",
+      "test_tf02b_public_bound_account_cannot_use_legacy_or_default_provider[nscstart-apply]",
+      "test_tf02b_public_bound_account_cannot_use_legacy_or_default_provider[nscstart-preview]",
+      "test_tf02b_public_bound_account_cannot_use_legacy_or_default_provider[nscstart-observe]",
+      "test_tf02b_public_bound_account_cannot_use_legacy_or_default_provider[None-apply]",
+      "test_tf02b_legacy_account_cannot_select_public_provider",
+      "test_tf02b_unbound_legacy_fixture_rejected_by_public_apply",
+      "test_tf02b_provider_mismatch_reason_matches_status_and_cycle",
+      "test_tf02b_acquisition_faults_never_consume_manifest[no_output-blocked_public_manifest_missing]",
+      "test_tf02b_acquisition_faults_never_consume_manifest[outside-blocked_public_manifest_outside_invocation]",
+      "test_tf02b_acquisition_faults_never_consume_manifest[run_id_mismatch-blocked_public_pointer_manifest_run_id_mismatch]",
+      "test_tf02b_acquisition_faults_never_consume_manifest[hash_mismatch-blocked_public_manifest_hash_mismatch]",
+      "test_tf02b_acquisition_faults_never_consume_manifest[failed_old_pointer-blocked_public_acquisition_failed]",
+      "test_tf02b_two_acquisitions_consume_own_bundles_and_preserve_first",
+      "test_tf02b_cycle_uses_rules_snapshot_if_stage_changes_file"
+    ]
+  },
+  "protected_files": {
+    "client/public/research/v12-36/paper-portfolio.json": {
+      "baseline_before": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "after": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "unchanged": true
+    },
+    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": {
+      "baseline_before": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "after": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "unchanged": true
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": {
+      "baseline_before": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "after": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "unchanged": true
+    },
+    "ranking_research/output/return_v12_27/v12_27_1_20261022_delivery_corrections_01/analysis_contract.locked.json": {
+      "baseline_before": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+      "after": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+      "unchanged": true
+    },
+    "ranking_research/output/return_v12_23/v12_23_20261021_fresh_local_baseline_01/global/analysis_contract.locked.json": {
+      "baseline_before": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+      "after": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+      "unchanged": true
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/o00_session_calendar.csv": {
+      "baseline_before": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441",
+      "after": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441",
+      "unchanged": true
+    }
+  },
+  "evidence_file": "evidence/evidence.json",
+  "flags": {
+    "network_requests": 0,
+    "token_used": false,
+    "live_account_written": false,
+    "protected_files_unchanged": true,
+    "review_files_modified": false,
+    "tf03_started": false,
+    "commits_made": 0
+  }
+}

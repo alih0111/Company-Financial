@@ -131,7 +131,7 @@ const MarketPage: React.FC = () => {
             <h2 className="font-bold text-gray-800 dark:text-white text-sm">
               شاخص‌ها و نمادهای طلا
             </h2>
-            <p className="text-[11px] text-gray-400 dark:text-gray-500">
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
               شاخص کل، هم‌وزن و صندوق‌های طلا/کالا — همراه با نمودار قیمت
             </p>
           </div>
@@ -305,7 +305,7 @@ const FundList: React.FC<{
   if (list.length === 0) return null;
   return (
     <div className="mb-2">
-      <p className="text-[10px] font-medium text-gray-400 dark:text-gray-500 px-1 mb-1">{title}</p>
+      <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400 px-1 mb-1">{title}</p>
       <div className="flex flex-col gap-1.5">
         {list.map((f) => {
           const active = selected?.kind === "fund" && selected.key === f.symbol;
@@ -321,7 +321,7 @@ const FundList: React.FC<{
                 </span>
               </div>
               <div className="flex items-center justify-between gap-2 mt-0.5">
-                <span className="text-[10px] text-gray-400 dark:text-gray-500 truncate">
+                <span className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
                   {f.name}
                 </span>
                 <span

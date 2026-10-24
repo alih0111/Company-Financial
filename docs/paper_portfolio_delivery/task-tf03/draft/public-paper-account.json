@@ -1,0 +1,98 @@
+{
+  "account_id": "paper-p1-public-tf03-draft",
+  "accounting": {
+    "holdings_value_toman": 0,
+    "total_value_toman": 100000000,
+    "profit_loss_toman": 0
+  },
+  "assumptions": [
+    {
+      "id": "decision",
+      "label": "زمان و مبنای تصمیم",
+      "value": "2026-10-22T18:07:30.569571+00:00 UTC؛ رتبه‌بندی ثابت‌شده در active_decision",
+      "status": "ثبت‌شده"
+    },
+    {
+      "id": "price",
+      "label": "قیمت فرضی اجرا",
+      "value": "قیمت پایانی TSETMC در نخستین جلسهٔ رسمی پس از تصمیم",
+      "status": "فرض آزمایشی؛ محدودیت دادهٔ صف"
+    },
+    {
+      "id": "lot",
+      "label": "lot",
+      "value": "یک سهم؛ تعداد صحیح",
+      "status": "فرض آزمایشی پذیرفته‌شده"
+    },
+    {
+      "id": "fee",
+      "label": "هزینه",
+      "value": "۰٫۵٪ در هر سمت",
+      "status": "فرض آزمایشی پذیرفته‌شده؛ هزینهٔ واقعی نیست"
+    },
+    {
+      "id": "expiry",
+      "label": "انقضا",
+      "value": "پایان سومین جلسهٔ رسمی پس از تصمیم، طبق قاعدهٔ نسخه‌دار",
+      "status": "فرض آزمایشی پذیرفته‌شده"
+    }
+  ],
+  "assumptions_version": "paper-execution-rules/1.2.0-user-approved",
+  "candidate_status": "پیش‌نویس غیرفعال؛ هنوز تصمیم یا سفارش ندارد",
+  "cash_toman": 100000000,
+  "contract": {
+    "exit_rank": 1,
+    "id": "future-evaluation-v12.28-p1-p3-o00-g0",
+    "model": "P1",
+    "review_cadence_sessions": 63,
+    "selection_rule": "P1 رتبهٔ اول؛ تک‌سهمی، بازبینی هر ۶۳ جلسه طبق O00؛ خروج/تعویض فقط در بازبینی مقرر.",
+    "sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+    "target_count": 1,
+    "weight_id": "valuation_0"
+  },
+  "created_at_tehran": "2026-10-25T00:30:48.339926+03:30",
+  "created_at_utc": "2026-10-24T21:00:48.339926+00:00",
+  "currency": "IRR-toman",
+  "decision_at_utc": "2026-10-24T21:00:48.339926+00:00",
+  "decision_kind": "PAPER_ACCOUNT_CREATED_AND_CANDIDATE_RECORDED; NOT_AN_O00_DECISION",
+  "event_log": [
+    {
+      "event_id": "public-draft-created-8135dd38483f5d59",
+      "type": "PUBLIC_PAPER_DRAFT_CREATED",
+      "at_utc": "2026-10-24T21:00:48.339926+00:00",
+      "reason": "ایجاد حساب جدا و غیرفعال؛ بدون مهاجرت یا تصمیم خرید.",
+      "details": "ranking_sha256=25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224; ranking_status=PREPARATION_UNCONFIRMED; fixture=False; public policy=public-paper-v1 sha256=4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778."
+    }
+  ],
+  "execution_recorded": false,
+  "holdings": [],
+  "initial_capital_toman": 100000000,
+  "official_future_evaluation_ledger_linked": false,
+  "official_ledger_event_count_changed": false,
+  "order_created": false,
+  "ranking": {
+    "dataset_id": null,
+    "evaluation_date": "2026-10-21",
+    "status": "PREPARATION_UNCONFIRMED",
+    "artifact_sha256": "25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224",
+    "top_candidate": {
+      "company_id": "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+      "symbol": "غاذر",
+      "rank": 1,
+      "score": 60.8593449339933,
+      "coverage": 0.9999999999999999
+    }
+  },
+  "real_order_submitted": false,
+  "schema_version": 1,
+  "status": "INACTIVE_PUBLIC_PAPER_DRAFT",
+  "waiting_reason": "منبع رسمی اکنون آخرین جلسهٔ کامل را 2026-10-21 اعلام می‌کند؛ هنوز جلسه‌ای بعد از تصمیم ثبت نشده است. تاریخ جلسهٔ بعد را حدس نمی‌زنیم. قیمت نامزد نیز فعلاً تا 2026-10-21 است.",
+  "active_decision": null,
+  "paper_order": null,
+  "calendar_policy": {
+    "id": "public-paper-v1",
+    "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+    "provider": "public-index",
+    "version": "1.0.0"
+  }
+}

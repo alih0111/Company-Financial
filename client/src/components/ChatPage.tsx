@@ -129,7 +129,7 @@ const ChatPage = () => {
     <div className="flex flex-col h-[calc(100vh-11rem)] min-h-[420px]" dir="rtl">
       {/* هدر چت */}
       <div className="flex items-center gap-3 pb-3 border-b border-gray-200/80 dark:border-gray-700/60">
-        <div className="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/25">
           <FaRobot />
         </div>
         <div>
@@ -155,15 +155,15 @@ const ChatPage = () => {
             }`}
           >
             {m.role === "assistant" && (
-              <div className="w-7 h-7 shrink-0 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                <FaRobot size={12} />
+              <div className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-sm shadow-emerald-500/25">
+                <FaRobot size={11} />
               </div>
             )}
             <div
               className={`max-w-[85%] leading-6 rounded-2xl px-4 py-2.5 text-sm shadow-sm ${
                 m.role === "user"
-                  ? "bg-emerald-600 text-white rounded-bl-md"
-                  : "bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200/80 dark:border-gray-700/60 rounded-br-md"
+                  ? "bg-gradient-to-br from-emerald-600 to-teal-600 text-white rounded-bl-md shadow-md shadow-emerald-500/20"
+                  : "bg-white dark:bg-[#16213a] text-gray-800 dark:text-gray-100 border border-gray-200/80 dark:border-white/[0.07] rounded-br-md"
               }`}
             >
               {m.role === "assistant" ? (
@@ -192,7 +192,7 @@ const ChatPage = () => {
               )}
             </div>
             {m.role === "user" && (
-              <div className="w-7 h-7 shrink-0 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-300">
+              <div className="w-7 h-7 shrink-0 rounded-full bg-gray-200 dark:bg-white/10 ring-1 ring-gray-300/50 dark:ring-white/10 flex items-center justify-center text-gray-500 dark:text-gray-300">
                 <FaUser size={11} />
               </div>
             )}
@@ -201,7 +201,7 @@ const ChatPage = () => {
         {sending && (
           <div className="flex flex-col items-start gap-1">
             <div className="flex justify-end">
-              <div className="bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/60 rounded-2xl rounded-br-md shadow-sm">
+              <div className="bg-white dark:bg-[#16213a] border border-gray-200/80 dark:border-white/[0.07] rounded-2xl rounded-br-md shadow-sm">
                 <TypingDots />
               </div>
             </div>
@@ -240,19 +240,19 @@ const ChatPage = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder="سوال خود را بنویسید…"
-          className="flex-1 bg-white dark:bg-gray-800 border border-gray-200/80 dark:border-gray-700/60 rounded-full px-4 py-2.5 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+          className="flex-1 bg-white dark:bg-[#16213a] border border-gray-200/80 dark:border-white/[0.08] rounded-full px-4 py-2.5 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/40 transition-all duration-200"
         />
         <button
           onClick={() => send(input)}
           disabled={sending || !input.trim()}
-          className="w-10 h-10 shrink-0 rounded-full bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center transition-colors disabled:opacity-40"
+          className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 hover:scale-105 text-white flex items-center justify-center shadow-md shadow-emerald-500/25 transition-all duration-200 active:scale-95 disabled:opacity-40 disabled:hover:scale-100"
           aria-label="ارسال"
         >
           <FaPaperPlane size={14} />
         </button>
       </div>
 
-      <p className="text-[10px] text-gray-400 dark:text-gray-500 text-center pt-2">
+      <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center pt-2">
         پاسخ‌ها بر اساس داده‌های کمی سامانه است و توصیه‌ی خرید/فروش نیست.
       </p>
     </div>

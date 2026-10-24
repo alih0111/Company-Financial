@@ -157,7 +157,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
           className: "w-20",
         },
         {
-          Header: "Company",
+          Header: "شرکت",
           accessor: "company_name",
           className: "w-32",
           Cell: ({ value }: { value: string }) => (
@@ -168,7 +168,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
         },
 
         {
-          Header: "EPS Growth",
+          Header: "رشد سود (EPS)",
           accessor: "eps_growth",
           sortType: "basic",
           className: "w-32",
@@ -181,7 +181,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
           ),
         },
         {
-          Header: "Sales Growth",
+          Header: "رشد فروش",
           accessor: "sales_growth",
           sortType: "basic",
           className: "w-32",
@@ -194,7 +194,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
           ),
         },
         {
-          Header: "nonOperating",
+          Header: "غیرعملیاتی",
           accessor: "non_operating_pct",
           sortType: "numericSort",
           className: "w-32",
@@ -207,7 +207,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
           ),
         },
         {
-          Header: "Stable",
+          Header: "پایداری",
           id: "Stable",
           accessor: (row: DataRow) => getStableValue(row),
           sortType: "basic",
@@ -231,7 +231,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
           },
         },
         {
-          Header: "Score",
+          Header: "امتیاز",
           id: "quant_score",
 
           accessor: (row: DataRow) => {
@@ -304,7 +304,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
       <div className="flex items-center gap-3 mb-4 flex-wrap justify-between">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <FaSearch className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-400 dark:text-gray-500 text-sm" />
+          <FaSearch className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm" />
           <input
             type="text"
             value={globalFilter}
@@ -315,18 +315,24 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
           />
         </div>
 
-        {/* Silver filter button */}
-        <button
-          onClick={() =>
-            handleSortBy([
-              { id: "Stable", desc: true },
-              { id: "eps_growth", desc: true },
-            ])
-          }
-          className="px-5 py-2.5 rounded-2xl border border-gray-200 dark:border-gray-600 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 text-gray-700 dark:text-gray-200 text-sm font-semibold shadow-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-400/20 dark:hover:shadow-gray-900/40 transition-all duration-200 active:translate-y-0"
-        >
-          ◇ Silver
-        </button>
+        <div className="flex items-center gap-3">
+          <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 tabular-nums">
+            {rows.length.toLocaleString("fa-IR")} شرکت
+          </span>
+
+          {/* Silver filter button */}
+          <button
+            onClick={() =>
+              handleSortBy([
+                { id: "Stable", desc: true },
+                { id: "eps_growth", desc: true },
+              ])
+            }
+            className="px-5 py-2.5 rounded-2xl border border-gray-200 dark:border-white/10 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 text-gray-700 dark:text-gray-200 text-sm font-semibold shadow-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-400/20 dark:hover:shadow-black/40 transition-all duration-200 active:translate-y-0"
+          >
+            ◇ فیلتر Silver
+          </button>
+        </div>
       </div>
 
       {/* ── Table ── */}
@@ -357,7 +363,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
                       <th
                         {...headerProps}
                         key={headerProps.key}
-                        className={`p-4 text-center text-white/95 font-semibold text-xs uppercase tracking-wider select-none cursor-pointer hover:bg-white/10 transition-colors duration-200 ${
+                        className={`p-4 text-center text-white/95 font-bold text-xs tracking-wide select-none cursor-pointer hover:bg-white/10 transition-colors duration-200 ${
                           (col.className as string) || ""
                         }`}
                       >
@@ -438,7 +444,7 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
                       }`}
                     >
                       {cell.column.id === "row_number" ? (
-                        <span className="font-medium text-gray-400 dark:text-gray-500 text-xs tabular-nums">
+                        <span className="font-medium text-gray-500 dark:text-gray-400 text-xs tabular-nums">
                           {rowIndex + 1}
                         </span>
                       ) : (
@@ -452,11 +458,18 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
 
             {rows.length === 0 && (
               <tr>
-                <td
-                  colSpan={columns.length}
-                  className="text-center p-10 text-gray-400 dark:text-gray-500"
-                >
-                  داده‌ای یافت نشد
+                <td colSpan={columns.length} className="p-12 text-center">
+                  <div className="mx-auto flex max-w-xs flex-col items-center gap-2">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gray-100 dark:bg-white/5 text-xl text-gray-400 dark:text-gray-500">
+                      ◇
+                    </span>
+                    <p className="text-sm font-semibold text-gray-500 dark:text-gray-400">
+                      داده‌ای یافت نشد
+                    </p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      عبارت جستجو را تغییر دهید یا فیلتر را بردارید
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}

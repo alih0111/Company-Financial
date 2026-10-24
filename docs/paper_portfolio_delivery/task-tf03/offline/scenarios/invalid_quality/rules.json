@@ -1,0 +1,24 @@
+{
+  "rule_id": "paper-execution-rules/1.2.0-user-approved",
+  "status": "user-approved-paper-assumptions",
+  "execution_mode": "paper fill at the close of the first eligible official session, with queue-data limitation",
+  "decision_rule": "Pin one P1 rank-1 candidate from the specified ranking snapshot at the recorded decision time. This paper decision is not an O00 decision.",
+  "eligible_session_rule": "The first officially evidenced equity-market session whose local session date is after the recorded decision date. Do not infer or synthesize a session date.",
+  "execution_price_rule": "Candidate official TSETMC daily pClosing in IRR from that first eligible session only. A later session price cannot substitute for it.",
+  "execution_label": "اجرای فرضی با محدودیت دادهٔ صف؛ دادهٔ روزانه صف، اولویت سفارش یا fill واقعی را اثبات نمی‌کند.",
+  "quantity_rule": "Integer shares; lot is one share; shares = floor(available_cash_toman / (close_rial / 10 * (1 + 0.005))). Reduce by one share if rounded accounting would exceed cash.",
+  "fee_assumption_per_side": 0.005,
+  "fee_disclaimer": "Proxy فرض آزمایشی برای هر سمت است؛ تعرفه، مالیات یا هزینهٔ واقعی بازار نیست.",
+  "non_execution_rule": "No eligible official session, no candidate quote for that exact first eligible session, non-positive volume/close, identity mismatch, unresolved corporate action, or insufficient cash for one share means no fill and cash remains unchanged.",
+  "expiry_rule": "Keep the paper order pending for correction/evidence of the designated first-session close; expire it at the close of the third officially evidenced equity-market session after decision if no eligible fill record exists. No later session close may replace the designated first-session price.",
+  "duplicate_rule": "One immutable order_id per decision_id. Apply at most one fill; replay with the same source hashes is idempotent. A different fill or source revision requires an append-only correction event, never a second debit.",
+  "accounting_rule": "Debit gross cost plus the assumed fee once; shares times purchase price is asset cost; mark-to-market begins only after a recorded paper fill. Before fill, P/L remains zero.",
+  "queue_data": "Unavailable in daily close data; show the limitation alongside any fill.",
+  "official_future_evaluation_ledger": "Not used or modified",
+  "calendar_policy": {
+    "id": "public-paper-v1",
+    "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+    "provider": "public-index",
+    "version": "1.0.0"
+  }
+}

@@ -96,6 +96,9 @@ def _public_account_fixture(root: Path, *, policy_id="public-paper-v1",
         "account_id": "TEST_FIXTURE_PUBLIC", "initial_capital_toman": 100000,
         "cash_toman": 100000, "holdings": [], "event_log": [],
         "created_at_utc": "2026-09-01T09:00:00+00:00",
+        # the public profile is bound at every level, account included; a
+        # missing binding at any level is itself a mismatch (TF-02A)
+        "calendar_policy": decision_binding,
         "accounting": {"holdings_value_toman": 0, "total_value_toman": 100000,
                        "profit_loss_toman": 0},
         "active_decision": {
@@ -467,21 +470,20 @@ def test_single_interface_answer_shared_by_all_consumers(tmp_path):
     # cycle stage: same manifest, same first-session answer
     stage_root = tmp_path / "cycle"
     stage_root.mkdir()
-    stage = {"stage": "order_calendar_public_acquisition", "exit_code": 0}
     def fake_stage(name, command, timeout, env=None):
-        return stage
-    # make the collector itself run offline-free: point it at a temp out dir
-    # and intercept the subprocess by faking run_stage + latest-manifest files
-    out_dir = stage_root / "out" / "public_calendar" / "run-x"
-    out_dir.mkdir(parents=True)
-    (out_dir / "latest-manifest.json").write_text(json.dumps({
-        "run_id": "run-x",
-        "manifest_path": str(path),
-        "manifest_sha256": manifest_sha}), encoding="utf-8")
-    account_path, _, _ = _public_account_fixture(stage_root)
+        import shutil
+        out_dir = Path(command[command.index("--output-dir") + 1])
+        out_dir.mkdir(parents=True, exist_ok=True)
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+        (out_dir / "manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+        (out_dir / "latest-manifest.json").write_text(json.dumps({
+            "run_id": manifest["run_id"], "manifest_path": str(out_dir / "manifest.json"),
+            "manifest_sha256": tf.sha_file(out_dir / "manifest.json")}), encoding="utf-8")
+        return {"stage": name, "exit_code": 0}
+    account_path, rules_path, _ = _public_account_fixture(stage_root)
     info = paper_cycle.acquire_order_calendar(
         provider="public", run_id="run-x", out_root=stage_root / "out",
-        account_path=account_path, run_stage_fn=fake_stage,
+        account_path=account_path, rules_path=rules_path, run_stage_fn=fake_stage,
         reference_now_utc=(NOW + dt.timedelta(minutes=5)).isoformat())
     assert info["calendar_state"] == "verified_public_calendar"
     # this fixture account IS bound to the public policy -> no profile mismatch
@@ -539,6 +541,7 @@ def test_status_refresh_public_zero_vs_unknown_and_evidence_gap(tmp_path):
             mp.setattr(refresh, "ACCOUNT", account_path)
             mp.setattr(sys, "argv", ["refresh", "--account", str(account_path),
                                      "--evidence-manifest", str(evidence_path),
+                                     "--execution-rules", str(rules_path),
                                      "--output-dir", str(out_dir),
                                      "--public-output-dir", str(out_dir / "public"),
                                      "--calendar-provider", "public",
@@ -594,7 +597,7 @@ def test_status_refresh_public_zero_vs_unknown_and_evidence_gap(tmp_path):
 # cycle stage: failed public acquisition must not select an old manifest ----- #
 def test_cycle_public_acquisition_never_falls_back_to_old_manifest(tmp_path):
     stage_root = tmp_path / "cycle"
-    account_path, _, _ = _public_account_fixture(stage_root)
+    account_path, rules_path, _ = _public_account_fixture(stage_root)
     # seed an older manifest that a naive glob/mtime fallback would pick
     old_dir = stage_root / "out" / "public_calendar" / "old-run"
     old_dir.mkdir(parents=True)
@@ -603,7 +606,7 @@ def test_cycle_public_acquisition_never_falls_back_to_old_manifest(tmp_path):
         return {"stage": name, "status": "process_failed", "exit_code": 3}
     info = paper_cycle.acquire_order_calendar(
         provider="public", run_id="new-run", out_root=stage_root / "out",
-        account_path=account_path, run_stage_fn=failing_stage)
+        account_path=account_path, rules_path=rules_path, run_stage_fn=failing_stage)
     assert info["calendar_state"] == "blocked_public_acquisition_failed"
     assert info["stage"]["status"] == "calendar_public_acquisition_failed_no_fallback"
     assert info["manifest_path"] is None
@@ -615,7 +618,7 @@ def test_cycle_public_acquisition_never_falls_back_to_old_manifest(tmp_path):
         return {"stage": name, "status": "process_failed", "exit_code": 3}
     info = paper_cycle.acquire_order_calendar(
         provider="public", run_id="new-run2", out_root=stage_root / "out",
-        account_path=account_path, run_stage_fn=seeded_stage)
+        account_path=account_path, rules_path=rules_path, run_stage_fn=seeded_stage)
     assert info["calendar_state"] == "blocked_public_acquisition_failed"
 
 

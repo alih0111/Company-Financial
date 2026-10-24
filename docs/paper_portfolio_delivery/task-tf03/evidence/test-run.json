@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "command": ".venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_public_market_calendar.py ranking_research/tests/test_paper_calendar_interface.py ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py ranking_research/tests/test_paper_calendar_tf02a_regressions.py ranking_research/tests/test_paper_calendar_tf02b_regressions.py ranking_research/tests/test_paper_calendar_tf03_regressions.py -q --basetemp docs/paper_portfolio_delivery/task-tf03/pytest-final-3",
+  "exit_code": 0,
+  "passed": 170,
+  "failed": 0,
+  "duration_seconds": 552.58,
+  "result": "170 passed in 552.58s (0:09:12)"
+}

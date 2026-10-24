@@ -1,0 +1,242 @@
+{
+  "task": "TF-02 shared calendar interface + experimental token-free wiring",
+  "generated_at_utc": "2026-10-24T13:03:28.675810+00:00",
+  "interface": {
+    "module": "ranking_research/paper_calendar.py",
+    "interface_version": "paper-calendar-adapter@1",
+    "providers": [
+      "nscstart",
+      "public"
+    ],
+    "consumption_modes": [
+      "live-preview",
+      "fixture-apply",
+      "exact-replay"
+    ]
+  },
+  "policy": {
+    "id": "public-paper-v1",
+    "version": "1.0.0",
+    "status": "proposed-experimental; not activated; activation is TF-03",
+    "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+  },
+  "tests": {
+    "command": "pytest test_public_market_calendar.py test_paper_calendar_interface.py test_paper_account_atomic.py test_paper_cycle_http.py -q",
+    "passed": 111,
+    "elapsed_seconds": 174.38,
+    "breakdown": {
+      "calendar_collector": 34,
+      "calendar_interface": 18,
+      "account_baseline": 59
+    },
+    "tf01a_baseline_recorded_correctly": 89
+  },
+  "review_conditions_closed": [
+    {
+      "condition": 1,
+      "name": "replay preserves pinned cross-check selection",
+      "tests": [
+        "test_replay_preserves_cross_check_selection_exactly",
+        "test_identity_evidence_must_bind_to_the_record_ins_code"
+      ],
+      "state": "PASS"
+    },
+    {
+      "condition": 2,
+      "name": "clock override is re-evaluated not replay",
+      "tests": [
+        "test_replay_clock_override_is_reevaluated_not_replay"
+      ],
+      "state": "PASS"
+    },
+    {
+      "condition": 3,
+      "name": "freshness gate at consumption boundary",
+      "tests": [
+        "test_weekend_fresh_vs_stale_evidence_boundary",
+        "test_broken_public_inputs_stop_without_account_changes"
+      ],
+      "state": "PASS"
+    }
+  ],
+  "cheap_fixes": {
+    "overlapping_range_difference_named": "pre_window_overlapping_range_difference with label overlapping_range_date_difference",
+    "tf01a_baseline_test_count": 89,
+    "historical_reports_untouched": true
+  },
+  "live_public_run": {
+    "at_utc": "2026-10-24T12:39:55Z",
+    "token_used": false,
+    "authenticated_requests": 0,
+    "manifest_path": "ranking_research/output/public_market_calendar_tf02/manifest.20261024T123955774571Z.json",
+    "manifest_sha256": "ee23813fe7510239681c66ded86220093921adf2d463149880e6b64ffb0f3301",
+    "quality": "CORROBORATED_PUBLIC",
+    "readiness": "USABLE_COMPLETION_UNVERIFIED",
+    "assumed_completion": "20261021",
+    "sessions_after_decision": "NO_NEW_SESSION",
+    "session_count": 0,
+    "conflicts": 0,
+    "stock_cross": {
+      "records": 254,
+      "eligible": 1,
+      "skipped_listed": 253
+    },
+    "latest_observed_session": "20261021",
+    "note": "frozen real history preserved; Saturday was not converted into a session; no new data is not a fill permission"
+  },
+  "offline_replay_from_pinned": {
+    "mode": "replay",
+    "field_equality_all_true": true,
+    "evidence": "evidence/replay.stdout.json"
+  },
+  "real_preview": {
+    "command": "refresh_paper_decision_status.py --calendar-provider public --public-calendar-manifest <pinned> --public-calendar-manifest-sha256 <sha> --reference-now-utc 2026-10-24T13:00:00+00:00 --output-dir <temp> --public-output-dir <temp>",
+    "account_read_only": true,
+    "outputs_temporary": true,
+    "barriers": [
+      [
+        "post_decision_market_session",
+        "no_session_observed"
+      ],
+      [
+        "authoritative_market_calendar",
+        "incomplete"
+      ],
+      [
+        "public_calendar",
+        "no_new_session"
+      ]
+    ],
+    "public_calendar_ready": true,
+    "session_count": 0,
+    "count_is_unknown": false,
+    "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+    "trade_evidence_state": "evidence_gap_candidate_not_covered",
+    "evidence": "evidence/preview.paper-account-check.json"
+  },
+  "wiring": {
+    "apply_paper_fill": {
+      "connected": true,
+      "receipt_version": 2,
+      "calendar_policy_binding_enforced": true,
+      "zero_session_outcome": "successful-no-op, no fabricated session"
+    },
+    "refresh_paper_decision_status": {
+      "connected": true,
+      "zero_vs_unknown_separated": true,
+      "evidence_gap_states": [
+        "evidence_gap_candidate_not_covered",
+        "evidence_gap_archive_ends_before_target_day"
+      ]
+    },
+    "paper_cycle": {
+      "connected": true,
+      "token_not_required_for_public": true,
+      "no_glob_mtime_fallback": true,
+      "profile_binding_check": true
+    },
+    "build_codal_factor_inputs": {
+      "connected": true,
+      "public_sales_pit": "SALES_PIT_TIMING_CAPABILITY_NOT_GRANTED_PUBLIC_PROFILE"
+    }
+  },
+  "still_blocked": [
+    "sales PIT admission",
+    "official future calendar",
+    "O00 history extension",
+    "63-session cadence",
+    "current-account activation/migration (TF-03)"
+  ],
+  "flags": {
+    "existing_account_modified": false,
+    "official_ledger_modified": false,
+    "model_contract_changed": false,
+    "ledger_files_before_equal_after": {
+      "client/public/research/v12-36/paper-portfolio.json": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
+      "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "ranking_research/output/return_v12_27/v12_27_1_20261022_delivery_corrections_01/analysis_contract.locked.json": "d078ff39d823d31bd28ef71c9c95e4436b6d3c5e4428bb8f2c201185b16c750e",
+      "ranking_research/output/return_v12_23/v12_23_20261021_fresh_local_baseline_01/global/analysis_contract.locked.json": "48261c6dcc4001e3c294a27588837a222d0482e18ad23d8a008191ef573c49b4",
+      "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/o00_session_calendar.csv": "3622b331798920d4b9ecfae04171c0c806b20d18f8e49f0962989f3865048441"
+    },
+    "hashes_after_verified": true
+  },
+  "files": [
+    {
+      "path": "ranking_research/paper_calendar.py",
+      "bytes": 26830,
+      "sha256": "a4e8693457e855ce6a2778505fb310899bdff35a105e55a6ef61044ed96daad2"
+    },
+    {
+      "path": "ranking_research/paper_calendar_policy.public-paper-v1.json",
+      "bytes": 2504,
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+    },
+    {
+      "path": "ranking_research/tests/test_paper_calendar_interface.py",
+      "bytes": 39792,
+      "sha256": "22063e87306f168b2f83f4971ad6fe082517c8c8628033b8db5054fd15f7ccaf"
+    },
+    {
+      "path": "ranking_research/tests/test_public_market_calendar.py",
+      "bytes": 47439,
+      "sha256": "1ab4f8ebb2dc13a9eb48f6a57ae3689316bb33bb0970bb8843ca4c6301b47e28"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/acquire_public_market_calendar.py",
+      "bytes": 70624,
+      "sha256": "8d527170e74c322bd528038ba127c6055d26fd8b35dd73ee961c7283627cc2a9"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/apply_paper_fill.py",
+      "bytes": 29294,
+      "sha256": "692e041826295a73c8a75f0d11a2a3a12b6f9f55d40c862b120b20ed17b3ece4"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/refresh_paper_decision_status.py",
+      "bytes": 29202,
+      "sha256": "8904b842fd52ae121bbcd4792ff739d480856d37522b168a2761ac5b88da639c"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/paper_cycle.py",
+      "bytes": 76641,
+      "sha256": "f3cfcf998d9eda541ee5889075f7ae6f423dbb1fc774c8cd4f33270ccb07203a"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/build_codal_factor_inputs.py",
+      "bytes": 13772,
+      "sha256": "7b15999eebca3f1285e72ee3945c7f2dd675d8396a6848c4908830a866578cec"
+    },
+    {
+      "path": ".gitignore",
+      "bytes": 5140,
+      "sha256": "969666cf43216b6b420325e0207e69d87ae1757c0e9c6da2b28509ed89bd3d86"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02/REPORT.fa.md",
+      "bytes": 20192,
+      "sha256": "f5d8d280202d55917da5b62773579b33ea039b6a0777f0a33848c3da15e199b1"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02/evidence/manifest.live.20261024T123955774571Z.json",
+      "bytes": 1756834,
+      "sha256": "ee23813fe7510239681c66ded86220093921adf2d463149880e6b64ffb0f3301"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02/evidence/preview.paper-account-check.json",
+      "bytes": 18671,
+      "sha256": "929e00fbb21ae902d679d60c8d4892d581540035d5c59f48d6d53f0e3f5a771b"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02/evidence/preview.stdout.json",
+      "bytes": 2567,
+      "sha256": "a525a717e2bc66c3319e6c6084a96124821c5709191a42e557fd7c5efedbc2b4"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02/evidence/replay.stdout.json",
+      "bytes": 1962,
+      "sha256": "f2add938dffd181854920c09b13c7f065832c0e9df76618855aad83c4207d264"
+    }
+  ],
+  "note": "result.json does not hash itself; hashes were computed over the final bytes of each listed file"
+}

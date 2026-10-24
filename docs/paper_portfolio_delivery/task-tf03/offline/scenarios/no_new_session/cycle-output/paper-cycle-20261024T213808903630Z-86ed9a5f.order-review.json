@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "run_id": "paper-cycle-20261024T213808903630Z-86ed9a5f",
+  "branch": "order_review_only",
+  "calendar_provider": "public",
+  "apply_requested": false,
+  "account": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\no_new_session\\account.json",
+  "rules": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\no_new_session\\rules.json",
+  "evidence_manifest": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\no_new_session\\evidence.json",
+  "calendar_manifest": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\no_new_session\\calendar-source\\package\\manifest.20261023T120500000000Z.json",
+  "calendar_manifest_sha256": "45f89de6c3c031595c2801642ae41bcc2ea61bda23b0e187d244788969686879",
+  "wrapper_stage": {
+    "stage": "order_review_wrapper",
+    "status": "process_exited_zero",
+    "started_at_utc": "2026-10-24T21:38:08.905202+00:00",
+    "finished_at_utc": "2026-10-24T21:38:15.085249+00:00",
+    "exit_code": 0,
+    "summary": "st_session\\\": null, \\\"session_count\\\": 0, \\\"fill_applied\\\": false, \\\"cash_toman\\\": 100000, \\\"calendar_label_fa\\\": \\\"سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم\\\", \\\"reason\\\": \\\"acquisition succeeded; no new session is accepted for execution under this calendar policy yet\\\"}\",\n    \"fill_recorded\":  false,\n    \"cash_toman\":  100000,\n    \"holdings_value_toman\":  0,\n    \"balanced\":  true,\n    \"barriers\":  [\n                     {\n                         \"id\":  \"post_decision_market_session\",\n                         \"state\":  \"no_session_observed\",\n                         \"title\":  \"Ù‡Ù†ÙˆØ² Ø¯Ø§Ø¯Ù‡Ù” Ø¬Ù„Ø³Ù‡Ù” Ù¾Ø³ Ø§Ø² ØªØµÙ…ÛŒÙ… Ù…ÙˆØ¬ÙˆØ¯ Ù†ÛŒØ³Øª\",\n                         \"details\":  \"Ø¢Ø®Ø±ÛŒÙ† Ø¬Ù„Ø³Ù‡Ù” Ú©Ø§Ù…Ù„ Ø§Ø¹Ù„Ø§Ù…â€ŒØ´Ø¯Ù‡ Ù†Ø§Ù…Ø¹Ù„ÙˆÙ… Ø§Ø³ØªØ› Ù¾Ø³ Ø§Ø² ØªØ§Ø±ÛŒØ® ØªØµÙ…ÛŒÙ… 2026-10-23 Ù‡Ù†ÙˆØ² Ø¬Ù„Ø³Ù‡Ù” Ú©Ø§Ù…Ù„â€ŒØ´Ø¯Ù‡â€ŒØ§ÛŒ Ø¯Ø± Ø§ÛŒÙ† Ø¯Ø±ÛŒØ§ÙØª Ø¯ÛŒØ¯Ù‡ Ù†Ù…ÛŒâ€ŒØ´ÙˆØ¯.\"\n                     },\n                     {\n                         \"id\":  \"authoritative_market_calendar\",\n                         \"state\":  \"incomplete\",\n                         \"title\":  \"Ø¯Ø³ØªØ±Ø³ÛŒ Ø¨Ù‡ Ù…Ù†Ø¨Ø¹ Ù…Ø¹ØªØ¨Ø± ØªÙ‚ÙˆÛŒÙ… Ù†Ø§Ù‚Øµ Ø§Ø³Øª\",\n                         \"details\":  \"ØªÙ‚ÙˆÛŒÙ… Ù…Ø­Ù„ÛŒ score_v2_research/_cache/calendar.parquet ØªØ§ 2026-10-03 (7826 Ø±Ø¯ÛŒÙ) Ø§Ø³Øª Ùˆ Ù¾ÛŒØ´ Ø§Ø² ØªØµÙ…ÛŒÙ… Ù¾Ø§ÛŒØ§Ù† Ù…ÛŒâ€ŒÛŒØ§Ø¨Ø¯. LastPossibleDeven ÙÙ‚Ø· Ø¢Ø®Ø±ÛŒÙ† Ø±ÙˆØ² ØªÚ©Ù…ÛŒÙ„â€ŒØ´Ø¯Ù‡ Ø±Ø§ Ù…ÛŒâ€ŒØ¯Ù‡Ø¯Ø› GetInstrumentCalendar Ùˆ GetClosingPriceDailyList ÙÙ‚Ø· Ù…Ø´Ø§Ù‡Ø¯Ø§Øª Ù‡Ù…Ø§Ù† Ù†Ù…Ø§Ø¯ ØºØ§Ø°Ø±Ù†Ø¯ Ùˆ Ø¨Ù‡â€ŒØªÙ†Ù‡Ø§ÛŒÛŒ ØªÙ‚ÙˆÛŒÙ… Ú©Ø§Ù…Ù„ Ø¨Ø§Ø²Ø§Ø± Ù†ÛŒØ³ØªÙ†Ø¯. Ø¯Ø± Ú©Ø¯ Ù¾Ø±ÙˆÚ˜Ù‡ØŒ Ù…Ø³ÛŒØ± Ø±Ø³Ù…ÛŒ NSCStart Ø¨Ø±Ø§ÛŒ ÙÙ‡Ø±Ø³Øª Ø¬Ù„Ø³Ø§Øª Ø¨Ø§Ø²Ø§Ø± Ù…Ø³ØªÙ†Ø¯ Ø´Ø¯Ù‡ Ùˆ bearer token Ù…ÛŒâ€ŒØ®ÙˆØ§Ù‡Ø¯Ø› Ø§ÛŒÙ† ÛŒÚ© Ù…Ø³ÛŒØ± Ø§Ø³Øª Ùˆ Ù†Ø¨ÙˆØ¯ ØªÙˆÚ©Ù† Ø¢Ù† Ø±Ø§ Ù…Ø§Ù†Ø¹ Ù‡Ù…Ù‡Ù” Ù…Ø³ÛŒØ±Ù‡Ø§ÛŒ Ù…Ø¹ØªØ¨Ø± Ù†Ù…ÛŒâ€ŒÚ©Ù†Ø¯. Ø¯Ø± ÙØ§ÛŒÙ„â€ŒÙ‡Ø§ÛŒ Ù…Ø­Ù„ÛŒ/Ù…Ø³ÛŒØ±Ù‡Ø§ÛŒ Ø¹Ù…ÙˆÙ…ÛŒ Ø±Ø³Ù…ÛŒÙ Ø¨Ø±Ø±Ø³ÛŒâ€ŒØ´Ø¯Ù‡ØŒ ØªÙ‚ÙˆÛŒÙ… Ø³Ø±Ø§Ø³Ø±ÛŒ Ø¬Ø¯ÛŒØ¯ØªØ±ÛŒ Ù¾ÛŒØ¯Ø§ Ù†Ø´Ø¯.\"\n                     },\n                     {\n                         \"id\":  \"public_calendar\",\n                         \"state\":  \"no_new_session\",\n                         \"title\":  \"Ù‡Ù†ÙˆØ² Ø¬Ù„Ø³Ù‡Ù” Ù¾Ø°ÛŒØ±ÙØªÙ‡â€ŒØ´Ø¯Ù‡Ù” Ø¬Ø¯ÛŒØ¯ÛŒ Ù…Ø´Ø§Ù‡Ø¯Ù‡ Ù†Ø´Ø¯Ù‡ Ø§Ø³Øª\",\n                         \"details\":  \"Ø¯Ø±ÛŒØ§ÙØª Ù…ÙˆÙÙ‚ Ø¨ÙˆØ¯Ù‡ Ùˆ Ø¢Ø®Ø±ÛŒÙ† Ø¬Ù„Ø³Ù‡Ù” ØªÚ©Ù…ÛŒÙ„â€ŒØ´Ø¯Ù‡ Ù‡Ù…Ø§Ù† Ù…Ø§Ù†Ø¯Ù‡ Ø§Ø³ØªØ› ØµÙØ± Ø¬Ù„Ø³Ù‡Ù” Ù…Ø´Ø§Ù‡Ø¯Ù‡â€ŒØ´Ø¯Ù‡Ù” Ø¬Ø¯ÛŒØ¯ Ø¨Ø§ Â«Ø´Ù…Ø§Ø±Ø´ Ù†Ø§Ù…Ø¹Ù„ÙˆÙ…Â» ÛŒÚ©Ø³Ø§Ù† Ù†ÛŒØ³Øª. Ø´Ø§Ù‡Ø¯ Ù…Ø¹Ø§Ù…Ù„Ù‡Ù” Ù†Ø§Ù…Ø²Ø¯: candidate_data_covers_target_day (Ù¾Ø§ÛŒØ§Ù† Ø¢Ø±Ø´ÛŒÙˆ 20261023).\",\n                         \"display_label_fa\":  \"Ø³Ø¨Ø¯ Ú©Ø§ØºØ°ÛŒ Ø¨Ø§ ØªÙ‚ÙˆÛŒÙ… Ø¹Ù…ÙˆÙ…ÛŒØ› Ù¾Ø§ÛŒØ§Ù† Ø¬Ù„Ø³Ù‡ Ø¨Ø± Ù¾Ø§ÛŒÙ‡Ù” ÙØ±Ø¶ Ø«Ø¨Øªâ€ŒØ´Ø¯Ù‡ØŒ Ø¨Ø¯ÙˆÙ† Ú¯ÙˆØ§Ù‡ Ú©Ø§Ù…Ù„â€ŒØ¨ÙˆØ¯Ù† ØªÙ‚ÙˆÛŒÙ…\"\n                     }\n                 ],\n    \"official_ledger_touched\":  false\n}\n",
+    "error": null
+  },
+  "live_account_activated": false,
+  "scheduler_touched": false
+}

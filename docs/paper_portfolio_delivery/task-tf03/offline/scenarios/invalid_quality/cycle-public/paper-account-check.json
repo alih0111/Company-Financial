@@ -1,0 +1,224 @@
+{
+  "schema_version": 3,
+  "checked_at_utc": "2026-10-24T21:38:25.403163+00:00",
+  "account_id": "TF03_SYNTHETIC_TEMP",
+  "account_created_at_utc": "2026-10-23T06:00:00+00:00",
+  "decision": {
+    "decision_id": "paper-decision-3e413c0bb9882c28e361",
+    "decided_at_utc": "2026-10-23T06:00:00+00:00",
+    "decision_local_date": "2026-10-23",
+    "decision_kind": "PAPER_ONLY_BUY_DECISION_NOT_O00",
+    "candidate": {
+      "symbol": "TEST",
+      "company_id": "fixture-company",
+      "rank": 1,
+      "score": 1.0,
+      "coverage": 1.0
+    },
+    "ranking": {
+      "dataset_id": "TF03_SYNTHETIC_FIXTURE",
+      "artifact_id": "tf03-synthetic-ranking",
+      "evaluation_date": "2026-10-23",
+      "status": "FIXTURE_ONLY_NOT_REAL_RANKING",
+      "artifact_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "scored": 1,
+      "universe": 254
+    },
+    "execution_rules": {
+      "rule_id": "paper-execution-rules/1.2.0-user-approved",
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683",
+      "path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\invalid_quality\\rules.json"
+    },
+    "evidence_manifest_sha256": "f1ab671057190130453a464ce41cf493310da19c3162c2c925a1576d455a4325",
+    "coverage_limitation": "رتبه‌بندی P1 آماده‌سازی تأییدنشده است؛ فقط 166 از 254 نماد امتیاز دارند و 88 بدون امتیازند. این تصمیم تک‌سهمی از رتبهٔ اول قابل امتیازدهی می‌آید؛ پوشش محدودیت تصمیم است.",
+    "calendar_policy": {
+      "id": "public-paper-v1",
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+      "provider": "public-index",
+      "version": "1.0.0"
+    }
+  },
+  "order": {
+    "order_id": "paper-order-73610cd727cd6a706a34",
+    "decision_id": "paper-decision-3e413c0bb9882c28e361",
+    "symbol": "TEST",
+    "company_id": "fixture-company",
+    "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+    "created_at_utc": "2026-10-23T06:00:00+00:00",
+    "designated_execution_session": null,
+    "designated_execution_price_rial": null,
+    "expires_after_official_sessions": 3,
+    "eligible_session_count_observed": 0,
+    "fill_event_id": null,
+    "waiting_reason": "منبع رسمی اکنون آخرین جلسهٔ کامل را 2026-10-21 اعلام می‌کند؛ هنوز جلسه‌ای بعد از تصمیم ثبت نشده است. تاریخ جلسهٔ بعد را حدس نمی‌زنیم. قیمت نامزد نیز فعلاً تا 2026-10-21 است.",
+    "queue_limitation": "اجرای فرضی با محدودیت دادهٔ صف؛ پیکربندی مبتنی بر close روزانه صف/اولویت/اجرای واقعی را اثبات نمی‌کند.",
+    "source_manifest": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\invalid_quality\\evidence.json",
+    "source_manifest_sha256": "f1ab671057190130453a464ce41cf493310da19c3162c2c925a1576d455a4325",
+    "calendar_policy": {
+      "id": "public-paper-v1",
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+      "provider": "public-index",
+      "version": "1.0.0"
+    }
+  },
+  "execution_attempt_status": "attempt_failed_or_unclassified",
+  "execution_ready": false,
+  "fill_recorded": false,
+  "latest_official_completed_session": null,
+  "candidate_latest_positive_price_date": null,
+  "candidate_post_decision_quotes": [],
+  "candidate_post_decision_daily_rows": 0,
+  "first_eligible_session": null,
+  "calendar_retrieved_at_utc": null,
+  "eligible_sessions_after_decision": null,
+  "public_calendar": {
+    "provider": "public-index",
+    "policy": {
+      "id": "public-paper-v1",
+      "version": "1.0.0",
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+    },
+    "account_compatibility": {
+      "state": "compatible",
+      "levels_checked": [
+        "account",
+        "decision",
+        "order",
+        "rules"
+      ],
+      "mismatch_detail": null
+    },
+    "quality": null,
+    "quality_recomputed_from_raw": false,
+    "resolve_refusal": "CALENDAR_MANIFEST_QUALITY_INCONSISTENT; manifest stores quality='INPUT_ROWS_REJECTED' but the recomputed evaluation is 'CORROBORATED_PUBLIC'",
+    "freshness": {
+      "state": "NOT_RESOLVED"
+    },
+    "calendar_ready": false,
+    "blocking_reasons": [
+      "CALENDAR_MANIFEST_QUALITY_INCONSISTENT; manifest stores quality='INPUT_ROWS_REJECTED' but the recomputed evaluation is 'CORROBORATED_PUBLIC'"
+    ],
+    "completion": null,
+    "sessions_after_decision": {
+      "state": "NOT_RESOLVED",
+      "count": null,
+      "first_session": null,
+      "count_is_unknown": true
+    },
+    "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+    "candidate_trade_evidence": null
+  },
+  "calendar_provider_compatibility": {
+    "state": "compatible",
+    "levels_checked": [
+      "account",
+      "decision",
+      "order",
+      "rules"
+    ],
+    "mismatch_detail": null
+  },
+  "barriers": [
+    {
+      "id": "post_decision_market_session",
+      "state": "no_session_observed",
+      "title": "هنوز دادهٔ جلسهٔ پس از تصمیم موجود نیست",
+      "details": "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-10-23 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود."
+    },
+    {
+      "id": "authoritative_market_calendar",
+      "state": "incomplete",
+      "title": "دسترسی به منبع معتبر تقویم ناقص است",
+      "details": "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد."
+    },
+    {
+      "id": "public_calendar",
+      "state": "blocked",
+      "title": "تقویم عمومی برای این مصرف آماده نیست",
+      "details": "شواهد تقویم عمومی پین و بازمحاسبه شد، اما این سیاست اجازهٔ مصرف نمی‌دهد: CALENDAR_MANIFEST_QUALITY_INCONSISTENT; manifest stores quality='INPUT_ROWS_REJECTED' but the recomputed evaluation is 'CORROBORATED_PUBLIC'",
+      "display_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم"
+    }
+  ],
+  "calendar_sources_checked": [
+    {
+      "source": "TSETMC LastPossibleDeven",
+      "scope": "latest completed session only; not future session schedule",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "url": "https://example.invalid/35158826900216508/0"
+    },
+    {
+      "source": "TSETMC GetInstrumentCalendar / GetClosingPriceDailyList for غاذر",
+      "scope": "symbol observations only; not a market-wide calendar",
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "url": "https://example.invalid/35158826900216508/0"
+    },
+    {
+      "source": "score_v2_research/_cache/calendar.parquet",
+      "scope": "local market session rows",
+      "through": "2026-10-03",
+      "row_count": 7826,
+      "usable_for_post_decision": false
+    },
+    {
+      "source": "TSETMC documented API MarketInfo/NSCStart",
+      "scope": "market session list with DEven/NSCEnd; documented route uses bearer authorization",
+      "available_in_current_run": false,
+      "retrieved_at_utc": null,
+      "note": "one official route; does not establish that all other official routes require a token"
+    }
+  ],
+  "blockers": [
+    "آخرین جلسهٔ کامل اعلام‌شده نامعلوم است؛ پس از تاریخ تصمیم 2026-10-23 هنوز جلسهٔ کامل‌شده‌ای در این دریافت دیده نمی‌شود.",
+    "تقویم محلی score_v2_research/_cache/calendar.parquet تا 2026-10-03 (7826 ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد.",
+    "شواهد تقویم عمومی پین و بازمحاسبه شد، اما این سیاست اجازهٔ مصرف نمی‌دهد: CALENDAR_MANIFEST_QUALITY_INCONSISTENT; manifest stores quality='INPUT_ROWS_REJECTED' but the recomputed evaluation is 'CORROBORATED_PUBLIC'",
+    "قیمت/حجم مثبت نامزد غاذر پس از تصمیم در آخرین دریافت موجود نیست؛ دریافت تازه پس از شکل‌گیری جلسه لازم است. فقط قیمت پایانی همان نخستین جلسهٔ واجد شرایط قابل استفاده است."
+  ],
+  "required_data": [
+    "یک تقویم بازار رسمی و فقط‌خواندنی که جلسه‌ها را مستقل از نماد فهرست کند و تاریخ اولین جلسه پس از تصمیم را پوشش دهد؛ NSCStart یکی از مسیرهای رسمی است و در مستندات برای آن bearer token ذکر شده است. اگر این مسیر انتخاب شد، توکن را فقط در متغیر محیطی موقت PowerShell بگذارید؛ وارد فایل عمومی، گزارش، کد یا Git نکنید.",
+    "پس از ثبت جلسهٔ واجد شرایط، دریافت تازهٔ قیمت روزانهٔ غاذر برای همان تاریخ از GetClosingPriceDailyList؛ پاسخ خام، URL، زمان و hash در مسیر نسخه‌دار.",
+    "فرمان واحد بررسی دستی: powershell -ExecutionPolicy Bypass -File ranking_research\\future_eval_v12_30\\check_paper_order.ps1؛ توکن فقط‌خواندنی را در SecureString prompt وارد کنید. اسکریپت تقویم و قیمت را می‌گیرد، گیت‌ها را بررسی و فقط در صورت احراز شروط همان سفارش را یک‌بار ثبت می‌کند."
+  ],
+  "source_evidence": [
+    {
+      "key": "candidate_daily",
+      "url": "https://example.invalid/35158826900216508/0",
+      "http_status": 200,
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "raw_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\invalid_quality\\candidate_daily.gz",
+      "raw_sha256": "c5d07a871fd1af7a89bee4058964ab3605e0e872ae562f178a42d70cded494a5"
+    },
+    {
+      "key": "candidate_share_changes",
+      "url": "https://example.invalid/35158826900216508/0",
+      "http_status": 200,
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "raw_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\invalid_quality\\candidate_share_changes.gz",
+      "raw_sha256": "b2d9fb0936459e77a0e712add291b9952e59cb41aa6f7ea6bccd8f9afae44db0"
+    },
+    {
+      "key": "last_possible_session",
+      "url": "https://example.invalid/35158826900216508/0",
+      "http_status": 200,
+      "retrieved_at_utc": "2026-10-24T12:05:00+00:00",
+      "raw_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\offline\\scenarios\\invalid_quality\\last_possible_session.gz",
+      "raw_sha256": "564c561cc8ac7c98c199cacd6739eaa49c4892a5abb52ba7d955a8ffab50e209"
+    }
+  ],
+  "cash_reconciliation": {
+    "initial_toman": 100000,
+    "cash_toman": 100000,
+    "holdings_count": 0,
+    "holdings_value_toman": 0,
+    "total_value_toman": 100000,
+    "profit_loss_toman": 0,
+    "balanced": true,
+    "pnl_basis": "از fill ثبت‌شده؛ تا پیش از fill صفر"
+  },
+  "source_sha256": {
+    "account": "9cf4a05754571e04bb51aef2afa5bf60fd63bef12e2be114f133c4d9181b5a6e",
+    "ranking": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+    "evidence_manifest": "f1ab671057190130453a464ce41cf493310da19c3162c2c925a1576d455a4325",
+    "local_calendar": "fbe245c91a632747462f65be6a47eed460c738e13872c1758b7f4f0a95fce31d"
+  },
+  "official_ledger_touched": false
+}

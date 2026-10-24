@@ -2142,7 +2142,7 @@ const FamilyAssets = () => {
                     </AreaChart>
                   )}
                 </ResponsiveContainer>
-                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-2 leading-5">
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-2 leading-5">
                   سری اشخاص = دارایی‌های امروز × قیمت تاریخی + مانده فعلی حساب؛
                   بنابراین جمع اشخاص در گذشته ممکن است با خط «جمع کل» واقعی
                   (ترکیب سبد آن زمان) تفاوت داشته باشد. خط ممتد = داده واقعی

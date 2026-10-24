@@ -38,6 +38,9 @@ def main() -> None:
     parser.add_argument("--public-calendar-manifest-sha256", default=None)
     parser.add_argument("--calendar-policy", type=Path,
                         default=paper_calendar.DEFAULT_PUBLIC_POLICY_PATH)
+    parser.add_argument("--execution-rules", type=Path,
+                        default=ROOT / "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json",
+                        help="Pinned execution rules file (read-only) for the shared policy binding check")
     parser.add_argument("--reference-now-utc", default=None,
                         help="Injected evaluation clock (ISO) for calendar freshness")
     parser.add_argument("--account", type=Path, default=ACCOUNT)
@@ -53,6 +56,17 @@ def main() -> None:
     account_path = args.account
     out_dir, public_dir = args.output_dir, args.public_output_dir
     account = json.loads(account_path.read_text(encoding="utf-8"))
+    try:
+        rules_bytes = Path(args.execution_rules).read_bytes()
+        rules_doc = json.loads(rules_bytes)
+        paper_calendar.check_provider_contract(account=account,
+                                               provider=args.calendar_provider,
+                                               rules_bytes=rules_bytes,
+                                               rules_doc=rules_doc)
+        provider_contract_error = None
+    except (OSError, ValueError, paper_calendar.CalendarRefusal) as exc:
+        code = getattr(exc, "code", "PINNED_EXECUTION_RULES_UNREADABLE")
+        provider_contract_error = f"{code}; {getattr(exc, 'detail', '')}".rstrip("; ")
     if args.evidence_manifest:
         evidence_path = args.evidence_manifest.resolve()
     else:
@@ -123,6 +137,11 @@ def main() -> None:
         calendar_access += f" بررسی manifest تقویم ارائه‌شده ناموفق بود: {calendar_error}."
 
     public_calendar_block = None
+    provider_compatibility = {
+        "state": "mismatch" if provider_contract_error else "compatible",
+        "levels_checked": ("account", "decision", "order", "rules"),
+        "mismatch_detail": provider_contract_error,
+    }
     if args.calendar_provider == "public":
         if not args.public_calendar_manifest or not args.public_calendar_manifest_sha256:
             raise SystemExit("PUBLIC_CALENDAR_MANIFEST_AND_SHA256_REQUIRED")
@@ -132,58 +151,98 @@ def main() -> None:
         else:
             now_utc = dt.datetime.now(dt.timezone.utc)
         policy = paper_calendar.load_policy(args.calendar_policy)
+        policy_sha = sha(args.calendar_policy)
+        # Shared four-level binding check. Data quality and account
+        # compatibility are reported separately: healthy public data can be
+        # high quality and still not consumable by this account, and a
+        # mismatched account never gets no_new_session/ready=true as readiness.
+        compatibility = dict(provider_compatibility)
+        if compatibility["state"] == "compatible":
+            try:
+                paper_calendar.check_public_policy_binding(
+                    account=account, rules_doc=rules_doc,
+                    policy=policy, policy_sha256=policy_sha)
+            except paper_calendar.CalendarRefusal as exc:
+                compatibility = {"state": "mismatch",
+                                 "levels_checked": ("account", "decision", "order", "rules"),
+                                 "mismatch_detail": f"{exc.code}; {exc.detail}" if exc.detail else exc.code}
+        answer = None
+        resolve_note = None
         try:
             answer = paper_calendar.resolve_public_calendar(
                 manifest_path=args.public_calendar_manifest.resolve(),
                 expected_manifest_sha256=args.public_calendar_manifest_sha256,
-                policy=policy, policy_sha256=sha(args.calendar_policy),
+                policy=policy, policy_sha256=policy_sha,
                 candidate={"symbol": order["symbol"],
                            "ins_code": str(evidence.get("ins_code", ""))},
                 decision_local_date=decision["decision_local_date"],
                 decision_at_utc=dt.datetime.fromisoformat(decision["decided_at_utc"]),
                 now_utc=now_utc, consumption_mode="live-preview")
         except paper_calendar.CalendarRefusal as exc:
-            raise SystemExit(f"{exc.code}; {exc.detail}" if exc.detail else exc.code) from None
-        sessions = answer["sessions_after_decision"]
-        cand = answer["candidate"]
-        archive_end = None
-        by_symbol = ((answer["evaluation"].get("stock_cross_check") or {}).get("by_symbol") or {})
-        if order["symbol"] in by_symbol and by_symbol[order["symbol"]]:
-            archive_end = max(by_symbol[order["symbol"]])
-        if cand["trade_status"] != "checked":
-            trade_state = "evidence_gap_candidate_not_covered"
-        elif (sessions["first_session"] is not None and archive_end is not None
-              and archive_end < sessions["first_session"]):
-            trade_state = "evidence_gap_archive_ends_before_target_day"
+            resolve_note = f"{exc.code}; {exc.detail}" if exc.detail else exc.code
+        if answer is None:
+            public_calendar_block = {
+                "provider": "public-index",
+                "policy": {"id": policy["policy_id"], "version": policy["version"],
+                           "sha256": policy_sha},
+                "account_compatibility": compatibility,
+                "quality": None, "quality_recomputed_from_raw": False,
+                "resolve_refusal": resolve_note,
+                "freshness": {"state": "NOT_RESOLVED"},
+                "calendar_ready": False,
+                "blocking_reasons": (["CALENDAR_POLICY_MISMATCH"] if compatibility["state"] == "mismatch"
+                                     else []) + [resolve_note],
+                "completion": None,
+                "sessions_after_decision": {"state": "NOT_RESOLVED", "count": None,
+                                            "first_session": None, "count_is_unknown": True},
+                "display_label_fa": policy["display_label_fa"],
+                "candidate_trade_evidence": None,
+            }
         else:
-            trade_state = "candidate_data_covers_target_day"
-        public_calendar_block = {
-            "provider": "public-index",
-            "policy": {"id": answer["policy"]["id"], "version": answer["policy"]["version"],
-                       "sha256": answer["policy"]["sha256"]},
-            "manifest": answer["manifest"],
-            "quality": answer["quality"],
-            "quality_recomputed_from_raw": True,
-            "freshness": {"state": answer["freshness"]["state"],
-                          "rules": answer["freshness"]["rules"]},
-            "calendar_ready": answer["readiness"]["calendar_ready"],
-            "blocking_reasons": answer["readiness"]["blocking_reasons"],
-            "completion": answer["completion"],
-            "sessions_after_decision": {"state": sessions["state"], "count": sessions["count"],
-                                        "first_session": sessions["first_session"],
-                                        "count_is_unknown": sessions["count"] is None},
-            "display_label_fa": answer["display_label_fa"],
-            "candidate_trade_evidence": {
-                "trade_status": cand["trade_status"],
-                "no_positive_trade_sessions": cand["no_positive_trade_sessions"],
-                "archive_end": archive_end,
-                "state": trade_state,
-                "note": ("zero observed new sessions and an unknown session count are "
-                         "different states; a candidate no-trade claim requires candidate "
-                         "data covering that day — an archive ending before the target day "
-                         "is an evidence gap, never a suspension/no-trade verdict"),
-            },
-        }
+            sessions = answer["sessions_after_decision"]
+            cand = answer["candidate"]
+            archive_end = None
+            by_symbol = ((answer["evaluation"].get("stock_cross_check") or {}).get("by_symbol") or {})
+            if order["symbol"] in by_symbol and by_symbol[order["symbol"]]:
+                archive_end = max(by_symbol[order["symbol"]])
+            if cand["trade_status"] != "checked":
+                trade_state = "evidence_gap_candidate_not_covered"
+            elif (sessions["first_session"] is not None and archive_end is not None
+                  and archive_end < sessions["first_session"]):
+                trade_state = "evidence_gap_archive_ends_before_target_day"
+            else:
+                trade_state = "candidate_data_covers_target_day"
+            answer_blocking = list(answer["readiness"]["blocking_reasons"])
+            public_calendar_block = {
+                "provider": "public-index",
+                "policy": {"id": answer["policy"]["id"], "version": answer["policy"]["version"],
+                           "sha256": answer["policy"]["sha256"]},
+                "manifest": answer["manifest"],
+                "account_compatibility": compatibility,
+                "quality": answer["quality"],
+                "quality_recomputed_from_raw": True,
+                "freshness": {"state": answer["freshness"]["state"],
+                              "rules": answer["freshness"]["rules"]},
+                "calendar_ready": (answer["readiness"]["calendar_ready"]
+                                   and compatibility["state"] == "compatible"),
+                "blocking_reasons": (["CALENDAR_POLICY_MISMATCH"] if compatibility["state"] == "mismatch"
+                                     else []) + answer_blocking,
+                "completion": answer["completion"],
+                "sessions_after_decision": {"state": sessions["state"], "count": sessions["count"],
+                                            "first_session": sessions["first_session"],
+                                            "count_is_unknown": sessions["count"] is None},
+                "display_label_fa": answer["display_label_fa"],
+                "candidate_trade_evidence": {
+                    "trade_status": cand["trade_status"],
+                    "no_positive_trade_sessions": cand["no_positive_trade_sessions"],
+                    "archive_end": archive_end,
+                    "state": trade_state,
+                    "note": ("zero observed new sessions and an unknown session count are "
+                             "different states; a candidate no-trade claim requires candidate "
+                             "data covering that day — an archive ending before the target day "
+                             "is an evidence gap, never a suspension/no-trade verdict"),
+                },
+            }
     no_session_data = not latest_possible_iso or latest_possible_iso <= decision["decision_local_date"]
     first_eligible_session = eligible_sessions[0]["DEven"] if eligible_sessions else None
     public_session_count = None
@@ -210,11 +269,26 @@ def main() -> None:
         {"id": "post_decision_market_session", "state": "no_session_observed" if no_session_data else ("calendar_unverified" if not session_calendar else ("quote_missing" if not exact_first_rows else "evidence_available_pending_gates")), "title": "هنوز دادهٔ جلسهٔ پس از تصمیم موجود نیست" if no_session_data else ("جلسهٔ پس از تصمیم گزارش شده؛ تطبیق تقویم بازار ناقص است" if not session_calendar else ("قیمت جلسهٔ نخست هنوز موجود نیست" if not exact_first_rows else "دادهٔ جلسهٔ نخست موجود است؛ گیت اجرای سفارش باقی است")), "details": no_post_decision},
         {"id": "authoritative_market_calendar", "state": "verified" if session_calendar else "incomplete", "title": "دسترسی به منبع معتبر تقویم ناقص است" if not session_calendar else "تقویم رسمی بازار دریافت و اعتبارسنجی شد", "details": calendar_access},
     ]
+    if provider_contract_error:
+        barriers.append({"id": "calendar_provider_contract", "state": "blocked",
+                         "title": "انتخاب provider با قرارداد pinشده سازگار نیست",
+                         "details": provider_contract_error})
     if public_calendar_block:
         ready = public_calendar_block["calendar_ready"]
         count = public_calendar_block["sessions_after_decision"]["count"]
         trade = public_calendar_block["candidate_trade_evidence"]
-        if not ready:
+        compat = public_calendar_block["account_compatibility"]
+        if compat["state"] == "mismatch":
+            # account compatibility and data quality are separate states: the
+            # data may be healthy, but this account/rules/order are not bound
+            # to the public policy, so it is never reported as ready
+            barrier_state = "account_profile_mismatch"
+            barrier_title = "این حساب/سفارش/قواعد به سیاست تقویم عمومی مقید نشده‌اند"
+            barrier_details = ("کیفیت دادهٔ تقویم عمومی جداگانه گزارش می‌شود، اما مصرف آن "
+                               "برای این حساب مجاز نیست: " + compat["mismatch_detail"]
+                               + "؛ مهاجرت/فعال‌سازی حساب، TF-03 است و در بررسی وضعیت "
+                               "انجام نمی‌شود.")
+        elif not ready:
             barrier_state = "blocked"
             barrier_title = "تقویم عمومی برای این مصرف آماده نیست"
             barrier_details = ("شواهد تقویم عمومی پین و بازمحاسبه شد، اما این سیاست اجازهٔ مصرف نمی‌دهد: "
@@ -235,13 +309,16 @@ def main() -> None:
             barrier_details = (f"نخستین جلسهٔ قابل استفاده {public_calendar_block['sessions_after_decision']['first_session']} "
                                f"با {count} جلسهٔ پذیرفته‌شدهٔ پس از تصمیم؛ "
                                + public_calendar_block["display_label_fa"])
-        barrier_details += (f" شاهد معاملهٔ نامزد: {trade['state']}"
-                            + (f" (پایان آرشیو {trade['archive_end']})" if trade["archive_end"] else "")
-                            + ".")
+        if trade is not None:
+            barrier_details += (f" شاهد معاملهٔ نامزد: {trade['state']}"
+                                + (f" (پایان آرشیو {trade['archive_end']})" if trade["archive_end"] else "")
+                                + ".")
         barriers.append({"id": "public_calendar", "state": barrier_state,
                          "title": barrier_title, "details": barrier_details,
                          "display_label_fa": public_calendar_block["display_label_fa"]})
     blockers = [no_post_decision, calendar_access]
+    if provider_contract_error:
+        blockers.append(provider_contract_error)
     if public_calendar_block:
         blockers.append(barriers[-1]["details"])
     if args.execution_attempt_status == "LATE_FILL_TIMING_AMBIGUOUS":
@@ -257,7 +334,7 @@ def main() -> None:
         "account_id": account["account_id"], "account_created_at_utc": account["created_at_utc"],
         "decision": decision, "order": order,
         "execution_attempt_status": args.execution_attempt_status,
-        "execution_ready": bool(session_calendar and exact_first_rows and args.execution_attempt_status != "LATE_FILL_TIMING_AMBIGUOUS"), "fill_recorded": bool(account.get("execution_recorded")),
+        "execution_ready": bool(not provider_contract_error and session_calendar and exact_first_rows and args.execution_attempt_status != "LATE_FILL_TIMING_AMBIGUOUS"), "fill_recorded": bool(account.get("execution_recorded")),
         "latest_official_completed_session": latest_possible_iso,
         "candidate_latest_positive_price_date": (lambda v: f"{str(v)[:4]}-{str(v)[4:6]}-{str(v)[6:8]}" if len(str(v)) == 8 else None)(candidate_source.get("latest_positive_volume_rows", [{}])[0].get("dEven", "")),
         "candidate_post_decision_quotes": candidate_dates,
@@ -267,6 +344,7 @@ def main() -> None:
         "eligible_sessions_after_decision": (public_session_count if public_calendar_block
                                              else len(eligible_sessions)),
         "public_calendar": public_calendar_block,
+        "calendar_provider_compatibility": provider_compatibility,
         "barriers": barriers,
         "calendar_sources_checked": [
             {"source": "TSETMC LastPossibleDeven", "scope": "latest completed session only; not future session schedule", "retrieved_at_utc": last_source.get("retrieved_at_utc"), "url": last_source.get("url")},
@@ -330,6 +408,10 @@ def main() -> None:
             "## تقویم عمومی (پروفایل آزمایشی)",
             "",
             f"- {barriers[-1]['title']} — {barriers[-1]['details']}",
+            f"- سازگاری حساب با این سیاست: `{public_calendar_block['account_compatibility']['state']}`"
+            + (f" ({public_calendar_block['account_compatibility']['mismatch_detail']})"
+               if public_calendar_block['account_compatibility']['mismatch_detail'] else "")
+            + ".",
             f"- کیفیت بازمحاسبه‌شده از raw: `{public_calendar_block['quality']}`؛ تازگی: `{public_calendar_block['freshness']['state']}`.",
             f"- برچسب نمایش: {public_calendar_block['display_label_fa']}",
             "",

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "files": [
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/latest-manifest.json",
+      "size_bytes": 255,
+      "sha256": "1b065f115612593975275656856a20d3db9f78ae4959e59adae527ea5ac2c869"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/manifest.20261024T202214019873Z.json",
+      "size_bytes": 1755656,
+      "sha256": "85d98190b2a904532614165213973ca671a86e14692c757ebf7647e7e6fd981e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/candidate_instrument.20261024T202214019873Z.bin.gz",
+      "size_bytes": 651,
+      "sha256": "0c371fb15d5e8830196288f06e7dc967f3c7dbb9c8bb9044bba6e0e597c703f0"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/identity.20261024T202214019873Z.bin.gz",
+      "size_bytes": 3499,
+      "sha256": "3b896a0a8b29531e7d6fa1941bfa1e5e70a488320acf37cbfc3a879f2bf94bba"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/last_possible.20261024T202214019873Z.bin.gz",
+      "size_bytes": 31,
+      "sha256": "e6311e3d7652bd4047c51355e41e0e51f99538de7e96dba53e47245579ddbc5d"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/primary_history.20261024T202214019873Z.bin.gz",
+      "size_bytes": 68088,
+      "sha256": "94581cd86dcef85b8ae3c9c4811943cb40a572a354fe3e00d619c8cf183ec9dd"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/secondary_history.20261024T202214019873Z.bin.gz",
+      "size_bytes": 45875,
+      "sha256": "cbbd28a0446d9bbf20ac334818458d8840c8add6b284117091ef4b7cf5500203"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/REPORT.fa.md",
+      "size_bytes": 3586,
+      "sha256": "d732be98f89196f4c8a9a1aeea906d63038af9d75f804e91eb5b328380458d7a"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/result.json",
+      "size_bytes": 2219,
+      "sha256": "029f45a8defca2c0b8e1d5ae700a0fd715701770b1b6268073f64c8b5d3c813a"
+    }
+  ]
+}

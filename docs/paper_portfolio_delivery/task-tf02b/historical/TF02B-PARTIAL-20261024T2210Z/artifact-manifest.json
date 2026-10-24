@@ -1,0 +1,20 @@
+{
+  "task": "TF-02B",
+  "files": [
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/evidence/evidence.json",
+      "bytes": 3264,
+      "sha256": "48b117ba8cf5c0059e7840bb7c1e5e4c784985df21789b09069db37b0d213c6f"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/REPORT.fa.md",
+      "bytes": 1938,
+      "sha256": "d99f2ac7302085c6b66c3769ba10c6246b4eb447597a32ef4d157bab2d4296b9"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf02b/result.json",
+      "bytes": 4202,
+      "sha256": "ab90569879b3f4158722b8a7fb8671449dc7353527ea32c6c515c3f54bd7f571"
+    }
+  ]
+}

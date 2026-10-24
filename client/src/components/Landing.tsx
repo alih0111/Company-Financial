@@ -17,6 +17,9 @@ import {
   FaDollarSign,
   FaCoins,
   FaGem,
+  FaHistory,
+  FaLink,
+  FaFlask,
 } from "react-icons/fa";
 import { getAuthStatus } from "../hooks/useGetUser";
 import { API_BASE } from "../config";
@@ -42,7 +45,7 @@ const AccessCard: React.FC<{ card: AccessCard; index: number }> = ({
 }) => (
   <Link
     to={card.to}
-    className="group relative flex flex-col gap-4 rounded-3xl border border-gray-200/70 dark:border-gray-700/50 bg-white/70 dark:bg-gray-800/40 backdrop-blur-xl p-6 shadow-lg shadow-emerald-500/5 hover:shadow-2xl hover:shadow-emerald-500/15 hover:-translate-y-1.5 transition-all duration-300 animate-fade-in-up overflow-hidden"
+    className="group relative flex flex-col gap-4 rounded-3xl border border-gray-200/70 dark:border-white/[0.07] bg-white/70 dark:bg-white/[0.03] backdrop-blur-xl p-6 shadow-lg shadow-emerald-500/5 hover:shadow-2xl hover:shadow-emerald-500/15 hover:-translate-y-1.5 hover:border-emerald-500/30 dark:hover:border-emerald-500/25 transition-all duration-300 animate-fade-in-up overflow-hidden"
     style={{ animationDelay: `${index * 90}ms` }}
   >
     {/* هاله‌ی رنگی گوشه‌ی کارت هنگام hover */}
@@ -88,7 +91,7 @@ const HeroPreview: React.FC = () => {
       style={{ animationDelay: "200ms" }}
     >
       {/* کارت اصلی — اسپارک‌لاین بازار */}
-      <div className="relative rounded-3xl border border-gray-200/70 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/60 backdrop-blur-xl shadow-2xl shadow-emerald-500/10 p-5 animate-float">
+      <div className="relative rounded-3xl border border-gray-200/70 dark:border-white/[0.08] bg-white/80 dark:bg-[#16213a]/80 backdrop-blur-xl shadow-2xl shadow-emerald-500/10 dark:shadow-black/40 p-5 animate-float">
         <div className="flex items-center gap-2 mb-3">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25">
             <FaChartLine size={13} />
@@ -97,7 +100,7 @@ const HeroPreview: React.FC = () => {
             <p className="text-xs font-bold text-gray-800 dark:text-white">
               نمای کلی بازار
             </p>
-            <p className="text-[10px] text-gray-400">امتیاز کوانت بنیادی</p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">امتیاز کوانت بنیادی</p>
           </div>
           <span className="mr-auto inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20">
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse-glow" />
@@ -164,7 +167,7 @@ const HeroPreview: React.FC = () => {
               key={s.label}
               className="rounded-xl bg-gray-50/80 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-700/40 px-2 py-2 text-center"
             >
-              <p className="text-[10px] text-gray-400">{s.label}</p>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400">{s.label}</p>
               <p className={`text-sm font-black tabular-nums ${s.tone}`}>
                 {s.value}
               </p>
@@ -178,7 +181,7 @@ const HeroPreview: React.FC = () => {
         className="absolute -bottom-6 -right-4 sm:-right-8 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/80 backdrop-blur-xl shadow-xl shadow-indigo-500/10 px-4 py-3 animate-float"
         style={{ animationDelay: "0.8s" }}
       >
-        <p className="text-[10px] text-gray-400">رتبه در بازار</p>
+        <p className="text-[10px] text-gray-500 dark:text-gray-400">رتبه در بازار</p>
         <p className="text-lg font-black tabular-nums text-indigo-600 dark:text-indigo-400">
           ۹۳٪
         </p>
@@ -189,7 +192,7 @@ const HeroPreview: React.FC = () => {
         className="absolute -top-5 -left-3 sm:-left-6 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/90 dark:bg-gray-800/80 backdrop-blur-xl shadow-xl shadow-emerald-500/10 px-4 py-3 animate-float"
         style={{ animationDelay: "1.6s" }}
       >
-        <p className="text-[10px] text-gray-400">سیگنال مدل</p>
+        <p className="text-[10px] text-gray-500 dark:text-gray-400">سیگنال مدل</p>
         <p className="text-sm font-black text-emerald-600 dark:text-emerald-400">
           خرید قوی ↑
         </p>
@@ -218,8 +221,8 @@ const FALLBACK_TICKER = [
   { s: "وبملت", c: 0.8 },
   { s: "شستا", c: 2.2 },
   { s: "پارسان", c: -1.7 },
-  { s: "فول mob", c: 4.1 },
-  { s: "کگل", c: 1.2 },
+  { s: "کگل", c: 4.1 },
+  { s: "شگویا", c: 1.2 },
 ];
 
 const faInt = new Intl.NumberFormat("fa-IR", { maximumFractionDigits: 0 });
@@ -366,6 +369,8 @@ const TickerTape: React.FC = () => {
   useEffect(() => {
     let alive = true;
     const load = async () => {
+      // وقتی تب مخفی است درخواست نزنیم — با بازگشت کاربر دوباره گرفته می‌شود
+      if (document.hidden) return;
       try {
         const res = await fetch(`${API_BASE}/market/ticker`);
         if (!res.ok) throw new Error(String(res.status));
@@ -382,12 +387,18 @@ const TickerTape: React.FC = () => {
       }
     };
     load();
-    const timer = setInterval(load, 60_000);
+    // در حالت خطا به‌جای هر ۶۰ ثانیه، هر ۵ دقیقه تلاش مجدد — کال بی‌دلیل نمی‌زنیم
+    const timer = setInterval(load, live === "off" ? 300_000 : 60_000);
+    const onVisible = () => {
+      if (!document.hidden) load();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       alive = false;
       clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVisible);
     };
-  }, []);
+  }, [live]);
 
   // اسکرول خودکار با تایمر و محاسبه‌ی dt — سرعت ثابت و مستقل از تعداد آیتم‌ها؛
   // در تب مخفی rAF معلق می‌شود، به همین دلیل از setInterval استفاده می‌کنیم.
@@ -513,7 +524,7 @@ const TickerTape: React.FC = () => {
                             {t.unit}
                           </span> */}
                         </span>
-                        <span className="text-gray-600 dark:text-gray-300">
+                        <span className="text-gray-700 dark:text-gray-200">
                           {t.title}
                         </span>
                         {changeNode(t.change_pct)}
@@ -557,7 +568,7 @@ const TickerTape: React.FC = () => {
           </div>
         </div>
       )}
-      <p className="mt-1.5 flex items-center justify-center gap-1.5 text-[10px] text-gray-400 dark:text-gray-500">
+      <p className="mt-1.5 flex items-center justify-center gap-1.5 text-[10px] text-gray-500 dark:text-gray-400">
         {isLive ? (
           <>
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse-glow" />
@@ -643,8 +654,9 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
         />
       </div>
 
-      {/* ── Top Navigation ── */}
-      <header className="relative z-20 mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+      {/* ── Top Navigation — چسبان با شیشه‌ی نرم ── */}
+      <header className="sticky top-0 z-30 border-b border-gray-200/50 dark:border-white/[0.06] bg-white/70 dark:bg-[#0b1220]/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25 text-xl">
             <FaChartLine />
@@ -663,7 +675,7 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
           <button
             onClick={toggleDarkMode}
             aria-label={darkMode ? "حالت روشن" : "حالت تاریک"}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 text-gray-600 dark:text-gray-200 transition hover:scale-105 hover:shadow-md"
+            className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-700/50 text-gray-600 dark:text-gray-200 transition-all duration-300 hover:scale-110 hover:rotate-12 hover:shadow-md active:scale-95"
           >
             {darkMode ? (
               <FaSun className="text-amber-400" />
@@ -698,27 +710,32 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
             </>
           )}
         </div>
+        </div>
       </header>
 
       {/* ── Hero (دو ستونه) ── */}
       <section className="relative z-10 mx-auto max-w-7xl px-6 pt-10 pb-12 sm:pt-16">
         <div className="grid grid-cols-1 items-center gap-14 lg:grid-cols-2">
           <div className="text-center lg:text-right">
-            <span className="animate-fade-in-up inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
-              <FaShieldAlt size={11} />
+            <span className="animate-fade-in-up inline-flex items-center gap-2.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-4 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300 shadow-sm shadow-emerald-500/10">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-60" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
               سامانهٔ بنیادی و کوانت شرکت‌های بورسی
             </span>
 
             <h2
-              className="animate-fade-in-up mt-6 text-4xl font-black leading-tight text-gray-800 dark:text-white sm:text-5xl"
+              className="animate-fade-in-up mt-6 text-4xl font-black leading-[1.25] text-gray-800 dark:text-white sm:text-5xl sm:leading-[1.2]"
               style={{ animationDelay: "80ms" }}
             >
               تصمیم‌های سرمایه‌گذاری،
+              <br className="hidden sm:block" />
               <span className="text-gradient-emerald"> هوشمندتر و مستندتر</span>
             </h2>
 
             <p
-              className="animate-fade-in-up mx-auto mt-6 max-w-xl text-base leading-8 text-gray-500 dark:text-gray-400 sm:text-lg lg:mx-0"
+              className="animate-fade-in-up mx-auto mt-6 max-w-xl text-base leading-8 text-gray-600 dark:text-gray-300 sm:text-lg lg:mx-0"
               style={{ animationDelay: "160ms" }}
             >
               داده‌های بنیادی، صورت‌های مالی و قیمت بازار را یکپارچه می‌کنیم و
@@ -753,9 +770,9 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
               {stats.map((s) => (
                 <div
                   key={s.label}
-                  className="flex flex-col items-center gap-2 rounded-2xl border border-gray-200/70 dark:border-gray-700/50 bg-white/60 dark:bg-gray-800/40 px-3 py-4 backdrop-blur-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
+                  className="group flex flex-col items-center gap-1.5 rounded-2xl border border-gray-200/70 dark:border-white/[0.07] bg-white/60 dark:bg-white/[0.03] px-3 py-4 backdrop-blur-xl shadow-sm hover:shadow-md hover:shadow-emerald-500/10 hover:-translate-y-1 hover:border-emerald-500/30 dark:hover:border-emerald-500/25 transition-all duration-300"
                 >
-                  <span className="text-xl text-emerald-600 dark:text-emerald-400">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/15 transition-transform duration-300 group-hover:scale-110">
                     {s.icon}
                   </span>
                   <span className="text-lg font-black tabular-nums text-gray-800 dark:text-white">
@@ -777,9 +794,67 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
       </section>
 
       {/* ── Ticker tape ── */}
-      <div className="mb-14">
+      <div className="mb-16">
         <TickerTape />
       </div>
+
+      {/* ── Features (چرا RFA؟) ── */}
+      <section className="relative z-10 mx-auto max-w-7xl px-6 pb-20">
+        <div className="mb-10 text-center">
+          <span className="text-xs font-bold uppercase tracking-widest text-emerald-600/70 dark:text-emerald-400/70">
+            چرا RFA؟
+          </span>
+          <h3 className="mt-2 text-2xl font-bold text-gray-800 dark:text-white sm:text-3xl">
+            زیرساخت داده‌ای که می‌توانید به آن اعتماد کنید
+          </h3>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-gray-500 dark:text-gray-400">
+            هر عدد در این سامانه به منبع خودش گره خورده است؛ از گزارش کدال تا
+            قیمت پایانی معاملات.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            {
+              icon: <FaShieldAlt />,
+              title: "امتیازدهی PIT-safe",
+              desc: "هر امتیاز فقط با داده‌ای محاسبه می‌شود که در آن تاریخ واقعاً در دسترس بوده است — بدون نشت آینده.",
+            },
+            {
+              icon: <FaHistory />,
+              title: "نسخه‌دار و قابل ردیابی",
+              desc: "تاریخچه‌ی محاسبات نگه داشته می‌شود؛ هر عددی می‌تواند به نسخه‌ی داده و اجرای خودش برگردد.",
+            },
+            {
+              icon: <FaLink />,
+              title: "داده‌ی یکپارچه",
+              desc: "صورت‌های مالی، گزارش‌های ماهانه و قیمت بازار در یک مدل واحد به هم متصل می‌شوند.",
+            },
+            {
+              icon: <FaFlask />,
+              title: "رتبه‌بندی پژوهش‌محور",
+              desc: "مدل منتخب از دل مقایسه‌ی نسخه‌های متعدد پژوهشی آمده و به‌صورت دوره‌ای ارزیابی آینده می‌شود.",
+            },
+          ].map((f, i) => (
+            <div
+              key={f.title}
+              className="group relative flex flex-col gap-3 rounded-3xl border border-gray-200/70 dark:border-white/[0.07] bg-white/60 dark:bg-white/[0.03] backdrop-blur-xl p-6 shadow-sm hover:shadow-xl hover:shadow-emerald-500/10 hover:-translate-y-1 transition-all duration-300 animate-fade-in-up overflow-hidden"
+              style={{ animationDelay: `${i * 80}ms` }}
+            >
+              <div className="pointer-events-none absolute -top-12 -left-12 h-32 w-32 rounded-full bg-emerald-400/20 dark:bg-emerald-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 text-lg transition-transform duration-300 group-hover:scale-110">
+                {f.icon}
+              </span>
+              <h4 className="text-base font-bold text-gray-800 dark:text-white">
+                {f.title}
+              </h4>
+              <p className="text-[13px] leading-6 text-gray-500 dark:text-gray-400">
+                {f.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* ── Access cards ── */}
       <section
@@ -802,14 +877,89 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
         </div>
       </section>
 
+      {/* ── CTA banner ── */}
+      <section className="relative z-10 mx-auto max-w-7xl px-6 pb-20">
+        <div className="relative overflow-hidden rounded-[2rem] border border-emerald-500/20 bg-gradient-to-l from-emerald-600 via-teal-600 to-emerald-700 dark:from-emerald-700 dark:via-teal-800 dark:to-emerald-800 px-8 py-12 text-center shadow-2xl shadow-emerald-500/20">
+          <div className="pointer-events-none absolute inset-0 bg-grid-soft opacity-40" />
+          <div className="pointer-events-none absolute -top-24 right-1/4 h-56 w-56 rounded-full bg-white/15 blur-3xl animate-aurora" />
+          <div className="relative">
+            <h3 className="text-2xl font-black text-white sm:text-3xl">
+              همین حالا تحلیل داده‌محور را شروع کنید
+            </h3>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-7 text-emerald-50/90">
+              حساب بسازید و به داشبورد شرکت‌ها، غربال بازار و رتبه‌بندی مدل
+              منتخب دسترسی داشته باشید.
+            </p>
+            <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                to={isLoggedIn ? "/dashboard" : "/register"}
+                className="group flex h-12 items-center gap-2 rounded-2xl bg-white px-8 text-base font-bold text-emerald-700 shadow-lg shadow-black/10 transition hover:scale-[1.03] hover:shadow-xl"
+              >
+                {isLoggedIn ? "ورود به داشبورد" : "ساخت حساب رایگان"}
+                <FaArrowLeft className="transition-transform duration-300 group-hover:-translate-x-1" />
+              </Link>
+              {!isLoggedIn && (
+                <Link
+                  to="/login"
+                  className="flex h-12 items-center gap-2 rounded-2xl border border-white/30 bg-white/10 px-8 text-base font-semibold text-white backdrop-blur transition hover:bg-white/20"
+                >
+                  <FaSignInAlt size={13} />
+                  ورود
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── Footer ── */}
-      <footer className="relative z-10 border-t border-gray-200/70 dark:border-gray-700/50">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 px-6 py-8 text-center sm:flex-row sm:text-right">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            RFA — سامانهٔ تحلیل بنیادی و کوانت شرکت‌های بورسی
-          </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500">
-            داده‌ها به‌صورت نسخه‌دار و قابل ردیابی محاسبه می‌شوند.
+      <footer className="relative z-10 border-t border-gray-200/70 dark:border-white/[0.06]">
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-l from-transparent via-emerald-500/40 to-transparent" />
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 py-10 sm:flex-row sm:text-right">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/20">
+              <FaChartLine size={14} />
+            </span>
+            <div>
+              <p className="text-sm font-bold text-gray-800 dark:text-white">
+                RFA — بینش شرکت‌ها
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                سامانهٔ تحلیل بنیادی و کوانت شرکت‌های بورسی
+              </p>
+            </div>
+          </div>
+          <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            <Link
+              to="/dashboard"
+              className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+            >
+              داشبورد
+            </Link>
+            <Link
+              to="/Table"
+              className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+            >
+              غربال بازار
+            </Link>
+            <Link
+              to="/ranking"
+              className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+            >
+              رتبه‌بندی
+            </Link>
+            <Link
+              to="/chat"
+              className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+            >
+              دستیار سرمایه‌گذاری
+            </Link>
+          </nav>
+        </div>
+        <div className="border-t border-gray-200/50 dark:border-white/[0.04]">
+          <p className="mx-auto max-w-7xl px-6 py-4 text-center text-[11px] text-gray-400 dark:text-gray-500">
+            داده‌ها به‌صورت نسخه‌دار و قابل ردیابی محاسبه می‌شوند · پاسخ‌ها
+            توصیه‌ی خرید/فروش نیستند
           </p>
         </div>
       </footer>

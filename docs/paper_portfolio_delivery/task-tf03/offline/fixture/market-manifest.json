@@ -1,0 +1,27 @@
+{
+  "records": [
+    {
+      "company_id": "fixture-company",
+      "daily": [
+        {
+          "dEven": "20261024",
+          "date": "2026-10-24",
+          "insCode": "35158826900216508",
+          "pClosing": 1234,
+          "close_rial": 1234,
+          "qTotTran5J": 10000,
+          "volume": 10000
+        },
+        {
+          "dEven": "20261025",
+          "date": "2026-10-25",
+          "insCode": "35158826900216508",
+          "pClosing": 1240,
+          "close_rial": 1240,
+          "qTotTran5J": 10000,
+          "volume": 10000
+        }
+      ]
+    }
+  ]
+}

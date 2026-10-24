@@ -42,24 +42,14 @@ const RankingHubPage = lazy(() => import("./components/RankingHubPage"));
 // لودر سطح صفحه برای Suspense
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-[50vh]">
-    <div className="flex items-center gap-3 text-gray-400 dark:text-gray-500">
-      <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-        <circle
-          className="opacity-25"
-          cx="12"
-          cy="12"
-          r="10"
-          stroke="currentColor"
-          strokeWidth="4"
-          fill="none"
-        />
-        <path
-          className="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        />
-      </svg>
-      <span className="text-sm font-medium">در حال بارگذاری…</span>
+    <div className="flex flex-col items-center gap-4">
+      <div className="relative h-10 w-10">
+        <div className="absolute inset-0 rounded-full border-2 border-emerald-500/15" />
+        <div className="absolute inset-0 animate-spin rounded-full border-2 border-transparent border-t-emerald-500" />
+      </div>
+      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+        در حال بارگذاری…
+      </span>
     </div>
   </div>
 );
@@ -72,6 +62,15 @@ const GuestRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => {
   const { darkMode, toggleDarkMode } = useDarkMode();
+
+  const location = useLocation();
+  const isLanding = location.pathname === "/";
+  const hideSidebar =
+    location.pathname === "/login" || location.pathname === "/register";
+  // صفحات مهمان (لندینگ/ورود/ثبت‌نام) داده‌ی شرکت نمایش نمی‌دهند؛
+  // fetch را غیرفعال می‌کنیم تا کال بی‌دلیل به بک‌اند زده نشود.
+  const isGuestOnly = isLanding || hideSidebar;
+
   const {
     companyOptions,
     selectedCompany,
@@ -83,7 +82,7 @@ const App = () => {
     loadingData,
     loadingCompanies,
     refreshData,
-  } = useCompanyData();
+  } = useCompanyData(!isGuestOnly);
 
   const [, setSearchParams] = useSearchParams();
 
@@ -93,11 +92,6 @@ const App = () => {
     setSearchParams({ companyname: name });
     navigate(`/dashboard?companyname=${encodeURIComponent(name || "")}`);
   };
-
-  const location = useLocation();
-  const isLanding = location.pathname === "/";
-  const hideSidebar =
-    location.pathname === "/login" || location.pathname === "/register";
 
   const { isAdmin, username } = getAuthStatus();
 
@@ -217,15 +211,22 @@ const App = () => {
   }, [refreshData, loadAIData]);
 
   useEffect(() => {
-    loadAIData();
-  }, [loadAIData]);
+    if (!isGuestOnly) loadAIData();
+  }, [isGuestOnly, loadAIData]);
 
   // A score snapshot only changes when the refresh job stores a new run, so a tab
   // left open keeps showing the old one. Re-fetch on focus/visibility and on an
   // interval; the freshness badge states the as-of date either way.
+  // فاصله‌ی حداقل بین رفرش‌ها ۶۰ ثانیه است تا کلیک‌های مکرر روی پنجره
+  // کالهای تکراری به بک‌اند نزند.
   useEffect(() => {
+    if (isGuestOnly) return;
+    let lastLoad = Date.now();
     const reload = () => {
-      if (document.visibilityState === "visible") loadAIData();
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastLoad < 60_000) return;
+      lastLoad = Date.now();
+      loadAIData();
     };
     window.addEventListener("focus", reload);
     document.addEventListener("visibilitychange", reload);
@@ -235,7 +236,7 @@ const App = () => {
       document.removeEventListener("visibilitychange", reload);
       window.clearInterval(timer);
     };
-  }, [loadAIData]);
+  }, [isGuestOnly, loadAIData]);
 
   const bigTableData = useMemo(() => {
     const baseData = Array.isArray(allDataScore) ? allDataScore : [];
@@ -268,7 +269,7 @@ const App = () => {
 
   const mainContent = loadingData ? (
     <div className="flex items-center justify-center h-full">
-      <div className="flex items-center gap-3 text-gray-400 dark:text-gray-500">
+      <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
         <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
           <circle
             className="opacity-25"
@@ -372,7 +373,7 @@ const App = () => {
               </div>
             </div>
           ) : (
-            <p className="text-gray-400 dark:text-gray-500 text-sm">
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
               Loading chart data...
             </p>
           )}
@@ -397,7 +398,7 @@ const App = () => {
               </div>
             </div>
           ) : (
-            <p className="text-gray-400 dark:text-gray-500 text-sm">
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
               Loading chart data...
             </p>
           )}
@@ -476,7 +477,7 @@ const App = () => {
       <div
         className={`min-h-screen ${
           darkMode ? "dark" : ""
-        } bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500`}
+        } theme-transition min-h-screen`}
       >
         <Suspense fallback={<PageLoader />}>
           <Landing darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
@@ -491,7 +492,7 @@ const App = () => {
         <div
           className={`min-h-screen ${
             darkMode ? "dark" : ""
-          } bg-gradient-to-br from-gray-100 via-white to-gray-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 transition-colors duration-500`}
+          } theme-transition min-h-screen`}
         >
           <div className="flex h-full">
             {!hideSidebar && (
@@ -516,7 +517,7 @@ const App = () => {
               />
             )}
 
-            <main className="flex-1 min-w-0 bg-white/50 dark:bg-gray-900/40 backdrop-blur-lg shadow-2xl shadow-emerald-500/5 transition-all duration-300 my-4 mx-[15px] p-4 rounded-3xl border border-gray-200/80 dark:border-gray-700/60">
+            <main className="app-panel flex-1 min-w-0 backdrop-blur-xl shadow-2xl shadow-emerald-500/5 dark:shadow-black/40 transition-all duration-300 my-4 mx-[15px] p-4 rounded-3xl">
               {!hideSidebar && (
                 <AppHeader
                   title={pageTitle}
@@ -532,7 +533,8 @@ const App = () => {
                 location.pathname !== "/register" &&
                 !isRankingSection && <ScoreFreshnessBadge />}
               <Suspense fallback={<PageLoader />}>
-                <Routes>
+                <div key={location.pathname} className="animate-fade-in-up">
+                  <Routes>
                   <Route
                     path="/login"
                     element={
@@ -618,7 +620,8 @@ const App = () => {
                     }
                   />
                   <Route path="*" element={<NotFound />} />
-                </Routes>
+                  </Routes>
+                </div>
               </Suspense>
             </main>
           </div>
@@ -647,7 +650,7 @@ const StatCard: React.FC<{
         {icon}
       </div>
       <div>
-        <p className="text-[11px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wide">
+        <p className="text-[11px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           {label}
         </p>
         <p className={`text-lg font-bold tabular-nums ${colorClass}`}>
