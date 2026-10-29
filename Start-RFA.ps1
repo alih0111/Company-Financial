@@ -279,7 +279,7 @@ function Start-AllRfaServices {
         Start-Frontend
         $startButton.Enabled = -not $script:sitesManaged
         $restartButton.Enabled = $true
-        $openButton.Enabled = $true
+        $openButton.Enabled = $false
         $stopButton.Enabled = $true
         $status.Text = 'در حال آماده‌شدن سرویس‌ها…'
         $readyTimer.Start()
@@ -317,6 +317,7 @@ $readyTimer.Add_Tick({
             $readyTimer.Stop()
             $status.Text = 'وضعیت: سایت و بک‌اند آماده‌اند — RFA.SYSTEMGROUP.NET'
             $status.ForeColor = [System.Drawing.Color]::ForestGreen
+            $openButton.Enabled = $true
             Start-Process 'http://rfa.systemgroup.net/dashboard'
         } catch {
             $detail = $_.Exception.ToString()

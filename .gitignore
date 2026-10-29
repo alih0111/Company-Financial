@@ -207,3 +207,4 @@ docs/paper_portfolio_delivery/experimental-launch-20261027/*
 !ranking_research/future_eval_v12_30/run_paper_month_trial.ps1
 !ranking_research/tests/test_paper_month_trial.py
 !docs/PAPER_MONTH_TRIAL.fa.md
+Start-RFA.ps1
