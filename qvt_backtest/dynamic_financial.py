@@ -164,6 +164,12 @@ def verified_parsed(rec):
     manifest = json.loads(raw)
     if str(manifest["tracing_no"]) != str(rec["tracing_no"]):
         raise ValueError("dynamic_manifest_identity_mismatch")
+    required_page_ids = manifest.get("required_page_ids")
+    if required_page_ids is not None:
+        present_page_ids = [str(page.get("page_id")) for page in manifest.get("pages", [])]
+        if (len(present_page_ids) != len(set(present_page_ids))
+                or not set(map(str, required_page_ids)).issubset(present_page_ids)):
+            raise ValueError("dynamic_required_page_missing_or_duplicate")
     result = {"statements": {}, "period_headers": {}, "consolidation": {}}
     for page in manifest["pages"]:
         source = Path(page["path"])

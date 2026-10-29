@@ -1,0 +1,22 @@
+{
+  "client/public/research/v12-36/paper-portfolio.json": {
+    "before": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+    "after": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+    "unchanged": true
+  },
+  "client/public/research/v12-36/latest-ranking.json": {
+    "before": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+    "after": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+    "unchanged": true
+  },
+  "client/public/research/v12-37/latest-ranking.json": {
+    "before": "ba4a181c8fa04a130205b0243f5686da22f252fbcbcfcd7c0b2f26905b801c3c",
+    "after": "ba4a181c8fa04a130205b0243f5686da22f252fbcbcfcd7c0b2f26905b801c3c",
+    "unchanged": true
+  },
+  ".git/index": {
+    "before": "c3e3c9af316d7fce07c630bd84ade3df4074ae6b95d8f6d2d4cadc3faff2ca72",
+    "after": "9315fadb47091ce1b3880cd92a77d45c38a9b7477206859a77ae74a042951b20",
+    "unchanged": false
+  }
+}

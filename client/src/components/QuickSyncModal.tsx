@@ -69,6 +69,9 @@ const QuickSyncModal: React.FC<QuickSyncModalProps> = ({
   const completed = total?.completed ?? 0;
   const quarantined = total?.quarantined ?? 0;
   const syncFailed = summary?.success === false;
+  const scanIncomplete = [summary?.financial, summary?.monthly].some(
+    (feed) => feed?.stop_reason === "max_pages_reached",
+  );
 
   return (
     <div className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center">
@@ -170,7 +173,11 @@ const QuickSyncModal: React.FC<QuickSyncModalProps> = ({
         {/* خروجی موفق */}
         {summary && total && !running && (
           <div className="mb-4 text-sm">
-            {newCount === 0 && failed === 0 ? (
+            {scanIncomplete ? (
+              <p className="text-center text-amber-700 dark:text-amber-300 font-medium">
+                اسکن به سقف صفحات رسید؛ نتیجه کامل نیست و هنوز نمی‌توان گفت گزارشی وجود ندارد.
+              </p>
+            ) : newCount === 0 && failed === 0 ? (
               <p className="text-center text-gray-600 dark:text-gray-300 font-medium">
                 گزارش جدیدی برای نمادهای شما پیدا نشد.
               </p>
@@ -201,6 +208,12 @@ const QuickSyncModal: React.FC<QuickSyncModalProps> = ({
                 />
               )}
             </div>
+
+            {scanIncomplete && (
+              <p className="mt-3 text-center text-xs text-gray-500 dark:text-gray-400">
+                برای بررسی ادامه‌ی گزارش‌ها، دوباره «جمع‌آوری سریع» را اجرا کنید یا تعداد صفحات را بیشتر کنید.
+              </p>
+            )}
 
             <div className="flex justify-center gap-4 mt-3 pt-3 border-t border-gray-100 dark:border-gray-700/60 text-xs text-gray-600 dark:text-gray-300">
               <span>مالی: {financialNew}</span>

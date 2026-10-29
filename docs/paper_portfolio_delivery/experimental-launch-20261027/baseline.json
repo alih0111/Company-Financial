@@ -1,0 +1,10 @@
+{
+  ".git/index": "c3e3c9af316d7fce07c630bd84ade3df4074ae6b95d8f6d2d4cadc3faff2ca72",
+  "client/public/research/v12-36/paper-portfolio.json": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+  "client/public/research/v12-36/latest-ranking.json": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+  "client/public/research/v12-37/latest-ranking.json": "ba4a181c8fa04a130205b0243f5686da22f252fbcbcfcd7c0b2f26905b801c3c",
+  "ranking_research/future_eval_v12_30/apply_paper_fill.py": "c67c2a874729322c48c483c946100b9e829352d5f18c0e4f5d985cae90f4cf61",
+  "ranking_research/future_eval_v12_30/register_paper_decision.py": "92d0ee3cf379bdffb0f3d754ec2edc21ca7643f295e8ee9cc7ddf496f279d109",
+  "client/src/components/ResearchHomePage.tsx": "7766e95167ed456e36d34f6c41738d5d137948cab88539eb2f4e80a521d5bf8c",
+  ".gitignore": "f14110d1d4886905f2d6934b5741b3d866db7c5b52c72f00e3cafe3492c0c0cd"
+}

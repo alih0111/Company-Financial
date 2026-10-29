@@ -1,0 +1,235 @@
+{
+  "scope": "source, concise delivery and exact initialization/live invocation artifacts; mutable runtime has delivery snapshots",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 9547,
+      "sha256": "a3a3c1a5eb18b309745a0097b766403e4499cf63d33704a7fd4ed1db084a7dda"
+    },
+    {
+      "path": "client/src/components/ExperimentalPaperPortfolio.tsx",
+      "bytes": 9137,
+      "sha256": "dc80a94607a1951e1a59c91dc4757c25049e2958476ceda19f38761fc3cb2943"
+    },
+    {
+      "path": "client/src/components/ResearchHomePage.tsx",
+      "bytes": 29671,
+      "sha256": "ea33fd6d3faa6051a09dedfa44a68c0e58fd2cbe842cd974e328e4569e2c9875"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/account-at-delivery.json",
+      "bytes": 10130,
+      "sha256": "15f53623174ef86c94f15cbe53a25248ea38b8b23ae3886d750ddf96c07a9dc5"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/baseline.json",
+      "bytes": 930,
+      "sha256": "db0ae1c08237d53bb31a19f8b3ff96749d139ce0fed1fb36f0b13a7728608fe1"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/client-build.log",
+      "bytes": 3196,
+      "sha256": "e0876d619d01a449c6f89ecdf873949e56c0337843c84868465e71b416be1efe"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/live-evidence.json",
+      "bytes": 3607,
+      "sha256": "d6c9cc74a9fc6b1ec0b31eed2de0fc982f1f48e3cf0cc63499359e16ce2ccafc"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/protected-after.json",
+      "bytes": 976,
+      "sha256": "44b4f2b8b09f44d71dd410d96bc6588c493a095ac7fb4dfc60b23982e328075b"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/REPORT.fa.md",
+      "bytes": 4531,
+      "sha256": "888dbc33dae71839ec6712654c18f216f9d767a73cb631168e7ca4a2cc83ccf2"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/result.json",
+      "bytes": 1026,
+      "sha256": "0e64a1bb24095ef8d327d3f0a2252cc3749a9e652fac926f2b80f2291a76f717"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/RUNBOOK.fa.md",
+      "bytes": 7249,
+      "sha256": "5fe6d2b842f568c4092c6fc92d83a602d01424d2069385d07aacadf48e1ee7ea"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/status-at-delivery.json",
+      "bytes": 12400,
+      "sha256": "eb53aa96fab9f290f0d5095a6fe554c3dda5280d1c9e18fda8d31c72d802eb29"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/tested-source-hashes.json",
+      "bytes": 985,
+      "sha256": "ee9c48227f8431b319801dcd5f9977cad53416083bad8ae490a864083102dd8e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/tests.log",
+      "bytes": 276,
+      "sha256": "8e1ef413bed1487b6bec66ae71e6f16fd065fa6b25da66be6f22e46f536d1417"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/tests.xml",
+      "bytes": 27964,
+      "sha256": "da8fde72f1d3733043f605f0f9b1cf49a309a4c2a2ca61ad303b06714673502e"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/experimental-launch-20261027/ui.png",
+      "bytes": 115175,
+      "sha256": "42ee456a154d1eb1e0d683813ca3ee34d27b61984b41944ac65f5884cdd0f872"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/apply_paper_fill.py",
+      "bytes": 35342,
+      "sha256": "261a46f76172bb9978250e719e41ed7cc9d098de088a0ad99f8087b059793d62"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/experimental_paper.py",
+      "bytes": 17131,
+      "sha256": "ae3210a3f852a3962b035c85e903b477e2148f04bcb7630bcf6d875bd2ec989c"
+    },
+    {
+      "path": "ranking_research/future_eval_v12_30/register_paper_decision.py",
+      "bytes": 11662,
+      "sha256": "301505db5f3367ca46355e3083309d8b97b506a99432c9c091e0648440ccaa73"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172515885896Z-9907c3/bootstrap/account.json",
+      "bytes": 10130,
+      "sha256": "15f53623174ef86c94f15cbe53a25248ea38b8b23ae3886d750ddf96c07a9dc5"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172515885896Z-9907c3/bootstrap/ranking.json",
+      "bytes": 919133,
+      "sha256": "88ae1a4f24342ed825b1691ed74fff21a9f2c44f9927e7fec1ee42abf9e933dd"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172515885896Z-9907c3/bootstrap/rules.json",
+      "bytes": 2695,
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172515885896Z-9907c3/create_public_paper_account.py.3ab10b77.json",
+      "bytes": 1682,
+      "sha256": "1874934278f61664f62a2c2bd6d8488e71e0ab01c80de0cc3e10482b362099a4"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172515885896Z-9907c3/decision-basis.json",
+      "bytes": 226,
+      "sha256": "8e249f1958c1fa219847e23e83e1372c30a562cdaa0e4a0f7a6ce6a4ea7b7677"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172515885896Z-9907c3/register_paper_decision.py.5c30490c.json",
+      "bytes": 4005,
+      "sha256": "eb33f7b6a3268bb37286b7dcadf5ba928e0b9d91d40e539e2f9a7b0fb3426d6e"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172515885896Z-9907c3/result.json",
+      "bytes": 3627,
+      "sha256": "59c73390c393f3489d513580cfb3b422bfe3a838b812972ab92bbf0c9e06d92a"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/acquire_paper_candidate_evidence.py.965a71e6.json",
+      "bytes": 4195,
+      "sha256": "7226707ccbb1c0d126ea472bddc30cb9a5d34ca103b196d2b189c28b96e836ac"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/acquire_public_market_calendar.py.029d435c.json",
+      "bytes": 1952,
+      "sha256": "ee56eb26f5a62fc050ceaa6bb283ccfd7c49b87b032a981f5415a8f828dce87d"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/apply_paper_fill.py.c57053c6.json",
+      "bytes": 1472,
+      "sha256": "7b4f5e8080672d2721cf8ea30376101d8610d2f6e7b459a2b5f93332a8acd29e"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/calendar/latest-manifest.json",
+      "bytes": 281,
+      "sha256": "bab27f797ee36c1b0189fe22ea957f6dca70414c86f97425a784a69e1f2bdb61"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/calendar/manifest.20261027T172546414657Z.json",
+      "bytes": 1713886,
+      "sha256": "aaaf34833568dac708181c7db172e0cddbfe8864e4240dcde105f15ab8ab0f13"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/calendar/raw/candidate_instrument.20261027T172546414657Z.bin.gz",
+      "bytes": 650,
+      "sha256": "5f38a8d3c4983384e15ebbe1cb6dd11c611a5eda68be924270914073d2ffe24c"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/calendar/raw/identity.20261027T172546414657Z.bin.gz",
+      "bytes": 3524,
+      "sha256": "ab5c803f5d2f5af1708ed680f63444aefd28041a9d4d62ac8e09153ed10a7454"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/calendar/raw/last_possible.20261027T172546414657Z.bin.gz",
+      "bytes": 31,
+      "sha256": "43b820f9a3f3234cd576204517e31b4a08a5bc742b231e71b8d60bec6461161d"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/calendar/raw/primary_history.20261027T172546414657Z.bin.gz",
+      "bytes": 68144,
+      "sha256": "aa47de291ab52e3e3317ff2390b1b0d46703659350e1ece84909911964a0ad04"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/calendar/raw/secondary_history.20261027T172546414657Z.bin.gz",
+      "bytes": 45921,
+      "sha256": "b5daa35b9c49e62efad123fce737c6e2e971ad62ad5d7b16f8454ad21d27f511"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/candidate/latest-manifest.json",
+      "bytes": 282,
+      "sha256": "7418202bdeecf59c8325fc4841c3316162c650489b58fd80e76827a44d3260f8"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/candidate/manifest_20261027T172539378396Z.json",
+      "bytes": 7547,
+      "sha256": "876045b5730c031809f9217e2160a88d6207c60d7dcfcb3bc9cfc98fa8aeb2f6"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/candidate/raw/candidate_calendar.20261027T172539378396Z.bin.gz",
+      "bytes": 41743,
+      "sha256": "65400cdc3671d94a8a1f025ffbcc94bf73fd402b47f5b6591e9bfce7a04b56bc"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/candidate/raw/candidate_daily.20261027T172539378396Z.bin.gz",
+      "bytes": 174228,
+      "sha256": "74453aea168f677ee40fa8e7e18941bc947c16968d30bce2d764ffc459307341"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/candidate/raw/candidate_share_changes.20261027T172539378396Z.bin.gz",
+      "bytes": 245,
+      "sha256": "044ffac7850526960142463c19fc44d853a08289aadc755eb6f35e3ba0c602e9"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/candidate/raw/last_possible_session.20261027T172539378396Z.bin.gz",
+      "bytes": 31,
+      "sha256": "b439ff17dd5e8641469a4c5b5fef6405c5c807aaa5c2a5b3b545c0d024caa5d4"
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/runs/20261027T172538895049Z-18e70a/result.json",
+      "bytes": 577,
+      "sha256": "9d15b1420f6f22852e77c0c6382c18c894c3e3337dd141ba1b07e50921ad10bc"
+    },
+    {
+      "path": "ranking_research/paper_account_store.py",
+      "bytes": 11429,
+      "sha256": "08e6034db90e69e04c1a4e829c3c5cce1daa19708adc957e0b5c2eebfe405e3f"
+    },
+    {
+      "path": "ranking_research/tests/test_experimental_paper.py",
+      "bytes": 12360,
+      "sha256": "16df69824092303072f530c58d58fad8f7e4c8bcb24fc20194ad8c3ab6711aec"
+    },
+    {
+      "path": "Update-Paper-Portfolio.cmd",
+      "bytes": 345,
+      "sha256": "b5b4e06f1d8f57d4edaac8a859156ff0ed47d85d7fdeca3ae1160f4e2a285058"
+    }
+  ]
+}

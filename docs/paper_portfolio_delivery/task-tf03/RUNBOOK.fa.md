@@ -16,32 +16,41 @@
 
 ## تصمیم تازه و preview سفارش
 
-پس از انتخاب ranking واجدشرایط، زمان تصمیم باید زمان واقعی همان اجرا باشد. ابتدا مدرک نامزد و تقویم را در پوشهٔ invocation مستقل دریافت کنید و بعد آن‌ها را به ثبت تصمیم بدهید:
+ترتیب زمانی لازم است: ابتدا snapshot رتبه‌بندی واجدشرایط و قواعد را pin کنید و یک مدرک پایهٔ تصمیم بسازید که فقط شناسه/هش ranking و هویت نامزد را ثبت کند؛ این مدرک، market evidence یا شاهد اجرای بعد از تصمیم نیست. تصمیم با ساعت واقعی سیستم ثبت می‌شود. فقط پس از ثبت موفق تصمیم، collector تقویم و candidate evidence تازه اجرا می‌شوند و خروجی همان invocation به preview داده می‌شود. timestamp دریافت را ویرایش یا به قبل/بعد منتقل نکنید.
 
 ```powershell
 $out = 'docs/paper_portfolio_delivery/task-tf03/runs/<RUN_ID>'
-.venv/Scripts/python.exe -X utf8 ranking_research/future_eval_v12_30/acquire_paper_candidate_evidence.py `
-  --account docs/paper_portfolio_delivery/task-tf03/draft/public-paper-account.json `
-  --output-dir "$out/candidate"
-.venv/Scripts/python.exe -X utf8 ranking_research/future_eval_v12_30/acquire_public_market_calendar.py `
-  --window-start <DECISION_LOCAL_YYYYMMDD> --candidate-symbol <PINNED_SYMBOL> `
-  --output-dir "$out/calendar" --cross-check-lookback-days 60
-# مسیر manifest تازهٔ candidate را از latest-manifest.json همان acquisition بخوانید.
+New-Item -ItemType Directory -Path $out -ErrorAction Stop | Out-Null
+$account = 'docs/paper_portfolio_delivery/task-tf03/draft/public-paper-account.json'
+$ranking = '<RANKING_JSON_VALIDATED_AND_PINNED>'
+$rules = 'docs/paper_portfolio_delivery/task-tf03/draft/execution_rules_public.json'
+$symbol = '<PINNED_SYMBOL>'
+$company = '<PINNED_COMPANY_ID>'
+# این فایل فقط پایهٔ ثبت تصمیم است؛ ورودی market acquisition محسوب نمی‌شود.
+$basis = @{dataset_id='pinned-ranking'; candidate=@{symbol=$symbol; company_id=$company}; sources=@()} | ConvertTo-Json -Depth 6 -Compress
+[IO.File]::WriteAllText("$out/decision-basis.json", $basis, [Text.UTF8Encoding]::new($false))
 .venv/Scripts/python.exe -X utf8 ranking_research/future_eval_v12_30/register_paper_decision.py `
-  --calendar-provider public --account docs/paper_portfolio_delivery/task-tf03/draft/public-paper-account.json `
-  --ranking <RANKING_JSON_VALIDATED> --rules docs/paper_portfolio_delivery/task-tf03/draft/execution_rules_public.json `
-  --evidence <CANDIDATE_MANIFEST_FROM_THIS_RUN> --calendar-policy ranking_research/paper_calendar_policy.public-paper-v1.json
+  --calendar-provider public --account $account --ranking $ranking --rules $rules `
+  --evidence "$out/decision-basis.json" --calendar-policy ranking_research/paper_calendar_policy.public-paper-v1.json
+# از این نقطه به بعد، هر دو دریافت تازه‌اند و در مسیر مختص همین invocation ذخیره می‌شوند.
+.venv/Scripts/python.exe -X utf8 ranking_research/future_eval_v12_30/acquire_paper_candidate_evidence.py `
+  --account $account --output-dir "$out/candidate"
+.venv/Scripts/python.exe -X utf8 ranking_research/future_eval_v12_30/acquire_public_market_calendar.py `
+  --window-start <DECISION_LOCAL_YYYYMMDD> --candidate-symbol $symbol `
+  --output-dir "$out/calendar" --cross-check-lookback-days 60
+$candidateManifest = (Get-Content -Raw "$out/candidate/latest-manifest.json" | ConvertFrom-Json).manifest_path
+$calendarManifest = '<MANIFEST_PATH_FROM_THIS_CALENDAR_INVOCATION>'
+$calendarSha = (Get-FileHash -Algorithm SHA256 $calendarManifest).Hash.ToLowerInvariant()
 .venv/Scripts/python.exe -X utf8 ranking_research/future_eval_v12_30/paper_cycle.py `
-  --order-review-only --calendar-provider public `
-  --account docs/paper_portfolio_delivery/task-tf03/draft/public-paper-account.json `
-  --rules docs/paper_portfolio_delivery/task-tf03/draft/execution_rules_public.json `
-  --evidence-manifest <CANDIDATE_MANIFEST_FROM_THIS_RUN> `
-  --calendar-manifest <PUBLIC_CALENDAR_MANIFEST_FROM_THIS_RUN> `
-  --calendar-manifest-sha256 <PUBLIC_CALENDAR_MANIFEST_SHA256> `
+  --order-review-only --calendar-provider public --account $account --rules $rules `
+  --evidence-manifest $candidateManifest --ranking $ranking `
+  --calendar-manifest $calendarManifest --calendar-manifest-sha256 $calendarSha `
   --output-dir "$out/status" --public-output-dir "$out/public"
 ```
 
-شاخهٔ `order-review-only` مراحل ranker/Codal/O00 و scheduler را اجرا نمی‌کند. بدون `--apply-fill` اجرای wrapper preview است و هیچ حسابی فعال نمی‌شود. public profile با manifest/hash صریح به NSCStart یا prompt توکن وارد نمی‌شود. نتیجهٔ `NO_NEW_SESSION` مجوز fill نیست.
+اگر پس از تصمیم هنوز جلسهٔ تازه‌ای نیست، `NO_NEW_SESSION` نتیجهٔ عادی است؛ تا جلسه و evidence تازه نرسد، preview را در زمان بعدی با دریافت تازه تکرار کنید. manifest صریح و hash همان invocation در provider عمومی اولویت قطعی دارند؛ `TSETMC_CALENDAR_MANIFEST` فقط برای مسیر legacy بدون manifest صریح و provider برابر `nscstart` خوانده می‌شود. مسیر public توکن/NSCStart را وارد نمی‌کند.
+
+شاخهٔ `order-review-only` مراحل ranker/Codal/O00 و scheduler را اجرا نمی‌کند. preview پیش‌فرض هیچ fillای نمی‌نویسد. Apply فقط با اجرای مجدد همان command و افزودن `--apply-fill` صریح است؛ هر دو اجرا باید به account و evidence/calendar pinشدهٔ همان تصمیم اشاره کنند.
 
 ## apply، mark و replay (فقط پس از بازبینی و مجوز مرحلهٔ آتی)
 
@@ -62,7 +71,7 @@ $out = 'docs/paper_portfolio_delivery/task-tf03/runs/<RUN_ID>'
   --rules docs/paper_portfolio_delivery/task-tf03/draft/execution_rules_public.json --apply-fill
 ```
 
-Replay دقیق همان fill با همان ورودی‌های pinشده و `--apply-fill` انجام می‌شود؛ receipt و hash ورودی نباید عوض شوند. replay ساعت اعتبارسنجی ثبت‌شده در receipt را بازاستفاده می‌کند. برای سفارش جدید، clock گذشته یا manifest قدیمی به کار نبرید. این فرمان‌ها در TF-03 برای حساب واقعی اجرا نشده‌اند.
+Replay دقیق همان fill با همان ورودی‌های pinشده و `--apply-fill` انجام می‌شود؛ receipt و hash ورودی نباید عوض شوند. برای سنجش idempotency روز بعد، clock سیستم/CLI باید واقعاً جلو رفته باشد و ساعت خرید را دوباره به replay تحمیل نکنید؛ receipt اصلی و mark حفظ می‌شوند. برای سفارش جدید، clock گذشته یا manifest قدیمی به کار نبرید. این فرمان‌ها در TF-03 برای حساب واقعی اجرا نشده‌اند.
 
 ## شرط بازکردن مانع شروع واقعی
 

@@ -13,6 +13,8 @@ import (
 
 func main() {
 	qvt.StartQvtPaperObserver()
+	// جمع‌آوری خودکار کدال در پس‌زمینه (غیرفعال با CODAL_AUTO_SYNC_ENABLED=0)
+	handlers.StartCodalAutoSync()
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -79,6 +81,9 @@ func main() {
 
 		// sync مبتنی بر discovery کدال (فقط ادمین) → py/sync_codal.py
 		protected.POST("/sync-codal", handlers.RunSyncCodal)
+
+		// وضعیت جمع‌آوری خودکار کدال (فقط ادمین)
+		protected.GET("/sync-codal/status", handlers.GetCodalSyncStatus)
 
 		protected.GET("/summary", handlers.GetAIStockSummary)
 		protected.GET("/detail", handlers.GetAIStockDetail)

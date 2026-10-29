@@ -1,0 +1,30 @@
+{
+  "status": "PASS_EXPERIMENTAL_PROFILE",
+  "tests": {
+    "tests": "163",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "571.424"
+  },
+  "new_regressions": 9,
+  "existing_related_tests": 154,
+  "frontend_build": "PASS",
+  "ui_browser_verified": true,
+  "live_preview": "NO_NEW_SESSION",
+  "live_http_requests": 9,
+  "live_all_http_200": true,
+  "live_preview_account_unchanged": true,
+  "experimental_account_created": true,
+  "actual_fill_recorded": false,
+  "main_account_modified": false,
+  "public_rankings_modified": false,
+  "git_index_changed_from_baseline": true,
+  "git_index_change_cause": "UNKNOWN; no stage/reset/commit performed",
+  "strict_decision_authorized": false,
+  "strict_readiness": "BLOCKED",
+  "automatic_O00_rebalancing": false,
+  "scheduler_installed": false,
+  "sell_decision_mode": "explicit manual command; fill on next eligible evidenced session",
+  "runtime": "D:\\RFA\\Company-Financial\\ranking_research\\output\\experimental_paper"
+}

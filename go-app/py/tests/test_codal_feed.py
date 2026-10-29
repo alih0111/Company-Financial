@@ -4,15 +4,19 @@ import pathlib
 import sys
 import unittest
 from datetime import datetime
+from unittest import mock
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[1]))
 
+import codal_feed
 from codal_feed import (
     FINANCIAL_LETTER_TYPE,
     MONTHLY_LETTER_TYPE,
     CodalReport,
+    FeedPage,
     build_report_url,
     classify_report,
+    discover_reports,
     filter_supported,
     parse_letter,
     parse_persian_datetime,
@@ -123,6 +127,104 @@ class RouteTests(unittest.TestCase):
         self.assertEqual(route_for_letter_type(FINANCIAL_LETTER_TYPE), "financial")
         self.assertEqual(route_for_letter_type(MONTHLY_LETTER_TYPE), "monthly")
         self.assertEqual(route_for_letter_type(999), "unknown")
+
+
+class LetterTypeFromItemTests(unittest.TestCase):
+    """نوع نامه باید از پارامتر ``let`` داخل Url استخراج شود (API فیلد
+    LetterType per-item نمی‌دهد)."""
+
+    def test_monthly(self):
+        letter = {"Url": "/Reports/Decision.aspx?LetterSerial=x&let=58&ct=0"}
+        self.assertEqual(parse_letter(letter).letter_type, MONTHLY_LETTER_TYPE)
+
+    def test_financial(self):
+        letter = {"Url": "/Reports/Decision.aspx?LetterSerial=x&rt=6&let=6"}
+        self.assertEqual(parse_letter(letter).letter_type, FINANCIAL_LETTER_TYPE)
+
+    def test_missing_or_unknown(self):
+        self.assertEqual(parse_letter({"Url": "/Reports/Attachment.aspx?LetterSerial=x"}).letter_type, -1)
+        self.assertEqual(parse_letter({}).letter_type, -1)
+
+
+class DiscoverFilterTests(unittest.TestCase):
+    """feed بدون فیلتر LetterType خوانده می‌شود؛ فیلتر سمت ما است."""
+
+    def _letter(self, tracing_no, let, symbol="فولاد"):
+        return {
+            "TracingNo": tracing_no,
+            "Symbol": symbol,
+            "CompanyName": "فولاد مبارکه",
+            "Title": "گزارش فعالیت ماهانه دوره ۱ ماهه",
+            "LetterCode": "ن-۳۰",
+            "PublishDateTime": "۱۴۰۵/۰۷/۰۲ ۱۶:۲۸:۴۴",
+            "Url": f"/Reports/Decision.aspx?LetterSerial=x{tracing_no}&let={let}",
+            "HasHtml": True,
+        }
+
+    def test_mixed_page_filtered_to_requested_type(self):
+        payload = {
+            "Total": 3,
+            "Page": 1,
+            "Letters": [
+                self._letter(1, 58),
+                self._letter(2, 6),
+                self._letter(3, 8),
+            ],
+        }
+        with mock.patch.object(codal_feed, "_fetch_json", return_value=payload):
+            page = discover_reports(MONTHLY_LETTER_TYPE, 1)
+
+        self.assertEqual([r.report_id for r in page.reports], ["1"])
+        self.assertEqual(len(page.all_reports), 3)
+        # تصمیم‌های صفحه‌ای روی کل صفحه گرفته می‌شود، نه فقط نوع ما
+        self.assertFalse(page.is_empty)
+        self.assertTrue(page.newest_published is not None)
+
+    def test_page_with_none_of_our_type_is_not_empty(self):
+        payload = {"Total": 1, "Page": 1, "Letters": [self._letter(1, 8)]}
+        with mock.patch.object(codal_feed, "_fetch_json", return_value=payload):
+            page = discover_reports(FINANCIAL_LETTER_TYPE, 1)
+
+        self.assertEqual(page.reports, [])
+        self.assertFalse(page.is_empty)
+
+    def test_query_uses_unfiltered_letter_type(self):
+        captured = {}
+
+        def fake_fetch(url, timeout, retries):
+            captured["url"] = url
+            return {"Total": 0, "Page": 1, "Letters": []}
+
+        with mock.patch.object(codal_feed, "_fetch_json", fake_fetch):
+            discover_reports(MONTHLY_LETTER_TYPE, 1)
+
+        self.assertIn("LetterType=-1", captured["url"])
+
+    def test_truly_empty_page(self):
+        payload = {"Total": 0, "Page": 1, "Letters": []}
+        with mock.patch.object(codal_feed, "_fetch_json", return_value=payload):
+            page = discover_reports(MONTHLY_LETTER_TYPE, 1)
+        self.assertTrue(page.is_empty)
+
+
+class FeedPageFallbackTests(unittest.TestCase):
+    """FeedPage بدون all_reports (مثل fakeهای تست) باید مثل قبل کار کند."""
+
+    def _report(self, published_at):
+        return CodalReport(
+            report_id="1", tracing_no=1, letter_type=MONTHLY_LETTER_TYPE,
+            ticker="X", company_name="Y", title="T", letter_code="",
+            published_at_raw="", published_at=published_at,
+            report_url="u", has_html=True,
+        )
+
+    def test_legacy_page_semantics(self):
+        dt = datetime(2026, 9, 24, 12, 0, 0)
+        page = FeedPage(letter_type=58, page_number=1, total=1,
+                        reports=[self._report(dt)])
+        self.assertFalse(page.is_empty)
+        self.assertEqual(page.newest_published, dt)
+        self.assertEqual(page.oldest_published, dt)
 
 
 if __name__ == "__main__":

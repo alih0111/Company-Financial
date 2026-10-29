@@ -528,3 +528,35 @@ financial_statement,MianSql,financial-auth-f8449f411289fa0775dc1618a83c922b-1405
 monthly_activity,MianSql2,monthly-auth-36f23676eaffd388df63219008589dec-1405/06/31,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-22T19:35:38.761090+03:30,2026-10-22T19:35:39.174630+03:30
 monthly_activity,MianSql2,monthly-auth-36f23676eaffd388df63219008589dec-1405/05/31,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-22T19:35:42.733734+03:30,2026-10-22T19:35:42.994551+03:30
 monthly_activity,MianSql2,monthly-auth-36f23676eaffd388df63219008589dec-1405/04/31,codal,not_attempted,success,1,3,1,0,,1,,0,0,2026-10-22T19:35:45.840593+03:30,2026-10-22T19:35:46.031459+03:30
+market_price,brs_prices,market-auth-1792880050,brs,not_attempted,success,258,258,0,0,258,,,0,0,2026-10-25T01:43:23.926369+03:30,2026-10-25T01:44:10.621320+03:30
+market_price,brs_prices,market-auth-1792957908,brs,not_attempted,success,265,265,0,0,265,,,0,0,2026-10-25T23:20:49.540955+03:30,2026-10-25T23:21:48.063448+03:30
+market_price,brs_prices,market-auth-1793221995,brs,not_attempted,failed,1,0,0,0,0,,,1,1,2026-10-29T00:43:15.415125+03:30,2026-10-29T00:43:15.415286+03:30
+market_price,brs_prices,market-auth-1793221995,brs,failed: RuntimeError,success,1,1,0,0,1,,,0,0,2026-10-29T00:43:15.444025+03:30,2026-10-29T00:43:15.444082+03:30
+market_price,brs_prices,market-auth-1793222176,brs,not_attempted,failed,1,0,0,0,0,,,1,1,2026-10-29T00:46:16.599960+03:30,2026-10-29T00:46:16.600211+03:30
+market_price,brs_prices,market-auth-1793222176,brs,failed: RuntimeError,success,1,1,0,0,1,,,0,0,2026-10-29T00:46:16.616491+03:30,2026-10-29T00:46:16.616713+03:30
+financial_statement,MianSql,financial-auth-5a47be702a11b42d75ea4fc8a0003e05-1405/06/31,codal,not_attempted,success,7,12,0,0,,7,,0,0,2026-10-29T00:50:25.188991+03:30,2026-10-29T00:50:26.191787+03:30
+financial_statement,MianSql,financial-auth-a274374c43fbb39b5ca1f9afddfea99a-1405/06/31,codal,not_attempted,success,13,18,0,0,,13,,0,0,2026-10-29T00:50:35.764922+03:30,2026-10-29T00:50:36.357450+03:30
+financial_statement,MianSql,financial-auth-f785e696c04d1a51b6e88f62deefacb3-1405/03/31,codal,not_attempted,success,13,4,12,0,,13,,0,0,2026-10-29T00:50:48.948182+03:30,2026-10-29T00:50:49.309518+03:30
+financial_statement,MianSql,financial-auth-8f0d3b9ed3bb17e93db23268de21bd69-1404/12/29,codal,not_attempted,success,13,13,4,0,,13,,0,0,2026-10-29T00:51:01.803095+03:30,2026-10-29T00:51:02.174824+03:30
+monthly_activity,MianSql2,monthly-auth-db1cb723021652b16b2b07e88b595bb0-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:06.483451+03:30,2026-10-29T00:51:07.130987+03:30
+monthly_activity,MianSql2,monthly-auth-29d7795e06a8fe30d0a386ed95c8f445-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:11.131212+03:30,2026-10-29T00:51:11.441791+03:30
+monthly_activity,MianSql2,monthly-auth-bb3afe19f992a47dab8ed0efba9f15db-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:15.223682+03:30,2026-10-29T00:51:15.702252+03:30
+monthly_activity,MianSql2,monthly-auth-2dc3ef3ab0a0505e8859b5400fc35e95-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:20.370940+03:30,2026-10-29T00:51:20.714444+03:30
+monthly_activity,MianSql2,monthly-auth-62a63aab5e5f97d82fe87b1c3a34f7f2-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:25.167671+03:30,2026-10-29T00:51:25.506437+03:30
+monthly_activity,MianSql2,monthly-auth-ff4c38ddc4d5a2b3d58437c8708fa6cb-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:28.857837+03:30,2026-10-29T00:51:29.171457+03:30
+monthly_activity,MianSql2,monthly-auth-3f3bb26af4a9adedd8678ad845720830-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:36.955603+03:30,2026-10-29T00:51:37.264672+03:30
+monthly_activity,MianSql2,monthly-auth-64e35e12a7959fcfbd10cb6036ed7693-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:40.496353+03:30,2026-10-29T00:51:40.818388+03:30
+monthly_activity,MianSql2,monthly-auth-77ec0ce2270f5a3e04f8fa6313cf5201-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:44.551902+03:30,2026-10-29T00:51:44.913667+03:30
+monthly_activity,MianSql2,monthly-auth-efbd08e291c09108c086ad170e7026ef-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:53.527901+03:30,2026-10-29T00:51:53.770052+03:30
+monthly_activity,MianSql2,monthly-auth-e6f5fb278dab95af4b0dede9cbdd4f34-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:51:58.216457+03:30,2026-10-29T00:51:58.600432+03:30
+monthly_activity,MianSql2,monthly-auth-d01ad6f1e6afd1225f55ef45468e0c84-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:52:02.506326+03:30,2026-10-29T00:52:02.825232+03:30
+monthly_activity,MianSql2,monthly-auth-8bfd141901eaba0211578f174767f175-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:52:07.013444+03:30,2026-10-29T00:52:07.262953+03:30
+monthly_activity,MianSql2,monthly-auth-8bbc5bbccde546656d599555b9be64d9-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:52:12.040191+03:30,2026-10-29T00:52:12.327866+03:30
+monthly_activity,MianSql2,monthly-auth-13a0bcb602f4d54dab681986defb249d-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:52:15.768813+03:30,2026-10-29T00:52:16.047429+03:30
+monthly_activity,MianSql2,monthly-auth-7386c9d3264a07cdaacbdba2e1941d42-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:52:19.753144+03:30,2026-10-29T00:52:20.083233+03:30
+monthly_activity,MianSql2,monthly-auth-257905140790bc29dc5bf9fb900ab7ff-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:52:29.883594+03:30,2026-10-29T00:52:30.308221+03:30
+monthly_activity,MianSql2,monthly-auth-219f43aab6fb90530570bd54a78db3f4-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:52:38.546524+03:30,2026-10-29T00:52:38.822167+03:30
+monthly_activity,MianSql2,monthly-auth-2fe468d2d5a13b43ee3bc672d1fc2c6c-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:52:55.785348+03:30,2026-10-29T00:52:57.032042+03:30
+monthly_activity,MianSql2,monthly-auth-0e3a6731bfe6da581d9c4190b9b9707b-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:53:01.433453+03:30,2026-10-29T00:53:01.786439+03:30
+monthly_activity,MianSql2,monthly-auth-d94c1c91ade00de4b90a351ebd762517-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:53:06.200085+03:30,2026-10-29T00:53:06.576360+03:30
+monthly_activity,MianSql2,monthly-auth-b3cd7f653dc0d5fd0e3a6dca3ddedf1b-1405/07/30,codal,not_attempted,success,1,4,0,0,,1,,0,0,2026-10-29T00:53:13.430121+03:30,2026-10-29T00:53:13.723662+03:30

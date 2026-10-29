@@ -3617,3 +3617,112 @@ official-status paragraph added). Unchanged, re-verified: defs `5a3b454d…3bc4`
 
 Standing Message A wait-state unchanged; production Signal Engine not started; SQL Server
 disabled.
+
+## 88. Auto Codal quick-collect loop (background worker)
+
+Request: «جمع‌آوری سریع» should run **by itself on a loop** — go to Codal,
+check the report feeds, and bring any **new** reports for the symbols we track,
+without the admin clicking the button.
+
+What existed already: `py/sync_codal.py` (feed discovery for LetterType 6
+financial + 58 monthly, incremental watermark + TracingNo dedup in Postgres,
+canonical-only identity resolution, Playwright value extraction) and the manual
+admin endpoint `POST /api/sync-codal` (QuickSyncModal). The only missing piece
+was the loop.
+
+New: `go-app/handlers/codal_auto_sync.go`
+- `StartCodalAutoSync()` (called from `main.go`): background goroutine, first
+  pass **2 minutes** after boot, then every
+  `CODAL_AUTO_SYNC_INTERVAL_MINUTES` (default **30**, floor 5) it runs
+  `py/sync_codal.py --type all` with the project venv python, cwd=go-app,
+  15-minute timeout.
+- Single-flight lock **shared with the manual endpoint**: `codalSyncBusy`
+  atomic; `POST /api/sync-codal` now returns **409** with a Persian message if
+  a collection is already running (auto or manual). A cross-process
+  `.runtime/codal-auto-sync.lock` (stale after 20 min) mirrors the QVT paper
+  observer pattern.
+- State in `.runtime/codal-auto-sync.json` (atomic tmp+rename): `status`
+  (`completed` / `completed_with_errors` / `failed` / `timeout`),
+  `last_attempt_at`, `finished_at`, `last_success_at`, `next_run_at`,
+  `last_summary` (scanned/already/new/completed/failed/quarantined/errors) and
+  the raw `error` string. Combined python output goes to
+  `.runtime/codal-auto-sync.log`.
+- New admin endpoint `GET /api/sync-codal/status` (protected, admin-only)
+  merges the persisted state with live `running`/`enabled`/interval.
+- Config in `go-app/.env`: `CODAL_AUTO_SYNC_ENABLED=1` (`0` disables),
+  `CODAL_AUTO_SYNC_INTERVAL_MINUTES=30`.
+
+Incidental fix (pre-existing): `handlers/auth.go` `init()` `log.Fatal`ed when
+`.env` was missing, so **any** `go test ./handlers/` died at package load and
+no test in that package could ever run. Now skipped under `testing.Testing()`;
+production startup behavior unchanged.
+
+Verification (live, 2026-10-28 ~23:54): server restart → startup line
+`🔁 codal auto sync enabled: every 30m0s (first pass in 2m)` → tick fired
+exactly +2m → ran the real script → Codal currently has a **server-side
+outage: every search query with a `LetterType` filter times out** (verified by
+curl bisect: no-filter query 200 in 0.2 s; `LetterType=6/58/2` all hang; both
+manual dry-runs and the auto tick hit the same wall). The tick recorded
+`failed` + the error string, `running:false`, watermark untouched (nothing is
+lost; the next pass rescans the same window). Go: `go build`, `go vet`,
+`go test ./handlers/ ./integration/` all pass. Backend restarted on :5000
+(00:02:35, `go-app.exe` now matches source), health 200, status route 401
+without token as expected.
+
+Note: while Codal's filtered-search outage persists, both the auto loop and the
+manual button will report failure with the same error — retry is automatic
+every 30 min. No client-side changes were needed (the modal already shows the
+error/summary shape).
+
+## 89. Codal LetterType outage — unfiltered-feed workaround (button + auto loop fixed)
+
+Symptom (2026-10-28 ~23:30 →): «جمع‌آوری سریع» (manual and auto) failed with
+`Codal feed request failed: The read operation timed out`. Diagnosis chain:
+the codal.ir main site and ReportList.aspx respond fine (the user pointed this
+out); a real browser loads the report list in ~0.5 s. Server-log + curl bisect
+found the precise break: **any `search.codal.ir/api/search/v2/q` query with a
+positive numeric `LetterType` (6/58/2/…) returns HTTP 500 after ~60 s, while
+`LetterType=-1` (the browser default "all letters" query) responds in
+0.2–3.9 s.** Per-symbol search with `LetterType=-1` also works. The API
+response no longer carries a per-item `LetterType` field; the type lives in the
+`let=` query param of each item's `Url`.
+
+Fix (canonical path of the live sync):
+- `go-app/py/codal_feed.py`: `_build_query` now sends `LetterType=-1` for the
+  supported types (6/58) and `discover_reports` filters client-side; each
+  item's real type is derived from its `Url`'s `let=` param
+  (`_letter_type_from_item`, unknown = −1). `FeedPage` gained `all_reports`
+  (the full mixed page) + `is_empty` / `oldest_published` / `newest_published`
+  page-level properties, so watermark scanning, empty-feed detection and
+  last-page detection are computed over the whole page — a page containing no
+  letter of the requested type is no longer mistaken for an empty feed
+  (which could otherwise have advanced the watermark past unscanned reports).
+- `go-app/py/sync_codal.py`: all three loops (canonical feed, legacy
+  `sync_feed`, per-symbol scan) use the page-level properties; the now-unused
+  `_oldest_published/_newest_published` helpers were removed.
+- Tests: `py/tests/test_codal_feed.py` extended (letter-type derivation, mixed
+  page filtering, `LetterType=-1` query assertion, empty-page vs no-matching-
+  type distinction, legacy FeedPage fallback). Full suite: 90 passed /
+  3 failed — the 3 `test_broker_e2e_mock` failures are unrelated to this change
+  (broker session mocks, no codal_feed import).
+
+Verification (live): dry-run `--max-pages 1` succeeded in seconds (15 new);
+a real `--type all` run scanned 73 letters back to the watermark →
+**31 ingested (4 financial + 27 monthly), 26 value-extractions completed,
+5 unsupported formats, 0 failed, 42 quarantined** (identity-unresolved =
+outside our symbol universe, as designed); watermark advanced. The Go auto
+loop tick that overlapped this CLI run safely double-checked: the 31 written
+letters counted as `already` (TracingNo dedup), quarantines reproduced
+identically, `status=completed`, next run 30 min later. Backend restarted on
+:5000 (00:47).
+
+Incident note (repo recovery): a `git stash` used for a test baseline failed
+halfway because the running `go-app.exe` was locked (Windows unlink error),
+leaving the worktree partially reverted. Recovered by stopping the server,
+`git reset --hard HEAD`, then `git stash apply --index` of the intact stash;
+all session changes verified restored (grep markers + go/py builds + tests)
+before dropping the stash. Lesson: never stash while `go-app.exe` is running.
+
+When Codal repairs its filtered search, no change is needed — the unfiltered
+feed + client-side filter is strictly more robust (independent of that
+endpoint's filter path).

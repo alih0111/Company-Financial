@@ -937,6 +937,18 @@ const Landing: React.FC<LandingProps> = ({ darkMode, toggleDarkMode }) => {
               داشبورد
             </Link>
             <Link
+              to="/market"
+              className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+            >
+              بازار و طلا
+            </Link>
+            <Link
+              to="/compare"
+              className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
+            >
+              مقایسه و نسبت
+            </Link>
+            <Link
               to="/Table"
               className="text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition"
             >

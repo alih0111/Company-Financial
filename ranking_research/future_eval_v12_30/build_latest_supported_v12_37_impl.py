@@ -15,7 +15,7 @@ from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = Path(os.environ.get("V1237_OUTPUT_DIR", str(ROOT / "ranking_research/output/return_v12_37/v12_37_20261022_existing_archive_extraction_fix_01")))
-PUBLIC = ROOT / "client/public/research/v12-37"
+PUBLIC = Path(os.environ.get("V1237_PUBLIC_DIR", str(ROOT / "client/public/research/v12-37")))
 BASE = ROOT / "ranking_research/future_eval_v12_30/rebuild_latest_supported_v12_37.py"
 V36 = ROOT / "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01"
 V36_PANEL = V36 / "normalized_raw_factor_panel.parquet"
@@ -26,13 +26,29 @@ def sha(path: Path) -> str:
 
 
 def main():
+    # Legacy paper_cycle callers keep their historical default public target.
+    # Explicit isolated callers provide all three paths and are protected from
+    # overwriting any nonempty destination.
+    isolated = any(os.environ.get(k) for k in ("V1237_OUTPUT_DIR", "V1237_PUBLIC_DIR", "V1237_MARKET_PACK"))
+    if isolated and not all(os.environ.get(k) for k in ("V1237_OUTPUT_DIR", "V1237_PUBLIC_DIR", "V1237_MARKET_PACK")):
+        raise RuntimeError("ISOLATED_OUTPUT_REQUIRES_OUTPUT_PUBLIC_AND_MARKET_DIRS")
+    if OUT.exists() and any(OUT.iterdir()):
+        raise RuntimeError(f"OUTPUT_DIR_NOT_EMPTY: {OUT}")
+    if os.environ.get("V1237_ISOLATED_OUTPUT") == "1" and PUBLIC.exists() and any(PUBLIC.iterdir()):
+        raise RuntimeError(f"PUBLIC_DIR_NOT_EMPTY: {PUBLIC}")
+    # Resolve one v12.37 dataset context before extraction. The v12.35 helper
+    # keeps its standalone historical default; this wrapper owns v12.37's.
+    ranking_date = os.environ.get("V1237_RANKING_DATE", "2026-10-21")
+    dataset_id = os.environ.get("V1237_DATASET_ID", f"v12_37_balance_marker_safe_{ranking_date.replace('-', '')}")
+    os.environ["V1237_RANKING_DATE"] = ranking_date
+    os.environ["V1237_DATASET_ID"] = dataset_id
     spec = importlib.util.spec_from_file_location("v1235_source_build", ROOT / "ranking_research/future_eval_v12_30/build_latest_supported_v12_35.py")
     b = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = b
     spec.loader.exec_module(b)
     # Preserve the registered archive unchanged. For an explicit fresh market
     # package, derive current shares only from its official source responses.
-    if not os.environ.get("V1237_MARKET_PACK"):
+    if os.environ.get("V1237_OFFLINE_REUSE") == "1" or not os.environ.get("V1237_MARKET_PACK"):
         b.update_current_shares = lambda: None
     b.BASE = BASE
     b.OUT = OUT
@@ -55,7 +71,7 @@ def main():
     rank_script = ROOT / "ranking_research/future_eval_v12_30/build_latest_ranking.py"
     subprocess.run([sys.executable, str(rank_script), "--panel", str(OUT / "normalized_raw_factor_panel.parquet"),
         "--output-dir", str(OUT / "ranking"), "--public-dir", str(PUBLIC),
-        "--dataset-id", f"v12_37_balance_marker_safe_{os.environ.get('V1237_RANKING_DATE', '2026-10-21').replace('-', '')}"], check=True, cwd=ROOT)
+        "--dataset-id", dataset_id], check=True, cwd=ROOT)
 
     # Preserve the exact source lineage for the newly restored financial factors.
     panel = pd.read_parquet(OUT / "normalized_raw_factor_panel.parquet")

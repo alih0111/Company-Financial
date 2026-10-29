@@ -6,6 +6,7 @@ import os
 import threading
 import math
 import copy
+import hashlib
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from contextlib import contextmanager
 from pathlib import Path
@@ -163,7 +164,10 @@ def _platform_account_lock(account_path: Path):
         kernel.WaitForSingleObject.restype = ctypes.c_uint32
         kernel.ReleaseMutex.argtypes = [ctypes.c_void_p]
         kernel.CloseHandle.argtypes = [ctypes.c_void_p]
-        handle = kernel.CreateMutexW(None, False, "Local\\CompanyFinancialPaperAccount")
+        # Separate accounts/controller locks must not block one another. Every
+        # process writing the same resolved path still uses exactly one mutex.
+        lock_key = hashlib.sha256(str(account_path.resolve()).casefold().encode("utf-8")).hexdigest()
+        handle = kernel.CreateMutexW(None, False, "Local\\CompanyFinancialPaperAccount-" + lock_key)
         if not handle:
             raise OSError(ctypes.get_last_error(), "CreateMutexW failed")
         try:

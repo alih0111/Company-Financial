@@ -51,6 +51,31 @@ def latest_complete_market_manifest() -> Path | None:
     return None
 
 
+def select_ranking_context(market: dict) -> dict:
+    """Choose one consistent v12.37 context for every downstream stage."""
+    latest_dates = market.get("latest_quote_dates", {})
+    market_date = next((date for date, count in latest_dates.items() if int(count) == 254), None)
+    complete = bool(market_date and int(market.get("completed_count", 0)) == 254
+                    and int(market.get("failed_count", 1)) == 0)
+    evaluation_date = market_date if complete else "2026-10-21"
+    return {"market_complete": complete, "market_date": market_date,
+            "evaluation_date": evaluation_date,
+            "dataset_id": f"v12_37_balance_marker_safe_{evaluation_date.replace('-', '')}"}
+
+
+def ranking_context_env(context: dict, market_pack: str, output_dir: str,
+                        public_dir: str, extra: dict | None = None) -> dict:
+    """Materialize identical context metadata for main and shadow builds."""
+    env = {"V1237_MARKET_PACK": market_pack,
+           "V1237_RANKING_DATE": context["evaluation_date"],
+           "V1237_DATASET_ID": context["dataset_id"],
+           "V1237_OUTPUT_DIR": output_dir,
+           "V1237_PUBLIC_DIR": public_dir}
+    if extra:
+        env.update(extra)
+    return env
+
+
 def sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -261,7 +286,7 @@ def run_stage(name: str, command: list[str], timeout: int, env: dict | None = No
         return {"stage": name, "status": "process_exited_zero" if result.returncode == 0 else "process_failed",
                 "started_at_utc": started, "finished_at_utc": dt.datetime.now(TZ).isoformat(),
                 "exit_code": result.returncode,
-                "summary": result.stdout[-3000:] if result.returncode == 0 else None,
+                "summary": result.stdout[-20000:] if result.returncode == 0 else None,
                 "error": result.stderr[-1000:] if result.returncode != 0 else None}
     except subprocess.TimeoutExpired as exc:
         return {"stage": name, "status": "timed_out", "started_at_utc": started,
@@ -537,6 +562,7 @@ def main() -> int:
     parser.add_argument("--order-review-only", action="store_true",
                         help="Run only the isolated order wrapper; skips ranking, market, Codal, O00 and scheduler stages.")
     parser.add_argument("--account", type=Path, default=ACCOUNT)
+    parser.add_argument("--ranking", type=Path, default=None)
     parser.add_argument("--rules", type=Path, default=RULES)
     parser.add_argument("--output-dir", type=Path, default=OUT)
     parser.add_argument("--public-output-dir", type=Path, default=PUBLIC)
@@ -576,9 +602,11 @@ def main() -> int:
             wrapper = ROOT / "ranking_research/future_eval_v12_30/check_paper_order.ps1"
             command = ["powershell.exe", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass",
                 "-File", str(wrapper), "-SkipTokenPrompt", "-CalendarProvider", args.calendar_provider,
-                "-AccountPath", str(ACCOUNT), "-RulesPath", str(args.rules.resolve()),
-                "-EvidenceManifest", str(args.evidence_manifest.resolve()), "-OutputDir", str(OUT),
-                "-PublicOutputDir", str(PUBLIC)]
+                "-AccountPath", str(args.account.resolve()), "-RulesPath", str(args.rules.resolve()),
+                "-EvidenceManifest", str(args.evidence_manifest.resolve()), "-OutputDir", str(args.output_dir.resolve()),
+                "-PublicOutputDir", str(args.public_output_dir.resolve())]
+            if args.ranking:
+                command += ["-RankingPath", str(args.ranking.resolve())]
             if args.reference_now_utc:
                 command += ["-ReferenceNowUtc", args.reference_now_utc, "-Fixture"]
             if args.calendar_manifest:
@@ -587,12 +615,24 @@ def main() -> int:
             if args.apply_fill:
                 command.append("-ApplyFill")
             stage = run_stage("order_review_wrapper", command, 300)
+            wrapper_result = {}
+            try:
+                wrapper_result = json.loads(stage.get("summary") or "{}")
+            except (TypeError, json.JSONDecodeError):
+                wrapper_result = {"status": "WRAPPER_OUTPUT_UNPARSEABLE"}
+            stage["process_status"] = stage.get("status")
+            stage["status"] = wrapper_result.get("status", "WRAPPER_PROCESS_FAILED" if stage.get("exit_code") else "WRAPPER_OUTCOME_MISSING")
+            stage["child_exit_code"] = wrapper_result.get("child_exit_code")
+            stage["validation_outcome"] = wrapper_result.get("validation_outcome")
             result = {"schema_version": 1, "run_id": run_id, "branch": "order_review_only",
                 "calendar_provider": args.calendar_provider, "apply_requested": args.apply_fill,
-                "account": str(ACCOUNT), "rules": str(args.rules.resolve()),
+                "account": str(args.account.resolve()), "rules": str(args.rules.resolve()),
                 "evidence_manifest": str(args.evidence_manifest.resolve()),
                 "calendar_manifest": str(args.calendar_manifest.resolve()) if args.calendar_manifest else None,
                 "calendar_manifest_sha256": args.calendar_manifest_sha256,
+                "product_outcome": stage.get("status"),
+                "child_exit_code": stage.get("child_exit_code"),
+                "validation_outcome": stage.get("validation_outcome"),
                 "wrapper_stage": stage, "live_account_activated": False, "scheduler_touched": False}
             atomic_json(OUT / f"{run_id}.order-review.json", result)
             print(json.dumps(result, ensure_ascii=False))
@@ -729,23 +769,28 @@ def main() -> int:
         stages.append(calendar_fetch_stage)
 
         market = json.loads(market_manifest_path.read_text(encoding="utf-8")) if market_manifest_path.exists() else {}
-        latest_dates = market.get("latest_quote_dates", {})
-        market_rank_date = next((date for date, count in latest_dates.items() if int(count) == 254), None)
+        context = select_ranking_context(market)
+        market_rank_date = context["market_date"]
+        full_market = context["market_complete"]
+        # One immutable selection context feeds extraction, ranking and validation.
+        selected_rank_date = context["evaluation_date"]
+        selected_dataset_id = context["dataset_id"]
         ranking_out = Path("ranking_research/output/return_v12_37") / f"v12_37_daily_{run_id}"
         rank_env = {}
-        if market_rank_date and int(market.get("completed_count", 0)) == 254 and int(market.get("failed_count", 1)) == 0:
-            rank_env = {"V1237_MARKET_PACK": str((ROOT / market_dir).resolve()),
-                        "V1237_RANKING_DATE": market_rank_date,
-                        "V1237_OUTPUT_DIR": str((ROOT / ranking_out).resolve())}
+        if full_market:
+            rank_env = ranking_context_env(context, str((ROOT / market_dir).resolve()),
+                str((ROOT / ranking_out).resolve()), str((ROOT / "client/public/research/v12-37").resolve()))
         else:
-            ranking_out = Path("ranking_research/output/return_v12_37/v12_37_20261022_existing_archive_extraction_fix_01")
+            # Archive-only rebuilds still use a fresh output destination and the
+            # complete builder contract; the historical public target remains
+            # explicit for the operational caller.
+            ranking_out = Path("ranking_research/output/return_v12_37") / f"v12_37_archive_reuse_{run_id}"
+            rank_env = ranking_context_env(context,
+                str((ROOT / "ranking_research/output/return_v12_35/official_tsetmc_20261022").resolve()),
+                str((ROOT / ranking_out).resolve()), str((ROOT / "client/public/research/v12-37").resolve()),
+                {"V1237_OFFLINE_REUSE": "1"})
         factor_input_dir = (codal_manifest_path.parent / "factor-inputs") if codal_manifest_path.exists() else (OUT / "factor-inputs" / run_id)
-        factor_eval_date = market_rank_date
-        if not factor_eval_date:
-            try:
-                factor_eval_date = json.loads((ROOT / "client/public/research/v12-37/latest-ranking.json").read_text(encoding="utf-8")).get("evaluation_date")
-            except Exception:
-                factor_eval_date = None
+        factor_eval_date = selected_rank_date
         sales_timing_calendar_manifest_path = calendar_manifest_path
         if calendar_stage_info["provider"] == "public":
             sales_status = ("public_calendar_validated_sales_capability_not_granted"
@@ -779,6 +824,7 @@ def main() -> int:
                     "financial_held": admission.get("financial", {}).get("held", 0), "sales_held": admission.get("sales", {}).get("held", 0)}, ensure_ascii=False)
                 if rank_env.get("V1237_MARKET_PACK"):
                     rank_env.update({"V1237_REPORTS_PATH": str(factor_input_dir / "input_reports.json"),
+                        "V1237_COMPARATIVES_PATH": str(factor_input_dir / "comparative_lineage.json"),
                         "V1237_OWNER_LINEAGE_PATH": str(factor_input_dir / "current_live_lineage.json"),
                         "V1237_EVENTS_PATH": str(factor_input_dir / "monthly_sales_events.parquet"),
                         "V1237_FRESH_FINANCIAL_IDS_PATH": str(factor_input_dir / "fresh-financial-ids.json")})
@@ -795,9 +841,9 @@ def main() -> int:
         admitted_total = financial_admitted + sales_admitted
         if admitted_total > 0 and rank_env.get("V1237_MARKET_PACK"):
             shadow_out = ROOT / "ranking_research/output/return_v12_37" / f"v12_37_market_only_shadow_{run_id}"
-            shadow_env = {"V1237_MARKET_PACK": rank_env["V1237_MARKET_PACK"],
-                "V1237_RANKING_DATE": rank_env["V1237_RANKING_DATE"],
-                "V1237_OUTPUT_DIR": str(shadow_out.resolve())}
+            shadow_env = ranking_context_env(context, rank_env["V1237_MARKET_PACK"],
+                str(shadow_out.resolve()), str((shadow_out / "public-isolated").resolve()),
+                {"V1237_ISOLATED_OUTPUT": "1"})
             shadow_stage = run_stage("ranking_market_only_shadow", [str(PYTHON),
                 str(ROOT / "ranking_research/future_eval_v12_30/build_latest_supported_v12_37.py")], 3600, shadow_env)
             shadow_stage["status"] = "complete" if shadow_stage.get("exit_code") == 0 else "failed"
@@ -806,7 +852,7 @@ def main() -> int:
         ranking_stage = run_stage("ranking_p1_p3", [str(PYTHON),
             str(ROOT / "ranking_research/future_eval_v12_30/build_latest_supported_v12_37.py")], 3600, rank_env)
         if ranking_stage["status"] == "process_exited_zero":
-            ranking_stage["status"] = "rebuilt_with_fresh_market_and_archived_fundamentals" if rank_env else "rebuilt_from_archives_only"
+            ranking_stage["status"] = "rebuilt_with_fresh_market_and_archived_fundamentals" if context["market_complete"] else "rebuilt_from_archives_only"
         stages.append(ranking_stage)
         ranking_path = ROOT / "client/public/research/v12-37/latest-ranking.json"
         impact_path = ranking_comparison(
@@ -823,10 +869,10 @@ def main() -> int:
                 str(ROOT / "ranking_research/future_eval_v12_30/validate_latest_ranking.py"),
                 "--artifact-dir", str(ROOT / ranking_out / "ranking"),
                 "--panel", str(ROOT / ranking_out / "normalized_raw_factor_panel.parquet"),
-                "--dataset-id", f"v12_37_balance_marker_safe_{market_rank_date.replace('-', '')}" if rank_env.get("V1237_MARKET_PACK") else "v12_37_balance_marker_safe_20261021"], 600)
+                "--dataset-id", selected_dataset_id], 600)
             if validation.get("exit_code") == 0:
                 validation["status"] = "validated"
-                ranking_stage["status"] = "validated_with_fresh_market_and_archived_fundamentals" if rank_env else "validated_from_archives_only"
+                ranking_stage["status"] = "validated_with_fresh_market_and_archived_fundamentals" if context["market_complete"] else "validated_from_archives_only"
             stages.append(validation)
         else:
             stages.append({"stage": "ranking_contract_validation", "status": "not_run_dependency_failed", "exit_code": None})
@@ -1064,7 +1110,7 @@ def main() -> int:
                 "sales": {"state": sales_source.get("state", "not_run"), **discovery_audit(sales_source), "archive_reuse": sales_source.get("archive_reuse", {}), "last_successful_retrieval_utc": sales_source.get("last_successful_retrieval_utc"), "latest_accepted_candidate_receipt_utc": accepted_receipt_time("sales"), "latest_body_received_at_utc": latest_body_receipt_time(sales_source), "latest_data_date": sales_source.get("latest_published_at"), "companies_checked": sales_source.get("companies_checked", 0), "companies_new_reports": sales_source.get("companies_new_reports", 0), "companies_no_new_reports": sales_source.get("companies_no_new_reports", 0), "companies_failed": sales_source.get("companies_failed", 0), "companies_unchecked": sales_source.get("companies_unchecked", 254), "companies_previously_checked": sales_source.get("companies_previously_checked", 0), "coverage_universe": 254, "new_reports": sales_source.get("new_reports", 0), "report_bodies_received": sales_source.get("report_bodies_received", 0), "documents_extracted": len(prepared.get("sales", [])), "extraction_errors": sum(e.get("feed") == "sales" for e in prepared.get("errors", [])), "report_body_errors": len(sales_source.get("report_body_errors", [])), "retry_after": sales_source.get("rate_limit"), "next_attempt_at_utc": sales_source.get("next_attempt_at_utc"), "error": sales_source.get("error"), "document_admission_count": sales_admitted, "raw_manifest": str(codal_manifest_path.relative_to(ROOT)).replace("\\", "/") if codal_manifest_path.exists() else None, "ranking_admission": f"{sales_admitted} factors admitted only with authenticated next-session evidence; held reports remain traceable in admission manifest"},
                 "corporate_actions": {"state": "candidate_share_change_evidence_refreshed"},
             },
-            "ranking_input_admission": {"fresh_market_prices": bool(rank_env), "fresh_financial_reports": bool(financial_admitted), "fresh_monthly_sales": bool(sales_admitted),
+            "ranking_input_admission": {"fresh_market_prices": bool(context["market_complete"]), "fresh_financial_reports": bool(financial_admitted), "fresh_monthly_sales": bool(sales_admitted),
                 "ranking_artifact_dir": str(ranking_out).replace("\\", "/"),
                 "prepared_financial_candidates": len(prepared.get("financial", [])), "prepared_sales_candidates": len(prepared.get("sales", [])),
                 "sales_timing_calendar": {"state": sales_calendar_stage["status"], "manifest": sales_calendar_stage["manifest"],

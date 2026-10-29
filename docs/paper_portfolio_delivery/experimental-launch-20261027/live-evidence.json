@@ -1,0 +1,97 @@
+{
+  "account_id": "experimental-p1-30cae7652e40",
+  "decision_at_utc": "2026-10-27T17:25:16.553136+00:00",
+  "candidate": "غاذر",
+  "cash_toman": 100000000,
+  "holdings": 0,
+  "strict_decision_authorized": false,
+  "live_outcome": {
+    "status": "NO_NEW_SESSION",
+    "first_session": null,
+    "session_count": 0,
+    "fill_applied": false,
+    "cash_toman": 100000000,
+    "calendar_label_fa": "سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم",
+    "reason": "acquisition succeeded; no new session is accepted for execution under this calendar policy yet"
+  },
+  "preview_account_bytes_unchanged": true,
+  "candidate_requests": [
+    {
+      "key": "last_possible_session",
+      "http_status": 200,
+      "request_attempts": 1,
+      "retrieved_at_utc": "2026-10-27T17:25:39.603143+00:00"
+    },
+    {
+      "key": "candidate_daily",
+      "http_status": 200,
+      "request_attempts": 1,
+      "retrieved_at_utc": "2026-10-27T17:25:42.348025+00:00"
+    },
+    {
+      "key": "candidate_calendar",
+      "http_status": 200,
+      "request_attempts": 1,
+      "retrieved_at_utc": "2026-10-27T17:25:43.970002+00:00"
+    },
+    {
+      "key": "candidate_share_changes",
+      "http_status": 200,
+      "request_attempts": 1,
+      "retrieved_at_utc": "2026-10-27T17:25:45.254044+00:00"
+    }
+  ],
+  "calendar_manifest": "D:\\RFA\\Company-Financial\\ranking_research\\output\\experimental_paper\\runs\\20261027T172538895049Z-18e70a\\calendar\\manifest.20261027T172546414657Z.json",
+  "calendar_requests": [
+    {
+      "key": "identity",
+      "http_status": 200,
+      "request_attempts": 1,
+      "retrieved_at_utc": "2026-10-27T17:25:46.711748+00:00"
+    },
+    {
+      "key": "primary_history",
+      "http_status": 200,
+      "request_attempts": 1,
+      "retrieved_at_utc": "2026-10-27T17:25:48.539141+00:00"
+    },
+    {
+      "key": "secondary_history",
+      "http_status": 200,
+      "request_attempts": 1,
+      "retrieved_at_utc": "2026-10-27T17:25:50.096480+00:00"
+    },
+    {
+      "key": "last_possible",
+      "http_status": 200,
+      "request_attempts": 1,
+      "retrieved_at_utc": "2026-10-27T17:25:51.418587+00:00"
+    },
+    {
+      "key": "candidate_instrument",
+      "http_status": 200,
+      "request_attempts": 1,
+      "retrieved_at_utc": "2026-10-27T17:25:52.720709+00:00"
+    }
+  ],
+  "initialization_run": "D:\\RFA\\Company-Financial\\ranking_research\\output\\experimental_paper\\runs\\20261027T172515885896Z-9907c3",
+  "live_run": "D:\\RFA\\Company-Financial\\ranking_research\\output\\experimental_paper\\runs\\20261027T172538895049Z-18e70a",
+  "calendar_quality": "CORROBORATED_PUBLIC",
+  "calendar_completion": {
+    "state": "COMPLETION_UNVERIFIED",
+    "watermark_observation": "AGREES",
+    "components": [
+      "20261027",
+      "20261027"
+    ],
+    "sample": "20261027;20261027",
+    "assumed_completion": {
+      "value": "20261027",
+      "policy_version": "public-calendar-policy@1.1",
+      "basis_observation": "components_agree",
+      "assumption": "agreement of the two undocumented LastPossibleDeven components marks the latest completed session; this is an operational assumption, not an official confirmation",
+      "sample": "20261027;20261027"
+    },
+    "note": "no public referable evidence defines the LastPossibleDeven components' meaning; agreement is only an observation, so official completion stays unverified in this version"
+  }
+}

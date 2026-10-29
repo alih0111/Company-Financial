@@ -21,6 +21,7 @@ def main()->int:
     p.add_argument('--output-rules',type=Path,required=True)
     p.add_argument('--account-id',required=True)
     p.add_argument('--fixture',action='store_true',help='Marks a synthetic draft; cannot be used as an operational account.')
+    p.add_argument('--method', choices=('P1','P3'), default='P1')
     a=p.parse_args()
     dest=a.output_account.resolve(); rules_out=a.output_rules.resolve()
     if dest.exists() or rules_out.exists(): raise SystemExit('DRAFT_DESTINATION_EXISTS; refusing overwrite')
@@ -29,11 +30,11 @@ def main()->int:
     rules=json.loads(a.rules.read_text(encoding='utf-8'))
     policy=json.loads(a.policy.read_text(encoding='utf-8'))
     digest=ranking.get('artifact_sha256')
-    candidate_rows=[r for r in ranking.get('rows',[]) if r.get('methods',{}).get('P1',{}).get('rank')==1]
+    candidate_rows=[r for r in ranking.get('rows',[]) if r.get('methods',{}).get(a.method,{}).get('rank')==1]
     if not isinstance(digest,str) or len(digest)!=64 or len(candidate_rows)!=1:
         raise SystemExit('RANKING_SNAPSHOT_NOT_PINNABLE; expected artifact SHA and unique P1 rank 1')
     row=candidate_rows[0]; candidate={'company_id':row['company_id'],'symbol':row['symbol'],'rank':1,
-        'score':row['methods']['P1'].get('score'),'coverage':row['methods']['P1'].get('financial_factor_coverage')}
+        'score':row['methods'][a.method].get('score'),'coverage':row['methods'][a.method].get('financial_factor_coverage')}
     binding={'id':policy['policy_id'],'sha256':sha(a.policy),'provider':policy['provider'],'version':policy['version']}
     rules=copy.deepcopy(rules); rules['calendar_policy']=binding
     rules_out.parent.mkdir(parents=True,exist_ok=True)
@@ -51,6 +52,10 @@ def main()->int:
         'order_created':False,'execution_recorded':False,'real_order_submitted':False,
         'status':'INACTIVE_PUBLIC_PAPER_DRAFT','candidate_status':'پیش‌نویس غیرفعال؛ هنوز تصمیم یا سفارش ندارد',
         'official_future_evaluation_ledger_linked':False,'official_ledger_event_count_changed':False})
+    account['paper_method'] = a.method
+    account['contract']['model'] = a.method
+    account['contract']['weight_id'] = 'valuation_0' if a.method == 'P1' else 'w0'
+    account['contract']['selection_rule'] = f'{a.method} رتبهٔ اول؛ تک‌سهمی؛ بازبینی هر ۶۳ جلسه طبق قرارداد اصلی.'
     account['assumptions_version']=rules['rule_id']
     account['event_log']=[{'event_id':'public-draft-created-'+hashlib.sha256(a.account_id.encode()).hexdigest()[:16],
         'type':'PUBLIC_PAPER_DRAFT_CREATED','at_utc':instant.isoformat(),'reason':'ایجاد حساب جدا و غیرفعال؛ بدون مهاجرت یا تصمیم خرید.',

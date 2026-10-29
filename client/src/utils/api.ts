@@ -669,6 +669,7 @@ export type SyncCodalMode = "all" | "financial" | "monthly";
 export interface SyncCodalFeedSummary {
   letter_type: number;
   pages: number;
+  stop_reason?: string | null;
   scanned: number;
   skipped_unknown_ticker: number;
   skipped_unsupported_type: number;

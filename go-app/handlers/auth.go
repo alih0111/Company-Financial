@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"os"
+	"testing"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -25,7 +26,9 @@ var (
 
 func init() {
 	err := godotenv.Load()
-	if err != nil {
+	if err != nil && !testing.Testing() {
+		// در تست‌ها cwd پوشه‌ی پکیج است و .env آنجا نیست؛ بدون این fatal،
+		// هیچ تستی از این پکیج اصلاً اجرا نمی‌شد.
 		log.Fatal("Error loading .env file")
 	}
 
@@ -33,7 +36,7 @@ func init() {
 	smtpPassword = os.Getenv("SMTP_PASSWORD")
 	jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
-	if smtpEmail == "" || smtpPassword == "" {
+	if (smtpEmail == "" || smtpPassword == "") && !testing.Testing() {
 		log.Fatal("SMTP_EMAIL or SMTP_PASSWORD is not set in .env")
 	}
 }

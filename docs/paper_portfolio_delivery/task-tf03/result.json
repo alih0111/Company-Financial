@@ -16,8 +16,8 @@
   "fresh_live_requests_in_continuation": 0,
   "offline_lifecycle_evidence": {
     "harness": "docs/paper_portfolio_delivery/task-tf03/run_offline_lifecycle.py",
-    "evidence": "docs/paper_portfolio_delivery/task-tf03/offline/lifecycle-evidence.json",
-    "subprocess_stages": 21,
+    "evidence": "docs/paper_portfolio_delivery/task-tf03/offline/lifecycle-evidence.json (preserved original delivery); final reruns: docs/paper_portfolio_delivery/task-tf03/scratch-runs/final-harness-4/lifecycle-evidence.json and final-harness-5/lifecycle-evidence.json",
+    "subprocess_stages": 25,
     "network_block": "sitecustomize patches socket.socket.connect and socket.create_connection for every subprocess",
     "mocked": "Only synthetic calendar/evidence inputs. No order, calendar resolver, mark writer, account writer or core entrypoint was mocked.",
     "decision_registration": "PASS; public policy binding populated at account/decision/order/rules and rules hash pinned at creation",
@@ -37,6 +37,22 @@
       "NO_NEW_SESSION",
       "calendar quality invalid",
       "provider mismatch"
+    ],
+    "wrapper_result_codes": "cycle JSON separately reports child_exit_code and validation_outcome; invalid hash/provider/quality produce BLOCKED_VALIDATION_REFUSAL; NO_NEW_SESSION is normal",
+    "isolated_missing_evidence": "refused before collector when selected account/output/public-output differs from legacy defaults",
+    "environment_precedence": "explicit manifest/hash wins over legacy TSETMC_CALENDAR_MANIFEST; environment fallback retained only for nscstart without explicit manifest",
+    "first_harness_evidence_sha256": "790fce0165e068e2a93d02019b160a31eec390afe2b955a3423191ed3935eeae",
+    "first_harness_account_sha256": "4083f4b95c9f157b497612e81b948f524a3a9103b6cc077c6d69d8eea9f5d055",
+    "second_harness_account_sha256": "dcfedfe5575a23ad74cf8711c938d0a86a9ae1177635e15a88817cd3c9a88fe8",
+    "final_harness_runs": [
+      {
+        "path": "docs/paper_portfolio_delivery/task-tf03/scratch-runs/final-harness-4/lifecycle-evidence.json",
+        "sha256": "790fce0165e068e2a93d02019b160a31eec390afe2b955a3423191ed3935eeae"
+      },
+      {
+        "path": "docs/paper_portfolio_delivery/task-tf03/scratch-runs/final-harness-5/lifecycle-evidence.json",
+        "sha256": "49c03ce5fd2fd3feac120fea5c66f2e71545eadedd8e1dec369f43b4b3bbf3c8"
+      }
     ]
   },
   "independent_accounting": {
@@ -77,17 +93,22 @@
     "ranking_sha256": "25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224"
   },
   "test_run": {
-    "passed": 170,
+    "passed": 171,
     "failed": 0,
-    "duration_seconds": 552.58,
+    "duration_seconds": 536.63,
     "evidence": "docs/paper_portfolio_delivery/task-tf03/evidence/test-run.json",
     "rerun_after_last_product_and_test_change": true,
-    "command": ".venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_public_market_calendar.py ranking_research/tests/test_paper_calendar_interface.py ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py ranking_research/tests/test_paper_calendar_tf02a_regressions.py ranking_research/tests/test_paper_calendar_tf02b_regressions.py ranking_research/tests/test_paper_calendar_tf03_regressions.py -q --basetemp docs/paper_portfolio_delivery/task-tf03/pytest-final-3"
+    "command": ".venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_public_market_calendar.py ranking_research/tests/test_paper_calendar_interface.py ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py ranking_research/tests/test_paper_calendar_tf02a_regressions.py ranking_research/tests/test_paper_calendar_tf02b_regressions.py ranking_research/tests/test_paper_calendar_tf03_regressions.py -q --basetemp docs/paper_portfolio_delivery/task-tf03/pytest-final-20261025-verified"
   },
   "protected_hash_evidence": "docs/paper_portfolio_delivery/task-tf03/evidence/path-hashes.json",
   "historic_initial_report": "docs/paper_portfolio_delivery/task-tf03/history/TF03-PARTIAL-INITIAL-20261025T203000Z/REPORT.fa.md",
   "review_directory_modified": false,
   "live_raws_modified": false,
   "primary_path_write_audit": "docs/paper_portfolio_delivery/task-tf03/evidence/write-target-audit.json",
-  "primary_paths_unchanged_in_harness": 7
+  "primary_paths_unchanged_in_harness": 9,
+  "wrapper_connectivity": "PASS_EXPLICIT_MANIFEST_CHILD_EXIT_AND_VALIDATION_OUTCOME",
+  "write_audit": "PASS_ALL_RESOLVED_DEFAULT_PATHS_UNCHANGED",
+  "delivery_offline_evidence_unchanged": true,
+  "first_harness_evidence_preserved_after_second_run_and_pytest": true,
+  "mark_selected_account_sha256_source": "check_paper_account.py --account path selected; status written after mark references resulting account snapshot"
 }

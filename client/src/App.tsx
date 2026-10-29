@@ -37,6 +37,8 @@ const Portfolio = lazy(() => import("./components/Portfolio"));
 const FamilyAssets = lazy(() => import("./components/FamilyAssets"));
 const ChatPage = lazy(() => import("./components/ChatPage"));
 const MarketPage = lazy(() => import("./components/MarketPage"));
+const ComparePage = lazy(() => import("./components/ComparePage"));
+const WatchlistPage = lazy(() => import("./components/WatchlistPage"));
 const RankingHubPage = lazy(() => import("./components/RankingHubPage"));
 
 // لودر سطح صفحه برای Suspense
@@ -105,13 +107,17 @@ const App = () => {
       ? "غربال بازار"
       : location.pathname === "/market"
         ? "بازار"
-        : location.pathname === "/chat"
-          ? "دستیار سرمایه‌گذاری"
-          : location.pathname === "/portfolio"
-            ? "پورتفولیو"
-            : location.pathname === "/assets"
-              ? "دارایی خانواده"
-              : selectedCompany
+        : location.pathname === "/compare"
+          ? "مقایسه و نسبت"
+          : location.pathname === "/watchlist"
+            ? "دیده‌بان"
+            : location.pathname === "/chat"
+              ? "دستیار سرمایه‌گذاری"
+              : location.pathname === "/portfolio"
+                ? "پورتفولیو"
+                : location.pathname === "/assets"
+                  ? "دارایی خانواده"
+                  : selectedCompany
                     ? selectedCompany
                     : "داشبورد";
 
@@ -122,13 +128,17 @@ const App = () => {
       ? "غربال و مقایسه‌ی همه‌ی شرکت‌های بازار"
       : location.pathname === "/market"
         ? "شاخص‌های بازار و نمادهای طلا/کالا با نمودار قیمت"
-        : location.pathname === "/chat"
-          ? "گفت‌وگو و پیشنهاد سرمایه‌گذاری بر پایه‌ی داده‌های کمی"
-          : location.pathname === "/assets"
-            ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
-            : location.pathname === "/portfolio"
-              ? "دارایی‌های سهام"
-              : undefined;
+        : location.pathname === "/compare"
+          ? "قیمت هر نماد بر حسب نماد دیگر و مقایسه‌ی عملکرد"
+          : location.pathname === "/watchlist"
+            ? "نمادهای منتخب شما در یک نگاه"
+            : location.pathname === "/chat"
+              ? "گفت‌وگو و پیشنهاد سرمایه‌گذاری بر پایه‌ی داده‌های کمی"
+              : location.pathname === "/assets"
+                ? "سبد اشخاص، قیمت‌ها و اتصال کارگزاری"
+                : location.pathname === "/portfolio"
+                  ? "دارایی‌های سهام"
+                  : undefined;
 
   const [collectingPrice, setCollectingPrice] = useState(false);
   const [priceCollectMsg, setPriceCollectMsg] = useState<string | null>(null);
@@ -584,6 +594,22 @@ const App = () => {
                     element={
                       <ProtectedRoute>
                         <MarketPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/compare"
+                    element={
+                      <ProtectedRoute>
+                        <ComparePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/watchlist"
+                    element={
+                      <ProtectedRoute>
+                        <WatchlistPage />
                       </ProtectedRoute>
                     }
                   />

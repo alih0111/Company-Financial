@@ -1,0 +1,190 @@
+{
+  "account_id": "experimental-p1-30cae7652e40",
+  "accounting": {
+    "holdings_value_toman": 0,
+    "total_value_toman": 100000000,
+    "profit_loss_toman": 0
+  },
+  "assumptions": [
+    {
+      "id": "decision",
+      "label": "زمان و مبنای تصمیم",
+      "value": "2026-10-27T17:25:16.553136+00:00 UTC؛ رتبه‌بندی ثابت‌شده در active_decision",
+      "status": "ثبت‌شده"
+    },
+    {
+      "id": "price",
+      "label": "قیمت فرضی اجرا",
+      "value": "قیمت پایانی TSETMC در نخستین جلسهٔ رسمی پس از تصمیم",
+      "status": "فرض آزمایشی؛ محدودیت دادهٔ صف"
+    },
+    {
+      "id": "lot",
+      "label": "lot",
+      "value": "یک سهم؛ تعداد صحیح",
+      "status": "فرض آزمایشی پذیرفته‌شده"
+    },
+    {
+      "id": "fee",
+      "label": "هزینه",
+      "value": "۰٫۵٪ در هر سمت",
+      "status": "فرض آزمایشی پذیرفته‌شده؛ هزینهٔ واقعی نیست"
+    },
+    {
+      "id": "expiry",
+      "label": "انقضا",
+      "value": "پایان سومین جلسهٔ رسمی پس از تصمیم، طبق قاعدهٔ نسخه‌دار",
+      "status": "فرض آزمایشی پذیرفته‌شده"
+    }
+  ],
+  "assumptions_version": "paper-execution-rules/1.2.0-user-approved",
+  "candidate_status": "نامزد خرید؛ سفارش کاغذی ثبت شده و در انتظار نخستین جلسهٔ واجد شرایط",
+  "cash_toman": 100000000,
+  "contract": {
+    "exit_rank": 1,
+    "id": "future-evaluation-v12.28-p1-p3-o00-g0",
+    "model": "P1",
+    "review_cadence_sessions": 63,
+    "selection_rule": "P1 رتبهٔ اول؛ تک‌سهمی، بازبینی هر ۶۳ جلسه طبق O00؛ خروج/تعویض فقط در بازبینی مقرر.",
+    "sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+    "target_count": 1,
+    "weight_id": "valuation_0"
+  },
+  "created_at_tehran": "2026-10-27T20:55:16.241584+03:30",
+  "created_at_utc": "2026-10-27T17:25:16.241584+00:00",
+  "currency": "IRR-toman",
+  "decision_at_utc": "2026-10-27T17:25:16.241584+00:00",
+  "decision_kind": "PAPER_ACCOUNT_CREATED_AND_CANDIDATE_RECORDED; NOT_AN_O00_DECISION",
+  "event_log": [
+    {
+      "event_id": "public-draft-created-cc98f090962fad2e",
+      "type": "PUBLIC_PAPER_DRAFT_CREATED",
+      "at_utc": "2026-10-27T17:25:16.241584+00:00",
+      "reason": "ایجاد حساب جدا و غیرفعال؛ بدون مهاجرت یا تصمیم خرید.",
+      "details": "ranking_sha256=2410451411cb3b2c8915027c8708b7fb5fa73583074ffb3e76e87d1bc6d70609; ranking_status=PREPARATION_UNCONFIRMED; fixture=False; public policy=public-paper-v1 sha256=4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778."
+    },
+    {
+      "event_id": "experimental-consent",
+      "type": "EXPERIMENTAL_PROFILE_ACCEPTED",
+      "at_utc": "2026-10-27T17:25:16.308017+00:00",
+      "reason": "انتخاب صریح کاربر: سبد کاغذی آزمایشی با اعلام محدودیت داده",
+      "details": "پذیرش محدودیت داده؛ بدون تأیید سیاست سخت‌گیرانه یا کیفیت سرمایه‌گذاری؛ حساب جدا."
+    },
+    {
+      "event_id": "paper-decision-f47e47f4fca81e35cd42",
+      "type": "PAPER_BUY_DECISION_RECORDED",
+      "at_utc": "2026-10-27T17:25:16.553136+00:00",
+      "reason": "ثبت تصمیم تازه پس از پذیرش قواعد اجرای آزمایشی؛ بدون انتقال به گذشته.",
+      "details": "غاذر؛ side=BUY؛ dataset=None; ranking_sha256=2410451411cb3b2c8915027c8708b7fb5fa73583074ffb3e76e87d1bc6d70609; rules=paper-execution-rules/1.2.0-user-approved sha256=c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683; P1=167/254."
+    },
+    {
+      "event_id": "paper-order-c82a24e3763931fc562b",
+      "type": "PAPER_ORDER_PENDING",
+      "at_utc": "2026-10-27T17:25:16.553136+00:00",
+      "reason": "در انتظار شواهد قیمت و حجم نخستین جلسهٔ پذیرفته‌شده پس از تصمیم تازه؛ هیچ معامله‌ای به گذشته منتقل نمی‌شود.",
+      "details": "سفارش داخلی تک‌سهمی؛ مبنا close نخستین جلسهٔ رسمی بعد از تصمیم؛ fee فرضی 0.5%؛ انقضا بعد از 3 جلسه؛ اجرای فرضی با محدودیت دادهٔ صف؛ پیکربندی مبتنی بر close روزانه صف/اولویت/اجرای واقعی را اثبات نمی‌کند."
+    }
+  ],
+  "execution_recorded": false,
+  "holdings": [],
+  "initial_capital_toman": 100000000,
+  "official_future_evaluation_ledger_linked": false,
+  "official_ledger_event_count_changed": false,
+  "order_created": true,
+  "ranking": {
+    "dataset_id": null,
+    "evaluation_date": "2026-10-26",
+    "status": "PREPARATION_UNCONFIRMED",
+    "artifact_sha256": "2410451411cb3b2c8915027c8708b7fb5fa73583074ffb3e76e87d1bc6d70609",
+    "top_candidate": {
+      "company_id": "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+      "symbol": "غاذر",
+      "rank": 1,
+      "score": 60.87242464647482,
+      "coverage": 0.9999999999999999
+    }
+  },
+  "real_order_submitted": false,
+  "schema_version": 1,
+  "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+  "waiting_reason": "در انتظار شواهد قیمت و حجم نخستین جلسهٔ پذیرفته‌شده پس از تصمیم تازه؛ هیچ معامله‌ای به گذشته منتقل نمی‌شود.",
+  "active_decision": {
+    "decision_id": "paper-decision-f47e47f4fca81e35cd42",
+    "decided_at_utc": "2026-10-27T17:25:16.553136+00:00",
+    "decision_local_date": "2026-10-27",
+    "decision_kind": "PAPER_ONLY_BUY_DECISION_NOT_O00",
+    "candidate": {
+      "symbol": "غاذر",
+      "company_id": "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+      "rank": 1,
+      "score": 60.87242464647482,
+      "coverage": 0.9999999999999999
+    },
+    "ranking": {
+      "dataset_id": null,
+      "artifact_id": "v12_37_balance_marker_safe_20261026-ranking-2026-10-26",
+      "evaluation_date": "2026-10-26",
+      "status": "PREPARATION_UNCONFIRMED",
+      "artifact_sha256": "2410451411cb3b2c8915027c8708b7fb5fa73583074ffb3e76e87d1bc6d70609",
+      "scored": 167,
+      "universe": 254
+    },
+    "execution_rules": {
+      "rule_id": "paper-execution-rules/1.2.0-user-approved",
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683",
+      "path": "D:\\RFA\\Company-Financial\\ranking_research\\output\\experimental_paper\\runs\\20261027T172515885896Z-9907c3\\bootstrap\\rules.json"
+    },
+    "evidence_manifest_sha256": "8e249f1958c1fa219847e23e83e1372c30a562cdaa0e4a0f7a6ce6a4ea7b7677",
+    "coverage_limitation": "رتبه‌بندی PREPARATION_UNCONFIRMED؛ P1: 167 از 254. کیفیت کامل داده و بازده تأیید نشده‌اند.",
+    "calendar_policy": {
+      "id": "public-paper-v1",
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+      "provider": "public-index",
+      "version": "1.0.0"
+    }
+  },
+  "paper_order": {
+    "order_id": "paper-order-c82a24e3763931fc562b",
+    "decision_id": "paper-decision-f47e47f4fca81e35cd42",
+    "side": "BUY",
+    "symbol": "غاذر",
+    "company_id": "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+    "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
+    "created_at_utc": "2026-10-27T17:25:16.553136+00:00",
+    "designated_execution_session": null,
+    "designated_execution_price_rial": null,
+    "expires_after_official_sessions": 3,
+    "eligible_session_count_observed": 0,
+    "fill_event_id": null,
+    "waiting_reason": "در انتظار شواهد قیمت و حجم نخستین جلسهٔ پذیرفته‌شده پس از تصمیم تازه؛ هیچ معامله‌ای به گذشته منتقل نمی‌شود.",
+    "queue_limitation": "اجرای فرضی با محدودیت دادهٔ صف؛ پیکربندی مبتنی بر close روزانه صف/اولویت/اجرای واقعی را اثبات نمی‌کند.",
+    "source_manifest": "D:\\RFA\\Company-Financial\\ranking_research\\output\\experimental_paper\\runs\\20261027T172515885896Z-9907c3\\decision-basis.json",
+    "source_manifest_sha256": "8e249f1958c1fa219847e23e83e1372c30a562cdaa0e4a0f7a6ce6a4ea7b7677",
+    "calendar_policy": {
+      "id": "public-paper-v1",
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+      "provider": "public-index",
+      "version": "1.0.0"
+    }
+  },
+  "calendar_policy": {
+    "id": "public-paper-v1",
+    "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778",
+    "provider": "public-index",
+    "version": "1.0.0"
+  },
+  "profile": "EXPERIMENTAL_PAPER_V1",
+  "strict_decision_authorized": false,
+  "data_limitations": [
+    "این حساب فقط آزمایش کاغذی است؛ هیچ سفارش واقعی ارسال نمی‌شود و بازده مدل تأیید نشده است.",
+    "رتبه‌بندی P1/P3 با وزن‌ها و ماسک‌های موجود مصرف می‌شود؛ receipt مالی کل universe و تازگی همهٔ گزارش‌ها اثبات نشده است.",
+    "پایان جلسه بر پایهٔ تقویم عمومی و فرض ثبت‌شده است؛ کامل‌بودن تقویم و اجرای صف تأیید رسمی ندارد.",
+    "هزینهٔ هر سمت ۰٫۵٪ فرضی است. سرمایهٔ این حساب مستقل است و با حساب قبلی جمع نمی‌شود.",
+    "فروش با فرمان صریح انجام می‌شود؛ زمان‌بندی رسمی O00 و تعویض خودکار ۶۳جلسه‌ای فعال نیست."
+  ],
+  "experimental_inputs": {
+    "ranking_file_sha256": "88ae1a4f24342ed825b1691ed74fff21a9f2c44f9927e7fec1ee42abf9e933dd",
+    "source": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf04d-report\\fresh-market-20261026T225006048\\public-isolated\\latest-ranking.json"
+  },
+  "realized_pnl_toman": 0
+}

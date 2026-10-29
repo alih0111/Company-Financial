@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test:csv": "node --test test/safeCsv.test.mjs",
+    "test:indicators": "esbuild src/utils/indicators.ts --format=esm --outfile=test/.generated/indicators.mjs && node --test test/indicators.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

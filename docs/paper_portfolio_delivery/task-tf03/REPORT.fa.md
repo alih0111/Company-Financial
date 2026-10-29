@@ -1,37 +1,37 @@
-# TF-03 — گزارش تکمیل
+# TF-03 — تکمیل محدود پس از بازبینی lifecycle
 
-نتیجهٔ کل: **PARTIAL**. چرخهٔ آزمایشی آفلاین کامل و PASS است؛ شاخهٔ سفارشِ wrapper در `paper_cycle.main` نیز روی مسیرهای temp اجرا و PASS شد. پیش‌نمایش سفارش واقعی اجرا نشد و آمادگی فعال‌سازی BLOCKED است. حساب اصلی، قواعد اصلی، دفتر رسمی و scheduler دست‌نخورده‌اند.
+نتیجهٔ کل: **PARTIAL**. اتصال wrapper، ممیزی و بازاجرایی آفلاین اصلاح و پذیرش شده‌اند؛ پیش‌نمایش سفارش زنده و آمادگی شروع همچنان BLOCKED هستند. هیچ ranking واقعی، حساب اصلی، O00، scheduler، P1/P3 یا raw زنده‌ای در این تکمیل تغییر نکرد.
 
-## چرخهٔ مصنوعی آفلاین — PASS
+## پذیرش lifecycle آفلاین — PASS
 
-Harness بازاجراشدنی `run_offline_lifecycle.py` همهٔ entrypointها را با subprocess واقعی اجرا می‌کند و برای Python childها socket connect/create_connection را مسدود می‌کند. دادهٔ تقویم و قیمت کاملاً مصنوعی‌اند؛ هیچ تابع fill، writer یا resolverای mock نشده است. ورودی‌های بی‌ربط ranker، Codal، دریافت تمام ۲۵۴ نماد و NSCStart اصلاً اجرا نشدند.
+Harness بازاجراشدنی زیر main guard است و `--output-dir` صریح می‌گیرد؛ import آن اجرا ایجاد نمی‌کند، مقصد غیرخالی را رد می‌کند و پیش‌فرض آن پوشهٔ invocation یکتای scratch زیر repo است. regressionها خروجی را در `scratch-runs/` و pytest basetemp یکتا ذخیره می‌کنند. خروجی تحویل قدیمی در `offline/` هر ۱۲۸ فایلش حفظ شد.
 
-مسیر سالم: حساب خالی → `register_paper_decision.py --calendar-provider public` با ranking pinشده و clock صریح fixture → preview → apply یک fill → mark روز بعد از `check_paper_account.py --mark-to-market` → replay همان receipt با `--apply-fill` پیش و پس از mark. binding عمومی در همان ثبت تصمیم در چهار سطح account/decision/order/rules ایجاد شد. ساعت UTC و تاریخ تهران از همان instant ساخته شدند. Preview و هر دو replay، hash bytes حساب را ثابت گذاشتند؛ یک fill event ثبت شد، receipt پس از mark ثابت ماند و mark به عقب برنگشت.
+چرخهٔ ۲۵ subprocess واقعی شامل ثبت تصمیم مصنوعی، preview، apply یک‌باره، replay پیش و پس از mark و مسیرهای خطا بود. socketهای childهای Python مسدود و ورودی‌ها synthetic بودند؛ شبکه و endpoint تازه مصرف نشد. پنج کنترل wrapper/cycle در evidence نهایی، preview سالم، `NO_NEW_SESSION`، hash مردود، کیفیت مردود و provider ناسازگار را پوشش می‌دهند. خروجی هر preview یک expected outcome دقیق دارد؛ `NO_NEW_SESSION` با session_count=0 و بدون fill/event کنترل شده است. همهٔ سناریوهای preview bytes حساب را ثابت گذاشتند.
 
-محاسبهٔ مستقل از موتور، با `Decimal` و `ROUND_HALF_UP`: ۱۰۰٬۰۰۰ تومان و ۱۲۳۴ ریال → ۸۰۶ سهم، gross=۹۹٬۴۶۰، fee=۴۹۷، نقد=۴۳، NAV=۹۹٬۵۰۳ و P&L=-۴۹۷. Mark روز بعد در ۱۲۴۰ ریال → ارزش دارایی=۹۹٬۹۴۴، NAV=۹۹٬۹۸۷ و P&L=-۱۳؛ receipt خرید ثابت ماند.
+دو harness متوالی در `scratch-runs/final-harness-4` و `final-harness-5` PASS شدند. SHA-256 evidence اجرای اول پس از اجرای دوم و pytest ثابت ماند: `790fce0165e068e2a93d02019b160a31eec390afe2b955a3423191ed3935eeae`. اجرای اول و دوم به‌ترتیب ۲۵ subprocess و حساب‌های temp با SHA-256 `4083f4b95c9f157b497612e81b948f524a3a9103b6cc077c6d69d8eea9f5d055` و `dcfedfe5575a23ad74cf8711c938d0a86a9ae1177635e15a88817cd3c9a88fe8` داشتند.
 
-شش شاخهٔ preview subprocess نیز حساب را بدون تغییر نگه داشتند: نبود bar جلسهٔ اول با وجود bar روز بعد، انقضا پس از سه جلسه با شواهد کافی، ابهام دیررس، `NO_NEW_SESSION`، کیفیت نامعتبر و provider ناسازگار. در دو مورد آخر، علت دقیق تا exit نهایی حفظ شد؛ شمار جلسهٔ نامعلوم به صفر تبدیل نشد. چهار outcome محصول و چندین سناریوی خطا در suite قبلی هم مجدداً اجرا شدند.
+حسابداری مستقل با Decimal و ROUND_HALF_UP با snapshot نهایی تطبیق داده شد: ۸۰۶ سهم، gross=۹۹٬۴۶۰، fee=۴۹۷، نقد=۴۳، NAV زمان fill=۹۹٬۵۰۳، P&L زمان fill=-۴۹۷. mark در ۱۲۴۰ ریال ارزش دارایی ۹۹٬۹۴۴، NAV=۹۹٬۹۸۷ و P&L=-۱۳ داد. replay روز بعد از CLI با ساعت واقعی سیستم انجام شد؛ ساعت خرید به فرمان replay تزریق نشد و receipt و mark حفظ شدند.
 
-## اتصال cycle/wrapper — PASS محدود
+## اتصال wrapper و نتیجهٔ محصول — PASS با خروجی صریح
 
-`paper_cycle.main --order-review-only --calendar-provider public`، wrapper واقعی `check_paper_order.ps1`، preview واقعی `apply_paper_fill.py` و refresh status را با همان account/rules/evidence/calendar/hash و مقصدهای temp اجرا کرد. Exit=0، public calendar آماده و حساب قبل/بعد یکسان بود. این شاخه ranker/Codal/O00 را اجرا نمی‌کند و ادعای اجرای کل `paper_cycle.main` نیست. public بدون token و بدون prompt رفت؛ wrapper فقط شاخهٔ NSCStart را در provider برابر `nscstart` وارد می‌کند. Apply در شاخهٔ cycle فقط با `--apply-fill` صریح انتخاب می‌شود.
+در provider عمومی، manifest و hash صریح invocation اولویت قطعی دارند؛ وجود `TSETMC_CALENDAR_MANIFEST` ناسازگار در environment این انتخاب را عوض نکرد. fallback متغیر محیطی فقط در مسیر legacy `nscstart` و وقتی manifest صریح وجود ندارد باقی است. public مسیر NSCStart یا token را نمی‌خواند. در اجرای ایزولهٔ بدون EvidenceManifest، wrapper پیش از اجرای collector با `ISOLATED_ORDER_REVIEW_REQUIRES_EXPLICIT_EVIDENCE_MANIFEST` رد می‌کند؛ مقصدهای account، output و public-output همگی در تشخیص ایزوله لحاظ می‌شوند.
 
-مسیرهای account/rules ورودی register، apply، mark و refresh اکنون انتخاب‌پذیرند؛ قفل حساب پس از resolve مسیر همان حساب گرفته می‌شود. `paper_cycle.main` شاخهٔ order-only مسیرهای ورودی/خروجی را تا wrapper منتقل می‌کند و فایل lock و گزارش cycle هم در output منتخب ساخته می‌شوند. حالت legacy با مقادیر پیش‌فرض خود حفظ شده است.
+خروجی PowerShell و cycle اکنون outcome محصول، exit code فرزند و validation outcome را جدا ثبت می‌کند. preview سالم `PREVIEW_COMPLETE`، نبود جلسه `NO_NEW_SESSION` و ردهای hash/provider/quality `BLOCKED_VALIDATION_REFUSAL` هستند. علت validation در JSON نهایی باقی می‌ماند؛ موفقیت فرایند wrapper به‌تنهایی PASS محصول شمرده نمی‌شود. برچسب public همچنان فرض عملیاتی نسخه‌دار است و تقویم را رسمی/کامل اعلام نمی‌کند.
 
-## پیش‌نمایش عمومی واقعی — تفکیک وضعیت
+## اتصال گزارش و ممیزی نوشتن — PASS
 
-- `live_calendar_acquisition`: **PASS_REPLAYED**. پنج raw زندهٔ ۲۴ اکتبر ۲۰۲۶ و replay آفلاین تأییدشده در `live/public-calendar/` موجودند. در ادامهٔ این مأموریت هیچ endpoint تازه‌ای فراخوانی نشد.
-- `live_account_preview`: **BLOCKED / NOT_RUN**. جمع‌آوری تقویم به‌تنهایی preview حساب نیست. ranking موجود برای شروع تازه مناسب/تأییدشده نیست؛ هیچ preview سفارش زنده ادعا نمی‌شود.
-- پیش‌نمایش زندهٔ قبلی با مرز `window_start=20261024` فقط `NO_NEW_SESSION` پس از آن مرز را گزارش می‌کرد؛ آخرین جلسهٔ مشاهده‌شده خود ۲۴ اکتبر بود. این مرز، تصمیم حساب نبود.
+mark، hash و source path حساب انتخاب‌شده را ثبت می‌کند؛ گزارش پس از mark به SHA snapshot نوشته‌شدهٔ همان حساب متصل است. status هش ranking پین‌شدهٔ حساب temp را با مسیر منشأ آن گزارش می‌کند و ranking عمومی اصلی را فقط در فیلد مستقل `reference_public_ranking` نگه می‌دارد.
 
-یک حساب عمومی مستقل در `draft/` ساخته شد؛ سرمایهٔ اولیه همان ۱۰۰٬۰۰۰٬۰۰۰ تومان قالب است، active decision/order ندارد و وضعیتش `INACTIVE_PUBLIC_PAPER_DRAFT` است. ranking پین‌شدهٔ آن `PREPARATION_UNCONFIRMED` است؛ این فایل برای ثبت تصمیم یا preview سفارش استفاده نشد. حساب قدیمی به public تبدیل یا migrate نشد.
+ممیزی پیش/پس از اجرای نهایی ۹ مقصد واقعی/default، شامل کل `ranking_research/output/paper_cycle` (۵٬۹۴۸ فایل)، قواعد/evidence default، `client/public/research/v12-38`، مقاصد mark در `client/public/research/v12-36` و account/ranking اصلی را پوشش داد؛ همهٔ hashها و تعداد فایل‌ها برابر ماندند. ۱۲۸ فایل شواهد offline تحویل و دو فایل اصلی account/ranking نیز ثابت ماندند. شواهد در `evidence/write-target-audit.json` است. تغییرهای هم‌زمان UI، ingestion و `.gitignore` در checkout مستقل‌اند و به TF-03 نسبت داده نمی‌شوند.
 
-مبنای مانع از خود artifact است: ranking با status=`PREPARATION_UNCONFIRMED` صریحاً «رتبهٔ رسمی یا ارزیابی آینده نیست» و lineage زمان دریافت برای ادعای availability پیش از cutoff را اثبات نمی‌کند. قرارداد قفل‌شدهٔ v12.28 قاعدهٔ P1 rank 1 را مشخص می‌کند، اما این artifact را به رتبهٔ جاری/معتبر ارتقا نمی‌دهد. ۱۶۶/۲۵۴ به‌تنهایی آستانهٔ تازه‌ای نمی‌سازد. برای شروع، snapshot نامزد قابل‌اعتبارسنجی با lineage/زمان دریافت هم‌خوان لازم است؛ سپس تصمیم تازه با timestamp واقعی ثبت می‌شود. preview زندهٔ سفارش تا آن زمان BLOCKED می‌ماند.
+## اجرای آزمون‌ها و دامنهٔ crash/concurrency
 
-## آزمون‌ها و شواهد
+پس از آخرین تغییر، suite کامل **۱۷۱ passed، ۰ failed** در ۵۳۶٫۶۳ ثانیه اجرا شد؛ فرمان و فهرست فایل‌ها در `evidence/test-run.json` ثبت شده است. crash regressionها سه نقطهٔ write/pre-replace/post-replace برای writer اتمیک و crash واقعی subprocess در fill پس از replace را پوشش می‌دهند؛ recovery و replay بدون debit دوم بررسی می‌شوند. concurrency regressionها دو writer اتمیک و دو fill هم‌زمان را بررسی می‌کنند. این crash injectionها به wrapper نسبت داده نمی‌شوند.
 
-پس از آخرین تغییر کد، مجموعهٔ کامل ۱۷۰ آزمونی اجرا شد: ۱۷۰ موفق، صفر ناموفق، در ۵۵۲٫۵۸ ثانیه؛ فرمان و نتیجه در `evidence/test-run.json` ثبت شده است. همان مجموعه crash پیش و پس از replace، رقابت دو writer و دو fill هم‌زمان را پوشش می‌دهد. hash شش فایل محافظت‌شده قبل/بعد در `result.json` است. گزارش اولیه و manifest آن با نام یکتا در `history/TF03-PARTIAL-INITIAL-20261025T203000Z/` حفظ شده؛ پوشهٔ review TF-03 و rawهای live تغییر نکردند.
+## پیش‌نمایش زنده و آمادگی شروع — BLOCKED
 
-اجرای مجدد harness، hash پیش/پس هفت مقصد بالقوهٔ اصلی (حساب و ranking legacy، قواعد و manifestهای default، status outputها و درخت خروجی paper_cycle) را ثبت کرد؛ همه برابر ماندند. مسیرهای واقعی harness زیر `task-tf03/offline/` هستند. نتیجه در `evidence/write-target-audit.json` است.
+- **live preview:** اجرا نشد؛ هیچ token یا live fetch تازه‌ای برای این اصلاحات مصرف نشد. capture زندهٔ موجود و rawها حفظ شدند.
+- **آمادگی شروع:** BLOCKED به علت ranking با وضعیت `PREPARATION_UNCONFIRMED`؛ این تغییرات ranking را ارتقا نمی‌دهند.
+- **حساب اصلی، scheduler و دفتر رسمی:** غیرفعال/دست‌نخورده؛ هش حساب اصلی در audit برابر baseline است.
 
-Runbook فرمان‌های ساخت حساب مستقل، ثبت تصمیم، preview، apply، mark و replay را دارد؛ فرمان‌های عملیاتی آن در این مأموریت اجرا نشده‌اند. جزئیات artifactها و SHA-256 در `artifact-manifest.json` است.
+Runbook ترتیب زمانی را اصلاح می‌کند: مدرک پایهٔ ثبت تصمیم از market evidence جداست، تصمیم با زمان واقعی ثبت می‌شود و فقط سپس acquisition تازه و preview انجام می‌شود. `NO_NEW_SESSION` نتیجهٔ طبیعی است و باید تا جلسهٔ بعد انتظار کشید. گزارش/نتیجهٔ پیشین پیش از به‌روزرسانی در `history/TF03-PRE-CONTINUATION-20261025T080000Z/` محفوظ است. manifest نهایی کل سورس، تست و شواهد TF-03 را فهرست می‌کند.

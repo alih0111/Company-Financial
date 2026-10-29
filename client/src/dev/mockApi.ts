@@ -26,6 +26,12 @@ const companies = [
 const symbols = ["فولاد", "فملی", "شپدیس", "وبملت", "شستا", "پارسان", "کگل", "خودرو"];
 const basePrice = [12450, 8320, 2150, 4120, 9840, 3260, 15600, 890];
 
+// دارایی‌های بازار برای صفحات بازار/مقایسه/دیده‌بان
+const fundSymbols = ["عیار", "مثقال", "همیان", "ناب", "طلا", "کهربا"];
+const fundBase = [24600000, 207000, 13100, 188000, 215000, 118000];
+const indexNames = ["شاخص کل", "شاخص کل (هم وزن)"];
+const indexBase = [7760000, 2066000];
+
 const genHistory = (n: number, start: number) => {
   const rows: unknown[] = [];
   let p = start;
@@ -191,9 +197,42 @@ const routes: Route[] = [
   { path: "/StockPriceScore", body: [] },
   { path: "/summary", body: aiMetrics },
   {
+    path: "/market/assets",
+    body: {
+      indices: indexNames.map((n, i) => ({
+        code: i === 0 ? "TEDPIX" : "TEDPIX_EW",
+        name: n,
+        value: Math.round(indexBase[i] * 1.004),
+        change: 12345,
+        change_percent: 0.52 + i * 0.2,
+        min: Math.round(indexBase[i] * 0.998),
+        max: Math.round(indexBase[i] * 1.008),
+        trade_date: "2026-10-25",
+        jalali_date: "1405/08/03",
+        market_value_rial: 9.1e15,
+        trade_value_rial: 8.4e12,
+      })),
+      funds: fundSymbols.map((s, i) => ({
+        symbol: s,
+        name: `صندوق ${s}`,
+        kind: s === "عیار" || s === "همیان" || s === "ناب" ? "gold" : "commodity",
+        last_price: Math.round(fundBase[i] * 1.002),
+        change_percent: 0.4 - i * 0.15,
+        trade_date: "2026-10-25",
+        jalali_date: "1405/08/03",
+        observations: 380,
+      })),
+      source: "mock",
+    },
+  },
+  {
     path: "/price-history",
     body: (u) => {
       const sym = u.searchParams.get("companyName") || "فولاد مبارکه";
+      const fi = fundSymbols.indexOf(sym);
+      if (fi >= 0) return genHistory(420, fundBase[fi]);
+      const ii = indexNames.indexOf(sym);
+      if (ii >= 0) return genHistory(420, indexBase[ii]);
       const idx = Math.max(0, companies.indexOf(sym));
       return genHistory(240, basePrice[idx]);
     },

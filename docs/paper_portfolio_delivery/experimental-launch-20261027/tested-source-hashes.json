@@ -1,0 +1,10 @@
+{
+  "ranking_research/paper_account_store.py": "08e6034db90e69e04c1a4e829c3c5cce1daa19708adc957e0b5c2eebfe405e3f",
+  "ranking_research/future_eval_v12_30/apply_paper_fill.py": "261a46f76172bb9978250e719e41ed7cc9d098de088a0ad99f8087b059793d62",
+  "ranking_research/future_eval_v12_30/register_paper_decision.py": "301505db5f3367ca46355e3083309d8b97b506a99432c9c091e0648440ccaa73",
+  "ranking_research/future_eval_v12_30/experimental_paper.py": "ae3210a3f852a3962b035c85e903b477e2148f04bcb7630bcf6d875bd2ec989c",
+  "ranking_research/tests/test_experimental_paper.py": "16df69824092303072f530c58d58fad8f7e4c8bcb24fc20194ad8c3ab6711aec",
+  "client/src/components/ExperimentalPaperPortfolio.tsx": "dc80a94607a1951e1a59c91dc4757c25049e2958476ceda19f38761fc3cb2943",
+  "client/src/components/ResearchHomePage.tsx": "ea33fd6d3faa6051a09dedfa44a68c0e58fd2cbe842cd974e328e4569e2c9875",
+  "Update-Paper-Portfolio.cmd": "b5b4e06f1d8f57d4edaac8a859156ff0ed47d85d7fdeca3ae1160f4e2a285058"
+}

@@ -262,7 +262,7 @@ def record_report_body_evidence(item: dict, body: bytes, *, path: str, content_t
     return True
 
 
-def acquire_financial_sheets(item: dict, body: bytes, raw_dir: Path) -> None:
+def acquire_financial_sheets(item: dict, body: bytes, raw_dir: Path, only_sheet_ids: set[str] | None = None) -> None:
     """Fetch the report's explicitly listed parent statement sheets, once each."""
     from bs4 import BeautifulSoup
     import dynamic_financial as D
@@ -290,6 +290,8 @@ def acquire_financial_sheets(item: dict, body: bytes, raw_dir: Path) -> None:
             kind = D.H.P._caption_kind(" ".join(option.find_all(string=True, recursive=False)))
             code = option.get("value")
             if not kind or kind[1] or not code or not str(code).isdigit() or str(code) in shown_codes:
+                continue
+            if only_sheet_ids is not None and str(code) not in only_sheet_ids:
                 continue
             query = urllib.parse.parse_qs(source.query, keep_blank_values=True)
             if query.get("sheetId") == [str(code)]:
@@ -320,7 +322,10 @@ def acquire_financial_sheets(item: dict, body: bytes, raw_dir: Path) -> None:
             related.append({"sheet_id": str(code), "path": str(path.relative_to(ROOT)).replace("\\", "/"),
                 "sha256": sha256, "bytes": len(page_body), "content_type": content_type,
                 "http_date": http_date, "retrieved_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-                "request_attempts": attempts, "retry_wait_seconds": wait, "url": url})
+                "request_attempts": attempts, "retry_wait_seconds": wait, "url": url,
+                "final_url": getattr(response, "final_url", url),
+                "redirect_chain": getattr(response, "redirect_chain", []),
+                "http_status": status})
             time.sleep(0.15)
     item["financial_pages"] = related
     item["financial_pages_complete"] = True

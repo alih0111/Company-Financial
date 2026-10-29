@@ -147,16 +147,6 @@ def _aware(dt: datetime | None) -> datetime | None:
     return dt if dt.tzinfo else dt.replace(tzinfo=_TZ_TEHRAN)
 
 
-def _oldest_published(reports) -> datetime | None:
-    values = [r.published_at for r in reports if r.published_at is not None]
-    return min(values) if values else None
-
-
-def _newest_published(reports) -> datetime | None:
-    values = [r.published_at for r in reports if r.published_at is not None]
-    return max(values) if values else None
-
-
 def sync_feed(
     letter_type: int,
     args: argparse.Namespace,
@@ -181,10 +171,14 @@ def sync_feed(
 
     pending: list[dict] = []
     scan_newest: datetime | None = None
+    scan_oldest: datetime | None = None
     page_number = 1
 
     while True:
-        if args.max_pages and stats["pages"] >= args.max_pages:
+        page_cap = args.max_pages
+        if watermark is not None and not getattr(args, "max_pages_explicit", False):
+            page_cap = 0
+        if page_cap and stats["pages"] >= page_cap:
             stats["stop_reason"] = "max_pages_reached"
             break
 
@@ -196,13 +190,16 @@ def sync_feed(
         )
         stats["pages"] += 1
 
-        if not page.reports:
+        if page.is_empty:
             stats["stop_reason"] = "empty_feed"
             break
 
-        page_newest = _newest_published(page.reports)
+        page_newest = page.newest_published
         if page_newest is not None and (scan_newest is None or page_newest > scan_newest):
             scan_newest = page_newest
+        page_oldest = page.oldest_published
+        if page_oldest is not None and (scan_oldest is None or page_oldest < scan_oldest):
+            scan_oldest = page_oldest
 
         known = (
             registry.get_statuses(conn, [r.report_id for r in page.reports])
@@ -307,7 +304,7 @@ def sync_feed(
             break
 
         # ── stop condition مستقل از candidate: watermark زمانی ──
-        oldest = _oldest_published(page.reports)
+        oldest = page.oldest_published
         if watermark is not None and oldest is not None and oldest < (watermark - overlap):
             logger.info(
                 "⏹️ LetterType=%s: reached watermark (oldest=%s < %s - %s); stop.",
@@ -329,6 +326,7 @@ def sync_feed(
         stats["stop_reason"] = "max_pages_reached"
 
     stats["_scan_newest"] = scan_newest
+    stats["_scan_oldest"] = scan_oldest
     return stats, pending
 
 
@@ -454,17 +452,23 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
     scan_cap = explicit_depth or 5
     watermarks = {lt: None for lt in letter_types}
     scan_newest = {lt: None for lt in letter_types}
+    scan_oldest = {lt: None for lt in letter_types}
     # نامه‌های جدیدی که ذخیره شدند و باید اعدادشان استخراج شود
     pending_values: list[dict] = []
 
     for lt in letter_types:
         stats = feeds[lt]
         page_number = 1
+        feed_scan_cap = scan_cap
         # incremental: بدون from-date صریح، تا «آبستن‌ mark آخرین sync موفق» عقب می‌رویم
         if not args.from_date and not explicit_depth:
             watermarks[lt] = canonical_hook.get_codal_watermark(lt)
+            # Once initialized, scan until the watermark instead of repeatedly
+            # stopping at the same first five mixed-feed pages.
+            if watermarks[lt] is not None:
+                feed_scan_cap = 0
         while True:
-            if scan_cap and stats["pages"] >= scan_cap:
+            if feed_scan_cap and stats["pages"] >= feed_scan_cap:
                 stats["stop_reason"] = "max_pages_reached"
                 break
             page = codal_feed.discover_reports(
@@ -472,13 +476,17 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
                 from_date=args.from_date, to_date=args.to_date,
             )
             stats["pages"] += 1
-            if not page.reports:
+            if page.is_empty:
+                # صفحه واقعاً خالی است (نه اینکه فقط نامه‌ای از نوع ما نداشته باشد)
                 stats["stop_reason"] = "empty_feed"
                 break
 
-            newest = _aware(_newest_published(page.reports))
+            newest = _aware(page.newest_published)
             if newest is not None and (scan_newest[lt] is None or newest > scan_newest[lt]):
                 scan_newest[lt] = newest
+            oldest_on_page = _aware(page.oldest_published)
+            if oldest_on_page is not None and (scan_oldest[lt] is None or oldest_on_page < scan_oldest[lt]):
+                scan_oldest[lt] = oldest_on_page
 
             known = canonical_hook.known_codal_report_ids(
                 [r.report_id for r in page.reports]
@@ -522,7 +530,7 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
             if args.limit and stats["new"] >= args.limit:
                 stats["stop_reason"] = "limit_reached"
                 break
-            oldest = _aware(_oldest_published(page.reports))
+            oldest = _aware(page.oldest_published)
             wm = watermarks[lt]
             if wm is not None and oldest is not None and oldest < (wm - overlap):
                 stats["stop_reason"] = "watermark_reached"
@@ -564,10 +572,18 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
         stats = feeds[lt]
         # advance watermark فقط وقتی feed بدون خطا کامل شد؛ در خطا، اجرای بعدی
         # دوباره از همین نقطه اسکن می‌کند تا گزارشی از دست نرود
-        if stats["errors"] == 0 and not args.dry_run and scan_newest[lt] is not None:
+        if (stats["errors"] == 0 and not args.dry_run
+                and stats["stop_reason"] in ("watermark_reached", "empty_feed")
+                and scan_newest[lt] is not None):
             wm = watermarks[lt]
             target = scan_newest[lt] if (wm is None or scan_newest[lt] > wm) else wm
             canonical_hook.set_codal_watermark(lt, target)
+        elif (not args.dry_run and not args.from_date and not explicit_depth
+              and stats["stop_reason"] == "max_pages_reached" and watermarks[lt] is None
+              and scan_oldest[lt] is not None):
+            # Bootstrap only the interval actually covered by the initial
+            # safety-capped scan. Later runs fill forward from this boundary.
+            canonical_hook.set_codal_watermark(lt, scan_oldest[lt])
 
     totals = {
         "scanned": sum(s["scanned"] for s in feeds.values()),
@@ -638,7 +654,7 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
         stats = feeds[lt]
         page = codal_feed.discover_reports(lt, 1, symbol=args.symbol)
         stats["pages"] = 1
-        if not page.reports:
+        if page.is_empty:
             stats["stop_reason"] = "empty_feed"
             continue
         stats["stop_reason"] = "symbol_scan_done"
@@ -729,6 +745,7 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
 
 
 def run_sync(args: argparse.Namespace) -> dict:
+    args.max_pages_explicit = bool(args.max_pages)
     # Canonical-only offline: never open SQL Server for the Codal path.
     # فقط «بررسی شرایط» در try است؛ خود اجرای canonical نباید در خطا بی‌صدا
     # به مسیر legacy بیفتد (اجرای دوباره/دوگانه). خطا به main() برمی‌گردد.
@@ -741,7 +758,7 @@ def run_sync(args: argparse.Namespace) -> dict:
         return run_sync_symbol(args)
     if canonical_route:
         return run_sync_canonical_only(args)
-    if not args.max_pages:  # Auto در مسیر legacy هم به کپ ایمنی ۵ ترجمه می‌شود
+    if not args.max_pages:  # Auto: سقف فقط برای bootstrap بدون watermark است
         args.max_pages = 5
 
     letter_types = [
@@ -823,18 +840,21 @@ def run_sync(args: argparse.Namespace) -> dict:
                 letter_type, args, conn, prefilter, watermark=watermark, overlap=overlap
             )
             scan_newest = stats.pop("_scan_newest", None)
+            scan_oldest = stats.pop("_scan_oldest", None)
             key = route_for_letter_type(letter_type)
 
             if conn is not None and not args.dry_run:
                 process_pending(key, pending, conn, stats, args.max_attempts)
 
             # ── به‌روزرسانی watermark (فقط غیر dry-run) ──
-            if conn is not None and not args.dry_run and scan_newest is not None:
+            if (conn is not None and not args.dry_run and scan_newest is not None
+                    and stats["stop_reason"] in ("watermark_reached", "empty_feed", "max_pages_reached")):
                 if watermark is None:
-                    # اولین اجرا: بعد از سقف ایمنی، watermark ذخیره می‌شود تا
-                    # اجرای بعدی incremental شود.
-                    codal_sync_state.set_watermark(conn, letter_type, scan_newest)
-                    logger.info("🔖 LetterType=%s watermark initialized → %s", letter_type, scan_newest)
+                    # Initialize at the oldest covered date if the scan hit its
+                    # cap, so later runs can fill the unscanned interval.
+                    initial_wm = scan_oldest if stats["stop_reason"] == "max_pages_reached" else scan_newest
+                    codal_sync_state.set_watermark(conn, letter_type, initial_wm)
+                    logger.info("🔖 LetterType=%s watermark initialized → %s", letter_type, initial_wm)
                 elif stats["stop_reason"] != "max_pages_reached":
                     new_wm = max(scan_newest, watermark)
                     codal_sync_state.set_watermark(conn, letter_type, new_wm)

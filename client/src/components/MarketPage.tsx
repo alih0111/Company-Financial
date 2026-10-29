@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaChartLine,
   FaCoins,
@@ -6,8 +7,10 @@ import {
   FaDownload,
   FaSearch,
   FaGlobe,
+  FaBalanceScale,
 } from "react-icons/fa";
 import PriceChart from "./PriceChart";
+import WatchStar from "./WatchStar";
 import { useDarkMode } from "../utils/theme";
 import { getAuthStatus } from "../hooks/useGetUser";
 import {
@@ -33,6 +36,7 @@ const MarketPage: React.FC = () => {
   const { darkMode } = useDarkMode();
   const dark = darkMode;
   const { isAdmin } = getAuthStatus();
+  const navigate = useNavigate();
 
   const [indices, setIndices] = useState<MarketIndex[]>([]);
   const [funds, setFunds] = useState<MarketFund[]>([]);
@@ -146,6 +150,20 @@ const MarketPage: React.FC = () => {
               {msg}
             </span>
           )}
+          {selected && (
+            <button
+              onClick={() =>
+                navigate(
+                  `/compare?mode=ratio&base=${encodeURIComponent(selected.key)}&quote=${encodeURIComponent("عیار")}&range=1y`,
+                )
+              }
+              title={`نسبت «${selected.label}» با نماد دیگر (مثلاً عیار)`}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl bg-sky-500/10 text-sky-700 dark:text-sky-300 hover:bg-sky-500/20 ring-1 ring-sky-500/20 transition"
+            >
+              <FaBalanceScale size={11} />
+              مقایسه و نسبت
+            </button>
+          )}
           <button
             onClick={load}
             disabled={loading}
@@ -199,8 +217,11 @@ const MarketPage: React.FC = () => {
                     className={chipCls(active)}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">
-                        {ix.name}
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <WatchStar itemKey={ix.name} label={ix.name} kind="index" />
+                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">
+                          {ix.name}
+                        </span>
                       </span>
                       <span className="text-xs font-bold tabular-nums text-gray-800 dark:text-white">
                         {num(ix.value)}
@@ -313,8 +334,11 @@ const FundList: React.FC<{
           return (
             <button key={f.symbol} onClick={() => onSelect(f)} className={chipCls(active)}>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">
-                  {f.symbol}
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <WatchStar itemKey={f.symbol} label={f.symbol} kind="fund" />
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">
+                    {f.symbol}
+                  </span>
                 </span>
                 <span className="text-xs font-bold tabular-nums text-gray-800 dark:text-white">
                   {f.last_price > 0 ? num(f.last_price) : "—"}

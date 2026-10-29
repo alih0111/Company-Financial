@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import LatestLockedRanking from "./LatestLockedRanking";
-import PaperPortfolioTab from "./PaperPortfolioTab";
+import PaperTrialPanel from "./PaperTrialPanel";
 
 type ContractMethod = { method_id: string; role: string; weight_id: string; route: string; weights: number[] };
 type Contract = {
@@ -155,7 +155,7 @@ export default function ResearchHomePage() {
   const readiness = loaded?.readiness;
   const preparation = loaded?.preparation;
   const readyRows = [
-    { name: "آمادگی snapshot رسمی آینده", state: preparation?.readiness.data_and_rank.compatible_scores_computed ? "نیازمند تأیید رسمی" : "snapshot رسمی نیاز است", detail: "آخرین رتبه‌بندی موجود تا 2026-10-21 در بخش بالا با برچسب آماده‌سازی تأییدنشده نمایش داده می‌شود؛ این کارت فقط آمادگی snapshot برای ارزیابی آینده و شواهد زمان دریافت را نشان می‌دهد." },
+    { name: "آمادگی snapshot رسمی آینده", state: preparation?.readiness.data_and_rank.compatible_scores_computed ? "نیازمند تأیید رسمی" : "snapshot رسمی نیاز است", detail: "تاریخ ارزیابی و آخرین دریافت ثبت‌شدهٔ رتبه‌بندی در بالای صفحه نمایش داده می‌شود؛ artifact رتبه‌بندی ایستا است و روزانه خودکار بازسازی نمی‌شود. این کارت فقط آمادگی snapshot برای ارزیابی آینده و شواهد زمان دریافت را نشان می‌دهد." },
     { name: "تقویم O00", state: preparation?.readiness.calendar_and_decision.next_o00_date ? "نیازمند تأیید" : "ادامهٔ تقویم ناموجود", detail: `تقویم معتبر تا ${date(preparation?.readiness.calendar_and_decision.locked_last_date)} موجود است؛ تقویم کامل جلسات بعدی باید تأمین شود.` },
     { name: "ثبت تصمیم", state: (loaded?.official.official_event_count ?? readiness?.official_event_count) ? "ثبت رسمی موجود" : "در انتظار آغاز رسمی", detail: (loaded?.official.official_event_count ?? readiness?.official_event_count) ? `${fmt(loaded?.official.official_event_count ?? readiness?.official_event_count ?? 0)} رویداد رسمی ثبت شده.` : "۰ رویداد رسمی؛ شروع فقط پس از تکمیل گیت‌ها و ثبت تصمیم اپراتور." },
     { name: "اجرای کاغذی و حسابداری سهم", state: loaded?.official.account_results ? "دارای ثبت حساب" : "مسدود؛ ورودی ناقص", detail: "قواعد تعداد سهم و اندازهٔ سفارش، هزینه‌ها، صف و عدم اجرا و رویدادهای شرکتی باید تکمیل شوند؛ هزینهٔ ۰٫۵٪ هر سمت هنوز تأیید نشده است." },
@@ -201,7 +201,7 @@ export default function ResearchHomePage() {
 
     </div>}
 
-    {tab === "paper" && <PaperPortfolioTab />}
+    {tab === "paper" && <PaperTrialPanel />}
 
     {tab === "method" && <div className="space-y-4">
       <section className="rounded-2xl border border-slate-200 bg-white p-4 leading-7 dark:border-slate-700 dark:bg-slate-800"><h2 className="text-lg font-bold">جزئیات روش و قرارداد قفل‌شده</h2><p className="mt-2 text-sm">عامل‌ها و وزن‌ها از قرارداد V12.28 خوانده می‌شوند. اگر قرارداد دریافت نشود یا وزن‌ها با فهرست عامل‌ها هم‌اندازه نباشند، جدول نمایش داده نمی‌شود.</p><p className="text-sm">فیلتر اضافی پوشش مالی: ندارد (G0)؛ قواعد داخلی امتیازدهی و کیفیت داده برقرارند. وزن نقدشوندگی در هر دو مدل صفر است؛ محدودیت اجرا جدا از امتیازدهی بررسی می‌شود.</p>

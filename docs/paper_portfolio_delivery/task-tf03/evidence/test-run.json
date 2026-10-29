@@ -1,9 +1,31 @@
 {
   "schema_version": 1,
-  "command": ".venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_public_market_calendar.py ranking_research/tests/test_paper_calendar_interface.py ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py ranking_research/tests/test_paper_calendar_tf02a_regressions.py ranking_research/tests/test_paper_calendar_tf02b_regressions.py ranking_research/tests/test_paper_calendar_tf03_regressions.py -q --basetemp docs/paper_portfolio_delivery/task-tf03/pytest-final-3",
+  "command": ".venv/Scripts/python.exe -X utf8 -m pytest ranking_research/tests/test_public_market_calendar.py ranking_research/tests/test_paper_calendar_interface.py ranking_research/tests/test_paper_account_atomic.py ranking_research/tests/test_paper_cycle_http.py ranking_research/tests/test_paper_calendar_tf02a_regressions.py ranking_research/tests/test_paper_calendar_tf02b_regressions.py ranking_research/tests/test_paper_calendar_tf03_regressions.py -q --basetemp docs/paper_portfolio_delivery/task-tf03/pytest-final-20261025-verified",
   "exit_code": 0,
-  "passed": 170,
+  "result": "PASS",
+  "passed": 171,
   "failed": 0,
-  "duration_seconds": 552.58,
-  "result": "170 passed in 552.58s (0:09:12)"
+  "duration_seconds": 536.63,
+  "stdout_summary": "171 passed in 536.63s (0:08:56)",
+  "test_files": [
+    "ranking_research/tests/test_public_market_calendar.py",
+    "ranking_research/tests/test_paper_calendar_interface.py",
+    "ranking_research/tests/test_paper_account_atomic.py",
+    "ranking_research/tests/test_paper_cycle_http.py",
+    "ranking_research/tests/test_paper_calendar_tf02a_regressions.py",
+    "ranking_research/tests/test_paper_calendar_tf02b_regressions.py",
+    "ranking_research/tests/test_paper_calendar_tf03_regressions.py"
+  ],
+  "target_regressions_included": true,
+  "crash_scope": [
+    "atomic writer child-process cuts at write, pre-replace, post-replace",
+    "actual fill CLI child exit after replace then idempotent recovery"
+  ],
+  "concurrency_scope": [
+    "atomic account read-modify-write two writers",
+    "concurrent fill CLI invocations"
+  ],
+  "wrapper_crash_injection": false,
+  "after_last_product_and_test_change": true,
+  "basetemp": "docs/paper_portfolio_delivery/task-tf03/pytest-final-20261025-verified"
 }

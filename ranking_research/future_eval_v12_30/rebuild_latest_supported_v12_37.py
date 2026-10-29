@@ -57,6 +57,28 @@ def load_report_records():
     for item in comparisons:
         rec = by_key.get((item["company_id"], str(item["tracing_no"])))
         if rec is None: raise RuntimeError("UNMATCHED_VERIFIED_COMPARATIVE")
+        if item.get("source_page_id") is not None:
+            if (item.get("company_id_verified") != item.get("company_id")
+                    or item.get("basis") != "parent"
+                    or int(item.get("period_order", 0)) not in (2, 3)
+                    or item.get("canonical_unit") not in ("rial", "rial_per_share")):
+                raise RuntimeError("COMPARATIVE_LINEAGE_IDENTITY_OR_BASIS_INVALID")
+            available = pd.Timestamp(item.get("available_at_utc"))
+            if available.tzinfo is None or available.tz_convert("UTC") > pd.Timestamp(cutoff(DATE)):
+                raise RuntimeError("COMPARATIVE_NOT_AVAILABLE_AT_EVALUATION_CUTOFF")
+            manifest_path = Path(rec["dynamic_manifest_path"])
+            manifest_bytes = manifest_path.read_bytes()
+            if hashlib.sha256(manifest_bytes).hexdigest() != rec.get("dynamic_manifest_sha256"):
+                raise RuntimeError("COMPARATIVE_DYNAMIC_MANIFEST_HASH_MISMATCH")
+            manifest = json.loads(manifest_bytes)
+            page = next((p for p in manifest.get("pages", []) if p.get("page_id") == item.get("source_page_id")), None)
+            source_path = Path(item.get("source_page_path", ""))
+            if (page is None or str(source_path.resolve()) != str(Path(page["path"]).resolve())
+                    or not source_path.is_file() or sha(source_path) != item.get("source_page_sha256")
+                    or page.get("sha256") != item.get("source_page_sha256")
+                    or page.get("received_at_utc") != item.get("source_page_received_at_utc")
+                    or manifest.get("available_at_utc") != item.get("available_at_utc")):
+                raise RuntimeError("COMPARATIVE_SOURCE_PAGE_RECEIPT_MISMATCH")
         fact = {"statement_type": item["statement_type"], "metric_code": item["metric_code"],
                 "value": float(item["canonical_value"]), "unit": item["canonical_unit"],
                 "period_order": int(item["period_order"]), "basis": "parent"}

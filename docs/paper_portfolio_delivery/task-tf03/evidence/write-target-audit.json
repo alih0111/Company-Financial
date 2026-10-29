@@ -1,41 +1,114 @@
 {
-  "schema_version": 1,
-  "purpose": "protected output write-target audit; reruns the offline subprocess lifecycle",
-  "command": [
-    "D:\\RFA\\Company-Financial\\.venv\\Scripts\\python.exe",
-    "-X",
-    "utf8",
-    "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf03\\run_offline_lifecycle.py"
+  "schema_version": 2,
+  "audit_scope": "resolved code defaults, protected destinations, and preserved delivered offline evidence; unrelated checkout changes are not attributed to TF-03",
+  "default_paths": [
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/offline",
+      "before_sha256": "6befc184e29e47f2ee57cb06534ca8478d7a39e23e689af4981dcced07d8e1b0",
+      "after_sha256": "6befc184e29e47f2ee57cb06534ca8478d7a39e23e689af4981dcced07d8e1b0",
+      "before_file_count": 128,
+      "after_file_count": 128,
+      "unchanged": true
+    },
+    {
+      "path": "client/public/research/v12-36/paper-portfolio.json",
+      "before_sha256": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "after_sha256": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+      "before_file_count": 1,
+      "after_file_count": 1,
+      "unchanged": true
+    },
+    {
+      "path": "client/public/research/v12-36/latest-ranking.json",
+      "before_sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+      "after_sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+      "before_file_count": 1,
+      "after_file_count": 1,
+      "unchanged": true
+    },
+    {
+      "path": "client/public/research/v12-36/paper-account-check.json",
+      "before_sha256": "34e98c1abeff248f09ef28325d1379a5d59e248b9b6e2a0356bf5ad75134ada9",
+      "after_sha256": "34e98c1abeff248f09ef28325d1379a5d59e248b9b6e2a0356bf5ad75134ada9",
+      "before_file_count": 1,
+      "after_file_count": 1,
+      "unchanged": true
+    },
+    {
+      "path": "ranking_research/output/paper_v12_38_first_fill",
+      "before_sha256": "06c2c88166e360407acf5a20aeab7f9fa09150aca81315599767aafee41a16ea",
+      "after_sha256": "06c2c88166e360407acf5a20aeab7f9fa09150aca81315599767aafee41a16ea",
+      "before_file_count": 180,
+      "after_file_count": 180,
+      "unchanged": true
+    },
+    {
+      "path": "ranking_research/output/paper_cycle",
+      "before_sha256": "e0f8aa0199b22b6aeb085b2bbca405c38032bdcad908e1d54a96a7615b405186",
+      "after_sha256": "e0f8aa0199b22b6aeb085b2bbca405c38032bdcad908e1d54a96a7615b405186",
+      "before_file_count": 5948,
+      "after_file_count": 5948,
+      "unchanged": true
+    },
+    {
+      "path": "client/public/research/v12-38",
+      "before_sha256": "d5f0b45a0e00a14d7107d20d18e5a7ec7c324c9aa8a178ea9e5c7f49c198263a",
+      "after_sha256": "d5f0b45a0e00a14d7107d20d18e5a7ec7c324c9aa8a178ea9e5c7f49c198263a",
+      "before_file_count": 4,
+      "after_file_count": 4,
+      "unchanged": true
+    },
+    {
+      "path": "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01",
+      "before_sha256": "1971950a1165593d62e863cf13a88fa9f178a970b09888828d8a2bb889b8df7a",
+      "after_sha256": "1971950a1165593d62e863cf13a88fa9f178a970b09888828d8a2bb889b8df7a",
+      "before_file_count": 20,
+      "after_file_count": 20,
+      "unchanged": true
+    },
+    {
+      "path": "client/public/research/v12-36",
+      "before_sha256": "7023af2023595e6076bbeeebf0b0a3de98ecf6a2a210f326ecc0c7c58a55da5e",
+      "after_sha256": "7023af2023595e6076bbeeebf0b0a3de98ecf6a2a210f326ecc0c7c58a55da5e",
+      "before_file_count": 7,
+      "after_file_count": 7,
+      "unchanged": true
+    }
   ],
-  "exit_code": 0,
-  "duration_seconds": 70.271,
-  "unchanged": {
-    "client/public/research/v12-36/paper-portfolio.json": true,
-    "client/public/research/v12-36/latest-ranking.json": true,
-    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": true,
-    "ranking_research/output/paper_v12_38_first_fill": true,
-    "ranking_research/output/paper_v12_38_first_fill/public": true,
-    "ranking_research/output/paper_v12_38_first_fill/status": true,
-    "ranking_research/output/paper_v12_38_first_fill/paper_cycle": true
-  },
-  "before_sha256": {
-    "client/public/research/v12-36/paper-portfolio.json": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
-    "client/public/research/v12-36/latest-ranking.json": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
-    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
-    "ranking_research/output/paper_v12_38_first_fill": "4924edc2883034a61afe080bf4eb8418fc410ecbfc467c93a5e237e9cb270b8a",
-    "ranking_research/output/paper_v12_38_first_fill/public": null,
-    "ranking_research/output/paper_v12_38_first_fill/status": null,
-    "ranking_research/output/paper_v12_38_first_fill/paper_cycle": null
-  },
-  "after_sha256": {
-    "client/public/research/v12-36/paper-portfolio.json": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
-    "client/public/research/v12-36/latest-ranking.json": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
-    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646",
-    "ranking_research/output/paper_v12_38_first_fill": "4924edc2883034a61afe080bf4eb8418fc410ecbfc467c93a5e237e9cb270b8a",
-    "ranking_research/output/paper_v12_38_first_fill/public": null,
-    "ranking_research/output/paper_v12_38_first_fill/status": null,
-    "ranking_research/output/paper_v12_38_first_fill/paper_cycle": null
-  },
-  "stdout": "{\"result\": \"PASS\", \"stages\": 21, \"account\": \"D:\\\\RFA\\\\Company-Financial\\\\docs\\\\paper_portfolio_delivery\\\\task-tf03\\\\offline\\\\fixture\\\\account.json\", \"receipt\": {\"version\": 2, \"account_id\": \"TF03_SYNTHETIC_TEMP\", \"decision_id\": \"paper-decision-3e413c0bb9882c28e361\", \"order_id\": \"paper-order-73610cd727cd6a706a34\", \"designated_session\": \"20261024\", \"rules_sha256\": \"c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683\", \"ins_code\": \"35158826900216508\", \"symbol\": \"TEST\", \"company_id\": \"fixture-company\", \"shares\": 806, \"close_rial\": 1234.0, \"gross_toman\": 99460, \"fee_toman\": 497, \"source_sha256\": {\"calendar_manifest\": \"d9eb1ad5187e00a4b8d9cf68da4c50fe0206d5424f44c13b2c7b7124e8f79cd5\", \"candidate_daily\": \"2614add74d0bd8491020514ab30a408cfa953345ab8acccf5d377710c74214ba\", \"candidate_share_changes\": \"b2d9fb0936459e77a0e712add291b9952e59cb41aa6f7ea6bccd8f9afae44db0\", \"last_possible_session\": \"2dd178bd0da3a1ecb9db3985a3ef55bb986930ea67de7ec4ed08eeb4c558a5dd\"}, \"cash_before_toman\": 100000, \"calendar\": {\"provider\": \"public-index\", \"policy_id\": \"public-paper-v1\", \"policy_sha256\": \"4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778\", \"manifest\": \"D:\\\\RFA\\\\Company-Financial\\\\docs\\\\paper_portfolio_delivery\\\\task-tf03\\\\offline\\\\fixture\\\\calendar.json\", \"manifest_sha256\": \"d9eb1ad5187e00a4b8d9cf68da4c50fe0206d5424f44c13b2c7b7124e8f79cd5\", \"completion_type\": \"named_operational_assumption\", \"assumed_completion\": \"20261024\", \"validated_at_utc\": \"2026-10-24T12:05:00+00:00\", \"evidence_manifest_sha256\": \"65167260315004b879a3a223b8bed71f5a8e927b114c65467ddc9211a5b1bad3\", \"label_fa\": \"سبد کاغذی با تقویم عمومی؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم\"}}, \"independent_accounting\": {\"shares\": 806, \"gross_toman\": 99460, \"fee_toman\": 497, \"cash_toman\": 43, \"fill_nav_toman\": 99503, \"fill_pnl_toman\": -497, \"mark_value_toman\": 99944, \"mark_nav_toman\": 99987, \"mark_pnl_toman\": -13, \"method\": \"independent Decimal ROUND_HALF_UP; no product calculator used\"}}\n",
-  "stderr": ""
+  "all_default_paths_unchanged": true,
+  "delivery_offline_tree_unchanged": true,
+  "harness_runs": [
+    {
+      "run": "final-harness-4",
+      "evidence": "docs/paper_portfolio_delivery/task-tf03/scratch-runs/final-harness-4/lifecycle-evidence.json",
+      "evidence_sha256": "790fce0165e068e2a93d02019b160a31eec390afe2b955a3423191ed3935eeae",
+      "account": "docs/paper_portfolio_delivery/task-tf03/scratch-runs/final-harness-4/fixture/account.json",
+      "account_sha256": "4083f4b95c9f157b497612e81b948f524a3a9103b6cc077c6d69d8eea9f5d055",
+      "stages": 25
+    },
+    {
+      "run": "final-harness-5",
+      "evidence": "docs/paper_portfolio_delivery/task-tf03/scratch-runs/final-harness-5/lifecycle-evidence.json",
+      "evidence_sha256": "49c03ce5fd2fd3feac120fea5c66f2e71545eadedd8e1dec369f43b4b3bbf3c8",
+      "account": "docs/paper_portfolio_delivery/task-tf03/scratch-runs/final-harness-5/fixture/account.json",
+      "account_sha256": "dcfedfe5575a23ad74cf8711c938d0a86a9ae1177635e15a88817cd3c9a88fe8",
+      "stages": 25
+    }
+  ],
+  "first_harness_preserved_after_second_and_pytest": true,
+  "temporary_accounts": [
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/scratch-runs/final-harness-4/fixture/account.json",
+      "sha256": "4083f4b95c9f157b497612e81b948f524a3a9103b6cc077c6d69d8eea9f5d055"
+    },
+    {
+      "path": "docs/paper_portfolio_delivery/task-tf03/scratch-runs/final-harness-5/fixture/account.json",
+      "sha256": "dcfedfe5575a23ad74cf8711c938d0a86a9ae1177635e15a88817cd3c9a88fe8"
+    }
+  ],
+  "primary_account_sha256": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3",
+  "ranking_sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+  "live_account_activated": false,
+  "scheduler_touched": false,
+  "official_ledger_touched": false
 }

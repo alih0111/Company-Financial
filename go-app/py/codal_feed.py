@@ -102,6 +102,20 @@ class FeedPage:
     page_number: int
     total: int
     reports: list[CodalReport]
+    # همه‌ی ردیف‌های خام صفحه (بدون فیلتر نوع نامه). وقتی feed سراسری با
+    # ``LetterType=-1`` خوانده می‌شود، تصمیم‌های صفحه‌ای (watermark/پایان
+    # صفحه‌ها) باید روی همین لیست کامل گرفته شود وگرنه صفحه‌ای که هیچ گزارش
+    # از نوع موردنظر ندارد، اشتباهی «empty» شمرده می‌شود.
+    all_reports: list[CodalReport] = field(default_factory=list)
+
+    @property
+    def _page_rows(self) -> list[CodalReport]:
+        return self.all_reports or self.reports
+
+    @property
+    def is_empty(self) -> bool:
+        """صفحه واقعاً خالی است (بدون هیچ نامه‌ای، مستقل از فیلتر نوع)."""
+        return not self._page_rows
 
     @property
     def total_pages(self) -> int:
@@ -111,7 +125,17 @@ class FeedPage:
 
     @property
     def is_last_page(self) -> bool:
-        return len(self.reports) < PAGE_SIZE
+        return len(self._page_rows) < PAGE_SIZE
+
+    @property
+    def oldest_published(self) -> datetime | None:
+        values = [r.published_at for r in self._page_rows if r.published_at is not None]
+        return min(values) if values else None
+
+    @property
+    def newest_published(self) -> datetime | None:
+        values = [r.published_at for r in self._page_rows if r.published_at is not None]
+        return max(values) if values else None
 
 
 def route_for_letter_type(letter_type: int) -> str:
@@ -163,9 +187,26 @@ def _to_bool(value: object) -> bool:
     return str(value).strip().lower() in {"true", "1", "yes"}
 
 
-def parse_letter(letter: dict, letter_type: int) -> CodalReport:
+def _letter_type_from_item(letter: dict) -> int:
+    """نوع نامه از پارامتر ``let`` داخل ``Url`` استخراج می‌شود.
+
+    پاسخ فعلی API فیلد ``LetterType`` per-item ندارد؛ نوع تنها در آدرس گزارش
+    (``/Reports/Decision.aspx?...&let=58``) هست. نامشخص = ``-1``.
+    """
+    url = str(letter.get("Url") or "")
+    try:
+        query = urllib.parse.urlparse(url).query
+        let = urllib.parse.parse_qs(query).get("let", [""])[0]
+        return int(let) if let.strip().lstrip("-").isdigit() else -1
+    except (ValueError, AttributeError):
+        return -1
+
+
+def parse_letter(letter: dict, letter_type: int | None = None) -> CodalReport:
     tracing_no = int(letter.get("TracingNo") or 0)
     published_raw = str(letter.get("PublishDateTime") or "").strip()
+    if letter_type is None:
+        letter_type = _letter_type_from_item(letter)
 
     return CodalReport(
         report_id=str(tracing_no),
@@ -225,7 +266,11 @@ def _build_query(
     symbol: str | None = None,
 ) -> str:
     params: dict[str, object] = {
-        "LetterType": letter_type,
+        # از ۱۴۰۵/۰۸/۰۷ سمت کدال هر کوئری با فیلتر عددی LetterType (مثل 6/58)
+        # بعد از ~۶۰ ثانیه HTTP 500 برمی‌گرداند؛ همان کوئری با «-1» (همه‌ی
+        # اطلاعیه‌ها — همان چیزی که ReportList.aspx پیش‌فرض می‌خواند) سالم است.
+        # پس بدون فیلتر می‌خوانیم و نوع را سمت خودمان فیلتر می‌کنیم.
+        "LetterType": -1 if letter_type in (FINANCIAL_LETTER_TYPE, MONTHLY_LETTER_TYPE) else letter_type,
         "PageNumber": page_number,
         "Audited": "true",
         "NotAudited": "true",
@@ -299,7 +344,11 @@ def discover_reports(
     data = _fetch_json(url, timeout=timeout, retries=retries)
 
     raw_letters = data.get("Letters") or []
-    reports = [parse_letter(letter, letter_type) for letter in raw_letters]
+    # نوع هر نامه از ``let`` داخل Url خودش استخراج می‌شود؛ فقط نامه‌های همان
+    # نوع خواسته‌شده به‌عنوان ``reports`` برگردانده می‌شوند و بقیه در
+    # ``all_reports`` برای تصمیم‌های صفحه‌ای (watermark/پایان صفحه) می‌مانند.
+    all_reports = [parse_letter(letter) for letter in raw_letters]
+    reports = [r for r in all_reports if r.letter_type == letter_type]
 
     # توجه: فیلد ``Page`` در پاسخ API «تعداد کل صفحات» است نه شماره‌ی صفحه‌ی
     # جاری؛ بنابراین شماره‌ی درخواستی را نگه می‌داریم و total_pages از Total
@@ -311,6 +360,7 @@ def discover_reports(
         page_number=page_number,
         total=total,
         reports=reports,
+        all_reports=all_reports,
     )
 
 

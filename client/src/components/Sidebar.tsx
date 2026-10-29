@@ -16,6 +16,8 @@ import {
   FaTable,
   FaRobot,
   FaFlask,
+  FaGlobe,
+  FaEye,
 } from "react-icons/fa";
 import QuickSyncModal from "./QuickSyncModal";
 import SymbolSyncModal from "./SymbolSyncModal";
@@ -49,7 +51,9 @@ const NAV_ITEMS: {
   adminOnly?: boolean;
 }[] = [
   { to: "/dashboard", label: "داشبورد شرکت", icon: <FaChartLine size={13} /> },
-  // { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
+  { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
+  { to: "/compare", label: "مقایسه و نسبت", icon: <FaBalanceScale size={13} /> },
+  { to: "/watchlist", label: "دیده‌بان", icon: <FaEye size={13} /> },
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
   { to: "/ranking", label: "رتبه‌بندی", icon: <FaFlask size={13} /> },
   { to: "/chat", label: "دستیار سرمایه‌گذاری", icon: <FaRobot size={13} /> },

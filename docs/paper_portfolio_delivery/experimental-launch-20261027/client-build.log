@@ -1,0 +1,51 @@
+
+> client@0.0.0 build
+> tsc -b && vite build
+
+vite v6.3.5 building for production...
+transforming...
+Browserslist: browsers data (caniuse-lite) is 17 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+✓ 1047 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                    0.92 kB │ gzip:   0.55 kB
+dist/assets/Vazirmatn-Black-DA1YqYMq.woff2        50.57 kB
+dist/assets/Vazirmatn-Regular-CtGL0YI-.woff2      50.68 kB
+dist/assets/Vazirmatn-Thin-DdUiS1cj.woff2         50.80 kB
+dist/assets/Vazirmatn-Bold-_OhAJEdh.woff2         51.02 kB
+dist/assets/Vazirmatn-SemiBold-26ZP1ILp.woff2     51.03 kB
+dist/assets/Vazirmatn-ExtraBold-DCjt2qDm.woff2    51.12 kB
+dist/assets/Vazirmatn-Medium-D86t5Axy.woff2       51.13 kB
+dist/assets/Vazirmatn-Light-Byrs-DlH.woff2        51.18 kB
+dist/assets/Vazirmatn-ExtraLight-DNfybfsL.woff2   51.27 kB
+dist/assets/index-BzVTefMD.css                   115.44 kB │ gzip:  18.28 kB
+dist/assets/HistoricalResearchPage-Bm5bdj5J.js     1.22 kB │ gzip:   0.68 kB
+dist/assets/RankingHubPage-MQ9fbW0p.js             2.44 kB │ gzip:   1.15 kB
+dist/assets/AuthLayout-Ip9tbI9L.js                 2.72 kB │ gzip:   1.11 kB
+dist/assets/AssetSelect-L-Xk6c-u.js                3.12 kB │ gzip:   1.64 kB
+dist/assets/Login-DEJjkz8a.js                      4.29 kB │ gzip:   1.88 kB
+dist/assets/Register-Bu1L2Rvj.js                   7.71 kB │ gzip:   2.54 kB
+dist/assets/ResearchV11Results-CHd9LvMw.js         7.83 kB │ gzip:   2.91 kB
+dist/assets/MarketPage-BeLbebK3.js                 8.87 kB │ gzip:   3.04 kB
+dist/assets/WatchlistPage-DV8Bl4cP.js             11.25 kB │ gzip:   4.40 kB
+dist/assets/Portfolio-p4sa0qhl.js                 14.84 kB │ gzip:   4.26 kB
+dist/assets/ComparePage-D0S3asUH.js               16.03 kB │ gzip:   5.86 kB
+dist/assets/Landing-CNNqLakm.js                   29.24 kB │ gzip:   7.79 kB
+dist/assets/ResearchRankingPage-CwNaObeS.js       38.43 kB │ gzip:   9.75 kB
+dist/assets/vendor-Da303G0q.js                    48.02 kB │ gzip:  17.31 kB
+dist/assets/FamilyAssets-p0VsEXOO.js              60.21 kB │ gzip:  14.45 kB
+dist/assets/BigDataTable-Gniyo3jZ.js              67.68 kB │ gzip:  20.16 kB
+dist/assets/CashRankingPage-6KoBrmsN.js           70.44 kB │ gzip:  17.61 kB
+dist/assets/ResearchHomePage-DD4TIdR5.js          78.68 kB │ gzip:  20.21 kB
+dist/assets/QvtAnalysisPage-BwD5M-QN.js          148.20 kB │ gzip:  33.61 kB
+dist/assets/ChatPage-D1gQngon.js                 164.06 kB │ gzip:  50.39 kB
+dist/assets/index-D9NdZy0M.js                    411.11 kB │ gzip: 130.63 kB
+dist/assets/charts-B_xOqLcy.js                   617.94 kB │ gzip: 170.98 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 27.75s

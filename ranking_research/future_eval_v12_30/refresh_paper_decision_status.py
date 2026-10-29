@@ -44,6 +44,8 @@ def main() -> None:
     parser.add_argument("--reference-now-utc", default=None,
                         help="Injected evaluation clock (ISO) for calendar freshness")
     parser.add_argument("--account", type=Path, default=ACCOUNT)
+    parser.add_argument("--ranking", type=Path, default=None,
+                        help="Ranking snapshot pinned to selected account")
     parser.add_argument("--evidence-manifest", type=Path, default=None,
                         help="Explicit candidate evidence manifest (default: latest-manifest.json)")
     parser.add_argument("--output-dir", type=Path, default=OUT)
@@ -367,7 +369,8 @@ def main() -> None:
             "balanced": account["cash_toman"] + account["accounting"]["holdings_value_toman"] == account["accounting"]["total_value_toman"],
             "pnl_basis": "از fill ثبت‌شده؛ تا پیش از fill صفر",
         },
-        "source_sha256": {"account": sha(account_path), "ranking": sha(ROOT / "client/public/research/v12-36/latest-ranking.json"), "evidence_manifest": sha(evidence_path), "local_calendar": sha(LOCAL_CALENDAR)},
+        "source_sha256": {"account": sha(account_path), "ranking": sha(args.ranking.resolve()) if args.ranking else None, "reference_public_ranking": sha(ROOT / "client/public/research/v12-36/latest-ranking.json"), "evidence_manifest": sha(evidence_path), "local_calendar": sha(LOCAL_CALENDAR)},
+        "source_paths": {"account": str(account_path.resolve()), "ranking": str(args.ranking.resolve()) if args.ranking else None, "reference_public_ranking": str(ROOT / "client/public/research/v12-36/latest-ranking.json"), "evidence_manifest": str(evidence_path)},
         "official_ledger_touched": False,
     }
     public_dir.mkdir(parents=True, exist_ok=True)

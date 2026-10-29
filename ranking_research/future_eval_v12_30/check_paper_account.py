@@ -201,8 +201,8 @@ def _main_locked():
             "holdings_count": len(account["holdings"]), "holdings_value_toman": account["accounting"]["holdings_value_toman"],
             "total_value_toman": account["accounting"]["total_value_toman"], "profit_loss_toman": account["accounting"]["profit_loss_toman"],
             "balanced": account["cash_toman"] + account["accounting"]["holdings_value_toman"] == account["accounting"]["total_value_toman"]},
-        "source_sha256": {"account": sha(ACCOUNT), "ranking": sha(args.ranking), "tsetmc_manifest": sha(args.tsetmc_manifest), "calendar": sha(args.calendar)},
-        "source_paths": {"ranking": str(args.ranking), "tsetmc_manifest": str(args.tsetmc_manifest), "calendar": str(args.calendar)},
+        "source_sha256": {"account": sha(account_path), "ranking": sha(args.ranking), "tsetmc_manifest": sha(args.tsetmc_manifest), "calendar": sha(args.calendar)},
+        "source_paths": {"account": str(account_path), "ranking": str(args.ranking), "tsetmc_manifest": str(args.tsetmc_manifest), "calendar": str(args.calendar)},
         "official_ledger_touched": False,
     }
     run_dir, public_dir = args.output_dir.resolve(), args.public_output_dir.resolve()

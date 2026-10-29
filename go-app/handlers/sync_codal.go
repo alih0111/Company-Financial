@@ -28,6 +28,14 @@ func RunSyncCodal(c *gin.Context) {
 		return
 	}
 
+	// قفل مشترک با جمع‌آوری خودکار (codal_auto_sync.go): همزمانی دو مسیر
+	// مرورگر/دیتابیس را خراب می‌کند، پس دومی 409 می‌گیرد.
+	if !codalSyncBusy.CompareAndSwap(false, true) {
+		c.JSON(http.StatusConflict, gin.H{"error": "یک جمع‌آوری کدال در حال اجراست؛ چند لحظه بعد تلاش کنید"})
+		return
+	}
+	defer codalSyncBusy.Store(false)
+
 	var req SyncCodalRequest
 	_ = c.ShouldBindJSON(&req)
 

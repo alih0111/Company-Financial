@@ -190,3 +190,20 @@ docs/paper_portfolio_delivery/task-tf03/live/public-calendar/*
 !docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/
 docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/*
 !docs/paper_portfolio_delivery/task-tf03/live/public-calendar/raw/*.gz
+client/test/.generated/
+
+# Experimental paper profile: source and concise delivery only; runtime stays local.
+!ranking_research/future_eval_v12_30/experimental_paper.py
+!ranking_research/tests/test_experimental_paper.py
+!docs/paper_portfolio_delivery/experimental-launch-20261027/
+docs/paper_portfolio_delivery/experimental-launch-20261027/*
+!docs/paper_portfolio_delivery/experimental-launch-20261027/*.md
+!docs/paper_portfolio_delivery/experimental-launch-20261027/*.json
+!docs/paper_portfolio_delivery/experimental-launch-20261027/tests.log
+!docs/paper_portfolio_delivery/experimental-launch-20261027/tests.xml
+!docs/paper_portfolio_delivery/experimental-launch-20261027/client-build.log
+!docs/paper_portfolio_delivery/experimental-launch-20261027/ui.png
+!ranking_research/future_eval_v12_30/paper_month_trial.py
+!ranking_research/future_eval_v12_30/run_paper_month_trial.ps1
+!ranking_research/tests/test_paper_month_trial.py
+!docs/PAPER_MONTH_TRIAL.fa.md

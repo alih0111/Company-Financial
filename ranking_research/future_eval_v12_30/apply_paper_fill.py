@@ -81,6 +81,13 @@ def _verify_replay_state(account: dict, order: dict, receipt: dict, expected: di
     event_id = f"paper-fill-{order['order_id']}-{receipt['designated_session']}"
     events = [event for event in account.get("event_log", []) if event.get("event_id") == event_id]
     holdings = account.get("holdings", [])
+    if receipt.get("side") == "SELL":
+        if (order.get("fill_event_id") != event_id or order.get("status") != "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE" or len(events) != 1
+                or events[0].get("type") != "PAPER_SELL_DAILY_CLOSE_LIMITED_QUEUE" or holdings
+                or account["cash_toman"] != receipt["cash_before_toman"] + receipt["gross_toman"] - receipt["fee_toman"]
+                or account.get("realized_pnl_toman") != receipt["realized_after_toman"]):
+            raise SystemExit("FILL_REPLAY_STATE_CONFLICT")
+        return
     if (order.get("fill_event_id") != event_id
             or order.get("status") != "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE"
             or len(events) != 1 or events[0].get("type") != "PAPER_FILL_DAILY_CLOSE_LIMITED_QUEUE"
@@ -157,16 +164,29 @@ def run_locked() -> None:
     if hashlib.sha256(rules_bytes).hexdigest() != decision["execution_rules"]["sha256"]:
         raise SystemExit("PINNED_EXECUTION_RULES_HASH_MISMATCH")
     has_prior_fill = bool(order.get("fill_event_id"))
+    selling = order.get("side", "BUY") == "SELL"
+    if order.get("side", "BUY") not in ("BUY", "SELL"):
+        raise SystemExit("UNSUPPORTED_PAPER_ORDER_SIDE")
+    if selling and account.get("profile") != "EXPERIMENTAL_PAPER_V1":
+        raise SystemExit("SELL_REQUIRES_EXPERIMENTAL_ACCOUNT")
+    sold_holding = (order.get("fill_receipt", {}).get("sold_holding") if has_prior_fill
+                    else (account.get("holdings") or [None])[0]) if selling else None
+    if selling and (not isinstance(sold_holding, dict)
+                    or sold_holding.get("company_id") != order.get("company_id")
+                    or sold_holding.get("symbol") != order.get("symbol")
+                    or sold_holding.get("shares", 0) <= 0
+                    or (not has_prior_fill and len(account["holdings"]) != 1)):
+        raise SystemExit("SELL_HOLDING_IDENTITY_INVALID")
     if (not isinstance(account.get("account_id"), str) or not account["account_id"]
             or not isinstance(decision.get("decision_id"), str) or not decision["decision_id"]
             or not isinstance(order.get("order_id"), str) or not order["order_id"]
             or order.get("decision_id") != decision.get("decision_id")):
         raise SystemExit("PAPER_FILL_IDENTITY_INVALID")
-    if account.get("holdings") and not has_prior_fill:
+    if account.get("holdings") and not has_prior_fill and not selling:
         raise SystemExit("HOLDING_WITHOUT_VERIFIED_FILL_RECEIPT")
     if has_prior_fill and not isinstance(order.get("fill_receipt"), dict):
         raise SystemExit("FILL_REPLAY_UNVERIFIABLE_LEGACY_STATE; fill has no trusted v1 receipt")
-    if has_prior_fill and (not account.get("holdings") or not order.get("decision_id")
+    if has_prior_fill and ((not selling and not account.get("holdings")) or not order.get("decision_id")
                            or not decision.get("decision_id")):
         raise SystemExit("FILL_REPLAY_RECEIPT_IDENTITY_INVALID")
     cash_for_order = account["cash_toman"]
@@ -346,17 +366,20 @@ def run_locked() -> None:
     if not isinstance(share_changes, list) or any(str(x.get("insCode", "")) != ins_code for x in share_changes):
         raise SystemExit("SHARE_CHANGE_LINEAGE_INVALID")
     decision_day = decision["decision_local_date"].replace("-", "")
-    corporate_action = any(decision_day < str(x.get("dEven", ""))[:8] <= first_day
+    action_start = sold_holding["purchase_at_utc"][:10].replace("-", "") if selling else decision_day
+    corporate_action = any(action_start < str(x.get("dEven", ""))[:8] <= first_day
                            and float(x.get("numberOfShareNew", 0) or 0) != float(x.get("numberOfShareOld", 0) or 0)
                            for x in share_changes)
     price_toman = Decimal(str(close_rial)) / Decimal(10) if close_rial > 0 else Decimal(0)
     shares = math.floor(Decimal(cash_for_order) / (price_toman * Decimal("1.005"))) if price_toman > 0 else 0
+    if selling:
+        shares = sold_holding["shares"]
     gross = paper_account_store.money(shares * price_toman)
-    fee = paper_account_store.money(gross * 0.005)
-    while shares > 0 and gross + fee > cash_for_order:
+    fee = paper_account_store.money(Decimal(gross) * Decimal("0.005"))
+    while not selling and shares > 0 and gross + fee > cash_for_order:
         shares -= 1
         gross = paper_account_store.money(shares * price_toman)
-        fee = paper_account_store.money(gross * 0.005)
+        fee = paper_account_store.money(Decimal(gross) * Decimal("0.005"))
     eligibility_reason = (
         "FIRST_SESSION_BAR_MISSING_OR_NO_TRADE" if close_rial <= 0 or volume <= 0 else
         "CORPORATE_ACTION_REQUIRES_MANUAL_RESOLUTION" if corporate_action else
@@ -379,9 +402,14 @@ def run_locked() -> None:
         }
         if calendar_receipt:
             receipt["calendar"] = calendar_receipt
-        if has_prior_fill or account.get("holdings"):
+        if selling:
+            realized_before = (order["fill_receipt"]["realized_before_toman"] if has_prior_fill
+                               else account.get("realized_pnl_toman", 0))
+            receipt.update(side="SELL", sold_holding=sold_holding, realized_before_toman=realized_before,
+                           realized_after_toman=realized_before + gross - fee - sold_holding["cost_basis_toman"] - sold_holding["fee_toman"])
+        if has_prior_fill or (account.get("holdings") and not selling):
             old_receipt = order.get("fill_receipt")
-            if not has_prior_fill or not old_receipt or not account.get("holdings"):
+            if not has_prior_fill or not old_receipt or (not selling and not account.get("holdings")):
                 raise SystemExit("FILL_REPLAY_UNVERIFIABLE_LEGACY_STATE; holding/order lacks trusted v1 receipt")
             _verify_replay_state(account, order, old_receipt, receipt)
             replay_payload = {"status": "FILL_ALREADY_APPLIED", "fill_applied": False,
@@ -396,7 +424,7 @@ def run_locked() -> None:
             return
         if has_prior_fill:
             raise SystemExit("FILL_REPLAY_UNVERIFIABLE_LEGACY_STATE; fill has no trusted v1 receipt")
-    elif account.get("holdings") and not has_prior_fill:
+    elif account.get("holdings") and not has_prior_fill and not selling:
         raise SystemExit("HOLDING_WITHOUT_VERIFIED_FILL_RECEIPT")
     expiry = expiry_outcome(sessions_count, int(order["expires_after_official_sessions"]), eligibility_reason is None)
     if expiry == "late_fill_timing_ambiguous":
@@ -446,7 +474,7 @@ def run_locked() -> None:
         if any(x.get("event_id") == event_id for x in account["event_log"]):
             raise SystemExit("DUPLICATE_FILL_EVENT_ID")
         now = dt.datetime.now(dt.timezone.utc).isoformat()
-        account["cash_toman"] -= gross + fee
+        account["cash_toman"] += gross - fee if selling else -(gross + fee)
         public_fill = calendar_receipt is not None
         price_status = holding_price_status()
         holding = {"symbol": order["symbol"], "company_id": order["company_id"], "shares": shares,
@@ -456,18 +484,21 @@ def run_locked() -> None:
             "last_price_date": f"{first_day[:4]}-{first_day[4:6]}-{first_day[6:8]}",
             "market_value_toman": gross, "unrealized_pnl_toman": -fee,
             "price_status": price_status}
-        account["holdings"] = [holding]
-        account["accounting"] = {"holdings_value_toman": gross, "total_value_toman": account["cash_toman"] + gross,
-            "profit_loss_toman": -fee, "last_price_status": holding["price_status"]}
+        if selling:
+            account["realized_pnl_toman"] = receipt["realized_after_toman"]
+        account["holdings"] = [] if selling else [holding]
+        value = 0 if selling else gross
+        account["accounting"] = {"holdings_value_toman": value, "total_value_toman": account["cash_toman"] + value,
+            "profit_loss_toman": account.get("realized_pnl_toman", 0) + (0 if selling else -fee), "last_price_status": holding["price_status"]}
         order.update({"status": "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE", "designated_execution_price_rial": close_rial,
-                      "fill_event_id": event_id, "fill_source_manifest": str(evidence_path.relative_to(ROOT)).replace("\\", "/"),
+                      "fill_event_id": event_id, "fill_source_manifest": str(evidence_path.relative_to(ROOT) if evidence_path.is_relative_to(ROOT) else evidence_path).replace("\\", "/"),
                       "fill_source_manifest_sha256": sha(evidence_path), "queue_limitation": holding["price_status"],
                       "fill_receipt": receipt})
         account["execution_recorded"] = True
         account["status"] = order["status"]
         account["candidate_status"] = "اجرای فرضی با محدودیت دادهٔ صف؛ fill بازار واقعی/تأییدشده نیست"
         account["waiting_reason"] = "موقعیت فقط در حساب آزمایشی ثبت شده است؛ صف/اولویت اجرا از close روزانه اثبات نمی‌شود."
-        account["event_log"].append({"event_id": event_id, "type": "PAPER_FILL_DAILY_CLOSE_LIMITED_QUEUE", "at_utc": now,
+        account["event_log"].append({"event_id": event_id, "type": "PAPER_SELL_DAILY_CLOSE_LIMITED_QUEUE" if selling else "PAPER_FILL_DAILY_CLOSE_LIMITED_QUEUE", "at_utc": now,
             "reason": ("قیمت پایانی و حجم مثبت در نخستین جلسهٔ پذیرفته‌شدهٔ تقویم عمومی بعد از تصمیم، با هویت insCode منطبق و منابع بعد از تصمیم ثبت شدند؛ پایان جلسه بر پایهٔ فرض ثبت‌شده، بدون گواه کامل‌بودن تقویم."
                        if public_fill else
                        "قیمت پایانی و حجم مثبت در نخستین جلسهٔ رسمی بعد از تصمیم، با هویت insCode منطبق و منابع بعد از تصمیم ثبت شدند."),

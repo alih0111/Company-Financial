@@ -35,8 +35,36 @@ def _main_locked(args: argparse.Namespace) -> None:
     rules_bytes = rules_path.read_bytes()
     rules = json.loads(rules_bytes)
     evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+    experimental = account.get("profile") == "EXPERIMENTAL_PAPER_V1"
+    side = getattr(args, "side", "BUY")
+    method = account.get("paper_method", "P1")
+    if method not in ("P1", "P3"):
+        raise SystemExit("UNSUPPORTED_PAPER_METHOD")
+    if side == "SELL" and not experimental:
+        raise SystemExit("SELL_REQUIRES_EXPERIMENTAL_ACCOUNT")
     if account.get("active_decision") or account.get("paper_order"):
-        raise SystemExit("ACTIVE_PAPER_DECISION_OR_ORDER_ALREADY_EXISTS; append-only manual review required")
+        prior = account.get("paper_order") or {}
+        if not experimental or prior.get("status") not in ("PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE", "EXPIRED_NO_FILL"):
+            raise SystemExit("ACTIVE_PAPER_DECISION_OR_ORDER_ALREADY_EXISTS; append-only manual review required")
+        account.setdefault("order_history", []).append({"decision": account["active_decision"], "order": prior})
+    if experimental:
+        if side == "SELL":
+            if len(account["holdings"]) != 1:
+                raise SystemExit("SELL_REQUIRES_EXACTLY_ONE_HOLDING")
+            held = account["holdings"][0]
+            candidate = {"company_id": held["company_id"], "symbol": held["symbol"], "rank": None, "score": None, "coverage": None}
+        else:
+            if account["holdings"]:
+                raise SystemExit("BUY_REQUIRES_EMPTY_HOLDINGS")
+            tops = [r for r in ranking.get("rows", []) if r.get("methods", {}).get(method, {}).get("rank") == 1]
+            if len(tops) != 1:
+                raise SystemExit("UNIQUE_P1_CANDIDATE_REQUIRED")
+            row = tops[0]
+            candidate = {"company_id": row["company_id"], "symbol": row["symbol"], "rank": 1,
+                         "score": row["methods"][method]["score"], "coverage": row["methods"][method]["financial_factor_coverage"]}
+        account["ranking"] = {"dataset_id": ranking.get("dataset_id"), "evaluation_date": ranking.get("evaluation_date"),
+                              "status": ranking.get("status"), "artifact_sha256": ranking.get("artifact_sha256"), "top_candidate": candidate}
+        account.setdefault("experimental_inputs", {}).update(ranking_file_sha256=file_sha(ranking_path), ranking_path=str(ranking_path))
     candidate = account["ranking"]["top_candidate"]
     if not candidate or ranking.get("artifact_sha256") != account["ranking"].get("artifact_sha256"):
         raise SystemExit("PINNED_RANKING_SNAPSHOT_MISMATCH")
@@ -44,7 +72,7 @@ def _main_locked(args: argparse.Namespace) -> None:
             or candidate["company_id"] != evidence.get("candidate", {}).get("company_id")):
         raise SystemExit("CANDIDATE_IDENTITY_CHANGED_SINCE_EVIDENCE_ACQUISITION")
     p1 = [x for x in ranking.get("rows", []) if x.get("company_id") == candidate["company_id"]]
-    if len(p1) != 1 or p1[0].get("methods", {}).get("P1", {}).get("rank") != 1:
+    if side == "BUY" and (len(p1) != 1 or p1[0].get("methods", {}).get(method, {}).get("rank") != 1):
         raise SystemExit("CANDIDATE_NOT_RANK_ONE_IN_PINNED_P1_ARTIFACT")
     if args.fixture_clock and not args.fixture:
         raise SystemExit("FIXTURE_CLOCK_REQUIRES_EXPLICIT_FIXTURE_MODE")
@@ -67,21 +95,22 @@ def _main_locked(args: argparse.Namespace) -> None:
             raise SystemExit("PUBLIC_POLICY_RULES_BINDING_MISMATCH")
     decision = {
         "decision_id": decision_id, "decided_at_utc": now,
-        "decision_local_date": local_date, "decision_kind": "PAPER_ONLY_BUY_DECISION_NOT_O00",
+        "decision_local_date": local_date, "decision_kind": f"PAPER_ONLY_{side}_DECISION_NOT_O00",
         "candidate": {k: candidate.get(k) for k in ("symbol", "company_id", "rank", "score", "coverage")},
         "ranking": {"dataset_id": account["ranking"]["dataset_id"], "artifact_id": ranking["artifact_id"],
                     "evaluation_date": ranking["evaluation_date"],
                     "status": ranking["status"], "artifact_sha256": ranking["artifact_sha256"],
-                    "scored": ranking.get("scored_count", {}).get("P1"), "universe": 254},
+                    "scored": ranking.get("scored_count", {}).get(method), "universe": 254},
         "execution_rules": {"rule_id": rules["rule_id"], "sha256": rules_sha,
                             "path": str(rules_path)},
         "evidence_manifest_sha256": file_sha(evidence_path),
-        "coverage_limitation": "رتبه‌بندی P1 آماده‌سازی تأییدنشده است؛ فقط 166 از 254 نماد امتیاز دارند و 88 بدون امتیازند. این تصمیم تک‌سهمی از رتبهٔ اول قابل امتیازدهی می‌آید؛ پوشش محدودیت تصمیم است.",
+        "coverage_limitation": f"رتبه‌بندی {ranking.get('status')}؛ {method}: {ranking.get('scored_count', {}).get(method)} از {ranking.get('universe_count', 254)}. کیفیت کامل داده و بازده تأیید نشده‌اند.",
     }
     if policy_binding:
         decision["calendar_policy"] = policy_binding
     order = {
         "order_id": order_id, "decision_id": decision_id,
+        "side": side,
         "symbol": candidate["symbol"], "company_id": candidate["company_id"],
         "status": "PENDING_FIRST_ELIGIBLE_SESSION_EVIDENCE",
         "created_at_utc": now,
@@ -90,7 +119,7 @@ def _main_locked(args: argparse.Namespace) -> None:
         "expires_after_official_sessions": 3,
         "eligible_session_count_observed": 0,
         "fill_event_id": None,
-        "waiting_reason": "منبع رسمی اکنون آخرین جلسهٔ کامل را 2026-10-21 اعلام می‌کند؛ هنوز جلسه‌ای بعد از تصمیم ثبت نشده است. تاریخ جلسهٔ بعد را حدس نمی‌زنیم. قیمت نامزد نیز فعلاً تا 2026-10-21 است.",
+        "waiting_reason": "در انتظار شواهد قیمت و حجم نخستین جلسهٔ پذیرفته‌شده پس از تصمیم تازه؛ هیچ معامله‌ای به گذشته منتقل نمی‌شود.",
         "queue_limitation": "اجرای فرضی با محدودیت دادهٔ صف؛ پیکربندی مبتنی بر close روزانه صف/اولویت/اجرای واقعی را اثبات نمی‌کند.",
         "source_manifest": str(evidence_path),
         "source_manifest_sha256": file_sha(evidence_path),
@@ -100,7 +129,7 @@ def _main_locked(args: argparse.Namespace) -> None:
     account["active_decision"] = decision
     account["paper_order"] = order
     account["assumptions_version"] = rules["rule_id"]
-    account["candidate_status"] = "نامزد خرید؛ سفارش کاغذی ثبت شده و در انتظار نخستین جلسهٔ واجد شرایط"
+    account["candidate_status"] = ("نامزد فروش" if side == "SELL" else "نامزد خرید") + "؛ سفارش کاغذی ثبت شده و در انتظار نخستین جلسهٔ واجد شرایط"
     account["waiting_reason"] = order["waiting_reason"]
     account["order_created"] = True
     account["execution_recorded"] = False
@@ -113,9 +142,9 @@ def _main_locked(args: argparse.Namespace) -> None:
         {"id": "expiry", "label": "انقضا", "value": "پایان سومین جلسهٔ رسمی پس از تصمیم، طبق قاعدهٔ نسخه‌دار", "status": "فرض آزمایشی پذیرفته‌شده"},
     ]
     account["event_log"].extend([
-        {"event_id": decision_id, "type": "PAPER_BUY_DECISION_RECORDED", "at_utc": now,
+        {"event_id": decision_id, "type": f"PAPER_{side}_DECISION_RECORDED", "at_utc": now,
          "reason": "ثبت تصمیم تازه پس از پذیرش قواعد اجرای آزمایشی؛ بدون انتقال به گذشته.",
-         "details": f"{candidate['symbol']}؛ P1 rank 1؛ dataset={account['ranking']['dataset_id']}; ranking_sha256={ranking['artifact_sha256']}; rules={rules['rule_id']} sha256={rules_sha}; امتیازدار 166/254."},
+         "details": f"{candidate['symbol']}؛ side={side}؛ dataset={account['ranking']['dataset_id']}; ranking_sha256={ranking['artifact_sha256']}; rules={rules['rule_id']} sha256={rules_sha}; {method}={ranking.get('scored_count', {}).get(method)}/{ranking.get('universe_count', 254)}."},
         {"event_id": order_id, "type": "PAPER_ORDER_PENDING", "at_utc": now,
          "reason": order["waiting_reason"],
          "details": f"سفارش داخلی تک‌سهمی؛ مبنا close نخستین جلسهٔ رسمی بعد از تصمیم؛ fee فرضی 0.5%؛ انقضا بعد از 3 جلسه؛ {order['queue_limitation']}"},
@@ -137,6 +166,7 @@ def main() -> None:
     parser.add_argument("--calendar-provider", choices=("nscstart", "public"), default="nscstart")
     parser.add_argument("--fixture", action="store_true", help="explicitly label a synthetic fixture execution")
     parser.add_argument("--fixture-clock", help="fixture-only ISO clock; never for operational decisions")
+    parser.add_argument("--side", choices=("BUY", "SELL"), default="BUY")
     args, _unknown = parser.parse_known_args()
     with paper_account_store.account_write_lock(args.account.resolve()):
         _main_locked(args)

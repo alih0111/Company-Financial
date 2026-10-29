@@ -1,65 +1,59 @@
 {
-  "task": "TF-04A",
-  "diagnostic_success": true,
+  "task": "TF-04A-FINISH",
+  "diagnostic_package_complete": true,
   "decision_readiness": "BLOCKED_UNKNOWN",
+  "status_unchanged": "PREPARATION_UNCONFIRMED",
   "calculation_valid": true,
-  "lineage_status": "INCOMPLETE",
-  "receipt_evidence_status": "PARTIAL_MARKET_RECEIPT_FINANCIAL_RECEIPT_INCOMPLETE",
-  "freshness_status": "UNKNOWN_POLICY_UNDEFINED",
+  "universe_identity_validation": "PASS_254_OF_254",
+  "receipt_evidence_status": "FINANCIAL_SOURCE_RECEIPT_NOT_VERIFIED",
+  "freshness_and_public_quality_policy": "UNKNOWN_NOT_APPROVED",
   "public_paper_decision_ready": false,
   "official_future_evaluation_ready": false,
-  "ranking_status_unchanged": "PREPARATION_UNCONFIRMED",
-  "snapshot_results": {
+  "snapshots": {
     "v12-36": {
-      "evaluation_date": "2026-10-21",
-      "file_sha256": "629cf6b9a123df4bdaa0d7baafd4984287da7b63568ba2ba86c93158a2b2224",
+      "file_sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
       "canonical_artifact_sha256": "25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224",
+      "evaluation_date": "2026-10-21",
+      "share_matches": 245,
       "validator": "PASS",
-      "identity_count": 254,
-      "P1_scored": 166,
-      "P3_scored": 225,
-      "top_P1": "غاذر",
-      "extraction_manifest_consistency": "FAIL_METADATA_MISMATCH"
+      "selected_archive_max_difference": "NOT_A_FAILURE_BY_ITSELF",
+      "manifest_metadata": "DATASET_ID_MISMATCH; CUTOFF_ADJACENT_TEHRAN_DAY_BOUNDARY_WITH_1US_DIFFERENCE",
+      "top_selected_report": "غاذر/1569119; body sha matches panel lineage; receipt not recorded"
     },
     "v12-37": {
-      "evaluation_date": "2026-10-24",
       "file_sha256": "18485acf24389e5de07e56b7258b0306b03f5fb4cdd93976da346065b4571f67",
       "canonical_artifact_sha256": "651a0dde9cf06f5967090b55f44607df156c82b689430c905ce870647da6a0ef",
+      "evaluation_date": "2026-10-24",
+      "share_matches": 253,
       "validator": "PASS",
-      "identity_count": 254,
-      "P1_scored": 166,
-      "P3_scored": 225,
-      "top_P1": "غاذر",
-      "extraction_manifest_consistency": "FAIL_METADATA_MISMATCH"
+      "selected_archive_max_difference": "NOT_A_FAILURE_BY_ITSELF",
+      "manifest_metadata": "V12_35_FIXED_DATASET_EVALUATION_CUTOFF_AND_PRICE_DATE_MISMATCH_REMAINS",
+      "top_selected_report": "غاذر/1569119; body sha matches panel lineage; receipt not recorded"
     }
   },
-  "blocked_reasons": [
-    "UPSTREAM_EXTRACTION_MANIFEST_METADATA_MISMATCH"
-  ],
-  "unknown_reasons": [
-    "SELECTED_FINANCIAL_FACTOR_RECEIPT_TIME_NOT_RECORDED",
-    "FRESHNESS_POLICY_FOR_PUBLIC_PAPER_DECISION_UNDEFINED",
-    "PRICE_CORPORATE_ACTION_ACCEPTANCE_POLICY_UNDEFINED"
-  ],
-  "not_asserted": [
-    "No minimum freshness threshold was invented.",
-    "No 100 percent factor coverage gate was invented.",
-    "PREPARATION_UNCONFIRMED was not rewritten to READY.",
-    "No PIT historical availability claim, decision, order, official ledger event, live acquisition, or scheduler action was made."
-  ],
-  "tests": {
-    "command": ".venv/Scripts/python.exe -X utf8 -m pytest docs/paper_portfolio_delivery/task-tf04a/test_assess_ranking_readiness.py -q --basetemp %TEMP%/tf04a-pytest-20261025-final",
-    "result": "8 passed"
+  "cycle_gap_summary": {
+    "financial": "captcha stopped body stage; 0 fresh pages; 254 unchecked; 57 same-cycle raw bodies plus 16 other valid cached bodies reusable after hash/parse check; 269 missing and 541 quarantined responses are overlapping-stage counters within 810 incomplete/invalid",
+    "sales": "429 exhausted after 2 bounded attempts; 0 fresh pages; 254 unchecked; 11 valid cached bodies reusable; 53 invalid bodies, not missing",
+    "full_universe_review": "needed to claim a new ranking for the frozen 254 identities; actual request count depends on per-identity watermark, page Total, body gaps, and validated reuse"
   },
-  "evidence_paths": [
-    "evidence/final-v12-36/readiness.json",
-    "evidence/final-v12-36/validation.json",
-    "evidence/final-v12-36/observed-manifest.json",
-    "evidence/final-v12-37/readiness.json",
-    "evidence/final-v12-37/validation.json",
-    "evidence/final-v12-37/observed-manifest.json",
-    "evidence/test-run.json",
-    "evidence/boundary-hashes.json"
+  "tests": {
+    "command": "python -m pytest -q docs/paper_portfolio_delivery/task-tf04a/test_assess_ranking_readiness.py",
+    "result": "14 passed",
+    "full_existing_suite_plus_targeted": "185 passed, 0 failed in 551.61s",
+    "evidence": "finish-20261025/evidence/test-run.json"
+  },
+  "evidence": [
+    "finish-20261025/evidence/accept-v12-36/readiness.json",
+    "finish-20261025/evidence/accept-v12-37/readiness.json",
+    "finish-20261025/evidence/selected-report-lineage.json",
+    "finish-20261025/evidence/cycle-data-gaps.json",
+    "finish-20261025/evidence/protected-path-hashes.json",
+    "finish-20261025/manifest.json"
   ],
-  "next_step": "TF-04B: fix same-run source/extraction/ranking manifest lineage, acquire current 254-universe TSETMC price/share-change evidence and Codal LetterType 6/58 incremental evidence, approve freshness/quality policy, then run isolated temporary-account preview."
+  "not_performed": [
+    "No network request, fresh acquisition, preview, fill, or activation",
+    "No changes to product engine, builders/extractors, ranking/panel originals, accounts, official ledger, scheduler, UI, ingestion, scorer, contract, universe, weights, coverage, or O00",
+    "No model ranking or backtest rerun"
+  ],
+  "next_step": "TF-04B plan only; see finish-20261025/TF-04B-PLAN.fa.md"
 }

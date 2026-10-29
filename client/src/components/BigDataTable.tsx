@@ -320,18 +320,36 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
             {rows.length.toLocaleString("fa-IR")} شرکت
           </span>
 
-          {/* Silver filter button */}
-          <button
-            onClick={() =>
-              handleSortBy([
-                { id: "Stable", desc: true },
-                { id: "eps_growth", desc: true },
-              ])
-            }
-            className="px-5 py-2.5 rounded-2xl border border-gray-200 dark:border-white/10 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 text-gray-700 dark:text-gray-200 text-sm font-semibold shadow-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-400/20 dark:hover:shadow-black/40 transition-all duration-200 active:translate-y-0"
-          >
-            ◇ فیلتر Silver
-          </button>
+          {/* فیلترهای آماده — مرتب‌سازی بر پایه‌ی معیار انتخابی */}
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <button
+              onClick={() =>
+                handleSortBy([
+                  { id: "Stable", desc: true },
+                  { id: "eps_growth", desc: true },
+                ])
+              }
+              title="پایدارها + بیشترین رشد سود"
+              className="px-4 py-2.5 rounded-2xl border border-gray-200 dark:border-white/10 bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 dark:from-gray-700 dark:via-gray-800 dark:to-gray-900 text-gray-700 dark:text-gray-200 text-sm font-semibold shadow-sm hover:-translate-y-0.5 hover:shadow-lg hover:shadow-gray-400/20 dark:hover:shadow-black/40 transition-all duration-200 active:translate-y-0"
+            >
+              ◇ فیلتر Silver
+            </button>
+            {[
+              { label: "بیشترین رشد سود", sorts: [{ id: "eps_growth", desc: true }], title: "مرتب‌سازی بر اساس رشد سود (EPS)" },
+              { label: "بیشترین رشد فروش", sorts: [{ id: "sales_growth", desc: true }], title: "مرتب‌سازی بر اساس رشد فروش" },
+              { label: "کم‌ترین غیرعملیاتی", sorts: [{ id: "non_operating_pct", desc: false }], title: "سود کمتر وابسته به درآمد غیرعملیاتی" },
+              { label: "بالاترین امتیاز", sorts: [{ id: "quant_score", desc: true }], title: "امتیاز کمی مدل" },
+            ].map((p) => (
+              <button
+                key={p.label}
+                onClick={() => handleSortBy(p.sorts)}
+                title={p.title}
+                className="px-3 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white/60 dark:bg-gray-800/60 text-gray-600 dark:text-gray-300 text-xs font-semibold hover:border-emerald-400/50 hover:text-emerald-700 dark:hover:text-emerald-300 hover:bg-emerald-500/5 transition-all duration-200"
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
