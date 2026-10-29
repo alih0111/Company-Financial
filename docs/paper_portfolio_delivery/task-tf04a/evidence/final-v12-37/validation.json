@@ -1,0 +1,29 @@
+{
+  "all_254_symbols_present": true,
+  "artifact_sha256": "651a0dde9cf06f5967090b55f44607df156c82b689430c905ce870647da6a0ef",
+  "checks": {
+    "P1_score_count_matches_manifest": true,
+    "P1_scores_match_locked_return_v8_engine": true,
+    "P1_ties_and_rank_order_match_contract": true,
+    "P3_score_count_matches_manifest": true,
+    "P3_scores_match_locked_return_v8_engine": true,
+    "P3_ties_and_rank_order_match_contract": true,
+    "all_254_frozen_identities_retained": true,
+    "historical_common_date_and_cutoff": true,
+    "not_prospective_and_no_ledger": true,
+    "recomputed_payload_matches_saved_source_snapshot": true,
+    "status_matches_data_date_and_receipt_is_unknown": true
+  },
+  "contract_sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+  "evaluation_date": "2026-10-24",
+  "official_ledger_written": false,
+  "scored_count": {
+    "P1": 166,
+    "P3": 225
+  },
+  "status": "PASS",
+  "unscored_count": {
+    "P1": 88,
+    "P3": 29
+  }
+}

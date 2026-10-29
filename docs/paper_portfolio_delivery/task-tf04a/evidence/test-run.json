@@ -1,0 +1,27 @@
+{
+  "command": [
+    ".venv/Scripts/python.exe",
+    "-X",
+    "utf8",
+    "-m",
+    "pytest",
+    "docs/paper_portfolio_delivery/task-tf04a/test_assess_ranking_readiness.py",
+    "-q",
+    "--basetemp",
+    "%TEMP%/tf04a-pytest-20261025-final"
+  ],
+  "working_directory": "D:/RFA/Company-Financial",
+  "exit_code": 0,
+  "stdout": "........                                                                 [100%]\n8 passed in 3.55s",
+  "stderr": "",
+  "coverage": [
+    "prior TF-03 v12-36 validator PASS is consumed and confirmed",
+    "v12-37 isolated locked validator positive control",
+    "canonical ranking byte tamper and manifest hash mismatch detected",
+    "unknown, pre-decision, and after-decision receipt time fixtures",
+    "unique P1/P3 first rank, 254 identities, and 50 percent scoreability outcomes",
+    "stale extraction manifest metadata mismatch remains visible",
+    "nonempty output destination refused without changing existing file"
+  ],
+  "scope_note": "TF-03 171-test suite not rerun; no basket engine was changed."
+}

@@ -1,0 +1,8 @@
+{
+  "copied_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf04a\\evidence\\final-v12-36\\latest-ranking.json",
+  "meaning": "ثبت وجود همین bytes در observed_at_utc؛ این زمان، received_at منبع یا دریافت در evaluation_date نیست.",
+  "observed_at_utc": "2026-10-25T15:44:28.244524+00:00",
+  "path_at_observation": "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v12_36\\v12_36_20261022_existing_archive_reextraction_01\\ranking\\latest-ranking.json",
+  "schema_version": 1,
+  "sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421"
+}

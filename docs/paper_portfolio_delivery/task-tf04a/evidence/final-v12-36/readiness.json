@@ -1,0 +1,347 @@
+{
+  "blocked_reasons": [
+    "UPSTREAM_EXTRACTION_MANIFEST_METADATA_MISMATCH"
+  ],
+  "controls": {
+    "calculation_valid": true,
+    "extraction_manifest_matches_snapshot": false,
+    "freshness_status": "UNKNOWN",
+    "identity_and_lineage_status": "INCOMPLETE",
+    "lineage_status": "INCOMPLETE",
+    "official_future_evaluation_ready": false,
+    "public_paper_decision_ready": false,
+    "receipt_evidence_status": "PARTIAL_MARKET_RECEIPT_FINANCIAL_RECEIPT_INCOMPLETE",
+    "scoreability_reasoning": "PASS_LOCKED_RULE; 50% weighted financial coverage retained; no 100% coverage gate added",
+    "source_panel_hash_matches": true,
+    "unique_top_rank_and_identity": "PASS"
+  },
+  "diagnostic_success": true,
+  "observation_limits": [
+    "observed_at_utc proves only that these exact bytes were present and hashed at observation time.",
+    "It does not prove source receipt time, historical availability, freshness, absence of newer disclosures, or authorization.",
+    "No order, decision, official event, prospective evaluation, or source data was written."
+  ],
+  "panel_provenance": {
+    "extraction_manifest": {
+      "consistency_checks": {
+        "dataset_id_matches": false,
+        "evaluation_date_matches": true,
+        "financial_latest_published_matches_panel": false,
+        "manifest_panel_hash_matches": true,
+        "price_latest_matches_panel": true,
+        "publication_cutoff_matches": false
+      },
+      "dataset_id": "v12_35_official_tsetmc_owner_local_fundamentals_20261021",
+      "evaluation_date": "2026-10-21",
+      "financial": {
+        "comparatives_path": "ranking_research/output/owner_current_inputs_20261014T215850582899Z/comparative_lineage.json",
+        "current_features_path": "ranking_research/output/owner_current_inputs_20261014T215850582899Z/owner_features.csv",
+        "current_lineage_path": "ranking_research/output/owner_current_inputs_20261014T215850582899Z/current_live_lineage.json",
+        "observed_at_not_used_as_received_at": true,
+        "published_at_preserved": true,
+        "report_versions": 7321,
+        "reports_path": "ranking_research/output/owner_current_inputs_20261014T215850582899Z/input_reports.json",
+        "selected_by_company": 254,
+        "verified_comparative_facts": 17393
+      },
+      "market_package": {
+        "audit": {
+          "appended_rows": 3556,
+          "largest_close_revision_fraction": 0.0,
+          "largest_turnover_or_volume_revision_fraction": 0.01666549178921604,
+          "latest_date_count": 254,
+          "overlap_rows": 11648,
+          "overlap_value_mismatches": 14,
+          "price_revision_rows": 0,
+          "records": 254,
+          "share_matches": 245,
+          "share_snapshot_collected_at": "2026-10-22T13:19:22.460803+00:00",
+          "symbols_with_30_valid_prices": 252,
+          "turnover_or_volume_revisions": 14
+        },
+        "path": "ranking_research/output/return_v12_35/official_tsetmc_20261022",
+        "registration_sha256": "ef1a2a712e251c9fa04b4939f6229e23b0fca5a77415be1b5e14dcfe695c230d",
+        "shares_source_path": "ranking_research/output/return_v12_35/official_tsetmc_20261022/share_snapshot.json",
+        "volume_audit": {
+          "correct_volume_price_bounds_fraction": 1.0,
+          "legacy_shared_library_modified": false,
+          "ohlc_value_identity_observations": 784202,
+          "transaction_count_as_volume_price_bounds_fraction": 0.0004488639406683482,
+          "transaction_count_field": "zTotTran",
+          "turnover_field": "qTotCap",
+          "volume_field": "qTotTran5J"
+        }
+      },
+      "network_requests": 0,
+      "official_ledger_written": false,
+      "official_tsetmc_source_manifest_sha256": "4c274614adf68a9cd0c6cd834435027a49f48d428b1687ecaa37fa7edab3cfb7",
+      "panel_sha256": "813c34aeaf6768e3c77c79fccb3b59aad1d3d3472e8413b53679584036e5b8e0",
+      "path": "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v12_36\\v12_36_20261022_existing_archive_reextraction_01\\extraction_manifest.json",
+      "publication_cutoff_at": "2026-10-22T00:00:00+03:30",
+      "receipt_limitation": "TSETMC receipt timestamps are observed now and do not prove historical availability. Codal report/event archives lack actual receipt timestamps; no PIT claim is made.",
+      "received_at": "2026-10-22T13:19:22.460803+00:00",
+      "sha256": "023c2aa7e65f6a8d6ba9bd995d110ed0ff133bed3c8a28484692280ed7fb2453",
+      "source_dates": {
+        "codal_received_at": null,
+        "corporate_action_adjustment_cache_effective_through": "2026-09-30",
+        "evaluation_price_latest": "2026-10-21",
+        "financial_latest_period_end": "2026-08-22",
+        "financial_latest_published_at": "2026-10-04T10:05:54+03:30",
+        "monthly_sales_latest_event_month": "2026-09-22",
+        "monthly_sales_latest_published_at": "2026-09-23 14:50:00+00:00",
+        "tsetmc_daily_retrieved_at": "per source record in official_tsetmc_20261022/manifest.json",
+        "tsetmc_last_trade_date_by_symbol": {
+          "2026-10-21": 254
+        },
+        "tsetmc_share_change_retrieved_at": "per source record in official_tsetmc_20261022/manifest.json"
+      },
+      "source_reuse_note": "V12.36 reused V12.35 TSETMC raw data and local archived Codal inputs; this extraction made no network or database call. Separate DB source audit was read-only."
+    },
+    "financial_age_days": {
+      "distribution": {
+        "122": 243,
+        "153": 1,
+        "184": 2,
+        "29": 2,
+        "60": 2,
+        "91": 4
+      },
+      "nonnull": 254,
+      "null": 0
+    },
+    "financial_factor_period_end": {
+      "max": "2026-08-22",
+      "min": "2025-08-22",
+      "nonnull": 254,
+      "unique": 8
+    },
+    "financial_latest_published_at": {
+      "max": "2026-10-11T13:36:29+03:30",
+      "min": "2026-05-21T20:37:13+03:30",
+      "nonnull": 254,
+      "unique": 254
+    },
+    "financial_period_end": {
+      "max": "2026-09-22",
+      "min": "2026-04-20",
+      "nonnull": 254,
+      "unique": 6
+    },
+    "panel_sha256": "813c34aeaf6768e3c77c79fccb3b59aad1d3d3472e8413b53679584036e5b8e0",
+    "path": "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v12_36\\v12_36_20261022_existing_archive_reextraction_01\\normalized_raw_factor_panel.parquet",
+    "price_age_days": {
+      "distribution": {
+        "0": 235,
+        "1": 5,
+        "2": 4,
+        "21": 5,
+        "31": 1,
+        "4": 1,
+        "7": 3
+      },
+      "nonnull": 254,
+      "null": 0
+    },
+    "price_date": {
+      "max": "2026-10-21",
+      "min": "2026-09-20",
+      "nonnull": 254,
+      "unique": 7
+    },
+    "price_valid_sessions_30d": {
+      "distribution": {
+        "21": 1,
+        "24": 1,
+        "30": 252
+      },
+      "nonnull": 254,
+      "null": 0
+    },
+    "received_at": {
+      "distribution": {
+        "None": 254
+      },
+      "nonnull": 0,
+      "null": 254
+    },
+    "rows": 254,
+    "sha256": "813c34aeaf6768e3c77c79fccb3b59aad1d3d3472e8413b53679584036e5b8e0",
+    "top_p1_source_lineage": {
+      "financial_age_days": 122,
+      "financial_factor_lineage": [
+        {
+          "observed_at": "2026-10-14T20:15:07.708257+00:00",
+          "period_end": "2026-06-21",
+          "published_at": "2026-07-16T15:47:58+03:30",
+          "received_at": null,
+          "sha256": "c73966dabfb7c9faf7cefb862938666c20417766081245bada7cd9b922d56667",
+          "source": "D:\\RFA\\Company-Financial\\provenance_v1\\output\\exp_2k13_codal\\raw\\غاذر_1569119.html",
+          "tracing_no": "1569119"
+        }
+      ],
+      "financial_factor_period_end": "2026-06-21",
+      "financial_latest_published_at": "2026-07-16T15:47:58+03:30",
+      "financial_lineage": {
+        "published_at_max": "2026-07-16T15:47:58+03:30",
+        "published_at_min": "2021-06-09T16:22:43+04:30",
+        "received_at_max": "2026-10-14T20:15:07.772783+00:00",
+        "received_at_min": "2026-10-13T11:44:01.029519+00:00",
+        "received_count": 22,
+        "report_count": 22
+      },
+      "financial_period_end": "2026-06-21",
+      "price_age_days": 0,
+      "price_date": "2026-10-21",
+      "price_valid_sessions_30d": 30,
+      "sales_lineage": {
+        "known_from_max": "2026-08-25 00:00:00",
+        "known_from_min": "2021-04-24 00:00:00",
+        "published_at_recorded_count": 0,
+        "received_at_recorded_count": 0,
+        "selected_month_versions": 67
+      },
+      "valuation_provenance": {
+        "price_basis": "unadjusted TSETMC close; adjusted share/corporate action metadata unavailable after 2026-09-30",
+        "price_date": "2026-10-21",
+        "share_as_of": "2026-10-21",
+        "share_collected_at": "2026-10-22T13:19:22.460803+00:00",
+        "share_snapshot_id": "35158826900216508"
+      }
+    }
+  },
+  "schema_version": 1,
+  "sealed_observation": {
+    "copied_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf04a\\evidence\\final-v12-36\\latest-ranking.json",
+    "meaning": "ثبت وجود همین bytes در observed_at_utc؛ این زمان، received_at منبع یا دریافت در evaluation_date نیست.",
+    "observed_at_utc": "2026-10-25T15:44:28.244524+00:00",
+    "path_at_observation": "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v12_36\\v12_36_20261022_existing_archive_reextraction_01\\ranking\\latest-ranking.json",
+    "schema_version": 1,
+    "sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421"
+  },
+  "snapshot": {
+    "artifact_id": "v12_36_statement_type_aware_existing_archives_20261021-ranking-2026-10-21",
+    "canonical_artifact_sha256": "25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224",
+    "canonical_hash_matches": true,
+    "computed_at_utc": "2026-10-22T16:40:06.217845+00:00",
+    "contract_sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+    "counts": {
+      "rows": 254,
+      "scored": {
+        "P1": 166,
+        "P3": 225
+      },
+      "unique_company_ids": 254,
+      "unique_symbols": 254,
+      "unscored": {
+        "P1": 88,
+        "P3": 29
+      }
+    },
+    "evaluation_date": "2026-10-21",
+    "manifest": {
+      "matches_snapshot": true,
+      "path": "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v12_36\\v12_36_20261022_existing_archive_reextraction_01\\ranking\\manifest.json",
+      "present": true,
+      "recorded_artifact_sha256": "25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224",
+      "recorded_json_sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421"
+    },
+    "observed_at_utc": "2026-10-25T15:44:28.230935+00:00",
+    "publication_cutoff_at": "2026-10-21T20:29:59.999999+00:00",
+    "received_at": null,
+    "received_at_status": "SOURCE DOES NOT RECORD ACTUAL RECEIPT TIME",
+    "snapshot_path": "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v12_36\\v12_36_20261022_existing_archive_reextraction_01\\ranking\\latest-ranking.json",
+    "snapshot_sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421",
+    "source": {
+      "dataset_id": "v12_36_statement_type_aware_existing_archives_20261021",
+      "path": "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/normalized_raw_factor_panel.parquet",
+      "sha256": "813c34aeaf6768e3c77c79fccb3b59aad1d3d3472e8413b53679584036e5b8e0"
+    },
+    "status": "PREPARATION_UNCONFIRMED",
+    "top_candidates": {
+      "P1": [
+        {
+          "company_id": "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+          "coverage": 0.9999999999999999,
+          "identity_status": "FROZEN_IDENTITY_RESOLVED",
+          "price_effective_date": "2026-10-21",
+          "publication_cutoff_at": "2026-10-21T20:29:59.999999+00:00",
+          "rank": 1,
+          "received_at": null,
+          "score": 60.8593449339933,
+          "symbol": "غاذر"
+        }
+      ],
+      "P3": [
+        {
+          "company_id": "b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b",
+          "rank": 1,
+          "score": 53.95767068577174,
+          "symbol": "غاذر"
+        }
+      ]
+    },
+    "unscored_reason_counts": {
+      "P1": {
+        "پوشش وزن‌دار 0.0% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 10.4% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 3,
+        "پوشش وزن‌دار 16.4% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 29.9% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 34.3% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 7,
+        "پوشش وزن‌دار 35.8% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 3,
+        "پوشش وزن‌دار 37.3% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 5,
+        "پوشش وزن‌دار 38.8% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 3,
+        "پوشش وزن‌دار 40.3% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 4,
+        "پوشش وزن‌دار 41.8% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 45,
+        "پوشش وزن‌دار 43.3% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 3,
+        "پوشش وزن‌دار 47.8% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 6,
+        "پوشش وزن‌دار 49.3% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 5,
+        "پوشش وزن‌دار 7.5% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1
+      },
+      "P3": {
+        "پوشش وزن‌دار 10.8% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 3,
+        "پوشش وزن‌دار 15.7% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 19.3% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 24.1% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 27.7% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 28.9% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 30.1% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 33.7% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 36.1% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 39.8% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 2,
+        "پوشش وزن‌دار 42.2% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 43.4% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 45.8% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1,
+        "پوشش وزن‌دار 47.0% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 6,
+        "پوشش وزن‌دار 48.2% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 3,
+        "پوشش وزن‌دار 49.4% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 3,
+        "پوشش وزن‌دار 6.0% است و از حداقل ۵۰٪ قفل‌شده کمتر است.": 1
+      }
+    }
+  },
+  "unknown_reasons": [
+    "MARKET_PACKAGE_RECEIPT_IS_RECORDED; FINANCIAL_RECEIPT_IS_NOT_PER_ROW_RECORDED",
+    "FINANCIAL_SOURCE_RECEIPT_AND_AS_OF_LINEAGE_NOT_PROVEN_BY_RANKING_ARTIFACT",
+    "FRESHNESS_POLICY_FOR_A_NEW_PUBLIC_PAPER_DECISION_IS_UNDEFINED_OR_NOT_EVIDENCED",
+    "PRICE_AND_CORPORATE_ACTION_COMPLETENESS_REQUIRES_CURRENT_DECISION_SPECIFIC_REVIEW",
+    "CURRENTNESS_DOES_NOT_PROVE_NO_NEW_DISCLOSURES_AFTER_SOURCE_CUTOFF"
+  ],
+  "validator": {
+    "command": [
+      "D:\\RFA\\Company-Financial\\.venv\\Scripts\\python.exe",
+      "-X",
+      "utf8",
+      "D:\\RFA\\Company-Financial\\ranking_research\\future_eval_v12_30\\validate_latest_ranking.py",
+      "--artifact-dir",
+      "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf04a\\evidence\\final-v12-36",
+      "--panel",
+      "D:\\RFA\\Company-Financial\\ranking_research\\output\\return_v12_36\\v12_36_20261022_existing_archive_reextraction_01\\normalized_raw_factor_panel.parquet",
+      "--dataset-id",
+      "v12_36_statement_type_aware_existing_archives_20261021"
+    ],
+    "exit_code": 0,
+    "status": "PASS",
+    "stderr": "",
+    "stdout": "{\"all_254_symbols_present\": true, \"artifact_sha256\": \"25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224\", \"checks\": {\"P1_score_count_matches_manifest\": true, \"P1_scores_match_locked_return_v8_engine\": true, \"P1_ties_and_rank_order_match_contract\": true, \"P3_score_count_matches_manifest\": true, \"P3_scores_match_locked_return_v8_engine\": true, \"P3_ties_and_rank_order_match_contract\": true, \"all_254_frozen_identities_retained\": true, \"historical_common_date_and_cutoff\": true, \"not_prospective_and_no_ledger\": true, \"recomputed_payload_matches_saved_source_snapshot\": true, \"status_matches_data_date_and_receipt_is_unknown\": true}, \"contract_sha256\": \"8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8\", \"evaluation_date\": \"2026-10-21\", \"official_ledger_written\": false, \"scored_count\": {\"P1\": 166, \"P3\": 225}, \"status\": \"PASS\", \"unscored_count\": {\"P1\": 88, \"P3\": 29}}",
+    "validation_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf04a\\evidence\\final-v12-36\\validation.json"
+  }
+}

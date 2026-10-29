@@ -1,0 +1,24 @@
+{
+  "working_directory": "D:/RFA/Company-Financial",
+  "runs": [
+    {
+      "command": ".venv/Scripts/python.exe -X utf8 docs/paper_portfolio_delivery/task-tf04a/assess_ranking_readiness.py --snapshot ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/ranking/latest-ranking.json --manifest ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/ranking/manifest.json --output-dir docs/paper_portfolio_delivery/task-tf04a/evidence/final-v12-36",
+      "exit_code": 0,
+      "stdout_file": "evidence/final-v12-36.stdout.json",
+      "result_file": "evidence/final-v12-36/readiness.json"
+    },
+    {
+      "command": ".venv/Scripts/python.exe -X utf8 docs/paper_portfolio_delivery/task-tf04a/assess_ranking_readiness.py --snapshot ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/ranking/latest-ranking.json --manifest ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/ranking/manifest.json --output-dir docs/paper_portfolio_delivery/task-tf04a/evidence/final-v12-37",
+      "exit_code": 0,
+      "stdout_file": "evidence/final-v12-37.stdout.json",
+      "result_file": "evidence/final-v12-37/readiness.json"
+    },
+    {
+      "command": ".venv/Scripts/python.exe -X utf8 -m pytest docs/paper_portfolio_delivery/task-tf04a/test_assess_ranking_readiness.py -q --basetemp $env:TEMP/tf04a-pytest-20261025-final",
+      "exit_code": 0,
+      "result_file": "evidence/test-run.json"
+    }
+  ],
+  "no_network_or_live_acquisition": true,
+  "no_main_account_scheduler_or_ledger_activation": true
+}

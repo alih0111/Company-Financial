@@ -1,0 +1,65 @@
+{
+  "task": "TF-04A",
+  "diagnostic_success": true,
+  "decision_readiness": "BLOCKED_UNKNOWN",
+  "calculation_valid": true,
+  "lineage_status": "INCOMPLETE",
+  "receipt_evidence_status": "PARTIAL_MARKET_RECEIPT_FINANCIAL_RECEIPT_INCOMPLETE",
+  "freshness_status": "UNKNOWN_POLICY_UNDEFINED",
+  "public_paper_decision_ready": false,
+  "official_future_evaluation_ready": false,
+  "ranking_status_unchanged": "PREPARATION_UNCONFIRMED",
+  "snapshot_results": {
+    "v12-36": {
+      "evaluation_date": "2026-10-21",
+      "file_sha256": "629cf6b9a123df4bdaa0d7baafd4984287da7b63568ba2ba86c93158a2b2224",
+      "canonical_artifact_sha256": "25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224",
+      "validator": "PASS",
+      "identity_count": 254,
+      "P1_scored": 166,
+      "P3_scored": 225,
+      "top_P1": "غاذر",
+      "extraction_manifest_consistency": "FAIL_METADATA_MISMATCH"
+    },
+    "v12-37": {
+      "evaluation_date": "2026-10-24",
+      "file_sha256": "18485acf24389e5de07e56b7258b0306b03f5fb4cdd93976da346065b4571f67",
+      "canonical_artifact_sha256": "651a0dde9cf06f5967090b55f44607df156c82b689430c905ce870647da6a0ef",
+      "validator": "PASS",
+      "identity_count": 254,
+      "P1_scored": 166,
+      "P3_scored": 225,
+      "top_P1": "غاذر",
+      "extraction_manifest_consistency": "FAIL_METADATA_MISMATCH"
+    }
+  },
+  "blocked_reasons": [
+    "UPSTREAM_EXTRACTION_MANIFEST_METADATA_MISMATCH"
+  ],
+  "unknown_reasons": [
+    "SELECTED_FINANCIAL_FACTOR_RECEIPT_TIME_NOT_RECORDED",
+    "FRESHNESS_POLICY_FOR_PUBLIC_PAPER_DECISION_UNDEFINED",
+    "PRICE_CORPORATE_ACTION_ACCEPTANCE_POLICY_UNDEFINED"
+  ],
+  "not_asserted": [
+    "No minimum freshness threshold was invented.",
+    "No 100 percent factor coverage gate was invented.",
+    "PREPARATION_UNCONFIRMED was not rewritten to READY.",
+    "No PIT historical availability claim, decision, order, official ledger event, live acquisition, or scheduler action was made."
+  ],
+  "tests": {
+    "command": ".venv/Scripts/python.exe -X utf8 -m pytest docs/paper_portfolio_delivery/task-tf04a/test_assess_ranking_readiness.py -q --basetemp %TEMP%/tf04a-pytest-20261025-final",
+    "result": "8 passed"
+  },
+  "evidence_paths": [
+    "evidence/final-v12-36/readiness.json",
+    "evidence/final-v12-36/validation.json",
+    "evidence/final-v12-36/observed-manifest.json",
+    "evidence/final-v12-37/readiness.json",
+    "evidence/final-v12-37/validation.json",
+    "evidence/final-v12-37/observed-manifest.json",
+    "evidence/test-run.json",
+    "evidence/boundary-hashes.json"
+  ],
+  "next_step": "TF-04B: fix same-run source/extraction/ranking manifest lineage, acquire current 254-universe TSETMC price/share-change evidence and Codal LetterType 6/58 incremental evidence, approve freshness/quality policy, then run isolated temporary-account preview."
+}

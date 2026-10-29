@@ -1,0 +1,165 @@
+{
+  "after": {
+    "client/public/research/v12-36/latest-ranking.json": {
+      "bytes": 919284,
+      "exists": true,
+      "sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421"
+    },
+    "client/public/research/v12-36/paper-portfolio.json": {
+      "bytes": 9539,
+      "exists": true,
+      "sha256": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3"
+    },
+    "client/public/research/v12-37/latest-ranking.json": {
+      "bytes": 919363,
+      "exists": true,
+      "sha256": "18485acf24389e5de07e56b7258b0306b03f5fb4cdd93976da346065b4571f67"
+    },
+    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": {
+      "bytes": 2477,
+      "exists": true,
+      "sha256": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646"
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": {
+      "bytes": 9686,
+      "exists": true,
+      "sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8"
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.sha256": {
+      "bytes": 66,
+      "exists": true,
+      "sha256": "bbe83b6cad6512b3c767b981baed1518691ddba30f71fcb193edb07c76b66ba2"
+    },
+    "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/normalized_raw_factor_panel.parquet": {
+      "bytes": 347456,
+      "exists": true,
+      "sha256": "813c34aeaf6768e3c77c79fccb3b59aad1d3d3472e8413b53679584036e5b8e0"
+    },
+    "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/ranking/latest-ranking.json": {
+      "bytes": 919284,
+      "exists": true,
+      "sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421"
+    },
+    "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/ranking/manifest.json": {
+      "bytes": 1004,
+      "exists": true,
+      "sha256": "22fd90fa894472f831e64a0d7fe1f469df494036ea6981b91b7aca8d19ac9059"
+    },
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/extraction_manifest.json": {
+      "bytes": 61581,
+      "exists": true,
+      "sha256": "86885ddf75a2b942a84eda3636cf353156fea0d4bee5b51400845efb992d1e93"
+    },
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/normalized_raw_factor_panel.parquet": {
+      "bytes": 348334,
+      "exists": true,
+      "sha256": "fd5fb36e8e845729d9b0ae46f303c43e39c819f3b1a2d287582af28c72fdbd34"
+    },
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/ranking/latest-ranking.json": {
+      "bytes": 919363,
+      "exists": true,
+      "sha256": "18485acf24389e5de07e56b7258b0306b03f5fb4cdd93976da346065b4571f67"
+    },
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/ranking/manifest.json": {
+      "bytes": 1004,
+      "exists": true,
+      "sha256": "a17e722e6b9be2a2e130e19c7203e4cbd34da94c1861d0ded1ce501ea23b7f65"
+    },
+    "ranking_research/paper_calendar_policy.public-paper-v1.json": {
+      "bytes": 2504,
+      "exists": true,
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+    }
+  },
+  "all_unchanged": true,
+  "baseline_path": "D:\\RFA\\Company-Financial\\docs\\paper_portfolio_delivery\\task-tf04a\\evidence\\boundary-baseline.json",
+  "before": {
+    "client/public/research/v12-36/latest-ranking.json": {
+      "bytes": 919284,
+      "exists": true,
+      "sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421"
+    },
+    "client/public/research/v12-36/paper-portfolio.json": {
+      "bytes": 9539,
+      "exists": true,
+      "sha256": "7c6fa7f17f51fc93c8d3d439acfa52fbbbcc0b400653f585383f5201f0bb21b3"
+    },
+    "client/public/research/v12-37/latest-ranking.json": {
+      "bytes": 919363,
+      "exists": true,
+      "sha256": "18485acf24389e5de07e56b7258b0306b03f5fb4cdd93976da346065b4571f67"
+    },
+    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": {
+      "bytes": 2477,
+      "exists": true,
+      "sha256": "ab31c9275fcdc96f787b91de1c8ec314cf32fedb5b6249aa17911bad90ec5646"
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": {
+      "bytes": 9686,
+      "exists": true,
+      "sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8"
+    },
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.sha256": {
+      "bytes": 66,
+      "exists": true,
+      "sha256": "bbe83b6cad6512b3c767b981baed1518691ddba30f71fcb193edb07c76b66ba2"
+    },
+    "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/normalized_raw_factor_panel.parquet": {
+      "bytes": 347456,
+      "exists": true,
+      "sha256": "813c34aeaf6768e3c77c79fccb3b59aad1d3d3472e8413b53679584036e5b8e0"
+    },
+    "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/ranking/latest-ranking.json": {
+      "bytes": 919284,
+      "exists": true,
+      "sha256": "629cf6b9a123df4bdaa25751384bd270a84463f04b79d98fe0cf35f1743a6421"
+    },
+    "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/ranking/manifest.json": {
+      "bytes": 1004,
+      "exists": true,
+      "sha256": "22fd90fa894472f831e64a0d7fe1f469df494036ea6981b91b7aca8d19ac9059"
+    },
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/extraction_manifest.json": {
+      "bytes": 61581,
+      "exists": true,
+      "sha256": "86885ddf75a2b942a84eda3636cf353156fea0d4bee5b51400845efb992d1e93"
+    },
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/normalized_raw_factor_panel.parquet": {
+      "bytes": 348334,
+      "exists": true,
+      "sha256": "fd5fb36e8e845729d9b0ae46f303c43e39c819f3b1a2d287582af28c72fdbd34"
+    },
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/ranking/latest-ranking.json": {
+      "bytes": 919363,
+      "exists": true,
+      "sha256": "18485acf24389e5de07e56b7258b0306b03f5fb4cdd93976da346065b4571f67"
+    },
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/ranking/manifest.json": {
+      "bytes": 1004,
+      "exists": true,
+      "sha256": "a17e722e6b9be2a2e130e19c7203e4cbd34da94c1861d0ded1ce501ea23b7f65"
+    },
+    "ranking_research/paper_calendar_policy.public-paper-v1.json": {
+      "bytes": 2504,
+      "exists": true,
+      "sha256": "4cbcedd864361621d605682ebe22b7dd93121b4ae1dd0743c977466cd6be2778"
+    }
+  },
+  "observed_at_utc": "2026-10-25T15:46:25.401048+00:00",
+  "per_file_unchanged": {
+    "client/public/research/v12-36/latest-ranking.json": true,
+    "client/public/research/v12-36/paper-portfolio.json": true,
+    "client/public/research/v12-37/latest-ranking.json": true,
+    "ranking_research/output/paper_v12_38_first_fill/execution_rules_v1_2_0.json": true,
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json": true,
+    "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.sha256": true,
+    "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/normalized_raw_factor_panel.parquet": true,
+    "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/ranking/latest-ranking.json": true,
+    "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/ranking/manifest.json": true,
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/extraction_manifest.json": true,
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/normalized_raw_factor_panel.parquet": true,
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/ranking/latest-ranking.json": true,
+    "ranking_research/output/return_v12_37/v12_37_daily_paper-cycle-20261024T190004112005Z-d1278aa0/ranking/manifest.json": true,
+    "ranking_research/paper_calendar_policy.public-paper-v1.json": true
+  }
+}
