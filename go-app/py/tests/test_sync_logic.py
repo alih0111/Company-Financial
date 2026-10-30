@@ -219,5 +219,29 @@ class ResolveLetterTypesTests(unittest.TestCase):
         self.assertEqual(sync_codal.resolve_letter_types(args), [58])
 
 
+def _scan_stats() -> dict:
+    return {"pages": 0, "scanned": 0, "already": 0, "new": 0, "ingested": 0,
+            "completed": 0, "failed": 0, "errors": 0}
+
+
+class RateLimitStopTests(unittest.TestCase):
+    def test_rate_limited_page_ends_scan_without_counting_an_error(self):
+        from codal_transport import CodalRateLimited
+
+        stats = _scan_stats()
+        with mock.patch.object(codal_feed, "discover_reports",
+                               side_effect=CodalRateLimited("limited")):
+            self.assertIsNone(sync_codal._discover_page(6, 17, stats))
+        self.assertEqual(stats["stop_reason"], "rate_limited")
+        self.assertEqual(stats["errors"], 0)
+
+    def test_healthy_page_is_returned_unchanged(self):
+        page = FeedPage(letter_type=6, page_number=1, total=0, reports=[])
+        stats = _scan_stats()
+        with mock.patch.object(codal_feed, "discover_reports", return_value=page):
+            self.assertIs(sync_codal._discover_page(6, 1, stats), page)
+        self.assertNotIn("stop_reason", stats)
+
+
 if __name__ == "__main__":
     unittest.main()

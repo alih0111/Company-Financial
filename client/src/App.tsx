@@ -6,6 +6,7 @@ import ChartComponent from "./components/ChartComponent";
 import PriceChart from "./components/PriceChart";
 import ScoreBreakdown from "./components/ScoreBreakdown";
 import ScoreFreshnessBadge from "./components/ScoreFreshnessBadge";
+import CodalCaptchaWatcher from "./components/CodalCaptchaWatcher";
 import useCompanyData from "./hooks/useCompanyData";
 import { useDarkMode } from "./utils/theme";
 import { FaChartBar, FaArrowUp, FaArrowDown, FaBullseye } from "react-icons/fa";
@@ -542,6 +543,8 @@ const App = () => {
               {location.pathname !== "/login" &&
                 location.pathname !== "/register" &&
                 !isRankingSection && <ScoreFreshnessBadge />}
+              {/* هر جا جمع‌آوری کدال به کد امنیتی بخورد، همان‌جا در سایت پنل باز می‌شود. */}
+              {!isGuestOnly && <CodalCaptchaWatcher />}
               <Suspense fallback={<PageLoader />}>
                 <div key={location.pathname} className="animate-fade-in-up">
                   <Routes>
@@ -569,7 +572,12 @@ const App = () => {
                     path="/Table"
                     element={
                       <ProtectedRoute>
-                        <BigDataTable data={bigTableData} />
+                        <BigDataTable
+                          data={bigTableData}
+                          onScoresRefreshed={
+                            isAdmin ? handleDataCollected : undefined
+                          }
+                        />
                       </ProtectedRoute>
                     }
                   />

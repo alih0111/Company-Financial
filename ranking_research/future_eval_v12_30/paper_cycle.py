@@ -51,13 +51,19 @@ def latest_complete_market_manifest() -> Path | None:
     return None
 
 
-def select_ranking_context(market: dict) -> dict:
-    """Choose one consistent v12.37 context for every downstream stage."""
+def select_ranking_context(market: dict, now: dt.datetime | None = None) -> dict:
+    """Choose one consistent information date and a separate market date.
+
+    The ranking date is the date information is available to the operator; the
+    most recent quote may legitimately be older (weekends, holidays, or a
+    report collected after the close).
+    """
     latest_dates = market.get("latest_quote_dates", {})
     market_date = next((date for date, count in latest_dates.items() if int(count) == 254), None)
     complete = bool(market_date and int(market.get("completed_count", 0)) == 254
                     and int(market.get("failed_count", 1)) == 0)
-    evaluation_date = market_date if complete else "2026-10-21"
+    local_today = (now or dt.datetime.now(dt.timezone.utc)).astimezone(TEHRAN).date().isoformat()
+    evaluation_date = max(local_today, market_date) if complete else local_today
     return {"market_complete": complete, "market_date": market_date,
             "evaluation_date": evaluation_date,
             "dataset_id": f"v12_37_balance_marker_safe_{evaluation_date.replace('-', '')}"}
@@ -852,7 +858,10 @@ def main() -> int:
         ranking_stage = run_stage("ranking_p1_p3", [str(PYTHON),
             str(ROOT / "ranking_research/future_eval_v12_30/build_latest_supported_v12_37.py")], 3600, rank_env)
         if ranking_stage["status"] == "process_exited_zero":
-            ranking_stage["status"] = "rebuilt_with_fresh_market_and_archived_fundamentals" if context["market_complete"] else "rebuilt_from_archives_only"
+            if admitted_total:
+                ranking_stage["status"] = "rebuilt_with_canonical_quick_sync_inputs"
+            else:
+                ranking_stage["status"] = "rebuilt_with_fresh_market_and_archived_fundamentals" if context["market_complete"] else "rebuilt_from_archives_only"
         stages.append(ranking_stage)
         ranking_path = ROOT / "client/public/research/v12-37/latest-ranking.json"
         impact_path = ranking_comparison(

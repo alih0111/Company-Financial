@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -22,7 +22,7 @@ import {
 import QuickSyncModal from "./QuickSyncModal";
 import SymbolSyncModal from "./SymbolSyncModal";
 import { useDarkMode } from "../utils/theme";
-import { addViewedItem, collectBrsPrices } from "../utils/api";
+import { addViewedItem, collectBrsPrices, getActiveCodalSyncJob } from "../utils/api";
 
 interface SidebarProps {
   companyOptions: { value: string; label: string }[];
@@ -87,6 +87,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [brsMsg, setBrsMsg] = useState<string | null>(null);
   const [quickSyncOpen, setQuickSyncOpen] = useState(false);
   const [quickSyncing, setQuickSyncing] = useState(false);
+  const [codalWaitingCaptcha, setCodalWaitingCaptcha] = useState(false);
   // جمع‌آوری سود/فروش per-symbol — مودال با تعداد گزارش دلخواه
   const [symbolSync, setSymbolSync] = useState<"financial" | "monthly" | null>(
     null,
@@ -97,6 +98,23 @@ const Sidebar: React.FC<SidebarProps> = ({
     text: string;
   } | null>(null);
   const { darkMode } = useDarkMode();
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    let stopped = false;
+    let timer = 0;
+    const check = async () => {
+      try {
+        const active = await getActiveCodalSyncJob();
+        if (!stopped) setCodalWaitingCaptcha(active?.state === "waiting_captcha");
+      } catch {
+        // Sidebar visibility is informational; the modal reports polling errors.
+      }
+      if (!stopped) timer = window.setTimeout(check, 2500);
+    };
+    void check();
+    return () => { stopped = true; window.clearTimeout(timer); };
+  }, [isAdmin]);
 
   // جمع‌آوری تاریخچه‌ی قیمت نماد انتخاب‌شده از BRS
   const runCompanyPrices = async () => {
@@ -403,15 +421,15 @@ const Sidebar: React.FC<SidebarProps> = ({
               <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
                 <button
                   onClick={() => setQuickSyncOpen(true)}
-                  disabled={quickSyncing}
+                  aria-live="polite"
                   className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm transition-all duration-200 ${
-                    quickSyncing
+                    quickSyncing && !codalWaitingCaptcha
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20  active:scale-[0.98]"
                   }`}
                 >
                   <FaBolt size={13} />
-                  {quickSyncing ? "در حال بررسی..." : "جمع‌آوری سریع"}
+                  {codalWaitingCaptcha ? "کد امنیتی منتظر پاسخ است" : quickSyncing ? "در حال بررسی... · بازکردن وضعیت" : "جمع‌آوری سریع"}
                 </button>
               </div>
 

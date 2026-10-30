@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { getAuthStatus } from "../hooks/useGetUser";
+import { getRankingRefreshStatus, startRankingRefresh } from "../utils/api";
 
 type MethodRow = { rank: number | null; score: number | null; financial_factor_coverage: number; quality: string; scoreability_reason: string | null };
 type RankingRow = {
@@ -37,6 +39,11 @@ export default function LatestLockedRanking() {
   const [comparison, setComparison] = useState(false);
   const [version, setVersion] = useState<"v12-37" | "v12-36" | "v12-35" | "v12-34" | "v12-33" | "v12-32" | "v12-31">("v12-37");
   const [attempt, setAttempt] = useState(0);
+  const [refreshBusy, setRefreshBusy] = useState(false);
+  const [refreshMessage, setRefreshMessage] = useState("");
+  const [refreshBaseline, setRefreshBaseline] = useState<{ runId: string; lastRunTime: string } | null>(null);
+  const isAdmin = getAuthStatus().isAdmin;
+
   useEffect(() => {
     const controller = new AbortController();
     setData(null); setError("");
@@ -55,6 +62,52 @@ export default function LatestLockedRanking() {
     return () => controller.abort();
   }, [attempt, version]);
 
+  useEffect(() => {
+    if (!refreshBaseline) return;
+    let alive = true;
+    const poll = async () => {
+      try {
+        const status = await getRankingRefreshStatus();
+        if (!alive || status.state.toLowerCase() === "running") return;
+        const newRunFinished = status.latest_run_id !== refreshBaseline.runId ||
+          status.last_run_time !== refreshBaseline.lastRunTime;
+        if (!newRunFinished) return;
+
+        if (status.latest_run_id !== refreshBaseline.runId && status.ranking_stage_status && !/fail/i.test(status.ranking_stage_status)) {
+          setRefreshMessage(status.fresh_financial_reports
+            ? `رتبه‌بندی بازسازی شد و ورودی مالی تازه پذیرفته شد؛ وضعیت مرحله: ${status.ranking_stage_status}.`
+            : `رتبه‌بندی بازسازی شد، اما در این اجرا گزارش مالی تازه‌ای برای امتیازدهی پذیرفته نشد؛ وضعیت مرحله: ${status.ranking_stage_status}.`);
+          setAttempt((value) => value + 1);
+        } else {
+          setRefreshMessage("چرخه پایان یافت، اما رتبه‌بندی جدید تأیید نشد. گزارش چرخه را بررسی کنید.");
+        }
+        setRefreshBusy(false);
+        setRefreshBaseline(null);
+      } catch (reason) {
+        if (alive) setRefreshMessage(reason instanceof Error ? reason.message : "خواندن وضعیت چرخه ناموفق بود؛ در حال تلاش دوباره…");
+      }
+    };
+    void poll();
+    const timer = window.setInterval(poll, 5000);
+    return () => { alive = false; window.clearInterval(timer); };
+  }, [refreshBaseline]);
+
+  const beginRefresh = async () => {
+    setRefreshBusy(true);
+    setRefreshMessage("درخواست شروع چرخهٔ دریافت و محاسبه ارسال شد؛ منتظر پایان اجرا هستیم…");
+    try {
+      const result = await startRankingRefresh();
+      setRefreshBaseline({
+        runId: result.baseline_run_id,
+        lastRunTime: result.already_running ? "" : result.baseline_last_run_time,
+      });
+      if (result.already_running) setRefreshMessage("چرخه از قبل در حال اجراست؛ نتیجه را دنبال می‌کنم…");
+    } catch (reason) {
+      setRefreshBusy(false);
+      setRefreshMessage(reason instanceof Error ? reason.message : "شروع چرخه ناموفق بود.");
+    }
+  };
+
   const rows = useMemo(() => {
     if (!data) return [];
     const q = search.trim().toLocaleLowerCase();
@@ -68,8 +121,13 @@ export default function LatestLockedRanking() {
         <h2 id="latest-ranking-title" className="mt-1 text-xl font-black sm:text-2xl">آخرین رتبه‌بندی موجود — P1</h2>
         <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">P1 / valuation_0 · تاریخ ارزیابی {data ? date(data.evaluation_date) : "در حال خواندن…"} · رتبهٔ اول صرفاً رتبه است، نه سفارش خرید.</p>
       </div>
+      {isAdmin && version === "v12-37" && <button type="button" onClick={beginRefresh} disabled={refreshBusy}
+        className="rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-emerald-800 disabled:cursor-wait disabled:opacity-60">
+        {refreshBusy ? "در حال دریافت و محاسبه…" : "به‌روزرسانی رتبه‌بندی"}
+      </button>}
       {data && <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-bold text-amber-900 dark:bg-amber-950 dark:text-amber-100">{data.status === "HISTORICAL" ? "تاریخی" : "آماده‌سازی تأییدنشده"} · {data.evaluation_date}</span>}
     </header>
+    {refreshMessage && <p role="status" aria-live="polite" className="rounded-xl bg-slate-100 px-3 py-2 text-sm leading-6 text-slate-700 dark:bg-slate-900 dark:text-slate-200">{refreshMessage}{refreshBusy && <span className="ms-2 text-xs opacity-70">گزارش تفصیلی در بخش «سبد آزمایشی» ثبت می‌شود.</span>}</p>}
     {error ? <div role="alert" className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-sm leading-7 text-rose-950 dark:bg-rose-950/30 dark:text-rose-100"><p>{error}</p><button className="mt-2 underline" onClick={() => setAttempt((v) => v + 1)}>تلاش دوباره</button></div> : !data ? <p role="status" className="text-sm">در حال خواندن خروجی مشخص رتبه‌بندی…</p> : <>
       <div className="grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-4">
         <p className="rounded-lg bg-slate-50 p-2 dark:bg-slate-900">ارزیابی مشترک: <b>{date(data.evaluation_date)}</b></p>
@@ -102,7 +160,7 @@ export default function LatestLockedRanking() {
         </table>
       </div>
       <details className="text-xs leading-6"><summary className="cursor-pointer font-semibold">منبع و محدودیت‌ها</summary><p>منبع صریح: {data.source.path} · مجموعه {data.source.dataset_id} · SHA-256 {data.source.sha256}. قرارداد {data.contract_id} · SHA-256 {data.contract_sha256}. محاسبه‌گر {data.scorer_version}. زمان محاسبه {data.computed_at_tehran}.</p><p>زمان cutoff انتشار از زمان دریافت جداست؛ منبع زمان دریافت ندارد. این جدول بازپخش امتیاز در تاریخ داده است و تصمیم O00 یا نتیجهٔ ارزیابی آینده نیست.</p><ul className="list-disc px-5">{data.limitations.map((x) => <li key={x}>{x}</li>)}</ul></details>
-      <p className="rounded-lg bg-amber-50 p-3 text-xs leading-6 text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">این رتبه‌بندی برای تاریخ ارزیابی {data.evaluation_date} است و «آماده‌سازی تأییدنشده» می‌ماند. آخرین دریافت ثبت‌شدهٔ TSETMC در بالا آمده؛ {data.received_at_status || "زمان دریافت واقعی آرشیوهای مالی و فروش ثبت نشده است."} دریافت این داده‌ها در cutoff گذشته اثبات نمی‌شود. این فایل ایستا است، روزانه خودکار بازسازی نمی‌شود و ادعای PIT یا رتبهٔ زنده ندارد. عوامل مالی به دورهٔ واقعی صورت مالی متصل‌اند؛ عوامل مفقود طبق mask و پوشش قرارداد مدیریت شده‌اند.</p>
+      <p className="rounded-lg bg-amber-50 p-3 text-xs leading-6 text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">این رتبه‌بندی برای تاریخ ارزیابی {data.evaluation_date} است و «آماده‌سازی تأییدنشده» می‌ماند. آخرین دریافت ثبت‌شدهٔ TSETMC در بالا آمده؛ {data.received_at_status || "زمان دریافت واقعی آرشیوهای مالی و فروش ثبت نشده است."} دریافت این داده‌ها در cutoff گذشته اثبات نمی‌شود. artifact در چرخهٔ روزانه یا با درخواست ادمین بازسازی می‌شود؛ اگر گزارش تازه دریافت یا پذیرفته نشود، امتیاز مالی با دادهٔ قبلی می‌ماند. این خروجی ادعای PIT یا رتبهٔ زنده ندارد. عوامل مالی به دورهٔ واقعی صورت مالی متصل‌اند؛ عوامل مفقود طبق mask و پوشش قرارداد مدیریت شده‌اند.</p>
     </>}
   </section>;
 }

@@ -213,7 +213,12 @@ def get_report_links(page, row_meta):
 
 
 def parse_report_table(page, link):
-    page.goto(link, wait_until="domcontentloaded", timeout=60000)
+    try:
+        from codal_transport import navigate as _codal_navigate
+    except ImportError:
+        page.goto(link, wait_until="domcontentloaded", timeout=60000)
+    else:
+        _codal_navigate(page, link, timeout=60000)
     logging.info(f"🔍 Scraping report: {link}")
 
     wait_for_angular_stable(page)

@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import csv
 import json
+import logging
 import os
 import pathlib
 import sys
@@ -26,6 +27,7 @@ _HERE = pathlib.Path(__file__).resolve()
 _GO_APP = _HERE.parent.parent
 _PY2_SRC = _GO_APP / "py2" / "src"
 _OUT_DIR = _GO_APP.parent / "ingestion_migration_v1" / "output"
+log = logging.getLogger("codal.canonical_hook")
 
 _LEGACY_ONLY = "legacy_only"
 _IRST = timezone(timedelta(hours=3, minutes=30))
@@ -158,8 +160,14 @@ def facts_from_values(*, report_date: str | None = None, values: dict | None = N
     operating_profit, revenue, net_profit, finance_cost, other_non_operating,
     total_assets, current_assets, total_liabilities, current_liabilities,
     total_equity, operating_cash_flow). Money is rial; ps metrics are per-share.
-    This is the single in-memory representation feeding the canonical writer and
-    (optionally) the legacy mirror, so the two cannot diverge.
+
+    Comparative columns use suffixed keys: ``<metric>_last_year`` becomes
+    period_order 2 (prior_year_same_period) and ``<metric>_fy_prev`` becomes
+    period_order 3 (prior_fiscal_year). Only the statement metrics that carry
+    comparatives in _FACT_MAP accept them (eps, operating_eps, operating_profit,
+    revenue, net_profit). This is the single in-memory representation feeding
+    the canonical writer and (optionally) the legacy mirror, so the two cannot
+    diverge.
     """
     from decimal import Decimal
     values = values or {}
@@ -168,29 +176,45 @@ def facts_from_values(*, report_date: str | None = None, values: dict | None = N
                 "other_non_operating", "operating_cash_flow", "total_assets",
                 "current_assets", "total_liabilities", "current_liabilities",
                 "total_equity"}
+    # Statement metrics with comparative columns in _FACT_MAP (capital is part
+    # of the legacy map but facts_from_values has never emitted capital facts).
+    COMPARATIVE_METRICS = {"eps", "operating_eps", "operating_profit", "revenue", "net_profit"}
+    ORDER_SUFFIXES = {"_last_year": (2, "prior_year_same_period"),
+                      "_fy_prev": (3, "prior_fiscal_year")}
     facts = []
     for code, val in values.items():
         if val is None:
             continue
+        order, comparison, base = 1, "current", code
+        for suffix, (suffix_order, suffix_comparison) in ORDER_SUFFIXES.items():
+            if code.endswith(suffix) and code[: -len(suffix)] in COMPARATIVE_METRICS:
+                base, order, comparison = code[: -len(suffix)], suffix_order, suffix_comparison
+                break
         try:
             d = Decimal(str(val))
         except Exception:
             continue
-        if code in ps_metrics:
-            facts.append({"statement_type": "income_statement", "metric_code": code, "period_order": 1,
-                          "comparison_type": "current", "reported_value": d,
+        if order != 1 and float(d) == 0.0:
+            # Codal renders an absent comparative cell as "-" and to_number maps
+            # it to 0.0. A fabricated zero comparative would corrupt the
+            # analytics TTM (cur + fy_prev - ly), so absent stays absent: the
+            # fact is omitted and the TTM falls back to the report chain.
+            continue
+        if base in ps_metrics:
+            facts.append({"statement_type": "income_statement", "metric_code": base, "period_order": order,
+                          "comparison_type": comparison, "reported_value": d,
                           "reported_unit": "rial_per_share", "canonical_value": d,
                           "canonical_unit": "rial_per_share", "kind": "ps",
-                          "source_row_key": f"income_statement:{code}:1"})
-        elif code in monetary:
+                          "source_row_key": f"income_statement:{base}:{order}"})
+        elif base in monetary:
             # Parser values are in million_rial (legacy convention); canonical is rial.
-            facts.append({"statement_type": "income_statement" if code in
+            facts.append({"statement_type": "income_statement" if base in
                           ("revenue", "net_profit", "operating_profit", "finance_cost", "other_non_operating")
-                          else "balance_sheet", "metric_code": code, "period_order": 1,
-                          "comparison_type": "current", "reported_value": d,
+                          else "balance_sheet", "metric_code": base, "period_order": order,
+                          "comparison_type": comparison, "reported_value": d,
                           "reported_unit": "million_rial",
                           "canonical_value": d * Decimal(1000000), "canonical_unit": "rial",
-                          "kind": "m", "source_row_key": f"{'income_statement' if code in ('revenue','net_profit','operating_profit','finance_cost','other_non_operating') else 'balance_sheet'}:{code}:1"})
+                          "kind": "m", "source_row_key": f"{'income_statement' if base in ('revenue','net_profit','operating_profit','finance_cost','other_non_operating') else 'balance_sheet'}:{base}:{order}"})
     return facts
 
 
@@ -265,11 +289,15 @@ def codal_fallback_enabled() -> bool:
 
 
 def known_codal_report_ids(source_report_ids: list) -> set:
-    """کدام TracingNoها از قبل در canonical (ingestion.reports) موجودند.
+    """کدام TracingNoها از قبل با بدنه در canonical موجودند.
 
-    برای dedup مسیر sync-codal؛ تا گزارش‌های شناخته‌شده دوباره دانلود و
-    بازنویسی نشوند. در هر خطا مجموعه‌ی خالی برمی‌گردد (رفتار fail-open مثل بقیه
-    مرزهای isolation) — یعنی گزارش دوباره ingest می‌شود، نه اینکه از دست برود.
+    فقط گزارشی «شناخته‌شده» است که حداقل یک نسخه با بدنهٔ واقعی
+    (``raw.report_payloads.content_text``) داشته باشد. ردیف‌های metadata-only
+    که مسیرهای soak/مایگریشن با ``fetch_body=False`` نوشته‌اند نباید dedup را
+    قفل کنند؛ وگرنه گزارش برای همیشه «قبلاً دریافت‌شده» شمرده می‌شود ولی
+    هیچ عددی از آن استخراج نمی‌شود. در هر خطا مجموعه‌ی خالی برمی‌گردد
+    (رفتار fail-open مثل بقیه مرزهای isolation) — یعنی گزارش دوباره ingest
+    می‌شود، نه اینکه از دست برود.
     """
     ids = [str(s).strip() for s in (source_report_ids or []) if str(s).strip()]
     if not ids or not _load():
@@ -278,8 +306,15 @@ def known_codal_report_ids(source_report_ids: list) -> set:
         canonical_ingest = _canonical["mod"]
         with canonical_ingest.transaction() as conn, conn.cursor() as cur:
             cur.execute(
-                "SELECT source_report_id FROM ingestion.reports "
-                "WHERE source = 'codal' AND source_report_id = ANY(%s)",
+                """SELECT DISTINCT r.source_report_id
+                   FROM ingestion.reports r
+                   WHERE r.source = 'codal'
+                     AND r.source_report_id = ANY(%s)
+                     AND EXISTS (
+                       SELECT 1 FROM ingestion.report_versions v
+                       JOIN raw.report_payloads rp ON rp.report_version_id = v.id
+                       WHERE v.report_id = r.id AND rp.content_text IS NOT NULL
+                     )""",
                 (ids,),
             )
             return {str(row[0]) for row in cur.fetchall()}
@@ -290,6 +325,230 @@ def known_codal_report_ids(source_report_ids: list) -> set:
         except Exception:
             pass
         return set()
+
+
+def incomplete_codal_reports(*, days: int = 7, limit: int = 80,
+                             letter_types: tuple[int, ...] = (6, 58),
+                             symbol: str | None = None) -> list[dict]:
+    """گزارش‌های کدال که ردیفشان ثبت شده ولی بدنه‌شان ذخیره نشده است.
+
+    مسیرهای soak/مایگریشن با ``fetch_body=False`` فقط metadata نوشته‌اند.
+    چنین ردیفی «دریافت‌شده» نیست و بدنه/اعدادش باید دوباره گرفته شود.
+    خروجی برای ``sync_codal`` قابل استفاده است (TracingNo/Symbol/Url).
+    """
+    if not _load() or limit <= 0:
+        return []
+    allowed = tuple(int(x) for x in (letter_types or ()) if int(x) in (6, 58))
+    if not allowed:
+        return []
+    letter_re = "|".join(str(x) for x in allowed)
+    canonical_ingest = _canonical["mod"]
+    try:
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cur.execute(
+                """SELECT r.source_report_id, r.title, r.source_url, r.published_at,
+                          COALESCE(sec.codal_symbol, c.display_name) AS symbol,
+                          c.display_name
+                   FROM ingestion.reports r
+                   JOIN core.companies c ON c.id = r.company_id
+                   LEFT JOIN LATERAL (
+                       SELECT codal_symbol FROM core.securities
+                       WHERE company_id = r.company_id
+                         AND COALESCE(BTRIM(codal_symbol), '') <> ''
+                       ORDER BY is_primary DESC, created_at ASC LIMIT 1
+                   ) sec ON true
+                   WHERE r.source = 'codal'
+                     AND r.published_at >= now() - make_interval(days => %s)
+                     AND r.source_url IS NOT NULL
+                     AND r.source_url ~ ('[?&]let=(' || %s || ')(&|$)')
+                     AND NOT (r.source_url ~ '[?&]let=6(&|$)'
+                              AND r.title LIKE '%%حسابرسی شده%%')
+                     AND NOT EXISTS (
+                       SELECT 1 FROM ingestion.report_versions v
+                       JOIN raw.report_payloads rp ON rp.report_version_id = v.id
+                       WHERE v.report_id = r.id AND rp.content_text IS NOT NULL
+                     )
+                     AND (%s::text IS NULL OR sec.codal_symbol = %s)
+                   ORDER BY r.published_at DESC NULLS LAST
+                   LIMIT %s""",
+                (int(days), letter_re, symbol, symbol, int(limit)),
+            )
+            out = []
+            for row in cur.fetchall():
+                published = row[3]
+                out.append({
+                    "report_id": str(row[0]),
+                    "title": row[1],
+                    "url": row[2],
+                    "published_at": published.isoformat() if published is not None else None,
+                    "symbol": row[4],
+                    "company_name": row[5],
+                })
+            return out
+    except Exception as exc:  # noqa: BLE001
+        try:
+            print(json.dumps({"domain": "CODAL", "health": "INCOMPLETE_LOOKUP_FAILED",
+                              "error": str(exc)}, ensure_ascii=False))
+        except Exception:
+            pass
+        return []
+
+
+def codal_reports_missing_values(*, days: int = 7, hours: int = 6, limit: int = 80,
+                                 letter_types: tuple[int, ...] = (6, 58),
+                                 symbol: str | None = None) -> list[dict]:
+    """گزارش‌هایی که بدنه دارند ولی اعدادشان هنوز استخراج نشده است.
+
+    استخراج موفق یا unsupported با یک ``parse_run`` به نام ``codal_values``
+    علامت می‌خورد؛ پس ترمیم بعدی دوباره سراغشان نمی‌رود. ``hours`` پنجرهٔ
+    تازگیِ نسخهٔ بدنه است تا فقط بدنه‌هایی که همین اجرا/اجرای قبلی ذخیره شده‌اند
+    (مثلاً پس از لغو نیمه‌کاره) دوباره استخراج شوند، نه کل تاریخچه.
+    """
+    if not _load() or limit <= 0:
+        return []
+    allowed = tuple(int(x) for x in (letter_types or ()) if int(x) in (6, 58))
+    if not allowed:
+        return []
+    letter_re = "|".join(str(x) for x in allowed)
+    canonical_ingest = _canonical["mod"]
+    try:
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cur.execute(
+                """SELECT r.source_report_id, r.title, r.source_url, r.published_at,
+                          COALESCE(sec.codal_symbol, c.display_name) AS symbol,
+                          c.display_name
+                   FROM ingestion.reports r
+                   JOIN core.companies c ON c.id = r.company_id
+                   LEFT JOIN LATERAL (
+                       SELECT codal_symbol FROM core.securities
+                       WHERE company_id = r.company_id
+                         AND COALESCE(BTRIM(codal_symbol), '') <> ''
+                       ORDER BY is_primary DESC, created_at ASC LIMIT 1
+                   ) sec ON true
+                   WHERE r.source = 'codal'
+                     AND r.published_at >= now() - make_interval(days => %s)
+                     AND r.source_url IS NOT NULL
+                     AND r.source_url ~ ('[?&]let=(' || %s || ')(&|$)')
+                     AND NOT (r.source_url ~ '[?&]let=6(&|$)'
+                              AND r.title LIKE '%%حسابرسی شده%%')
+                     AND EXISTS (
+                       SELECT 1 FROM ingestion.report_versions v
+                       JOIN raw.report_payloads rp ON rp.report_version_id = v.id
+                       WHERE v.report_id = r.id AND rp.content_text IS NOT NULL
+                         AND v.created_at >= now() - make_interval(hours => %s)
+                     )
+                     AND NOT EXISTS (
+                       SELECT 1 FROM ingestion.parse_runs p
+                       JOIN ingestion.report_versions v ON v.id = p.report_version_id
+                       WHERE v.report_id = r.id AND p.parser_name = 'codal_values'
+                     )
+                     AND (%s::text IS NULL OR sec.codal_symbol = %s)
+                   ORDER BY r.published_at DESC NULLS LAST
+                   LIMIT %s""",
+                (int(days), letter_re, int(hours), symbol, symbol, int(limit)),
+            )
+            out = []
+            for row in cur.fetchall():
+                published = row[3]
+                out.append({
+                    "report_id": str(row[0]),
+                    "title": row[1],
+                    "url": row[2],
+                    "published_at": published.isoformat() if published is not None else None,
+                    "symbol": row[4],
+                    "company_name": row[5],
+                })
+            return out
+    except Exception as exc:  # noqa: BLE001
+        try:
+            print(json.dumps({"domain": "CODAL", "health": "MISSING_VALUES_LOOKUP_FAILED",
+                              "error": str(exc)}, ensure_ascii=False))
+        except Exception:
+            pass
+        return []
+
+
+def mark_codal_values_extraction(report_id: str, *, status: str = "completed",
+                                 report_date: str | None = None) -> bool:
+    """ثبت اینکه اعداد یک گزارش کدال استخراج شد (یا قالبش پشتیبانی نمی‌شود)."""
+    if not _load() or not str(report_id or "").strip():
+        return False
+    if status not in ("completed", "unsupported"):
+        return False
+    from psycopg.types.json import Jsonb
+
+    canonical_ingest = _canonical["mod"]
+    try:
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cur.execute(
+                """INSERT INTO ingestion.parse_runs
+                     (report_version_id, parser_name, parser_version, status,
+                      finished_at, parameters)
+                   SELECT v.id, 'codal_values', 'v1', %s, now(), %s
+                   FROM ingestion.report_versions v
+                   JOIN raw.report_payloads rp
+                     ON rp.report_version_id = v.id AND rp.content_text IS NOT NULL
+                   WHERE v.report_id = (
+                       SELECT id FROM ingestion.reports
+                       WHERE source = 'codal' AND source_report_id = %s LIMIT 1)
+                     AND NOT EXISTS (
+                       SELECT 1 FROM ingestion.parse_runs p
+                       WHERE p.report_version_id = v.id
+                         AND p.parser_name = 'codal_values')
+                   ORDER BY v.version_no DESC
+                   LIMIT 1""",
+                (status, Jsonb({"report_date": report_date}), str(report_id)),
+            )
+        return True
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def codal_covered_symbols() -> set[str]:
+    """نمادهای کدالِ تحت پوشش canonical (core.securities.codal_symbol).
+
+    برای اینکه اسکن feed فقط گزارش‌های شرکت‌های تحت پوشش را «مرتبط» بداند و
+    گزارش نمادهای بیرون از پوشش، اسکن را تا عمق‌های قدیمی‌تر هل ندهد.
+    """
+    if not _load():
+        return set()
+    canonical_ingest = _canonical["mod"]
+    try:
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cur.execute(
+                "SELECT DISTINCT BTRIM(codal_symbol) FROM core.securities "
+                "WHERE COALESCE(BTRIM(codal_symbol), '') <> ''"
+            )
+            return {str(row[0]).strip() for row in cur.fetchall() if row and row[0]}
+    except Exception:  # noqa: BLE001
+        return set()
+
+
+def seen_codal_report_ids(source_report_ids: list) -> set:
+    """TracingNoهایی که قبلاً دیده شده‌اند: بدنه‌دار یا قرنطینه‌شده.
+
+    برای تصمیم «آیا این صفحه گزارش تازه‌ای برای پوشش ما دارد؟» استفاده
+    می‌شود. گزارش‌های بیرون از پوشش که یک‌بار قرنطینه شده‌اند نباید هر اجرا
+    دوباره اسکن عمیق را فعال کنند.
+    """
+    ids = [str(s).strip() for s in (source_report_ids or []) if str(s).strip()]
+    if not ids or not _load():
+        return set()
+    seen = known_codal_report_ids(ids)
+    canonical_ingest = _canonical["mod"]
+    try:
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cur.execute(
+                """SELECT DISTINCT details->>'source_report_id'
+                   FROM ingestion.data_quality_issues
+                   WHERE issue_code = 'identity_conflict'
+                     AND details->>'source_report_id' = ANY(%s)""",
+                (ids,),
+            )
+            seen.update(str(row[0]) for row in cur.fetchall() if row and row[0])
+    except Exception:  # noqa: BLE001
+        pass
+    return seen
 
 
 def get_codal_watermark(letter_type: int):
@@ -995,19 +1254,61 @@ def ingest_financial_authoritative_by_key(company_id, company_name, report_date,
 # --------------------------------------------------------------------------
 # CODAL REPORT (live lineage + raw capture)
 # --------------------------------------------------------------------------
+def _absolute_codal_url(url: str | None) -> str | None:
+    """Codal's feed returns site-relative report urls; urllib needs absolute ones.
+
+    Without this, urllib raises ``ValueError: unknown url type: '/Reports/...'``
+    for every *new* report, which is exactly the "new report fails instantly"
+    symptom while already-collected reports keep working.
+    """
+    if url is None:
+        return None
+    value = str(url).strip()
+    if not value:
+        return None
+    if value.startswith("//"):
+        return "https:" + value
+    if value.startswith("/"):
+        return "https://www.codal.ir" + value
+    if "://" not in value:
+        return "https://www.codal.ir/" + value.lstrip("/")
+    return value
+
+
 def _fetch_text(url: str, max_bytes: int = 512000) -> str | None:
     try:
-        import urllib.request
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=25) as resp:
-            raw = resp.read(max_bytes)
+        if __import__("os").environ.get("CODAL_JOB_DIR"):
+            from codal_transport import current
+            raw, content_type, _status = current().get(url, 25)
+            raw = raw[:max_bytes]
+            prefix = raw[:32000].lower()
+            if content_type in ("text/html", "application/xhtml+xml") and any(
+                token in prefix for token in (b"captcha", "کد امنیتی".encode(), "کد تصویری".encode(), b"security code")
+            ):
+                raise RuntimeError("Codal challenge page was not accepted as report content")
+        else:
+            import urllib.request
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=25) as resp:
+                raw = resp.read(max_bytes)
         for enc in ("utf-8", "windows-1256"):
             try:
                 return raw.decode(enc)
             except Exception:
                 continue
         return raw.decode("utf-8", "replace")
-    except Exception:
+    except (InterruptedError, TimeoutError):
+        raise
+    except Exception as exc:
+        try:
+            from codal_challenge import CodalChallengeError
+            if isinstance(exc, CodalChallengeError):
+                raise
+        except ImportError:
+            pass
+        if __import__("os").environ.get("CODAL_JOB_DIR"):
+            log.warning("Codal report body fetch failed for %s", url, exc_info=True)
+            raise RuntimeError(f"{type(exc).__name__}: {exc}") from exc
         return None
 
 
@@ -1040,21 +1341,54 @@ def _canonical_codal_write(letter: dict, fetch_body: bool = True, supersedes_sou
     if pre_company_id is None:
         try:
             with canonical_ingest.transaction() as conn:
-                canonical_ingest.CanonicalWriter(conn).quarantine(
-                    entity_type="company",
-                    issue_code="identity_conflict",
-                    severity="high",
-                    details={"domain": "codal_report", "source_report_id": tracing,
-                             "name": name, "symbol": symbol, "stage": "pre_fetch"},
-                )
+                # هر گزارش فقط یک‌بار قرنطینه می‌شود؛ بدون این گارد، هر اجرای
+                # sync همان گزارش را دوباره در data_quality_issues می‌نویسد.
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "SELECT 1 FROM ingestion.data_quality_issues "
+                        "WHERE issue_code = 'identity_conflict' "
+                        "AND details->>'source_report_id' = %s LIMIT 1",
+                        (tracing,),
+                    )
+                    already_quarantined = cur.fetchone() is not None
+                if not already_quarantined:
+                    canonical_ingest.CanonicalWriter(conn).quarantine(
+                        entity_type="company",
+                        issue_code="identity_conflict",
+                        severity="high",
+                        details={"domain": "codal_report", "source_report_id": tracing,
+                                 "name": name, "symbol": symbol, "stage": "pre_fetch"},
+                    )
         except Exception as exc:  # noqa: BLE001
             return {"status": "canonical_error", "error": str(exc), "inserted": 0,
                     "skipped": 0, "tracing_no": tracing}
         return {"status": "quarantined", "detail": "company unresolved (pre-fetch)",
                 "inserted": 0, "skipped": 0, "tracing_no": tracing, "has_raw": False}
 
-    url = letter.get("Url") or letter.get("PdfUrl")
-    body = _fetch_text(url) if (fetch_body and url) else None
+    url = _absolute_codal_url(letter.get("Url") or letter.get("PdfUrl"))
+    if __import__("os").environ.get("CODAL_JOB_DIR"):
+        from codal_challenge import current_channel
+        channel = current_channel()
+        if channel:
+            channel.update(state="running_browser" if __import__("codal_transport").current()._browser_mode else "running_http",
+                           stage="report_body", current_report_id=tracing,
+                           message="در حال دریافت متن گزارش")
+    try:
+        body = _fetch_text(url) if (fetch_body and url) else None
+        if fetch_body and url and not body:
+            return {"status": "canonical_error", "error": "Codal report body was empty or unavailable; metadata was not marked complete",
+                    "inserted": 0, "skipped": 0, "tracing_no": tracing, "has_raw": False}
+    except (InterruptedError, TimeoutError):
+        raise
+    except Exception as exc:  # noqa: BLE001 - keep incomplete bodies out of dedup
+        try:
+            from codal_challenge import CodalChallengeError
+            if isinstance(exc, CodalChallengeError):
+                raise
+        except ImportError:
+            pass
+        return {"status": "canonical_error", "error": f"Codal report body fetch failed: {exc}",
+                "inserted": 0, "skipped": 0, "tracing_no": tracing, "has_raw": False}
     try:
         res = canonical_ingest.dual_write_report(
             name=name, symbol=symbol, source="codal",
@@ -1147,7 +1481,7 @@ def dual_write_codal_letter(letter: dict, fetch_body: bool = True):
     tracing = str(letter.get("TracingNo") or "").strip()
     if not tracing:
         return {"status": "no_tracing_no"}
-    url = letter.get("Url") or letter.get("PdfUrl")
+    url = _absolute_codal_url(letter.get("Url") or letter.get("PdfUrl"))
     title = letter.get("Title")
     company_name = letter.get("CompanyName")
     symbol = letter.get("Symbol")

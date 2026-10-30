@@ -49,6 +49,49 @@ class OfflineModeTests(unittest.TestCase):
         for f in facts:
             self.assertNotIn(f["metric_code"].lower(), ("product1", "product2", "product3"))
 
+    def test_facts_from_values_comparatives_map_to_order_2_and_3(self):
+        facts = canonical_hook.facts_from_values(values={
+            "revenue": 1000, "revenue_last_year": 600, "revenue_fy_prev": 500,
+            "operating_profit": 200, "operating_profit_last_year": 120,
+            "net_profit_last_year": 90,
+            "eps": 255, "eps_last_year": 180, "eps_fy_prev": 150,
+            "operating_eps_last_year": 190,
+        })
+        by_order = {(f["metric_code"], f["period_order"]): f for f in facts}
+        self.assertEqual(by_order[("revenue", 2)]["comparison_type"], "prior_year_same_period")
+        self.assertEqual(float(by_order[("revenue", 2)]["canonical_value"]), 600 * 1_000_000)
+        self.assertEqual(by_order[("revenue", 3)]["comparison_type"], "prior_fiscal_year")
+        self.assertEqual(float(by_order[("revenue", 3)]["canonical_value"]), 500 * 1_000_000)
+        self.assertEqual(by_order[("operating_profit", 2)]["comparison_type"], "prior_year_same_period")
+        self.assertEqual(by_order[("net_profit", 2)]["comparison_type"], "prior_year_same_period")
+        self.assertEqual(by_order[("eps", 2)]["canonical_unit"], "rial_per_share")
+        self.assertEqual(float(by_order[("eps", 2)]["canonical_value"]), 180)
+        self.assertEqual(by_order[("eps", 3)]["comparison_type"], "prior_fiscal_year")
+        self.assertEqual(float(by_order[("operating_eps", 2)]["canonical_value"]), 190)
+        # current-period facts keep their existing shape
+        self.assertEqual(by_order[("revenue", 1)]["comparison_type"], "current")
+
+    def test_facts_from_values_zero_comparative_is_absent_not_zero(self):
+        # to_number maps an absent "-" comparative cell to 0.0; a fabricated zero
+        # would corrupt the analytics TTM (cur + fy_prev - ly), so it is omitted.
+        facts = canonical_hook.facts_from_values(values={
+            "revenue": 1000, "revenue_last_year": 0.0, "revenue_fy_prev": 0.0,
+            "operating_profit_last_year": 0.0,
+        })
+        self.assertEqual([f["metric_code"] for f in facts if f["period_order"] != 1], [])
+        self.assertEqual(len([f for f in facts if f["metric_code"] == "revenue"]), 1)
+
+    def test_facts_from_values_rejects_non_statement_comparatives(self):
+        # only _FACT_MAP metrics accept comparatives; unknown/unsupported keys
+        # (e.g. balance-sheet or finance_cost suffixes) are ignored as before
+        facts = canonical_hook.facts_from_values(values={
+            "total_assets": 100, "total_assets_last_year": 90,
+            "finance_cost": -10, "finance_cost_last_year": -5,
+            "capital": 625, "capital_last_year": 500,
+        })
+        # capital is not part of the emitted fact set (pre-existing behavior)
+        self.assertEqual([f["period_order"] for f in facts], [1, 1])
+
 
 class MirrorVsCanonicalFailureTests(unittest.TestCase):
     def test_mirror_failure_is_canonical_success(self):

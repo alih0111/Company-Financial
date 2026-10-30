@@ -58,6 +58,8 @@ def resolve_company(
             return got
     # نام قانونی کدال اغلب با alias های ما یکی نیست؛ نماد کدال مطمئن‌ترین
     # کلید دوم است (ستون codal_symbol در core.securities برای همین است).
+    # نماد کدال می‌تواند با alias از نوع company_name هم یکی باشد (مثل «های وب»
+    # که codal_symbol ما «های وب3» است)؛ پس هر دو نوع alias بررسی می‌شود.
     if symbol not in (None, ""):
         got = _scalar(
             cur,
@@ -71,7 +73,7 @@ def resolve_company(
             cur,
             """SELECT s.company_id FROM core.security_aliases a
                JOIN core.securities s ON s.id = a.security_id
-               WHERE a.alias_value=%s AND a.alias_type = 'symbol'
+               WHERE a.alias_value=%s AND a.alias_type IN ('symbol','company_name')
                LIMIT 1""",
             (symbol.strip(),),
         )

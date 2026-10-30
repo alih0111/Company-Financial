@@ -233,6 +233,106 @@ export async function getShadowHealth(): Promise<ShadowHealth> {
   return res.json();
 }
 
+/**
+ * Admin-only: recompute the screen scores from the data that exists now.
+ *
+ * Nothing recomputes on a timer anymore; the table button is the only trigger. A
+ * successful recompute appends a new serving run, so the caller must reload the table
+ * after `recomputed === true`.
+ */
+export interface AnalyticsRefreshResult {
+  action: string;
+  recomputed: boolean;
+  run_id?: string;
+  run_seq?: number;
+  as_of?: string;
+  computed_at?: string;
+  population?: number;
+  stale: boolean;
+  stale_reasons?: string[] | null;
+  blocked_reason?: string;
+  duration_ms: number;
+  message: string;
+}
+
+export async function refreshAnalyticsScores(): Promise<AnalyticsRefreshResult> {
+  const res = await fetch(`${API_BASE}/admin/analytics/refresh`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  const body = (await res.json().catch(() => null)) as
+    | AnalyticsRefreshResult
+    | { error?: string }
+    | null;
+  if (!res.ok) {
+    const message =
+      res.status === 404
+        ? "این نسخهٔ بک‌اند هنوز دکمهٔ به‌روزرسانی را ندارد؛ بک‌اند را ری‌استارت کنید."
+        : body && "error" in body && body.error
+          ? body.error
+          : `به‌روزرسانی امتیازها ناموفق بود (${res.status})`;
+    throw new Error(message);
+  }
+  return body as AnalyticsRefreshResult;
+}
+
+export interface RankingRefreshStatus {
+  state: string;
+  last_run_time: string;
+  last_task_result: number;
+  latest_run_id: string;
+  cycle_status: string;
+  ranking_stage_status: string;
+  fresh_financial_reports: boolean;
+  fresh_monthly_sales: boolean;
+}
+
+export interface RankingRefreshRequest {
+  started: boolean;
+  already_running?: boolean;
+  baseline_run_id: string;
+  baseline_last_run_time: string;
+  message: string;
+}
+
+export async function startRankingRefresh(): Promise<RankingRefreshRequest> {
+  const res = await fetch(`${API_BASE}/admin/ranking/refresh`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  const body = (await res.json().catch(() => null)) as
+    | RankingRefreshRequest
+    | { error?: string }
+    | null;
+  if (!res.ok) {
+    throw new Error(
+      body && "error" in body && body.error
+        ? body.error
+        : `شروع به‌روزرسانی رتبه‌بندی ناموفق بود (${res.status})`,
+    );
+  }
+  return body as RankingRefreshRequest;
+}
+
+export async function getRankingRefreshStatus(): Promise<RankingRefreshStatus> {
+  const res = await fetch(`${API_BASE}/admin/ranking/refresh/status`, {
+    headers: getAuthHeaders(),
+    cache: "no-store",
+  });
+  const body = (await res.json().catch(() => null)) as
+    | RankingRefreshStatus
+    | { error?: string }
+    | null;
+  if (!res.ok) {
+    throw new Error(
+      body && "error" in body && body.error
+        ? body.error
+        : `وضعیت به‌روزرسانی خوانده نشد (${res.status})`,
+    );
+  }
+  return body as RankingRefreshStatus;
+}
+
 // ----------------------------- Portfolio -----------------------------
 
 export interface PortfolioHoldingEnriched {
@@ -440,6 +540,8 @@ export interface FamilyAsset {
   sort_order: number;
   latest_price: number;
   price_date: string;
+  prev_price: number;
+  day_change_pct: number;
   total_quantity: number;
   total_cost: number;
   total_value: number;
@@ -681,6 +783,15 @@ export interface SyncCodalFeedSummary {
   completed: number;
   failed: number;
   unsupported: number;
+  quarantined?: number;
+  // نمادهای خارج از پوشش و تعداد گزارش هرکدام (برای نمایش شفاف)
+  quarantined_symbols?: Record<string, number>;
+  // گزارش‌هایی که فقط metadata داشتند و بدنه‌شان در همین اجرا تکمیل شد
+  repaired?: number;
+  repair_failed?: number;
+  // پنجرهٔ زمانی واقعی اسکن (ISO)؛ «صفحه» معیار زمانی نیست
+  scan_oldest?: string | null;
+  scan_newest?: string | null;
   errors: { report_id: string; error: string | null }[];
 }
 
@@ -697,6 +808,12 @@ export interface SyncCodalTotal {
   unsupported: number;
   // مسیر canonical (sync-codal): گزارش‌های نماد خارج از universe
   quarantined?: number;
+  quarantined_symbols?: Record<string, number>;
+  errors_detail?: { report_id: string; error?: string | null }[];
+  repaired?: number;
+  repair_failed?: number;
+  scan_oldest?: string | null;
+  scan_newest?: string | null;
 }
 
 export interface SyncCodalSummary {
@@ -717,6 +834,93 @@ export interface SyncCodalPayload {
   // جمع‌آوری فقط برای یک نماد (خالی = sync سراسری feed کدال)
   symbol?: string;
 }
+
+export type CodalSyncJobState =
+  | "queued" | "running_http" | "opening_browser" | "running_browser"
+  | "waiting_captcha" | "rate_limited" | "completed" | "completed_with_errors"
+  | "failed" | "cancelled" | "expired" | "interrupted" | "cancelling";
+
+export interface CodalCaptchaChallenge {
+  challenge_id: string;
+  kind: "text" | "unsupported" | "inspection" | string;
+  image_data_url: string;
+  created_at: number;
+  expires_at: number;
+  attempt: number;
+  message: string;
+  can_refresh: boolean;
+  can_manual_resume?: boolean;
+}
+
+export interface CodalSyncJob {
+  job_id: string;
+  source: "manual" | "automatic" | string;
+  parameters: SyncCodalPayload;
+  state: CodalSyncJobState;
+  stage?: string;
+  created_at: string;
+  updated_at: string;
+  heartbeat: string;
+  progress?: Record<string, unknown>;
+  current_page?: number;
+  current_report_id?: string;
+  counters?: Record<string, number>;
+  message?: string;
+  challenge?: CodalCaptchaChallenge;
+  retry_at?: number | string;
+  summary?: SyncCodalSummary;
+  error?: { code: string; message: string };
+  finished_at?: string;
+}
+
+const codalJobRequest = async <T>(path: string, init?: RequestInit): Promise<T> => {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...init,
+    headers: { ...getAuthHeaders(), ...(init?.headers ?? {}) },
+  });
+  const body = await res.json().catch(() => null);
+  if (!res.ok) {
+    const err = new Error(body?.error || `Codal sync request failed: ${res.status}`) as Error & { status?: number; active_job_id?: string };
+    err.status = res.status;
+    err.active_job_id = body?.active_job_id;
+    throw err;
+  }
+  return body as T;
+};
+
+export const startCodalSyncJob = (payload: SyncCodalPayload) =>
+  codalJobRequest<CodalSyncJob>("/sync-codal/jobs", {
+    method: "POST",
+    body: JSON.stringify({ mode: payload.mode ?? "all", dry_run: payload.dry_run ?? false,
+      ...(payload.max_pages ? { max_pages: payload.max_pages } : {}),
+      ...(payload.limit ? { limit: payload.limit } : {}), ...(payload.symbol ? { symbol: payload.symbol } : {}) }),
+  });
+
+export const getActiveCodalSyncJob = async (): Promise<CodalSyncJob | null> => {
+  const value = await codalJobRequest<CodalSyncJob | { job: null }>("/sync-codal/jobs/active");
+  return "job_id" in value ? value : null;
+};
+
+export const getCodalSyncJob = (jobId: string) =>
+  codalJobRequest<CodalSyncJob>(`/sync-codal/jobs/${encodeURIComponent(jobId)}`);
+
+export const submitCodalCaptcha = (jobId: string, challengeId: string, answer: string) =>
+  codalJobRequest<{ accepted: boolean }>(`/sync-codal/jobs/${encodeURIComponent(jobId)}/captcha`, {
+    method: "POST", body: JSON.stringify({ challenge_id: challengeId, answer }),
+  });
+
+export const refreshCodalCaptcha = (jobId: string, challengeId: string) =>
+  codalJobRequest<{ accepted: boolean }>(`/sync-codal/jobs/${encodeURIComponent(jobId)}/captcha/refresh`, {
+    method: "POST", body: JSON.stringify({ challenge_id: challengeId }),
+  });
+
+export const resumeCodalChallenge = (jobId: string, challengeId: string) =>
+  codalJobRequest<{ accepted: boolean }>(`/sync-codal/jobs/${encodeURIComponent(jobId)}/captcha/resume`, {
+    method: "POST", body: JSON.stringify({ challenge_id: challengeId }),
+  });
+
+export const cancelCodalSyncJob = (jobId: string) =>
+  codalJobRequest<{ state: string }>(`/sync-codal/jobs/${encodeURIComponent(jobId)}/cancel`, { method: "POST" });
 
 export async function syncCodal(
   payload: SyncCodalPayload = {}

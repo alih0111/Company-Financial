@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useState } from "react";
 import { getShadowHealth, type ShadowHealth } from "../utils/api";
+import { getAuthStatus } from "../hooks/useGetUser";
 
 /**
  * Shows which score snapshot the table is displaying and whether it is current.
  *
  * The score is a materialised batch run, so it does not change when a new report is
- * ingested — only when the refresh job stores a new run. Without this badge a frozen
- * score is indistinguishable from a live one. Refreshes on focus/visibility and on an
- * interval so a long-lived tab does not keep a stale snapshot on screen.
+ * ingested — only when a recompute stores a new run. That recompute is an explicit
+ * admin action (the "به‌روزرسانی امتیازها" button on the screen table); no timer
+ * refreshes or even checks the score. Without this badge a frozen score would be
+ * indistinguishable from a live one.
  */
 const REFRESH_MS = 5 * 60 * 1000;
 
@@ -56,17 +58,23 @@ export default function ScoreFreshnessBadge() {
     const onVisibility = () => {
       if (document.visibilityState === "visible") load();
     };
+    // پس از «به‌روزرسانی امتیازها» همین صفحه باید run تازه را نشان دهد.
+    const onRefreshed = () => load();
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVisibility);
+    window.addEventListener("rfa:score-refreshed", onRefreshed);
     const timer = window.setInterval(load, REFRESH_MS);
     return () => {
       window.removeEventListener("focus", onFocus);
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("rfa:score-refreshed", onRefreshed);
       window.clearInterval(timer);
     };
   }, [load]);
 
   if (failed || !health?.score_run_id) return null;
+
+  const { isAdmin } = getAuthStatus();
 
   const stale = Boolean(health.score_stale);
   const asOf = faDate(health.score_as_of);
@@ -92,7 +100,9 @@ export default function ScoreFreshnessBadge() {
       {computed && <span>محاسبه: {computed}</span>}
       {stale && (
         <span className="opacity-90">
-          گزارش‌های جدید آمده‌اند؛ تا اجرای به‌روزرسانی، امتیاز جدول عوض نمی‌شود.
+          {isAdmin
+            ? "گزارش‌های جدید آمده‌اند؛ برای اعمال، دکمهٔ «به‌روزرسانی امتیازها» را در جدول بزنید."
+            : "امتیاز جدول تا اجرای به‌روزرسانی توسط ادمین عوض نمی‌شود."}
         </span>
       )}
     </div>

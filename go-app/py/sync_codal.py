@@ -26,6 +26,8 @@ import argparse
 import json
 import logging
 import sys
+import time
+import urllib.parse
 from datetime import datetime, timedelta, timezone
 
 import codal_feed
@@ -86,6 +88,27 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         help="حداکثر تلاش مجدد برای گزارش‌های failed.",
     )
     parser.add_argument(
+        "--repair-days",
+        type=int,
+        default=7,
+        help="پنجرهٔ ترمیم گزارش‌های ناقص (فقط metadata، بدون بدنه) بر حسب روز؛ "
+             "۰ = غیرفعال. هر اجرا حداکثر --repair-limit گزارش را ترمیم می‌کند.",
+    )
+    parser.add_argument(
+        "--repair-limit",
+        type=int,
+        default=30,
+        help="سقف گزارش‌های ناقصی که در همین اجرا بدنه‌شان دوباره گرفته می‌شود "
+             "(پیش‌فرض محافظه‌کارانه تا کدال محدود نشود).",
+    )
+    parser.add_argument(
+        "--backfill-days",
+        type=int,
+        default=7,
+        help="اگر صفحه‌های قدیمی‌تر از آخرین sync گزارشِ تحت‌پوششِ ندیده داشته "
+             "باشند، اسکن تا این تعداد روز عقب می‌رود (۰ = بدون بازگشت).",
+    )
+    parser.add_argument(
         "--symbol",
         default=None,
         help="جمع‌آوری فقط برای یک نماد (سرچ کدال به‌جای feed سراسری).",
@@ -93,6 +116,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--from-date", default=None, help="تاریخ شمسی شروع (مثلاً 1405/01/01).")
     parser.add_argument("--to-date", default=None, help="تاریخ شمسی پایان.")
     parser.add_argument("--verbose", action="store_true", help="لاگ دیباگ.")
+    parser.add_argument("--job-id", default=None, help=argparse.SUPPRESS)
     return parser.parse_args(argv)
 
 
@@ -134,6 +158,289 @@ def _record_skip(stats: dict, reason: str) -> None:
         stats["skipped_missing_metadata"] += 1
     else:
         stats["skipped_unsupported_type"] += 1
+
+
+def _record_error(stats: dict, report_id: str, res: dict) -> None:
+    """Keep the first few failure reasons so the panel can explain the error."""
+    reason = str(res.get("error") or res.get("status") or "unknown")
+    bucket = stats.setdefault("errors_detail", [])
+    if len(bucket) < 5:
+        bucket.append({"report_id": str(report_id), "error": reason[:400]})
+
+
+def _publish_job_progress(stage: str, stats: dict, page: int | None = None,
+                          report_id: str | None = None, message: str | None = None) -> None:
+    if not __import__("os").environ.get("CODAL_JOB_DIR"):
+        return
+    try:
+        from codal_challenge import current_channel
+        channel = current_channel()
+        if channel:
+            channel.update(state="running_browser" if stage in ("report_body", "extraction") else "running_http",
+                           stage=stage, current_page=page, current_report_id=report_id,
+                           counters={key:int(stats.get(key,0)) for key in
+                                     ("scanned","already","new","ingested","completed","failed","errors")},
+                           message=message or "در حال بررسی گزارش‌های کدال")
+    except Exception:
+        logger.debug("Could not publish Codal job progress", exc_info=True)
+
+
+def _discover_page(letter_type: int, page_number: int, stats: dict, **kwargs):
+    """یک صفحهٔ فید کدال؛ محدودیت نرخ یعنی «فعلاً بس است»، نه خرابی اجرا.
+
+    صفحه‌های قبلی همان‌جا ذخیره شده‌اند، پس اجرا با خطا تمام نمی‌شود؛ فقط اسکن
+    با ``stop_reason="rate_limited"`` می‌ایستد و اجرای بعدی ادامه می‌دهد.
+    """
+    from codal_transport import CodalRateLimited
+    try:
+        return codal_feed.discover_reports(letter_type, page_number, **kwargs)
+    except CodalRateLimited as exc:
+        stats["stop_reason"] = "rate_limited"
+        logger.warning(
+            "Codal rate limited at LetterType=%s page=%s: %s", letter_type, page_number, exc
+        )
+        _publish_job_progress(
+            "rate_limited", stats, page_number,
+            message=(f"کدال موقتاً محدود کرد؛ اسکن در صفحهٔ {page_number} ایستاد و "
+                     "گزارش‌های همین چند صفحه ذخیره شدند."),
+        )
+        return None
+
+
+def _letter_type_from_url(url: str | None, default: int = FINANCIAL_LETTER_TYPE) -> int:
+    """نوع نامه از ``let`` داخل آدرس گزارش (بدون فراخوانی کدال)."""
+    try:
+        query = urllib.parse.urlparse(url or "").query
+        let = urllib.parse.parse_qs(query).get("let", [""])[0]
+        return int(let) if let.strip().isdigit() else default
+    except (ValueError, AttributeError):
+        return default
+
+
+def _repair_incomplete_reports(args: argparse.Namespace, feeds: dict,
+                               pending_values: list[dict]) -> int:
+    """گزارش‌هایی که فقط metadataشان ذخیره شده را دوباره با بدنه دریافت می‌کند.
+
+    مسیرهای soak/مایگریشن (``fetch_body=False``) ردیف گزارش را بدون بدنه
+    نوشته‌اند و Dedup قدیمی آن را «دریافت‌شده» می‌شمرد؛ در نتیجه هیچ عددی
+    استخراج نمی‌شد. این ترمیم همان گزارش‌ها را با بدنه و سپس با پارسرهای
+    موجود تکمیل می‌کند. هر گزارش مستقل است؛ خطای یکی بقیه را متوقف نمی‌کند.
+    """
+    if args.dry_run or args.repair_days <= 0 or args.repair_limit <= 0:
+        return 0
+
+    import canonical_hook
+
+    letter_types = [lt for lt in resolve_letter_types(args)
+                    if route_for_letter_type(lt) != "unknown"]
+    try:
+        rows = canonical_hook.incomplete_codal_reports(
+            days=args.repair_days,
+            limit=args.repair_limit,
+            letter_types=tuple(letter_types),
+            symbol=args.symbol,
+        )
+    except Exception:
+        logger.exception("⚠️ incomplete-report lookup failed; continuing without body repair")
+        rows = []
+
+    if not rows:
+        logger.info("no bodyless Codal report to repair in the last %s days", args.repair_days)
+
+    repaired = 0
+    consecutive_failures = 0
+    for row in rows:
+        url = row.get("url") or ""
+        # ردیف‌های قدیمی soak آدرس نسبی کدال را ذخیره کرده‌اند؛ برای دریافت
+        # بدنه باید مطلق باشد.
+        if url.startswith("/"):
+            url = urllib.parse.urljoin(codal_feed.CODAL_BASE_URL, url)
+        letter_type = _letter_type_from_url(url)
+        if letter_type not in feeds:
+            letter_type = letter_types[0]
+        # گزارش‌های حسابرسی‌شده/تلفیقی (زیرمجموعه‌ها) در «سود» جمع نمی‌شوند.
+        if letter_type == FINANCIAL_LETTER_TYPE and codal_feed.is_audited_title(row.get("title")):
+            continue
+        stats = feeds[letter_type]
+        _publish_job_progress("repair", stats, None, row.get("report_id"),
+                              "در حال ترمیم گزارش‌های ناقص (بدنه ذخیره نشده بود)")
+        letter = {
+            "TracingNo": row.get("report_id"),
+            "Symbol": row.get("symbol"),
+            "CompanyName": row.get("company_name") or row.get("symbol"),
+            "Title": row.get("title"),
+            "Url": url,
+        }
+        try:
+            result = canonical_hook.ingest_codal_authoritative(
+                letter, fetch_body=True
+            )
+        except (InterruptedError, TimeoutError):
+            raise
+        except Exception:
+            logger.exception("❌ repair crashed: %s", row.get("report_id"))
+            stats["repair_failed"] = stats.get("repair_failed", 0) + 1
+            time.sleep(1.5)
+            continue
+
+        # فاصلهٔ اضافی مخصوص ترمیم: بدنه‌ها پشت‌سرهم از یک دامنه می‌آیند و
+        # کدال در burst طولانی با XML/429 پاسخ می‌دهد.
+        time.sleep(1.5)
+
+        if result.get("status") == "written":
+            repaired += 1
+            consecutive_failures = 0
+            stats["repaired"] = stats.get("repaired", 0) + 1
+            pending_values.append({
+                "report_id": str(row.get("report_id") or ""),
+                "letter_type": letter_type,
+                "route": "monthly" if letter_type == MONTHLY_LETTER_TYPE else "financial",
+                "url": url,
+                "company_name": (canonical_hook.resolve_codal_company_display_name(
+                    name=row.get("company_name"), symbol=row.get("symbol")
+                ) or row.get("company_name") or row.get("symbol") or ""),
+            })
+            logger.info("🩹 repaired report %s (%s)", row.get("report_id"), row.get("symbol"))
+        else:
+            stats["repair_failed"] = stats.get("repair_failed", 0) + 1
+            consecutive_failures += 1
+            logger.warning("⚠️ could not repair report %s: %s", row.get("report_id"),
+                           result.get("error") or result.get("status"))
+            if consecutive_failures >= 5:
+                # کدال در دسترس/تأیید نیست؛ تلاش بیشتر فقط محدودیت را طولانی‌تر می‌کند.
+                logger.warning("⏹️ repair stopped after %s consecutive failures", consecutive_failures)
+                break
+
+    # بدنه‌هایی که تازه ذخیره شده‌اند ولی استخراج اعدادشان نیمه‌کاره مانده
+    # (مثلاً لغو job پیش از استخراج) را بدون دانلود دوباره صف کن.
+    try:
+        value_rows = canonical_hook.codal_reports_missing_values(
+            days=args.repair_days, hours=6, limit=args.repair_limit,
+            letter_types=tuple(letter_types), symbol=args.symbol,
+        )
+    except Exception:
+        logger.exception("⚠️ missing-values lookup failed")
+        value_rows = []
+
+    queued = {str(item.get("report_id") or "") for item in pending_values}
+    for row in value_rows:
+        report_id = str(row.get("report_id") or "")
+        if not report_id or report_id in queued:
+            continue
+        queued.add(report_id)
+        url = row.get("url") or ""
+        if url.startswith("/"):
+            url = urllib.parse.urljoin(codal_feed.CODAL_BASE_URL, url)
+        letter_type = _letter_type_from_url(url)
+        if letter_type not in feeds:
+            letter_type = letter_types[0]
+        # گزارش‌های حسابرسی‌شده/تلفیقی (زیرمجموعه‌ها) در «سود» جمع نمی‌شوند.
+        if letter_type == FINANCIAL_LETTER_TYPE and codal_feed.is_audited_title(row.get("title")):
+            continue
+        stats = feeds[letter_type]
+        stats["values_queued"] = stats.get("values_queued", 0) + 1
+        pending_values.append({
+            "report_id": report_id,
+            "letter_type": letter_type,
+            "route": "monthly" if letter_type == MONTHLY_LETTER_TYPE else "financial",
+            "url": url,
+            "company_name": (canonical_hook.resolve_codal_company_display_name(
+                name=row.get("company_name"), symbol=row.get("symbol")
+            ) or row.get("company_name") or row.get("symbol") or ""),
+        })
+        logger.info("🧮 queued pending values extraction for %s (%s)", report_id, row.get("symbol"))
+    return repaired
+
+
+def _extract_value_item(item: dict, page, stats: dict) -> str:
+    """استخراج اعداد «یک» گزارش با پارسرهای فعلی و ثبت نتیجه در stats همان feed.
+
+    خطای لغو/کپچا عمداً بالا فرستاده می‌شود (کل job باید متوقف شود)؛ بقیهٔ
+    خطاها «failed» شمرده می‌شوند تا اجرای بعدی دوباره تلاش کند.
+    """
+    try:
+        if __import__("os").environ.get("CODAL_JOB_DIR"):
+            _publish_job_progress("extraction", stats,
+                                  report_id=str(item.get("report_id") or ""),
+                                  message="در حال استخراج اطلاعات گزارش")
+        status, report_date, _error = _extract_report_values(item, page)
+    except (InterruptedError, TimeoutError):
+        raise
+    except Exception as exc:
+        try:
+            from codal_challenge import CodalChallengeError
+            if isinstance(exc, CodalChallengeError):
+                raise
+        except ImportError:
+            pass
+        logger.exception("❌ value extraction crashed: %s", item["url"])
+        status, report_date = "failed", None
+    if status == "completed":
+        stats["completed"] += 1
+        logger.info("✅ values extracted: %s (%s)", item["company_name"], item["route"])
+    elif status == "unsupported":
+        stats["unsupported"] += 1
+    else:
+        stats["failed"] += 1
+    # موفق/unsupported را علامت بزن تا اجرای بعدی دوباره استخراج نکند.
+    # failed بدون علامت می‌ماند تا در اجرای بعدی دوباره تلاش شود.
+    if status in ("completed", "unsupported") and item.get("report_id"):
+        try:
+            import canonical_hook
+            canonical_hook.mark_codal_values_extraction(
+                item["report_id"], status=status, report_date=report_date)
+        except Exception:
+            logger.debug("could not mark values extraction", exc_info=True)
+    return status
+
+
+def _extract_new_report_now(item: dict, feeds: dict) -> bool:
+    """گزارش تازه را «همین لحظه» کامل جمع کن؛ بعد اسکن به فهرست کدال برگردد.
+
+    در حالت watched (جمع‌آوری سریع با مرورگر دیدنی) بلافاصله پس از ذخیرهٔ
+    بدنه، صفحهٔ همان گزارش باز و تمام تب‌هایش استخراج می‌شود تا اپراتور
+    ببیند هر گزارش کامل می‌شود. اسکن بی‌صدا (HTTP/خودکار) مثل قبل استخراج
+    را به صف انتهایی می‌سپارد تا وسط اسکن مرورگر باز نشود.
+    """
+    if not __import__("os").environ.get("CODAL_JOB_DIR"):
+        return False
+    from codal_transport import current
+    transport = current()
+    if not transport.visible_collection():
+        return False
+    _extract_value_item(item, transport.shared_page(), feeds[item["letter_type"]])
+    return True
+
+
+def _extract_pending_values(pending_values: list[dict], feeds: dict) -> None:
+    """Run existing parsers in the job's browser context when a job is active."""
+    if not pending_values:
+        return
+    import MianSql
+
+    def process(page):
+        for item in pending_values:
+            _extract_value_item(item, page, feeds[item["letter_type"]])
+
+    if __import__("os").environ.get("CODAL_JOB_DIR"):
+        from codal_transport import current
+        try:
+            from codal_challenge import current_channel
+            channel = current_channel()
+            if channel:
+                channel.update(state="opening_browser", stage="extraction",
+                               message="در حال باز کردن مرورگر برای دریافت متن گزارش‌های جدید")
+        except Exception:
+            logger.debug("Could not publish opening_browser state", exc_info=True)
+        process(current().shared_page())
+        return
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as playwright:
+        context = MianSql.create_context(playwright)
+        try:
+            process(context.new_page())
+        finally:
+            context.close()
 
 
 _TZ_TEHRAN = timezone(timedelta(hours=3, minutes=30))
@@ -182,12 +489,15 @@ def sync_feed(
             stats["stop_reason"] = "max_pages_reached"
             break
 
-        page = codal_feed.discover_reports(
+        page = _discover_page(
             letter_type,
             page_number,
+            stats,
             from_date=args.from_date,
             to_date=args.to_date,
         )
+        if page is None:
+            break
         stats["pages"] += 1
 
         if page.is_empty:
@@ -210,6 +520,7 @@ def sync_feed(
         new_on_page = 0
         for report in page.reports:
             stats["scanned"] += 1
+            _publish_job_progress("discovery", stats, page_number, report.report_id)
 
             # ── PRE-FILTER: فقط از روی metadata، بدون باز کردن مرورگر ──
             decision = prefilter.decide(report)
@@ -439,10 +750,17 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
             "new": 0,
             "ingested": 0,
             "quarantined": 0,
+            "quarantined_symbols": {},
+            "repaired": 0,
+            "repair_failed": 0,
+            "values_queued": 0,
             "errors": 0,
+            "errors_detail": [],
             "completed": 0,
             "failed": 0,
             "unsupported": 0,
+            "scan_oldest": None,
+            "scan_newest": None,
         }
 
     feeds = {lt: _feed_stats(lt) for lt in letter_types}
@@ -455,6 +773,24 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
     scan_oldest = {lt: None for lt in letter_types}
     # نامه‌های جدیدی که ذخیره شدند و باید اعدادشان استخراج شود
     pending_values: list[dict] = []
+
+    # نمادهای تحت پوشش canonical: گزارش نمادهای بیرون از پوشش نه ذخیره می‌شود
+    # و نه اسکن را وادار به عقب‌رفتن می‌کند.
+    covered = canonical_hook.codal_covered_symbols()
+    if not covered:
+        covered = None
+    # مرز بازگشتی فقط اسکن «خودکار» را مهار می‌کند؛ عدد صریح max-pages یعنی
+    # «دقیقاً همین عمق» و نباید پیش از تمام‌شدن صفحات بایستد.
+    backfill_floor = (
+        datetime.now(_TZ_TEHRAN) - timedelta(days=args.backfill_days)
+        if args.backfill_days and args.backfill_days > 0 and not explicit_depth
+        else None
+    )
+
+    # ── ترمیم گزارش‌های ناقص (فقط metadata، بدون بدنه) ──
+    # این کار پیش از اسکن انجام می‌شود تا گزارش‌هایی که مسیرهای soak/مایگریشن
+    # بدون بدنه نوشته‌اند، دوباره دریافت و اعدادشان استخراج شود.
+    _repair_incomplete_reports(args, feeds, pending_values)
 
     for lt in letter_types:
         stats = feeds[lt]
@@ -471,10 +807,13 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
             if feed_scan_cap and stats["pages"] >= feed_scan_cap:
                 stats["stop_reason"] = "max_pages_reached"
                 break
-            page = codal_feed.discover_reports(
+            page = _discover_page(
                 lt, page_number,
+                stats,
                 from_date=args.from_date, to_date=args.to_date,
             )
+            if page is None:
+                break
             stats["pages"] += 1
             if page.is_empty:
                 # صفحه واقعاً خالی است (نه اینکه فقط نامه‌ای از نوع ما نداشته باشد)
@@ -491,8 +830,33 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
             known = canonical_hook.known_codal_report_ids(
                 [r.report_id for r in page.reports]
             )
+            seen = canonical_hook.seen_codal_report_ids(
+                [r.report_id for r in page.reports]
+            )
+            # آیا این صفحه گزارشِ تحت‌پوششِ «ندیده» دارد؟ اگر بله، حتی اگر از
+            # watermark هم قدیمی‌تر باشد، اسکن باید ادامه پیدا کند تا گزارش
+            # عقب‌افتاده هم جمع شود (خواستهٔ «قدمی‌تر برو و جمعش کن»).
+            page_unseen_covered = False
+            for report in page.reports:
+                ticker = (report.ticker or "").strip()
+                if covered is not None and ticker and ticker not in covered:
+                    continue
+                if report.report_id not in seen:
+                    page_unseen_covered = True
+                    break
+
             for report in page.reports:
                 stats["scanned"] += 1
+                _publish_job_progress("discovery", stats, page_number, report.report_id)
+                ticker = (report.ticker or "").strip()
+                if covered is not None and ticker and ticker not in covered:
+                    # خارج از پوشش: بدون نوشتن ردیف قرنطینه و بدون اثر بر
+                    # تصمیم ادامهٔ اسکن؛ فقط برای شفافیت شمرده می‌شود.
+                    stats["quarantined"] += 1
+                    key = ticker or report.company_name or "نامشخص"
+                    per_symbol = stats["quarantined_symbols"]
+                    per_symbol[key] = per_symbol.get(key, 0) + 1
+                    continue
                 if report.report_id in known:
                     stats["already"] += 1
                     continue
@@ -500,6 +864,10 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
                     stats["new"] += 1
                     continue
 
+                _publish_job_progress(
+                    "report_body", stats, page_number, report.report_id,
+                    message=f"دریافت بدنهٔ گزارش {report.report_id}",
+                )
                 res = canonical_hook.ingest_codal_authoritative(
                     report.raw, fetch_body=True
                 )
@@ -511,18 +879,30 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
                         name=(report.raw.get("CompanyName") or "").strip() or None,
                         symbol=(report.raw.get("Symbol") or "").strip() or None,
                     )
-                    pending_values.append({
+                    item = {
+                        "report_id": report.report_id,
                         "letter_type": lt,
                         "route": "monthly" if lt == MONTHLY_LETTER_TYPE else "financial",
                         "url": report.report_url,
                         "company_name": display or report.company_name or report.ticker or "",
-                    })
+                    }
+                    # «همین‌جا کامل جمعش کن»: بدنه ذخیره شد؛ صفحهٔ همان گزارش
+                    # باز و تمام تب‌هایش استخراج می‌شود و اسکن به فهرست کدال
+                    # برمی‌گردد. فقط اجرای بی‌صدا (HTTP/خودکار) آن را به صف
+                    # انتهایی می‌سپارد.
+                    if not _extract_new_report_now(item, feeds):
+                        pending_values.append(item)
                 elif status == "quarantined":
-                    # گزارش جدید است ولی هویت شرکت حل نشد
-                    stats["new"] += 1
+                    # خارج از پوشش: نماد/شرکت در universe کانونیکال نیست و
+                    # «جدید» شمرده نمی‌شود تا UI «جدید» را فقط برای نمادهای
+                    # تحت پوشش نشان دهد (خودِ تعداد در quarantined می‌آید).
                     stats["quarantined"] += 1
+                    key = report.ticker or report.company_name or "نامشخص"
+                    per_symbol = stats["quarantined_symbols"]
+                    per_symbol[key] = per_symbol.get(key, 0) + 1
                 else:
                     stats["errors"] += 1
+                    _record_error(stats, report.report_id, res)
 
                 if args.limit and stats["new"] >= args.limit:
                     break
@@ -532,7 +912,12 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
                 break
             oldest = _aware(page.oldest_published)
             wm = watermarks[lt]
-            if wm is not None and oldest is not None and oldest < (wm - overlap):
+            if backfill_floor is not None and oldest is not None and oldest < backfill_floor:
+                stats["stop_reason"] = "backfill_floor_reached"
+                break
+            if (wm is not None and oldest is not None and oldest < (wm - overlap)
+                    and page.reports
+                    and (backfill_floor is None or not page_unseen_covered)):
                 stats["stop_reason"] = "watermark_reached"
                 break
             if page.is_last_page:
@@ -541,32 +926,13 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
             page_number += 1
         if stats["stop_reason"] is None:
             stats["stop_reason"] = "max_pages_reached"
+        # پنجرهٔ زمانی واقعیِ همین اسکن (برای اینکه «۲ صفحه» قابل تفسیر باشد)
+        stats["scan_oldest"] = scan_oldest[lt].isoformat() if scan_oldest[lt] else None
+        stats["scan_newest"] = scan_newest[lt].isoformat() if scan_newest[lt] else None
 
     # ── استخراج اعداد: پارس‌کننده‌های فعلی با یک browser context مشترک ──
     if pending_values and not args.dry_run:
-        from playwright.sync_api import sync_playwright
-        import MianSql
-        with sync_playwright() as pw:
-            context = MianSql.create_context(pw)
-            page = context.new_page()
-            try:
-                for item in pending_values:
-                    st = feeds[item["letter_type"]]
-                    try:
-                        v_status, _rdate, _err = _extract_report_values(item, page)
-                    except Exception as exc:  # noqa: BLE001 - خطای هر گزارش مستقل است
-                        logger.exception("❌ value extraction crashed: %s", item["url"])
-                        v_status = "failed"
-                    if v_status == "completed":
-                        st["completed"] += 1
-                        logger.info("✅ values extracted: %s (%s)",
-                                    item["company_name"], item["route"])
-                    elif v_status == "unsupported":
-                        st["unsupported"] += 1
-                    else:
-                        st["failed"] += 1
-            finally:
-                context.close()
+        _extract_pending_values(pending_values, feeds)
 
     for lt in letter_types:
         stats = feeds[lt]
@@ -585,17 +951,27 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
             # safety-capped scan. Later runs fill forward from this boundary.
             canonical_hook.set_codal_watermark(lt, scan_oldest[lt])
 
+    quarantined_symbols: dict[str, int] = {}
+    for stats in feeds.values():
+        for key, count in (stats.get("quarantined_symbols") or {}).items():
+            quarantined_symbols[key] = quarantined_symbols.get(key, 0) + int(count)
+
     totals = {
         "scanned": sum(s["scanned"] for s in feeds.values()),
         "already": sum(s["already"] for s in feeds.values()),
         "new": sum(s["new"] for s in feeds.values()),
         "ingested": sum(s["ingested"] for s in feeds.values()),
         "quarantined": sum(s["quarantined"] for s in feeds.values()),
+        "quarantined_symbols": quarantined_symbols,
+        "repaired": sum(s["repaired"] for s in feeds.values()),
+        "repair_failed": sum(s["repair_failed"] for s in feeds.values()),
+        "values_queued": sum(s["values_queued"] for s in feeds.values()),
         "errors": sum(s["errors"] for s in feeds.values()),
+        "errors_detail": [d for s in feeds.values() for d in (s.get("errors_detail") or [])][:5],
         "pages": sum(s["pages"] for s in feeds.values()),
         # کلیدهای سازگار با UI قدیمی quick-sync — «completed» یعنی اعداد استخراج شد
         "completed": sum(s["completed"] for s in feeds.values()),
-        "failed": sum(s["errors"] + s["failed"] for s in feeds.values()),
+        "failed": sum(s["errors"] + s["failed"] + s["repair_failed"] for s in feeds.values()),
         "unsupported": sum(s["unsupported"] for s in feeds.values()),
         "fetched": sum(s["ingested"] for s in feeds.values()),
         "max_pages": scan_cap,
@@ -603,6 +979,10 @@ def run_sync_canonical_only(args: argparse.Namespace) -> dict:
         "authority": "CANONICAL",
         "mode": "canonical_only_offline",
     }
+    oldest_values = [s["scan_oldest"] for s in feeds.values() if s.get("scan_oldest")]
+    newest_values = [s["scan_newest"] for s in feeds.values() if s.get("scan_newest")]
+    totals["scan_oldest"] = min(oldest_values) if oldest_values else None
+    totals["scan_newest"] = max(newest_values) if newest_values else None
     summary = {
         "success": totals["errors"] == 0,
         "dry_run": args.dry_run,
@@ -640,31 +1020,54 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
             "new": 0,
             "ingested": 0,
             "quarantined": 0,
+            "quarantined_symbols": {},
+            "repaired": 0,
+            "repair_failed": 0,
+            "values_queued": 0,
             "errors": 0,
+            "errors_detail": [],
             "completed": 0,
             "failed": 0,
             "unsupported": 0,
+            "scan_oldest": None,
+            "scan_newest": None,
         }
 
     feeds = {lt: _feed_stats(lt) for lt in letter_types}
     pending_values: list[dict] = []
     take = args.limit if args.limit and args.limit > 0 else 8
 
+    # ترمیم گزارش‌های ناقصِ همین نماد پیش از اسکن سرچ کدال
+    _repair_incomplete_reports(args, feeds, pending_values)
+
     for lt in letter_types:
         stats = feeds[lt]
-        page = codal_feed.discover_reports(lt, 1, symbol=args.symbol)
+        page = _discover_page(lt, 1, stats, symbol=args.symbol)
         stats["pages"] = 1
+        if page is None:
+            # تک‌نماد: هیچ گزارشی خوانده نشده، پس این «صفر گزارش» نیست؛ خطاست.
+            stats["errors"] += 1
+            _record_error(stats, "", {"error": (
+                "کدال موقتاً درخواست‌ها را محدود کرد؛ چند دقیقه بعد همین نماد را دوباره جمع‌آوری کنید."
+            )})
+            continue
         if page.is_empty:
             stats["stop_reason"] = "empty_feed"
             continue
         stats["stop_reason"] = "symbol_scan_done"
 
         reports = page.reports[:take]
+        published = [r.published_at for r in reports if r.published_at is not None]
+        if published:
+            stats["scan_oldest"] = min(published).isoformat()
+            stats["scan_newest"] = max(published).isoformat()
         known = canonical_hook.known_codal_report_ids(
             [r.report_id for r in reports]
         )
         for report in reports:
             stats["scanned"] += 1
+            _publish_job_progress("discovery", stats, 1, report.report_id,
+                                  f"در حال بررسی گزارش‌های نماد {args.symbol}")
             if report.report_id in known:
                 stats["already"] += 1
                 continue
@@ -679,43 +1082,35 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
                     name=(report.raw.get("CompanyName") or "").strip() or None,
                     symbol=(report.raw.get("Symbol") or "").strip() or None,
                 )
-                pending_values.append({
+                item = {
+                    "report_id": report.report_id,
                     "letter_type": lt,
                     "route": "monthly" if lt == MONTHLY_LETTER_TYPE else "financial",
                     "url": report.report_url,
                     "company_name": display or report.company_name or report.ticker or "",
-                })
+                }
+                # مثل مسیر feed: در حالت دیدنی تب‌های همان گزارش بلافاصله جمع
+                # می‌شود؛ اجرای بی‌صدا به صف انتهایی می‌سپارد.
+                if not _extract_new_report_now(item, feeds):
+                    pending_values.append(item)
             elif status == "quarantined":
-                stats["new"] += 1
+                # خارج از پوشش؛ مثل مسیر feed جزو «جدید» شمرده نمی‌شود.
                 stats["quarantined"] += 1
+                key = report.ticker or report.company_name or "نامشخص"
+                per_symbol = stats["quarantined_symbols"]
+                per_symbol[key] = per_symbol.get(key, 0) + 1
             else:
                 stats["errors"] += 1
+                _record_error(stats, report.report_id, res)
 
     # استخراج اعداد (یک browser context مشترک)
     if pending_values:
-        from playwright.sync_api import sync_playwright
-        import MianSql
-        with sync_playwright() as pw:
-            context = MianSql.create_context(pw)
-            page = context.new_page()
-            try:
-                for item in pending_values:
-                    st = feeds[item["letter_type"]]
-                    try:
-                        v_status, _rdate, _err = _extract_report_values(item, page)
-                    except Exception as exc:  # noqa: BLE001
-                        logger.exception("❌ value extraction crashed: %s", item["url"])
-                        v_status = "failed"
-                    if v_status == "completed":
-                        st["completed"] += 1
-                        logger.info("✅ values extracted: %s (%s)",
-                                    item["company_name"], item["route"])
-                    elif v_status == "unsupported":
-                        st["unsupported"] += 1
-                    else:
-                        st["failed"] += 1
-            finally:
-                context.close()
+        _extract_pending_values(pending_values, feeds)
+
+    quarantined_symbols: dict[str, int] = {}
+    for stats in feeds.values():
+        for key, count in (stats.get("quarantined_symbols") or {}).items():
+            quarantined_symbols[key] = quarantined_symbols.get(key, 0) + int(count)
 
     totals = {
         "scanned": sum(s["scanned"] for s in feeds.values()),
@@ -723,10 +1118,15 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
         "new": sum(s["new"] for s in feeds.values()),
         "ingested": sum(s["ingested"] for s in feeds.values()),
         "quarantined": sum(s["quarantined"] for s in feeds.values()),
+        "quarantined_symbols": quarantined_symbols,
+        "repaired": sum(s["repaired"] for s in feeds.values()),
+        "repair_failed": sum(s["repair_failed"] for s in feeds.values()),
+        "values_queued": sum(s["values_queued"] for s in feeds.values()),
         "errors": sum(s["errors"] for s in feeds.values()),
+        "errors_detail": [d for s in feeds.values() for d in (s.get("errors_detail") or [])][:5],
         "pages": sum(s["pages"] for s in feeds.values()),
         "completed": sum(s["completed"] for s in feeds.values()),
-        "failed": sum(s["failed"] for s in feeds.values()),
+        "failed": sum(s["errors"] + s["failed"] + s["repair_failed"] for s in feeds.values()),
         "unsupported": sum(s["unsupported"] for s in feeds.values()),
         "fetched": sum(s["ingested"] for s in feeds.values()),
         "dry_run": args.dry_run,
@@ -734,6 +1134,10 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
         "mode": "symbol_scan",
         "symbol": args.symbol,
     }
+    oldest_values = [s["scan_oldest"] for s in feeds.values() if s.get("scan_oldest")]
+    newest_values = [s["scan_newest"] for s in feeds.values() if s.get("scan_newest")]
+    totals["scan_oldest"] = min(oldest_values) if oldest_values else None
+    totals["scan_newest"] = max(newest_values) if newest_values else None
     return {
         "success": totals["errors"] == 0,
         "dry_run": args.dry_run,
@@ -847,7 +1251,8 @@ def run_sync(args: argparse.Namespace) -> dict:
                 process_pending(key, pending, conn, stats, args.max_attempts)
 
             # ── به‌روزرسانی watermark (فقط غیر dry-run) ──
-            if (conn is not None and not args.dry_run and scan_newest is not None
+            if (conn is not None and not args.dry_run and stats.get("errors", 0) == 0
+                    and stats.get("failed", 0) == 0 and scan_newest is not None
                     and stats["stop_reason"] in ("watermark_reached", "empty_feed", "max_pages_reached")):
                 if watermark is None:
                     # Initialize at the oldest covered date if the scan hit its
@@ -904,8 +1309,28 @@ def run_sync(args: argparse.Namespace) -> dict:
     return summary
 
 
+def _friendly_sync_error(exc: Exception) -> str:
+    """خطای خام Playwright را برای نمایش در پنل قابل‌فهم کن."""
+    text = str(exc)
+    if "Target page, context or browser has been closed" in text or "TargetClosedError" in text:
+        return ("پنجرهٔ مرورگر وسط جمع‌آوری بسته شد و اجرا همان‌جا متوقف شد. "
+                "گزارش‌هایی که تا آن لحظه کامل شده‌اند ذخیره شده‌اند؛ دوباره "
+                "«جمع‌آوری» را بزنید تا ادامه دهد (گزارش‌های تکراری دوباره "
+                "گرفته نمی‌شوند).")
+    return text
+
+
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
+
+    channel = None
+    if __import__("os").environ.get("CODAL_JOB_DIR"):
+        from codal_challenge import current_channel
+        channel = current_channel()
+        expected = __import__("os").environ.get("CODAL_JOB_ID")
+        job_id_mismatch = bool(args.job_id and expected and args.job_id != expected)
+    else:
+        job_id_mismatch = False
 
     logging.basicConfig(
         level=logging.DEBUG if args.verbose else logging.INFO,
@@ -923,19 +1348,44 @@ def main(argv: list[str] | None = None) -> int:
     sys.stdout = sys.stderr
 
     try:
+        if channel:
+            channel.update(state="running_http", stage="discovery", message="در حال بررسی گزارش‌های کدال")
         try:
+            if job_id_mismatch:
+                raise ValueError("job id does not match the server-created job directory")
             summary = run_sync(args)
             exit_code = 0 if summary.get("success") else 1
         except Exception as exc:
             logger.exception("Sync failed")
-            summary = {"success": False, "error": str(exc)}
+            summary = {"success": False, "error": _friendly_sync_error(exc)}
             exit_code = 1
     finally:
         sys.stdout = real_stdout
+        if channel:
+            try:
+                from codal_transport import close_current
+                close_current()
+            except Exception:
+                logger.exception("Could not close Codal browser context")
 
     real_stdout.write(json.dumps(summary, ensure_ascii=False, indent=2))
     real_stdout.write("\n")
     real_stdout.flush()
+    if channel:
+        channel.write_json("result.json", summary)
+        state = "completed" if summary.get("success") else "completed_with_errors"
+        if channel.cancelled:
+            state = "cancelled"
+        elif channel.root.joinpath("status.json").exists():
+            try:
+                import json as _json
+                old = _json.loads(channel.root.joinpath("status.json").read_text(encoding="utf-8"))
+                if old.get("state") in ("expired", "failed"):
+                    state = old["state"]
+            except Exception:
+                pass
+        channel.update(state=state, stage="finished", message="جمع‌آوری کدال تمام شد",
+                       summary=summary)
     return exit_code
 
 

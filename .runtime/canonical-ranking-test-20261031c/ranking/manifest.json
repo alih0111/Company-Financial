@@ -1,0 +1,24 @@
+{
+  "artifact_sha256": "30a0c71bc02a62671d29737dc45af299677293eeef9d93f0723879e18e5ec606",
+  "contract_sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+  "csv_sha256": "690ad9c4126523d0d96581102e14a45a43d6f304d48aab4086cde1227a7f4893",
+  "current_input_gaps_sha256": null,
+  "database_access": "READ_ONLY_SOURCE_AUDIT_ONLY; NO WRITES",
+  "evaluation_date": "2026-10-31",
+  "future_evaluation_activated": false,
+  "json_sha256": "cf30a09f5c614dcb1c5cc07ddb840f21aa29f1c9a1ac0cebb849e4d849007a7b",
+  "network_requests_during_v12_37_build": 0,
+  "official_ledger_written": false,
+  "public_csv_sha256": "690ad9c4126523d0d96581102e14a45a43d6f304d48aab4086cde1227a7f4893",
+  "public_current_input_gaps_sha256": null,
+  "public_json_sha256": "cf30a09f5c614dcb1c5cc07ddb840f21aa29f1c9a1ac0cebb849e4d849007a7b",
+  "scored_count": {
+    "P1": 146,
+    "P3": 173
+  },
+  "status": "PREPARATION_UNCONFIRMED",
+  "unscored_count": {
+    "P1": 108,
+    "P3": 81
+  }
+}

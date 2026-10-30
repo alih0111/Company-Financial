@@ -8,8 +8,9 @@ import {
   FaSearch,
   FaCheck,
   FaTimes,
+  FaSyncAlt,
 } from "react-icons/fa";
-import { addViewedItem } from "../utils/api";
+import { addViewedItem, refreshAnalyticsScores } from "../utils/api";
 
 const getStableValue = (row: DataRow): boolean | null => {
   return row.stable ?? row.Stable ?? null;
@@ -80,6 +81,8 @@ interface DataRow {
 
 interface Props {
   data: DataRow[];
+  /** Admin-only: recompute the scores, then let the page reload the table rows. */
+  onScoresRefreshed?: () => void | Promise<void>;
 }
 
 // Score badge styling
@@ -142,9 +145,55 @@ const rowBorderColor = (score: number | null | undefined) => {
   return "border-l-red-400/50";
 };
 
-const BigDataTable: React.FC<Props> = ({ data }) => {
+const BigDataTable: React.FC<Props> = ({ data, onScoresRefreshed }) => {
   const [globalFilter, setGlobalFilter] = useState("");
+  const [refreshingScores, setRefreshingScores] = useState(false);
+  const [scoreNotice, setScoreNotice] = useState<{
+    tone: "ok" | "warn" | "err";
+    text: string;
+  } | null>(null);
   const navigate = useNavigate();
+
+  // امتیازها روی یک run ذخیره‌شده محاسبه می‌شوند؛ پس فقط با این دکمه (ادمین) از دادهٔ
+  // فعلی کدال بازمحاسبه می‌شوند. نتیجه‌ی run جدید همان لحظه در جدول بارگذاری می‌شود.
+  const handleRefreshScores = async () => {
+    if (refreshingScores) return;
+    setRefreshingScores(true);
+    setScoreNotice(null);
+    try {
+      const result = await refreshAnalyticsScores();
+      if (result.recomputed) {
+        const seconds = Math.max(1, Math.round(result.duration_ms / 1000));
+        const parts = ["امتیازها به‌روز شد"];
+        if (result.run_seq) parts.push(`اجرای #${result.run_seq.toLocaleString("fa-IR")}`);
+        if (result.population) parts.push(`${result.population.toLocaleString("fa-IR")} شرکت`);
+        parts.push(`${seconds.toLocaleString("fa-IR")} ثانیه`);
+        setScoreNotice({ tone: "ok", text: parts.join(" · ") });
+        window.dispatchEvent(new Event("rfa:score-refreshed"));
+        await onScoresRefreshed?.();
+      } else if (result.action === "NOT_STALE") {
+        setScoreNotice({
+          tone: "ok",
+          text: result.message || "امتیازها همین حالا به‌روزند.",
+        });
+      } else {
+        setScoreNotice({
+          tone: "warn",
+          text: result.message || "به‌روزرسانی انجام نشد.",
+        });
+      }
+    } catch (err) {
+      setScoreNotice({
+        tone: "err",
+        text:
+          err instanceof Error
+            ? err.message
+            : "به‌روزرسانی امتیازها ناموفق بود.",
+      });
+    } finally {
+      setRefreshingScores(false);
+    }
+  };
 
   const columns = useMemo(
     () =>
@@ -316,6 +365,19 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
         </div>
 
         <div className="flex items-center gap-3">
+          {onScoresRefreshed && (
+            <button
+              type="button"
+              onClick={handleRefreshScores}
+              disabled={refreshingScores}
+              aria-busy={refreshingScores}
+              title="محاسبهٔ دوبارهٔ امتیازها از دادهٔ فعلی کدال (فقط ادمین)"
+              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-l from-emerald-600 to-teal-500 px-4 py-2.5 text-sm font-bold text-white shadow-md shadow-emerald-600/20 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-600/30 disabled:cursor-wait disabled:opacity-70 disabled:hover:translate-y-0"
+            >
+              <FaSyncAlt className={refreshingScores ? "animate-spin" : ""} />
+              {refreshingScores ? "در حال محاسبه…" : "به‌روزرسانی امتیازها"}
+            </button>
+          )}
           <span className="hidden md:inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 tabular-nums">
             {rows.length.toLocaleString("fa-IR")} شرکت
           </span>
@@ -352,6 +414,21 @@ const BigDataTable: React.FC<Props> = ({ data }) => {
           </div>
         </div>
       </div>
+
+      {scoreNotice && (
+        <div
+          role="status"
+          className={`mb-3 rounded-2xl px-3 py-2 text-xs leading-6 ring-1 ${
+            scoreNotice.tone === "ok"
+              ? "bg-emerald-500/10 text-emerald-700 ring-emerald-500/25 dark:text-emerald-300"
+              : scoreNotice.tone === "warn"
+                ? "bg-amber-500/10 text-amber-700 ring-amber-500/25 dark:text-amber-300"
+                : "bg-rose-500/10 text-rose-700 ring-rose-500/25 dark:text-rose-300"
+          }`}
+        >
+          {scoreNotice.text}
+        </div>
+      )}
 
       {/* ── Table ── */}
       <div className="overflow-auto max-h-[70vh] rounded-2xl">

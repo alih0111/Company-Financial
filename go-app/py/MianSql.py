@@ -1373,6 +1373,14 @@ def save_profit_loss_to_sql(
             eps = values_to_insert[0] if len(values_to_insert) > 0 else None
             capital = values_to_insert[1] if len(values_to_insert) > 1 else None
             operating_eps = values_to_insert[2] if len(values_to_insert) > 2 else None
+            # Comparative columns (index 3/7/11 are Num*Capital products and must
+            # never become facts). Dropping these here left canonical statements
+            # with period_order=1 only, which forced RevenueGrowth / MarginTrend
+            # to "no data" for every report synced in canonical-only mode.
+            eps_last_year = values_to_insert[4] if len(values_to_insert) > 4 else None
+            eps_fyprev = values_to_insert[8] if len(values_to_insert) > 8 else None
+            operating_eps_last_year = values_to_insert[6] if len(values_to_insert) > 6 else None
+            operating_eps_fyprev = values_to_insert[10] if len(values_to_insert) > 10 else None
             values = {
                 "eps": eps, "capital": capital, "operating_eps": operating_eps,
                 "operating_profit": operating_profit_new, "revenue": revenue_new,
@@ -1381,6 +1389,17 @@ def save_profit_loss_to_sql(
                 "current_assets": current_assets, "total_liabilities": total_liabilities,
                 "current_liabilities": current_liabilities, "total_equity": total_equity,
                 "operating_cash_flow": operating_cash_flow,
+                # period_order 2 = "مشابه دوره سال قبل", 3 = "سال مالی قبل"
+                "eps_last_year": eps_last_year,
+                "eps_fy_prev": eps_fyprev,
+                "operating_eps_last_year": operating_eps_last_year,
+                "operating_eps_fy_prev": operating_eps_fyprev,
+                "operating_profit_last_year": operating_profit_last_year,
+                "operating_profit_fy_prev": operating_profit_fyprev,
+                "revenue_last_year": revenue_last_year,
+                "revenue_fy_prev": revenue_fyprev,
+                "net_profit_last_year": net_profit_amount_ly,
+                "net_profit_fy_prev": net_profit_amount_fyprev,
             }
             facts = canonical_hook.facts_from_values(report_date=report_date, values=values)
             outcome = canonical_hook.ingest_financial_authoritative_by_key(
@@ -1610,7 +1629,12 @@ def save_profit_loss_to_sql(
 
 
 def scrape_report(page, link, company_name, base_url, table_name):
-    page.goto(link, wait_until="domcontentloaded", timeout=60000)
+    try:
+        from codal_transport import navigate as _codal_navigate
+    except ImportError:
+        page.goto(link, wait_until="domcontentloaded", timeout=60000)
+    else:
+        _codal_navigate(page, link, timeout=60000)
     logging.info("🔍 Scraping report: %s", link)
 
     try:

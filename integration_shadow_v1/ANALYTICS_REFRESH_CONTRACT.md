@@ -33,7 +33,9 @@ canonical ingestion
 ```
 
 Newly ingested data does **not** imply an existing score run is current, and ingestion
-never triggers scoring. Orchestration is a job path, not an HTTP request path.
+never triggers scoring. Orchestration runs as a job; the only HTTP path is an admin-only
+endpoint that shells out to that job (a tens-of-seconds operation, never a per-request
+computation).
 
 ## Components
 
@@ -162,11 +164,23 @@ in sync.
 
 ## Operational requirement
 
-`RUN_IF_STALE` must run on a schedule after the ingestion jobs (see
-`canonical_postgres_v1_2_1/analytics_canonical_v1/run_refresh_job.py` and
-`integration_shadow_v1/REFRESH_SCHEDULING.md`). Nothing in the ingestion path calls it.
-Without a schedule the score is correct but only as fresh as the last invocation —
-which is now visible as `score_stale=true` instead of silently wrong.
+Recomputation is an **explicit admin action**: the «به‌روزرسانی امتیازها» button on the
+«غربال بازار» page calls `POST /api/admin/analytics/refresh`, which runs
+`orchestrate_refresh.py --mode RUN_IF_STALE`. No timer refreshes or even checks the
+score (the hourly `RFA Analytics Refresh` task was removed on 2026-10-30); see
+`integration_shadow_v1/REFRESH_SCHEDULING.md`.
+
+Consequences, by design:
+
+- a newly ingested report does not move the screen score until an admin presses the
+  button; the badge reports `score_stale=true` with the domains that moved;
+- pressing the button when nothing moved answers `NOT_STALE` and appends no run;
+- `RUN_IF_STALE` is blocked with `BLOCKED_DEGRADED_INGESTION` when an ingestion domain
+  is unhealthy; the endpoint surfaces that as a service-unavailable response with a
+  Persian message.
+
+`run_refresh_job.py` remains the CLI/scheduler entry point for operators and is what the
+endpoint's orchestrator mirrors; it is no longer registered as a scheduled task.
 
 ## Gate
 `ANALYTICS_REFRESH_READY`

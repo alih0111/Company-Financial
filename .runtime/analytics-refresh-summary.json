@@ -1,0 +1,118 @@
+{
+  "generated_at": "2026-10-30T20:08:38.236165+00:00",
+  "mode": "RUN_IF_STALE",
+  "score_version": "canonical-v1-dev",
+  "ingestion_health": {
+    "available": true,
+    "degraded": false,
+    "domains": {
+      "MARKET_PRICE": {
+        "authority": "CANONICAL",
+        "retry_backlog": 0,
+        "quarantine_count": 0,
+        "health": "HEALTHY"
+      },
+      "MONTHLY_ACTIVITY": {
+        "authority": "CANONICAL",
+        "retry_backlog": 0,
+        "quarantine_count": 18,
+        "health": "HEALTHY"
+      },
+      "FINANCIAL_STATEMENT": {
+        "authority": "CANONICAL",
+        "retry_backlog": 0,
+        "quarantine_count": 24,
+        "health": "HEALTHY"
+      },
+      "CODAL": {
+        "authority": "CANONICAL",
+        "retry_backlog": 0,
+        "quarantine_count": 28,
+        "health": "HEALTHY"
+      }
+    },
+    "generated_at": "2026-09-25T17:12:00.375757+00:00"
+  },
+  "latest_serving_run": {
+    "id": "63a6c0b4-cfa6-42ac-8e23-2712b4897083",
+    "as_of_date": "2026-10-30",
+    "source_cutoff_at": "2026-10-30 23:31:59.645495+03:30",
+    "run_seq": 56
+  },
+  "data_cutoffs": {
+    "monthly_latest": "2026-10-22",
+    "financial_latest": "2026-09-22",
+    "market_latest_trade_date": "2026-10-30",
+    "market_latest_collected_at": "2026-10-30 22:33:57.564963+03:30",
+    "reports_latest_collected_at": "2026-10-30 23:34:27.276712+03:30"
+  },
+  "current_watermark": {
+    "v": 1,
+    "domains": {
+      "monthly": {
+        "date": "2026-10-22",
+        "arrival": "2026-10-30 17:45:51.487277+03:30",
+        "rows": 12306,
+        "digest": "175c0447a1de985d6d66f50722de1ef7"
+      },
+      "financial": {
+        "date": "2026-09-22",
+        "arrival": "2026-10-30 23:34:27.276712+03:30",
+        "rows": 87338,
+        "digest": "8904c09d54a16b50ec9b827aabcbd4bc"
+      },
+      "market": {
+        "date": "2026-10-30",
+        "arrival": "2026-10-30 22:33:57.564963+03:30",
+        "rows": 718191,
+        "digest": "413745750083226694343037"
+      },
+      "shares": {
+        "date": "2026-10-01",
+        "arrival": "2026-10-02 15:02:19.843477+03:30",
+        "rows": 911,
+        "digest": "9c0ca62fabae2daf193cadeaca72e1de"
+      },
+      "reports": {
+        "date": null,
+        "arrival": "2026-10-30 23:34:27.276712+03:30",
+        "rows": 27437,
+        "digest": "f7f70c2b5b30b08d5e77836715270d05"
+      }
+    },
+    "digest": "3fa966211caee2ad674562f7e913b320d3ee49b9e8c32d79ab7e594a4e3a240f"
+  },
+  "staleness": {
+    "stale": true,
+    "usable_run": true,
+    "reasons": [
+      "financial: rows 87315 -> 87338",
+      "financial: content changed",
+      "financial: new arrival 2026-10-30 23:34:27.276712+03:30 > 2026-10-30 23:31:59.645495+03:30",
+      "reports: rows 27435 -> 27437",
+      "reports: content changed",
+      "reports: new arrival 2026-10-30 23:34:27.276712+03:30 > 2026-10-30 23:31:59.645495+03:30"
+    ],
+    "run_as_of": "2026-10-30",
+    "run_source_cutoff_at": "2026-10-30 23:31:59.645495+03:30",
+    "run_watermark_digest": "76bf64ddf6dac976e5e4716a492c7e6feb1846cea5eada5af1a11979ff067db4",
+    "current_watermark_digest": "3fa966211caee2ad674562f7e913b320d3ee49b9e8c32d79ab7e594a4e3a240f"
+  },
+  "action": "RECOMPUTED",
+  "recomputed": true,
+  "new_run": {
+    "population": 271,
+    "digest": "794de9e89a2a298e8dd6e80a26c0c99b1a3891cb84bc7f44c9f2d55072160574",
+    "stored_run_id": "777f666d-0b98-4622-b734-f264ce5f24cd",
+    "status": "completed",
+    "completed": true,
+    "code_version": "canonical-v1-dev+report-chain-ttm+direct-valuation+fiscal-anchor-cell+verified-financial-inputs-v1",
+    "run_seq": 57,
+    "completed_at": "2026-10-30 23:38:33.966231+03:30",
+    "company_scores": 271,
+    "factor_scores": 5691
+  },
+  "blocked_reason": null,
+  "recompute_as_of": "2026-10-30",
+  "recompute_cutoff": "2026-10-30 23:34:27.276712+03:30"
+}

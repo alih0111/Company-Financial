@@ -1,12 +1,9 @@
 package handlers
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 	"sync/atomic"
@@ -15,66 +12,51 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// جمع‌آوری خودکار کدال — همان «جمع‌آوری سریع» صفحه، بدون نیاز به کلیک.
-//
-// یک ورکر پس‌زمینه هر CODAL_AUTO_SYNC_INTERVAL_MINUTES دقیقه (پیش‌فرض ۳۰)
-// py/sync_codal.py را اجرا می‌کند. خود اسکریپت incremental است (watermark +
-// dedup با TracingNo در پستگرس)، پس فقط گزارش‌های جدیدِ نمادهای شناسایی‌شده
-// دریافت می‌شوند و اجرای مکرر بار اضافی روی کدال نمی‌گذارد.
-//
-// قفل single-flight بین اجرای خودکار و دکمه‌ی دستی مشترک است؛ هر دو هرگز
-// همزمان اجرا نمی‌شوند (context مرورگر و نوشتن canonical نباید موازی شوند).
-
 const (
 	codalAutoStatePath = ".runtime/codal-auto-sync.json"
-	codalAutoLockPath  = ".runtime/codal-auto-sync.lock"
+	codalAutoLockPath  = ".runtime/codal-auto-sync.lock" // legacy path retained for status compatibility
 	codalAutoLogPath   = ".runtime/codal-auto-sync.log"
-	codalAutoTimeout   = 15 * time.Minute
+	codalAutoTimeout   = 15 * time.Minute // legacy constant used by existing operational checks
 	codalAutoLockStale = 20 * time.Minute
 )
 
-// codalSyncBusy بین مسیر خودکار (این فایل) و مسیر دستی (sync_codal.go) مشترک است.
+// Single-flight is now shared by manual and scheduled runs through codal_jobs.go.
 var codalSyncBusy atomic.Bool
 
-func codalAutoSyncEnabled() bool {
-	return os.Getenv("CODAL_AUTO_SYNC_ENABLED") != "0"
-}
+func codalAutoSyncEnabled() bool { return os.Getenv("CODAL_AUTO_SYNC_ENABLED") != "0" }
 
 func codalAutoSyncInterval() time.Duration {
-	raw := os.Getenv("CODAL_AUTO_SYNC_INTERVAL_MINUTES")
-	minutes, err := strconv.Atoi(raw)
+	minutes, err := strconv.Atoi(os.Getenv("CODAL_AUTO_SYNC_INTERVAL_MINUTES"))
 	if err != nil || minutes <= 0 {
 		return 30 * time.Minute
 	}
 	if minutes < 5 {
-		// کف ایمنی: کدال در فشار مکرر پاسخ throttle می‌دهد.
 		minutes = 5
 	}
 	return time.Duration(minutes) * time.Minute
 }
 
-// codalSyncPython پایتون venv پروژه را ترجیح می‌دهد (playwright + psycopg آنجاست).
+// codalSyncPython prefers the workspace virtual environment used by Playwright.
 func codalSyncPython() string {
 	if cwd, err := os.Getwd(); err == nil {
-		venv := filepath.Join(cwd, "..", ".venv", "scripts", "python.exe")
-		if _, err := os.Stat(venv); err == nil {
-			return venv
+		for _, candidate := range []string{filepath.Join(cwd, "..", ".venv", "Scripts", "python.exe"), filepath.Join(cwd, "..", ".venv", "scripts", "python.exe"), filepath.Join(cwd, "..", ".venv", "bin", "python")} {
+			if _, err := os.Stat(candidate); err == nil {
+				return candidate
+			}
 		}
 	}
 	return "python"
 }
 
-// StartCodalAutoSync ورکر چرخشی را در گوروتین بالا می‌آورد. با
-// CODAL_AUTO_SYNC_ENABLED=0 غیرفعال می‌شود.
 func StartCodalAutoSync() {
 	if !codalAutoSyncEnabled() {
-		log.Println("⏸️ codal auto sync disabled (CODAL_AUTO_SYNC_ENABLED=0)")
+		log.Println("codal auto sync disabled (CODAL_AUTO_SYNC_ENABLED=0)")
 		return
 	}
 	interval := codalAutoSyncInterval()
-	log.Printf("🔁 codal auto sync enabled: every %s (first pass in 2m)", interval)
+	log.Printf("codal auto sync enabled: every %s (first pass in 2m)", interval)
 	go func() {
-		time.Sleep(2 * time.Minute) // بگذار بالا آمدن سرور کامل شود
+		time.Sleep(2 * time.Minute)
 		for {
 			codalAutoSyncTick()
 			time.Sleep(codalAutoSyncInterval())
@@ -82,171 +64,73 @@ func StartCodalAutoSync() {
 	}()
 }
 
+// Automatic and manual calls enter the same job manager and worker lifecycle.
 func codalAutoSyncTick() {
-	// اگر اجرای دستی در جریان است، این دور بی‌سروصدا رد می‌شود.
-	if !codalSyncBusy.CompareAndSwap(false, true) {
+	if !codalAutoSyncEnabled() {
 		return
 	}
-	defer codalSyncBusy.Store(false)
-
-	_ = os.MkdirAll(".runtime", 0o700)
-	// قفل بین-پروسه‌ای: اگر پروسه‌ای کشته شود قفل را رها نمی‌کند؛ بعد از
-	// بیشینه‌ی زمان اجرا (۱۵د) + حاشیه، قفل کهنه شمرده می‌شود.
-	if st, err := os.Stat(codalAutoLockPath); err == nil && time.Since(st.ModTime()) > codalAutoLockStale {
-		_ = os.Remove(codalAutoLockPath)
-	}
-	lock, err := os.OpenFile(codalAutoLockPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o600)
+	job, conflict, err := startCodalSyncJob(SyncCodalRequest{Mode: "all"}, "automatic")
 	if err != nil {
-		return // پروسه‌ی دیگری از همین اپ در حال اجراست
-	}
-	_ = lock.Close()
-	defer os.Remove(codalAutoLockPath)
-
-	now := time.Now()
-	state := map[string]any{
-		"running":          true,
-		"last_attempt_at":  now.Format(time.RFC3339),
-		"interval_minutes": int(codalAutoSyncInterval().Minutes()),
-	}
-	writeCodalAutoState(state)
-
-	workDir, err := os.Getwd()
-	script := filepath.Join(workDir, "py", "sync_codal.py")
-	if err != nil {
-		state["status"], state["message"] = "failed", "cannot resolve working dir"
-		state["running"] = false
-		writeCodalAutoState(state)
-		return
-	}
-	if _, err := os.Stat(script); err != nil {
-		state["status"], state["message"] = "failed", "py/sync_codal.py not found"
-		state["running"] = false
-		writeCodalAutoState(state)
-		log.Println("❌ codal auto sync:", state["message"])
-		return
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), codalAutoTimeout)
-	defer cancel()
-	cmd := exec.CommandContext(ctx, codalSyncPython(), script, "--type", "all")
-	cmd.Dir = workDir
-	cmd.Env = append(os.Environ(), "PYTHONDONTWRITEBYTECODE=1", "PYTHONIOENCODING=utf-8")
-
-	// قرارداد sync_codal.py: stdout فقط JSON نهایی؛ stderr لاگ‌ها.
-	var stdout, stderr bytes.Buffer
-	cmd.Stdout = &stdout
-	cmd.Stderr = &stderr
-	runErr := cmd.Run()
-	_ = os.WriteFile(codalAutoLogPath, append(stderr.Bytes(), stdout.Bytes()...), 0o600)
-
-	state["running"] = false
-	state["finished_at"] = time.Now().Format(time.RFC3339)
-	if ctx.Err() == context.DeadlineExceeded {
-		state["status"], state["message"] = "timeout", "اجرا از ۱۵ دقیقه بیشتر طول کشید؛ دور بعد ادامه می‌دهد"
-		log.Println("⏱️ codal auto sync timeout after", codalAutoTimeout)
-		writeCodalAutoState(state)
-		return
-	}
-
-	var summary struct {
-		Success bool   `json:"success"`
-		Error   string `json:"error"`
-		Total   struct {
-			Scanned     int `json:"scanned"`
-			Already     int `json:"already"`
-			New         int `json:"new"`
-			Completed   int `json:"completed"`
-			Failed      int `json:"failed"`
-			Quarantined int `json:"quarantined"`
-			Errors      int `json:"errors"`
-		} `json:"total"`
-	}
-	if json.Unmarshal(stdout.Bytes(), &summary) != nil {
-		state["status"], state["message"] = "failed", "خروجی JSON معتبر برگردانده نشد"
-		if runErr != nil {
-			state["error"] = runErr.Error()
+		if !conflict {
+			log.Printf("codal auto sync could not start: %v", err)
 		}
-		log.Println("❌ codal auto sync: no valid JSON; see", codalAutoLogPath)
-		writeCodalAutoState(state)
 		return
 	}
-	if summary.Error != "" {
-		// مثلا کدال در دسترس نیست؛ دور بعد دوباره امتحان می‌شود.
-		state["error"] = summary.Error
+	if conflict {
+		if job != nil {
+			log.Printf("codal auto sync skipped; active job %s", job.ID)
+		} else {
+			log.Printf("codal auto sync skipped; another process owns the active lock")
+		}
+		return
 	}
-
-	state["last_summary"] = map[string]any{
-		"scanned":     summary.Total.Scanned,
-		"already":     summary.Total.Already,
-		"new":         summary.Total.New,
-		"completed":   summary.Total.Completed,
-		"failed":      summary.Total.Failed,
-		"quarantined": summary.Total.Quarantined,
-		"errors":      summary.Total.Errors,
-	}
-	switch {
-	case summary.Success:
-		state["status"] = "completed"
-		state["last_success_at"] = state["finished_at"]
-		state["message"] = "آخرین جمع‌آوری خودکار انجام شد"
-		log.Printf("✅ codal auto sync: scanned=%d new=%d completed=%d failed=%d quarantined=%d",
-			summary.Total.Scanned, summary.Total.New, summary.Total.Completed,
-			summary.Total.Failed, summary.Total.Quarantined)
-	case summary.Error != "" && summary.Total.Scanned == 0:
-		// مثلا کدال در دسترس نیست؛ watermark جلو نرفته و دور بعد دوباره
-		// همان بازه را اسکن می‌کند، پس چیزی از دست نمی‌رود.
-		state["status"] = "failed"
-		state["message"] = "کدال در دسترس نبود؛ دور بعد دوباره تلاش می‌شود"
-		log.Printf("⚠️ codal auto sync failed: %s", summary.Error)
-	default:
-		state["status"] = "completed_with_errors"
-		state["message"] = "جمع‌آوری انجام شد اما بخشی ناموفق بود"
-		log.Printf("⚠️ codal auto sync finished with errors: new=%d failed=%d errors=%d",
-			summary.Total.New, summary.Total.Failed, summary.Total.Errors)
-	}
-	state["next_run_at"] = time.Now().Add(codalAutoSyncInterval()).Format(time.RFC3339)
-	writeCodalAutoState(state)
+	writeCodalAutoState(map[string]any{"running": true, "status": "running", "last_attempt_at": time.Now().UTC().Format(time.RFC3339), "active_job_id": job.ID})
+	go func() {
+		<-job.done
+		snap := job.snapshot()
+		state := map[string]any{"running": false, "status": snap["state"], "finished_at": time.Now().UTC().Format(time.RFC3339), "last_summary": snap["summary"], "active_job_id": "", "next_run_at": time.Now().Add(codalAutoSyncInterval()).UTC().Format(time.RFC3339)}
+		if snap["state"] == "completed" {
+			state["last_success_at"] = state["finished_at"]
+		}
+		writeCodalAutoState(state)
+	}()
 }
 
 func writeCodalAutoState(state map[string]any) {
 	state["enabled"] = codalAutoSyncEnabled()
+	state["interval_minutes"] = int(codalAutoSyncInterval().Minutes())
 	raw, err := json.Marshal(state)
 	if err != nil {
 		return
 	}
-	_ = os.MkdirAll(".runtime", 0o700)
-	_ = os.WriteFile(codalAutoStatePath+".tmp", raw, 0o600)
-	_ = os.Rename(codalAutoStatePath+".tmp", codalAutoStatePath)
+	_ = writeAtomicFile(codalAutoStatePath, raw, 0o600)
 }
 
-// GetCodalSyncStatus وضعیت جمع‌آوری خودکار را برمی‌گرداند (GET /api/sync-codal/status).
+// GetCodalSyncStatus preserves the existing status contract and surfaces a
+// manual or automatic active job so the client can reconnect to it.
 func GetCodalSyncStatus(c *gin.Context) {
-	if !c.GetBool("isAdmin") {
-		c.JSON(403, gin.H{"error": "admin only"})
+	if !adminOnly(c) {
 		return
 	}
-	state := map[string]any{
-		"enabled":          codalAutoSyncEnabled(),
-		"interval_minutes": int(codalAutoSyncInterval().Minutes()),
-		"running":          codalSyncBusy.Load(),
-		"schedule_label":   "جمع‌آوری خودکار جدیدترین گزارش‌های کدال برای نمادهای شما",
-	}
+	state := map[string]any{"enabled": codalAutoSyncEnabled(), "interval_minutes": int(codalAutoSyncInterval().Minutes()), "running": codalSyncBusy.Load(), "schedule_label": "جمع‌آوری خودکار جدیدترین گزارش‌های کدال برای نمادهای شما"}
 	if raw, err := os.ReadFile(codalAutoStatePath); err == nil {
 		persisted := map[string]any{}
 		if json.Unmarshal(raw, &persisted) == nil {
 			for k, v := range persisted {
-				if _, live := state[k]; !live {
+				if _, exists := state[k]; !exists {
 					state[k] = v
 				}
 			}
 		}
 	}
-	state["running"] = codalSyncBusy.Load()
-	if _, has := state["next_run_at"]; !has {
-		if last, ok := state["last_attempt_at"].(string); ok && !state["running"].(bool) {
-			if t, err := time.Parse(time.RFC3339, last); err == nil {
-				state["next_run_at"] = t.Add(codalAutoSyncInterval()).Format(time.RFC3339)
-			}
+	if id := activeCodalJobID(); id != "" {
+		codalJobs.RLock()
+		job := codalJobs.items[id]
+		codalJobs.RUnlock()
+		if job != nil {
+			refreshCodalJob(job)
+			state["active_job"] = job.snapshot()
+			state["running"] = true
 		}
 	}
 	c.JSON(200, state)

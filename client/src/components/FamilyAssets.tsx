@@ -669,14 +669,14 @@ const FamilyAssets = () => {
     return rows;
   }, [heldAssets, assetSort]);
 
-  // بهترین / ضعیف‌ترین نماد سبد از نظر درصد سود — برای کارت «سود / زیان کل»
+  // بهترین / ضعیف‌ترین نماد سبد از نظر درصد تغییر همان روز — برای کارت «سود / زیان کل»
   const bestWorst = useMemo(() => {
     const held = heldAssets.filter(
-      (a) => a.total_value > 0 && Number.isFinite(a.profit_pct),
+      (a) => a.total_value > 0 && Number.isFinite(a.day_change_pct),
     );
     if (held.length === 0) return null;
     const sorted = [...held].sort(
-      (a, b) => (b.profit_pct || 0) - (a.profit_pct || 0),
+      (a, b) => (b.day_change_pct || 0) - (a.day_change_pct || 0),
     );
     return { best: sorted[0], worst: sorted[sorted.length - 1] };
   }, [heldAssets]);
@@ -1325,19 +1325,19 @@ const FamilyAssets = () => {
                 <div className="mt-2 space-y-1 text-[11px]">
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-gray-400 truncate">
-                      بهترین: {bestWorst.best.name}
+                      بهترین امروز: {bestWorst.best.name}
                     </span>
                     <span className="text-emerald-600 dark:text-emerald-400 font-semibold tabular-nums shrink-0">
-                      {fmtPct(bestWorst.best.profit_pct)}
+                      {fmtPct(bestWorst.best.day_change_pct)}
                     </span>
                   </div>
                   {bestWorst.worst.asset_id !== bestWorst.best.asset_id && (
                     <div className="flex items-center justify-between gap-2">
                       <span className="text-gray-400 truncate">
-                        ضعیف‌ترین: {bestWorst.worst.name}
+                        ضعیف‌ترین امروز: {bestWorst.worst.name}
                       </span>
                       <span className="text-red-500 dark:text-red-400 font-semibold tabular-nums shrink-0">
-                        {fmtPct(bestWorst.worst.profit_pct)}
+                        {fmtPct(bestWorst.worst.day_change_pct)}
                       </span>
                     </div>
                   )}

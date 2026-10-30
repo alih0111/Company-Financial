@@ -81,9 +81,24 @@ func main() {
 
 		// sync مبتنی بر discovery کدال (فقط ادمین) → py/sync_codal.py
 		protected.POST("/sync-codal", handlers.RunSyncCodal)
+		protected.POST("/sync-codal/jobs", handlers.StartCodalSyncJob)
+		protected.GET("/sync-codal/jobs/active", handlers.GetActiveCodalJob)
+		protected.GET("/sync-codal/jobs/:job_id", handlers.GetCodalJob)
+		protected.POST("/sync-codal/jobs/:job_id/captcha", handlers.SubmitCodalCaptcha)
+		protected.POST("/sync-codal/jobs/:job_id/captcha/refresh", handlers.RefreshCodalCaptcha)
+		protected.POST("/sync-codal/jobs/:job_id/captcha/resume", handlers.ResumeCodalChallenge)
+		protected.POST("/sync-codal/jobs/:job_id/cancel", handlers.CancelCodalJob)
 
 		// وضعیت جمع‌آوری خودکار کدال (فقط ادمین)
 		protected.GET("/sync-codal/status", handlers.GetCodalSyncStatus)
+
+		// به‌روزرسانی دستی امتیازهای «غربال بازار» (فقط ادمین) → orchestrate_refresh.py
+		// بدون این دکمه هیچ زمان‌بندی‌ای امتیازها را بازمحاسبه نمی‌کند.
+		protected.POST("/admin/analytics/refresh", handlers.RefreshAnalyticsScores)
+
+		// اجرای دستی چرخهٔ دریافت Codal و بازسازی رتبه‌بندی P1/P3 (فقط ادمین)
+		protected.POST("/admin/ranking/refresh", handlers.StartRankingRefresh)
+		protected.GET("/admin/ranking/refresh/status", handlers.GetRankingRefreshStatus)
 
 		protected.GET("/summary", handlers.GetAIStockSummary)
 		protected.GET("/detail", handlers.GetAIStockDetail)

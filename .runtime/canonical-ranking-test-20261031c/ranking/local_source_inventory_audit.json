@@ -1,0 +1,54 @@
+{
+  "scope": "read-only local source audit; no database writes",
+  "database_tables": {
+    "dbo.CodalReports": {
+      "rows": 65,
+      "completed": 45,
+      "failed": 6,
+      "unsupported": 14,
+      "max_published_at": "2026-10-01T10:42:47"
+    },
+    "dbo.mahane": {
+      "rows": 12122,
+      "companies": 193,
+      "exact_frozen_symbol_matches": 182,
+      "period_range": "1398/10/30..1405/06/31",
+      "rows_with_event_value_crosswalk": 9612,
+      "crosswalk_companies": 163,
+      "db_Value3_to_event_rial_ratio": 1e-06,
+      "unit": "million rial (confirmed by exact crosswalk)"
+    },
+    "dbo.miandore2": {
+      "rows": 6865,
+      "companies": 267,
+      "exact_frozen_symbol_matches": 247,
+      "period_range": "1398/01/31..1405/05/31",
+      "native_retrieval_timestamp_or_tracing_id": false
+    },
+    "dbo.statements": {
+      "rows": 5920,
+      "companies": 1,
+      "period_range": "1400/09/30..1405/03/31",
+      "unit_codes": [
+        "unknown"
+      ],
+      "usable_for_frozen_universe": false
+    }
+  },
+  "local_archives": {
+    "raw_financial_report_files": 332,
+    "raw_financial_companies": 118,
+    "financial_cache_files": 256,
+    "financial_cache_company_ids": 256,
+    "owner_input_reports": 7321,
+    "verified_comparative_facts": 17393,
+    "monthly_sales_event_rows": 12183,
+    "monthly_sales_companies": 164
+  },
+  "limitations": [
+    "DB financial rows have no Codal tracing number or published_at; they are not used to repair the verified report lineage.",
+    "The monthly-sales database value has a proven 1e6 unit conversion against 9,612 event rows, but DB rows have no source tracing/published_at or correction chain, so are not substituted into the contract event chain.",
+    "Raw archived report/cache sources exist for all 192 V12.35 unscored company IDs; 104 gained a valid score after correcting statement-type selection. Remaining gaps are listed in company_factor_gaps_v12_37.csv.",
+    "Codal HTTP 429 attempt is retained in V12.35. Its Retry-After header was not captured; no further request was made without a verifiable retry time."
+  ]
+}

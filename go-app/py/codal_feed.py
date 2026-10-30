@@ -255,6 +255,27 @@ def filter_supported(reports: Iterable[CodalReport]) -> list[CodalReport]:
     return [r for r in reports if classify_report(r) == "supported"]
 
 
+_AUDITED_MARKER = "حسابرسیشده"
+
+
+def _normalize_title(text: str | None) -> str:
+    """حذف نیم‌فاصله/فاصله برای تطبیق پایدار عنوان‌های فارسی کدال."""
+    return (text or "").replace("\u200c", "").replace("\u200f", "").replace(" ", "")
+
+
+def is_audited_title(title: str | None) -> bool:
+    return _AUDITED_MARKER in _normalize_title(title)
+
+
+def is_audited_financial(report: CodalReport) -> bool:
+    """گزارش مالی «حسابرسی‌شده» است؟
+
+    فیلتر «سود» فقط گزارش‌های حسابرسی‌نشده را می‌خواهد؛ گزارش‌های
+    حسابرسی‌شده (غالباً سالانه و تلفیقی) زیرمجموعه‌ها را هم شامل می‌شوند.
+    """
+    return is_audited_title(report.title)
+
+
 # ---------------------------------------------------------------------------
 # دسترسی به API
 # ---------------------------------------------------------------------------
@@ -297,7 +318,65 @@ def _build_query(
     return f"{SEARCH_API_BASE}?{urllib.parse.urlencode(params)}"
 
 
-def _fetch_json(url: str, timeout: int, retries: int) -> dict:
+def _build_report_list_url(
+    letter_type: int,
+    page_number: int,
+    symbol: str | None = None,
+) -> str:
+    """Visible Codal page used for manual recovery after an HTTP block.
+
+    The JSON endpoint can return an XML block page that has no CAPTCHA controls.
+    Opening the corresponding public ReportList page lets the operator complete
+    any verification in the real site session before the worker retries JSON.
+
+    پارامترها عمداً بدون ``=`` ساخته می‌شوند (مثل آدرس خود کدال:
+    ``?search&LetterType=6&...&NotAudited&...&Childs&Mains&...``). اگر
+    ``search=&`` یا ``NotAudited=`` فرستاده شود، ASP.NET فیلتر را اعمال
+    نمی‌کند و صفحه به ReportList پیش‌فرض (همهٔ گزارش‌ها) برمی‌گردد.
+    """
+    parts = [
+        "search",
+        f"LetterType={int(letter_type)}",
+        "AuditorRef=-1",
+        f"PageNumber={int(page_number)}",
+        "Audited=false",
+        "NotAudited",
+        "IsNotAudited=false",
+        "Childs",
+        "Mains",
+        "Publisher=false",
+        "CompanyState=-1",
+        "ReportingType=-1",
+        "Category=-1",
+        "CompanyType=-1",
+        "Consolidatable",
+        "NotConsolidatable",
+    ]
+    if symbol:
+        parts.append("Symbol=" + urllib.parse.quote(symbol.strip()))
+    return f"{CODAL_BASE_URL}/ReportList.aspx?" + "&".join(parts)
+
+
+def _fetch_json(url: str, timeout: int, retries: int, *, recovery_url: str | None = None) -> dict:
+    # Interactive server jobs share one HTTP cookie jar and one Playwright
+    # context across discovery, body download, and parsing. CLI use outside a
+    # job retains the lightweight urllib path.
+    if __import__("os").environ.get("CODAL_JOB_DIR"):
+        from codal_transport import current
+
+        raw, content_type, _status = current().get(
+            url, timeout, expect_json=True, recovery_url=recovery_url,
+        )
+        try:
+            data = json.loads(raw.decode("utf-8-sig"))
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            raise RuntimeError(
+                f"Codal returned non-JSON content ({content_type or 'unknown content type'})"
+            ) from exc
+        if not isinstance(data, dict) or not isinstance(data.get("Letters"), list) or "Total" not in data:
+            raise RuntimeError("Codal JSON response does not match the report feed schema")
+        return data
+
     last_error: Exception | None = None
 
     for attempt in range(1, retries + 1):
@@ -305,7 +384,10 @@ def _fetch_json(url: str, timeout: int, retries: int) -> dict:
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
                 payload = response.read().decode("utf-8")
-            return json.loads(payload)
+            data = json.loads(payload)
+            if not isinstance(data, dict) or not isinstance(data.get("Letters"), list) or "Total" not in data:
+                raise RuntimeError("Codal JSON response does not match the report feed schema")
+            return data
         except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
             last_error = exc
             logger.warning(
@@ -327,12 +409,16 @@ def discover_reports(
     from_date: str | None = None,
     to_date: str | None = None,
     symbol: str | None = None,
+    financial_not_audited: bool = True,
     timeout: int = DEFAULT_TIMEOUT,
     retries: int = DEFAULT_RETRIES,
 ) -> FeedPage:
     """یک صفحه از feed کدال را می‌خواند و metadata گزارش‌ها را برمی‌گرداند.
 
     با ``symbol`` فقط گزارش‌های همان نماد (سرچ کدال) برمی‌گردد.
+    برای گزارش مالی (LetterType=6) به‌طور پیش‌فرض فقط «حسابرسی‌نشده»ها
+    برمی‌گردند؛ همان فیلتری که ReportList.aspx با Audited=false&NotAudited
+    نشان می‌دهد و گزارش‌های حسابرسی‌شده/تلفیقی را کنار می‌گذارد.
     """
     if page_number < 1:
         raise ValueError("page_number must be >= 1")
@@ -341,7 +427,8 @@ def discover_reports(
     logger.info("🌐 Codal discovery: LetterType=%s PageNumber=%s symbol=%s",
                 letter_type, page_number, symbol or "-")
 
-    data = _fetch_json(url, timeout=timeout, retries=retries)
+    recovery_url = _build_report_list_url(letter_type, page_number, symbol)
+    data = _fetch_json(url, timeout=timeout, retries=retries, recovery_url=recovery_url)
 
     raw_letters = data.get("Letters") or []
     # نوع هر نامه از ``let`` داخل Url خودش استخراج می‌شود؛ فقط نامه‌های همان
@@ -349,6 +436,8 @@ def discover_reports(
     # ``all_reports`` برای تصمیم‌های صفحه‌ای (watermark/پایان صفحه) می‌مانند.
     all_reports = [parse_letter(letter) for letter in raw_letters]
     reports = [r for r in all_reports if r.letter_type == letter_type]
+    if letter_type == FINANCIAL_LETTER_TYPE and financial_not_audited:
+        reports = [r for r in reports if not is_audited_financial(r)]
 
     # توجه: فیلد ``Page`` در پاسخ API «تعداد کل صفحات» است نه شماره‌ی صفحه‌ی
     # جاری؛ بنابراین شماره‌ی درخواستی را نگه می‌داریم و total_pages از Total

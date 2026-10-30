@@ -9,16 +9,28 @@ $iisAssembly = Join-Path $env:SystemRoot 'System32\inetsrv\Microsoft.Web.Adminis
 $goPath = 'C:\Program Files\Go\bin\go.exe'
 $nodePath = 'C:\Program Files\nodejs\node.exe'
 $viteEntry = Join-Path $clientDir 'node_modules\vite\bin\vite.js'
+$script:sessionTag = '{0}-{1}' -f $PID, (Get-Date -Format 'yyyyMMdd-HHmmssfff')
+$script:transcriptPath = Join-Path $runtimeDir "launcher-session-$($script:sessionTag).log"
+$script:eventLogPath = Join-Path $logDir "launcher-events-$($script:sessionTag).log"
 $script:backendProcess = $null
 $script:frontendProcess = $null
 $script:sitesManaged = $false
 
 New-Item -ItemType Directory -Path $logDir -Force | Out-Null
-Start-Transcript -Path (Join-Path $runtimeDir 'launcher-session.log') -Append | Out-Null
+Start-Transcript -Path $script:transcriptPath | Out-Null
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 if (-not (Test-Path $goPath)) { throw "Go executable not found: $goPath" }
 if (-not (Test-Path $nodePath)) { throw "Node executable not found: $nodePath" }
+
+function Write-LauncherEvent([string]$message) {
+    try {
+        $line = "$(Get-Date -Format o) $message`r`n"
+        [System.IO.File]::AppendAllText(
+            $script:eventLogPath, $line, [System.Text.UTF8Encoding]::new($false)
+        )
+    } catch { }
+}
 
 $form = New-Object System.Windows.Forms.Form
 $form.Text = 'RFA | راه‌انداز سایت'
@@ -70,19 +82,21 @@ $stopButton = New-ActionButton 'خاموش کردن همه' 175 234 170
 $logsButton = New-ActionButton 'پوشه‌ی لاگ‌ها' 240 292 170
 
 function Test-Listening([int]$port) {
-    $client = New-Object System.Net.Sockets.TcpClient
-    try {
-        # Vite binds to ::1 when started with --host localhost on this machine.
-        # Connecting only to IPv4 127.0.0.1 would never see that listener.
-        $connection = $client.BeginConnect('localhost', $port, $null, $null)
-        if (-not $connection.AsyncWaitHandle.WaitOne(1000)) { return $false }
-        $client.EndConnect($connection)
-        return $client.Connected
-    } catch {
-        return $false
-    } finally {
-        $client.Close()
+    # .NET Framework on Windows PowerShell may resolve localhost to IPv4 first,
+    # while Vite's localhost listener is only on ::1. Probe both loopbacks.
+    foreach ($address in @([System.Net.IPAddress]::IPv6Loopback, [System.Net.IPAddress]::Loopback)) {
+        $client = [System.Net.Sockets.TcpClient]::new($address.AddressFamily)
+        try {
+            $connection = $client.BeginConnect($address, $port, $null, $null)
+            if (-not $connection.AsyncWaitHandle.WaitOne(500)) { continue }
+            $client.EndConnect($connection)
+            if ($client.Connected) { return $true }
+        } catch {
+        } finally {
+            $client.Close()
+        }
     }
+    return $false
 }
 
 function Get-PortOwner([int]$port) {
@@ -167,8 +181,14 @@ function Get-ExistingProjectPids {
     $result = @{ Backend = 0; Frontend = 0 }
     $backendOwner = Get-PortOwner 5000
     if ($backendOwner) {
-        $expectedBackend = [IO.Path]::GetFullPath((Join-Path $backendDir 'go-app.exe'))
-        if ($backendOwner.ExecutablePath -and [IO.Path]::GetFullPath($backendOwner.ExecutablePath) -ieq $expectedBackend) {
+        $expectedBackends = @(
+            [IO.Path]::GetFullPath($backendBinary),
+            [IO.Path]::GetFullPath((Join-Path $backendDir 'go-app.exe'))
+        )
+        $ownerPath = if ($backendOwner.ExecutablePath) {
+            [IO.Path]::GetFullPath($backendOwner.ExecutablePath)
+        } else { '' }
+        if ($ownerPath -and ($expectedBackends -icontains $ownerPath)) {
             $result.Backend = [int]$backendOwner.ProcessId
         } else {
             throw "پورت ۵۰۰۰ در اختیار برنامه‌ای غیر از بک‌اند این پروژه است؛ آن را متوقف نکردم."
@@ -187,13 +207,38 @@ function Get-ExistingProjectPids {
 }
 
 function Build-Backend {
-    $build = Start-Process -FilePath $goPath -ArgumentList @('build', '-o', $backendBinary, '.') `
+    $script:stagedBackendBinary = Join-Path $runtimeDir "go-app-staged-$PID.exe"
+    Remove-Item -LiteralPath $script:stagedBackendBinary -Force -ErrorAction SilentlyContinue
+    $build = Start-Process -FilePath $goPath -ArgumentList @('build', '-o', $script:stagedBackendBinary, '.') `
         -WorkingDirectory $backendDir -WindowStyle Hidden -PassThru -Wait `
         -RedirectStandardOutput (Join-Path $logDir 'build.out.log') `
         -RedirectStandardError (Join-Path $logDir 'build.err.log')
-    if ($build.ExitCode -ne 0 -or -not (Test-Path $backendBinary)) {
+    if ($build.ExitCode -ne 0 -or -not (Test-Path $script:stagedBackendBinary)) {
         throw "ساخت بک‌اند ناموفق بود؛ فایل‌های build.err.log در پوشه‌ی لاگ را ببینید."
     }
+}
+
+function Install-BuiltBackend {
+    if (-not $script:stagedBackendBinary -or -not (Test-Path $script:stagedBackendBinary)) {
+        throw 'نسخه‌ی ساخته‌شده‌ی بک‌اند برای نصب پیدا نشد.'
+    }
+    if (Test-Path $backendBinary) {
+        $backupBackendBinary = Join-Path $runtimeDir "go-app-backup-$PID.exe"
+        Remove-Item -LiteralPath $backupBackendBinary -Force -ErrorAction SilentlyContinue
+        [System.IO.File]::Move($backendBinary, $backupBackendBinary)
+        try {
+            [System.IO.File]::Move($script:stagedBackendBinary, $backendBinary)
+        } catch {
+            if ((Test-Path $backupBackendBinary) -and -not (Test-Path $backendBinary)) {
+                [System.IO.File]::Move($backupBackendBinary, $backendBinary)
+            }
+            throw
+        }
+        Remove-Item -LiteralPath $backupBackendBinary -Force -ErrorAction SilentlyContinue
+    } else {
+        [System.IO.File]::Move($script:stagedBackendBinary, $backendBinary)
+    }
+    $script:stagedBackendBinary = $null
 }
 
 function Start-Backend {
@@ -275,6 +320,7 @@ function Start-AllRfaServices {
         if ($existing.Backend) { Stop-ProcessTree $existing.Backend }
         if ($existing.Frontend) { Stop-ProcessTree $existing.Frontend }
         Start-Sleep -Milliseconds 500
+        Install-BuiltBackend
         Start-Backend
         Start-Frontend
         $startButton.Enabled = -not $script:sitesManaged
@@ -284,11 +330,16 @@ function Start-AllRfaServices {
         $status.Text = 'در حال آماده‌شدن سرویس‌ها…'
         $readyTimer.Start()
     } catch {
-        Add-Content -Path (Join-Path $runtimeDir 'launcher-session.log') -Value "$(Get-Date -Format o) startup error: $($_.Exception.ToString())"
+        Write-LauncherEvent "startup error: $($_.Exception.ToString())"
+        $readyTimer.Stop()
+        Stop-ManagedProcess $script:frontendProcess
+        Stop-ManagedProcess $script:backendProcess
+        $script:frontendProcess = $null
+        $script:backendProcess = $null
         $status.Text = 'وضعیت: شروع ناموفق بود'
         $status.ForeColor = [System.Drawing.Color]::Firebrick
-        $startButton.Enabled = -not $script:sitesManaged
-        $restartButton.Enabled = [bool]$script:backendProcess
+        $startButton.Enabled = $true
+        $restartButton.Enabled = $false
         $openButton.Enabled = $false
         $stopButton.Enabled = [bool]$script:sitesManaged
         [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'خطا در راه‌اندازی RFA', 'OK', 'Error') | Out-Null
@@ -297,6 +348,7 @@ function Start-AllRfaServices {
 
 $readyTimer = New-Object System.Windows.Forms.Timer
 $readyTimer.Interval = 1000
+$script:lastReadinessLog = Get-Date
 $readyTimer.Add_Tick({
     $backendAlive = $script:backendProcess -and -not $script:backendProcess.HasExited
     $frontendAlive = $script:frontendProcess -and -not $script:frontendProcess.HasExited
@@ -309,10 +361,9 @@ $readyTimer.Add_Tick({
     }
     if ((Test-Listening 5000) -and (Test-Listening 3000)) {
         try {
-            # Use the lightweight frontend response as readiness. The shadow
-            # health endpoint can block on database probes during cold start.
-            $frontReady = Invoke-WebRequest -Uri 'http://localhost:3000/' -UseBasicParsing -TimeoutSec 5
-            if ($frontReady.StatusCode -ne 200) { return }
+            # Both services have opened their listening sockets. Avoid an HTTP
+            # probe here: on some Windows hosts the first localhost request can
+            # stall even though Vite is ready, leaving the RFA IIS sites stopped.
             Set-RfaSites 'start'
             $readyTimer.Stop()
             $status.Text = 'وضعیت: سایت و بک‌اند آماده‌اند — RFA.SYSTEMGROUP.NET'
@@ -321,8 +372,7 @@ $readyTimer.Add_Tick({
             Start-Process 'http://rfa.systemgroup.net/dashboard'
         } catch {
             $detail = $_.Exception.ToString()
-            Add-Content -LiteralPath (Join-Path $runtimeDir 'launcher-session.log') `
-                -Value "$(Get-Date -Format o) IIS start/readiness error: $detail"
+            Write-LauncherEvent "IIS start/readiness error: $detail"
             $readyTimer.Stop()
             $status.Text = 'خطا در فعال‌کردن IIS؛ جزئیات در لاگ ثبت شد.'
             $status.ForeColor = [System.Drawing.Color]::Firebrick
@@ -331,6 +381,9 @@ $readyTimer.Add_Tick({
             $openButton.Enabled = $false
             $stopButton.Enabled = $true
         }
+    } elseif (((Get-Date) - $script:lastReadinessLog).TotalSeconds -ge 10) {
+        Write-LauncherEvent "Still waiting for listeners (backend=$(Test-Listening 5000), frontend=$(Test-Listening 3000))."
+        $script:lastReadinessLog = Get-Date
     }
 })
 
@@ -338,19 +391,35 @@ $startButton.Add_Click({ Start-AllRfaServices })
 $restartButton.Add_Click({
     if (-not $script:backendProcess) { return }
     $readyTimer.Stop()
+    $restartStoppedServices = $false
     try {
         $status.Text = 'در حال ساخت و ری‌استارت بک‌اند…'
         $status.ForeColor = [System.Drawing.Color]::DarkOrange
         $form.Refresh()
         Build-Backend
         Set-RfaSites 'stop'
+        $script:sitesManaged = $true
         Stop-ManagedProcess $script:backendProcess
         $script:backendProcess = $null
+        $restartStoppedServices = $true
+        Install-BuiltBackend
         Start-Backend
         $readyTimer.Start()
     } catch {
+        Write-LauncherEvent "backend restart error: $($_.Exception.ToString())"
         $status.Text = 'وضعیت: ری‌استارت ناموفق بود'
         $status.ForeColor = [System.Drawing.Color]::Firebrick
+        if ($restartStoppedServices -and -not $script:backendProcess) {
+            try {
+                Start-Backend
+                $readyTimer.Start()
+            } catch {
+                Write-LauncherEvent "backend recovery after restart error: $($_.Exception.ToString())"
+            }
+        }
+        $startButton.Enabled = -not [bool]$script:backendProcess
+        $restartButton.Enabled = [bool]$script:backendProcess
+        $stopButton.Enabled = $script:sitesManaged
         [System.Windows.Forms.MessageBox]::Show($_.Exception.Message, 'خطا در ری‌استارت', 'OK', 'Error') | Out-Null
     }
 })
@@ -366,5 +435,8 @@ $form.Add_FormClosing({
     param($sender, $eventArgs)
     if (-not (Stop-AllRfaServices)) { $eventArgs.Cancel = $true }
 })
-[void]$form.ShowDialog()
-Stop-Transcript | Out-Null
+try {
+    [void]$form.ShowDialog()
+} finally {
+    try { Stop-Transcript | Out-Null } catch { }
+}

@@ -1,0 +1,24 @@
+{
+  "artifact_sha256": "4547e472b4f297d88fcde50a4ae965834f299829b2edb37e3a67ce5a24a167a3",
+  "contract_sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+  "csv_sha256": "c4ef3e148c7c67efb8a4447ba9de5c5144ca67ce8b11eff9f32d3b312b989076",
+  "current_input_gaps_sha256": null,
+  "database_access": "READ_ONLY_SOURCE_AUDIT_ONLY; NO WRITES",
+  "evaluation_date": "2026-10-31",
+  "future_evaluation_activated": false,
+  "json_sha256": "87d4dfd3cc0dcedf474654ce4eeae8ae18805336b2596077341045ed557e78ea",
+  "network_requests_during_v12_37_build": 0,
+  "official_ledger_written": false,
+  "public_csv_sha256": "c4ef3e148c7c67efb8a4447ba9de5c5144ca67ce8b11eff9f32d3b312b989076",
+  "public_current_input_gaps_sha256": null,
+  "public_json_sha256": "87d4dfd3cc0dcedf474654ce4eeae8ae18805336b2596077341045ed557e78ea",
+  "scored_count": {
+    "P1": 146,
+    "P3": 94
+  },
+  "status": "PREPARATION_UNCONFIRMED",
+  "unscored_count": {
+    "P1": 108,
+    "P3": 160
+  }
+}

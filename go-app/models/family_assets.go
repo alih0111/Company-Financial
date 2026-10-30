@@ -15,6 +15,8 @@ type FamilyAssetRow struct {
 	SortOrder      int     `json:"sort_order"`
 	LatestPrice    float64 `json:"latest_price"`
 	PriceDate      string  `json:"price_date"`
+	PrevPrice      float64 `json:"prev_price"`     // قیمت روز قبل (مبنای تغییر همان روز)
+	DayChangePct   float64 `json:"day_change_pct"` // درصد تغییر قیمت نسبت به روز قبل
 	TotalQuantity  float64 `json:"total_quantity"`
 	TotalCost      float64 `json:"total_cost"`
 	TotalValue     float64 `json:"total_value"`

@@ -146,6 +146,29 @@ class LetterTypeFromItemTests(unittest.TestCase):
         self.assertEqual(parse_letter({}).letter_type, -1)
 
 
+class RecoveryUrlTests(unittest.TestCase):
+    def test_financial_recovery_url_matches_codal_filter(self):
+        url = codal_feed._build_report_list_url(FINANCIAL_LETTER_TYPE, 1)
+        self.assertEqual(
+            url,
+            "https://www.codal.ir/ReportList.aspx?search&LetterType=6"
+            "&AuditorRef=-1&PageNumber=1&Audited=false&NotAudited"
+            "&IsNotAudited=false&Childs&Mains&Publisher=false&CompanyState=-1"
+            "&ReportingType=-1&Category=-1&CompanyType=-1&Consolidatable"
+            "&NotConsolidatable",
+        )
+        # پارامترهای خالی با «=» باعث می‌شوند کدال فیلتر را اعمال نکند.
+        self.assertNotIn("?search=", url)
+        self.assertNotIn("&NotAudited=", url)
+        self.assertNotIn("&Childs=", url)
+
+    def test_monthly_and_symbol_recovery_url(self):
+        url = codal_feed._build_report_list_url(MONTHLY_LETTER_TYPE, 2, symbol="بجهرم")
+        self.assertIn("LetterType=58", url)
+        self.assertIn("PageNumber=2", url)
+        self.assertIn("Symbol=%D8%A8%D8%AC%D9%87%D8%B1%D9%85", url)
+
+
 class DiscoverFilterTests(unittest.TestCase):
     """feed بدون فیلتر LetterType خوانده می‌شود؛ فیلتر سمت ما است."""
 
@@ -191,7 +214,7 @@ class DiscoverFilterTests(unittest.TestCase):
     def test_query_uses_unfiltered_letter_type(self):
         captured = {}
 
-        def fake_fetch(url, timeout, retries):
+        def fake_fetch(url, timeout, retries, *, recovery_url=None):
             captured["url"] = url
             return {"Total": 0, "Page": 1, "Letters": []}
 
@@ -205,6 +228,24 @@ class DiscoverFilterTests(unittest.TestCase):
         with mock.patch.object(codal_feed, "_fetch_json", return_value=payload):
             page = discover_reports(MONTHLY_LETTER_TYPE, 1)
         self.assertTrue(page.is_empty)
+
+    def test_financial_audited_reports_are_excluded(self):
+        audited = self._letter(10, 6)
+        audited["Title"] = "صورت‌های مالی سال مالی منتهی به ۱۴۰۴/۱۲/۲۹ (حسابرسی شده)"
+        audited["Url"] = "/Reports/Decision.aspx?LetterSerial=x&let=6"
+        not_audited = self._letter(11, 6)
+        not_audited["Title"] = "اطلاعات و صورت‌های مالی میاندوره‌ای دوره ۶ ماهه (حسابرسی نشده)"
+        not_audited["Url"] = "/Reports/Decision.aspx?LetterSerial=y&let=6"
+        payload = {"Total": 2, "Page": 1, "Letters": [audited, not_audited]}
+
+        with mock.patch.object(codal_feed, "_fetch_json", return_value=payload):
+            page = discover_reports(FINANCIAL_LETTER_TYPE, 1)
+
+        self.assertEqual([r.report_id for r in page.reports], ["11"])
+        # برای بازه‌های سالانه/حسابرسی‌شده می‌توان فیلتر را خاموش کرد
+        with mock.patch.object(codal_feed, "_fetch_json", return_value=payload):
+            page = discover_reports(FINANCIAL_LETTER_TYPE, 1, financial_not_audited=False)
+        self.assertEqual([r.report_id for r in page.reports], ["10", "11"])
 
 
 class FeedPageFallbackTests(unittest.TestCase):

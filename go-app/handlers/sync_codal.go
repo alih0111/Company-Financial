@@ -1,103 +1,77 @@
 package handlers
 
 import (
-	"encoding/json"
-	"io"
 	"net/http"
-	"os/exec"
-	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-// SyncCodalRequest بدنه‌ی درخواست اجرای sync مبتنی بر discovery کدال.
+// SyncCodalRequest contains immutable arguments captured by a Codal job.
 type SyncCodalRequest struct {
-	Mode     string `json:"mode"`      // "all" | "financial" | "monthly"
-	DryRun   bool   `json:"dry_run"`   // فقط کشف، بدون تغییر داده
-	MaxPages int    `json:"max_pages"` // حداکثر صفحه از هر feed
-	Limit    int    `json:"limit"`     // حداکثر گزارش جدید
-	Symbol   string `json:"symbol"`    // جمع‌آوری فقط برای این نماد (خالی = feed سراسری)
+	Mode     string `json:"mode"`
+	DryRun   bool   `json:"dry_run"`
+	MaxPages int    `json:"max_pages"`
+	Limit    int    `json:"limit"`
+	Symbol   string `json:"symbol"`
 }
 
-// RunSyncCodal دستور py/sync_codal.py را اجرا می‌کند.
-// این endpoint additive است و flow قدیمی run-script را تغییر نمی‌دهد.
-// stdout اسکریپت (JSON) به‌صورت پاسخ برگردانده می‌شود و لاگ‌ها به کنسول سرور می‌روند.
+// RunSyncCodal is the legacy adapter. A normal run retains its historical 200
+// summary; jobs needing user input return immediately with their durable ID.
 func RunSyncCodal(c *gin.Context) {
-	if !c.GetBool("isAdmin") {
-		c.JSON(http.StatusForbidden, gin.H{"error": "admin only"})
+	if !adminOnly(c) {
 		return
 	}
-
-	// قفل مشترک با جمع‌آوری خودکار (codal_auto_sync.go): همزمانی دو مسیر
-	// مرورگر/دیتابیس را خراب می‌کند، پس دومی 409 می‌گیرد.
-	if !codalSyncBusy.CompareAndSwap(false, true) {
-		c.JSON(http.StatusConflict, gin.H{"error": "یک جمع‌آوری کدال در حال اجراست؛ چند لحظه بعد تلاش کنید"})
-		return
-	}
-	defer codalSyncBusy.Store(false)
-
 	var req SyncCodalRequest
-	_ = c.ShouldBindJSON(&req)
-
-	mode := req.Mode
-	if mode != "all" && mode != "financial" && mode != "monthly" {
-		mode = "all"
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(400, gin.H{"error": "invalid request body"})
+		return
 	}
-
-	args := []string{"py/sync_codal.py", "--type", mode}
-	if req.DryRun {
-		args = append(args, "--dry-run")
-	}
-	if req.MaxPages > 0 {
-		args = append(args, "--max-pages", strconv.Itoa(req.MaxPages))
-	}
-	if req.Limit > 0 {
-		args = append(args, "--limit", strconv.Itoa(req.Limit))
-	}
-	if req.Symbol != "" {
-		args = append(args, "--symbol", req.Symbol)
-	}
-
-	cmd := exec.Command("python", args...)
-
-	stdout, err := cmd.StdoutPipe()
+	job, conflict, err := startCodalSyncJob(req, "manual")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "stdout pipe: " + err.Error()})
+		if conflict {
+			c.JSON(http.StatusConflict, gin.H{"error": err.Error(), "active_job_id": anyActiveCodalJobID()})
+			return
+		}
+		c.JSON(500, gin.H{"error": err.Error()})
 		return
 	}
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "stderr pipe: " + err.Error()})
+	if conflict {
+		c.JSON(http.StatusConflict, gin.H{"error": "یک جمع‌آوری کدال در حال اجراست", "active_job_id": job.ID, "job": job.snapshot()})
 		return
 	}
-
-	if err := cmd.Start(); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "start failed: " + err.Error()})
-		return
+	ctxDone := c.Request.Context().Done()
+	tick := time.NewTicker(250 * time.Millisecond)
+	defer tick.Stop()
+	deadline := time.NewTimer(30 * time.Minute)
+	defer deadline.Stop()
+	for {
+		select {
+		case <-job.done:
+			job.mu.RLock()
+			summary := job.Summary
+			job.mu.RUnlock()
+			if summary != nil {
+				c.JSON(http.StatusOK, summary)
+				return
+			}
+			c.JSON(500, job.snapshot())
+			return
+		case <-ctxDone:
+			// Request cancellation only detaches this compatibility caller.
+			return
+		case <-deadline.C:
+			c.JSON(http.StatusAccepted, job.snapshot())
+			return
+		case <-tick.C:
+			refreshCodalJob(job)
+			job.mu.RLock()
+			state := job.State
+			job.mu.RUnlock()
+			if state == "waiting_captcha" || state == "rate_limited" {
+				c.JSON(http.StatusAccepted, job.snapshot())
+				return
+			}
+		}
 	}
-
-	// لاگ‌ها (stderr) به‌صورت زنده به کنسول سرور
-	go streamLogs(stderr)
-
-	out, readErr := io.ReadAll(stdout)
-	waitErr := cmd.Wait()
-
-	if readErr != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "read stdout: " + readErr.Error()})
-		return
-	}
-
-	// اگر stdout JSON معتبر باشد همان را برمی‌گردانیم (حتی وقتی بعضی گزارش‌ها
-	// fail شده‌اند و exit code غیرصفر است). در غیر این صورت خطا می‌دهیم.
-	var parsed map[string]interface{}
-	if json.Unmarshal(out, &parsed) == nil {
-		c.Data(http.StatusOK, "application/json; charset=utf-8", out)
-		return
-	}
-
-	msg := "no valid JSON output"
-	if waitErr != nil {
-		msg = waitErr.Error()
-	}
-	c.JSON(http.StatusInternalServerError, gin.H{"error": msg, "output": string(out)})
 }

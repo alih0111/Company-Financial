@@ -161,6 +161,35 @@ func loadFamilyPricesPG(ctx context.Context, db *sql.DB) (map[int]familyPriceRow
 	return out, rows.Err()
 }
 
+// loadFamilyPrevPricesPG قیمت رکورد دوم (روز قبل) هر دارایی را برمی‌گرداند —
+// مبنای محاسبهٔ درصد تغییر همان روز.
+func loadFamilyPrevPricesPG(ctx context.Context, db *sql.DB) (map[int]familyPriceRow, error) {
+	rows, err := db.QueryContext(ctx, `
+		SELECT DISTINCT ON (p.asset_id) p.asset_id, p.price, p.date_key
+		FROM family.prices p
+		WHERE p.price > 0
+		  AND p.date_key < (
+		      SELECT MAX(p2.date_key)
+		      FROM family.prices p2
+		      WHERE p2.asset_id = p.asset_id AND p2.price > 0
+		  )
+		ORDER BY p.asset_id, p.date_key DESC`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	out := map[int]familyPriceRow{}
+	for rows.Next() {
+		var r familyPriceRow
+		if err := rows.Scan(&r.AssetID, &r.Price, &r.DateKey); err != nil {
+			return nil, err
+		}
+		out[r.AssetID] = r
+	}
+	return out, rows.Err()
+}
+
 func loadFamilyAccountsPG(ctx context.Context, db *sql.DB) (map[int]float64, error) {
 	rows, err := db.QueryContext(ctx, `SELECT person_id, cash_balance FROM family.accounts`)
 	if err != nil {
@@ -210,6 +239,11 @@ func getFamilyAssetsPG(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "load prices: " + err.Error()})
 		return
 	}
+	prevPrices, err := loadFamilyPrevPricesPG(ctx, db)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "load prev prices: " + err.Error()})
+		return
+	}
 	accounts, err := loadFamilyAccountsPG(ctx, db)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "load accounts: " + err.Error()})
@@ -237,6 +271,10 @@ func getFamilyAssetsPG(c *gin.Context) {
 		if pr, ok := prices[a.ID]; ok {
 			assetAgg[a.ID].LatestPrice = pr.Price
 			assetAgg[a.ID].PriceDate = pr.DateKey
+			if pp, ok := prevPrices[a.ID]; ok && pp.Price > 0 {
+				assetAgg[a.ID].PrevPrice = pp.Price
+				assetAgg[a.ID].DayChangePct = pr.Price/pp.Price - 1
+			}
 		}
 	}
 

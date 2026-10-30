@@ -221,16 +221,21 @@ def summarize_run(cur, run_id: str) -> dict:
     if not run_id:
         return {}
     cur.execute(
-        """SELECT status, completed_at, code_version FROM analytics.score_runs WHERE id=%s""",
+        """SELECT status, completed_at, code_version, run_seq
+             FROM analytics.score_runs WHERE id=%s""",
         (run_id,))
     row = cur.fetchone()
     cur.execute("SELECT count(*) FROM analytics.company_scores WHERE run_id=%s", (run_id,))
     comp = cur.fetchone()[0]
     cur.execute("SELECT count(*) FROM analytics.factor_scores WHERE run_id=%s", (run_id,))
     fac = cur.fetchone()[0]
+    # run_seq/completed_at let a caller (e.g. the admin refresh endpoint) report the
+    # appended run without a second connection to canonical PG.
     return {"status": row[0] if row else None,
             "completed": bool(row and row[0] == "completed" and row[1] is not None),
             "code_version": row[2] if row else None,
+            "run_seq": row[3] if row else None,
+            "completed_at": str(row[1]) if row and row[1] is not None else None,
             "company_scores": comp, "factor_scores": fac}
 
 

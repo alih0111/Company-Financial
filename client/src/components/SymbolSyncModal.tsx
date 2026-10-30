@@ -1,5 +1,7 @@
-import React, { useState } from "react";
-import { syncCodal, type SyncCodalSummary } from "../utils/api";
+import React, { useEffect, useRef, useState } from "react";
+import { type SyncCodalSummary } from "../utils/api";
+import { useCodalSyncJob } from "../hooks/useCodalSyncJob";
+import CodalCaptchaPanel from "./CodalCaptchaPanel";
 
 interface SymbolSyncModalProps {
   visible: boolean;
@@ -24,10 +26,19 @@ const SymbolSyncModal: React.FC<SymbolSyncModalProps> = ({
   onClose,
   onDataCollected,
 }) => {
+  const sync = useCodalSyncJob(visible);
   const [count, setCount] = useState("4");
-  const [running, setRunning] = useState(false);
-  const [summary, setSummary] = useState<SyncCodalSummary | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const running = sync.running;
+  const summary: SyncCodalSummary | null = sync.summary;
+  const errorMsg = sync.error;
+  const notifiedJob = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (sync.job && ["completed", "completed_with_errors"].includes(sync.job.state) && sync.summary?.total && notifiedJob.current !== sync.job.job_id) {
+      notifiedJob.current = sync.job.job_id;
+      if ((sync.summary.total.new ?? 0) > 0 || (sync.summary.total.completed ?? 0) > 0) onDataCollected?.();
+    }
+  }, [onDataCollected, sync.job, sync.summary]);
 
   if (!visible) return null;
 
@@ -35,19 +46,8 @@ const SymbolSyncModal: React.FC<SymbolSyncModalProps> = ({
 
   const handleRun = async () => {
     if (running) return;
-    setRunning(true);
-    setErrorMsg(null);
-    setSummary(null);
-    try {
-      const n = Math.max(1, Math.min(20, Number(count) || 4));
-      const res = await syncCodal({ mode, symbol, limit: n });
-      setSummary(res);
-      onDataCollected?.();
-    } catch (e) {
-      setErrorMsg(e instanceof Error ? e.message : "خطا در ارتباط با سرور");
-    } finally {
-      setRunning(false);
-    }
+    const n = Math.max(1, Math.min(20, Number(count) || 4));
+    await sync.start({ mode, symbol, limit: n });
   };
 
   const total = summary?.total;
@@ -100,15 +100,23 @@ const SymbolSyncModal: React.FC<SymbolSyncModalProps> = ({
                 d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
               />
             </svg>
-            در حال دریافت و پردازش گزارش‌ها...
+            {sync.job?.message || "در حال دریافت و پردازش گزارش‌ها..."}
+            {sync.job?.parameters?.symbol && sync.job.parameters.symbol !== symbol && <span className="mr-2 text-xs">· اجرای فعال برای {sync.job.parameters.symbol}</span>}
+            {sync.job?.source === "automatic" && <span className="mr-2 text-xs">· اجرای خودکار</span>}
+            {sync.job?.counters && <div className="mt-1 text-xs">بررسی‌شده {sync.job.counters.scanned ?? 0} · جدید {sync.job.counters.new ?? 0} · استخراج‌شده {sync.job.counters.completed ?? 0}</div>}
           </div>
         )}
 
-        {errorMsg && !running && (
+        {sync.job?.state === "waiting_captcha" && <CodalCaptchaPanel job={sync.job} pending={sync.actionPending} error={sync.actionError} onAnswer={sync.answer} onRefresh={sync.refresh} onResume={sync.resumeInBrowser} onCancel={sync.cancel} />}
+
+        {errorMsg && !running && !sync.job && (
           <div className="mb-4 p-3 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800 text-sm text-red-700 dark:text-red-300">
             جمع‌آوری ناموفق بود.
             <div className="mt-1 text-xs break-words">{errorMsg}</div>
           </div>
+        )}
+        {sync.job?.error && !running && (
+          <div role="alert" className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">{sync.job.error.message}</div>
         )}
 
         {summary && !total && !running && (
@@ -139,6 +147,9 @@ const SymbolSyncModal: React.FC<SymbolSyncModalProps> = ({
               <Row label="گزارش‌های بررسی‌شده" value={total.scanned} />
               <Row label="قبلاً دریافت‌شده" value={total.already ?? 0} />
               <Row label="گزارش‌های جدید" value={total.new ?? 0} />
+              {(total.repaired ?? 0) > 0 && (
+                <Row label="گزارش‌های ناقص تکمیل‌شده" value={total.repaired ?? 0} />
+              )}
               <Row label="اعداد استخراج‌شده" value={total.completed ?? 0} />
               {(total.quarantined ?? 0) > 0 && (
                 <Row label="خارج از پوشش" value={total.quarantined!} />
@@ -148,13 +159,27 @@ const SymbolSyncModal: React.FC<SymbolSyncModalProps> = ({
               )}
               <Row label="خطا" value={total.failed ?? 0} />
             </div>
+            {(total.errors_detail?.length ?? 0) > 0 && (
+              <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-700 dark:border-red-800 dark:bg-red-950/40 dark:text-red-300">
+                <p className="font-medium">دلیل خطا:</p>
+                <ul className="mt-1 list-inside list-disc space-y-0.5 break-words">
+                  {total.errors_detail!.slice(0, 3).map((item) => (
+                    <li key={item.report_id}>
+                      گزارش {item.report_id}: {item.error || "خطای نامشخص"}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1 opacity-80">
+                  اگر کدال موقتاً پاسخ نداده، «شروع جمع‌آوری» را دوباره بزنید؛ گزارش نیمه‌کاره دوباره تلاش می‌شود.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
         <div className="flex justify-end gap-3">
           <button
             onClick={onClose}
-            disabled={running}
             className="px-5 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             بستن

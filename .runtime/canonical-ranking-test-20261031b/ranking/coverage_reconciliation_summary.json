@@ -1,0 +1,20 @@
+{
+  "universe": 254,
+  "v12_36_p1_scored": 166,
+  "v12_37_p1_scored": 146,
+  "v12_36_p1_unscored": 88,
+  "v12_37_p1_unscored": 108,
+  "recovered_p1": 27,
+  "lost_p1": 47,
+  "financial_weighted_coverage_mean_v12_36": 0.5899048066752849,
+  "financial_weighted_coverage_mean_v12_37": 0.4901280996591843,
+  "database_read_only": true,
+  "database_written": false,
+  "network_requests": 0,
+  "official_ledger_written": false,
+  "contract_sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+  "v12_36_artifact_sha256": "25fd2cdd20ee50bb4aca0d7baafd4984287da7b63568ba2ba86c93158a2b2224",
+  "v12_37_artifact_sha256": "4547e472b4f297d88fcde50a4ae965834f299829b2edb37e3a67ce5a24a167a3",
+  "factor_delta_csv": "financial_factor_coverage_delta_v12_36_to_v12_37.csv",
+  "symbol_gaps_csv": "company_factor_gaps_v12_37.csv"
+}

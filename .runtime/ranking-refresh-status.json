@@ -1,0 +1,20 @@
+{
+  "state": "Ready",
+  "stage": "completed",
+  "latest_run_id": "v12_37_manual_smoke_20261031",
+  "cycle_status": "LOCAL_CANONICAL_REFRESH_COMPLETE",
+  "ranking_stage_status": "rebuilt_with_canonical_quick_sync_inputs",
+  "fresh_financial_reports": true,
+  "fresh_monthly_sales": true,
+  "started_at_utc": "2026-10-30T21:24:17.843952+00:00",
+  "finished_at_utc": "2026-10-30T21:25:41.324370+00:00",
+  "error": null,
+  "message": "رتبه‌بندی با 459 ورودی مالی و 1579 ورودی فروش محلی بازسازی شد.",
+  "last_run_time": "2026-10-30T21:25:41.324370+00:00",
+  "last_task_result": 0,
+  "evaluation_date": "2026-10-31",
+  "scored_count": {
+    "P1": 146,
+    "P3": 173
+  }
+}

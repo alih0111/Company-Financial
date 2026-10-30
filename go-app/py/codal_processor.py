@@ -69,9 +69,20 @@ def process_batch(
         context = MianSql.create_context(playwright)
         page = context.new_page()
         try:
+            progress = {"processed": 0, "completed": 0, "failed": 0, "unsupported": 0}
             for item in items:
                 company_name = item["company_name"]
                 url = item["url"]
+
+                try:
+                    from codal_challenge import current_channel
+                    channel = current_channel()
+                    if channel:
+                        channel.update(state="running_browser", stage="extraction",
+                                       current_report_id=str(item.get("report_id") or ""),
+                                       message="در حال استخراج اطلاعات گزارش")
+                except ImportError:
+                    pass
 
                 try:
                     if route == "monthly":
@@ -87,6 +98,17 @@ def process_batch(
                     status, report_date, error = "failed", None, str(exc)
 
                 on_result(item, status, report_date, error)
+                progress["processed"] += 1
+                progress[status if status in ("completed", "failed", "unsupported") else "failed"] += 1
+                try:
+                    from codal_challenge import current_channel
+                    channel = current_channel()
+                    if channel:
+                        channel.update(state="running_browser", stage="extraction",
+                                       current_report_id=str(item.get("report_id") or ""),
+                                       counters=progress, message="در حال استخراج اطلاعات گزارش")
+                except ImportError:
+                    pass
         finally:
             context.close()
 

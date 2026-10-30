@@ -1,64 +1,64 @@
 # REFRESH SCHEDULING
 
 Nothing in the ingestion path triggers analytics scoring, and `orchestrate_refresh.py`
-is a job — not an HTTP request path (see `ANALYTICS_REFRESH_CONTRACT.md`). Without a
-schedule the served score is only as fresh as the last manual invocation.
+is a **job**, not a hot path (see `ANALYTICS_REFRESH_CONTRACT.md`). New Codal reports
+and new monthly activities therefore do not move the screen score by themselves.
 
-## What to schedule
+## Current policy: manual, no timer (2026-10-30)
 
-```
-canonical_postgres_v1_2_1/analytics_canonical_v1/run_refresh_job.py
-```
+The hourly Windows task (`RFA Analytics Refresh`) was **removed on purpose**. Nothing
+checks the score every hour anymore. Recomputation happens only when an admin presses
+**«به‌روزرسانی امتیازها»** on the «غربال بازار» page (`/Table`).
 
-It runs `RUN_IF_STALE` (never `FORCE_RUN`), is idempotent (a second run reports
-`NOT_STALE` and writes nothing), appends one JSON line per invocation to
-`analytics_canonical_v1/output/refresh_job_log.jsonl`, and exits:
-
-| exit | meaning |
+| Piece | Where |
 | --- | --- |
-| 0 | fresh (`NOT_STALE`) or a run was completed (`RECOMPUTED`) |
-| 1 | could not refresh: `BLOCKED_DEGRADED_INGESTION` or `RECOMPUTE_INCOMPLETE` |
-| 2 | unexpected error |
+| Button (admin only) | `client/src/components/BigDataTable.tsx` |
+| Endpoint | `POST /api/admin/analytics/refresh` (`go-app/handlers/analytics_refresh.go`) |
+| Orchestrator | `canonical_postgres_v1_2_1/analytics_canonical_v1/orchestrate_refresh.py --mode RUN_IF_STALE` |
+| CLI equivalent | `run_refresh_job.py` (same `RUN_IF_STALE` wrapper) |
+| Server log of the last run | `go-app/.runtime/analytics-refresh.log` |
+| Last JSON result | `go-app/.runtime/analytics-refresh-summary.json` |
 
-Order the job **after** the ingestion jobs for the same window, so the fingerprint it
-sees includes the newly ingested rows.
+Behaviour of the endpoint:
 
-## Registering the task (Windows)
+- admin only (`isAdmin` claim); non-admin gets 403;
+- single-flight: a second click while a recompute runs gets 409;
+- `RUN_IF_STALE` (never `FORCE_RUN`): if no input moved, it answers `NOT_STALE` and
+  appends nothing — pressing the button twice does not create duplicate runs;
+- a real recompute appends a **new serving run**; old runs stay readable;
+- the client reloads the table rows and the freshness badge after `recomputed: true`.
 
-Daily at 09:00 (adjust to your ingestion window), running as the current user:
+## Manual CLI (fallback / operations)
 
 ```powershell
-schtasks /Create /TN "RFA Analytics Refresh" /SC DAILY /ST 09:00 ^
-  /TR "D:\RFA\Company-Financial\.venv\Scripts\python.exe D:\RFA\Company-Financial\canonical_postgres_v1_2_1\analytics_canonical_v1\run_refresh_job.py"
+.\.venv\Scripts\python.exe canonical_postgres_v1_2_1\analytics_canonical_v1\orchestrate_refresh.py --mode CHECK_ONLY
+.\.venv\Scripts\python.exe canonical_postgres_v1_2_1\analytics_canonical_v1\orchestrate_refresh.py --mode RUN_IF_STALE
 ```
 
-Hourly instead of daily:
+`CHECK_ONLY` only reports staleness; it never writes. `RUN_IF_STALE` is idempotent and
+also appends a JSON line to `analytics_canonical_v1/output/refresh_job_log.jsonl` when
+invoked through `run_refresh_job.py`.
 
-```powershell
-schtasks /Create /TN "RFA Analytics Refresh" /SC HOURLY /MO 1 ^
-  /TR "D:\RFA\Company-Financial\.venv\Scripts\python.exe D:\RFA\Company-Financial\canonical_postgres_v1_2_1\analytics_canonical_v1\run_refresh_job.py"
-```
+## Do not re-add a schedule
 
-Remove with `schtasks /Delete /TN "RFA Analytics Refresh" /F`.
+If a timer is ever reintroduced it must run `RUN_IF_STALE` (never `FORCE_RUN`) and stay
+out of the request path. The product decision as of 2026-10-30 is that freshness is a
+human decision: the score is frozen until an admin asks for a recompute, and the badge
+says so (`score_stale` + reasons).
 
 ## Monitoring
 
-Two independent signals, both cheap:
-
 1. **`GET /api/health/shadow`** — `score_stale` is `true` when the served run's input
-   fingerprint no longer matches the current inputs, and `score_stale_reasons` names the
-   domains that moved. `analytics_status` is `HEALTHY` | `STALE` | `NO_COMPLETED_RUN`.
-   Alert when `score_stale` is true for longer than a refresh interval.
-2. **`output/refresh_job_log.jsonl`** — one line per job invocation; any non-zero exit
-   is written to the scheduler's task history and to the log as an `ERROR`/blocked
-   record.
+   fingerprint no longer matches current inputs; `score_stale_reasons` names the domains
+   that moved. This stays a read-only check; it never triggers work.
+2. **`output/refresh_job_log.jsonl`** — one line per `run_refresh_job.py` invocation.
 
-## Verification (dry run)
+## Verification
 
 ```bash
 python canonical_postgres_v1_2_1/analytics_canonical_v1/run_refresh_job.py
 curl -s http://127.0.0.1:5000/api/health/shadow
 ```
 
-Expected: the job prints `NOT_STALE` (or `RECOMPUTED` once), and the health payload
-shows `score_stale:false` with the run's `score_run_seq` / `score_computed_at`.
+Expected: `NOT_STALE` (or `RECOMPUTED` once), and the health payload shows
+`score_stale:false` with the run's `score_run_seq` / `score_computed_at`.
