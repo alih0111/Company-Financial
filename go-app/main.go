@@ -102,6 +102,9 @@ func main() {
 
 		protected.GET("/summary", handlers.GetAIStockSummary)
 		protected.GET("/detail", handlers.GetAIStockDetail)
+
+		// صورت‌های مالی کامل (سود و زیان، ترازنامه، جریان نقد عملیاتی)
+		protected.GET("/financial-statements", handlers.GetFinancialStatements)
 		protected.POST("/analyze", handlers.AnalyzeTopStocksWithAI)
 
 		protected.GET("/portfolio", handlers.GetPortfolio)

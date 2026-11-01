@@ -41,6 +41,7 @@ const MarketPage = lazy(() => import("./components/MarketPage"));
 const ComparePage = lazy(() => import("./components/ComparePage"));
 const WatchlistPage = lazy(() => import("./components/WatchlistPage"));
 const RankingHubPage = lazy(() => import("./components/RankingHubPage"));
+const FinancialStatements = lazy(() => import("./components/FinancialStatements"));
 
 // لودر سطح صفحه برای Suspense
 const PageLoader = () => (
@@ -478,6 +479,15 @@ const App = () => {
       {selectedCompany && hasFundamentals && (
         <div className="animate-fade-in-up" style={{ animationDelay: "320ms" }}>
           <ScoreBreakdown metric={currentMetric} />
+        </div>
+      )}
+
+      {/* ── صورت‌های مالی کامل (سود و زیان / ترازنامه / جریان نقد) ── */}
+      {selectedCompany && hasFundamentals && (
+        <div className="animate-fade-in-up" style={{ animationDelay: "400ms" }}>
+          <Suspense fallback={<PageLoader />}>
+            <FinancialStatements companyName={selectedCompany} />
+          </Suspense>
         </div>
       )}
     </div>

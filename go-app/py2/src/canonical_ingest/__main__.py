@@ -139,8 +139,12 @@ def run(sample_names):
                 recon.append(_reconcile_monthly(cid, g, row))
 
         # ---- financial ----
+        # ۶ ردیف اخیر: زنجیره TTM امتیازها علاوه بر ردیف جاری به سلول «سال
+        # مالی قبل» و «YTD مشابه سال قبل» هم نیاز دارد؛ بک‌فیل ستون‌های فروش
+        # (revenue_backfill_v1) این ستون‌ها را در ردیف‌های قدیمی‌تر پر می‌کند و
+        # این اجرا باید آن‌ها را به canonical برساند. نوشتن idempotent است.
         fin = _rows(ss.cursor(),
-                    "SELECT * FROM dbo.miandore2 WHERE CompanyID=? ORDER BY ReportDate DESC", (cid,))[:4]
+                    "SELECT * FROM dbo.miandore2 WHERE CompanyID=? ORDER BY ReportDate DESC", (cid,))[:6]
         for row in fin:
             g = _jalali_to_gregorian(row["ReportDate"])
             if not g:

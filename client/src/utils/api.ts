@@ -2034,3 +2034,81 @@ export async function fetchQvtV2Paper(): Promise<QvtPaperSummary> {
   if (!res.ok) throw await qvtServerError(res, "آزمایش سبد در دسترس نیست");
   return res.json();
 }
+
+// ── صورت‌های مالی کامل (سود و زیان / ترازنامه / جریان نقد) ────────────────
+// مبالغ «هم‌واحد گزارش کدال» ذخیره شده‌اند (واحد اعلامی بین گزارش‌ها متغیر
+// است)؛ EPSها ریال/سهم هستند و درصدها/نسبت‌ها بی‌واحد. per_share مقادیر
+// «هر سهم (ریال)» را می‌دهد که از لنگر EPS×سرمایه باز-مقیاس شده‌اند.
+
+export interface FSAmount {
+  current?: number | null;
+  ly?: number | null;
+  fy_prev?: number | null;
+}
+
+export interface FSIncomeStatement {
+  eps_rial?: number | null;
+  eps_ly_rial?: number | null;
+  operating_eps_rial?: number | null;
+  capital?: number | null;
+  revenue: FSAmount;
+  operating_profit: FSAmount;
+  finance_costs: FSAmount;
+  other_non_operating: FSAmount;
+  net_profit: FSAmount;
+}
+
+export interface FSBalanceSheet {
+  total_assets: FSAmount;
+  current_assets: FSAmount;
+  total_liabilities: FSAmount;
+  current_liabilities: FSAmount;
+  total_equity: FSAmount;
+}
+
+export interface FSCashFlow {
+  operating: FSAmount;
+}
+
+export interface FSDerived {
+  net_margin_pct?: number | null;
+  revenue_yoy_pct?: number | null;
+  net_profit_yoy_pct?: number | null;
+  eps_yoy_pct?: number | null;
+  current_ratio?: number | null;
+  debt_to_assets_pct?: number | null;
+  current_assets_pct?: number | null;
+  cash_conversion_pct?: number | null;
+  non_current_assets: FSAmount;
+  non_current_liabilities: FSAmount;
+}
+
+export interface FSPeriod {
+  report_date: string;
+  duration_months: number;
+  fiscal_year: number;
+  unit_consistent?: boolean | null;
+  eps_capital_anchor?: number | null;
+  income_statement: FSIncomeStatement;
+  balance_sheet: FSBalanceSheet;
+  cash_flow: FSCashFlow;
+  derived: FSDerived;
+}
+
+export interface FinancialStatementsResponse {
+  company_name: string;
+  unit_note: string;
+  periods: FSPeriod[];
+}
+
+export async function fetchFinancialStatements(
+  companyName: string,
+  limit = 12
+): Promise<FinancialStatementsResponse> {
+  const res = await fetch(
+    `${API_BASE}/financial-statements?companyName=${encodeURIComponent(companyName)}&limit=${limit}`,
+    { headers: getAuthHeaders() }
+  );
+  if (!res.ok) throw new Error("صورت‌های مالی در دسترس نیست");
+  return res.json();
+}

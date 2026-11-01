@@ -15,6 +15,7 @@
 اجرا:
   python backfill_history.py                    # هر ۱۰ نماد مهم
   python backfill_history.py شمواد سباقر        # زیرمجموعه خاص
+  python backfill_history.py --pages 2 شکام     # فقط ۴۰ گزارش اخیر هر نماد
 """
 import json
 import math
@@ -139,7 +140,19 @@ def run_company(name, url, n_reports):
 
 
 def main():
-    companies = sys.argv[1:] or IMPORTANT
+    # --pages N: سقف صفحات لیست کدال برای هر نماد (پیش‌فرض همان MAX_PAGES=۶).
+    # برای زنجیره TTM امتیازها فقط چند گزارش اخیر لازم است؛ با ۲ صفحه (۴۰
+    # گزارش اخیر) زمان اجرا چند برابر کوتاه‌تر می‌شود.
+    global MAX_PAGES
+    args = sys.argv[1:]
+    if "--pages" in args:
+        i = args.index("--pages")
+        try:
+            MAX_PAGES = max(1, int(args[i + 1]))
+        except (IndexError, ValueError):
+            raise SystemExit("--pages یک عدد صحیح می‌گیرد")
+        args = args[:i] + args[i + 2:]
+    companies = args or IMPORTANT
     conn = pyodbc.connect(CS)
     cur = conn.cursor()
 

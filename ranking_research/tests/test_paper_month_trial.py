@@ -51,6 +51,7 @@ def test_ended_trial_never_acquires_or_trades_and_writes_final(tmp_path,monkeypa
     monkeypatch.setattr(exp,'acquire',lambda *a: (_ for _ in ()).throw(AssertionError('network after end')))
     monkeypatch.setattr(exp,'publish',lambda h,o:{'outcome':o,'account':exp.load(h/'account.json')})
     monkeypatch.setattr(trial,'PUBLIC',tmp_path/'public.json')
+    monkeypatch.setattr(trial.review,'run_review',lambda *a,**k:None)
     result=trial.cycle(home)
     assert result['state']=='ENDED' and (home/'final-report.json').exists()
     assert all(x['outcome']['status']=='TRIAL_ENDED' for x in result['accounts'].values())
@@ -70,6 +71,7 @@ def test_one_method_failure_does_not_skip_other_or_report_success(tmp_path,monke
     monkeypatch.setattr(exp,'update',lambda *a:{'status':'NO_NEW_SESSION'})
     monkeypatch.setattr(exp,'publish',lambda h,o:{'outcome':o,'account':exp.load(h/'account.json')})
     monkeypatch.setattr(trial,'PUBLIC',tmp_path/'public.json')
+    monkeypatch.setattr(trial.review,'run_review',lambda *a,**k:None)
     result=trial.cycle(home)
     assert visits==['P1','P3'] and result['state']=='DAILY_ERRORS'
     assert result['accounts']['P3']['outcome']['status']=='NO_NEW_SESSION'
@@ -189,3 +191,92 @@ def test_temporary_cycle_cannot_write_outside_injected_tmp_outputs(tmp_path, mon
     assert result["state"] == "ENDED"
     assert public_trial.is_file() and public_analysis.is_file()
     assert writes and all(path.is_relative_to(allowed_root) for path in writes)
+
+
+def _two_account_trial(tmp_path):
+    home = tmp_path / "trial"
+    home.mkdir()
+    instant = exp.now()
+    exp.write(home / "config.json", {"started_at_utc": instant.isoformat(),
+        "ends_at_utc": (instant + dt.timedelta(days=30)).isoformat(), "methods": ["P1", "P3"],
+        "ranking": str(exp.DEFAULT_RANKING), "ranking_sha256": exp.sha(exp.DEFAULT_RANKING)})
+    for m in ["P1", "P3"]:
+        make_valid_account(home, m)
+    return home
+
+
+def test_explicit_sell_action_records_close_decision_and_keeps_daily_update(tmp_path, monkeypatch):
+    home = _two_account_trial(tmp_path)
+    decisions = []
+
+    def decide(home_path, side, run_dir, ranking_source=None):
+        decisions.append((Path(home_path).name, side))
+        return {"decision": {"side": side}}
+
+    monkeypatch.setattr(exp, "decide", decide)
+    monkeypatch.setattr(exp, "acquire", lambda h, *a: ("evidence", "calendar"))
+    monkeypatch.setattr(exp, "update", lambda *a: {"status": "NO_NEW_MARK"})
+    monkeypatch.setattr(exp, "publish", lambda h, o: {"outcome": o, "account": exp.load(Path(h) / "account.json")})
+    monkeypatch.setattr(trial, "PUBLIC", tmp_path / "public.json")
+    monkeypatch.setattr(trial.review, "run_review", lambda *a, **k: None)
+    result = trial.cycle(home, action="sell")
+    assert sorted(decisions) == [("P1", "SELL"), ("P3", "SELL")]
+    assert result["requested_action"] == "sell" and result["state"] == "RUNNING"
+    for method, value in result["accounts"].items():
+        assert value["outcome"]["status"] == "NO_NEW_MARK"
+        assert value["outcome"]["recorded_decision"]["side"] == "SELL"
+        assert "بستن سبد" in value["outcome"]["decision_note_fa"]
+
+
+def test_explicit_buy_action_targets_cash_only_accounts_after_close(tmp_path, monkeypatch):
+    home = _two_account_trial(tmp_path)
+    for m in ["P1", "P3"]:
+        doc = exp.load(home / m / "account.json")
+        doc["holdings"] = []
+        doc["paper_order"] = {"side": "SELL", "status": "PAPER_FILLED_DAILY_CLOSE_LIMITED_QUEUE", "fill_event_id": "sold"}
+        exp.write(home / m / "account.json", doc)
+    decisions = []
+    monkeypatch.setattr(exp, "decide", lambda h, side, r, ranking_source=None: decisions.append((Path(h).name, side)) or {"decision": {"side": side}})
+    monkeypatch.setattr(exp, "acquire", lambda h, *a: ("evidence", "calendar"))
+    monkeypatch.setattr(exp, "update", lambda *a: {"status": "CASH_ONLY"})
+    monkeypatch.setattr(exp, "publish", lambda h, o: {"outcome": o, "account": exp.load(Path(h) / "account.json")})
+    monkeypatch.setattr(trial, "PUBLIC", tmp_path / "public.json")
+    monkeypatch.setattr(trial.review, "run_review", lambda *a, **k: None)
+    result = trial.cycle(home, action="buy")
+    assert sorted(decisions) == [("P1", "BUY"), ("P3", "BUY")]
+    assert result["requested_action"] == "buy"
+    assert all(v["outcome"]["recorded_decision"]["side"] == "BUY" for v in result["accounts"].values())
+
+
+def test_ended_trial_refuses_explicit_actions_without_decisions(tmp_path, monkeypatch):
+    home = tmp_path / "trial"
+    home.mkdir()
+    exp.write(home / "config.json", {"started_at_utc": "2026-10-27T00:00:00+00:00",
+        "ends_at_utc": "2026-11-26T00:00:00+00:00", "methods": ["P1", "P3"],
+        "ranking": str(exp.DEFAULT_RANKING), "ranking_sha256": exp.sha(exp.DEFAULT_RANKING)})
+    for m in ["P1", "P3"]:
+        make_valid_account(home, m)
+
+    def fail_decide(*args, **kwargs):
+        raise AssertionError("no decision may be recorded after the trial ends")
+
+    monkeypatch.setattr(exp, "decide", fail_decide)
+    monkeypatch.setattr(exp, "acquire", lambda *a: (_ for _ in ()).throw(AssertionError("network after end")))
+    monkeypatch.setattr(exp, "publish", lambda h, o: {"outcome": o, "account": exp.load(Path(h) / "account.json")})
+    monkeypatch.setattr(trial, "PUBLIC", tmp_path / "public.json")
+    monkeypatch.setattr(trial.review, "run_review", lambda *a, **k: None)
+    monkeypatch.setattr(exp, "now", lambda: dt.datetime(2026, 12, 1, tzinfo=dt.timezone.utc))
+    result = trial.cycle(home, action="sell")
+    assert result["state"] == "ENDED"
+    assert all(x["outcome"]["status"] == "TRIAL_ENDED" for x in result["accounts"].values())
+
+
+def test_unsupported_action_is_rejected(tmp_path):
+    home = tmp_path / "trial"
+    home.mkdir()
+    try:
+        trial.cycle(home, action="liquidate")
+    except ValueError as exc:
+        assert "UNSUPPORTED_TRIAL_ACTION" in str(exc)
+    else:
+        raise AssertionError("unsupported action accepted")

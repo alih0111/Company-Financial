@@ -221,7 +221,7 @@ def _caption_kind(caption: str):
     return None
 
 
-def parse_report(html: str, *, parent_only: bool = False) -> dict:
+def parse_report(html: str, *, parent_only: bool = False, with_order3: bool = False) -> dict:
     """HTML کدال → {statements: {stype: {metric: {order: value}}}, period_headers,
     consolidation}.
 
@@ -229,8 +229,13 @@ def parse_report(html: str, *, parent_only: bool = False) -> dict:
     حسابداری سطح شرکت؛ در نبود آن، جدول شرکت مادر با برچسب صریح
     ``consolidation="parent"`` استفاده می‌شود. جدول‌های خلاصه/برآورد/تفسیری
     (که عنوان «صورت ...» ندارند) اصلاً خوانده نمی‌شوند.
+
+    ``with_order3=True`` ستون سوم (سال مالی قبل) را هم می‌خواند — برای
+    بک‌فیل‌هایی که لنگر سالانهٔ زنجیره TTM را از خود نامه می‌گیرند. پیش‌فرض
+    بدون تغییر (فقط order 1 و 2) تا خروجی فراخوان‌های موجود عیناً بماند.
     """
     picked: dict[str, dict] = {}
+    out_all: dict[str, list] = {}
     for caption, t in _tables_with_captions(html):
         ck = _caption_kind(caption)
         if ck is None:
@@ -294,15 +299,21 @@ def parse_report(html: str, *, parent_only: bool = False) -> dict:
                 bucket.setdefault(metric, {})[1] = v1
             if v2 is not None:
                 bucket.setdefault(metric, {})[2] = v2
-            if parent_only and len(date_cols) >= 3 and len(r) > date_cols[2]:
+            if (parent_only or with_order3) and len(date_cols) >= 3 and len(r) > date_cols[2]:
                 v3 = to_number(r[date_cols[2]])
                 if v3 is not None:
                     bucket.setdefault(metric, {})[3] = v3
         for metric in ambiguous_metrics:
             bucket.pop(metric, None)
         picked[stype] = {"hits": hits, "bucket": bucket, "consolidated": consolidated,
-                         "headers": header_dates if parent_only else [header_dates[0], header_dates[1]]}
+                         "headers": header_dates if (parent_only or with_order3) else [header_dates[0], header_dates[1]]}
+        if with_order3:
+            out_all.setdefault(stype, []).append(
+                {"consolidated": consolidated, "bucket": bucket, "headers": header_dates,
+                 "hits": hits})
     out = {"statements": {}, "period_headers": {}, "consolidation": {}}
+    if with_order3:
+        out["statements_all"] = out_all
     for stype, info in picked.items():
         out["statements"][stype] = info["bucket"]
         out["period_headers"][stype] = info["headers"]

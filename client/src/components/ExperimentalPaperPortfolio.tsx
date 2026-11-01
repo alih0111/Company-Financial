@@ -86,7 +86,7 @@ export default function ExperimentalPaperPortfolio() {
       </details>
       <details className="rounded-xl border p-4"><summary className="cursor-pointer font-bold">فرض‌ها و محدودیت‌ها</summary><ul className="mt-3 list-inside list-disc space-y-2 text-sm">{view.limitations.map(l => <li key={l}>{l}</li>)}</ul></details>
     </>}
-    <div className="rounded-xl bg-slate-50 p-4 text-sm dark:bg-slate-900"><p>برای دریافت قیمت و بررسی سفارش، فایل <b>Update-Paper-Portfolio.cmd</b> در پوشهٔ پروژه را اجرا کن. «بازخوانی گزارش» فقط نمایش را تازه می‌کند. زمان‌بندی خودکار فعال نشده است.</p></div>
+    <div className="rounded-xl bg-slate-50 p-4 text-sm dark:bg-slate-900"><p>برای دریافت قیمت و بررسی سفارش، فایل <b>Update-Paper-Portfolio.cmd</b> در پوشهٔ پروژه را اجرا کن. «بازخوانی گزارش» فقط نمایش را تازه می‌کند. زمان‌بندی خودکار فعال نشده است.</p><p className="mt-2">فروش با فرمان صریح یعنی اجرای فایل <b>Close-Paper-Portfolio.cmd</b> (و خرید دوباره با <b>Reopen-Paper-Portfolio.cmd</b>)؛ اجرای فرضی روی قیمت پایانی نخستین جلسهٔ واجد شرایط بعد از همان فرمان ثبت می‌شود و به گذشته منتقل نمی‌شود.</p></div>
     <details className="rounded-xl border p-4"><summary className="cursor-pointer font-bold">حساب قبلی و گزارش‌های پژوهشی</summary><div className="mt-4"><PaperPortfolioTab /></div></details>
   </section>;
 }

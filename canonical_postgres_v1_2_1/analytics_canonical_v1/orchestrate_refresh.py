@@ -90,7 +90,12 @@ def latest_serving_run(cur, version: str):
 def canonical_data_cutoffs(cur) -> dict:
     return {
         "monthly_latest": _one(cur, "SELECT max(period_end_date) FROM fundamentals.monthly_activities"),
-        "financial_latest": _one(cur, "SELECT max(period_end_date) FROM fundamentals.financial_statements"),
+        # financial_latest مانند خود موتور، گزارش‌های superseded را نادیده می‌گیرد
+        # تا یک ردیف بدِ تاریخ‌دار (مثلاً خطای تاریخیِ اسکرپر) as_of را جلو نزند.
+        "financial_latest": _one(cur, """
+            SELECT max(st.period_end_date) FROM fundamentals.financial_statements st
+            WHERE st.report_id NOT IN (SELECT supersedes_report_id FROM ingestion.reports
+                                       WHERE supersedes_report_id IS NOT NULL)"""),
         "market_latest_trade_date": _one(cur, "SELECT max(trade_date) FROM market.price_observations"),
         "market_latest_collected_at": _one(cur, "SELECT max(collected_at) FROM market.price_observations"),
         "reports_latest_collected_at": _one(cur, "SELECT max(created_at) FROM ingestion.reports"),
@@ -294,7 +299,11 @@ def orchestrate(mode: str, version: str, allow_degraded: bool, json_out: Path | 
         if result["action"] == "RECOMPUTE":
             as_of, cutoff = choose_as_of_cutoff(cutoffs)
             if run:
-                as_of = max(as_of, _as_date(run[1]))
+                # پادز-regression برای as_of؛ اما as_ofِ آینده‌ی غیرواقعی (داده‌ی
+                # تاریخ‌دارِ خراب) به ارث برده نمی‌شود — خود cutoffs مرجع است.
+                prev_as_of = _as_date(run[1])
+                if prev_as_of and prev_as_of <= dt.date.today() + dt.timedelta(days=7):
+                    as_of = max(as_of, prev_as_of)
                 cutoff = max(cutoff, _as_dt(run[2]))
             result["recompute_as_of"] = str(as_of)
             result["recompute_cutoff"] = str(cutoff)
