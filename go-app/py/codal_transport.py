@@ -19,6 +19,17 @@ log = logging.getLogger(__name__)
 _CHALLENGE_MARKERS = (
     "captcha", "کد امنیتی", "کد تصویری", "security code", "verification code",
 )
+# Playwright navigation failures worth recovering from: connection-level hiccups
+# get a short backoff retry, and a failed proxy tunnel (the Windows system proxy
+# refusing Chromium's CONNECT — net::ERR_TUNNEL_CONNECTION_FAILED) additionally
+# gets one direct-connection browser relaunch.
+_TRANSIENT_NAV_ERRORS = (
+    "net::ERR_CONNECTION_RESET", "net::ERR_CONNECTION_CLOSED",
+    "net::ERR_TIMED_OUT", "net::ERR_NETWORK_CHANGED",
+)
+_PROXY_NAV_ERRORS = (
+    "net::ERR_TUNNEL_CONNECTION_FAILED", "net::ERR_PROXY_CONNECTION_FAILED",
+)
 
 
 class CodalHTTPError(RuntimeError):
@@ -45,6 +56,7 @@ class CodalTransport:
         self._playwright = self._browser = self._context = self._page = None
         self._recovery_page = None
         self._browser_mode = False
+        self._browser_direct = False
         self._cache: dict[str, tuple[bytes, str, int]] = {}
 
     def _pace(self):
@@ -116,12 +128,15 @@ class CodalTransport:
     def _safe_type(content_type: str) -> str:
         return content_type.split(";", 1)[0].strip().lower()
 
-    def _launch_browser(self):
+    def _launch_browser(self, direct: bool = False):
         if self._context is not None:
             return
-        from playwright.sync_api import sync_playwright
+        if direct:
+            self._browser_direct = True
+        if self._playwright is None:
+            from playwright.sync_api import sync_playwright
 
-        self._playwright = sync_playwright().start()
+            self._playwright = sync_playwright().start()
         binary = os.getenv("CHROMIUM_BINARY", "").strip()
         if not binary:
             try:
@@ -139,6 +154,10 @@ class CodalTransport:
             channel = os.getenv("CODAL_BROWSER_CHANNEL", "").strip()
             if channel:
                 args["channel"] = channel
+        if self._browser_direct:
+            # The system proxy could not tunnel to Codal; Chromium's own proxy
+            # resolution is what failed, so run this browser without any proxy.
+            args["args"] = ["--no-proxy-server"]
         self._browser = self._playwright.chromium.launch(**args)
         self._context = self._browser.new_context(
             viewport={"width": 1366, "height": 768},
@@ -159,6 +178,71 @@ class CodalTransport:
                 self._context.add_cookies(cookies)
         self._page = self._context.new_page()
         self._browser_mode = True
+
+    def _relaunch_direct(self) -> None:
+        """Close the proxied browser and open one without any proxy.
+
+        ERR_TUNNEL_CONNECTION_FAILED means the CONNECT through the configured
+        (system) proxy failed. Codal is a domestic site that answers over a
+        plain connection, so the recovery is a browser with --no-proxy-server;
+        cookies are re-seeded from the urllib jar inside _launch_browser.
+        """
+        self._recovery_page = None
+        if self._context is not None:
+            try:
+                self._context.close()
+            except Exception:
+                log.debug("closing proxied context failed", exc_info=True)
+            self._context = None
+        if self._browser is not None:
+            try:
+                self._browser.close()
+            except Exception:
+                log.debug("closing proxied browser failed", exc_info=True)
+            self._browser = None
+        self._page = None
+        self._launch_browser(direct=True)
+
+    def _goto_resilient(self, page, url: str, timeout_ms: int):
+        """page.goto that survives transient and proxy-level network failures.
+
+        The feed loop already retries challenges and rate limits; a raised
+        Playwright navigation error used to abort the whole run. Returns the
+        response together with the page that served it, because the direct-mode
+        recovery replaces self._page (and the caller's local reference).
+        """
+        attempt = 0
+        while True:
+            try:
+                return page.goto(url, wait_until="domcontentloaded", timeout=timeout_ms), page
+            except Exception as exc:
+                text = str(exc)
+                proxy_level = any(marker in text for marker in _PROXY_NAV_ERRORS)
+                if not proxy_level and not any(marker in text for marker in _TRANSIENT_NAV_ERRORS):
+                    raise
+                if proxy_level and self._browser_direct:
+                    raise
+                attempt += 1
+                if proxy_level and attempt >= 2:
+                    # The system proxy refused the tunnel twice; relaunch
+                    # Chromium without any proxy and retry this navigation.
+                    if self.channel:
+                        self.channel.update(state="opening_browser", stage="recovery",
+                                            message="اتصال از طریق پروکسی سیستم برقرار نشد؛ با اتصال مستقیم ادامه می‌دهم.")
+                    log.info("Codal proxy tunnel failed twice (%s); relaunching Chromium without proxy",
+                             text[-160:])
+                    self._relaunch_direct()
+                    page = self._page
+                    attempt = 0
+                    continue
+                if attempt > 3:
+                    raise
+                delay = self._browser_backoff(attempt)
+                if self.channel:
+                    self.channel.update(state="opening_browser", stage="recovery",
+                                        message="اتصال مرورگر قطع شد؛ چند لحظه بعد همان صفحه را دوباره باز می‌کنم.")
+                log.info("Codal navigation failed (%s); retry %d in %.0fs", text[-160:], attempt, delay)
+                time.sleep(delay)
 
 
     def _looks_like_challenge(self, page, content_type: str) -> bool:
@@ -444,7 +528,7 @@ class CodalTransport:
                          urllib.parse.urlsplit(page.url).netloc,
                          urllib.parse.urlsplit(page.url).path, status, content_type)
             else:
-                response = page.goto(url, wait_until="domcontentloaded", timeout=timeout * 1000)
+                response, page = self._goto_resilient(page, url, timeout * 1000)
                 status = response.status if response else 0
                 headers = response.all_headers() if response else {}
                 content_type = self._safe_type(headers.get("content-type", ""))
@@ -690,7 +774,7 @@ class CodalTransport:
     def navigate(self, page, url: str, timeout: int = 60_000):
         self._browser_mode = True
         for attempt in range(3):
-            response = page.goto(url, wait_until="domcontentloaded", timeout=timeout)
+            response, page = self._goto_resilient(page, url, timeout)
             content_type = self._safe_type(response.headers.get("content-type", "")) if response else ""
             if self._looks_like_challenge(page, content_type):
                 self._captcha(page)

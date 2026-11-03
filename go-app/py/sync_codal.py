@@ -1317,6 +1317,22 @@ def _friendly_sync_error(exc: Exception) -> str:
                 "گزارش‌هایی که تا آن لحظه کامل شده‌اند ذخیره شده‌اند؛ دوباره "
                 "«جمع‌آوری» را بزنید تا ادامه دهد (گزارش‌های تکراری دوباره "
                 "گرفته نمی‌شوند).")
+    if "net::ERR_TUNNEL_CONNECTION_FAILED" in text or "net::ERR_PROXY_CONNECTION_FAILED" in text:
+        # The direct-mode relaunch has already been tried by the transport at
+        # this point; reaching the summary with a tunnel error means both paths
+        # (system proxy and direct) failed.
+        return ("مرورگر از طریق پروکسی سیستم نتوانست به کدال وصل شود و تلاش با "
+                "اتصال مستقیم هم پاسخ نداد. اتصال اینترنت یا نرم‌افزار پروکسی/VPN "
+                "را بررسی کنید و دوباره «جمع‌آوری سریع» را بزنید؛ گزارش‌های "
+                "قبلاً گرفته‌شده دوباره دریافت نمی‌شوند.")
+    if any(marker in text for marker in (
+            "net::ERR_CONNECTION_RESET", "net::ERR_CONNECTION_CLOSED",
+            "net::ERR_TIMED_OUT", "net::ERR_NETWORK_CHANGED",
+            "net::ERR_NAME_NOT_RESOLVED", "net::ERR_INTERNET_DISCONNECTED",
+            "net::ERR_ADDRESS_UNREACHABLE")):
+        return ("اتصال شبکه به کدال برقرار نشد (قطعی یا کندی اینترنت). اتصال را "
+                "بررسی کنید و چند لحظه بعد دوباره «جمع‌آوری سریع» را بزنید؛ "
+                "گزارش‌های قبلاً گرفته‌شده دوباره دریافت نمی‌شوند.")
     return text
 
 

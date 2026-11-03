@@ -100,6 +100,10 @@ func main() {
 		protected.POST("/admin/ranking/refresh", handlers.StartRankingRefresh)
 		protected.GET("/admin/ranking/refresh/status", handlers.GetRankingRefreshStatus)
 
+		// تلاش دوبارهٔ دستی اجرای سبد کاغذی (فقط ادمین) → experimental_paper.py + paper_month_trial.py
+		protected.POST("/admin/paper-trial/refresh", handlers.StartPaperTrialRefresh)
+		protected.GET("/admin/paper-trial/refresh/status", handlers.GetPaperTrialRefreshStatus)
+
 		protected.GET("/summary", handlers.GetAIStockSummary)
 		protected.GET("/detail", handlers.GetAIStockDetail)
 

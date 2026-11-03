@@ -26,6 +26,15 @@ import {
   jalaliTickMark,
 } from "../utils/chartHelpers";
 import { bollinger, macd as macdCalc, rsi as rsiCalc, sma } from "../utils/indicators";
+import {
+  MA_MAX,
+  MA_MIN,
+  isMaKey,
+  loadMaPeriods,
+  saveMaPeriods,
+  type MaKey,
+  type MaPeriods,
+} from "../utils/maSettings";
 
 type Props = {
   companyName: string;
@@ -49,9 +58,9 @@ const INDICATORS: {
   label: string;
   color: string;
 }[] = [
-  { key: "ma20", label: "میانگین ۲۰", color: "#f59e0b" },
-  { key: "ma50", label: "میانگین ۵۰", color: "#3b82f6" },
-  { key: "ma200", label: "میانگین ۲۰۰", color: "#8b5cf6" },
+  { key: "ma20", label: "میانگین", color: "#f59e0b" },
+  { key: "ma50", label: "میانگین", color: "#3b82f6" },
+  { key: "ma200", label: "میانگین", color: "#8b5cf6" },
   { key: "bb", label: "بولینگر", color: "#94a3b8" },
   { key: "rsi", label: "RSI ۱۴", color: "#a855f7" },
   { key: "macd", label: "MACD", color: "#ec4899" },
@@ -69,6 +78,58 @@ type VolumePoint = {
   time: UTCTimestamp;
   value: number;
   color: string;
+};
+
+// ورودی کوچکِ دوره‌ی MA داخل چیپ اندیکاتور؛ با Enter یا خروج از فیلد ذخیره می‌شود
+const MaPeriodInput: React.FC<{
+  value: number;
+  color: string;
+  active: boolean;
+  dark: boolean;
+  title: string;
+  onCommit: (period: number) => void;
+}> = ({ value, color, active, dark, title, onCommit }) => {
+  const [draft, setDraft] = useState(String(value));
+
+  useEffect(() => {
+    setDraft(String(value));
+  }, [value]);
+
+  const commit = () => {
+    const n = Math.round(Number(draft));
+    if (!Number.isFinite(n) || n < MA_MIN || n > MA_MAX) {
+      setDraft(String(value));
+      return;
+    }
+    setDraft(String(n));
+    if (n !== value) onCommit(n);
+  };
+
+  return (
+    <input
+      type="number"
+      inputMode="numeric"
+      min={MA_MIN}
+      max={MA_MAX}
+      value={draft}
+      title={title}
+      aria-label={title}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={commit}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") (e.target as HTMLInputElement).blur();
+        else if (e.key === "Escape") setDraft(String(value));
+      }}
+      className={`w-12 rounded-md px-1 py-0.5 text-center text-[11px] font-bold tabular-nums outline-none border transition-colors ${
+        active
+          ? "bg-white/15 border-white/40 text-white focus:bg-white/25"
+          : dark
+            ? "bg-gray-800 border-gray-600 text-gray-200 focus:border-emerald-400"
+            : "bg-white border-gray-300 text-gray-700 focus:border-emerald-500"
+      }`}
+      style={active ? undefined : { borderColor: `${color}80` }}
+    />
+  );
 };
 
 const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
@@ -91,6 +152,12 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     rsi: false,
     macd: false,
   });
+  // دوره‌های MA مخصوص همین نماد — از localStorage همان نماد بارگذاری می‌شود
+  const [maPeriods, setMaPeriods] = useState<MaPeriods>(() =>
+    loadMaPeriods(companyName),
+  );
+  const [maSaved, setMaSaved] = useState(false);
+  const maSavedTimerRef = useRef<number | null>(null);
   const { isAdmin } = getAuthStatus();
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -167,6 +234,36 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     loadData(days);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyName, days, refreshTick]);
+
+  // با عوض شدن نماد، تنظیمات ذخیره‌شده‌ی همان نماد را بارگذاری کن
+  useEffect(() => {
+    const stored = loadMaPeriods(companyName);
+    setMaPeriods((prev) =>
+      prev.ma20 === stored.ma20 &&
+      prev.ma50 === stored.ma50 &&
+      prev.ma200 === stored.ma200
+        ? prev
+        : stored,
+    );
+    setMaSaved(false);
+  }, [companyName]);
+
+  const commitMaPeriod = (key: MaKey, period: number) => {
+    if (maPeriods[key] === period) return;
+    const next = { ...maPeriods, [key]: period };
+    setMaPeriods(next);
+    saveMaPeriods(companyName, next);
+    setMaSaved(true);
+    if (maSavedTimerRef.current) window.clearTimeout(maSavedTimerRef.current);
+    maSavedTimerRef.current = window.setTimeout(() => setMaSaved(false), 1600);
+  };
+
+  useEffect(
+    () => () => {
+      if (maSavedTimerRef.current) window.clearTimeout(maSavedTimerRef.current);
+    },
+    [],
+  );
 
   const handleFetchPrices = async () => {
     setFetching(true);
@@ -673,9 +770,9 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       s.applyOptions({ visible });
       if (vals && visible) s.setData(mkPts(vals));
     };
-    applyOverlay("ma20", sma(closes, 20), ov.ma20);
-    applyOverlay("ma50", sma(closes, 50), ov.ma50);
-    applyOverlay("ma200", sma(closes, 200), ov.ma200);
+    applyOverlay("ma20", sma(closes, maPeriods.ma20), ov.ma20);
+    applyOverlay("ma50", sma(closes, maPeriods.ma50), ov.ma50);
+    applyOverlay("ma200", sma(closes, maPeriods.ma200), ov.ma200);
     if (ov.bb) {
       const bb = bollinger(closes, 20, 2);
       applyOverlay("bbUpper", bb.upper, true);
@@ -694,7 +791,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       });
     }
     autoExtendRef.current = false;
-  }, [candles, volumes, logScale, ov]);
+  }, [candles, volumes, logScale, ov, maPeriods]);
 
   const cardCls = `rounded-2xl border p-5 ${
     dark
@@ -721,36 +818,65 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
           </span>
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
-          {/* Indicator toggles */}
-          {INDICATORS.map((ind) => (
-            <button
-              key={ind.key}
-              onClick={() => setOv((s) => ({ ...s, [ind.key]: !s[ind.key] }))}
-              title={
-                ind.key === "rsi"
-                  ? "شاخص قدرت نسبی (زیر ۳۰ اشباع فروش، بالای ۷۰ اشباع خرید)"
-                  : ind.key === "bb"
-                    ? "باندهای بولینگر (میانگین ۲۰ ± ۲ انحراف معیار)"
-                    : ind.key === "macd"
-                      ? "همگرایی/واگرایی میانگین متحرک (۱۲، ۲۶، ۹)"
-                      : `میانگین متحرک ساده‌ی ${ind.key === "ma20" ? "۲۰" : ind.key === "ma50" ? "۵۰" : "۲۰۰"} روزه`
-              }
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition-all duration-200 border ${
-                ov[ind.key]
-                  ? "border-transparent text-white shadow-sm"
-                  : dark
-                    ? "border-gray-700/60 bg-gray-700/40 text-gray-400 hover:text-gray-200"
-                    : "border-gray-200 bg-gray-100/70 text-gray-500 hover:text-gray-700"
-              }`}
-              style={ov[ind.key] ? { background: ind.color } : undefined}
-            >
-              <span
-                className="inline-block w-2 h-0.5 rounded"
-                style={{ background: ov[ind.key] ? "rgba(255,255,255,0.85)" : ind.color }}
-              />
-              {ind.label}
-            </button>
-          ))}
+          {/* Indicator toggles — عدد MA داخل هر چیپ قابل ویرایش و ذخیره برای همان نماد است */}
+          {INDICATORS.map((ind) => {
+            const active = ov[ind.key];
+            const maKey = isMaKey(ind.key) ? ind.key : null;
+            return (
+              <div
+                key={ind.key}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-semibold transition-all duration-200 border ${
+                  active
+                    ? "border-transparent text-white shadow-sm"
+                    : dark
+                      ? "border-gray-700/60 bg-gray-700/40 text-gray-400"
+                      : "border-gray-200 bg-gray-100/70 text-gray-500"
+                }`}
+                style={active ? { background: ind.color } : undefined}
+              >
+                <button
+                  type="button"
+                  onClick={() => setOv((s) => ({ ...s, [ind.key]: !s[ind.key] }))}
+                  title={
+                    ind.key === "rsi"
+                      ? "شاخص قدرت نسبی (زیر ۳۰ اشباع فروش، بالای ۷۰ اشباع خرید)"
+                      : ind.key === "bb"
+                        ? "باندهای بولینگر (میانگین ۲۰ ± ۲ انحراف معیار)"
+                        : ind.key === "macd"
+                          ? "همگرایی/واگرایی میانگین متحرک (۱۲، ۲۶، ۹)"
+                          : "میانگین متحرک ساده — عدد را تغییر دهید و Enter بزنید؛ برای همین نماد ذخیره می‌شود"
+                  }
+                  className={`flex items-center gap-1.5 transition-colors ${
+                    active ? "" : dark ? "hover:text-gray-200" : "hover:text-gray-700"
+                  }`}
+                >
+                  <span
+                    className="inline-block w-2 h-0.5 rounded"
+                    style={{ background: active ? "rgba(255,255,255,0.85)" : ind.color }}
+                  />
+                  {ind.label}
+                </button>
+                {maKey && (
+                  <MaPeriodInput
+                    value={maPeriods[maKey]}
+                    color={ind.color}
+                    active={active}
+                    dark={dark}
+                    title={`دوره‌ی میانگین متحرک (${MA_MIN} تا ${MA_MAX}) — برای نماد ${companyName} ذخیره می‌شود`}
+                    onCommit={(period) => commitMaPeriod(maKey, period)}
+                  />
+                )}
+              </div>
+            );
+          })}
+          <span
+            aria-live="polite"
+            className={`text-[10px] font-semibold text-emerald-500 transition-opacity duration-300 ${
+              maSaved ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            ذخیره شد ✓
+          </span>
           {/* Log/Linear toggle */}
           <button
             onClick={() => setLogScale(!logScale)}

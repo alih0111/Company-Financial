@@ -333,6 +333,64 @@ export async function getRankingRefreshStatus(): Promise<RankingRefreshStatus> {
   return body as RankingRefreshStatus;
 }
 
+// ----------------------- Paper trial manual retry -----------------------
+
+export interface PaperTrialRefreshStart {
+  started: boolean;
+  already_running?: boolean;
+  started_at?: string;
+  message: string;
+}
+
+export interface PaperTrialRefreshStatus {
+  state: "Idle" | "Running" | "Finished" | "Failed";
+  stage?: string;
+  started_at?: string;
+  finished_at?: string;
+  exp_exit_code?: number;
+  trial_exit_code?: number;
+  message?: string;
+  error?: string;
+}
+
+export async function startPaperTrialRefresh(): Promise<PaperTrialRefreshStart> {
+  const res = await fetch(`${API_BASE}/admin/paper-trial/refresh`, {
+    method: "POST",
+    headers: getAuthHeaders(),
+  });
+  const body = (await res.json().catch(() => null)) as
+    | PaperTrialRefreshStart
+    | { error?: string }
+    | null;
+  if (!res.ok) {
+    throw new Error(
+      body && "error" in body && body.error
+        ? body.error
+        : `شروع تلاش دوبارهٔ سبد کاغذی ناموفق بود (${res.status})`,
+    );
+  }
+  return body as PaperTrialRefreshStart;
+}
+
+export async function getPaperTrialRefreshStatus(): Promise<PaperTrialRefreshStatus> {
+  const res = await fetch(`${API_BASE}/admin/paper-trial/refresh/status`, {
+    headers: getAuthHeaders(),
+    cache: "no-store",
+  });
+  const body = (await res.json().catch(() => null)) as
+    | PaperTrialRefreshStatus
+    | { error?: string }
+    | null;
+  if (!res.ok) {
+    throw new Error(
+      body && "error" in body && body.error
+        ? body.error
+        : `وضعیت تلاش دوبارهٔ سبد کاغذی خوانده نشد (${res.status})`,
+    );
+  }
+  return body as PaperTrialRefreshStatus;
+}
+
 // ----------------------------- Portfolio -----------------------------
 
 export interface PortfolioHoldingEnriched {
