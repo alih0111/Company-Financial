@@ -19,6 +19,7 @@ import urllib.error
 from bs4 import BeautifulSoup
 import pandas as pd
 import collect_financial_history as H
+from evidence_paths import resolve_evidence_path
 
 VERSION = "codal-dynamic-source-v6"
 STORE = H.OUT / "dynamic_sources"
@@ -155,7 +156,7 @@ def own_facts(parsed):
 
 
 def verified_parsed(rec):
-    path = Path(rec["dynamic_manifest_path"])
+    path = resolve_evidence_path(rec["dynamic_manifest_path"])
     if not path.resolve().is_relative_to(STORE.resolve()):
         raise ValueError("dynamic_manifest_outside_archive")
     raw = path.read_bytes()
@@ -172,7 +173,7 @@ def verified_parsed(rec):
             raise ValueError("dynamic_required_page_missing_or_duplicate")
     result = {"statements": {}, "period_headers": {}, "consolidation": {}}
     for page in manifest["pages"]:
-        source = Path(page["path"])
+        source = resolve_evidence_path(page["path"])
         if not source.resolve().is_relative_to(STORE.resolve()):
             raise ValueError("dynamic_page_outside_archive")
         body = source.read_bytes()
@@ -215,7 +216,7 @@ def verified_parsed(rec):
         original = H.C.read(original_path)
         if any(original.get(key) != rec.get(key) for key in ("company_id", "symbol", "tracing_no", "title", "period_end", "published_at", "observed_at", "sha256")):
             raise ValueError("paired export record identity mismatch")
-        path = Path(native["path"])
+        path = resolve_evidence_path(native["path"])
         if not path.resolve().is_relative_to(STORE.resolve()):
             raise ValueError("paired export outside archive")
         body = path.read_bytes()

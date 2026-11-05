@@ -1,0 +1,49 @@
+{
+  "observed_at_utc": "2026-11-04T19:15:17.971055+00:00",
+  "base_commit": "cbdc8bff8b449bc96fcbe9b77bca620df3aba04e",
+  "scope": "Account files read under individual and trial controller locks; other files are not a globally atomic snapshot.",
+  "files": [
+    {
+      "path": "ranking_research/output/experimental_paper/account.json",
+      "state": "PRESENT",
+      "sha256": "4c0b4af577e24fb767947d109be33597c63c7f9eda3cade8f8515bcfb929a900",
+      "bytes": 14601
+    },
+    {
+      "path": "ranking_research/output/paper_month_trial/P1/account.json",
+      "state": "PRESENT",
+      "sha256": "98ae17ff12072ada68efd22761d713ae930e879ccc6bc8d6132bcda07f85af39",
+      "bytes": 20990
+    },
+    {
+      "path": "ranking_research/output/paper_month_trial/P3/account.json",
+      "state": "PRESENT",
+      "sha256": "2fd222cf967088c325f158caff4fd74845e7ea676e10caaa6a60ae6b4d2d9770",
+      "bytes": 36112
+    },
+    {
+      "path": "ranking_research/output/paper_month_trial/config.json",
+      "state": "PRESENT",
+      "sha256": "8572aa187e37c1abc9b1c7985991130455d2b02358e39cff4557482c9f3e3088",
+      "bytes": 1202
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/rules.json",
+      "state": "PRESENT",
+      "sha256": "c08765ac9067311f38920d9e8fbecca7a22a13a8666c2dd4feeede6439154683",
+      "bytes": 2695
+    },
+    {
+      "path": "ranking_research/output/experimental_paper/ranking.json",
+      "state": "PRESENT",
+      "sha256": "88ae1a4f24342ed825b1691ed74fff21a9f2c44f9927e7fec1ee42abf9e933dd",
+      "bytes": 919133
+    },
+    {
+      "path": "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json",
+      "state": "PRESENT",
+      "sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8",
+      "bytes": 9686
+    }
+  ]
+}

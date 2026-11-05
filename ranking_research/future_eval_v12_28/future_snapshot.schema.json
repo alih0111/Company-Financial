@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.invalid/v12.28/future-snapshot.schema.json",
+  "title": "V12.28 prospective future score snapshot",
+  "description": "Schema only; this is not a historical or test snapshot. Runtime additionally checks hashes, O00 continuation, cutoffs, and contract invariants.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "data_scope", "environment", "snapshot_id", "snapshot_sha256", "effective_date", "received_at", "decision_cutoff_at", "timezone", "contract_sha256", "expected_history_calendar_sha256", "calendar", "score_provenance", "universe"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "data_scope": {"const": "PROSPECTIVE_FUTURE"},
+    "environment": {"const": "OFFICIAL_CANDIDATE"},
+    "snapshot_id": {"type": "string", "minLength": 1},
+    "snapshot_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "effective_date": {"type": "string", "format": "date"},
+    "received_at": {"type": "string", "format": "date-time"},
+    "decision_cutoff_at": {"type": "string", "format": "date-time"},
+    "timezone": {"const": "Asia/Tehran"},
+    "contract_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "expected_history_calendar_sha256": {"const": "879e1361624c62868a722245d612396fa7f756ca4ee0911359dc7e996b52c14b"},
+    "calendar": {
+      "type": "object", "additionalProperties": false,
+      "required": ["anchor_date", "anchor_index", "session_index", "session_date", "complete_through_effective_date", "history_prefix_sha256", "additional_session_dates", "calendar_sha256", "calendar_source_sha256", "next_session_open_at"],
+      "properties": {
+        "anchor_date": {"const": "2021-04-03"},
+        "anchor_index": {"const": 0},
+        "session_index": {"type": "integer", "minimum": 1166},
+        "session_date": {"type": "string", "format": "date"},
+        "complete_through_effective_date": {"const": true},
+        "history_prefix_sha256": {"const": "879e1361624c62868a722245d612396fa7f756ca4ee0911359dc7e996b52c14b"},
+        "additional_session_dates": {"type": "array", "minItems": 1, "items": {"type": "string", "format": "date"}},
+        "calendar_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "calendar_source_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "next_session_open_at": {"type": "string", "format": "date-time"}
+      }
+    },
+    "score_provenance": {
+      "type": "object", "additionalProperties": false,
+      "required": ["uses_only_snapshot_inputs", "scorer_contract_sha256", "raw_input_sha256", "scorer_version"],
+      "properties": {
+        "uses_only_snapshot_inputs": {"const": true},
+        "scorer_contract_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "raw_input_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "scorer_version": {"type": "string", "minLength": 1}
+      }
+    },
+    "universe": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["symbol", "symbol_index", "methods"],
+        "properties": {
+          "symbol": {"type": "string", "minLength": 1},
+          "symbol_index": {"type": "integer", "minimum": 0},
+          "methods": {
+            "type": "object", "additionalProperties": false, "required": ["P1", "P3"],
+            "properties": {
+              "P1": {"$ref": "#/$defs/methodScore"},
+              "P3": {"$ref": "#/$defs/methodScore"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "methodScore": {
+      "type": "object", "additionalProperties": false,
+      "required": ["score", "financial_coverage", "raw_factors", "defaulted_factors", "masked_factors", "dq"],
+      "properties": {
+        "score": {"type": ["number", "null"]},
+        "financial_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "raw_factors": {"type": "object"},
+        "defaulted_factors": {"type": "array", "items": {"type": "string"}},
+        "masked_factors": {"type": "array", "items": {"type": "string"}},
+        "dq": {"type": "number"}
+      }
+    }
+  }
+}

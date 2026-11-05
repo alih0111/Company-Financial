@@ -1,3 +1,4 @@
+import { errorMessage } from "../utils/errorMessage";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -60,8 +61,8 @@ const MarketPage: React.FC = () => {
         const first = data.indices?.[0];
         return first ? { kind: "index", key: first.name, label: first.name } : null;
       });
-    } catch (e: any) {
-      setError(e?.message || "خطا در دریافت داده بازار");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "خطا در دریافت داده بازار"));
     } finally {
       setLoading(false);
     }
@@ -103,8 +104,8 @@ const MarketPage: React.FC = () => {
       );
       setRefreshTick((t) => t + 1);
       await load();
-    } catch (e: any) {
-      setMsg(e?.message || "خطا در اجرای کالکتور");
+    } catch (e: unknown) {
+      setMsg(errorMessage(e, "خطا در اجرای کالکتور"));
     } finally {
       setBusy(null);
     }

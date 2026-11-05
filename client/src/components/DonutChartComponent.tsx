@@ -38,7 +38,7 @@ const DonutChartComponent: React.FC<DonutChartProps> = ({ score, label = "امت
   // Glow filter color based on score
   const glowColor = actualScore >= 60 ? "#10b981" : actualScore >= 40 ? "#f59e0b" : "#ef4444";
 
-  const CustomTooltip = ({ active }: any) => {
+  const CustomTooltip = ({ active }: { active?: boolean }) => {
     if (!active) return null;
     return (
       <div style={{ ...glassTooltipStyle(dark), display: "flex", alignItems: "center", gap: 8 }}>

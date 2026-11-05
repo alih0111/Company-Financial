@@ -55,13 +55,8 @@ def cycle(home=None, start=False, *, action=None, public_trial_path=None, public
                     "ranking_source": review.DEFAULT_RANKING_SOURCE, "max_ranking_age_days": 7,
                     "directive_fa": "به درخواست صریح کاربر: بازبینی مدل در هر اجرا و چرخش خودکار سبد کاغذی؛ فروش/خرید فقط از موتور قفل‌شده و با رتبه‌بندی تازهٔ pin‌شده."}})
         config = exp.load(config_path)
-        if "review_policy" not in config:
-            # Owner directive 2026-10-31: enable per-run model review and rotation
-            # on the already-running trial; removing the key disables it again.
-            config["review_policy"] = {"id": "user-auto-rotation-v1", "cadence_sessions": 1,
-                "ranking_source": review.DEFAULT_RANKING_SOURCE, "max_ranking_age_days": 7,
-                "directive_fa": "به درخواست صریح کاربر در ۳۱ اکتبر ۲۰۲۶: بازبینی مدل در هر اجرا و چرخش خودکار سبد کاغذی؛ فروش/خرید فقط از موتور قفل‌شده و با رتبه‌بندی تازهٔ pin‌شده."}
-            exp.write(config_path, config)
+        # Existing configurations are authoritative. In particular, removing
+        # review_policy disables review; do not silently recreate the policy.
         if exp.sha(Path(config["ranking"])) != config["ranking_sha256"]:
             raise ValueError("TRIAL_RANKING_CHANGED")
         instant = exp.now()
@@ -110,12 +105,14 @@ def cycle(home=None, start=False, *, action=None, public_trial_path=None, public
                 if (account_home / "account.json").exists():
                     results[method]["account"] = exp.load(account_home / "account.json")
         policy = config.get("review_policy")
-        review_note = "قرارداد ۶۳جلسه‌ای حفظ شده؛ در دورهٔ ۳۰روزه، ارزش‌گذاری روزانه انجام می‌شود."
-        if isinstance(policy, dict):
-            review_note += (f" چرخش خودکار مدل فعال است (بازبینی هر {policy.get('cadence_sessions', 1)} جلسهٔ کاری): "
-                            "نفر اول تازهٔ رتبه‌بندی بررسی می‌شود و در صورت تغییر، تصمیم فروش و سپس خرید جایگزین ثبت می‌شود.")
+        if isinstance(policy, dict) and policy:
+            review_note = (f"سیاست حساب آزمایشی {policy.get('id', 'بدون شناسه')} فعال است "
+                           f"(بازبینی هر {policy.get('cadence_sessions', 1)} جلسهٔ کاری): "
+                           "نفر اول تازهٔ رتبه‌بندی بررسی می‌شود و در صورت تغییر، تصمیم فروش و سپس خرید جایگزین ثبت می‌شود. "
+                           "مرجع تاریخی ۶۳جلسه‌ای روش جداگانه‌ای است.")
         else:
-            review_note += " پس از خرید، نگهداری ادامه دارد و فروش ساختگی برای نمایش عملکرد ثبت نمی‌شود."
+            review_note = ("بازبینی خودکار مدل برای این حساب غیرفعال است؛ پس از خرید، نگهداری ادامه دارد "
+                           "و فروش ساختگی برای نمایش عملکرد ثبت نمی‌شود. مرجع تاریخی ۶۳جلسه‌ای روش جداگانه‌ای است.")
         if action == "sell":
             review_note += " بستن سبد با فرمان صریح این اجرا درخواست شده است؛ فروش فرضی روی قیمت پایانی نخستین جلسهٔ واجد شرایط بعد از همان فرمان ثبت می‌شود."
         elif action == "buy":

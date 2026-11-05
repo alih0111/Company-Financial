@@ -1,3 +1,4 @@
+import { errorMessage } from "../utils/errorMessage";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import QvtPaperPanel from "./QvtPaperPanel";
@@ -57,7 +58,7 @@ const rankStatusTone: Record<string, string> = {
   weak: "bg-rose-500/12 text-rose-700 dark:text-rose-300 ring-rose-500/30",
 };
 
-const scoreTone = (_s: number) => "text-gray-800 dark:text-gray-100";
+const scoreTone = () => "text-gray-800 dark:text-gray-100";
 const marketDate = (value: string) => new Intl.DateTimeFormat("fa-IR", { timeZone: "UTC" }).format(new Date(`${value}T00:00:00Z`));
 const factorProfile = (s: QvtRankedStock) => [s.model_family, s.q.scored_factors?.join(","), s.v.scored_factors?.join(","), s.t.scored_factors?.join(",")].join("|");
 
@@ -464,7 +465,7 @@ function RankedTable({
                   </td>
                   <td
                     title={`سقف عملی با عوامل محاسبه‌شده ${num(s.practical_ceiling, 0)} است: پوشش بنیادی ${num(s.q.covered_weight ?? 0, 0)} از ${num(s.q.max, 0)}، ارزندگی ${num(s.v.covered_weight ?? 0, 0)} از ${num(s.v.max, 0)} و ورود ${num(s.t.covered_weight ?? 0, 0)} از ${num(s.t.max, 0)}. عوامل فاقد داده، پیاده‌سازی یا مجوز محاسبه در امتیاز سهم ندارند؛ این تفاوت به‌تنهایی ضعف شرکت نیست.`}
-                    className={`px-2 py-2 tabular-nums font-bold ${scoreTone(s.score)}`}
+                    className={`px-2 py-2 tabular-nums font-bold ${scoreTone()}`}
                   >
                     {num(s.score)}
                     {detailed && <span className="text-[9px] font-normal text-gray-500 dark:text-gray-400">
@@ -610,7 +611,7 @@ function PortfolioReview({
                     </td>
                     <td className="px-2 py-2 tabular-nums">
                       {s ? (
-                        <span className={`font-bold ${scoreTone(s.score)}`}>
+                        <span className={`font-bold ${scoreTone()}`}>
                           {num(s.score)} <span className="text-[9px] text-gray-400">/ {num(s.practical_ceiling, 0)}</span>
                         </span>
                       ) : (
@@ -777,8 +778,8 @@ export default function QvtRankingPage() {
         const r = await fetchQvtV2Ranking();
         if (!alive) return;
         setData(r);
-      } catch (e: any) {
-        if (alive) setError(e?.message || "خطا در دریافت رتبه‌بندی");
+      } catch (e: unknown) {
+        if (alive) setError(errorMessage(e, "خطا در دریافت رتبه‌بندی"));
       } finally {
         if (alive) setLoading(false);
       }

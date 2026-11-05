@@ -24,10 +24,14 @@ test("formula-like text is prefixed safely", () => {
   assert.equal(safeCsvCell("=SUM(A1:A2)"), `"'=SUM(A1:A2)"`);
   assert.equal(safeCsvCell("  @cmd"), `"'  @cmd"`);
   assert.equal(safeCsvCell("-cmd|'/C calc"), `"'-cmd|'/C calc"`);
+  assert.equal(safeCsvCell("\u0000\u001f=1+2"), `"'\u0000\u001f=1+2"`);
+  assert.equal(safeCsvCell("\u00a0-1+2"), `"'\u00a0-1+2"`);
 });
 
 test("negative numeric values remain numeric and unchanged", () => {
   assert.equal(safeCsvCell(-123.5), `"-123.5"`);
   assert.equal(safeCsvCell("-123.5"), `"-123.5"`);
   assert.equal(safeCsvCell("-1+2"), `"'-1+2"`);
+  assert.equal(safeCsvCell("\u001f-1.5e+2"), `"\u001f-1.5e+2"`);
+  assert.equal(safeCsvCell("-1 "), `"'-1 "`);
 });

@@ -1,3 +1,4 @@
+import { errorMessage } from "../utils/errorMessage";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Area,
@@ -63,6 +64,7 @@ import type {
   FamilyBrokerAccount,
   FamilyBrokerJob,
 } from "../utils/api";
+
 
 const fmtInt = (n: number | null | undefined) => {
   if (n == null || Number.isNaN(n)) return "--";
@@ -239,8 +241,8 @@ const FamilyAssets = () => {
           next[a.asset_id] = prev[a.asset_id] ?? String(a.latest_price || "");
         return next;
       });
-    } catch (e: any) {
-      setError(e?.message || "خطا در بارگذاری دارایی‌ها");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "خطا در بارگذاری دارایی‌ها"));
     } finally {
       setLoading(false);
     }
@@ -298,8 +300,8 @@ const FamilyAssets = () => {
         `قیمت‌های ${priceDate} ذخیره شد — جمع کل: ${fmtInt(res.total_value)}`,
       );
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "ذخیره قیمت‌ها ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "ذخیره قیمت‌ها ناموفق بود"));
     } finally {
       setSavingPrices(false);
     }
@@ -322,8 +324,8 @@ const FamilyAssets = () => {
       }
       setMsg(parts.join(" — ") || "قیمتی برای دریافت نبود");
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "دریافت قیمت از بازار ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "دریافت قیمت از بازار ناموفق بود"));
     } finally {
       setSyncing(false);
     }
@@ -367,8 +369,8 @@ const FamilyAssets = () => {
       setEditing(null);
       setMsg("ذخیره شد ✓");
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "ذخیره ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "ذخیره ناموفق بود"));
     }
   };
 
@@ -388,8 +390,8 @@ const FamilyAssets = () => {
     try {
       await deleteFamilyHolding(personId, assetId);
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "حذف ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "حذف ناموفق بود"));
     }
   };
 
@@ -413,8 +415,8 @@ const FamilyAssets = () => {
       setAddForm({ asset_id: "", quantity: "", cost_basis: "" });
       setMsg("دارایی به سبد اضافه شد ✓");
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "ذخیره ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "ذخیره ناموفق بود"));
     }
   };
 
@@ -430,8 +432,8 @@ const FamilyAssets = () => {
       setCashEdit(null);
       setMsg("مانده حساب ذخیره شد ✓");
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "ذخیره ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "ذخیره ناموفق بود"));
     }
   };
 
@@ -442,8 +444,8 @@ const FamilyAssets = () => {
       setNewPersonName("");
       setMsg("شخص جدید اضافه شد ✓");
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "افزودن شخص ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "افزودن شخص ناموفق بود"));
     }
   };
 
@@ -454,8 +456,8 @@ const FamilyAssets = () => {
       setNewAssetName("");
       setMsg("دارایی جدید اضافه شد ✓");
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "افزودن دارایی ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "افزودن دارایی ناموفق بود"));
     }
   };
 
@@ -476,8 +478,8 @@ const FamilyAssets = () => {
       setFlowForm((f) => ({ ...f, amount: "", note: "" }));
       setMsg("جریان نقدی ثبت شد ✓");
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "ثبت ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "ثبت ناموفق بود"));
     } finally {
       setSavingFlow(false);
     }
@@ -495,8 +497,8 @@ const FamilyAssets = () => {
     try {
       await deleteFamilyCashFlow(id);
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "حذف ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "حذف ناموفق بود"));
     }
   };
 
@@ -521,8 +523,8 @@ const FamilyAssets = () => {
       setBrokerEdit(null);
       setMsg("حساب کارگزاری ذخیره شد ✓");
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "ذخیره ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "ذخیره ناموفق بود"));
     } finally {
       setSavingBroker(false);
     }
@@ -540,8 +542,8 @@ const FamilyAssets = () => {
     try {
       await deleteFamilyBrokerAccount(personId);
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "حذف ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "حذف ناموفق بود"));
     }
   };
 
@@ -588,8 +590,8 @@ const FamilyAssets = () => {
         setMsg("سینک کارگزاری با موفقیت انجام شد ✓");
       }
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "سینک ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "سینک ناموفق بود"));
     } finally {
       setSyncingPerson(null);
     }
@@ -601,8 +603,8 @@ const FamilyAssets = () => {
     try {
       await submitFamilyBrokerCaptcha(job.job_id, code);
       setCaptchaInput((prev) => ({ ...prev, [personId]: "" }));
-    } catch (e: any) {
-      setError(e?.message || "ارسال کد امنیتی ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "ارسال کد امنیتی ناموفق بود"));
     }
   };
 
@@ -738,8 +740,8 @@ const FamilyAssets = () => {
           (res.missing?.length ? ` — دستی: ${res.missing.join("، ")}` : ""),
       );
       await loadAll();
-    } catch (e: any) {
-      setError(e?.message || "دریافت تاریخچه ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "دریافت تاریخچه ناموفق بود"));
     } finally {
       setBackfilling(false);
     }
@@ -2630,7 +2632,7 @@ type PersonMetaMap = Record<
 
 const HistoryTooltip: React.FC<{
   active?: boolean;
-  payload?: any[];
+  payload?: { dataKey?: string | number; value?: number | string }[];
   label?: string;
   darkMode: boolean;
   personMeta: PersonMetaMap;
@@ -2655,7 +2657,7 @@ const HistoryTooltip: React.FC<{
   return (
     <div
       dir="rtl"
-      style={glassTooltipStyle(darkMode) as any}
+      style={glassTooltipStyle(darkMode)}
       className="rounded-xl px-3 py-2.5 min-w-56 max-h-80 overflow-auto"
     >
       <div

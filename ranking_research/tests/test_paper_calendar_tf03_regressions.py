@@ -2,19 +2,19 @@
 from __future__ import annotations
 import json
 import subprocess
-import uuid
+from ranking_research.tests.fixture_env import fixture_environment
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 PYTHON = ROOT / ".venv/Scripts/python.exe"
-HARNESS = ROOT / "docs/paper_portfolio_delivery/task-tf03/run_offline_lifecycle.py"
+HARNESS = ROOT / "ranking_research/tests/offline_lifecycle_fixture.py"
 
 
-def test_subprocess_public_cycle_fill_mark_replay_isolated_and_network_blocked():
-    output_dir = ROOT / "docs/paper_portfolio_delivery/task-tf03/scratch-runs" / f"pytest-{uuid.uuid4().hex}"
+def test_subprocess_public_cycle_fill_mark_replay_isolated_and_network_blocked(tmp_path):
+    output_dir = tmp_path / "lifecycle"
     run = subprocess.run([str(PYTHON), "-X", "utf8", str(HARNESS), "--output-dir", str(output_dir)], cwd=ROOT,
                          capture_output=True, text=True, encoding="utf-8", errors="replace",
-                         timeout=300)
+                         timeout=300, env=fixture_environment())
     assert run.returncode == 0, run.stdout + run.stderr
     output = json.loads(run.stdout.strip().splitlines()[-1])
     evidence = json.loads((output_dir / "lifecycle-evidence.json").read_text(encoding="utf-8"))
@@ -37,7 +37,7 @@ def test_subprocess_public_cycle_fill_mark_replay_isolated_and_network_blocked()
     assert evidence["fill_event_count"] == 1
     assert evidence["fill_debit_toman"] == 99_957
     assert evidence["fill_receipt"]["shares"] == 806
-    assert evidence["account_path"].startswith(str(ROOT / "docs/paper_portfolio_delivery/task-tf03/scratch-runs"))
+    assert Path(evidence["account_path"]).is_relative_to(output_dir)
     assert len(evidence["preview_scenarios"]) == 7
     assert all(case["account_unchanged"] for case in evidence["preview_scenarios"])
     assert evidence["protected_account_untouched"] is True
@@ -47,12 +47,22 @@ def test_subprocess_public_cycle_fill_mark_replay_isolated_and_network_blocked()
 def test_inactive_public_draft_creator_is_append_only_and_temp_only(tmp_path):
     account = tmp_path / "draft" / "paper.json"
     rules = tmp_path / "draft" / "rules.json"
+    template = tmp_path / "template.json"
+    template.write_text(json.dumps({"initial_capital_toman": 100_000_000, "contract": {}}), encoding="utf-8")
+    ranking = tmp_path / "ranking.json"
+    ranking.write_text(json.dumps({"artifact_sha256": "a" * 64, "dataset_id": "TEST_FIXTURE",
+        "evaluation_date": "2026-10-23", "status": "PREPARATION_UNCONFIRMED",
+        "rows": [{"company_id": "fixture-company", "symbol": "TEST",
+                  "methods": {"P1": {"rank": 1, "score": 0.5}}}]}), encoding="utf-8")
+    source_rules = tmp_path / "source-rules.json"
+    source_rules.write_text(json.dumps({"rule_id": "paper-rules-test-fixture"}), encoding="utf-8")
     run = subprocess.run([str(PYTHON), "-X", "utf8",
         str(ROOT / "ranking_research/future_eval_v12_30/create_public_paper_account.py"),
-        "--ranking", str(ROOT / "client/public/research/v12-36/latest-ranking.json"),
+        "--fixture", "--template", str(template), "--rules", str(source_rules),
+        "--ranking", str(ranking),
         "--output-account", str(account), "--output-rules", str(rules),
         "--account-id", "TF03-TEST-DRAFT"], cwd=ROOT, capture_output=True, text=True,
-        encoding="utf-8", errors="replace", timeout=30)
+        encoding="utf-8", errors="replace", timeout=30, env=fixture_environment())
     assert run.returncode == 0, run.stdout + run.stderr
     draft = json.loads(account.read_text(encoding="utf-8"))
     rule_doc = json.loads(rules.read_text(encoding="utf-8"))
@@ -61,6 +71,13 @@ def test_inactive_public_draft_creator_is_append_only_and_temp_only(tmp_path):
     assert draft["cash_toman"] == draft["initial_capital_toman"] == 100_000_000
     assert draft["calendar_policy"] == rule_doc["calendar_policy"]
     assert draft["ranking"]["status"] == "PREPARATION_UNCONFIRMED"
+    saved = (account.read_bytes(), rules.read_bytes())
+    retry = subprocess.run(run.args, cwd=ROOT, capture_output=True, text=True,
+                           encoding="utf-8", errors="replace", timeout=30,
+                           env=fixture_environment())
+    assert retry.returncode != 0
+    assert "DRAFT_DESTINATION_EXISTS" in retry.stdout + retry.stderr
+    assert (account.read_bytes(), rules.read_bytes()) == saved
 
 
 def test_isolated_wrapper_without_evidence_refuses_before_acquisition(tmp_path):
@@ -72,7 +89,7 @@ def test_isolated_wrapper_without_evidence_refuses_before_acquisition(tmp_path):
         "-File", str(ROOT / "ranking_research/future_eval_v12_30/check_paper_order.ps1"),
         "-SkipTokenPrompt", "-CalendarProvider", "public", "-AccountPath", str(account),
         "-OutputDir", str(output), "-PublicOutputDir", str(public)], cwd=ROOT,
-        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30)
+        capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=30, env=fixture_environment())
     assert run.returncode != 0
     assert "ISOLATED_ORDER_REVIEW_REQUIRES_EXPLICIT_EVIDENCE_MANIFEST" in run.stderr + run.stdout
     assert not output.exists() and not public.exists()

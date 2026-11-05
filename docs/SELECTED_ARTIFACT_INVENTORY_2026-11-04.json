@@ -1,0 +1,83 @@
+{
+  "observed_at_utc": "2026-11-04T19:33:57.852412+00:00",
+  "scope": "Selected static inputs only; not a complete replay package, no atomic cross-file snapshot, no receipt or PIT claim.",
+  "artifacts": [
+    {
+      "name": "owner_registration",
+      "path": "ranking_research/output/owner_current_market_2026-10-15/registration.json",
+      "present": true,
+      "bytes": 893,
+      "sha256": "860ab02eb2538dbbc6ae2ba52586c57ac8331f7040ef5e774853bf05fab950e3"
+    },
+    {
+      "name": "input_reports",
+      "path": "ranking_research/output/owner_current_inputs_20261014T215850582899Z/input_reports.json",
+      "present": true,
+      "bytes": 25115608,
+      "sha256": "ea0741ad9a9853e85d57c051d29d11633c4fcf1681766acc5dd98547c7a13e3c"
+    },
+    {
+      "name": "financial_lineage",
+      "path": "ranking_research/output/owner_current_inputs_20261014T215850582899Z/current_live_lineage.json",
+      "present": true,
+      "bytes": 2125203,
+      "sha256": "922a3cfd78d418814b72a51f1a2aa1fe26f5707dd3a2377f50f9ee6cdd37df06"
+    },
+    {
+      "name": "comparative_lineage",
+      "path": "ranking_research/output/owner_current_inputs_20261014T215850582899Z/comparative_lineage.json",
+      "present": true,
+      "bytes": 5961647,
+      "sha256": "d82cca419af88caa6f911456425da205401bf03732b4bebcc75ce07c820174a0"
+    },
+    {
+      "name": "share_snapshot",
+      "path": "ranking_research/output/data_collection_20261014T201505878357Z/market_all_symbols.json",
+      "present": true,
+      "bytes": 1657683,
+      "sha256": "06047fb85a6765b2c4ee09950bc0042abffdacc2dc6f8329deea9768ef8b0f53"
+    },
+    {
+      "name": "contract",
+      "path": "ranking_research/output/return_v12_28/v12_28_20261022_future_eval_infrastructure_01/future_evaluation_contract.locked.json",
+      "present": true,
+      "bytes": 9686,
+      "sha256": "8b08cace7b64ee135ac862b6b9afd02242ba91cec24f8d6134b1d9b6c623c1c8"
+    },
+    {
+      "name": "universe",
+      "path": "ranking_research/output/return_v12_30/v12_30_20261022_data_procurement_pack_01/frozen_universe_identity_map.csv",
+      "present": true,
+      "bytes": 13305,
+      "sha256": "f62d72727591da1840abf6ce74a3f0b02d7fb51ba438ae614cc6df9aad27f9b0"
+    },
+    {
+      "name": "monthly_sales",
+      "path": "fundamental_event_research/monthly_sales_events_universe_v1_1.parquet",
+      "present": true,
+      "bytes": 1238426,
+      "sha256": "bcd69f109fd1a3bebbaadac0b82d99dbe5047777186216411509b9be850c9895"
+    },
+    {
+      "name": "confirmed_actions_cache",
+      "path": "score_v2_research/_cache/corp_actions_confirmed.parquet",
+      "present": true,
+      "bytes": 79359,
+      "sha256": "b7b8fc07f57cb72e94c1aa70539ed2d2a0b4dc92df5563b11a26e0c8f23cb3e7"
+    },
+    {
+      "name": "calendar_cache",
+      "path": "score_v2_research/_cache/calendar.parquet",
+      "present": true,
+      "bytes": 44826,
+      "sha256": "fbe245c91a632747462f65be6a47eed460c738e13872c1758b7f4f0a95fce31d"
+    },
+    {
+      "name": "current_ranking",
+      "path": "client/public/research/v12-37/latest-ranking.json",
+      "present": true,
+      "bytes": 919424,
+      "sha256": "ae67effb1dfbeabcd811c9566b9e946bad0cabf82f051676bb879624d72bc483"
+    }
+  ]
+}

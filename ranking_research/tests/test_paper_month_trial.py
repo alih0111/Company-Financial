@@ -1,5 +1,6 @@
 import datetime as dt
 import json
+import pytest
 from pathlib import Path
 from ranking_research.future_eval_v12_30 import paper_month_trial as trial
 from ranking_research.future_eval_v12_30 import experimental_paper as exp
@@ -75,6 +76,32 @@ def test_one_method_failure_does_not_skip_other_or_report_success(tmp_path,monke
     result=trial.cycle(home)
     assert visits==['P1','P3'] and result['state']=='DAILY_ERRORS'
     assert result['accounts']['P3']['outcome']['status']=='NO_NEW_SESSION'
+
+
+@pytest.mark.parametrize('policy', [None, {'id': 'fixture-daily', 'cadence_sessions': 1}])
+def test_missing_review_policy_does_not_reenable_rotation(tmp_path, monkeypatch, policy):
+    home = tmp_path / 'trial'; home.mkdir()
+    ranking = tmp_path / 'ranking.json'; ranking.write_text('{}', encoding='utf-8')
+    instant = exp.now()
+    config = {'started_at_utc': instant.isoformat(), 'ends_at_utc': (instant + dt.timedelta(days=30)).isoformat(),
+              'methods': ['P1'], 'ranking': str(ranking), 'ranking_sha256': exp.sha(ranking)}
+    if policy is not None:
+        config['review_policy'] = policy
+    exp.write(home / 'config.json', config)
+    (home / 'P1').mkdir(); exp.write(home / 'P1' / 'account.json', {'method': 'P1'})
+    monkeypatch.setattr(exp, 'acquire', lambda *a: ('evidence', 'calendar'))
+    monkeypatch.setattr(exp, 'update', lambda *a: {'status': 'NO_NEW_SESSION'})
+    monkeypatch.setattr(exp, 'publish', lambda h, o: {'outcome': o, 'account': exp.load(h / 'account.json')})
+    def check_policy(*args):
+        assert trial.review.ensure_policy(args[-1]) == policy
+        return None
+    monkeypatch.setattr(trial.review, 'run_review', check_policy)
+    result = trial.cycle(home)
+    assert exp.load(home / 'config.json').get('review_policy') == policy
+    assert result['config'].get('review_policy') == policy
+    assert ('غیرفعال' if policy is None else 'fixture-daily') in result['review_note_fa']
+    if policy is None:
+        assert 'review_policy' not in result['config']
 
 
 def test_ended_cycle_preserves_holdings_and_ledger_and_replay_is_account_idempotent(tmp_path, monkeypatch):

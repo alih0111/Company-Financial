@@ -1,4 +1,5 @@
 import subprocess
+from ranking_research.tests.fixture_env import fixture_environment
 import sys
 import json
 import os
@@ -414,7 +415,7 @@ a['event_log'].append({'event_id':'crash-new','type':'TEST_FIXTURE','at_utc':'TE
 s.write_account_atomic(p,a)
 '''
     result = subprocess.run([sys.executable, "-c", child, str(path), cut], cwd=Path.cwd(),
-                            capture_output=True, text=True, timeout=15)
+                            capture_output=True, text=True, timeout=15, env=fixture_environment())
     assert result.returncode == {"write": 71, "pre_replace": 72, "post_replace": 73}[cut]
     saved_bytes = path.read_bytes()
     saved = json.loads(saved_bytes)
@@ -459,11 +460,11 @@ try:
 except SystemExit as e: print(str(e))
 '''
     first = subprocess.Popen([sys.executable, "-c", child1, str(path)], cwd=Path.cwd(), stdin=subprocess.PIPE,
-                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                             stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=fixture_environment())
     try:
         assert first.stdout and _readline_timeout(first.stdout) == "LOCK_HELD"
         second = subprocess.run([sys.executable, "-c", child2, str(path)], cwd=Path.cwd(),
-                                capture_output=True, text=True, timeout=15)
+                                capture_output=True, text=True, timeout=15, env=fixture_environment())
         assert second.returncode == 0
         if "PAPER_ACCOUNT_LOCKED" in second.stdout:
             assert "no account event was written" in second.stdout
@@ -474,7 +475,7 @@ except SystemExit as e: print(str(e))
         assert first.wait(timeout=15) == 0
         if "PAPER_ACCOUNT_LOCKED" in second.stdout:
             retry = subprocess.run([sys.executable, "-c", child2, str(path)], cwd=Path.cwd(),
-                                   capture_output=True, text=True, timeout=15)
+                                   capture_output=True, text=True, timeout=15, env=fixture_environment())
             assert "COMMITTED" in retry.stdout and retry.returncode == 0
             retry_output, retry_code = retry.stdout.strip(), retry.returncode
         else:
@@ -504,7 +505,7 @@ os.replace=die_after_replace
 m.main()
 '''
     result = subprocess.run([sys.executable, "-c", child, str(attrs["ROOT"]), str(path), str(attrs["RULES"]),
-                             *argv], cwd=Path.cwd(), capture_output=True, text=True, timeout=15)
+                             *argv], cwd=Path.cwd(), capture_output=True, text=True, timeout=15, env=fixture_environment())
     assert result.returncode == 74
     saved_bytes = path.read_bytes()
     saved = json.loads(saved_bytes)
@@ -540,13 +541,13 @@ m.main()
 '''
     first = subprocess.Popen([sys.executable, "-c", child, str(attrs["ROOT"]), str(path), str(attrs["RULES"]),
                               *argv], cwd=Path.cwd(), stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE, text=True)
+                             stderr=subprocess.PIPE, text=True, env=fixture_environment())
     try:
         assert first.stdout and _readline_timeout(first.stdout) == "LOCK_HELD"
         retry_needed = False
         second = subprocess.run([sys.executable, "-c", child2,
                                  str(attrs["ROOT"]), str(path), str(attrs["RULES"]), *argv], cwd=Path.cwd(),
-                                capture_output=True, text=True, timeout=15)
+                                capture_output=True, text=True, timeout=15, env=fixture_environment())
         if second.returncode != 0:
             retry_needed = "PAPER_ACCOUNT_LOCKED" in (second.stdout + second.stderr)
             assert retry_needed
@@ -556,7 +557,7 @@ m.main()
         if retry_needed:
             second = subprocess.run([sys.executable, "-c", child2,
                                      str(attrs["ROOT"]), str(path), str(attrs["RULES"]), *argv], cwd=Path.cwd(),
-                                    capture_output=True, text=True, timeout=15)
+                                    capture_output=True, text=True, timeout=15, env=fixture_environment())
             assert second.returncode == 0
         assert "FILL_ALREADY_APPLIED" in second.stdout
     finally:
@@ -705,7 +706,7 @@ def test_second_process_cannot_write_during_account_commit(tmp_path, monkeypatch
         "assert sys.stdin.readline().strip()=='GO'; ctx.__exit__(None,None,None)"
     )
     proc = subprocess.Popen([sys.executable, "-c", child, str(account)], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE, text=True)
+                            stderr=subprocess.PIPE, text=True, env=fixture_environment())
     try:
         assert proc.stdout and _readline_timeout(proc.stdout) == "LOCK_HELD"
         with pytest.raises(SystemExit, match="PAPER_ACCOUNT_LOCKED"):

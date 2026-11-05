@@ -693,8 +693,8 @@ const ScoreBreakdown: React.FC<Props> = ({ metric }) => {
                 dot={{ r: 3, fill: "#10b981", strokeWidth: 0 }}
               />
               <Tooltip
-                formatter={(v: any) => [`${v}٪ از سقف`, "دسته"]}
-                contentStyle={glassTooltipStyle(dark) as any}
+                formatter={(v) => [`${v}٪ از سقف`, "دسته"]}
+                contentStyle={glassTooltipStyle(dark)}
                 itemStyle={{ color: dark ? "#e2e8f0" : "#0f172a" }}
               />
             </RadarChart>

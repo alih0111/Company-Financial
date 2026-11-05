@@ -1,3 +1,4 @@
+import { errorMessage } from "./utils/errorMessage";
 import Sidebar from "./components/Sidebar";
 import AppHeader from "./components/AppHeader";
 import { ToastProvider } from "./components/Toast";
@@ -156,8 +157,8 @@ const App = () => {
       });
       setPriceCollectMsg("تاریخچه‌ی قیمت کامل شد ✓");
       handleDataCollected();
-    } catch (e: any) {
-      setPriceCollectMsg(e?.message || "خطا در جمع‌آوری قیمت");
+    } catch (e: unknown) {
+      setPriceCollectMsg(errorMessage(e, "خطا در جمع‌آوری قیمت"));
     } finally {
       setCollectingPrice(false);
     }

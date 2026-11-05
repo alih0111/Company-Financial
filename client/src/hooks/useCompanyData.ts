@@ -62,7 +62,7 @@ export default function useCompanyData(enabled = true) {
   const [stockPriceScore, setStockPriceScore] = useState<ScoreModel[]>();
   const [loadingData, setLoadingData] = useState(false);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [stockPrice, setStockPrice] = useState<StockDataPoint[]>([]);
 
   const [hasSynced, setHasSynced] = useState(false);
@@ -112,7 +112,7 @@ export default function useCompanyData(enabled = true) {
     } finally {
       setLoadingCompanies(false);
     }
-  }, [searchParams, setSearchParams]);
+  }, [searchParams]);
 
   useEffect(() => {
     if (enabled) loadCompanyOptions();

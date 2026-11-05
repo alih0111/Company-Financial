@@ -6,7 +6,7 @@ V12.32/V12.33 outputs remain untouched.
 from __future__ import annotations
 import ast, hashlib, json, sys
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import numpy as np
 import pandas as pd
 
@@ -17,18 +17,24 @@ from ranking_research.top10_six_month.market_adapter import correct_volume
 from ranking_research.v2_inputs import ArchiveSnapshots, CM
 from ranking_research.return_v2.events import cutoff
 from ranking_research.future_eval_v12_30.monthly_sales_replay import build_monthly, timeline
+from ranking_research.future_eval_v12_30.sales_lineage import encode_sales_lineage
 from ranking_research.return_v8.features import FIELDS
 from ranking_research.future_eval_v12_30.income_statement_selection import income_statement_view, latest_income_statement_cell, locked_engine_factor
+from qvt_backtest.evidence_paths import provenance_path, resolve_evidence_path
 
 DATE = os.environ.get("V1237_RANKING_DATE", "2026-10-14")
-OWNER_PACK = ROOT / "ranking_research/output/owner_current_market_2026-10-15"
+OWNER_PACK = Path(os.environ.get("V1237_OWNER_PACK", str(ROOT / "ranking_research/output/owner_current_market_2026-10-15")))
 OWNER_REG = json.loads((OWNER_PACK / "registration.json").read_text(encoding="utf-8"))
-OWNER_INPUTS = Path(OWNER_REG["financial_path"]).parent
+OWNER_INPUTS = Path(os.environ.get("V1237_OWNER_INPUTS", str(Path(OWNER_REG["financial_path"]).parent)))
+_registered_features = str(OWNER_REG["financial_path"])
+_features_name = PureWindowsPath(_registered_features).name if "\\" in _registered_features else Path(_registered_features).name
+OWNER_FEATURES_PATH = Path(os.environ.get("V1237_OWNER_FEATURES_PATH") or (
+    str(OWNER_INPUTS / _features_name) if os.environ.get("V1237_OWNER_INPUTS") else _registered_features))
 PACK = Path(os.environ.get("V1237_MARKET_PACK", str(OWNER_PACK)))
 REPORTS_PATH = Path(os.environ.get("V1237_REPORTS_PATH", str(OWNER_INPUTS / "input_reports.json")))
 COMPARATIVES_PATH = Path(os.environ.get("V1237_COMPARATIVES_PATH", str(OWNER_INPUTS / "comparative_lineage.json")))
 OWNER_LINEAGE_PATH = Path(os.environ.get("V1237_OWNER_LINEAGE_PATH", str(OWNER_INPUTS / "current_live_lineage.json")))
-SHARE_PATH = Path(OWNER_REG["share_snapshot_path"])
+SHARE_PATH = Path(os.environ.get("V1237_SHARE_PATH", OWNER_REG["share_snapshot_path"]))
 EVENTS = Path(os.environ.get("V1237_EVENTS_PATH", str(ROOT / "fundamental_event_research/monthly_sales_events_universe_v1_1.parquet")))
 UNIVERSE = ROOT / "ranking_research/output/return_v12_30/v12_30_20261022_data_procurement_pack_01/frozen_universe_identity_map.csv"
 OUT = Path(os.environ.get("V1237_OUTPUT_DIR", str(ROOT / "ranking_research/output/return_v12_37/v12_37_20261022_existing_archive_extraction_fix_01")))
@@ -66,14 +72,14 @@ def load_report_records():
             available = pd.Timestamp(item.get("available_at_utc"))
             if available.tzinfo is None or available.tz_convert("UTC") > pd.Timestamp(cutoff(DATE)):
                 raise RuntimeError("COMPARATIVE_NOT_AVAILABLE_AT_EVALUATION_CUTOFF")
-            manifest_path = Path(rec["dynamic_manifest_path"])
+            manifest_path = resolve_evidence_path(rec["dynamic_manifest_path"])
             manifest_bytes = manifest_path.read_bytes()
             if hashlib.sha256(manifest_bytes).hexdigest() != rec.get("dynamic_manifest_sha256"):
                 raise RuntimeError("COMPARATIVE_DYNAMIC_MANIFEST_HASH_MISMATCH")
             manifest = json.loads(manifest_bytes)
             page = next((p for p in manifest.get("pages", []) if p.get("page_id") == item.get("source_page_id")), None)
-            source_path = Path(item.get("source_page_path", ""))
-            if (page is None or str(source_path.resolve()) != str(Path(page["path"]).resolve())
+            source_path = resolve_evidence_path(item.get("source_page_path", ""))
+            if (page is None or str(source_path.resolve()) != str(resolve_evidence_path(page["path"]).resolve())
                     or not source_path.is_file() or sha(source_path) != item.get("source_page_sha256")
                     or page.get("sha256") != item.get("source_page_sha256")
                     or page.get("received_at_utc") != item.get("source_page_received_at_utc")
@@ -168,7 +174,7 @@ def main():
     expected = pd.read_csv(UNIVERSE, dtype={"symbol": str, "company_id": str})
     loaded_market, market_audit = extend_market(md, expected)
     records, comparison_count = load_report_records()
-    owner_features_path = Path(OWNER_REG["financial_path"])
+    owner_features_path = OWNER_FEATURES_PATH
     owner_frame = pd.read_csv(owner_features_path, dtype={"company_id": str, "symbol": str}).set_index("company_id", drop=False)
     if owner_frame.index.duplicated().any(): raise RuntimeError("OWNER_CURRENT_FEATURE_IDENTITY_DUPLICATE")
     owner_lineage_path = OWNER_LINEAGE_PATH
@@ -365,14 +371,14 @@ def main():
             if str(known)[:10]>DATE: continue
             ev=event_by_id.get(str(event_id),{})
             versions.append({"period_month":month,"known_from":str(known),"sales_current_rial":value,"version_state":state,"event_id":str(event_id),"published_at":str(ev.get("published_at")),"source":ev.get("source"),"source_url":ev.get("source_url"),"received_at":None})
-        rows.append({"decision_time":DATE,"effective_date":DATE,"evaluation_date":DATE,"publication_cutoff":cutoff(DATE).isoformat(),"symbol":sym,"company_id":cid,"symbol_index":int(base.symbol_index),**values,"net_profit_ttm":net,"dq":float(dq),"publication_cutoff_at":cutoff(DATE).isoformat(),"price_date":price_date,"financial_period_end":latest_report.get("period_end"),"financial_latest_published_at":latest_report.get("published_at"),"financial_factor_period_end":income_period_date,"financial_factor_lineage":json.dumps(income_sources,ensure_ascii=False),"received_at":None,"financial_age_days":financial_age,"blocked":bool(blocked),"financial_lineage":json.dumps(finance,ensure_ascii=False),"sales_lineage":json.dumps({"selected_month_versions":versions,"latest_period":mrow.get("latest_period") if mrow is not None else None,"known_months":int(mrow.get("known_months",0) or 0) if mrow is not None else 0,"source":str(EVENTS.relative_to(ROOT)).replace("\\","/"),"received_at":None,"correction_policy":"V11 verified correction replay; unverified correction masks previous value"},ensure_ascii=False),"observed_masks":json.dumps({f:bool(np.isfinite(float(values[f]))) if values[f] is not None else False for f in FIELDS}),"financial_report_count":len(finance),"price_valid_sessions_30d":int(len(tail)),"price_age_days":int(price_age),"valuation_provenance":json.dumps({"share_snapshot_id":share.get("market_snapshot_id") if share else None,"share_as_of":price_date if share else None,"share_collected_at":market_audit["share_snapshot_collected_at"],"price_date":price_date,"price_basis":"unadjusted TSETMC close; adjusted share/corporate action metadata unavailable after 2026-09-30"},ensure_ascii=False)})
+        rows.append({"decision_time":DATE,"effective_date":DATE,"evaluation_date":DATE,"publication_cutoff":cutoff(DATE).isoformat(),"symbol":sym,"company_id":cid,"symbol_index":int(base.symbol_index),**values,"net_profit_ttm":net,"dq":float(dq),"publication_cutoff_at":cutoff(DATE).isoformat(),"price_date":price_date,"financial_period_end":latest_report.get("period_end"),"financial_latest_published_at":latest_report.get("published_at"),"financial_factor_period_end":income_period_date,"financial_factor_lineage":json.dumps(income_sources,ensure_ascii=False),"received_at":None,"financial_age_days":financial_age,"blocked":bool(blocked),"financial_lineage":json.dumps(finance,ensure_ascii=False),"sales_lineage":encode_sales_lineage(versions, mrow.get("latest_period") if mrow is not None else None, int(mrow.get("known_months",0) or 0) if mrow is not None else 0, provenance_path(EVENTS, ROOT)),"observed_masks":json.dumps({f:bool(np.isfinite(float(values[f]))) if values[f] is not None else False for f in FIELDS}),"financial_report_count":len(finance),"price_valid_sessions_30d":int(len(tail)),"price_age_days":int(price_age),"valuation_provenance":json.dumps({"share_snapshot_id":share.get("market_snapshot_id") if share else None,"share_as_of":price_date if share else None,"share_collected_at":market_audit["share_snapshot_collected_at"],"price_date":price_date,"price_basis":"unadjusted TSETMC close; adjusted share/corporate action metadata unavailable after 2026-09-30"},ensure_ascii=False)})
     panel=pd.DataFrame(rows).sort_values("symbol_index",kind="stable").reset_index(drop=True)
     expected_ids=set(expected.company_id.astype(str))
     if len(panel)!=254 or panel.company_id.nunique()!=254 or set(panel.company_id.astype(str))!=expected_ids: raise RuntimeError("FROZEN_IDENTITY_PANEL_FAILED")
     OUT.mkdir(parents=True,exist_ok=True); p=OUT/"normalized_raw_factor_panel.parquet"; panel.to_parquet(p,index=False,compression="zstd");panel.to_csv(OUT/"normalized_raw_factor_panel.csv",index=False,encoding="utf-8-sig")
     counts={f:int(pd.to_numeric(panel[f],errors="coerce").notna().sum()) for f in FIELDS}
-    market_files={str(x.relative_to(ROOT)).replace("\\","/"):sha(x) for x in sorted(PACK.glob("*.json")) if x.name not in ("registration.json","progress.json")}
-    manifest={"status":"PREPARATION_UNCONFIRMED","evaluation_date":DATE,"publication_cutoff_at":cutoff(DATE).isoformat(),"received_at":None,"receipt_limitation":"Source acquisition times do not establish availability at an earlier cutoff; no PIT claim.","universe_count":254,"identity_status":"Exact frozen company_id and symbol joins; all 254 retained.","source_dates":{"market_latest_session":market_audit["market_latest_session"],"financial_period_latest":max(str(x.financial_period_end) for x in owner_frame.itertuples() if pd.notna(x.financial_period_end)),"financial_publication_latest":max(x["published_at"] for z in lineage_by_company.values() for x in z if x.get("published_at")),"monthly_publication_latest":str(monthly_events.published_at.max()),"corporate_action_cache_latest":"2026-09-30"},"market_package":{"path":str(PACK.relative_to(ROOT)).replace("\\","/"),"registration_sha256":sha(PACK/"registration.json"),"daily_file_sha256":market_files,"shares_source_path":str(SHARE_PATH.relative_to(ROOT)).replace("\\","/"),"audit":{k:v for k,v in market_audit.items() if k!="shares_by_company_id"},"volume_audit":volume_audit},"financial":{"reports_path":str(REPORTS_PATH.relative_to(ROOT)).replace("\\","/"),"comparatives_path":str(COMPARATIVES_PATH.relative_to(ROOT)).replace("\\","/"),"current_features_path":str(owner_features_path.relative_to(ROOT)).replace("\\","/"),"current_lineage_path":str(owner_lineage_path.relative_to(ROOT)).replace("\\","/"),"report_versions":len(records),"verified_comparative_facts":comparison_count,"selected_by_company":254,"published_at_preserved":True,"observed_at_not_used_as_received_at":True},"factors":{"factor_observed_counts":counts,"volatility_30d":"masked: official confirmed corporate-action cache only through 2026-09-30","price_momentum_30d":"masked: official confirmed corporate-action cache only through 2026-09-30"},"source_sha256":{str(x.relative_to(ROOT)).replace("\\","/"):sha(x) for x in [REPORTS_PATH,COMPARATIVES_PATH,owner_features_path,owner_lineage_path,SHARE_PATH,PACK/"registration.json",EVENTS,UNIVERSE,ROOT/"score_v2_research/_cache/corp_actions_confirmed.parquet",ROOT/"score_v2_research/_cache/calendar.parquet"]},"panel_sha256":sha(p),"network_requests":0,"database_connections":0,"package_installs":0,"official_ledger_written":False}
+    market_files={provenance_path(x, ROOT):sha(x) for x in sorted(PACK.glob("*.json")) if x.name not in ("registration.json","progress.json")}
+    manifest={"status":"PREPARATION_UNCONFIRMED","evaluation_date":DATE,"publication_cutoff_at":cutoff(DATE).isoformat(),"received_at":None,"receipt_limitation":"Source acquisition times do not establish availability at an earlier cutoff; no PIT claim.","universe_count":254,"identity_status":"Exact frozen company_id and symbol joins; all 254 retained.","source_dates":{"market_latest_session":market_audit["market_latest_session"],"financial_period_latest":max(str(x.financial_period_end) for x in owner_frame.itertuples() if pd.notna(x.financial_period_end)),"financial_publication_latest":max(x["published_at"] for z in lineage_by_company.values() for x in z if x.get("published_at")),"monthly_publication_latest":str(monthly_events.published_at.max()),"corporate_action_cache_latest":"2026-09-30"},"market_package":{"path":provenance_path(PACK, ROOT),"registration_sha256":sha(PACK/"registration.json"),"daily_file_sha256":market_files,"shares_source_path":provenance_path(SHARE_PATH, ROOT),"audit":{k:v for k,v in market_audit.items() if k!="shares_by_company_id"},"volume_audit":volume_audit},"financial":{"reports_path":provenance_path(REPORTS_PATH, ROOT),"comparatives_path":provenance_path(COMPARATIVES_PATH, ROOT),"current_features_path":provenance_path(owner_features_path, ROOT),"current_lineage_path":provenance_path(owner_lineage_path, ROOT),"report_versions":len(records),"verified_comparative_facts":comparison_count,"selected_by_company":254,"published_at_preserved":True,"observed_at_not_used_as_received_at":True},"factors":{"factor_observed_counts":counts,"volatility_30d":"masked: official confirmed corporate-action cache only through 2026-09-30","price_momentum_30d":"masked: official confirmed corporate-action cache only through 2026-09-30"},"source_sha256":{provenance_path(x, ROOT):sha(x) for x in [REPORTS_PATH,COMPARATIVES_PATH,owner_features_path,owner_lineage_path,SHARE_PATH,PACK/"registration.json",EVENTS,UNIVERSE,ROOT/"score_v2_research/_cache/corp_actions_confirmed.parquet",ROOT/"score_v2_research/_cache/calendar.parquet"]},"panel_sha256":sha(p),"network_requests":0,"database_connections":0,"package_installs":0,"official_ledger_written":False}
     (OUT/"extraction_manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
     print(json.dumps({"output":str(OUT),"evaluation_date":DATE,"factor_observed_counts":counts,"market_audit":manifest["market_package"]["audit"],"verified_comparative_facts":comparison_count,"panel_sha256":manifest["panel_sha256"]},ensure_ascii=False))
 

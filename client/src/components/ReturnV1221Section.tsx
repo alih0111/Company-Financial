@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 
-type Rec=Record<string,any>;
-export type V1221={run_id:string;status:string;contract_sha256:string;data_window:{start_jalali:string;end_jalali:string};coverage_gate:Rec;coverage_by_candidate_horizon:Rec[];monthly_registry:Rec[];continuous_registry:Rec[];missing_due_dates:Rec[];validation:Rec;download_files:string[]};
+type Coverage={candidate:string;horizon_sessions:number;registered:number;complete_horizon:number;complete_score_coverage:number;covered_due_checks:number;missing_due_checks:number};
+type Route={route_id:string;candidate:string;horizon_sessions:number|null;start_jalali:string;d0_jalali:string;phase_residue_mod_63:number|null;endpoint_jalali:string|null;missing_personal_reviews:number;status:string};
+type MissingDue={route_id:string;candidate:string;d0_jalali:string;due_number:number;due_jalali:string;coverage_status:string};
+export type V1221={run_id:string;status:string;contract_sha256:string;data_window:{start_jalali:string;end_jalali:string};coverage_gate:{status:string;personal_due_checks:number;missing_exact_score_checks:number};coverage_by_candidate_horizon:Coverage[];monthly_registry:Route[];continuous_registry:Route[];missing_due_dates:MissingDue[];validation:{integrity_status:string};download_files:string[]};
 const n=(x:unknown)=>Number(x??0).toLocaleString("fa-IR");
 export default function ReturnV1221Section({data}:{data:V1221|null}){
  if(!data)return null;

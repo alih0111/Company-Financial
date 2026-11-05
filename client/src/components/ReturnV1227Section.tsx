@@ -1,15 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { serializeCsv } from "../utils/safeCsv";
 
-type Row = Record<string, any>;
-type Bundle = { run_id:string; dataset_id:string; start_capital_toman:number; start_date_gregorian:string; end_date_gregorian:string; continuous:Row[]; annual:Row[]; monthly_routes:Row[]; summary:Row[]; limitations:string[] };
-type ReplayDay = {jalali:string;ranked:Row[];recorded_path_decisions:Record<string,Row>};
+type ContinuousRow = {route_id:string;date_gregorian:string;nav_toman:number};
+type AnnualRow = {route_id:string;jalali_year:number;start_jalali:string;end_jalali:string;nav_start_toman:number;nav_end_toman:number;profit_toman:number;annual_return_pct:number;fees_toman:number;buy_fills:number;sell_fills:number;annual_period_label:string};
+type MonthlyRoute = Record<string, unknown> & {route_id:string;gate:string;h:number;start_gregorian:string;start_jalali:string;endpoint_jalali:string;status:string;final_nav_toman:number|null;net_profit_toman:number|null;max_drawdown_pct:number|null};
+type RankedRow = Record<string, unknown> & {symbol:string;base_rank:number;score_scorer:number;financial_coverage_ratio:number;valid_factors:string|null;defaulted_factors:string|null;masked_factors:string|null;penalty_vector:string;dq_multiplier:number;weighted_factor_terms_pre_penalty_json?:Record<string,number>;raw_factor_values_json?:Record<string,number|null>;percentile_factor_values_json?:Record<string,number|null>};
+type RecordedDecision = {selected_symbol?:string|null;base_rank?:number|null;eligible_rank?:number|null;score?:number|null};
+type Bundle = { run_id:string; dataset_id:string; start_capital_toman:number; start_date_gregorian:string; end_date_gregorian:string; continuous:ContinuousRow[]; annual:AnnualRow[]; monthly_routes:MonthlyRoute[]; limitations:string[] };
+type ReplayDay = {jalali:string;ranked:RankedRow[];recorded_path_decisions:Record<string,RecordedDecision>};
 type Replay = { run_id:string; dates:Record<string,Record<string,ReplayDay>> };
 
-const fmt = (n:any, digits=0) => n == null || !Number.isFinite(Number(n)) ? "—" : Number(n).toLocaleString("fa-IR", {maximumFractionDigits:digits,minimumFractionDigits:digits});
-const percent = (n:any) => n == null || !Number.isFinite(Number(n)) ? "—" : `${fmt(Number(n)*100,2)}٪`;
+const fmt = (n:unknown, digits=0) => n == null || !Number.isFinite(Number(n)) ? "—" : Number(n).toLocaleString("fa-IR", {maximumFractionDigits:digits,minimumFractionDigits:digits});
+const percent = (n:unknown) => n == null || !Number.isFinite(Number(n)) ? "—" : `${fmt(Number(n)*100,2)}٪`;
 const names:Record<string,string>={G0:"بدون فیلتر",G1:"حداقل پوشش مثبت",G50:"پوشش مالی ۵۰٪"};
-const csv = (rows:Row[], columns:[string,string][]) => {
+const base=`${import.meta.env.BASE_URL}research/`, artifact=`${base}return-v12-27-1-`;
+const csv = (rows:MonthlyRoute[], columns:[string,string][]) => {
   const content=serializeCsv(rows,columns);
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([content],{type:"text/csv;charset=utf-8"}));a.download="return-v12-27-selected-path-fa.csv";a.click();URL.revokeObjectURL(a.href);
 };
@@ -18,17 +23,16 @@ export default function ReturnV1227Section() {
   const [data,setData]=useState<Bundle|null>(null), [replay,setReplay]=useState<Replay|null>(null), [error,setError]=useState("");
   const [loading,setLoading]=useState(true),[replayLoading,setReplayLoading]=useState(false);
   const [gate,setGate]=useState("G0"),[horizon,setHorizon]=useState(126),[start,setStart]=useState(""),[date,setDate]=useState("2021-04-03"),[weight,setWeight]=useState("valuation_0"),[replayGate,setReplayGate]=useState("G0");
-  const base=`${import.meta.env.BASE_URL}research/`, artifact=`${base}return-v12-27-1-`;
   useEffect(()=>{let dead=false;fetch(`${artifact}page-data.json`).then(r=>{if(!r.ok)throw Error(`page data HTTP ${r.status}`);return r.json()}).then(v=>{if(!dead){setData(v);setError("")}}).catch(e=>{if(!dead)setError(`دادهٔ صفحه بار نشد: ${String(e)}`)}).finally(()=>{if(!dead)setLoading(false)});return()=>{dead=true}},[]);
   useEffect(()=>{let dead=false;setReplayLoading(true);fetch(`${artifact}historical-replay.json.gz`).then(async r=>{if(!r.ok)throw Error(`replay HTTP ${r.status}`);if(!("DecompressionStream" in window))throw Error("مرورگر بازکردن gzip را پشتیبانی نمی‌کند؛ CSV بازپخش در دسترس است.");const stream=r.body!.pipeThrough(new DecompressionStream("gzip"));return JSON.parse(await new Response(stream).text())}).then(v=>{if(!dead)setReplay(v)}).catch(e=>{if(!dead)setError(old=>old?`${old} · ${String(e)}`:String(e))}).finally(()=>{if(!dead)setReplayLoading(false)});return()=>{dead=true}},[]);
-  const matching=(data?.monthly_routes||[]).filter(r=>r.gate===gate&&Number(r.h)===horizon).sort((a,b)=>String(a.start_gregorian).localeCompare(String(b.start_gregorian)));
-  useEffect(()=>{if(matching.length&&!matching.some(r=>r.route_id===start))setStart(matching[0].route_id)},[gate,horizon,data]);
+  const matching=useMemo(()=>(data?.monthly_routes||[]).filter(r=>r.gate===gate&&Number(r.h)===horizon).sort((a,b)=>String(a.start_gregorian).localeCompare(String(b.start_gregorian))),[data,gate,horizon]);
+  useEffect(()=>{if(matching.length&&!matching.some(r=>r.route_id===start))setStart(matching[0].route_id)},[matching,start]);
   const chosen=matching.find(r=>r.route_id===start);
   const chartPaths=["G0","G1","G50"].map(g=>({gate:g,rows:(data?.continuous||[]).filter(r=>r.route_id===`valuation_0_O00_${g}_CONTINUOUS`).sort((a,b)=>String(a.date_gregorian).localeCompare(String(b.date_gregorian)))}));
   const allNav=chartPaths.flatMap(x=>x.rows.map(r=>Number(r.nav_toman)||0));
   const max=Math.max(...allNav,1), min=Math.min(...allNav,max);
-  const pathFor=(rows:Row[])=>rows.map((r,i)=>`${i===0?"M":"L"}${(i*800/Math.max(rows.length-1,1)).toFixed(1)},${(190-(Number(r.nav_toman)-min)/(max-min||1)*170).toFixed(1)}`).join(" ");
-  const day= replay?.dates?.[date]?.[weight]; const ranked:Row[]=day?.ranked||[];
+  const pathFor=(rows:ContinuousRow[])=>rows.map((r,i)=>`${i===0?"M":"L"}${(i*800/Math.max(rows.length-1,1)).toFixed(1)},${(190-(Number(r.nav_toman)-min)/(max-min||1)*170).toFixed(1)}`).join(" ");
+  const day= replay?.dates?.[date]?.[weight]; const ranked:RankedRow[]=day?.ranked||[];
   const selected=ranked.filter(r=>r[`${replayGate}_eligible`]===true).sort((a,b)=>Number(a.base_rank)-Number(b.base_rank))[0];
   const recorded=day?.recorded_path_decisions?.[replayGate];
   const scoreContrib=selected?.weighted_factor_terms_pre_penalty_json||{};

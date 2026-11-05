@@ -688,12 +688,24 @@ def test_nscstart_contract_via_adapter_unchanged(tmp_path):
 
 
 # sales PIT capability is explicitly blocked for the public profile ---------- #
-def test_sales_pit_capability_blocked_for_public_profile(tmp_path):
-    sys.path.insert(0, str(Path(apply_paper_fill.__file__).parent))
-    import importlib
-    factor = importlib.import_module("build_codal_factor_inputs")
+@pytest.mark.parametrize("manifest_exists", [False, True])
+def test_sales_pit_capability_blocked_for_public_profile(tmp_path, manifest_exists, monkeypatch):
+    monkeypatch.syspath_prepend(str(Path(apply_paper_fill.__file__).parent))
+    import importlib.util
+    owner = tmp_path / "owner"
+    owner.mkdir()
+    (owner / "registration.json").write_text(json.dumps({"financial_path": str(tmp_path / "features.csv")}), encoding="utf-8")
+    monkeypatch.setenv("V1237_OWNER_PACK", str(owner))
+    path = Path(apply_paper_fill.__file__).parent / "build_codal_factor_inputs.py"
+    spec = importlib.util.spec_from_file_location("fixture_factor_builder", path)
+    factor = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(factor)
+    manifest = tmp_path / "input.json"
+    if manifest_exists:
+        manifest.write_text('{"feeds": {}}', encoding="utf-8")
     with pytest.raises(SystemExit, match="SALES_PIT_TIMING_CAPABILITY_NOT_GRANTED_PUBLIC_PROFILE"):
         with pytest.MonkeyPatch.context() as mp:
-            mp.setattr(sys, "argv", ["build", "x.json", "--evaluation-date", "2026-10-21",
-                                     "--output-dir", str(tmp_path), "--sales-timing-calendar-provider", "public"])
+            mp.setattr(sys, "argv", ["build", str(manifest), "--evaluation-date", "2026-10-21",
+                                     "--output-dir", str(tmp_path / "output"), "--sales-timing-calendar-provider", "public"])
             factor.main()
+    assert not (tmp_path / "output").exists()

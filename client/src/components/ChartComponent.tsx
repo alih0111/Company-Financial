@@ -77,7 +77,7 @@ const barColor = (p: DataPoint) =>
         ? chartPalette.positive
         : chartPalette.negative;
 
-const CustomTooltip = ({ active, payload, dark }: any) => {
+const CustomTooltip = ({ active, payload, dark }: { active?: boolean; payload?: { payload: DataPoint }[]; dark: boolean }) => {
   if (!active || !payload?.length) return null;
   const p = payload[0].payload as DataPoint;
   const color = barColor(p);

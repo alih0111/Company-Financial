@@ -1,3 +1,4 @@
+import { errorMessage } from "../utils/errorMessage";
 // صفحه «مقایسه و نسبت» — دو قابلیت کلیدی برای تحلیل بازار ایران:
 //
 // ۱) نسبت A/B: قیمت نماد اول بر حسب نماد دوم (مثلاً «فولاد به طلا» = هر سهم
@@ -17,6 +18,7 @@ import {
   type ISeriesApi,
   type Time,
   type UTCTimestamp,
+  type MouseEventParams,
 } from "lightweight-charts";
 import { FaBalanceScale, FaChartLine, FaInfoCircle } from "react-icons/fa";
 import { getPriceHistory, type PriceHistoryRow } from "../utils/api";
@@ -107,25 +109,24 @@ const ComparePage: React.FC = () => {
 
   // همگام‌سازی URL برای اشتراک‌گذاری لینک تحلیل (پارامتر dev مثل __mock حفظ می‌شود)
   useEffect(() => {
-    const p = new URLSearchParams();
-    if (searchParams.has("__mock")) p.set("__mock", "1");
-    p.set("mode", mode);
-    p.set("range", rangeKey);
-    if (mode === "ratio") {
-      p.set("base", base);
-      p.set("quote", quote);
-    } else {
-      p.set("symbols", perfSymbols.join(","));
-    }
-    setSearchParams(p, { replace: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, base, quote, perfSymbols, rangeKey]);
+    setSearchParams((previous) => {
+      const p = new URLSearchParams();
+      if (previous.has("__mock")) p.set("__mock", "1");
+      p.set("mode", mode);
+      p.set("range", rangeKey);
+      if (mode === "ratio") {
+        p.set("base", base);
+        p.set("quote", quote);
+      } else {
+        p.set("symbols", perfSymbols.join(","));
+      }
+      return p;
+    }, { replace: true });
+  }, [mode, base, quote, perfSymbols, rangeKey, setSearchParams]);
 
   // در حالت نسبت هر دو نماد لازم است؛ در حالت عملکرد همه‌ی سری‌ها
-  const activeSymbols = mode === "ratio" ? [base, quote] : perfSymbols;
-  // کلیدهای وابستگی به‌صورت رشته — تا آرایه/شیء جدید در هر رندر افکت را دوباره اجرا نکند
-  const activeKey = activeSymbols.join(",");
-  const perfKey = perfSymbols.join(",");
+  const activeSymbols = useMemo(() => mode === "ratio" ? [base, quote] : perfSymbols,
+    [mode, base, quote, perfSymbols]);
 
   // ── واکشی تاریخچه‌ها ──
   const [histories, setHistories] = useState<
@@ -148,16 +149,16 @@ const ComparePage: React.FC = () => {
           const rows = await fetchHistoryCached(k, range.days);
           if (tick !== fetchTick.current) return;
           setHistories((prev) => ({ ...prev, [k]: { rows, loading: false } }));
-        } catch (e: any) {
+        } catch (e: unknown) {
           if (tick !== fetchTick.current) return;
           setHistories((prev) => ({
             ...prev,
-            [k]: { error: e?.message || "خطا در دریافت تاریخچه", loading: false },
+            [k]: { error: errorMessage(e, "خطا در دریافت تاریخچه"), loading: false },
           }));
         }
       }
     })();
-  }, [mode, base, quote, perfKey, range.days]);
+  }, [mode, base, quote, perfSymbols, range.days]);
 
   // ── الحاق روی تاریخ‌های مشترک ──
   const joined = useMemo(() => {
@@ -174,9 +175,7 @@ const ComparePage: React.FC = () => {
     const series: Record<string, number[]> = {};
     for (const m of maps) series[m.key] = common.map((d) => m.map!.get(d)!);
     return { dates: common, series };
-    // activeKey صرفاً کلید کش است؛ خود activeSymbols از حالت/کلیدهای پایدار می‌آید
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeKey, histories]);
+  }, [activeSymbols, histories]);
 
   // ── محاسبات آماری ──
   const analysis = useMemo(() => {
@@ -332,7 +331,7 @@ const ComparePage: React.FC = () => {
     chart.timeScale().fitContent();
 
     // لجند کراس‌هیر
-    const onMove = (param: any) => {
+    const onMove = (param: MouseEventParams) => {
       if (!param || !param.time) {
         setHover(null);
         return;

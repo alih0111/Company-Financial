@@ -1,3 +1,4 @@
+import { errorMessage } from "../utils/errorMessage";
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -100,7 +101,7 @@ const ChatPage = () => {
       try {
         // مسیر اصلی: استریم پیشرفت ابزارها
         res = await sendChatMessageStream(nextMessages, onStreamEvent);
-      } catch (streamErr: any) {
+      } catch (streamErr: unknown) {
         // fallback: همان اندپوینت همگام قبلی
         setProgress(null);
         res = await sendChatMessage(nextMessages);
@@ -110,8 +111,8 @@ const ChatPage = () => {
         ...prev,
         { role: "assistant", content: res.reply },
       ]);
-    } catch (e: any) {
-      setError(e?.message || "خطا در ارتباط با دستیار");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "خطا در ارتباط با دستیار"));
     } finally {
       setSending(false);
       setProgress(null);

@@ -1,4 +1,4 @@
-"""Small, bounded Retry-After-aware retry for official read-only HTTP sources."""
+"""Small, bounded retry for read-only HTTP sources."""
 from __future__ import annotations
 
 import datetime as dt
@@ -35,14 +35,28 @@ def _retry_after(exc: urllib.error.HTTPError) -> tuple[float, str]:
 
 
 def open_readonly(request: urllib.request.Request, timeout: int = 35):
-    """Return (response, attempts, retry_wait); retry 429 at most once.
+    """Return (response, attempts, retry_wait); retry at most once.
 
     Retry-After is obeyed up to two minutes. Longer server delays are surfaced to
     the caller with a retry timestamp, without sleeping early or retrying.
+    Gateway/server availability errors 502, 503, and 504 are retried once
+    after two seconds. Other errors remain visible immediately.
     """
     try:
         return urllib.request.urlopen(request, timeout=timeout), 1, 0.0
     except urllib.error.HTTPError as exc:
+        if exc.code in (502, 503, 504):
+            exc.close()
+            time.sleep(2.0)
+            try:
+                return urllib.request.urlopen(request, timeout=timeout), 2, 2.0
+            except urllib.error.HTTPError as retry_exc:
+                if retry_exc.code != 429:
+                    raise
+                next_delay, next_retry_at = _retry_after(retry_exc)
+                retry_exc.close()
+                raise ReadOnlyRateLimitedError(attempts=2, retry_after_seconds=next_delay,
+                                               retry_at_utc=next_retry_at) from None
         if exc.code != 429:
             raise
         delay, retry_at = _retry_after(exc)

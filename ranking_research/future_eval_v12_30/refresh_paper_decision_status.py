@@ -6,6 +6,7 @@ import hashlib
 import json
 import argparse
 import gzip
+import os
 from pathlib import Path
 import sys
 
@@ -19,7 +20,15 @@ ROOT = Path(__file__).resolve().parents[2]
 ACCOUNT = ROOT / "client/public/research/v12-36/paper-portfolio.json"
 OUT = ROOT / "ranking_research/output/paper_v12_38_first_fill"
 PUBLIC = ROOT / "client/public/research/v12-38"
-LOCAL_CALENDAR = ROOT / "score_v2_research/_cache/calendar.parquet"
+LOCAL_CALENDAR = Path(os.environ.get("CDF_STATUS_LOCAL_CALENDAR", ROOT / "score_v2_research/_cache/calendar.parquet")).resolve()
+REFERENCE_RANKING = Path(os.environ.get("CDF_STATUS_REFERENCE_RANKING", ROOT / "client/public/research/v12-36/latest-ranking.json")).resolve()
+
+
+def display_path(path: Path) -> str:
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return str(path)
 
 
 def sha(path: Path) -> str:
@@ -128,7 +137,7 @@ def main() -> None:
         else "یک جلسهٔ بعد از تاریخ تصمیم در LastPossibleDeven دیده می‌شود؛ تاریخ و قیمت همان جلسه هنوز باید با تقویم بازار و ردیف قیمت نامزد تطبیق داده شوند."
     )
     calendar_access = (
-        f"تقویم محلی {LOCAL_CALENDAR.relative_to(ROOT).as_posix()} تا {local_calendar_through or 'نامعلوم'} ({local_calendar_rows if local_calendar_rows is not None else 'نامعلوم'} ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد."
+        f"تقویم محلی {display_path(LOCAL_CALENDAR)} تا {local_calendar_through or 'نامعلوم'} ({local_calendar_rows if local_calendar_rows is not None else 'نامعلوم'} ردیف) است و پیش از تصمیم پایان می‌یابد. LastPossibleDeven فقط آخرین روز تکمیل‌شده را می‌دهد؛ GetInstrumentCalendar و GetClosingPriceDailyList فقط مشاهدات همان نماد غاذرند و به‌تنهایی تقویم کامل بازار نیستند. در کد پروژه، مسیر رسمی NSCStart برای فهرست جلسات بازار مستند شده و bearer token می‌خواهد؛ این یک مسیر است و نبود توکن آن را مانع همهٔ مسیرهای معتبر نمی‌کند. در فایل‌های محلی/مسیرهای عمومی رسمیِ بررسی‌شده، تقویم سراسری جدیدتری پیدا نشد."
     )
     if session_calendar:
         calendar_access = (f"تقویم رسمی بازار از NSCStart دریافت و hash پاسخ خام بررسی شد؛ دریافت {session_calendar['retrieved_at_utc']} UTC، "
@@ -351,7 +360,7 @@ def main() -> None:
         "calendar_sources_checked": [
             {"source": "TSETMC LastPossibleDeven", "scope": "latest completed session only; not future session schedule", "retrieved_at_utc": last_source.get("retrieved_at_utc"), "url": last_source.get("url")},
             {"source": "TSETMC GetInstrumentCalendar / GetClosingPriceDailyList for غاذر", "scope": "symbol observations only; not a market-wide calendar", "retrieved_at_utc": candidate_source.get("retrieved_at_utc"), "url": candidate_source.get("url")},
-            {"source": str(LOCAL_CALENDAR.relative_to(ROOT)).replace("\\", "/"), "scope": "local market session rows", "through": local_calendar_through, "row_count": local_calendar_rows, "usable_for_post_decision": bool(local_calendar_through and local_calendar_through > decision["decision_local_date"])},
+            {"source": display_path(LOCAL_CALENDAR), "scope": "local market session rows", "through": local_calendar_through, "row_count": local_calendar_rows, "usable_for_post_decision": bool(local_calendar_through and local_calendar_through > decision["decision_local_date"])},
             {"source": "TSETMC documented API MarketInfo/NSCStart", "scope": "market session list with DEven/NSCEnd; documented route uses bearer authorization", "available_in_current_run": bool(session_calendar), "retrieved_at_utc": session_calendar.get("retrieved_at_utc") if session_calendar else None, "note": "one official route; does not establish that all other official routes require a token"},
         ],
         "blockers": blockers,
@@ -369,8 +378,8 @@ def main() -> None:
             "balanced": account["cash_toman"] + account["accounting"]["holdings_value_toman"] == account["accounting"]["total_value_toman"],
             "pnl_basis": "از fill ثبت‌شده؛ تا پیش از fill صفر",
         },
-        "source_sha256": {"account": sha(account_path), "ranking": sha(args.ranking.resolve()) if args.ranking else None, "reference_public_ranking": sha(ROOT / "client/public/research/v12-36/latest-ranking.json"), "evidence_manifest": sha(evidence_path), "local_calendar": sha(LOCAL_CALENDAR)},
-        "source_paths": {"account": str(account_path.resolve()), "ranking": str(args.ranking.resolve()) if args.ranking else None, "reference_public_ranking": str(ROOT / "client/public/research/v12-36/latest-ranking.json"), "evidence_manifest": str(evidence_path)},
+        "source_sha256": {"account": sha(account_path), "ranking": sha(args.ranking.resolve()) if args.ranking else None, "reference_public_ranking": sha(REFERENCE_RANKING), "evidence_manifest": sha(evidence_path), "local_calendar": sha(LOCAL_CALENDAR)},
+        "source_paths": {"account": str(account_path.resolve()), "ranking": str(args.ranking.resolve()) if args.ranking else None, "reference_public_ranking": str(REFERENCE_RANKING), "evidence_manifest": str(evidence_path)},
         "official_ledger_touched": False,
     }
     public_dir.mkdir(parents=True, exist_ok=True)

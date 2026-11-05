@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { formatQvtRatio } from "../utils/qvtRatio";
+import type { OverlayCompany, QFactor, QVerdict, EconomicAudit, QDiagnostics, DecisionDossier, IndependentValidation } from "../utils/qvtOverlayTypes";
 import {
   fetchQvtV2Detail,
   fetchQvtV2Discovery,
@@ -186,16 +188,31 @@ const AxisCell: React.FC<{ a: QvtAxisView; axis: "q" | "v" | "t" }> = ({ a, axis
 };
 
 // ── پنل جزئیات یک نماد ───────────────────────────────────────────────────────
+type QvtDetailFactor = {
+  weight?: number; essential?: boolean; direction?: string; raw_status?: string;
+  raw_value?: number | null; normalization_status?: string; score?: number | null;
+  included?: boolean; contribution_points?: number | null;
+  n_valid_market_family?: number | null; n_valid_sector?: number | null;
+  not_included_reason?: string | null; warnings?: string[];
+};
+type QvtDetailAxis = {
+  q_observed_points?: number | null; v_observed_points?: number | null; t_observed_points?: number | null;
+  points?: number | null;
+  covered_weight?: number | null; coverage_ratio?: number | null;
+  aggregation_status?: string; pilot_eligible?: boolean; reason?: string;
+  factors?: Record<string, QvtDetailFactor>; limitations?: string[];
+  essential_status?: { missing?: string[] };
+  risk_gate?: { financial_warnings?: string[]; trading_warnings?: string[] };
+};
 type QvtDetail = {
   company: {
     company_id: string;
     symbol: string;
     model_family: string;
     industry: string;
-    axes: { q?: any; v?: any; t?: any };
+    axes: { q?: QvtDetailAxis; v?: QvtDetailAxis; t?: QvtDetailAxis };
     axis_max_weights: Record<string, number>;
   };
-  weight_tables: Record<string, any>;
   disclaimer: string;
   as_of: string;
   cutoff: string;
@@ -208,7 +225,7 @@ type QvtDetail = {
   validation_actions?: ValidationAction[];
 };
 
-const FactorRows: React.FC<{ factors: Record<string, any> }> = ({
+const FactorRows: React.FC<{ factors: Record<string, QvtDetailFactor> }> = ({
   factors,
 }) => {
   const ids = Object.keys(factors);
@@ -256,7 +273,7 @@ const FactorRows: React.FC<{ factors: Record<string, any> }> = ({
                   {f.weight}
                 </td>
                 <td className="px-2 py-1.5 text-gray-500 dark:text-gray-400">
-                  {directionLabel(f.direction)}
+                  {directionLabel(f.direction ?? "")}
                 </td>
                 <td className="px-2 py-1.5">
                   {f.included ? (
@@ -313,7 +330,7 @@ const FactorRows: React.FC<{ factors: Record<string, any> }> = ({
 
 const AxisDetail: React.FC<{
   axis: "q" | "v" | "t";
-  data: any;
+  data?: QvtDetailAxis;
   maxWeight: number;
 }> = ({ axis, data, maxWeight }) => {
   if (!data) {
@@ -344,9 +361,9 @@ const AxisDetail: React.FC<{
         {data.pilot_eligible === true && <Chip tone="ok">واجد شرایط پایلوت ✓</Chip>}
         {data.pilot_eligible === false && <Chip tone="off">واجد شرایط نیست</Chip>}
         {outOfScope && <Chip tone="warn">خارج از دامنه این پایلوت</Chip>}
-        {data.essential_status?.missing?.length > 0 && (
-          <Chip tone="warn" title={data.essential_status.missing.join("، ")}>
-            فاکتور ضروری مفقود: {data.essential_status.missing.map(factorLabel).join("، ")}
+        {(data.essential_status?.missing?.length ?? 0) > 0 && (
+          <Chip tone="warn" title={data.essential_status?.missing?.join("، ")}>
+            فاکتور ضروری مفقود: {data.essential_status?.missing?.map(factorLabel).join("، ")}
           </Chip>
         )}
       </div>
@@ -768,7 +785,6 @@ const EV_STATUS_TONE: Record<string, "ok" | "off" | "warn" | "danger"> = {
 // Overlay ممیزی مستقل (گام ۲-ک-۱) — payload آزاد از گزارش‌های provenance_v1
 // است؛ فقط وقتی نمایش داده می‌شود که binding آن با hash همین snapshot یکی
 // باشد (گزارش بک‌اند) — در غیر این صورت backend وضعیت absent می‌دهد.
-type OverlayCompany = Record<string, any>;
 type ValidationAction = { title: string; detail: string; priority: string };
 type OverlayMeta = { status: "bound" | "absent"; files?: string[]; note?: string };
 
@@ -787,7 +803,7 @@ const VAL_STATUS_FA: Record<string, string> = {
   conflicting: "تعارض",
 };
 
-const fmtRial = (v: any): string => {
+const fmtRial = (v: unknown): string => {
   const n = Number(v);
   if (!Number.isFinite(n)) return "—";
   if (Math.abs(n) >= 1e12) return `${(n / 1e12).toFixed(2)} هزار میلیارد`;
@@ -846,15 +862,15 @@ const DIAG_VERDICT_FA: Record<string, string> = {
   keep_disabled: "غیرفعال بماند",
 };
 
-const QFactorCard: React.FC<{ f: any; verdict: any; egAudit?: any }> = ({ f, verdict, egAudit }) => {
+const QFactorCard: React.FC<{ f: QFactor; verdict?: QVerdict; egAudit?: EconomicAudit | null }> = ({ f, verdict, egAudit }) => {
   if (!f) return null;
-  const fmt = (v: any, suffix: string) =>
+  const fmt = (v: unknown, suffix: string) =>
     v == null ? null : `${Number(v).toFixed(1)}${suffix}`;
   return (
     <div className="rounded-xl bg-white/70 dark:bg-gray-900/30 ring-1 ring-gray-200/60 dark:ring-gray-700/40 p-2.5">
       <div className="flex flex-wrap items-center gap-1.5 mb-1">
         <p className="text-[10px] font-bold text-gray-700 dark:text-gray-200">{f.fa ?? f.factor}</p>
-        <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${DIAG_STATUS_TONE[f.status] ?? DIAG_STATUS_TONE.raw_missing}`}>
+        <span className={`px-1.5 py-0.5 rounded text-[9px] font-semibold ${DIAG_STATUS_TONE[f.status ?? ""] ?? DIAG_STATUS_TONE.raw_missing}`}>
           {f.status_fa ?? f.status}
         </span>
         {verdict && (
@@ -880,7 +896,7 @@ const QFactorCard: React.FC<{ f: any; verdict: any; egAudit?: any }> = ({ f, ver
             <>امتیاز ترکیبی حفظ‌شدهٔ تشخیصی: <b>{(Number(f.blended_score_preserved) * 100).toFixed(0)}٪</b> (خارج از تجمیع رسمی)</>
           )}
           {f.factor === "earnings_growth" && f.blended_score_preserved == null && (
-            <>اجزای حفظ‌شدهٔ تشخیصی: {(Object.entries(f.components ?? {}) as [string, any][])
+            <>اجزای حفظ‌شدهٔ تشخیصی: {Object.entries(f.components ?? {})
               .map(([k, v]) => `${k === "net_profit_growth_pct" ? "سود خالص" : "سود عملیاتی"}: ${v.status === "valid" ? "معتبر" : "بدون مقدار معتبر"}`)
               .join(" · ")}</>
           )}
@@ -890,11 +906,11 @@ const QFactorCard: React.FC<{ f: any; verdict: any; egAudit?: any }> = ({ f, ver
           مقدار محاسبه‌شدهٔ معتبری برای این شرکت وجود ندارد — هیچ عدد جایگزینی ساخته نشده است.
         </p>
       )}
-      {(f.missing_reason || f.excluded_years?.length > 0) && (
+      {(f.missing_reason || (f.excluded_years?.length ?? 0) > 0) && (
         <p className="text-[9px] text-amber-700/90 dark:text-amber-400/80 mt-0.5" dir="auto">
           {f.missing_reason}
-          {f.excluded_years?.length > 0 &&
-            ` · سال‌های حذف‌شده: ${f.excluded_years.map((e: any) => `${e.fy} (${e.reason})`).join("، ")}`}
+          {(f.excluded_years?.length ?? 0) > 0 &&
+            ` · سال‌های حذف‌شده: ${f.excluded_years?.map((e) => `${e.fy} (${e.reason})`).join("، ")}`}
         </p>
       )}
       {verdict?.condition && (
@@ -911,11 +927,11 @@ const QFactorCard: React.FC<{ f: any; verdict: any; egAudit?: any }> = ({ f, ver
 // ── گام ۲-ک-۶ — بلوک ممیزی اقتصادی رشد سود ───────────────────────────────────
 // دورهٔ مقایسه + مقدار خام هر جزء + وضعیت اعتبار + محدودیت‌ها/هشدارها؛
 // تفکیک رسمی (ورود به تجمیع: ممنوع با policy exclusion ۲-ب-۶) و تشخیصی.
-const EgAuditBlock: React.FC<{ audit: any }> = ({ audit }) => {
+const EgAuditBlock: React.FC<{ audit: EconomicAudit }> = ({ audit }) => {
   if (!audit) return null;
-  const fmtPct = (v: any) =>
+  const fmtPct = (v: unknown) =>
     v == null ? "—" : `${Number(v) >= 1e6 ? Number(v).toExponential(2) : Number(v).toFixed(1)}٪`;
-  const fmtRial = (v: any) =>
+  const fmtRial = (v: unknown) =>
     v == null ? "—" : `${(Number(v) / 1e9).toFixed(1)} میلیارد ریال`;
   const tone = EG_VERDICT_TONE[audit.verdict] ?? EG_VERDICT_TONE.diagnostic_only;
   return (
@@ -926,7 +942,7 @@ const EgAuditBlock: React.FC<{ audit: any }> = ({ audit }) => {
         </span>
       </div>
       {(audit.components
-        ? (Object.entries(audit.components) as [string, any][])
+        ? Object.entries(audit.components)
         : []).map(([k, c]) => (
         <p key={k} className="text-[10px] leading-4 text-gray-600 dark:text-gray-300" dir="auto">
           {k === "net_profit_growth_pct" ? "سود خالص" : "سود عملیاتی"}:{" "}
@@ -987,7 +1003,7 @@ const EG_VERDICT_TONE: Record<string, string> = {
   invalid: "bg-red-100/70 text-red-700 dark:bg-red-900/30 dark:text-red-300",
 };
 
-const DiagnosticQFactorsSection: React.FC<{ qd: any | null; egAudit?: any | null }> = ({ qd, egAudit }) => {
+const DiagnosticQFactorsSection: React.FC<{ qd: QDiagnostics | null; egAudit?: EconomicAudit | null }> = ({ qd, egAudit }) => {
   if (!qd || !qd.factors) return null;
   // payload هر شرکت خودکفاست (activation_readiness و _meta داخل همان
   // payload می‌آیند)؛ خواندن سطح سند فقط fallback است
@@ -1060,7 +1076,7 @@ const DiagnosticQFactorsSection: React.FC<{ qd: any | null; egAudit?: any | null
   );
 };
 
-const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
+const DecisionDossierSection: React.FC<{ dd: DecisionDossier | null }> = ({ dd }) => {
   if (!dd || !dd.sections) return null;
   const q = dd.sections.quality ?? {};
   const v = dd.sections.value ?? {};
@@ -1110,12 +1126,12 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
           </p>
           {(q.strengths ?? []).length > 0 && (
             <ul className="space-y-0.5 mb-1.5">
-              {(q.strengths ?? []).map((r: any) => (
+              {(q.strengths ?? []).map((r) => (
                 <li key={r.factor} className="text-[10px] leading-4 text-gray-600 dark:text-gray-300" dir="auto">
                   <span className="text-emerald-600 dark:text-emerald-400 font-semibold">＋</span>{" "}
                   {r.fa} — صدک {(r.score * 100).toFixed(0)}٪ خانواده · {Number(r.contribution).toFixed(1)} امتیاز از {r.weight}
                   {(r.warnings ?? []).length > 0 && (
-                    <span className="text-amber-600/90 dark:text-amber-400/80"> ⚠ {r.warnings[0]}</span>
+                    <span className="text-amber-600/90 dark:text-amber-400/80"> ⚠ {r.warnings?.[0]}</span>
                   )}
                 </li>
               ))}
@@ -1123,7 +1139,7 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
           )}
           {(q.weaknesses ?? []).length > 0 && (
             <ul className="space-y-0.5">
-              {(q.weaknesses ?? []).map((r: any) => (
+              {(q.weaknesses ?? []).map((r) => (
                 <li key={r.factor} className="text-[10px] leading-4 text-gray-600 dark:text-gray-300" dir="auto">
                   <span className="text-red-500 font-semibold">−</span>{" "}
                   {r.fa} — صدک {(r.score * 100).toFixed(0)}٪ خانواده · {Number(r.contribution).toFixed(1)} امتیاز از {r.weight}
@@ -1137,7 +1153,7 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
                 فاکتورهای تشخیصی/غیرفعال ({(q.excluded_diagnostic ?? []).length}) — هرگز به‌عنوان عامل اثبات‌شده معرفی نمی‌شوند
               </summary>
               <ul className="list-disc pr-4 mt-1 space-y-0.5">
-                {(q.excluded_diagnostic ?? []).map((x: any) => (
+                {(q.excluded_diagnostic ?? []).map((x) => (
                   <li key={x.factor} className="text-[10px] text-gray-500 dark:text-gray-400" dir="auto">
                     {x.fa}: {x.reason}
                   </li>
@@ -1148,7 +1164,7 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
           <p className="text-[9px] text-gray-500 dark:text-gray-400 leading-4 mt-1.5">
             پوشش وزنی Q: {Number(q.coverage?.covered_weight ?? 0).toFixed(1)} از ۴۰
             {(q.coverage?.missing_weight ?? 0) > 0 &&
-              ` · مفقود: ${Number(q.coverage.missing_weight).toFixed(1)} (هیچ وزن مفقودی بازتوزیع نشده)`}
+              ` · مفقود: ${Number(q.coverage?.missing_weight).toFixed(1)} (هیچ وزن مفقودی بازتوزیع نشده)`}
             {" · "}
             {q.evidence_note}
           </p>
@@ -1169,7 +1185,7 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
               </tr>
             </thead>
             <tbody>
-              {(v.ratios ?? []).map((r: any) => (
+              {(v.ratios ?? []).map((r) => (
                 <tr key={r.name} className="border-t border-gray-100/70 dark:border-gray-700/30">
                   <td className="px-1 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">{r.fa}</td>
                   <td className="px-1 py-1 tabular-nums text-gray-700 dark:text-gray-200">
@@ -1204,9 +1220,9 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
           ۳. وضعیت بازار و ورود (T) — با زبان ساده
         </p>
         <div className="flex flex-wrap gap-1.5">
-          {(m.factors ?? []).map((r: any) => (
+          {(m.factors ?? []).map((r) => (
             <Chip key={r.factor} tone={(r.score ?? 0) >= 0.55 ? "ok" : (r.score ?? 0) <= 0.45 ? "warn" : "off"}
-              title={`صدک ${(r.score * 100).toFixed(0)}٪ · ${Number(r.contribution ?? 0).toFixed(1)} امتیاز از ${r.weight}${(r.warnings ?? []).length ? "\n" + r.warnings.join("\n") : ""}`}>
+              title={`صدک ${(r.score * 100).toFixed(0)}٪ · ${Number(r.contribution ?? 0).toFixed(1)} امتیاز از ${r.weight}${(r.warnings ?? []).length ? "\n" + r.warnings?.join("\n") : ""}`}>
               {r.fa}: {r.plain ?? Number(r.raw_value ?? 0).toFixed(2)}
             </Chip>
           ))}
@@ -1228,7 +1244,7 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
           ۴. شواهد و ریسک — بدون تغییر قراردادهای قبلی
         </p>
         <div className="flex flex-wrap items-center gap-1.5">
-          <Chip tone={VAL_STATUS_TONE[ev.independent_validation?.status] ?? "off"}
+          <Chip tone={VAL_STATUS_TONE[ev.independent_validation?.status ?? ""] ?? "off"}
             title={ev.independent_validation?.status_definition}>
             اعتبارسنجی مستقل: {ev.independent_validation?.status_label}
           </Chip>
@@ -1244,11 +1260,11 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
           )}
           {(ev.risk_gate?.financial_warnings ?? []).length > 0 && (
             <Chip tone="warn" title={(ev.risk_gate?.financial_warnings ?? []).join("\n")}>
-              {ev.risk_gate.financial_warnings.length} هشدار مالی ثبت‌شده
+              {ev.risk_gate?.financial_warnings?.length} هشدار مالی ثبت‌شده
             </Chip>
           )}
         </div>
-        {(ev.capital_events ?? []).map((ce: any, i: number) => (
+        {(ev.capital_events ?? []).map((ce, i: number) => (
           <div key={i} className="mt-1.5 rounded-lg bg-amber-50/80 dark:bg-amber-900/20 ring-1 ring-amber-300/50 dark:ring-amber-800/40 px-2 py-1.5">
             <p className="text-[10px] font-bold text-amber-700 dark:text-amber-300" dir="auto">
               ⚠ رویداد سرمایه (تعیین‌شده): {ce.outcome}
@@ -1261,7 +1277,7 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
               {" · "}فاصلهٔ پایهٔ ضمنی EPS با سرمایهٔ ثبت‌شده:{" "}
               {(Number(ce.implied_vs_recorded_rel_diff) * 100).toFixed(3)}٪ (گردشدن EPS)
             </p>
-            {(ce.ratio_classification as Record<string, string> | undefined) && (
+            {ce.ratio_classification && (
               <p className="text-[10px] text-gray-600 dark:text-gray-300 leading-4 mt-0.5" dir="auto">
                 اثر رویداد روی نسبت‌ها (کنترل ۲-ک-۴): {ce.ratio_classification.pe} ·{" "}
                 {ce.ratio_classification.ps} · {ce.ratio_classification.pb}
@@ -1288,16 +1304,16 @@ const DecisionDossierSection: React.FC<{ dd: any | null }> = ({ dd }) => {
 // مرز مهم: این وضعیت کیفیت شواهد است، نه تأیید قطعی صحت اقتصادی،
 // مناسب‌بودن سرمایه‌گذاری یا مجوز ورود — و verified_from_source هم معنای
 // «تأیید کامل منشأ خارجی» ندارد.
-const IndependentValidationSection: React.FC<{ iv: any | null }> = ({ iv }) => {
+const IndependentValidationSection: React.FC<{ iv: IndependentValidation | null }> = ({ iv }) => {
   if (!iv || !iv.status) return null;
   const checks = iv.checks ?? {};
-  const trace: any[] = Array.isArray(checks.q_cell_trace) ? checks.q_cell_trace : [];
+  const trace = Array.isArray(checks.q_cell_trace) ? checks.q_cell_trace : [];
   const cmp = checks.independent_valuation?.compare ?? {};
   const mkt = checks.independent_market ?? {};
   const eps = checks.eps_cross_check ?? null;
   const cov = checks.event_coverage ?? {};
   const tcmp = checks.t_probe?.compare ?? {};
-  const ratioPct = (a: any, b: any) => {
+  const ratioPct = (a: unknown, b: unknown) => {
     const x = Number(a), y = Number(b);
     if (!Number.isFinite(x) || !Number.isFinite(y) || y === 0) return null;
     const d = Math.abs(x - y) / Math.max(Math.abs(x), Math.abs(y));
@@ -1324,7 +1340,7 @@ const IndependentValidationSection: React.FC<{ iv: any | null }> = ({ iv }) => {
         )}
         {cov.snapshot_history && (
           <Chip
-            tone={cov.steps_without_events > 0 ? "warn" : "off"}
+            tone={(cov.steps_without_events ?? 0) > 0 ? "warn" : "off"}
             title="تغییرات تعداد سهام قابل‌مشاهده در اسنپ‌شات‌ها؛ نبود رویداد ثبت‌شده اثبات نبود تغییر سرمایه نیست"
           >
             پوشش رویداد: {cov.share_count_steps ?? 0} گام / {cov.steps_without_events ?? 0} بدون رویداد
@@ -1400,7 +1416,7 @@ const IndependentValidationSection: React.FC<{ iv: any | null }> = ({ iv }) => {
         {Object.keys(tcmp).length > 0 && (
           <span>
             پروب مستقل T:{" "}
-            {Object.entries(tcmp).map(([k, v]: [string, any]) => (
+            {Object.entries(tcmp).map(([k, v]) => (
               <span key={k} className={v?.match ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}>
                 {k}{" "}{v?.match ? "✓" : "✗"}{" "}
               </span>
@@ -1417,19 +1433,19 @@ const OverlayEvidenceSection: React.FC<{
   meta: OverlayMeta | null;
   actions: ValidationAction[];
 }> = ({ overlay, meta, actions }) => {
-  const pr = (overlay?.publish_recovery ?? null) as any;
-  const va = (overlay?.valuation_audit ?? null) as any;
+  const pr = overlay?.publish_recovery ?? null;
+  const va = overlay?.valuation_audit ?? null;
   const bound = meta?.status === "bound";
   const verifiedRows = Array.isArray(pr?.scoring_rows)
     ? pr.scoring_rows.filter(
-        (r: any) => r?.resolved?.status === "verified_publication_date"
+        (r) => r?.resolved?.status === "verified_publication_date"
       ).length
     : 0;
   const totalRows = Array.isArray(pr?.scoring_rows) ? pr.scoring_rows.length : 0;
   const dates = Array.isArray(pr?.scoring_rows)
     ? pr.scoring_rows
-        .filter((r: any) => r?.resolved?.publish_at)
-        .map((r: any) => String(r.resolved.publish_at).slice(0, 10))
+        .filter((r) => r?.resolved?.publish_at)
+        .map((r) => String(r.resolved?.publish_at).slice(0, 10))
     : [];
   const uniqueDates = Array.from(new Set(dates)).slice(0, 3);
   return (
@@ -1576,7 +1592,7 @@ const EvidenceSourcesBlock: React.FC<{
       />
 
       <IndependentValidationSection
-        iv={(overlay as any)?.independent_validation ?? null}
+        iv={overlay?.independent_validation ?? null}
       />
 
       <details className="mt-2 group">
@@ -1650,7 +1666,7 @@ const DetailPanel: React.FC<{
     setLoading(true);
     setError(null);
     setDetail(null);
-    fetchQvtV2Detail(companyId)
+    fetchQvtV2Detail<QvtDetail>(companyId)
       .then((d) => alive && setDetail(d))
       .catch((e) => alive && setError(e?.message || "خطا در دریافت جزئیات"))
       .finally(() => alive && setLoading(false));
@@ -1745,16 +1761,16 @@ const DetailPanel: React.FC<{
             <Chip tone="off">snapshot {detail.as_of}</Chip>
           </div>
 
-          {(detail.evidence_overlay as any)?.decision_dossier && (
+          {detail.evidence_overlay?.decision_dossier && (
             <DecisionDossierSection
-              dd={(detail.evidence_overlay as any).decision_dossier}
+              dd={detail.evidence_overlay.decision_dossier}
             />
           )}
 
-          {(detail.evidence_overlay as any)?.q_factor_diagnostics && (
+          {detail.evidence_overlay?.q_factor_diagnostics && (
             <DiagnosticQFactorsSection
-              qd={(detail.evidence_overlay as any).q_factor_diagnostics}
-              egAudit={(detail.evidence_overlay as any)?.eg_economic_audit ?? null}
+              qd={detail.evidence_overlay.q_factor_diagnostics}
+              egAudit={detail.evidence_overlay?.eg_economic_audit ?? null}
             />
           )}
 
@@ -1842,7 +1858,7 @@ const ShortlistComparePanel: React.FC<{
   onRemove: (companyId: string) => void;
   onClear: () => void;
 }> = ({ items, onRemove, onClear }) => {
-  const [cols, setCols] = useState<Record<string, any>>({});
+  const [cols, setCols] = useState<Record<string, QvtDetail | { __error: string }>>({});
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -1850,7 +1866,7 @@ const ShortlistComparePanel: React.FC<{
     setLoading(true);
     Promise.all(
       items.map((it) =>
-        fetchQvtV2Detail(it.company_id)
+        fetchQvtV2Detail<QvtDetail>(it.company_id)
           .then((d) => [it.company_id, d] as const)
           .catch((e) => [it.company_id, { __error: e?.message || "خطا" }] as const)
       )
@@ -1863,12 +1879,12 @@ const ShortlistComparePanel: React.FC<{
     return () => {
       alive = false;
     };
-  }, [items.map((i) => i.company_id).join(",")]);
+  }, [items]);
 
-  const cell = (cid: string, pick: (d: any) => React.ReactNode) => {
+  const cell = (cid: string, pick: (d: QvtDetail) => React.ReactNode) => {
     const d = cols[cid];
     if (!d) return <span className="text-gray-300">…</span>;
-    if (d.__error) return <span className="text-red-500 text-[10px]">{d.__error}</span>;
+    if ("__error" in d) return <span className="text-red-500 text-[10px]">{d.__error}</span>;
     return pick(d);
   };
 
@@ -1917,7 +1933,7 @@ const ShortlistComparePanel: React.FC<{
                   <td key={it.company_id} className="align-top text-gray-700 dark:text-gray-200">
                     {cell(it.company_id, (d) => {
                       const ax = d?.company?.axes ?? {};
-                      const f = (x: any) => {
+                      const f = (x?: QvtDetailAxis) => {
                         const p = x?.q_observed_points ?? x?.v_observed_points ??
                           x?.t_observed_points ?? x?.points;
                         return p != null ? Number(p).toFixed(1) : "—";
@@ -1958,15 +1974,11 @@ const ShortlistComparePanel: React.FC<{
                   <td key={it.company_id} className="align-top text-gray-700 dark:text-gray-200">
                     {cell(it.company_id, (d) => {
                       const rs = d?.evidence_overlay?.decision_dossier?.sections?.value?.ratios ?? [];
-                      const one = (r: any) =>
-                        r.raw_value != null
-                          ? `${Number(r.raw_value).toFixed(1)}${r.peer_rank ? ` (#${r.peer_rank}/${r.n_peers})` : ""}`
-                          : "—";
                       return (
                         <span dir="ltr" className="tabular-nums">
-                          {one(rs.find((x: any) => x.name === "pe"))} ·{" "}
-                          {one(rs.find((x: any) => x.name === "pb"))} ·{" "}
-                          {one(rs.find((x: any) => x.name === "ps"))}
+                          {formatQvtRatio(rs.find((x) => x.name === "pe"))} ·{" "}
+                          {formatQvtRatio(rs.find((x) => x.name === "pb"))} ·{" "}
+                          {formatQvtRatio(rs.find((x) => x.name === "ps"))}
                         </span>
                       );
                     })}
@@ -1978,7 +1990,7 @@ const ShortlistComparePanel: React.FC<{
                   <td key={it.company_id} className="align-top text-gray-700 dark:text-gray-200">
                     {cell(it.company_id, (d) => {
                       const r = (d?.evidence_overlay?.decision_dossier?.sections?.market?.factors ?? []).find(
-                        (x: any) => x.factor === "momentum_6m_rel"
+                        (x) => x.factor === "momentum_6m_rel"
                       );
                       return r?.plain ?? "—";
                     })}
@@ -1994,7 +2006,7 @@ const ShortlistComparePanel: React.FC<{
                       const ce = dd?.sections?.evidence?.capital_events ?? [];
                       return (
                         <>
-                          <Chip tone={VAL_STATUS_TONE[st] ?? "off"}>{VAL_STATUS_FA[st] ?? "ارزیابی نشده"}</Chip>
+                          <Chip tone={VAL_STATUS_TONE[st ?? ""] ?? "off"}>{VAL_STATUS_FA[st ?? ""] ?? "ارزیابی نشده"}</Chip>
                           {ce.length > 0 && (
                             <span className="ms-1 text-amber-600/90 dark:text-amber-400/80">
                               حق‌تقدم {ce[0].ex_date} ({Number(ce[0].old_shares) / 1e9}→
@@ -2803,9 +2815,7 @@ const DiscoveryView: React.FC<{
   // متادیتای انواع هشدار از جدول طبقه‌بندی منتشرشده سرور
   const kindMeta = useMemo(() => {
     const m = new Map<string, { category?: string; severity_label?: string }>();
-    const rows = (data?.risk_gate_rules as any)?.warning_kind_map as
-      | { kind: string; category: string; severity_label: string }[]
-      | undefined;
+    const rows = data?.risk_gate_rules?.warning_kind_map;
     (rows ?? []).forEach((r) => m.set(r.kind, r));
     return m;
   }, [data]);
@@ -3026,7 +3036,7 @@ const DiscoveryView: React.FC<{
               .map((r, i) => (
                 <li key={i} dir="auto">{r as string}</li>
               ))}
-            {((data.risk_gate_rules as any)?.blocking_rules ?? []).map((b: any, i: number) => (
+            {(data.risk_gate_rules?.blocking_rules ?? []).map((b, i: number) => (
               <li key={`b${i}`} dir="auto">
                 قاعده {b.id}: {b.rule} — شواهد لازم: {b.evidence_required} {b.note ? `(${b.note})` : ""}
               </li>

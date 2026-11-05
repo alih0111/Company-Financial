@@ -67,13 +67,15 @@ func GetShadowHealth(c *gin.Context) {
 		postgresStatus = "NOT_CONFIGURED"
 	}
 
-	overall := "HEALTHY"
+	connectivity := "HEALTHY"
 	if postgresStatus != "HEALTHY" {
-		overall = "DEGRADED"
+		connectivity = "DEGRADED"
 	}
 	if sqlRequired && !sqlReachable {
-		overall = "UNHEALTHY"
+		connectivity = "UNHEALTHY"
 	}
+	analytics := analyticsStatus(st.ScoreRunID, st.ScoreStale)
+	overall := overallHealth(connectivity, analytics)
 
 	c.JSON(http.StatusOK, gin.H{
 		"read_mode":            st.ReadMode,
@@ -81,7 +83,8 @@ func GetShadowHealth(c *gin.Context) {
 		"canonical_configured": st.CanonicalConfigured,
 		"canonical_reachable":  st.CanonicalReachable,
 		"canonical_error":      st.CanonicalError,
-		"analytics_status":     analyticsStatus(st.ScoreRunID, st.ScoreStale),
+		"analytics_status":     analytics,
+		"connectivity_status":  connectivity,
 		"score_version":        st.ScoreVersion,
 		"score_run_id":         st.ScoreRunID,
 		"score_as_of":          st.ScoreAsOf,
@@ -100,6 +103,17 @@ func GetShadowHealth(c *gin.Context) {
 		"comparison_rules":    st.ComparisonRules,
 		"shadow_timeout_ms":   st.ShadowTimeoutMS,
 	})
+}
+
+// A reachable database alone does not imply that a usable score is available.
+func overallHealth(connectivity, analytics string) string {
+	if connectivity == "UNHEALTHY" {
+		return "UNHEALTHY"
+	}
+	if connectivity != "HEALTHY" || analytics != "HEALTHY" {
+		return "DEGRADED"
+	}
+	return "HEALTHY"
 }
 
 // analyticsStatus reports the served score's freshness. A run exists but its inputs

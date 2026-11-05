@@ -38,7 +38,8 @@ def prove_unit(rec, original, pages):
         if (url.scheme != "https" or url.hostname not in ("codal.ir", "www.codal.ir") or
                 urllib.parse.parse_qs(url.query).get("LetterSerial") != [serial]):
             continue
-        body = Path(page["path"]).read_bytes()
+        from evidence_paths import resolve_evidence_path
+        body = resolve_evidence_path(page["path"]).read_bytes()
         if hashlib.sha256(body).hexdigest() != page["sha256"]:
             raise ValueError("paired unit page hash mismatch")
         html = body.decode("utf8", "strict")

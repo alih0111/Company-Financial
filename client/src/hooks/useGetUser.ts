@@ -28,7 +28,7 @@ export const getAuthStatus = (): AuthStatus => {
       isAdmin: decoded.isAdmin,
       username: decoded.username,
     };
-  } catch (e) {
+  } catch {
     return { isAdmin: false, username: null };
   }
 };

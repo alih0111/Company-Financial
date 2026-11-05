@@ -127,8 +127,17 @@ try {
   if ($CalendarProvider -eq 'public') { $refreshArgs += @('--public-calendar-manifest', $calendarManifest, '--public-calendar-manifest-sha256', $CalendarManifestSha256) }
   if ($calendarManifest -and $CalendarProvider -eq 'nscstart') { $refreshArgs += @('--session-calendar-manifest', $calendarManifest) }
   $refreshArgs += @('--execution-attempt-status', $executionAttemptStatus)
-  $refreshOutput = & $python @refreshArgs 2>&1
-  if ($LASTEXITCODE -ne 0) { throw "Status refresh failed: $($refreshOutput | Out-String)" }
+  $previousErrorAction = $ErrorActionPreference
+  try {
+    # Preserve the whole child traceback and exit status. Windows PowerShell
+    # otherwise throws on the first stderr line before the diagnostic is read.
+    $ErrorActionPreference = 'Continue'
+    $refreshOutput = & $python @refreshArgs 2>&1
+    $refreshExitCode = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $previousErrorAction
+  }
+  if ($refreshExitCode -ne 0) { throw "Status refresh failed (exit $refreshExitCode): $($refreshOutput | Out-String)" }
   $result = Get-Content -Raw (Join-Path $PublicOutputDir 'paper-account-check.json') | ConvertFrom-Json
   $productOutcome = if ($null -ne $fillExitCode -and $fillExitCode -ne 0) { 'BLOCKED_VALIDATION_REFUSAL' }
     elseif ($result.execution_attempt_status -eq 'NO_NEW_SESSION') { 'NO_NEW_SESSION' }

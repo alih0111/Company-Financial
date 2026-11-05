@@ -1,3 +1,4 @@
+import { errorMessage } from "../utils/errorMessage";
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
 import { NavLink, useLocation } from "react-router-dom";
@@ -131,10 +132,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         text: `تاریخچه‌ی قیمت «${selectedCompany}» کامل شد ✓`,
       });
       onDataCollected?.();
-    } catch (e: any) {
+    } catch (e: unknown) {
       setToolsMsg({
         kind: "err",
-        text: e?.message || "خطا در جمع‌آوری قیمت",
+        text: errorMessage(e, "خطا در جمع‌آوری قیمت"),
       });
     } finally {
       setLoadingCompanyPrices(false);
@@ -148,8 +149,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       await collectBrsPrices("daily");
       setBrsMsg("قیمت روزانه ذخیره شد ✓");
       onDataCollected?.();
-    } catch (e: any) {
-      setBrsMsg(e?.message || "خطا در دریافت قیمت");
+    } catch (e: unknown) {
+      setBrsMsg(errorMessage(e, "خطا در دریافت قیمت"));
     } finally {
       setLoadingBrsDaily(false);
     }
@@ -162,8 +163,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       await collectBrsPrices("backfill");
       setBrsMsg("تاریخچه قیمت به‌روزرسانی شد ✓");
       onDataCollected?.();
-    } catch (e: any) {
-      setBrsMsg(e?.message || "خطا در backfill");
+    } catch (e: unknown) {
+      setBrsMsg(errorMessage(e, "خطا در backfill"));
     } finally {
       setLoadingBrsBackfill(false);
     }
@@ -176,8 +177,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       await collectBrsPrices("sync", { limit: 30, threshold: 20 });
       setBrsMsg("تعدیل قیمت‌ها انجام شد ✓");
       onDataCollected?.();
-    } catch (e: any) {
-      setBrsMsg(e?.message || "خطا در sync");
+    } catch (e: unknown) {
+      setBrsMsg(errorMessage(e, "خطا در sync"));
     } finally {
       setLoadingBrsSync(false);
     }

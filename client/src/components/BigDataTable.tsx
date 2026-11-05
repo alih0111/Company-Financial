@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTable, useSortBy, useGlobalFilter, type Column } from "react-table";
+import { useTable, useSortBy, useGlobalFilter, type Column, type TableOptions, type UseSortByOptions } from "react-table";
 import {
   FaSort,
   FaSortUp,
@@ -320,7 +320,7 @@ const BigDataTable: React.FC<Props> = ({ data, onScoresRefreshed }) => {
       sortTypes: {
         numericSort,
       },
-    } as any,
+    } as TableOptions<DataRow> & UseSortByOptions<DataRow>,
     useGlobalFilter,
     useSortBy,
   );

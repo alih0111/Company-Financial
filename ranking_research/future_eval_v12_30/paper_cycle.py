@@ -14,7 +14,9 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[2]
-PYTHON = ROOT / ".venv/Scripts/python.exe"
+# Child processes use the running interpreter by default, independent of the
+# operating system or checkout path. A deployment may select an explicit one.
+PYTHON = Path(os.environ.get("CDF_PAPER_PYTHON") or sys.executable)
 OUT = ROOT / "ranking_research/output/paper_cycle"
 PUBLIC = ROOT / "client/public/research/v12-38"
 ACCOUNT = ROOT / "client/public/research/v12-36/paper-portfolio.json"

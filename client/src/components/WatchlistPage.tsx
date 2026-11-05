@@ -1,3 +1,4 @@
+import { errorMessage } from "../utils/errorMessage";
 // دیده‌بان شخصی — نمادهای منتخب کاربر با آخرین قیمت، تغییر روز و روند ۹۰ روزه.
 // داده‌ها در localStorage ذخیره می‌شوند (بدون نیاز به بک‌اند جدید) و برای هر
 // نماد فقط یک درخواست price-history با سقف ۱۰۰ روز زده می‌شود (کش ۵ دقیقه).
@@ -115,10 +116,10 @@ const WatchlistPage: React.FC = () => {
             points: asc.map((r) => r.closing_price),
           },
         }));
-      } catch (e: any) {
+      } catch (e: unknown) {
         setRows((p) => ({
           ...p,
-          [it.key]: { loading: false, error: e?.message || "خطا" },
+          [it.key]: { loading: false, error: errorMessage(e, "خطا") },
         }));
       }
     }
@@ -130,7 +131,7 @@ const WatchlistPage: React.FC = () => {
       notifyBrowser("هشدار قیمت — RFA", msg);
     }
     setRefreshing(false);
-  }, []);
+  }, [toast]);
 
   // کلید رشته‌ای تا آرایه‌ی جدید در هر رندر افکت را دوباره اجرا نکند
   const itemsKey = items.map((i) => i.key).join(",");

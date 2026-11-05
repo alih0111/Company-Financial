@@ -14,6 +14,8 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from qvt_backtest.evidence_paths import provenance_path
 OUT = Path(os.environ.get("V1237_OUTPUT_DIR", str(ROOT / "ranking_research/output/return_v12_37/v12_37_20261022_existing_archive_extraction_fix_01")))
 PUBLIC = Path(os.environ.get("V1237_PUBLIC_DIR", str(ROOT / "client/public/research/v12-37")))
 BASE = ROOT / "ranking_research/future_eval_v12_30/rebuild_latest_supported_v12_37.py"
@@ -82,7 +84,7 @@ def main():
     old_rows = {x["company_id"]: x for x in old_rank["rows"]}
     new_rows = {x["company_id"]: x for x in rank["rows"]}
     panel_by_id = panel.set_index("company_id", drop=False)
-    sales_events_path = ROOT / "fundamental_event_research/monthly_sales_events_universe_v1_1.parquet"
+    sales_events_path = Path(os.environ.get("V1237_EVENTS_PATH", str(ROOT / "fundamental_event_research/monthly_sales_events_universe_v1_1.parquet")))
     sales_events = pd.read_parquet(sales_events_path, columns=["published_at"])
     monthly_max_pub = pd.to_datetime(sales_events.published_at, errors="coerce", utc=True).max().isoformat()
     tsetmc_manifest_path = b.MARKET / "manifest.json"
@@ -102,14 +104,17 @@ def main():
             "monthly_sales_latest_published_at": max(pubs) if pubs else None})
     rank["source_provenance"] = {
         "TSETMC": {"retrieved_at_range_utc": [received[0], received[-1]] if received else None, "retrieval_status": "KNOWN_FROM_CURRENT_RAW_MANIFEST",
-            "source_manifest": str(tsetmc_manifest_path.relative_to(ROOT)).replace("\\", "/"),
+            "source_manifest": provenance_path(tsetmc_manifest_path, ROOT),
             "universe_count": tsetmc_manifest.get("universe_count"), "completed_count": tsetmc_manifest.get("completed_count"),
             "failed_count": tsetmc_manifest.get("failed_count"), "latest_quote_dates": tsetmc_manifest.get("latest_quote_dates")},
-        "financial_archive": {"latest_published_at": "2026-10-11T13:36:29+03:30", "latest_period_end": "2026-09-22",
-            "received_at": None, "received_at_status": "UNKNOWN_IN_ARCHIVE", "source": "ranking_research/output/owner_current_inputs_20261014T215850582899Z/input_reports.json",
-            "report_versions": 7321, "comparative_facts": 17393},
+        "financial_archive": {"latest_published_at": extraction_manifest["source_dates"]["financial_latest_published_at"],
+            "latest_period_end": extraction_manifest["source_dates"]["financial_latest_period_end"],
+            "received_at": None, "received_at_status": "UNKNOWN_IN_ARCHIVE", "source": extraction_manifest["financial"]["reports_path"],
+            "report_versions": extraction_manifest["financial"]["report_versions"],
+            "comparative_facts": extraction_manifest["financial"]["verified_comparative_facts"]},
         "monthly_sales_archive": {"latest_published_at": monthly_max_pub, "received_at": None,
-            "received_at_status": "UNKNOWN_IN_ARCHIVE", "latest_event_period": "1405-06", "source": "fundamental_event_research/monthly_sales_events_universe_v1_1.parquet"},
+            "received_at_status": "UNKNOWN_IN_ARCHIVE", "latest_event_period": extraction_manifest["source_dates"]["monthly_sales_latest_event_month"],
+            "source": provenance_path(sales_events_path, ROOT)},
         "database_audit": {"read_only": True, "written": False, "summary": "ranking_research/output/return_v12_36/v12_36_20261022_existing_archive_reextraction_01/ranking/local_source_inventory_audit.json"}}
     rank["limitations"].extend([
         "Financial observations are aligned to each selected income-statement period; these periods can be older than the latest balance-sheet period and are not relabeled as current.",

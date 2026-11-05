@@ -1,3 +1,4 @@
+import { errorMessage } from "../utils/errorMessage";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   createChart,
@@ -5,6 +6,8 @@ import {
   type IChartApi,
   type ISeriesApi,
   type UTCTimestamp,
+  type MouseEventParams,
+  type LogicalRange,
 } from "lightweight-charts";
 import {
   FaChartLine,
@@ -279,8 +282,8 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
         loadData();
         setFetchMsg(null);
       }, 2000);
-    } catch (e: any) {
-      setFetchMsg(e?.message || "خطا در جمع‌آوری قیمت");
+    } catch (e: unknown) {
+      setFetchMsg(errorMessage(e, "خطا در جمع‌آوری قیمت"));
     } finally {
       setFetching(false);
     }
@@ -436,7 +439,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     ro.observe(el);
 
     // Crosshair → legend
-    const onMove = (param: any) => {
+    const onMove = (param: MouseEventParams) => {
       if (!param || !param.time) {
         setHover(null);
         return;
@@ -466,7 +469,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
 
     // زوم‌اوت خودکار: هر وقت فضای خالی سمت چپ (قبل از قدیمی‌ترین کندل) دیده شد،
     // به‌اندازه‌ی همان فضای خالی رکورد قدیمی‌تر بگیر — بدون سقف، تا وقتی داده تمام شود.
-    const onRangeChange = (range: any) => {
+    const onRangeChange = (range: LogicalRange | null) => {
       if (!range || loadingRef.current || exhaustedRef.current) return;
       if (range.from >= -1 || candlesRef.current.length === 0) return;
       const cur = daysRef.current;
@@ -550,7 +553,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
 
     // هم‌گام‌سازی دوسویه‌ی بازه‌ی دید با گارد ضدحلقه
     let syncing = false;
-    const fromMain = (range: any) => {
+    const fromMain = (range: LogicalRange | null) => {
       if (syncing || !range) return;
       syncing = true;
       try {
@@ -560,7 +563,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       }
       syncing = false;
     };
-    const fromRsi = (range: any) => {
+    const fromRsi = (range: LogicalRange | null) => {
       if (syncing || !range) return;
       syncing = true;
       try {
@@ -660,7 +663,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
 
     // هم‌گام‌سازی دوسویه‌ی بازه‌ی دید با گارد ضدحلقه
     let syncing = false;
-    const fromMain = (range: any) => {
+    const fromMain = (range: LogicalRange | null) => {
       if (syncing || !range) return;
       syncing = true;
       try {
@@ -670,7 +673,7 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
       }
       syncing = false;
     };
-    const fromMacd = (range: any) => {
+    const fromMacd = (range: LogicalRange | null) => {
       if (syncing || !range) return;
       syncing = true;
       try {
@@ -751,8 +754,8 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
     chart.priceScale("right").applyOptions({
       mode: logScale ? PriceScaleMode.Logarithmic : PriceScaleMode.Normal,
     });
-    candleRef.current.setData(candles as any);
-    volumeRef.current.setData(volumes as any);
+    candleRef.current.setData(candles);
+    volumeRef.current.setData(volumes);
 
     // ── اندیکاتورها: محاسبه از قیمت پایانی و اعمال روی سری‌ها ──
     const closes = candles.map((c) => c.close);

@@ -199,7 +199,7 @@ def mark_verified(home, evidence_path, calendar_path, apply):
             decision_local_date=decision["decision_local_date"], decision_at_utc=dt.datetime.fromisoformat(decision["decided_at_utc"]),
             now_utc=now(), consumption_mode="live-preview")
         if not answer["readiness"]["calendar_ready"]:
-            raise ValueError("CALENDAR_NOT_READY")
+            raise ValueError("CALENDAR_NOT_READY;" + ",".join(answer["readiness"]["blocking_reasons"]))
         sources = {s["key"]: s for s in evidence["sources"]}
         bodies = {}
         for key in ("candidate_daily", "candidate_share_changes"):

@@ -349,6 +349,9 @@ export interface PaperTrialRefreshStatus {
   finished_at?: string;
   exp_exit_code?: number;
   trial_exit_code?: number;
+  last_success?: Record<string, { run_id: string; finished_at: string; outcome: string }>;
+  last_success_scope?: string;
+  recovery_required?: boolean;
   message?: string;
   error?: string;
 }
@@ -444,7 +447,7 @@ export interface UpsertHoldingPayload {
 
 export async function upsertHolding(
   payload: UpsertHoldingPayload
-): Promise<any> {
+): Promise<unknown> {
   const res = await fetch(`${API_BASE}/portfolio`, {
     method: "POST",
     headers: getAuthHeaders(),
@@ -457,7 +460,7 @@ export async function upsertHolding(
   return res.json();
 }
 
-export async function deleteHolding(companyID: string): Promise<any> {
+export async function deleteHolding(companyID: string): Promise<unknown> {
   const res = await fetch(
     `${API_BASE}/portfolio/${encodeURIComponent(companyID)}`,
     {
@@ -505,7 +508,7 @@ export async function getPriceHistory(
   return res.json();
 }
 
-export async function analyzeTopStocks(limit = 20): Promise<any> {
+export async function analyzeTopStocks(limit = 20): Promise<unknown> {
   const res = await fetch(`${API_BASE}/analyze`, {
     method: "POST",
     headers: {
@@ -539,7 +542,7 @@ export async function collectBrsPrices(
     threshold?: number;
     api?: boolean;
   }
-): Promise<any> {
+): Promise<unknown> {
   const res = await fetch(`${API_BASE}/brs/collect`, {
     method: "POST",
     headers: getAuthHeaders(),
@@ -1148,7 +1151,7 @@ export async function getMarketAssets(): Promise<MarketAssets> {
 export async function collectMarketAssets(
   mode: "daily" | "backfill" | "ensure" = "daily",
   options?: { symbol?: string; limit?: number; all?: boolean }
-): Promise<any> {
+): Promise<unknown> {
   const res = await fetch(`${API_BASE}/market/collect`, {
     method: "POST",
     headers: getAuthHeaders(),
@@ -1257,13 +1260,13 @@ export async function fetchQvtV2Summary(): Promise<QvtV2Summary> {
   return res.json();
 }
 
-export async function fetchQvtV2Detail(companyId: string): Promise<any> {
+export async function fetchQvtV2Detail<T = unknown>(companyId: string): Promise<T> {
   const res = await fetch(
     `${API_BASE}/qvt-v2?company_id=${encodeURIComponent(companyId)}`,
     { headers: getAuthHeaders() }
   );
   if (!res.ok) throw await qvtServerError(res, "جزئیات شرکت یافت نشد");
-  return res.json();
+  return res.json() as Promise<T>;
 }
 
 // ── Data Confidence مستقل (گام ۲-ز-۱) — ارزیابی کیفی شواهد، بدون عدد اطمینان ──
@@ -1781,7 +1784,10 @@ export interface QvtDiscoveryResponse {
   mode_rules: Record<string, string>;
   shortlist_rules: Record<string, unknown>;
   confidence_rules: Record<string, unknown>;
-  risk_gate_rules: Record<string, unknown>;
+  risk_gate_rules: Record<string, unknown> & {
+    warning_kind_map?: { kind: string; category: string; severity_label: string }[];
+    blocking_rules?: { id: string; rule: string; evidence_required: string; note?: string }[];
+  };
   price_source: QvtPriceSourceMeta;
   snapshot_consistency: {
     files: Record<

@@ -11,6 +11,8 @@ from pathlib import Path
 import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT))
+from qvt_backtest.evidence_paths import provenance_path
 BASE = ROOT / "ranking_research/future_eval_v12_30/rebuild_latest_supported_v12_34.py"
 MARKET = Path(os.environ.get("V1237_MARKET_PACK", str(ROOT / "ranking_research/output/return_v12_35/official_tsetmc_20261022")))
 OUT = Path(os.environ.get("V1237_OUTPUT_DIR", str(ROOT / "ranking_research/output/return_v12_35/v12_35_20261022_latest_supported_official_market_01")))
@@ -110,7 +112,7 @@ def main():
             "corporate_action_adjustment_cache_effective_through": "2026-09-30",
         },
         "official_sources": {
-            "tsetmc": {"manifest_path": str((MARKET / "manifest.json").relative_to(ROOT)).replace("\\", "/"),
+            "tsetmc": {"manifest_path": provenance_path(MARKET / "manifest.json", ROOT),
                 "manifest_sha256": sha(MARKET / "manifest.json"), "company_count": len(market_records),
                 "daily_endpoint": "local pinned market raw; no request in this run",
                 "share_change_endpoint": "local pinned market raw; no request in this run",
@@ -120,8 +122,8 @@ def main():
                 "archived_response_body_sha256": None, "archived_request_count": 2, "archived_attempts": 1,
                 "preliminary_attempt_body_or_timestamp_retained": False, "retried_or_bypassed": False,
                 "requests_during_this_offline_reuse": 0,
-                "local_financial_archive_used": str(report_archive.relative_to(ROOT)).replace("\\", "/"),
-                "local_monthly_archive_used": str(b.EVENTS.relative_to(ROOT)).replace("\\", "/")},
+                "local_financial_archive_used": provenance_path(report_archive, ROOT),
+                "local_monthly_archive_used": provenance_path(b.EVENTS, ROOT)},
         },
         "scoreability_notes": [
             "Contract, weights, frozen 254 identities, masks, coverage threshold, DQ and tie rules are unchanged.",

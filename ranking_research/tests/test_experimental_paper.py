@@ -5,6 +5,7 @@ import gzip
 import hashlib
 import json
 import subprocess
+from ranking_research.tests.fixture_env import fixture_environment
 import sys
 from pathlib import Path
 
@@ -46,7 +47,7 @@ def setup(tmp_path):
 
 def cli(script, args):
     p = subprocess.run([sys.executable, "-B", "-X", "utf8", str(exp.SCRIPTS / script), *map(str, args)],
-                       capture_output=True, encoding="utf-8", cwd=exp.ROOT, timeout=40)
+                       capture_output=True, encoding="utf-8", cwd=exp.ROOT, timeout=40, env=fixture_environment())
     return p
 
 
@@ -153,6 +154,22 @@ def test_failed_bootstrap_does_not_leave_an_unusable_account(tmp_path, monkeypat
     with pytest.raises(ValueError, match="simulated child failure"):
         exp.initialize(home, exp.DEFAULT_RANKING, run)
     assert not (home / "account.json").exists() and not (home / "rules.json").exists()
+
+
+def test_mark_preserves_calendar_blocking_reasons_without_account_write(tmp_path, monkeypatch):
+    account, rules, home, evidence, cal, _ = setup(tmp_path)
+    fill(account, rules, evidence, cal)
+    doc = json.loads(account.read_text(encoding="utf-8"))
+    (home / "ranking.json").write_text("{}", encoding="utf-8")
+    doc["experimental_inputs"] = {"ranking_file_sha256": exp.sha(home / "ranking.json")}
+    save(account, doc)
+    before = account.read_bytes()
+    monkeypatch.setattr(exp.calendar, "resolve_public_calendar", lambda **kwargs: {
+        "readiness": {"calendar_ready": False, "blocking_reasons": ["CALENDAR_QUALITY_FETCH_FAILED"]}
+    })
+    with pytest.raises(ValueError, match="CALENDAR_NOT_READY;CALENDAR_QUALITY_FETCH_FAILED"):
+        exp.mark_verified(home, evidence, cal, True)
+    assert account.read_bytes() == before
 
 
 def test_sell_requires_profile_and_matching_holding(tmp_path):

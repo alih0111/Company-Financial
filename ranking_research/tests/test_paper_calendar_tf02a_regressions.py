@@ -20,6 +20,7 @@ import hashlib
 import io
 import json
 import subprocess
+from ranking_research.tests.fixture_env import fixture_environment
 import sys
 from pathlib import Path
 
@@ -381,7 +382,19 @@ def _refresh_status(tmp_path, root, *, calendar_path, calendar_sha,
                     account_path, rules_path, evidence_path):
     out_dir = root / "out"
     stream = io.StringIO()
+    # The public-calendar scenarios must not depend on a live account or on a
+    # machine-local ranking/calendar merely to populate provenance fields.
+    fixture_root = root / "reference-fixture"
+    ranking = fixture_root / "client/public/research/v12-36/latest-ranking.json"
+    ranking.parent.mkdir(parents=True, exist_ok=True)
+    ranking.write_text('{"fixture": true}\n', encoding="utf-8")
+    local_calendar = fixture_root / "score_v2_research/_cache/calendar.parquet"
+    local_calendar.parent.mkdir(parents=True, exist_ok=True)
+    local_calendar.write_bytes(b"unavailable-fixture-calendar")
     with pytest.MonkeyPatch.context() as mp:
+        mp.setattr(refresh, "ROOT", fixture_root)
+        mp.setattr(refresh, "LOCAL_CALENDAR", local_calendar)
+        mp.setattr(refresh, "REFERENCE_RANKING", ranking)
         mp.setattr(refresh, "ACCOUNT", account_path)
         mp.setattr(sys, "argv", ["refresh", "--account", str(account_path),
                                  "--evidence-manifest", str(evidence_path),
@@ -559,7 +572,7 @@ m.main()
 def _run_fill_child(root, account_path, rules_path, argv, mode_flag):
     return subprocess.run([sys.executable, "-c", PUBLIC_FILL_CHILD, str(root),
                            str(account_path), str(rules_path), *argv, mode_flag],
-                          cwd=Path.cwd(), capture_output=True, text=True, timeout=60)
+                          cwd=Path.cwd(), capture_output=True, text=True, timeout=60, env=fixture_environment())
 
 
 def test_g4_crash_harness_atomicity_and_clock_rules(tmp_path):

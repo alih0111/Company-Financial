@@ -8,6 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "test:csv": "node --test test/safeCsv.test.mjs",
+    "test:errors": "node --test test/errorMessage.test.mjs",
+    "test:qvt-ratio": "node --test test/qvtRatio.test.mjs",
     "test:indicators": "esbuild src/utils/indicators.ts --format=esm --outfile=test/.generated/indicators.mjs && node --test test/indicators.test.mjs",
     "preview": "vite preview"
   },

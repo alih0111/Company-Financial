@@ -63,7 +63,7 @@ async function loadOptions(): Promise<AssetOption[]> {
   return options;
 }
 
-export function useAssetOptions() {
+function useAssetOptions() {
   const [options, setOptions] = useState<AssetOption[]>(() => optionsCache?.options ?? []);
   const [loading, setLoading] = useState(!optionsCache);
 

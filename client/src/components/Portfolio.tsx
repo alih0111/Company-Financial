@@ -1,3 +1,4 @@
+import { errorMessage } from "../utils/errorMessage";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import {
@@ -90,8 +91,8 @@ const Portfolio = () => {
             price: r.latest_price,
           }))
       );
-    } catch (e: any) {
-      setError(e?.message || "Failed to load portfolio");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "Failed to load portfolio"));
     } finally {
       setLoading(false);
     }
@@ -177,8 +178,8 @@ const Portfolio = () => {
       });
       resetForm();
       await loadData();
-    } catch (e: any) {
-      setError(e?.message || "ذخیره ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "ذخیره ناموفق بود"));
     } finally {
       setSaving(false);
     }
@@ -189,8 +190,8 @@ const Portfolio = () => {
     try {
       await deleteHolding(h.company_id);
       await loadData();
-    } catch (e: any) {
-      setError(e?.message || "حذف ناموفق بود");
+    } catch (e: unknown) {
+      setError(errorMessage(e, "حذف ناموفق بود"));
     }
   };
 
@@ -505,11 +506,9 @@ const Portfolio = () => {
                   />
                 </Pie>
                 <Tooltip
-                  formatter={(v: any) => fmtShort(Number(v))}
-                  {...({
-                    contentStyle: glassTooltipStyle(darkMode),
-                    itemStyle: { color: darkMode ? "#e2e8f0" : "#0f172a" },
-                  } as any)}
+                  formatter={(v) => fmtShort(Number(v))}
+                  contentStyle={glassTooltipStyle(darkMode)}
+                  itemStyle={{ color: darkMode ? "#e2e8f0" : "#0f172a" }}
                 />
                 <Legend
                   wrapperStyle={{ fontSize: 11 }}
