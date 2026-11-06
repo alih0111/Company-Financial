@@ -74,7 +74,7 @@ func GetShadowHealth(c *gin.Context) {
 	if sqlRequired && !sqlReachable {
 		connectivity = "UNHEALTHY"
 	}
-	analytics := analyticsStatus(st.ScoreRunID, st.ScoreStale)
+	analytics := analyticsStatus(st.ScoreRunID, st.ScoreStale, st.ScoreFreshness)
 	overall := overallHealth(connectivity, analytics)
 
 	c.JSON(http.StatusOK, gin.H{
@@ -95,6 +95,7 @@ func GetShadowHealth(c *gin.Context) {
 		"score_stale_reasons": st.ScoreStaleReasons,
 		"data_as_of":          st.DataAsOf,
 		"score_stale":         st.ScoreStale,
+		"score_freshness":     st.ScoreFreshness,
 		"sqlserver_status":    sqlStatus,
 		"sqlserver_note":      sqlNote,
 		"sqlserver_required":  sqlRequired,
@@ -118,9 +119,12 @@ func overallHealth(connectivity, analytics string) string {
 
 // analyticsStatus reports the served score's freshness. A run exists but its inputs
 // have moved since -> STALE, which is a real health condition, not HEALTHY.
-func analyticsStatus(runID string, stale bool) string {
+func analyticsStatus(runID string, stale bool, freshness string) string {
 	if runID == "" {
 		return "NO_COMPLETED_RUN"
+	}
+	if freshness == "UNKNOWN" {
+		return "UNKNOWN"
 	}
 	if stale {
 		return "STALE"

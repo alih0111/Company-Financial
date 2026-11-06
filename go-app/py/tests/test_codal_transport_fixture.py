@@ -67,6 +67,20 @@ class FixtureHandler(BaseHTTPRequestHandler):
         if self.path == "/report-list":
             self._send(200, "text/html", b"<html><body><form><input name='search' placeholder='Search reports'></form><img alt='Codal logo' src='/logo.png'><img alt='PDF' src='/pdf.png'></body></html>")
             return
+        if self.path == "/watch-list":
+            # The visible list page asks for its own data and that request is
+            # refused, while the feed URL fetched through the page session works.
+            self._send(200, "text/html",
+                       b"<html><body><div id='list'></div><script>"
+                       b"fetch('/api/search/v2/q?page=1').catch(() => {});"
+                       b"</script></body></html>")
+            return
+        if self.path.startswith("/api/search/v2/q"):
+            if "page=1" in self.path:
+                self._send(429, "text/html", b"limited", {"Retry-After": "0"})
+            else:
+                self._send(200, "application/json", b'{"Letters":[],"Total":0}')
+            return
         if self.path == "/xml-then-json":
             request_count = self.counts[self.path]
             if request_count == 1:
@@ -226,6 +240,32 @@ def test_manual_captcha_image_answer_and_same_browser_context(fixture_server, mo
     assert not failure, failure
     assert FixtureHandler.counts["/answer"] == 2
     assert any("solved=yes" in value for value in FixtureHandler.observed_cookies)
+
+
+def test_watch_feed_stays_on_report_list_and_uses_page_session(fixture_server, monkeypatch, tmp_path):
+    """A blocked list-page XHR must not navigate the visible tab to the JSON URL.
+
+    The operator keeps seeing the one Codal report list; the feed is retried
+    through that page's own browser session instead of a second, raw JSON page.
+    """
+    transport, _root = _fresh_transport(monkeypatch, tmp_path)
+    try:
+        client = transport.current()
+        client._launch_browser()
+        data, content_type, status = client.get(
+            fixture_server + "/api/search/v2/q",
+            timeout=5, expect_json=True,
+            recovery_url=fixture_server + "/watch-list",
+        )
+        assert status == 200
+        assert json.loads(data)["Letters"] == []
+        assert "/watch-list" in client._page.url
+        assert "/api/search/v2/q" not in client._page.url
+        # The page's own refused XHR and the page-session retry, nothing in between
+        # navigated the tab away from the visible list.
+        assert FixtureHandler.counts.get("/api/search/v2/q?page=1") == 1
+    finally:
+        transport.close_current()
 
 
 def test_html_200_is_not_treated_as_empty_feed(fixture_server, monkeypatch, tmp_path):

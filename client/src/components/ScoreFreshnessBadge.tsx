@@ -72,11 +72,14 @@ export default function ScoreFreshnessBadge() {
     };
   }, [load]);
 
-  if (failed || !health?.score_run_id) return null;
+  if (failed) return <p role="status" className="mb-3 text-xs text-amber-700 dark:text-amber-300">تازگی امتیاز نامعلوم است؛ وضعیت سلامت دریافت نشد.</p>;
+  if (!health) return null;
+  if (!health.score_run_id) return <p role="status" className="mb-3 text-xs text-amber-700 dark:text-amber-300">اجرای امتیاز معتبر در این مسیر موجود نیست.</p>;
 
   const { isAdmin } = getAuthStatus();
 
-  const stale = Boolean(health.score_stale);
+  const unknown = health.score_freshness === "UNKNOWN";
+  const stale = unknown || Boolean(health.score_stale);
   const asOf = faDate(health.score_as_of);
   const computed = faDateTime(health.score_computed_at);
   const reasons = health.score_stale_reasons?.length
@@ -94,15 +97,17 @@ export default function ScoreFreshnessBadge() {
       title={reasons ?? undefined}
     >
       <span className="font-semibold">
-        {stale ? "امتیاز کهنه است" : "امتیاز به‌روز است"}
+        {unknown ? "تازگی امتیاز نامعلوم است" : stale ? "امتیاز کهنه است" : "امتیاز به‌روز است"}
       </span>
       {asOf && <span>داده تا: {asOf}</span>}
       {computed && <span>محاسبه: {computed}</span>}
       {stale && (
         <span className="opacity-90">
-          {isAdmin
-            ? "گزارش‌های جدید آمده‌اند؛ برای اعمال، دکمهٔ «به‌روزرسانی امتیازها» را در جدول بزنید."
-            : "امتیاز جدول تا اجرای به‌روزرسانی توسط ادمین عوض نمی‌شود."}
+          {unknown
+            ? "منشأ یا زمان ورودی برای تأیید تازگی کافی نیست؛ علت را بررسی کنید."
+            : isAdmin
+              ? "ورودی‌ها تغییر کرده‌اند؛ برای اعمال، دکمهٔ «به‌روزرسانی امتیازها» را در جدول بزنید."
+              : "امتیاز جدول تا اجرای به‌روزرسانی توسط ادمین عوض نمی‌شود."}
         </span>
       )}
     </div>

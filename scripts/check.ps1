@@ -58,6 +58,8 @@ if ($Only -in @('All', 'Python')) {
                 ranking_research/tests/test_isolated_rebuild_verifier.py `
                 ranking_research/tests/test_factor_coverage.py `
                 ranking_research/tests/test_experimental_risk.py `
+                ranking_research/tests/test_financial_watermark.py `
+                ranking_research/tests/test_monthly_sales_replay.py `
                 ranking_research/tests/test_paper_model_review.py `
                 ranking_research/tests/test_paper_month_trial.py::test_missing_review_policy_does_not_reenable_rotation `
                 ranking_research/tests/test_experimental_paper.py::test_real_cli_buy_sell_accounting_preview_and_next_day_replay `

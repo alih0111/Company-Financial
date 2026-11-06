@@ -40,7 +40,8 @@ const cheapWatermarkSQL = `
 	  COALESCE((SELECT max(period_end_date)::text FROM fundamentals.monthly_activities), ''),
 	  COALESCE((SELECT max(created_at)::text FROM fundamentals.monthly_activities), ''),
 	  (SELECT count(*) FROM fundamentals.monthly_activities),
-	  COALESCE((SELECT max(period_end_date)::text FROM fundamentals.financial_statements), ''),
+	  COALESCE((SELECT max(st.period_end_date)::text FROM fundamentals.financial_statements st
+	            WHERE NOT EXISTS (SELECT 1 FROM ingestion.reports r WHERE r.supersedes_report_id = st.report_id)), ''),
 	  COALESCE((SELECT max(created_at)::text FROM fundamentals.financial_facts), ''),
 	  (SELECT count(*) FROM fundamentals.financial_facts),
 	  COALESCE((SELECT max(trade_date)::text FROM market.price_observations), ''),
@@ -89,29 +90,66 @@ func (p *PG) currentCheapWatermark(ctx context.Context) (InputWatermark, error) 
 // never recorded (pre-migration) is reported stale rather than silently fresh — the
 // exact failure that let /api/health/shadow print score_stale=false for a stale score.
 func stalenessFromWatermark(runWM string, current InputWatermark) (bool, []string) {
+	status, reasons := assessWatermark(runWM, current)
+	return status != "FRESH", reasons
+}
+
+// assessWatermark keeps unverifiable fingerprints distinct from known changes.
+// The legacy stale bool is conservative for UNKNOWN, while callers can display
+// the explicit status instead of claiming either freshness or a known change.
+func assessWatermark(runWM string, current InputWatermark) (string, []string) {
 	trimmed := strings.TrimSpace(runWM)
 	if trimmed == "" || trimmed == "{}" {
-		return true, []string{"run predates input watermarking"}
+		return "UNKNOWN", []string{"run predates input watermarking"}
 	}
 	var prev InputWatermark
 	if err := json.Unmarshal([]byte(trimmed), &prev); err != nil {
-		return true, []string{"run input watermark unreadable"}
+		return "UNKNOWN", []string{"run input watermark unreadable"}
 	}
 	if len(prev.Domains) == 0 {
-		return true, []string{"run input watermark empty"}
+		return "UNKNOWN", []string{"run input watermark empty"}
+	}
+	if prev.V != 1 || current.V != 1 {
+		return "UNKNOWN", []string{"watermark version unsupported"}
 	}
 	var reasons []string
+	var unknown []string
 	for _, key := range []string{"monthly", "financial", "market", "shares", "reports"} {
 		cur, ok := current.Domains[key]
 		if !ok {
+			if _, expected := prev.Domains[key]; expected {
+				unknown = append(unknown, key+": current watermark unavailable")
+			}
 			continue
 		}
 		p, ok := prev.Domains[key]
 		if !ok {
-			reasons = append(reasons, key+": missing from run watermark")
+			unknown = append(unknown, key+": missing from run watermark")
 			continue
 		}
-		if p.Rows != nil && cur.Rows != nil && *p.Rows != *cur.Rows {
+		if p.Rows == nil || cur.Rows == nil || *p.Rows < 0 || *cur.Rows < 0 {
+			unknown = append(unknown, key+": row count unavailable")
+		}
+		for _, item := range []struct{ name, previous, current string }{
+			{"arrival", p.Arrival, cur.Arrival}, {"data date", p.Date, cur.Date},
+		} {
+			if key == "reports" && item.name == "data date" {
+				continue // This domain deliberately has no data date.
+			}
+			if item.previous == "" && item.current == "" {
+				if p.Rows != nil && cur.Rows != nil && (*p.Rows > 0 || *cur.Rows > 0) {
+					unknown = append(unknown, key+": "+item.name+" unavailable")
+				}
+				continue
+			}
+			if _, err := parsePGTime(item.previous); err != nil {
+				unknown = append(unknown, key+": previous "+item.name+" unreadable")
+			}
+			if _, err := parsePGTime(item.current); err != nil {
+				unknown = append(unknown, key+": current "+item.name+" unreadable")
+			}
+		}
+		if p.Rows != nil && cur.Rows != nil && *p.Rows >= 0 && *cur.Rows >= 0 && *p.Rows != *cur.Rows {
 			reasons = append(reasons, fmt.Sprintf("%s: rows %d -> %d", key, *p.Rows, *cur.Rows))
 		}
 		if timeAfter(cur.Arrival, p.Arrival) {
@@ -120,8 +158,17 @@ func stalenessFromWatermark(runWM string, current InputWatermark) (bool, []strin
 		if timeAfter(cur.Date, p.Date) {
 			reasons = append(reasons, key+": data date advanced")
 		}
+		if key == "financial" && timeAfter(p.Date, cur.Date) {
+			reasons = append(reasons, key+": data date moved backwards")
+		}
 	}
-	return len(reasons) > 0, reasons
+	if len(reasons) > 0 {
+		return "STALE", append(reasons, unknown...)
+	}
+	if len(unknown) > 0 {
+		return "UNKNOWN", unknown
+	}
+	return "FRESH", nil
 }
 
 // timeAfter reports whether a is strictly later than b, parsing PG-style timestamp or

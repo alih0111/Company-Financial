@@ -847,7 +847,9 @@ INPUT_DOMAINS = {
     "monthly": """
         SELECT max(period_end_date)::text FROM fundamentals.monthly_activities""",
     "financial": """
-        SELECT max(period_end_date)::text FROM fundamentals.financial_statements""",
+        SELECT max(st.period_end_date)::text FROM fundamentals.financial_statements st
+        WHERE NOT EXISTS (SELECT 1 FROM ingestion.reports r
+                          WHERE r.supersedes_report_id = st.report_id)""",
     "market": """
         SELECT max(trade_date)::text FROM market.price_observations""",
     "shares": """

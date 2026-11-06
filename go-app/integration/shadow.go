@@ -50,6 +50,7 @@ type Status struct {
 	SourceCutoffAt    string   `json:"source_cutoff_at,omitempty"`
 	DataAsOf          string   `json:"data_as_of,omitempty"`
 	ScoreStale        bool     `json:"score_stale"`
+	ScoreFreshness    string   `json:"score_freshness,omitempty"`
 	ComparisonRules   string   `json:"comparison_rules"`
 	ShadowTimeoutMS   int      `json:"shadow_timeout_ms"`
 
@@ -179,6 +180,7 @@ func (s *Shadow) RefreshStatus(ctx context.Context) Status {
 		s.status.DataAsOf = meta.FundamentalsAsOf
 		s.status.ScoreStale = meta.Stale
 		s.status.ScoreStaleReasons = meta.StaleReasons
+		s.status.ScoreFreshness = meta.FreshnessStatus
 		return s.status
 	}
 	// Non-PG sources expose identity only; they carry no input fingerprint.
@@ -193,6 +195,9 @@ func (s *Shadow) RefreshStatus(ctx context.Context) Status {
 		s.status.ScoreComputedAt = info.CompletedAt
 		s.status.ScoreRunSeq = info.RunSeq
 		s.status.SourceCutoffAt = info.SourceCutoffAt
+		s.status.ScoreFreshness = "UNKNOWN"
+		s.status.ScoreStale = true
+		s.status.ScoreStaleReasons = []string{"score source has no input fingerprint"}
 	}
 	return s.status
 }

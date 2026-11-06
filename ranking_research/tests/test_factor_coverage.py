@@ -8,9 +8,10 @@ def test_factor_coverage_preserves_missing_and_rejected_values_without_scoring()
     factors = list(UNITS)
     panel_row = {key: 1.0 for key in factors}
     panel_row.update(company_id="one", symbol="TEST", pe=100.0,
-                     volatility_30d=float("nan"), sales_growth_12m=float("nan"))
+                     volatility_30d=float("nan"), sales_growth_12m=float("nan"), sales_growth_3m=float("nan"),
+                     sales_lineage='{"missing_reasons":{"sales_growth_12m":"insufficient_or_noncontiguous_24m"}}')
     observed = {key: True for key in factors}
-    observed.update(pe=False, volatility_30d=False, sales_growth_12m=False)
+    observed.update(pe=False, volatility_30d=False, sales_growth_12m=False, sales_growth_3m=False)
     raw = {key: (None if pd.isna(value) else value) for key, value in panel_row.items() if key in UNITS}
     method = {"score": None, "financial_factor_coverage": 0.4, "scoreability_reason": "fixture insufficient data"}
     ranking_row = {"company_id": "one", "symbol": "TEST", "raw_factors": raw,
@@ -29,7 +30,8 @@ def test_factor_coverage_preserves_missing_and_rejected_values_without_scoring()
     assert rows["volatility_30d"]["missing_reason"] == "CORPORATE_ACTION_CHAIN_NOT_VERIFIED_AFTER_2026_09_30"
     assert rows["volatility_30d"]["included_in_financial_coverage"] is False
     assert rows["volatility_30d"]["p1_missing_coverage_weight"] == 0
-    assert rows["sales_growth_12m"]["missing_reason"] == "MISSING_REASON_NOT_RECORDED"
+    assert rows["sales_growth_12m"]["missing_reason"] == "MONTHLY_INSUFFICIENT_OR_NONCONTIGUOUS_24M"
+    assert rows["sales_growth_3m"]["missing_reason"] == "MISSING_REASON_NOT_RECORDED"
     assert rows["sales_growth_12m"]["p3_missing_weight"] == 2.0
     assert rows["sales_growth_12m"]["p1_score"] is None
     assert rows["sales_growth_12m"]["p1_financial_coverage"] == 0.4

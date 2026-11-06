@@ -59,6 +59,11 @@ def coverage_rows(panel: pd.DataFrame, rank: dict, contract: dict, extraction: d
                 reason = "VALUE_REJECTED_BY_MODEL_MASK"
             elif factor in ("volatility_30d", "price_momentum_30d") and "masked:" in str(extraction["factors"].get(factor, "")):
                 reason = "CORPORATE_ACTION_CHAIN_NOT_VERIFIED_AFTER_2026_09_30"
+            elif group == "monthly_sales" and item.get("sales_lineage"):
+                recorded = json.loads(item["sales_lineage"]).get("missing_reasons", {}).get(factor)
+                allowed = {"no_verified_values", "insufficient_or_noncontiguous_24m", "insufficient_or_noncontiguous_6m",
+                           "insufficient_or_noncontiguous_12m", "zero_denominator"}
+                reason = "MONTHLY_" + recorded.upper() if recorded in allowed else "MISSING_REASON_NOT_RECORDED"
             else:
                 reason = "MISSING_REASON_NOT_RECORDED"
             sales_context = item.get("sales_lineage") if group == "monthly_sales" else None

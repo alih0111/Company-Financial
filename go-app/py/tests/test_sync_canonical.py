@@ -417,5 +417,64 @@ class FriendlyErrorTests(unittest.TestCase):
             sync_codal._friendly_sync_error(ValueError("boom")), "boom")
 
 
+class SymbolScanValueBackfillTests(unittest.TestCase):
+    def test_already_ingested_report_without_values_is_reextracted(self):
+        """گزارشِ «قبلاً دریافت‌شده» که parse_run اعداد ندارد دوباره استخراج می‌شود.
+
+        وضعیت واقعی شاراک/ساروم: ردیف گزارش با بدنه در canonical هست ولی
+        parse_run «codal_values» وجود ندارد؛ اسکن نماد نباید آن را بی‌صدا
+        «قبلاً» بشمارد و رد کند.
+        """
+        report = make_report(1611749, ticker="ساروم")
+        extracted: list[dict] = []
+
+        def fake_extract_now(item, _feeds):
+            extracted.append(item)
+            return True
+
+        with (
+            mock.patch.object(codal_feed, "discover_reports", return_value=feed_page([report])),
+            mock.patch.object(canonical_hook, "known_codal_report_ids",
+                              return_value={"1611749"}),
+            mock.patch.object(canonical_hook, "codal_report_ids_missing_values",
+                              return_value={"1611749"}),
+            mock.patch.object(canonical_hook, "resolve_codal_company_display_name",
+                              return_value="ساروم"),
+            mock.patch.object(sync_codal, "_extract_new_report_now",
+                              side_effect=fake_extract_now),
+        ):
+            summary = sync_codal.run_sync_symbol(
+                make_args(symbol="ساروم", limit=4))
+
+        self.assertEqual(summary["total"]["already"], 1)
+        self.assertEqual([item["report_id"] for item in extracted], ["1611749"])
+        self.assertEqual(extracted[0]["route"], "financial")
+        self.assertEqual(summary["total"]["values_queued"], 1)
+
+    def test_already_ingested_report_with_values_is_skipped(self):
+        report = make_report(1617516, ticker="شاراک")
+        extracted: list[dict] = []
+
+        def fake_extract_now(item, _feeds):
+            extracted.append(item)
+            return True
+
+        with (
+            mock.patch.object(codal_feed, "discover_reports", return_value=feed_page([report])),
+            mock.patch.object(canonical_hook, "known_codal_report_ids",
+                              return_value={"1617516"}),
+            mock.patch.object(canonical_hook, "codal_report_ids_missing_values",
+                              return_value=set()),
+            mock.patch.object(sync_codal, "_extract_new_report_now",
+                              side_effect=fake_extract_now),
+        ):
+            summary = sync_codal.run_sync_symbol(
+                make_args(symbol="شاراک", limit=4))
+
+        self.assertEqual(summary["total"]["already"], 1)
+        self.assertEqual(extracted, [])
+        self.assertEqual(summary["total"]["values_queued"], 0)
+
+
 if __name__ == "__main__":
     unittest.main()

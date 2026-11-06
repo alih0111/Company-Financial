@@ -394,6 +394,43 @@ def incomplete_codal_reports(*, days: int = 7, limit: int = 80,
         return []
 
 
+def codal_report_ids_missing_values(source_report_ids: list) -> set:
+    """از این TracingNoها کدام‌ها بدنه دارند ولی parse_run «codal_values» ندارند.
+
+    Dedup فید فقط «داشتن بدنه» را می‌بیند؛ گزارشی که بدنه‌اش ذخیره شده ولی
+    اعدادش هیچ‌وقت استخراج نشده (مثلاً وسط یک اجرای نیمه‌کاره) تا ابد
+    «قبلاً دریافت‌شده» شمرده می‌شود و اعدادش هیچ‌وقت پر نمی‌شود. این lookup
+    همان‌ها را برای صف استخراج برمی‌گرداند. خطا → مجموعه خالی (fail-open).
+    """
+    ids = [str(s).strip() for s in (source_report_ids or []) if str(s).strip()]
+    if not ids or not _load():
+        return set()
+    canonical_ingest = _canonical["mod"]
+    try:
+        with canonical_ingest.transaction() as conn, conn.cursor() as cur:
+            cur.execute(
+                """SELECT DISTINCT r.source_report_id
+                   FROM ingestion.reports r
+                   WHERE r.source = 'codal'
+                     AND r.source_report_id = ANY(%s)
+                     AND EXISTS (
+                       SELECT 1 FROM ingestion.report_versions v
+                       JOIN raw.report_payloads rp ON rp.report_version_id = v.id
+                       WHERE v.report_id = r.id AND rp.content_text IS NOT NULL
+                     )
+                     AND NOT EXISTS (
+                       SELECT 1 FROM ingestion.parse_runs p
+                       JOIN ingestion.report_versions v ON v.id = p.report_version_id
+                       WHERE v.report_id = r.id AND p.parser_name = 'codal_values'
+                     )""",
+                (ids,),
+            )
+            return {str(row[0]) for row in cur.fetchall()}
+    except Exception as exc:  # noqa: BLE001
+        log.debug("codal_report_ids_missing_values failed: %s", exc)
+        return set()
+
+
 def codal_reports_missing_values(*, days: int = 7, hours: int = 6, limit: int = 80,
                                  letter_types: tuple[int, ...] = (6, 58),
                                  symbol: str | None = None) -> list[dict]:

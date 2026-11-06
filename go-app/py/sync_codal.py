@@ -1031,6 +1031,9 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
             "unsupported": 0,
             "scan_oldest": None,
             "scan_newest": None,
+            "feed_total": None,
+            "skipped_other_letters": 0,
+            "skipped_audited": 0,
         }
 
     feeds = {lt: _feed_stats(lt) for lt in letter_types}
@@ -1051,6 +1054,14 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
                 "کدال موقتاً درخواست‌ها را محدود کرد؛ چند دقیقه بعد همین نماد را دوباره جمع‌آوری کنید."
             )})
             continue
+        # شفاف‌سازی: «گزارش جدیدی پیدا نشد» باید قابل توضیح باشد — فید چند نامه
+        # داشت، چندتا از نوع دیگر بود و چندتا حسابرسی‌شده فیلتر شدند.
+        stats["feed_total"] = page.total
+        stats["skipped_other_letters"] = page.skipped_other_type
+        stats["skipped_audited"] = page.skipped_audited
+        logger.info("🔎 Symbol %s feed: Total=%s letters, %s matches (audited skipped: %s, other types: %s)",
+                    args.symbol, page.total, len(page.reports),
+                    page.skipped_audited, page.skipped_other_type)
         if page.is_empty:
             stats["stop_reason"] = "empty_feed"
             continue
@@ -1064,12 +1075,35 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
         known = canonical_hook.known_codal_report_ids(
             [r.report_id for r in reports]
         )
+        # «قبلاً دریافت‌شده» یعنی بدنه هست؛ اعدادش ممکن است هیچ‌وقت استخراج
+        # نشده باشد (اجرای نیمه‌کاره/خطای پارسر). برای همین نماد، همان‌ها را
+        # دوباره استخراج کن تا اطلاعات نماد واقعاً پر شود.
+        missing_values = set() if args.dry_run else canonical_hook.codal_report_ids_missing_values(
+            [r.report_id for r in reports]
+        )
         for report in reports:
             stats["scanned"] += 1
             _publish_job_progress("discovery", stats, 1, report.report_id,
                                   f"در حال بررسی گزارش‌های نماد {args.symbol}")
             if report.report_id in known:
                 stats["already"] += 1
+                if report.report_id in missing_values:
+                    display = canonical_hook.resolve_codal_company_display_name(
+                        name=(report.raw.get("CompanyName") or "").strip() or None,
+                        symbol=(report.raw.get("Symbol") or "").strip() or None,
+                    )
+                    item = {
+                        "report_id": report.report_id,
+                        "letter_type": lt,
+                        "route": "monthly" if lt == MONTHLY_LETTER_TYPE else "financial",
+                        "url": report.report_url,
+                        "company_name": display or report.company_name or report.ticker or "",
+                    }
+                    stats["values_queued"] = stats.get("values_queued", 0) + 1
+                    logger.info("🧮 backfilling values for already-ingested report %s (%s)",
+                                report.report_id, args.symbol)
+                    if not _extract_new_report_now(item, feeds):
+                        pending_values.append(item)
                 continue
             res = canonical_hook.ingest_codal_authoritative(
                 report.raw, fetch_body=True
@@ -1125,6 +1159,9 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
         "errors": sum(s["errors"] for s in feeds.values()),
         "errors_detail": [d for s in feeds.values() for d in (s.get("errors_detail") or [])][:5],
         "pages": sum(s["pages"] for s in feeds.values()),
+        # شفاف‌سازی فید تک‌نماد: چند نامه در فید بود و چندتا و چرا فیلتر شدند
+        "skipped_other_letters": sum(s.get("skipped_other_letters", 0) for s in feeds.values()),
+        "skipped_audited": sum(s.get("skipped_audited", 0) for s in feeds.values()),
         "completed": sum(s["completed"] for s in feeds.values()),
         "failed": sum(s["errors"] + s["failed"] + s["repair_failed"] for s in feeds.values()),
         "unsupported": sum(s["unsupported"] for s in feeds.values()),
@@ -1134,6 +1171,9 @@ def run_sync_symbol(args: argparse.Namespace) -> dict:
         "mode": "symbol_scan",
         "symbol": args.symbol,
     }
+    feed_totals = [s.get("feed_total") for s in feeds.values() if s.get("feed_total") is not None]
+    if feed_totals:
+        totals["feed_total"] = feed_totals[0]
     oldest_values = [s["scan_oldest"] for s in feeds.values() if s.get("scan_oldest")]
     newest_values = [s["scan_newest"] for s in feeds.values() if s.get("scan_newest")]
     totals["scan_oldest"] = min(oldest_values) if oldest_values else None

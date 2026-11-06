@@ -154,6 +154,12 @@ const SymbolSyncModal: React.FC<SymbolSyncModalProps> = ({
               {(total.quarantined ?? 0) > 0 && (
                 <Row label="خارج از پوشش" value={total.quarantined!} />
               )}
+              {(total.skipped_audited ?? 0) > 0 && (
+                <Row label="حسابرسی‌شده (خارج از فیلتر)" value={total.skipped_audited!} />
+              )}
+              {(total.skipped_other_letters ?? 0) > 0 && (
+                <Row label="نامه‌های نوع دیگر در فید" value={total.skipped_other_letters!} />
+              )}
               {(total.unsupported ?? 0) > 0 && (
                 <Row label="فرمت پشتیبانی‌نشده" value={total.unsupported!} />
               )}

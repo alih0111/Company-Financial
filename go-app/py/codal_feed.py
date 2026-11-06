@@ -107,6 +107,10 @@ class FeedPage:
     # صفحه‌ها) باید روی همین لیست کامل گرفته شود وگرنه صفحه‌ای که هیچ گزارش
     # از نوع موردنظر ندارد، اشتباهی «empty» شمرده می‌شود.
     all_reports: list[CodalReport] = field(default_factory=list)
+    # فیلترشده‌ها و دلیلش: برای توضیح «گزارش جدیدی پیدا نشد» در سرچ تک‌نماد —
+    # (بدون تطابق، یا حذف‌شده به‌دلیل فیلتر حسابرسی‌نشده، یا از نوع دیگر).
+    skipped_audited: int = 0
+    skipped_other_type: int = 0
 
     @property
     def _page_rows(self) -> list[CodalReport]:
@@ -436,8 +440,12 @@ def discover_reports(
     # ``all_reports`` برای تصمیم‌های صفحه‌ای (watermark/پایان صفحه) می‌مانند.
     all_reports = [parse_letter(letter) for letter in raw_letters]
     reports = [r for r in all_reports if r.letter_type == letter_type]
+    skipped_other_type = len(all_reports) - len(reports)
+    skipped_audited = 0
     if letter_type == FINANCIAL_LETTER_TYPE and financial_not_audited:
-        reports = [r for r in reports if not is_audited_financial(r)]
+        filtered = [r for r in reports if not is_audited_financial(r)]
+        skipped_audited = len(reports) - len(filtered)
+        reports = filtered
 
     # توجه: فیلد ``Page`` در پاسخ API «تعداد کل صفحات» است نه شماره‌ی صفحه‌ی
     # جاری؛ بنابراین شماره‌ی درخواستی را نگه می‌داریم و total_pages از Total
@@ -450,6 +458,8 @@ def discover_reports(
         total=total,
         reports=reports,
         all_reports=all_reports,
+        skipped_audited=skipped_audited,
+        skipped_other_type=skipped_other_type,
     )
 
 

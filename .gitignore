@@ -173,6 +173,8 @@ docs/paper_portfolio_delivery/task-tf02b/historical/TF02B-PARTIAL-20261024T2210Z
 !ranking_research/tests/test_factor_coverage.py
 !ranking_research/experimental_risk.py
 !ranking_research/tests/test_experimental_risk.py
+!ranking_research/tests/test_financial_watermark.py
+!ranking_research/tests/test_monthly_sales_replay.py
 !docs/SYSTEM_COMPLETION_CHECKLIST_2026-11-05.fa.md
 !docs/EXPERIMENTAL_RISK_GATE.fa.md
 !docs/paper_portfolio_delivery/task-tf03/

@@ -41,6 +41,8 @@ type AnalyticsMetadata struct {
 	// the served run recorded — i.e. ingestion has advanced past the last score
 	// computation. Computed from the input watermark, not from a date comparison.
 	Stale bool
+	// FreshnessStatus is FRESH, STALE or UNKNOWN; Stale is conservative for UNKNOWN.
+	FreshnessStatus string
 	// StaleReasons lists the domains that moved, so a stale score is explainable.
 	StaleReasons []string
 }
@@ -206,7 +208,8 @@ func (p *PG) Metadata(ctx context.Context, version string) (AnalyticsMetadata, e
 		if err != nil {
 			return m, err
 		}
-		m.Stale, m.StaleReasons = stalenessFromWatermark(info.InputWatermark, cur)
+		m.FreshnessStatus, m.StaleReasons = assessWatermark(info.InputWatermark, cur)
+		m.Stale = m.FreshnessStatus != "FRESH"
 	}
 	metaCacheMu.Lock()
 	metaCacheVersion = version
@@ -223,6 +226,8 @@ func parsePGTime(s string) (time.Time, error) {
 	layouts := []string{
 		"2006-01-02 15:04:05.999999-07:00",
 		"2006-01-02 15:04:05-07:00",
+		"2006-01-02 15:04:05.999999-07",
+		"2006-01-02 15:04:05-07",
 		"2006-01-02T15:04:05Z07:00",
 		"2006-01-02",
 	}

@@ -49,7 +49,15 @@ class CodalRateLimited(RuntimeError):
 class CodalTransport:
     def __init__(self):
         self.channel = current_channel()
-        self.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+        # The system proxy never tunnels to Codal (a domestic site reachable
+        # over a plain connection), so by default neither urllib nor Chromium
+        # routes through it — the operator otherwise just gets Chrome's "proxy
+        # not connected" error page. Opt back in with
+        # CODAL_BROWSER_USE_SYSTEM_PROXY=1 only if a deployment truly needs it.
+        self._use_system_proxy = os.getenv("CODAL_BROWSER_USE_SYSTEM_PROXY", "0") == "1"
+        self.opener = urllib.request.build_opener(
+            urllib.request.ProxyHandler() if self._use_system_proxy else urllib.request.ProxyHandler({}),
+            urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
         self.minimum_interval = max(0.0, float(os.getenv("CODAL_REQUEST_INTERVAL_SECONDS", "2")))
         self._last_request = 0.0
         self._lock = threading.RLock()
@@ -93,23 +101,87 @@ class CodalTransport:
         One navigation, one API call: the operator watches the real filtered list
         while the worker consumes exactly the JSON that page received, so the
         window never shows a second, separately fetched request.
+
+        Any feed response is captured, not only a 200: a 429/security answer
+        must be inspected on this page instead of navigating the visible tab to
+        the raw JSON endpoint (which the operator would see as one extra,
+        unreadable page per retry).
         """
+        def is_feed_response(response) -> bool:
+            if "/api/search/" not in response.url or "/v2/q" not in response.url:
+                return False
+            try:
+                return response.request.method == "GET"
+            except Exception:
+                return True
+
         try:
             with page.expect_response(
-                lambda response: ("/api/search/" in response.url
-                                  and "/v2/q" in response.url
-                                  and response.status == 200),
+                is_feed_response,
                 timeout=max(15, timeout) * 1000,
             ) as captured:
-                page.goto(page_url, wait_until="domcontentloaded", timeout=max(15, timeout) * 1000)
+                # Navigate through the proxy-aware path: a failed system-proxy
+                # tunnel must relaunch Chromium with a direct connection instead
+                # of leaving the operator on Chrome's "proxy not connected" page.
+                _response, page = self._goto_resilient(
+                    page, page_url, max(15, timeout) * 1000)
             response = captured.value
             headers = response.all_headers()
             return (response.body(),
                     self._safe_type(headers.get("content-type", "application/json")),
                     response.status, headers)
         except Exception:
-            log.debug("report list did not report its own JSON; using the feed URL", exc_info=True)
+            log.debug("report list did not report its own feed response", exc_info=True)
             return None
+
+    def _fetch_feed_via_page_session(self, page, url: str, recovery_url: str, timeout: int):
+        """Fetch the feed through the report-list page's own browser session.
+
+        ``page.request`` shares the context cookie jar with the visible page, so
+        a security check solved there also applies here. The operator sees one
+        Codal page; this request stays in the background instead of navigating
+        that page to the JSON endpoint.
+        """
+        try:
+            response = page.request.get(
+                url,
+                timeout=max(15, timeout) * 1000,
+                headers={
+                    "Accept": "application/json, text/plain, */*",
+                    "Accept-Language": "fa-IR,fa;q=0.9,en;q=0.8",
+                    "Referer": recovery_url,
+                },
+            )
+            headers = response.headers
+            return (response.body(),
+                    self._safe_type(headers.get("content-type", "application/json")),
+                    response.status, headers)
+        except Exception:
+            log.debug("feed fetch through the report-list session failed", exc_info=True)
+            return None
+
+    def _feed_via_report_list(self, page, url: str, recovery_url: str, timeout: int):
+        """Read a feed page without ever navigating the browser to the API URL.
+
+        First the payload Codal's own list page loads is used. If that payload
+        is a block (or never arrives), the same feed is requested through the
+        page's browser session. When neither works the page's own answer is
+        returned so the caller's normal 429/challenge handling can run on it.
+        """
+        captured = self._goto_capture_json(page, recovery_url, timeout)
+        # The proxy-aware navigation may have relaunched the browser; never
+        # continue with a dead page handle.
+        if page.is_closed():
+            page = self._page
+        if captured is not None and self._valid_json_feed(captured[0]):
+            log.info("Codal feed page captured from %s", page.url)
+            return captured
+
+        fetched = self._fetch_feed_via_page_session(page, url, recovery_url, timeout)
+        if fetched is not None and self._valid_json_feed(fetched[0]):
+            log.info("Codal feed fetched through the report-list session")
+            return fetched
+        return captured if captured is not None else fetched
 
     @staticmethod
     def _retry_at(value: str | None) -> float | None:
@@ -154,9 +226,14 @@ class CodalTransport:
             channel = os.getenv("CODAL_BROWSER_CHANNEL", "").strip()
             if channel:
                 args["channel"] = channel
-        if self._browser_direct:
-            # The system proxy could not tunnel to Codal; Chromium's own proxy
-            # resolution is what failed, so run this browser without any proxy.
+        if self._use_system_proxy:
+            # Opted in: route through the system proxy. A tunnel failure still
+            # gets the direct-mode relaunch via _relaunch_direct.
+            if self._browser_direct:
+                args["args"] = ["--no-proxy-server"]
+        else:
+            # Default: never route through the system proxy — it only produces
+            # Chrome's "proxy not connected" page in the operator's face.
             args["args"] = ["--no-proxy-server"]
         self._browser = self._playwright.chromium.launch(**args)
         self._context = self._browser.new_context(
@@ -401,23 +478,85 @@ class CodalTransport:
             else "صفحهٔ تأیید کدال ساختار متنی شناخته‌شده ندارد؛ تصویر برای بررسی نمایش داده شده است."))
         self.channel.wait_for_challenge(page, image, kind=kind, message=message, refresh_locator=refresh)
 
+    @staticmethod
+    def _page_is_navigation_error(page) -> bool:
+        try:
+            return (page.url or "").startswith("chrome-error://")
+        except Exception:
+            return False
+
+    def _navigate_report_list(self, page, recovery_url: str):
+        """Navigate to the report list through the proxy-aware path.
+
+        A failed system-proxy tunnel relaunches Chromium with a direct
+        connection (inside ``_goto_resilient``), so the operator never stays on
+        Chrome's own "proxy not connected" error page.
+        """
+        response, page = self._goto_resilient(page, recovery_url, 60_000)
+        if response is not None and response.status >= 400:
+            raise CodalHTTPError(response.status, recovery_url,
+                                 self._retry_at(response.headers.get("retry-after")))
+        return page
+
+    def _ensure_report_list_page(self, page, recovery_url: str):
+        """Keep one visible ReportList tab instead of opening a new one per retry.
+
+        The working page may currently show a report body; then it is brought
+        back to Codal's report list. A page already showing ReportList is never
+        reloaded, so a CAPTCHA the operator is solving survives API retries.
+        """
+        if page is None or page.is_closed():
+            page = self._open_recovery_page(recovery_url)
+            if self._page_is_navigation_error(page):
+                raise RuntimeError(
+                    f"Codal report list page failed to load: {page.url}")
+            return page
+        try:
+            if "ReportList.aspx" not in (page.url or ""):
+                page = self._navigate_report_list(page, recovery_url)
+        except RuntimeError:
+            raise
+        except Exception:
+            log.debug("could not show the report list on the working page", exc_info=True)
+        try:
+            page.bring_to_front()
+        except Exception:
+            pass
+        self._recovery_page = page
+        return page
+
     def _open_recovery_page(self, recovery_url: str):
         """Open the filtered Codal report list once and keep it in its own tab.
 
         API retries must not navigate/reload this tab: otherwise the operator's
-        CAPTCHA page refreshes in a loop and the answer is lost.
+        CAPTCHA page refreshes in a loop and the answer is lost. The working
+        page is reused when it is already showing the report list, so a single
+        job never leaves several ReportList tabs behind.
         """
         page = self._recovery_page
         if page is not None and not page.is_closed():
             try:
+                if "ReportList.aspx" not in (page.url or ""):
+                    log.info("Bringing the working page back to Codal report list: %s", recovery_url)
+                    page = self._navigate_report_list(page, recovery_url)
                 page.bring_to_front()
             except Exception:
-                pass
+                log.debug("could not reuse the recovery page", exc_info=True)
             return page
-        page = self._context.new_page()
+        # Reuse the blank working tab instead of opening a second, empty one.
+        page = self._page
+        if page is not None and not page.is_closed():
+            try:
+                reusable = (page.url or "").startswith("about:")
+            except Exception:
+                reusable = False
+            if not reusable:
+                page = None
+        if page is None:
+            page = self._context.new_page()
         self._recovery_page = page
         log.info("Opening Codal report list for manual recovery: %s", recovery_url)
-        page.goto(recovery_url, wait_until="domcontentloaded", timeout=60_000)
+        page = self._navigate_report_list(page, recovery_url)
         try:
             page.bring_to_front()
         except Exception:
@@ -425,7 +564,8 @@ class CodalTransport:
         return page
 
     def _manual_browser_recovery(self, recovery_url: str, retry_at: float | None = None,
-                                 *, message: str | None = None, assume_captcha: bool = False):
+                                 *, message: str | None = None, assume_captcha: bool = False,
+                                 page=None):
         """Show Codal's public report page and wait while the operator solves it.
 
         The recovery URL is built locally from the requested feed page. This
@@ -435,10 +575,12 @@ class CodalTransport:
         ``assume_captcha`` publishes the in-site code form even when no security
         modal is detected — used when the feed endpoint already refused us, where
         the code has to be typed in the app rather than in the Chromium window.
+        ``page`` reuses the visible working page (already on ReportList) instead
+        of opening an additional tab.
         """
         if not self.channel:
             raise RuntimeError("Manual Codal recovery needs an interactive job channel")
-        page = self._open_recovery_page(recovery_url)
+        page = self._ensure_report_list_page(page, recovery_url)
         if retry_at:
             # Keep the actual page visible during Retry-After; don't hit Codal
             # again until its requested wait has elapsed.
@@ -506,6 +648,15 @@ class CodalTransport:
                      recovery_confirmed: bool = False) -> tuple[bytes, str, int]:
         self._launch_browser()
         page = self._page
+        # A recovery page opened by the HTTP path is the job's real Codal tab;
+        # carry on in it instead of leaving a second, unused ReportList tab.
+        if (self._recovery_page is not None and not self._recovery_page.is_closed()
+                and page is not self._recovery_page):
+            try:
+                if (page.url or "").startswith("about:"):
+                    self._page = page = self._recovery_page
+            except Exception:
+                log.debug("could not reuse the open recovery page", exc_info=True)
         challenge_retries = 0
         rate_retries = 0
         inspection_retries = 0
@@ -517,10 +668,24 @@ class CodalTransport:
                                     challenge=None)
             self._pace()
             captured = None
-            if expect_json and recovery_url and "/api/search/" in url:
+            watch_feed = bool(expect_json and recovery_url and "/api/search/" in url)
+            if watch_feed:
                 # Watch mode: open the real filtered list and consume the JSON it
                 # loads itself — the operator sees the page that is being read.
-                captured = self._goto_capture_json(page, recovery_url, timeout)
+                # The raw JSON endpoint is never navigated to; recovery happens
+                # on this same ReportList page.
+                captured = self._feed_via_report_list(page, url, recovery_url, timeout)
+                if (captured is None and self.channel
+                        and os.getenv("CODAL_BROWSER_HEADLESS", "0") == "0"):
+                    # A headed run keeps the operator on the one real Codal page;
+                    # unattended/headless runs keep their old direct fallback and
+                    # never wait for a human.
+                    self._manual_browser_recovery(recovery_url, page=page)
+                    recovery_confirmed = True
+                    challenge_retries += 1
+                    if challenge_retries > 1:
+                        raise RuntimeError("Codal challenge retry limit reached")
+                    continue
             if captured is not None:
                 body, content_type, status, headers = captured
                 response = None
@@ -541,7 +706,7 @@ class CodalTransport:
                     body = page.content().encode("utf-8")
             if self._looks_like_challenge(page, content_type):
                 if recovery_url and self.channel:
-                    self._manual_browser_recovery(recovery_url)
+                    self._manual_browser_recovery(recovery_url, page=page)
                     recovery_confirmed = True
                     challenge_retries += 1
                     if challenge_retries > 1:
@@ -557,7 +722,7 @@ class CodalTransport:
                 if (recovery_url and self.channel
                         and os.getenv("CODAL_BROWSER_HEADLESS", "0") == "0"
                         and not recovery_confirmed):
-                    self._manual_browser_recovery(recovery_url, retry_at)
+                    self._manual_browser_recovery(recovery_url, retry_at, page=page)
                     recovery_confirmed = True
                     continue
                 rate_retries += 1
@@ -607,6 +772,7 @@ class CodalTransport:
                         self._manual_browser_recovery(
                             recovery_url,
                             assume_captcha=True,
+                            page=page,
                             message=(
                                 "کدال به‌جای دادهٔ گزارش‌ها صفحهٔ امنیتی برگرداند. کد تصویر را همین‌جا "
                                 "وارد کنید؛ پس از تأیید، همان درخواست خودکار تکرار می‌شود."

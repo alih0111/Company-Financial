@@ -7,7 +7,7 @@ import pytest
 
 from qvt_backtest.evidence_paths import provenance_path, resolve_evidence_path
 from ranking_research.tests.fixture_env import fixture_environment
-from ranking_research.future_eval_v12_30.sales_lineage import encode_sales_lineage
+from ranking_research.future_eval_v12_30.sales_lineage import encode_sales_lineage, monthly_missing_reasons
 
 
 def test_sales_lineage_marks_missing_period_and_rejects_nonfinite_facts():
@@ -17,6 +17,16 @@ def test_sales_lineage_marks_missing_period_and_rejects_nonfinite_facts():
     assert data["known_months"] == 0 and data["source"] == "sales.parquet"
     with pytest.raises(ValueError, match="Out of range"):
         encode_sales_lineage([{"value": float("nan")}], "1405-06", 1, "sales.parquet")
+
+
+def test_sales_lineage_keeps_replay_reason_only_for_missing_factors():
+    row = {"missing_reason_12m": "insufficient_or_noncontiguous_24m",
+           "missing_reason_3m": None, "missing_reason_stability": "zero_denominator"}
+    values = {"sales_growth_12m": float("nan"), "sales_growth_3m": 3.0, "sales_stability": None}
+    reasons = monthly_missing_reasons(row, values)
+    assert reasons == {"sales_growth_12m": "insufficient_or_noncontiguous_24m", "sales_stability": "zero_denominator"}
+    encoded = json.loads(encode_sales_lineage([], None, 1, "sales.parquet", reasons))
+    assert encoded["missing_reasons"] == reasons
 
 
 def test_provenance_path_keeps_external_identity(tmp_path):

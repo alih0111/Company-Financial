@@ -221,6 +221,7 @@ export interface ShadowHealth {
   score_computed_at?: string;
   data_as_of?: string;
   score_stale?: boolean;
+  score_freshness?: "FRESH" | "STALE" | "UNKNOWN";
   score_stale_reasons?: string[] | null;
   analytics_status?: string;
 }
@@ -875,6 +876,10 @@ export interface SyncCodalTotal {
   repair_failed?: number;
   scan_oldest?: string | null;
   scan_newest?: string | null;
+  // شفاف‌سازی فید تک‌نماد: چند نامه در سرچ کدال بود و چندتا و چرا فیلتر شدند
+  feed_total?: number;
+  skipped_other_letters?: number;
+  skipped_audited?: number;
 }
 
 export interface SyncCodalSummary {
