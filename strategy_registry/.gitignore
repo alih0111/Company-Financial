@@ -1,0 +1,4 @@
+# Frozen data is shipped in checksum-verified ZIPs, not the Git object store.
+archives/
+RFA-FactorMix-033/v1.0.0/snapshot_data/
+RFA-FactorMix-033/v1.0.0/source_inputs/

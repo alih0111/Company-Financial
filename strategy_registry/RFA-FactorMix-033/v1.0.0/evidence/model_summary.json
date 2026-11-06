@@ -1,0 +1,122 @@
+{
+  "model_specifications": 212,
+  "portfolio_configurations_per_model": 14,
+  "selection_portfolio_runs": 2968,
+  "input_features": 65,
+  "learned_models": 36,
+  "fit_audit_records": 324,
+  "all_training_labels_realized_at_fit": true,
+  "winner": {
+    "selected_model": {
+      "id": "GROUP_WEIGHT_033",
+      "kind": "blocks",
+      "weights": [
+        0.01178982033843565,
+        0.1950482489558543,
+        0.0021009244509838346,
+        0.018452940999857618,
+        0.21010152399682835,
+        0.22776441503917455,
+        0.3253441466496349,
+        0.009397979569230856
+      ]
+    },
+    "selected_policy": {
+      "id": "n5_d40_band",
+      "family": "core",
+      "n": 5,
+      "method": "p1",
+      "schedule": "quarter",
+      "offset": 40,
+      "buffer": 1.6,
+      "rebalance": "band",
+      "momentum": 63,
+      "pool": 15,
+      "blend": 0.25,
+      "regime": false,
+      "weighting": "equal"
+    },
+    "selected_training_row": {
+      "model": "GROUP_WEIGHT_033",
+      "kind": "blocks",
+      "policy": "n5_d40_band",
+      "id": "GROUP_WEIGHT_033__n5_d40_band",
+      "start": "2022-01-01",
+      "end": "2024-12-31",
+      "final_toman": 609564343.9832146,
+      "total_return": 5.095643439832146,
+      "cagr": 0.8274790767761311,
+      "max_drawdown": -0.12249160722124208,
+      "sharpe_zero_rf": 3.502065813733507,
+      "annual_volatility": 0.18630331365782016,
+      "n_trades": 143,
+      "expired_orders": 3,
+      "fold1_return": 0.7984076174590395,
+      "fold1_relative": 1.2893886817313251,
+      "fold2_return": 0.029966962103309402,
+      "fold2_relative": 0.9543238234728095,
+      "fold3_return": 0.300108227540709,
+      "fold3_relative": 1.079580247134873,
+      "fold4_return": 0.718416377266557,
+      "fold4_relative": 1.1937446015708375,
+      "score": 0.056456697342046974,
+      "eligible": true
+    },
+    "selection_end": "2024-12-31",
+    "prior_verification_seen": true,
+    "locked_at_utc": "2026-11-06T07:11:41.685713+00:00",
+    "selection_table_sha256": "109246f428cc8c77630542511b0f89322ef63ce29a615da2b3dc22e144153dd8"
+  },
+  "verification": [
+    {
+      "label": "candidate",
+      "start": "2025-01-01",
+      "end": "2026-02-24",
+      "final_toman": 153547490.89035317,
+      "total_return": 0.5354749089035318,
+      "cagr": 0.45328638581640357,
+      "max_drawdown": -0.21128559720586526,
+      "sharpe_zero_rf": 2.1348145572833324,
+      "annual_volatility": 0.1951345922410706,
+      "n_trades": 44,
+      "expired_orders": 2
+    },
+    {
+      "label": "baseline",
+      "start": "2025-01-01",
+      "end": "2026-02-24",
+      "final_toman": 142116686.06230116,
+      "total_return": 0.4211668606230117,
+      "cagr": 0.3585121105575939,
+      "max_drawdown": -0.264816387734933,
+      "sharpe_zero_rf": 1.5961774478819535,
+      "annual_volatility": 0.2191368054693023,
+      "n_trades": 44,
+      "expired_orders": 4
+    }
+  ],
+  "paired_bootstrap": {
+    "block_sessions": 21,
+    "replications": 3000,
+    "observed_relative_wealth": 1.0804325314976806,
+    "ci95_relative_wealth": [
+      0.8434685165773712,
+      1.4010258631373629
+    ],
+    "bootstrap_fraction_relative_wealth_le1": 0.26,
+    "note": "conditional on frozen chosen policy; does not remove prior model/universe selection bias"
+  },
+  "gates": {
+    "verification_return": true,
+    "verification_drawdown": true,
+    "cost_stress": true,
+    "delay_stress": true,
+    "paired_ci_lower_above_one": false
+  },
+  "all_gates_pass": false,
+  "monthly_start_wins": 24,
+  "monthly_start_pairs": 24,
+  "prior_verification_seen": true,
+  "production_activated": false,
+  "elapsed_seconds": 462.1
+}

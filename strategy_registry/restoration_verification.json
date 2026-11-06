@@ -1,0 +1,13 @@
+{
+  "registry_id": "RFA-FactorMix-033-Q40-Buffer8-v1.0.0",
+  "backup_zip_sha256": "29cd0f240ec6f7b7abd32e6d364467fbb2d4d0bd8e1948bc894883b4072451af",
+  "restored_from": "C:\\Users\\aliheyd\\Documents\\RFA-Strategy-Backups\\RFA-FactorMix-033-v1.0.0-20261106.zip",
+  "verification_workspace": "D:\\RFA\\Company-Financial\\.runtime\\strategy_archive_verify_5a241156ea",
+  "daily_nav_reproduced": true,
+  "expected_final_toman": 1290465605.5777485,
+  "actual_final_toman": 1290465605.5777485,
+  "verified_files": 73,
+  "requires_original_experiment_directories": false,
+  "uses_project_runtime_packages_only": true,
+  "temporary_verification_workspace_removed": true
+}

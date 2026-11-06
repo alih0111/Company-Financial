@@ -1,0 +1,11 @@
+{
+  "registry_id": "RFA-FactorMix-033-Q40-Buffer8-v1.0.0",
+  "version_directory": "D:\\RFA\\Company-Financial\\strategy_registry\\RFA-FactorMix-033\\v1.0.0",
+  "archive": "D:\\RFA\\Company-Financial\\strategy_registry\\archives\\RFA-FactorMix-033-v1.0.0-20261106.zip",
+  "backup": "C:\\Users\\aliheyd\\Documents\\RFA-Strategy-Backups\\RFA-FactorMix-033-v1.0.0-20261106.zip",
+  "zip_sha256": "29cd0f240ec6f7b7abd32e6d364467fbb2d4d0bd8e1948bc894883b4072451af",
+  "files_in_version": 74,
+  "archive_bytes": 78573493,
+  "cloud_uploaded": false,
+  "production_activated": false
+}

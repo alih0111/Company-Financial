@@ -1,0 +1,21 @@
+{
+  "post_selection_only": true,
+  "simulations": 222,
+  "perturbations": {
+    "0.1": {
+      "cases": 100,
+      "wins": 99,
+      "return_p05": 0.44739544812043763,
+      "return_median": 0.529507091841253,
+      "return_p95": 0.6283797170549794
+    },
+    "0.25": {
+      "cases": 100,
+      "wins": 88,
+      "return_p05": 0.3226077557255106,
+      "return_median": 0.5088685934342725,
+      "return_p95": 0.7456246554674003
+    }
+  },
+  "selected_model_unchanged": true
+}

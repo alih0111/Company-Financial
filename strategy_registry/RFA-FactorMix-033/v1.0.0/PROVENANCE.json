@@ -1,0 +1,353 @@
+{
+  "files": [
+    {
+      "original_path": "ranking_research\\experiments\\final_strategy_review_20261106\\engine.py",
+      "archived_path": "replay/engine_snapshot.py",
+      "sha256": "f81e4a77355d4c684c5e8f5d02583836c3c5f76b32bafb9974c48c36f89c6021"
+    },
+    {
+      "original_path": "strategy_registry\\restore_replay_template.py",
+      "archived_path": "replay/restore_replay.py",
+      "sha256": "305177107ff77667a0e055d23cc23b0650535a639fbfb1d6748b72f9607ba442"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_inputs.npz",
+      "archived_path": "snapshot_data/active_inputs.npz",
+      "sha256": "bded8e686e0716ca80d0a68d5ed466709a10935bacf44186d9d31d689ee7e9d9"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\complete_inputs.npz",
+      "archived_path": "snapshot_data/generic_inputs.npz",
+      "sha256": "41a23c191a55998097199a70e021016398def7fa6079263ed65e4f7536330f52"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\features.npz",
+      "archived_path": "snapshot_data/model_features.npz",
+      "sha256": "b2d8f7baf11854792a77bab7b469ec195339b087b7892aaed5145ad903a67cf0"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\market_inputs.npz",
+      "archived_path": "snapshot_data/model_market_inputs.npz",
+      "sha256": "13acf940002839201ab0d48b48c9a02ce6d79f68facf998210492c3e68fbf4f5"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\score_cache\\GROUP_WEIGHT_033.npz",
+      "archived_path": "snapshot_data/selected_score.npz",
+      "sha256": "b01969dd88c94f44f3a2c41d8ce882db7fae2d9e913ad22c6162aee3a12cf041"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\feature_audit.py",
+      "archived_path": "source/model_search_feature_audit.py",
+      "sha256": "e8488272fff26b5b72bf4bdc17d2aa860a28d1889c7ae63f2407a46ad22a962d"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\features.py",
+      "archived_path": "source/model_search_features.py",
+      "sha256": "61379b992902377ee7dcb7a08384a0adff05499188e94d0e3c7e6571250f7b02"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\models.py",
+      "archived_path": "source/model_search_models.py",
+      "sha256": "81353cfaa100e56699fab6fd3abf26898a1ea0a674f1996bf2fb4f2d4eb26ce7"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\report.py",
+      "archived_path": "source/model_search_report.py",
+      "sha256": "61a473c9ff2ccb9b2b57b30a1ad75fa2ae0e434fa395c0e8287d6875eeb1e25a"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\run.py",
+      "archived_path": "source/model_search_run.py",
+      "sha256": "debd47dd6e3661412007345c5ce7631fd7ae59ff9612b18c0f07bcd7c4b073b1"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\stability.py",
+      "archived_path": "source/model_search_stability.py",
+      "sha256": "531b37cd6e3863e589a4d974f20f11885bc571c22758f73fb742dd796a77f329"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\test_research.py",
+      "archived_path": "source/model_search_test_research.py",
+      "sha256": "8ba7482b2c22c1da1da279a4fa140ca720ab109f0a2d49e6f0d5e79174dea7cd"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\REPORT.fa.md",
+      "archived_path": "reports/model_search.fa.md",
+      "sha256": "8a7eebf5d1dc90cdc2fb2a2f2650a3a0bb2106f31c43c2f588edadc45277f7ec"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\README.md",
+      "archived_path": "reports/model_search_reproduction.md",
+      "sha256": "9f206cf27c2488a2908b2ad279507ffc70b5f8303518d858dc23505245fc5091"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\active_calendar.py",
+      "archived_path": "source/full_replay_active_calendar.py",
+      "sha256": "d6d3d2d451b566f9e2dfcf8608c7fe2945ca8e502e68b1ecb7a544d28392fdd3"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\extend_market.py",
+      "archived_path": "source/full_replay_extend_market.py",
+      "sha256": "df7a076712a16af1a3e32887fbbdfe93bcebf17f40f1f4027df343ab88302e80"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\full_replay.py",
+      "archived_path": "source/full_replay_full_replay.py",
+      "sha256": "34386a97124c7c2bc63ed4c6ce8eda148f089517cdb6092ad2d061a24391c006"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\report.py",
+      "archived_path": "source/full_replay_report.py",
+      "sha256": "e97769702e1aecb725fba8ba6e46fc7dfb549b1e292450a3528549fa8ae6772f"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\run_available.py",
+      "archived_path": "source/full_replay_run_available.py",
+      "sha256": "1a8a097d977b0a704a5bd9d54ccf7c2ec2642efe75f46d04592ae982f03c22c8"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\test_replay.py",
+      "archived_path": "source/full_replay_test_replay.py",
+      "sha256": "ced6b3beecf21c2488d4fa6e317b56d9ffdc95163c428f6345a9f7d46dced3c2"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\REPORT.fa.md",
+      "archived_path": "reports/full_replay.fa.md",
+      "sha256": "62304c5a0d284d1775e3ec5a22b14e48ea5fea796edb11e00f073ea861c7c99c"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\README.md",
+      "archived_path": "reports/full_replay_reproduction.md",
+      "sha256": "09c72acba901333aaeba929f10b530302dac3e9a088bb2b46e17bb12ee6de2fb"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\research_decision.json",
+      "archived_path": "evidence/model_research_decision.json",
+      "sha256": "68fc148f0c53e09aaa8bdb4f8f933d24d54cd5c856559a2152dae667c6493309"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\protocol.locked.json",
+      "archived_path": "evidence/model_protocol.locked.json",
+      "sha256": "4802ba2175f3db1b68a845a9013dceb895aa69ca386311782afb8d0bf7d2615e"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\chosen.before_reused_verification.json",
+      "archived_path": "evidence/model_chosen.before_reused_verification.json",
+      "sha256": "57a19461f9dcfd0462db4afa8d8447b9f98dd89b1377054faa6a939d36ff1a1b"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\summary.json",
+      "archived_path": "evidence/model_summary.json",
+      "sha256": "097396521da52705eba45ffb078b45fae079f44820283a2499dded15fc5eab86"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\feature_manifest.json",
+      "archived_path": "evidence/model_feature_manifest.json",
+      "sha256": "fc4d895b6bff277d9fe027e094d2745f9af25d3bb562d7a7580d712d30f0694e"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\selection_all.csv",
+      "archived_path": "evidence/model_selection_all.csv",
+      "sha256": "109246f428cc8c77630542511b0f89322ef63ce29a615da2b3dc22e144153dd8"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\stress.csv",
+      "archived_path": "evidence/model_stress.csv",
+      "sha256": "0de72afcd9d44ffe6f49619f35a4cce91cf9b9b83c867597f7237129342332e4"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\monthly_starts.csv",
+      "archived_path": "evidence/model_monthly_starts.csv",
+      "sha256": "f7a5b67f77a96117a8219c243605b0e8716ba0701a93d87b5e9daeaed4ede5cf"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\stability_summary.json",
+      "archived_path": "evidence/model_stability_summary.json",
+      "sha256": "5a9bf961fd6138b85b4c4632f55c033ddb5d27b8005cd0f4463d9968a6874a66"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\stability_results.csv",
+      "archived_path": "evidence/model_stability_results.csv",
+      "sha256": "a16c6aba2823581b7d13cb068a33f19a2240c6fb666ded003c80efa06bed1815"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\tests.junit.xml",
+      "archived_path": "evidence/model_tests.junit.xml",
+      "sha256": "ef16383aff216466ffb7a440cd3b36267f4c5978c9aa416b8ab214b19a6ac96c"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_summary.json",
+      "archived_path": "results/active_summary.json",
+      "sha256": "1299baccbf7402f180196e07c7207e99cdbf1c2295d7898eb78a56baeb847b6e"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\complete_summary.json",
+      "archived_path": "results/complete_summary.json",
+      "sha256": "d25af0f1219e7f727f957e01064b5a1afe65070a72273c858458c8c6ba08f37d"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\available_replay.json",
+      "archived_path": "results/available_replay.json",
+      "sha256": "95203e27a6421c5e4c4ac63466388aa61f8d3cff63fac26738388c5d9542bc53"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_calendar.protocol.json",
+      "archived_path": "results/active_calendar.protocol.json",
+      "sha256": "12e42253b1a6469175427cea4d00f5918509cfe0f7e67eb809edeefeea851d74"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\market_extension.json",
+      "archived_path": "results/market_extension.json",
+      "sha256": "7eb43916c8baec41fe94ccf183c60712dea8e473ab65c8e8f3cd24863b1daa23"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_financial_extension_audit.json",
+      "archived_path": "results/active_financial_extension_audit.json",
+      "sha256": "d5619f0c7226235f783efac0935f52594b9cf9a1ee8ebe3d56e0b5938bb424cb"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\generic_financial_extension_audit.json",
+      "archived_path": "results/generic_financial_extension_audit.json",
+      "sha256": "2bb8bab01c6eefb4c1d2ce8bf66a70e60e72211a51dc449e1cb73985c50f5706"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\reference_factor_regression.csv",
+      "archived_path": "results/reference_factor_regression.csv",
+      "sha256": "b2f90e4e48ffafc99030e99b0e24a0a3324a0403ccc344840845a500268ab1bd"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\new_reference_adjustments.csv",
+      "archived_path": "results/new_reference_adjustments.csv",
+      "sha256": "fb32259337de9019d5f236e7350631e54ba1fd71ec2d835fdab4985226b9a557"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\tests.junit.xml",
+      "archived_path": "results/tests.junit.xml",
+      "sha256": "f078fea186d3c2b54d58795402525d2e33ee064a31f6821e6417c922f4dc99ae"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\full_comparison.png",
+      "archived_path": "results/full_comparison.png",
+      "sha256": "220a023ba5868ea994f5ab95af9036d8700816aff2def07dbb751c69f61a0045"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_candidate_nav.csv",
+      "archived_path": "results/active_candidate_nav.csv",
+      "sha256": "7babb54faf8a563d6ff2e0ffc9912760b0eb655b2e2fc49ab62eb94514aa3298"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_candidate_trades.csv",
+      "archived_path": "results/active_candidate_trades.csv",
+      "sha256": "0be996bd10fb9aa891842ce088cb6b24dbe97b3b07cd227e9f491b8a848ef726"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_candidate_decisions.csv",
+      "archived_path": "results/active_candidate_decisions.csv",
+      "sha256": "de4afe4733a8f25cbe4aef022607fe7a7fd8ca8f47e6ddc30ebf9b24c1fd616c"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_baseline_nav.csv",
+      "archived_path": "results/active_baseline_nav.csv",
+      "sha256": "2519701a3f465f7a39ecf8a06c2029e759205563871d92f8cc6e9c55a5c5ed24"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_baseline_trades.csv",
+      "archived_path": "results/active_baseline_trades.csv",
+      "sha256": "ec67983c45a2a8a78ace8b91a481813452a93d8d6fc61c6bdc0cd98d3f037c4d"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\active_baseline_decisions.csv",
+      "archived_path": "results/active_baseline_decisions.csv",
+      "sha256": "81cf96df1db6caffe4a422d5adbd972c268d3f3d5c2e2150960a7da040f7388d"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\complete_candidate_nav.csv",
+      "archived_path": "results/complete_candidate_nav.csv",
+      "sha256": "21c0a0d6764afdd73396a2f8748df96944720e37fc0382dd1092152909d0981e"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\complete_candidate_trades.csv",
+      "archived_path": "results/complete_candidate_trades.csv",
+      "sha256": "4bba112249580a3c78611a51faa0d904094d5c9c8a69211a50ee44e8d893cfb5"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\complete_candidate_decisions.csv",
+      "archived_path": "results/complete_candidate_decisions.csv",
+      "sha256": "940aac90a1e73fda64fd395caa002a0bddaa223286b7ad16f4051b599637a7cc"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\complete_baseline_nav.csv",
+      "archived_path": "results/complete_baseline_nav.csv",
+      "sha256": "b7e9c656c633719cb9858794db26f95fc0b040dd8aa51ab94d9eb95f0f9040f7"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\complete_baseline_trades.csv",
+      "archived_path": "results/complete_baseline_trades.csv",
+      "sha256": "ec67983c45a2a8a78ace8b91a481813452a93d8d6fc61c6bdc0cd98d3f037c4d"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\complete_baseline_decisions.csv",
+      "archived_path": "results/complete_baseline_decisions.csv",
+      "sha256": "25e6922d076c755975ae78df4434f2d0295726c08c4f3a8890d9313a91303a4a"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\financial_2026-02-25.parquet",
+      "archived_path": "source_inputs/financial_2026-02-25.parquet",
+      "sha256": "890a38b95252afb7deb7227daf734c68bdc77f2e00e191e27ba3b560afe2833d"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\financial_2026-04-29.parquet",
+      "archived_path": "source_inputs/financial_2026-04-29.parquet",
+      "sha256": "05c4ca0b39b98e71e3c72daf4fd57f067298a70876ea787e862a8af3cdec09ed"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\financial_2026-05-03.parquet",
+      "archived_path": "source_inputs/financial_2026-05-03.parquet",
+      "sha256": "30791a0641281c62937746ab4f09c6e4f853242b8ccfc64182931acba81028b5"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\financial_2026-05-19.parquet",
+      "archived_path": "source_inputs/financial_2026-05-19.parquet",
+      "sha256": "f1a6d618cabcb7bf1b6ae1b4beca73765656d9d615eca5a9c8f0570f5f146e78"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\financial_2026-08-01.parquet",
+      "archived_path": "source_inputs/financial_2026-08-01.parquet",
+      "sha256": "ffb2d04fce3e0086c193e82c12f9b92875bfcd93d2c762bddd3a187369886209"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\financial_2026-08-03.parquet",
+      "archived_path": "source_inputs/financial_2026-08-03.parquet",
+      "sha256": "4853b9d82f6a00175ad50dcad67224dbfcea3edd821a4ea60e1dafad4259fed2"
+    },
+    {
+      "original_path": "ranking_research\\experiments\\replay_1402_to_now_20261106\\artifacts\\financial_2026-11-01.parquet",
+      "archived_path": "source_inputs/financial_2026-11-01.parquet",
+      "sha256": "985e4195b07448cfd73c7ed51002324bc8490a1e4ba9953413d4c31a19a792a3"
+    },
+    {
+      "original_path": "ranking_research\\output\\return_v12_37\\v12_37_daily_paper-cycle-20261105T190004086286Z-161d8f98\\extraction_manifest.json",
+      "archived_path": "source_inputs/extraction_manifest.json",
+      "sha256": "cb42597e776eb4d22d78996ae2b844798bbf0fc6a98615c12a9f03faec945be7"
+    },
+    {
+      "original_path": "ranking_research\\output\\paper_cycle\\codal\\paper-cycle-20261105T190004086286Z-161d8f98\\factor-inputs\\input_reports.json",
+      "archived_path": "source_inputs/input_reports.json",
+      "sha256": "9878fde1295a81ca1715aecddf02552d55a914c7086adaae86e29b5056f8a849"
+    },
+    {
+      "original_path": "ranking_research\\output\\paper_cycle\\codal\\paper-cycle-20261105T190004086286Z-161d8f98\\factor-inputs\\monthly_sales_events.parquet",
+      "archived_path": "source_inputs/monthly_sales_events.parquet",
+      "sha256": "9d4c905d1a3961e056ed78eef3fd01e3a1d08fc993bc463edd03d257a4f38290"
+    },
+    {
+      "original_path": "ranking_research\\output\\paper_cycle\\codal\\paper-cycle-20261105T190004086286Z-161d8f98\\factor-inputs\\comparative_lineage.json",
+      "archived_path": "source_inputs/comparative_lineage.json",
+      "sha256": "692f0a111c549ca7705d3e94de48d49bc94542e09ea0fd4b673080b8fa854dae"
+    }
+  ],
+  "python_version": "3.13.5",
+  "source_project": "D:\\RFA\\Company-Financial",
+  "no_credentials_included": true,
+  "mode": "local frozen strategy preservation"
+}

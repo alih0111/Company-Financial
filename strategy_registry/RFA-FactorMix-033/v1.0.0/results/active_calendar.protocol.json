@@ -1,0 +1,8 @@
+{
+  "declared_at_utc": "2026-11-06T07:55:51.217676+00:00",
+  "rule": "preserve all frozen dates through 2026-02-24; thereafter count an equity session only when at least one of the 254 names has a positive-volume/value opening",
+  "reason": "generic calendar includes dates during the spring 1405 equity closure, incorrectly expiring orders and anchoring quarterly reviews",
+  "return_based_calendar_tuning": false,
+  "weights_and_order_life_unchanged": true,
+  "calendar_is_observed_equity_activity_proxy_not_exchange_certification": true
+}

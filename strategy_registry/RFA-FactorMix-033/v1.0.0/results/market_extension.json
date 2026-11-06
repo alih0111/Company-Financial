@@ -1,0 +1,1683 @@
+{
+  "research_generated_at": "2026-11-06T07:56:32.853315+00:00",
+  "last_market_date": "2026-11-04",
+  "old_certified_end": "2026-09-30",
+  "new_reference_events": [
+    {
+      "symbol": "تپمپی",
+      "security_id": "173f50f9-8cdf-44ca-b877-4ac30f633342",
+      "date": "2026-10-24",
+      "factor": 0.95862069,
+      "before": 7250.0,
+      "after": 6950.0
+    },
+    {
+      "symbol": "خصدرا",
+      "security_id": "ae943193-3889-48b4-8366-0e0d5e80b6ca",
+      "date": "2026-10-27",
+      "factor": 0.48367953,
+      "before": 3370.0,
+      "after": 1630.0
+    },
+    {
+      "symbol": "خصدرا",
+      "security_id": "ae943193-3889-48b4-8366-0e0d5e80b6ca",
+      "date": "2026-11-01",
+      "factor": 1.00245399,
+      "before": 1630.0,
+      "after": 1634.0
+    },
+    {
+      "symbol": "خنصیر",
+      "security_id": "8efe3455-c66d-4e88-8dc1-ce991c003897",
+      "date": "2026-10-21",
+      "factor": 0.36554622,
+      "before": 4760.0,
+      "after": 1740.0
+    },
+    {
+      "symbol": "دفرا",
+      "security_id": "a2206fe2-2592-4c83-80cb-b85d290f58be",
+      "date": "2026-11-04",
+      "factor": 0.5,
+      "before": 58340.0,
+      "after": 29170.0
+    },
+    {
+      "symbol": "شستا",
+      "security_id": "03c176e3-cb88-4c47-99fd-93d6f1910994",
+      "date": "2026-10-25",
+      "factor": 0.94293478,
+      "before": 3680.0,
+      "after": 3470.0
+    },
+    {
+      "symbol": "غشان",
+      "security_id": "365d2b75-4347-4e69-bed3-81da9940b19a",
+      "date": "2026-10-25",
+      "factor": 0.26085088,
+      "before": 23270.0,
+      "after": 6070.0
+    },
+    {
+      "symbol": "غشوکو",
+      "security_id": "d11a9b42-ff81-45c0-b4f1-30efbcc2b755",
+      "date": "2026-10-04",
+      "factor": 0.66640254,
+      "before": 12620.0,
+      "after": 8410.0
+    },
+    {
+      "symbol": "غویتا",
+      "security_id": "11c47c77-bf4c-4d02-a462-28907953821b",
+      "date": "2026-11-03",
+      "factor": 0.5,
+      "before": 7160.0,
+      "after": 3580.0
+    },
+    {
+      "symbol": "غپینو",
+      "security_id": "6b0a1754-b9c8-4152-90d4-a1e7a512e05a",
+      "date": "2026-10-19",
+      "factor": 0.91807349,
+      "before": 2014.0,
+      "after": 1849.0
+    },
+    {
+      "symbol": "مادیرا",
+      "security_id": "20dc84d0-984a-431a-9d67-3ea9b36f2098",
+      "date": "2026-10-20",
+      "factor": 0.96794872,
+      "before": 3120.0,
+      "after": 3020.0
+    },
+    {
+      "symbol": "وتوشه",
+      "security_id": "3905f771-9db6-4ab1-9491-5a0090589803",
+      "date": "2026-10-26",
+      "factor": 0.76930999,
+      "before": 9710.0,
+      "after": 7470.0
+    },
+    {
+      "symbol": "کاوه",
+      "security_id": "4f29c1d5-99b2-4593-b52e-7038ae7da40f",
+      "date": "2026-10-03",
+      "factor": 0.99591281,
+      "before": 7340.0,
+      "after": 7310.0
+    },
+    {
+      "symbol": "کماسه",
+      "security_id": "3fda4729-07cd-4073-9680-a5adfd5b2f1a",
+      "date": "2026-10-05",
+      "factor": 0.9965096,
+      "before": 5730.0,
+      "after": 5710.0
+    },
+    {
+      "symbol": "کنور",
+      "security_id": "c4146bf9-dfea-4ed1-bafb-f78195a915ca",
+      "date": "2026-10-12",
+      "factor": 0.74137931,
+      "before": 6960.0,
+      "after": 5160.0
+    },
+    {
+      "symbol": "کهمدا",
+      "security_id": "c5c85fab-9661-42c4-8157-72404fc208fc",
+      "date": "2026-10-19",
+      "factor": 0.95658466,
+      "before": 6910.0,
+      "after": 6610.0
+    }
+  ],
+  "old_factor_regression_checks": 1147,
+  "all_rederivable_factors_match_8decimal_precision": true,
+  "prior_unobservable_resets_retained": [
+    {
+      "symbol": "رمپنا",
+      "date": "2024-08-10",
+      "expected": 0.94692144,
+      "observed": null,
+      "passed": false
+    },
+    {
+      "symbol": "فولای",
+      "date": "2024-08-10",
+      "expected": 0.98818898,
+      "observed": null,
+      "passed": false
+    }
+  ],
+  "source_raw_files": [
+    {
+      "symbol": "آردینه",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\8c12f9cd-4550-4a96-ba5c-1187719d2ad6.daily.json.gz",
+      "raw_sha256": "84f5e7d3a42a96aa59a14f7cd6e531b836895df8564dbf3eb4f0bde834f614cf",
+      "retrieved_at": "2026-11-04T19:01:56.790396+00:00"
+    },
+    {
+      "symbol": "آریا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a36c3397-24e6-44bc-ae13-d4904769bc05.daily.json.gz",
+      "raw_sha256": "e6a015b22069908125190f3d5e01d794fcfaff483e1ff93c42dabf441c46b0dc",
+      "retrieved_at": "2026-11-04T19:01:57.097278+00:00"
+    },
+    {
+      "symbol": "ارفع",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5a23c0ca-ab0c-4ead-a093-f2e1cbfc89b7.daily.json.gz",
+      "raw_sha256": "19f87d1ea09f84bf25e80fdb645df595c52cf86675310029d672ee5ad079a170",
+      "retrieved_at": "2026-11-04T19:01:57.652536+00:00"
+    },
+    {
+      "symbol": "اروند",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\9d9afe25-0b61-4225-8623-56756a8a5cb1.daily.json.gz",
+      "raw_sha256": "2d00ef2bcb82c55130d346b84657f620ee0aee68f33a4a89bcc5abe3e385676f",
+      "retrieved_at": "2026-11-04T19:01:58.382042+00:00"
+    },
+    {
+      "symbol": "اسیاتک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\bf2ee8a4-c121-42a7-aa4a-da75001a6a05.daily.json.gz",
+      "raw_sha256": "cde3ed0f05baa9e35956b71fcecec08f4a5f8e3f96de7360a210e79c785f7969",
+      "retrieved_at": "2026-11-04T19:01:58.963502+00:00"
+    },
+    {
+      "symbol": "افق",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\7ad97d90-ca30-4b48-b528-1ad0ba8f1fd6.daily.json.gz",
+      "raw_sha256": "d5489cddf6cc346cd42aef58d8482d75ddece5cbb024ac00b3a2564ceba1b923",
+      "retrieved_at": "2026-11-04T19:01:59.390206+00:00"
+    },
+    {
+      "symbol": "بترانس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4a94b7d6-5f54-4389-b7c4-d4d7c2906c08.daily.json.gz",
+      "raw_sha256": "83c67ec758a79b39c91e9279d7f9d9d7e3f0f2a4cb4a555c89d4364e9414dbea",
+      "retrieved_at": "2026-11-04T19:02:00.177493+00:00"
+    },
+    {
+      "symbol": "بجهرم",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\34575525-fd7c-4d83-baa8-bb38555bbf5b.daily.json.gz",
+      "raw_sha256": "6b5f640af1bb8e88251d6858c0342a69f06b40899d695d2c50ee64c2a115a17d",
+      "retrieved_at": "2026-11-04T19:02:00.481031+00:00"
+    },
+    {
+      "symbol": "برکت",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\795ba3fd-e5af-4df2-be30-c8fab8a343f0.daily.json.gz",
+      "raw_sha256": "827612e013ec6f796580106ac32ae33ab92d08ddc5b19721b8c0fbdc0f869d10",
+      "retrieved_at": "2026-11-04T19:02:00.879554+00:00"
+    },
+    {
+      "symbol": "بزاگرس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\f5fdc667-05c5-49a5-97e6-a8e535c3ca01.daily.json.gz",
+      "raw_sha256": "06bd72b6f6e56ad7e8c4fc61dad5e31f1420df3daed876432867e06f61afddb0",
+      "retrieved_at": "2026-11-04T19:02:01.204796+00:00"
+    },
+    {
+      "symbol": "بشهاب",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\8c7c69d3-10db-49a6-b4a1-fec3009d2332.daily.json.gz",
+      "raw_sha256": "d99bcf0455394059cd0cd51a02b6d3ebd3a6f44120a9d5110a9f1954baafaf14",
+      "retrieved_at": "2026-11-04T19:02:01.684399+00:00"
+    },
+    {
+      "symbol": "بفجر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a3d9899a-222c-4aa7-8289-21219456d095.daily.json.gz",
+      "raw_sha256": "6ece08400c433f43e52fc14866c7f7f39156af44cb8b163e45719d31bd03aad2",
+      "retrieved_at": "2026-11-04T19:02:02.075112+00:00"
+    },
+    {
+      "symbol": "بموتو",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\229203d2-ce92-492e-8384-a6faaf6d0e20.daily.json.gz",
+      "raw_sha256": "d454b0d062830c3724b10d2f63e5e55b0d413a09e32f2acb30ae00d1668eace6",
+      "retrieved_at": "2026-11-04T19:02:02.675102+00:00"
+    },
+    {
+      "symbol": "بمولد",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\bd3c4219-2b34-4590-99f9-44c4fc39d3dc.daily.json.gz",
+      "raw_sha256": "dc2b57228a47efa0388180b7924cdafbd8bb0ffb016482a00d7d1d279ccaf1cd",
+      "retrieved_at": "2026-11-04T19:02:02.955613+00:00"
+    },
+    {
+      "symbol": "بمپنا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\59e163ef-c340-4f9f-af09-fa6242fe41cf.daily.json.gz",
+      "raw_sha256": "260e432dffd8d975d6e3e1edeadf7617d253ec6af52289a250c577158943b3f0",
+      "retrieved_at": "2026-11-04T19:02:03.327557+00:00"
+    },
+    {
+      "symbol": "بهپاک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a225648b-76a1-4ae3-8b6e-e7ccfa259d30.daily.json.gz",
+      "raw_sha256": "44ae14bba79e35c35beea102f14388d09a681351142534accaaea7f41aa0cf40",
+      "retrieved_at": "2026-11-04T19:02:03.711323+00:00"
+    },
+    {
+      "symbol": "بوعلی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c78433dc-e873-4bc9-85c4-794f755e5637.daily.json.gz",
+      "raw_sha256": "a5387843d030fd27cd40e54d307f3a950c34e0b210239829925b7f2a93f6cb04",
+      "retrieved_at": "2026-11-04T19:02:04.036933+00:00"
+    },
+    {
+      "symbol": "بپیوند",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\fa4a26cd-ef5b-45dd-ae1e-6e429fcf57f2.daily.json.gz",
+      "raw_sha256": "0d3e2dcad85ee558ff78be8fa841634b1dcb1d00f7052dc0a25ad381090bfc20",
+      "retrieved_at": "2026-11-04T19:02:04.350512+00:00"
+    },
+    {
+      "symbol": "بکهنوج",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5c8b97d1-9fd7-451e-ab89-964a4ac12a39.daily.json.gz",
+      "raw_sha256": "bf18543be3467964d84dc4fbc2c4c5cec4341dea0f38e60b95edfc43e31dac84",
+      "retrieved_at": "2026-11-04T19:02:04.574387+00:00"
+    },
+    {
+      "symbol": "بگیلان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\0d2f948b-6b8d-461d-9ae5-0e2d6f15f097.daily.json.gz",
+      "raw_sha256": "c8c47723666c24f49567522960b3107f6624e252d50c51020512d2f6aa47990d",
+      "retrieved_at": "2026-11-04T19:02:04.909998+00:00"
+    },
+    {
+      "symbol": "بیوتیک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\18395190-5040-4ec6-8f64-2ec3a7838d7c.daily.json.gz",
+      "raw_sha256": "3f60cda78cee3729cefee0297da283ae88d9f8d36f7078dbf836f7fd3dbb0f9a",
+      "retrieved_at": "2026-11-04T19:02:05.179070+00:00"
+    },
+    {
+      "symbol": "تاتمس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5564f3b0-b2d3-4db6-945b-2f7ddec9a3e1.daily.json.gz",
+      "raw_sha256": "bc420d2ed1677758ac63069676ad877371216d727b0e4575bb300f5850039543",
+      "retrieved_at": "2026-11-04T19:02:05.461580+00:00"
+    },
+    {
+      "symbol": "تاصیکو",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\031272dd-b7bb-4c75-8b9d-bae9b708b18b.daily.json.gz",
+      "raw_sha256": "1d3a2f2ac0dba030dfbe73785323414bcddc2af7a62c753282a3e89abc5a0d60",
+      "retrieved_at": "2026-11-04T19:02:05.787799+00:00"
+    },
+    {
+      "symbol": "تایرا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d3e54010-744b-4177-966a-8b5706b07309.daily.json.gz",
+      "raw_sha256": "dc3a23a99c1b6b1419468dc8ca017d868aff2c46a64c3490b34128361d6d78eb",
+      "retrieved_at": "2026-11-04T19:02:06.373090+00:00"
+    },
+    {
+      "symbol": "تلیسه",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c37fa5da-3c3e-4c4b-8556-1e83da64bf0a.daily.json.gz",
+      "raw_sha256": "661f34be7af7a871acc59f6d8515758fb91d49cf640c7d9a7499c09e1636a084",
+      "retrieved_at": "2026-11-04T19:02:06.757943+00:00"
+    },
+    {
+      "symbol": "توریل",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3c363c84-8a26-48c6-8943-22842ca2a95c.daily.json.gz",
+      "raw_sha256": "1837b48243d2bfd7d26ac7885372f97f7c5486dc2a09366c298c29aec68d0a85",
+      "retrieved_at": "2026-11-04T19:02:07.193981+00:00"
+    },
+    {
+      "symbol": "تپسی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\907726df-b454-49b0-a6b1-d2cd83440bd0.daily.json.gz",
+      "raw_sha256": "90c0b1398b5945bc77633336411bdff8b9ba3d4ae144cfd27e9c2482266c1a86",
+      "retrieved_at": "2026-11-04T19:02:07.503951+00:00"
+    },
+    {
+      "symbol": "تپمپی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\11ce4fd7-9037-451e-b04e-7cad43e0c166.daily.json.gz",
+      "raw_sha256": "5d40fe0178cede1b8164ca1907115981189def98c3fe88d851980b4be52b0b2e",
+      "retrieved_at": "2026-11-04T19:02:08.001012+00:00"
+    },
+    {
+      "symbol": "تکمبا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\05ecd46d-8a0d-4645-bc21-f8fb1c406778.daily.json.gz",
+      "raw_sha256": "f920bf475aaa2efe831bf3731f09e686a886e61ae29272e33ef63f7d20addd52",
+      "retrieved_at": "2026-11-04T19:02:08.507352+00:00"
+    },
+    {
+      "symbol": "ثالوند",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ca698afc-0303-47eb-b1e0-46a00e10ece1.daily.json.gz",
+      "raw_sha256": "e072daea59b6aab67f51625314a6dae7c55750274bbe4a8f4f1a29afca0e510d",
+      "retrieved_at": "2026-11-04T19:02:08.874084+00:00"
+    },
+    {
+      "symbol": "ثبهساز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ad6c42d2-20f7-4382-b789-835efac4b98d.daily.json.gz",
+      "raw_sha256": "0f4bcf6373d61374b6ce692628183613f2340dcb47c2d771260a61f65a81c61b",
+      "retrieved_at": "2026-11-04T19:02:09.227531+00:00"
+    },
+    {
+      "symbol": "ثتران",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4e01fb83-fe97-45fe-8977-7d755faa519e.daily.json.gz",
+      "raw_sha256": "b548c6023fee1c7bbd8b1491f7b34d5507ee5a7e944dbc1443ea95e844bb9847",
+      "retrieved_at": "2026-11-04T19:02:09.711072+00:00"
+    },
+    {
+      "symbol": "حتاید",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\10050644-6c19-4b0c-a3be-627c38f06db3.daily.json.gz",
+      "raw_sha256": "4b7c1c30951ab552cac263e07d0a9ccae42f6fe8c545b8da7e99ff2ca51440d0",
+      "retrieved_at": "2026-11-04T19:02:10.216292+00:00"
+    },
+    {
+      "symbol": "حتوکا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\10afeffc-ef6d-4556-a912-7118b41ca443.daily.json.gz",
+      "raw_sha256": "e856ba18e2820502852e6a6859cb357e6bb4971fa9c00190926620a3f2be2c94",
+      "retrieved_at": "2026-11-04T19:02:10.689467+00:00"
+    },
+    {
+      "symbol": "حریل",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\371b9a73-1d12-48fa-b3d2-2fb27de25d73.daily.json.gz",
+      "raw_sha256": "644848ffbde766caa5477f1b0cf483cf33861be2aa9b8d57f6602deaf5c9140e",
+      "retrieved_at": "2026-11-04T19:02:11.065754+00:00"
+    },
+    {
+      "symbol": "حسیر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a53af603-e764-4e39-a8d2-0ad69c5faf24.daily.json.gz",
+      "raw_sha256": "2da5540b798e0ce01beb669049a429163a4c9689db144741d9ca373ea0088474",
+      "retrieved_at": "2026-11-04T19:02:11.434833+00:00"
+    },
+    {
+      "symbol": "حسینا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\7fffdde8-3048-4c8c-b59f-3829436cb25b.daily.json.gz",
+      "raw_sha256": "c6f9cd3b3fad18f8ed20ec205d94c1a48ffe84d84746b39cf9754d3e7a06a170",
+      "retrieved_at": "2026-11-04T19:02:11.828387+00:00"
+    },
+    {
+      "symbol": "حفارس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\28145ccd-d2bd-434f-b935-454d1740ec75.daily.json.gz",
+      "raw_sha256": "94d2297d99b7bf2fef5fa5e3f8beb5c21bf6a27f205d6267188717085dee8409",
+      "retrieved_at": "2026-11-04T19:02:12.279217+00:00"
+    },
+    {
+      "symbol": "حفاری",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\aa3059de-65ee-458d-b0f3-1c0a8fdf09e9.daily.json.gz",
+      "raw_sha256": "e49a03dc7c4897db8258aec9ddcd143791c3c34e5807501a802ba621440f62ea",
+      "retrieved_at": "2026-11-04T19:02:12.735891+00:00"
+    },
+    {
+      "symbol": "حپارسا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\eb902496-ffd5-40b3-b8ea-e6b01d9ce30a.daily.json.gz",
+      "raw_sha256": "ca028f18463ae7304e5ec7685a173b2d01f7fb4731922df2e5cc562fa2e2c983",
+      "retrieved_at": "2026-11-04T19:02:13.131081+00:00"
+    },
+    {
+      "symbol": "حکشتی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d8656698-2bfb-4961-bd8a-d0821ddc9e2d.daily.json.gz",
+      "raw_sha256": "0e1e33a5cefb5abb16b47d6543d249ac34778f992c85980ff3fb29cbb710ac75",
+      "retrieved_at": "2026-11-04T19:02:13.629081+00:00"
+    },
+    {
+      "symbol": "خبهمن",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\dce80742-f6f8-46d0-925e-daf3d8416a4b.daily.json.gz",
+      "raw_sha256": "ea2fc4f5b936ca97579db57b754656bd5d9966ddb1b33a97c6ee1548950c4a21",
+      "retrieved_at": "2026-11-04T19:02:14.261305+00:00"
+    },
+    {
+      "symbol": "خدیزل",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b478e266-a8d0-49b5-be92-60d4fd9e796f.daily.json.gz",
+      "raw_sha256": "661c1c52169a94c11493e149abf8a5ec6af3846fa7f05023d72b05064f68a2c9",
+      "retrieved_at": "2026-11-04T19:02:14.692604+00:00"
+    },
+    {
+      "symbol": "خراسان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\7774c5f9-e518-42a9-b95c-9fd94f6bea72.daily.json.gz",
+      "raw_sha256": "07dcd6370135ef7a19930d41cd132fea318bad563b372a22bad955c69f462f33",
+      "retrieved_at": "2026-11-04T19:02:15.087706+00:00"
+    },
+    {
+      "symbol": "خزامیا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a1923bf6-15cf-4d60-8dd1-bdea7f452d94.daily.json.gz",
+      "raw_sha256": "5f2199310d7ebbe48edc379daeaa90464de5d999e803404a1abad15129326b9f",
+      "retrieved_at": "2026-11-04T19:02:15.776487+00:00"
+    },
+    {
+      "symbol": "خصدرا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e5818763-8e23-412e-a935-b2b8c350f8ae.daily.json.gz",
+      "raw_sha256": "6c48b2bb10ce702159827236e14de825f3f67052b39d58ec00e58ab3a58063e7",
+      "retrieved_at": "2026-11-04T19:02:16.230600+00:00"
+    },
+    {
+      "symbol": "خمحرکه",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\aa481edd-94f1-4d63-af3f-908a97c8871f.daily.json.gz",
+      "raw_sha256": "934f55af2fdb3d2eaff999a8b569f6e56aafb3bee3d7e71cb760a4839201ef9d",
+      "retrieved_at": "2026-11-04T19:02:16.948186+00:00"
+    },
+    {
+      "symbol": "خمهر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\31bf977a-27fb-4fad-8073-d412c5cc480b.daily.json.gz",
+      "raw_sha256": "f6d6119a99c042db9e98e339097d11a765153f0fbb897e36220deed1ec35b9e1",
+      "retrieved_at": "2026-11-04T19:02:17.435603+00:00"
+    },
+    {
+      "symbol": "خموتور",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4ab8bf44-7984-449a-894d-c8eeccfb2d1a.daily.json.gz",
+      "raw_sha256": "813de46781e380e00115a3ea00bfeace1f6e73bc9e09d47be438f85df7364ce4",
+      "retrieved_at": "2026-11-04T19:02:17.929730+00:00"
+    },
+    {
+      "symbol": "خنصیر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\df3e0915-7242-485c-aa90-4426dc693b34.daily.json.gz",
+      "raw_sha256": "4d15c085dbf4c9814570c0ccf7808fe3668390e7c853677b9f6bcc01f5b26d5d",
+      "retrieved_at": "2026-11-04T19:02:18.415437+00:00"
+    },
+    {
+      "symbol": "خودکفا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\33f00982-fdb7-44d6-95fd-dd373359a152.daily.json.gz",
+      "raw_sha256": "3086f028dcadf18f7d0cbc975bdc632af1499c0622cb4035660d6785f84b749d",
+      "retrieved_at": "2026-11-04T19:02:18.934468+00:00"
+    },
+    {
+      "symbol": "خچرخش",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\60d888cd-26d1-4481-8535-1b9356d6c165.daily.json.gz",
+      "raw_sha256": "85236ffd9c026e350beee5951c22220cc3f4ab90b411bba288272e381903072a",
+      "retrieved_at": "2026-11-04T19:02:19.604322+00:00"
+    },
+    {
+      "symbol": "دابور",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\36322f31-3d71-41d1-b20d-b3806b68379b.daily.json.gz",
+      "raw_sha256": "e8a210518d11ffb19dd6d3b1e73e8e34680c414d4bc006821563f72016d799e6",
+      "retrieved_at": "2026-11-04T19:02:20.354089+00:00"
+    },
+    {
+      "symbol": "دارو",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\45761726-5a5b-48ab-ae64-d8cad1de4bb3.daily.json.gz",
+      "raw_sha256": "1d6696f3b3b4fe3a6847943d87bf1b6e79aba8fd45ddfd2904c9172aacbb5db2",
+      "retrieved_at": "2026-11-04T19:02:20.953859+00:00"
+    },
+    {
+      "symbol": "داسوه",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ae6670e0-aa42-419d-8a8a-9168096df1ea.daily.json.gz",
+      "raw_sha256": "80dd4a2adcd672582b1932331a19eddd048a0e58bb32c33c195846efeeef572c",
+      "retrieved_at": "2026-11-04T19:02:21.824338+00:00"
+    },
+    {
+      "symbol": "دالبر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\056508cf-1280-47bc-a9ca-80a03a1e944e.daily.json.gz",
+      "raw_sha256": "b22c7913ea3876db71a0d7b7e995bd4546e6be21b6411d142217f97ddd854d22",
+      "retrieved_at": "2026-11-04T19:02:22.800620+00:00"
+    },
+    {
+      "symbol": "دامین",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\295f68b6-1f9d-4004-910d-039a20aa2d79.daily.json.gz",
+      "raw_sha256": "0cccba38b04fb980b6a7818d3d15d5355063b232d4d3cc9db0cca3e5c825c4d4",
+      "retrieved_at": "2026-11-04T19:02:23.889876+00:00"
+    },
+    {
+      "symbol": "دبالک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\179aaa17-da7e-42d4-8726-04042db9ab21.daily.json.gz",
+      "raw_sha256": "fec4d5430f1c6f72c99265921f8b3dff99b3e6d44eb298ff25b7ebfb5471167c",
+      "retrieved_at": "2026-11-04T19:02:26.328722+00:00"
+    },
+    {
+      "symbol": "دتماد",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d6063f2d-6671-4400-ab8b-296bff19bd6a.daily.json.gz",
+      "raw_sha256": "0d5bfc9cfe4648deeec57ac55b065cf942e2ce8c3a09e93ad0d0324f03d3b054",
+      "retrieved_at": "2026-11-04T19:02:26.842437+00:00"
+    },
+    {
+      "symbol": "دتوزیع",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\fd9e2e5f-8257-4b5d-be39-f57fb8dfcb83.daily.json.gz",
+      "raw_sha256": "5e08b3855516262986a65ae535be9c08ac4a801f9644d054f3d96d08eaa9c9e9",
+      "retrieved_at": "2026-11-04T19:02:27.269197+00:00"
+    },
+    {
+      "symbol": "دجابر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3de02d6f-b522-4169-8327-89f3838eaa7b.daily.json.gz",
+      "raw_sha256": "97cf96e94b729782d11b276161288fbb27591bb28741737c4853774e11d32ef8",
+      "retrieved_at": "2026-11-04T19:02:28.975337+00:00"
+    },
+    {
+      "symbol": "ددانا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\83ec683f-eb5f-4ccc-abde-96641f1a0bf1.daily.json.gz",
+      "raw_sha256": "fcf19a209f43c75044888d4dd8b8266061e7f359c2c5d1bf501f1815e5573402",
+      "retrieved_at": "2026-11-04T19:02:29.548069+00:00"
+    },
+    {
+      "symbol": "درازک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\2c4b50f6-a864-4d15-ba36-58d19b29f8b9.daily.json.gz",
+      "raw_sha256": "3838a9b46a11600924c959c87b12928bd9d3a5ec6aef14566c536c0cbb3d830d",
+      "retrieved_at": "2026-11-04T19:02:30.443762+00:00"
+    },
+    {
+      "symbol": "درهآور",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a2713fb9-4917-493b-bf50-5679d944796d.daily.json.gz",
+      "raw_sha256": "472088ac08f7173360f5417cf38362afae10e3a81dff6acbbed49591f30d8f1a",
+      "retrieved_at": "2026-11-04T19:02:31.053301+00:00"
+    },
+    {
+      "symbol": "دروز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b2f2277b-1f16-4a42-a783-587d3b527ec0.daily.json.gz",
+      "raw_sha256": "8272e066ec0e9adad49f1a12b5558ff2c793a0b2801f8154291eb09e3631e19a",
+      "retrieved_at": "2026-11-04T19:02:31.756077+00:00"
+    },
+    {
+      "symbol": "دزاگرس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\1ed481b9-1d15-4bd0-b7a4-f0c6b08bd026.daily.json.gz",
+      "raw_sha256": "7e04c9452e559caf3c51e52ed808886f63f4ddddb886d40f3fb1fbdc9294cb0f",
+      "retrieved_at": "2026-11-04T19:02:32.293039+00:00"
+    },
+    {
+      "symbol": "دزهراوی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5a01e83f-edbf-421f-bcd5-c1f46cda1ba5.daily.json.gz",
+      "raw_sha256": "6ce444f41c3585cc6f7b7d66e227118ba4454e66d51e02dfe0b4a671dc9450cf",
+      "retrieved_at": "2026-11-04T19:02:33.221081+00:00"
+    },
+    {
+      "symbol": "دسبحا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\1020e97a-e0d7-4015-bd8f-d3de9c6c82ab.daily.json.gz",
+      "raw_sha256": "7b6dd47c89c301d82ef8dc8154b6ed74ea3a316268200ff27039dabe3e0725ad",
+      "retrieved_at": "2026-11-04T19:02:34.883707+00:00"
+    },
+    {
+      "symbol": "دسبحان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c0958ef2-91b2-4b78-86ba-4b9a8e59a9c0.daily.json.gz",
+      "raw_sha256": "9544b05b524fa9829d895578dc52c86d2b895d125b438228fdb40bce7cdb65cd",
+      "retrieved_at": "2026-11-04T19:02:36.050637+00:00"
+    },
+    {
+      "symbol": "دسینا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\bc8b177b-acb6-4e2e-9af9-aab8da6dcd37.daily.json.gz",
+      "raw_sha256": "0b6001fe7c512d2f2275fa4a00c0e482275042143b94bf3e94abdf939e1f83c0",
+      "retrieved_at": "2026-11-04T19:02:37.241290+00:00"
+    },
+    {
+      "symbol": "دعبید",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d26b3713-6d63-4c3e-be90-bc7651240571.daily.json.gz",
+      "raw_sha256": "5fcda12acf14c03ccad2eaa8f1bc698f1ce083eee2a708cb2bc7433128fbf763",
+      "retrieved_at": "2026-11-04T19:02:38.100365+00:00"
+    },
+    {
+      "symbol": "دفارا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5c4cd3bd-352a-4c1b-a287-fba07aeda438.daily.json.gz",
+      "raw_sha256": "6200e55114e1a9cd3b06471ecc61f8ac2913ee3cd909f9648eaf68dc9b192693",
+      "retrieved_at": "2026-11-04T19:02:38.920577+00:00"
+    },
+    {
+      "symbol": "دفرا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\f3d108c0-7d0f-49e9-8a5a-399615e22396.daily.json.gz",
+      "raw_sha256": "55d994fdfccdd7dd87ca4d0cb07e3bcf5d851b2944c3d663a8e9d286c78f843d",
+      "retrieved_at": "2026-11-04T19:02:39.901382+00:00"
+    },
+    {
+      "symbol": "دقاضی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ee0218dc-af71-478d-a572-b65b7cb82a8b.daily.json.gz",
+      "raw_sha256": "c9b92db8218012ab0f24fc38425fbb8898259220d03f21750a7603105215c555",
+      "retrieved_at": "2026-11-04T19:02:40.312559+00:00"
+    },
+    {
+      "symbol": "دلقما",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\acb29719-e4c7-426e-b521-9fbf6065d9fb.daily.json.gz",
+      "raw_sha256": "2347f5068a2350f4f1d8650a8f5f4e5c0f146cc66caaac0815844ba2d257e04e",
+      "retrieved_at": "2026-11-04T19:02:41.094827+00:00"
+    },
+    {
+      "symbol": "دپارس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a97cb8af-29da-4af7-a6bf-9c607418b335.daily.json.gz",
+      "raw_sha256": "044a7e3f6467fc6f00e91b2fb2628f6a415fd71f23ce7eec05f038e8d6980041",
+      "retrieved_at": "2026-11-04T19:02:41.702730+00:00"
+    },
+    {
+      "symbol": "دکپسول",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e6917a5f-8afe-4c97-b763-3196a4defc99.daily.json.gz",
+      "raw_sha256": "549e29dcf454a51256d0bc3b85eba03df4ad52879ad0a644044502697749764e",
+      "retrieved_at": "2026-11-04T19:02:42.140103+00:00"
+    },
+    {
+      "symbol": "دیران",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d27cd264-4b08-4ddc-b81d-8367e3d8aaa4.daily.json.gz",
+      "raw_sha256": "5322b559245d984c8abf4062dad1d7de348453729b7e59280e6d937269f6d5ca",
+      "retrieved_at": "2026-11-04T19:02:42.656508+00:00"
+    },
+    {
+      "symbol": "ذوب",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d80221bc-60fd-4ba4-b96c-7af5aebcf0b5.daily.json.gz",
+      "raw_sha256": "371133a9b6337d4741db80304df62c638be61bff82b4d1f4f87c403dd565e3fa",
+      "retrieved_at": "2026-11-04T19:02:42.994044+00:00"
+    },
+    {
+      "symbol": "رانفور",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\fa1ec7fd-8b16-4d87-ab0e-b5894b2a2914.daily.json.gz",
+      "raw_sha256": "c5dcc4419cc5cbea919f9cdc803b7aff48b30bff8962a26d2fde36c19119a7fb",
+      "retrieved_at": "2026-11-04T19:02:43.726440+00:00"
+    },
+    {
+      "symbol": "رانیز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4dd789ea-94b5-4066-b6ca-edf6775e1e72.daily.json.gz",
+      "raw_sha256": "9fc90d0e6db5f9d9de0e29876179c6b18a3414932071a8d24a608b15a20a01b5",
+      "retrieved_at": "2026-11-04T19:02:44.002796+00:00"
+    },
+    {
+      "symbol": "رمپنا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\800144e4-cc7d-4308-b9d0-50b502039f5b.daily.json.gz",
+      "raw_sha256": "a02c0998f64331f7b61bb166502f1018b1c4f40ece2d0f105582262aea43ae0f",
+      "retrieved_at": "2026-11-04T19:02:44.517413+00:00"
+    },
+    {
+      "symbol": "زاگرس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\1fc6970b-c1ec-4b4d-bb3b-8dce55332e18.daily.json.gz",
+      "raw_sha256": "7634d0d984c083dd024607202015ea583f4d716f660c38614bf05d0f9287749c",
+      "retrieved_at": "2026-11-04T19:02:44.958959+00:00"
+    },
+    {
+      "symbol": "زبینا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ef6075bf-d582-4f10-bf66-3d419f9d871c.daily.json.gz",
+      "raw_sha256": "e7841b3ff446b045cd430616eb6d7f68f80a10df47d942ce59e1ce7361a189cf",
+      "retrieved_at": "2026-11-04T19:02:45.438923+00:00"
+    },
+    {
+      "symbol": "زدشت",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c4ec791b-7b2e-4a18-a0fa-c5c8a97d9a94.daily.json.gz",
+      "raw_sha256": "0eaa3f0eba93e23f9d8ebb4de11bcea69af3405af7e7238914c69890036c4316",
+      "retrieved_at": "2026-11-04T19:02:45.968615+00:00"
+    },
+    {
+      "symbol": "زشگزا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a523e463-796f-4d5e-8090-0cbb5cf0b723.daily.json.gz",
+      "raw_sha256": "5decd919a0bfc8984ce23df74ed082f7c2c8a9f18c37178349dea174e72669a9",
+      "retrieved_at": "2026-11-04T19:02:46.339860+00:00"
+    },
+    {
+      "symbol": "زفجر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\55455cb0-03da-4a83-9ca8-7786101b1d5d.daily.json.gz",
+      "raw_sha256": "29f099dcdfdd043130476c1d2b3b9a69999c679cffb9e24cfed04f01904a9bc7",
+      "retrieved_at": "2026-11-04T19:02:46.667556+00:00"
+    },
+    {
+      "symbol": "زفکا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\305e9275-40bf-4650-8686-09d772a9831b.daily.json.gz",
+      "raw_sha256": "9e51d191295e6bec4393a9ab0f5be0dd623b23b0a1a4ed90d15bbf31a6e20af6",
+      "retrieved_at": "2026-11-04T19:02:47.027909+00:00"
+    },
+    {
+      "symbol": "زقیام",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b41e133e-5fc5-455e-bf42-68f4ce26b480.daily.json.gz",
+      "raw_sha256": "ccc7d7fe3b13ea9b74521cb3b36ab2984031f24918317e778450338343d4f7bb",
+      "retrieved_at": "2026-11-04T19:02:47.431334+00:00"
+    },
+    {
+      "symbol": "زمگسا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\66dcc89a-9b18-4411-abb7-78a96105b91c.daily.json.gz",
+      "raw_sha256": "62243ce006c295edd28666d558f2af3c289fd82b1c34ec904bb614522532faff",
+      "retrieved_at": "2026-11-04T19:02:47.960212+00:00"
+    },
+    {
+      "symbol": "زهلال",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\7c967637-53cb-426b-a615-10b2c4bc202e.daily.json.gz",
+      "raw_sha256": "13c96da946d4019b2d05f4aadcd95ad201895257b95f17bd238fad811f312121",
+      "retrieved_at": "2026-11-04T19:02:48.239433+00:00"
+    },
+    {
+      "symbol": "زپارس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a1b9524f-1caf-4d8a-92a9-0939117fc678.daily.json.gz",
+      "raw_sha256": "78a5368f38da96c25d27cc4a9b1aa856b4f17ce536147c1111e1aaff98ebfff9",
+      "retrieved_at": "2026-11-04T19:02:48.900654+00:00"
+    },
+    {
+      "symbol": "زکشت",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\caa78e71-bba6-41ce-9da2-746c1ddf68ab.daily.json.gz",
+      "raw_sha256": "66f6af2d915500fbbf767065db292a3c100b26c4b15750a13fb66b27747b957c",
+      "retrieved_at": "2026-11-04T19:02:49.317463+00:00"
+    },
+    {
+      "symbol": "زگلدشت",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5e1cc3fa-9f64-4367-8c67-47569ef161c0.daily.json.gz",
+      "raw_sha256": "37a8029154d8ec13a04c89187f722152366251620c714a2fa019bd83d0de57ce",
+      "retrieved_at": "2026-11-04T19:02:49.739428+00:00"
+    },
+    {
+      "symbol": "سآبیک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5eb4dae1-aebb-4ce0-bcbf-9509c7ec1697.daily.json.gz",
+      "raw_sha256": "b88e83d3be59f292e83e74038a59716faebcccb2fa82e4d4faa186f09565ed22",
+      "retrieved_at": "2026-11-04T19:02:50.175910+00:00"
+    },
+    {
+      "symbol": "ساربیل",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\9de95ae2-a790-4050-bb29-e983b5c47d55.daily.json.gz",
+      "raw_sha256": "045bb3c04c7eb8bc6d7f464940b99641b42fd8aa6e0d7046b5acc92e634af061",
+      "retrieved_at": "2026-11-04T19:02:50.639918+00:00"
+    },
+    {
+      "symbol": "ساروم",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\9e516f18-8cb3-42ad-ae64-7dc31d3eb4f1.daily.json.gz",
+      "raw_sha256": "d5f39b9b6bdd9a77c6738d579d85e9b8a0bbce62dbc0c4d8dd2cc7dc45a6cfbb",
+      "retrieved_at": "2026-11-04T19:02:51.153069+00:00"
+    },
+    {
+      "symbol": "ساوه",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3516f4ca-b566-4918-b491-df4dd5f30569.daily.json.gz",
+      "raw_sha256": "d21ef3af404492571509178f6b3b806e2b3029777323e4bd530897c69b106321",
+      "retrieved_at": "2026-11-04T19:02:51.498143+00:00"
+    },
+    {
+      "symbol": "سباقر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\afe098e0-23f0-4621-8de1-c63940975d5f.daily.json.gz",
+      "raw_sha256": "24db56d07460d912a5c35883140f2fdc9cb22323d7ca9f3d1715b0de2f156a29",
+      "retrieved_at": "2026-11-04T19:02:51.791009+00:00"
+    },
+    {
+      "symbol": "سبجنو",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a70d8f77-9f39-4b94-a113-bb9c1a819397.daily.json.gz",
+      "raw_sha256": "cf2c2944c1c593a537a988c0ab35dd0a80655bd67579ebcc9b788728e4f034e7",
+      "retrieved_at": "2026-11-04T19:02:52.246736+00:00"
+    },
+    {
+      "symbol": "سبزوا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e1a8063c-a8f7-4f54-9ed0-1d9aac4d198d.daily.json.gz",
+      "raw_sha256": "fbb64f4a48db05dcc03f41b19364a4a7d295c0239a86c142886de2d49a719c56",
+      "retrieved_at": "2026-11-04T19:02:52.708474+00:00"
+    },
+    {
+      "symbol": "ستران",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4f4d423a-803d-4d7c-9eaa-6e663a9826a4.daily.json.gz",
+      "raw_sha256": "6384fb2e00b62628a8654562468a7e9a8054766344ba672b1095e722d8008201",
+      "retrieved_at": "2026-11-04T19:02:53.251442+00:00"
+    },
+    {
+      "symbol": "سخوز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3ae93a39-7c31-4774-9957-6830fcc36f46.daily.json.gz",
+      "raw_sha256": "a6d19a45f703c15cf877efaca25059ad1651624ba32656a27663a93932a78b04",
+      "retrieved_at": "2026-11-04T19:02:53.681733+00:00"
+    },
+    {
+      "symbol": "سدور",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\09cf7a6c-c980-4c21-9f83-980a053e8df2.daily.json.gz",
+      "raw_sha256": "b0ab03248425f8068ac447acce7aacfcbb8ab9bb426ca028387c732f0e87a671",
+      "retrieved_at": "2026-11-04T19:02:55.161454+00:00"
+    },
+    {
+      "symbol": "سرود",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\390a7edf-ac22-43e7-b261-25e686bbf9dd.daily.json.gz",
+      "raw_sha256": "9c98194754020eb9de9bb6b16f28b06d6a37592a8d7aaaf4f13df35edcf5e257",
+      "retrieved_at": "2026-11-04T19:02:55.723319+00:00"
+    },
+    {
+      "symbol": "سشرق",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\30c259a0-53f0-4282-95c6-21f4a7658099.daily.json.gz",
+      "raw_sha256": "24b120ecca219fe3da2ee75be41988d2c203c70bf6ed806ac41a274bbfa32133",
+      "retrieved_at": "2026-11-04T19:02:56.387618+00:00"
+    },
+    {
+      "symbol": "سشمال",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\8b9bd230-19fb-4332-83e5-0a6ae4f0a983.daily.json.gz",
+      "raw_sha256": "38dfb7368a42c5ab653e6bc0cd3cd04cb232ef35e366efc509cac1058b2782a0",
+      "retrieved_at": "2026-11-04T19:02:57.086446+00:00"
+    },
+    {
+      "symbol": "سصوفی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ccc92064-f5c8-4f9f-aa09-33d100f530a1.daily.json.gz",
+      "raw_sha256": "0a425698ec2948b80c292ccb01dc640346c43028084dd3ccc45dc6c768a0b1fd",
+      "retrieved_at": "2026-11-04T19:02:59.476399+00:00"
+    },
+    {
+      "symbol": "سغرب",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ba05c4b9-5f3b-47a1-8b84-6618480e8dad.daily.json.gz",
+      "raw_sha256": "73947deea266c6e4c96c55e76badcfb662b82e0773dea6017dd387edf7322b04",
+      "retrieved_at": "2026-11-04T19:03:00.508261+00:00"
+    },
+    {
+      "symbol": "سفانو",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b0d0bbb8-3548-464c-b6ce-64350b1cce3e.daily.json.gz",
+      "raw_sha256": "84c5bfdb96e9639f24ab77c474fa57702dbcb214b55872e9c40a5a828292e13a",
+      "retrieved_at": "2026-11-04T19:03:01.203629+00:00"
+    },
+    {
+      "symbol": "سقاین",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\cabb474b-f6b4-4e66-9254-de3076aee6fd.daily.json.gz",
+      "raw_sha256": "0db3c447c56b6d0abc2158b9602a77eb305149762b5c2c1f02b64ef23454ccfd",
+      "retrieved_at": "2026-11-04T19:03:01.732288+00:00"
+    },
+    {
+      "symbol": "سمازن",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\369f1c92-1cad-414e-8ef6-bb58cecc097d.daily.json.gz",
+      "raw_sha256": "71992552d438bfb38eb123b82ed639cf57756c9ad304d50b4b6543b9b55eabe8",
+      "retrieved_at": "2026-11-04T19:03:02.298875+00:00"
+    },
+    {
+      "symbol": "سنیر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\49e031e9-3fb6-4cf9-9404-c29af209d2f9.daily.json.gz",
+      "raw_sha256": "6c90c07b414675fbcb8b920da11819574dc518fc3363fb3e7730e277e0f01e4a",
+      "retrieved_at": "2026-11-04T19:03:04.625331+00:00"
+    },
+    {
+      "symbol": "سهرمز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\60f50a23-e56e-45d4-bbb8-413dfe433784.daily.json.gz",
+      "raw_sha256": "fb32b40a4ea79d291bd83b38c086d9944d956434d0e2c37beba391da6d00d52b",
+      "retrieved_at": "2026-11-04T19:03:06.110475+00:00"
+    },
+    {
+      "symbol": "سهگمت",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\6177f4ea-c2ab-45c4-aa9c-4515e10555e3.daily.json.gz",
+      "raw_sha256": "af7fc6b8fcc2d051fdfce86c24f3c054b845dca36cf15dc3bde94401ee2513c4",
+      "retrieved_at": "2026-11-04T19:03:06.791634+00:00"
+    },
+    {
+      "symbol": "سپید",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5f495881-e8f4-460a-a502-64de22b67c20.daily.json.gz",
+      "raw_sha256": "e5526a3a45948e9061ad6b7c6515d98eeee577df34d984ed8c5ccc88f01845c2",
+      "retrieved_at": "2026-11-04T19:03:07.153117+00:00"
+    },
+    {
+      "symbol": "سپیدار",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ee1187a5-1612-42d1-93a7-01ff78104213.daily.json.gz",
+      "raw_sha256": "c144d6e7bfe8b520106ca5df22775f214f22deb1114051ccb28c1c9f90ade997",
+      "retrieved_at": "2026-11-04T19:03:07.494554+00:00"
+    },
+    {
+      "symbol": "سکرد",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4e501f0e-832b-4029-b0ba-df118080310e.daily.json.gz",
+      "raw_sha256": "90d1d7db41d552f351957a008fbcb34ed71fea1653f863b55ae6555b7a0c8c98",
+      "retrieved_at": "2026-11-04T19:03:08.103126+00:00"
+    },
+    {
+      "symbol": "سکرما",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\7c19589a-b176-4b0d-8231-5d07e54557f6.daily.json.gz",
+      "raw_sha256": "248655b7c54fa2b1b395ec1667b3c0d92c8dafd77f7700e6f4d586756d00df82",
+      "retrieved_at": "2026-11-04T19:03:09.168686+00:00"
+    },
+    {
+      "symbol": "سیستم",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b0a1be47-1fbd-4ac5-8b46-d1ae52b4bbff.daily.json.gz",
+      "raw_sha256": "a34c3e6a78628e6997b523660b567e0dcaeedf50484d397859f42d61cc61fef9",
+      "retrieved_at": "2026-11-04T19:03:09.624659+00:00"
+    },
+    {
+      "symbol": "شاراک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ffe4bf6d-9ab9-4153-a6a3-b676920e3f9c.daily.json.gz",
+      "raw_sha256": "9d75c7d82ffa7e725a9d877238488dc87b59a4cae26f5a9b1f72b0d9b6bed495",
+      "retrieved_at": "2026-11-04T19:03:10.292031+00:00"
+    },
+    {
+      "symbol": "شاملا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b40aa6f8-b558-4c02-95de-ade347229183.daily.json.gz",
+      "raw_sha256": "70a23b30fc64e13f4e49075237141bc0f2a5391c3f095db2646021453544bcb5",
+      "retrieved_at": "2026-11-04T19:03:11.015917+00:00"
+    },
+    {
+      "symbol": "شاوان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\7e1aa5aa-1248-4baa-9ffb-8e5ad41cacaf.daily.json.gz",
+      "raw_sha256": "30bef58d3cb2d3bb2448a71e0e907b50eea307b9728c3e0607a9bbb924c7d7ea",
+      "retrieved_at": "2026-11-04T19:03:11.562379+00:00"
+    },
+    {
+      "symbol": "شبریز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c3598b16-4124-4839-bd8c-c278408a857f.daily.json.gz",
+      "raw_sha256": "d46afbf6e2dd010db17e026a3f0c7eb6161b73027c22c475e41dd62acd3ca535",
+      "retrieved_at": "2026-11-04T19:03:12.176949+00:00"
+    },
+    {
+      "symbol": "شبصیر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\388f886c-2558-4f9f-8871-a3bb73d2546a.daily.json.gz",
+      "raw_sha256": "af2e08b48575fc210873e8ecab2ac8eebbc2fdc0ef99bb0cbc95646f8b23d0e6",
+      "retrieved_at": "2026-11-04T19:03:12.620592+00:00"
+    },
+    {
+      "symbol": "شبندر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3935dd3a-8346-41cb-85f5-e034bba5e72b.daily.json.gz",
+      "raw_sha256": "c8cbb5a8efbe83fd82862677ad24e4f7b2deb49adae4d3a8241b69ec1ee3824c",
+      "retrieved_at": "2026-11-04T19:03:13.096576+00:00"
+    },
+    {
+      "symbol": "شبهرن",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\16a036b2-0940-4b90-b62f-5471067a0e45.daily.json.gz",
+      "raw_sha256": "162449e6c280f87b2df6e3df3f5a493b0e069fa03a841131bd81c2021dce4802",
+      "retrieved_at": "2026-11-04T19:03:13.737993+00:00"
+    },
+    {
+      "symbol": "شتران",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3cd5635b-d0df-4842-a1bc-7176a103896f.daily.json.gz",
+      "raw_sha256": "8b890f449902997d75ff290531e39052eaa107f30b39e3a1f71b6ec273e3f933",
+      "retrieved_at": "2026-11-04T19:03:14.204284+00:00"
+    },
+    {
+      "symbol": "شدوص",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\8cfe75c0-68c8-4b7b-ad05-a73c168cbffd.daily.json.gz",
+      "raw_sha256": "93f022accaf1d5976001f242b0ecf4e17a1cba18ab419f9c2e3a72d28acf4057",
+      "retrieved_at": "2026-11-04T19:03:14.760902+00:00"
+    },
+    {
+      "symbol": "شرانل",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\24aa4584-7664-410f-8315-ea206d7f4497.daily.json.gz",
+      "raw_sha256": "fb79b91560675c8a7512a5651d854f33d788a538d44a42c1a866745b505b0f2d",
+      "retrieved_at": "2026-11-04T19:03:15.208426+00:00"
+    },
+    {
+      "symbol": "شستا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\f7fa97c9-6afd-4019-afff-82a8ae0306dd.daily.json.gz",
+      "raw_sha256": "ec5563b029766acbe4ef8b4d02b2401f2a09658d785a76d88e007675c26d6021",
+      "retrieved_at": "2026-11-04T19:03:15.621190+00:00"
+    },
+    {
+      "symbol": "شسپا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e08aee3b-8ace-4bf6-be09-4c6bb0f0bdd7.daily.json.gz",
+      "raw_sha256": "fac05c40236104b8d2889c70ac82d6ac3b72e58e96a5b287cd13ae16748754f5",
+      "retrieved_at": "2026-11-04T19:03:16.068501+00:00"
+    },
+    {
+      "symbol": "شغدیر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4fc440bf-7dbc-4c28-a1be-a45cd1ba0652.daily.json.gz",
+      "raw_sha256": "e42cb0cfc08fe59e91d100744a73ef62a5881e85fe821e1e6874ea0e28ca60e7",
+      "retrieved_at": "2026-11-04T19:03:16.416393+00:00"
+    },
+    {
+      "symbol": "شلیا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b210a8c8-6979-4e8c-8357-139d57e61df7.daily.json.gz",
+      "raw_sha256": "cbf11835a34156182c651bd9fae1b1a6157f4fff7cc020f5b49ec3d0c1546ab1",
+      "retrieved_at": "2026-11-04T19:03:16.828715+00:00"
+    },
+    {
+      "symbol": "شمس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\bcc5d497-022f-47fc-89e1-50287cdcec3b.daily.json.gz",
+      "raw_sha256": "734f447cb67218c8fc41583d5ae3b5d8b45c50c29a31fb186fc3d7770e2ed841",
+      "retrieved_at": "2026-11-04T19:03:17.131693+00:00"
+    },
+    {
+      "symbol": "شمواد",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3da407a7-55cd-41fb-b5bb-aadad01e6908.daily.json.gz",
+      "raw_sha256": "63c938a3b7e005b8bd40ff881e26ced327a6cb64446abe0230a42c489ed1b04f",
+      "retrieved_at": "2026-11-04T19:03:17.549968+00:00"
+    },
+    {
+      "symbol": "شوینده",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\2724d89a-80a3-4a06-abf8-b0e8828ebcc3.daily.json.gz",
+      "raw_sha256": "e04e9f918f2b2687f71f12945ba0634a50e7032f2b60b29ca6fbcc87608afccd",
+      "retrieved_at": "2026-11-04T19:03:17.969590+00:00"
+    },
+    {
+      "symbol": "شپارس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\0c63f41f-0958-471d-93f9-88d9a4ac5521.daily.json.gz",
+      "raw_sha256": "e7c1a1dabf72d1faf7860fba1e78d83fa4680499d04692745d0fb9da0390c2a6",
+      "retrieved_at": "2026-11-04T19:03:18.495476+00:00"
+    },
+    {
+      "symbol": "شپاکسا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\436e8450-0253-4347-bbe2-be8ff48da73e.daily.json.gz",
+      "raw_sha256": "98b8394ecbf3bae75950ddcb2e43729fe743601da2ae3031276d656febad92bd",
+      "retrieved_at": "2026-11-04T19:03:19.146441+00:00"
+    },
+    {
+      "symbol": "شپدیس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c085edd6-8ca4-413a-81db-600e5b32db7f.daily.json.gz",
+      "raw_sha256": "2a919f64ae412c2fe775c32804fa2b8076f60dfa6bf48a4e57907a152daa7556",
+      "retrieved_at": "2026-11-04T19:03:19.651233+00:00"
+    },
+    {
+      "symbol": "شپلی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\270f045b-b120-4cbe-a7e7-86b849dd8fa4.daily.json.gz",
+      "raw_sha256": "325fa930fc02927a157b1026bdaf7f80679fdc21ad81b49352b5cf0a2d445541",
+      "retrieved_at": "2026-11-04T19:03:20.085839+00:00"
+    },
+    {
+      "symbol": "شپنا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\0ad8e291-d32a-4192-b7f0-001a4d146a78.daily.json.gz",
+      "raw_sha256": "f367d987bbdcd66358ae5a70e938a1a8803b09702546ba8203603be1242ef458",
+      "retrieved_at": "2026-11-04T19:03:20.604479+00:00"
+    },
+    {
+      "symbol": "شکام",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\bd759dfb-9f7e-45fe-8f91-0f59f901585a.daily.json.gz",
+      "raw_sha256": "c527fb56c9cbc069131d0693e2074a44f0e866ee3b39de9ba355f4645c0311e9",
+      "retrieved_at": "2026-11-04T19:03:20.958652+00:00"
+    },
+    {
+      "symbol": "شکربن",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b4b7da70-a14b-40cc-866e-b938cf7579af.daily.json.gz",
+      "raw_sha256": "efce1e7cde1d248a7aa84d9c388a530c856363a07161e6bdd94cc068a4bff85a",
+      "retrieved_at": "2026-11-04T19:03:21.666543+00:00"
+    },
+    {
+      "symbol": "شگل",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\7e60836e-f575-4c4f-87b7-4891a767b632.daily.json.gz",
+      "raw_sha256": "3e81222cc5d77ae29f8ffbbbadb96ae60dae208d953767d48d77bc960d2a042d",
+      "retrieved_at": "2026-11-04T19:03:22.323674+00:00"
+    },
+    {
+      "symbol": "شگویا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\649a8391-b7c6-4758-a01b-64b72bd72a8a.daily.json.gz",
+      "raw_sha256": "d60f6534d0bed8252513e436e5230831bb06c27d992c9e10e6acf2662b802854",
+      "retrieved_at": "2026-11-04T19:03:23.206441+00:00"
+    },
+    {
+      "symbol": "شیراز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\831fcb23-f475-4c1b-9ba0-192fb03e76ed.daily.json.gz",
+      "raw_sha256": "96ae9b24a712bbbc3ed82e5130adface0aca97f03fc47239cce9652c7939cddf",
+      "retrieved_at": "2026-11-04T19:03:24.643681+00:00"
+    },
+    {
+      "symbol": "شیران",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5afe467f-4933-4498-9670-0276dbd1376f.daily.json.gz",
+      "raw_sha256": "74df16832b15a9d59dd0afb5769057686c87fa47100c4be9aa64443d31057289",
+      "retrieved_at": "2026-11-04T19:03:25.244637+00:00"
+    },
+    {
+      "symbol": "عالیس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\93152d48-33d9-437f-86bb-e6c4f91969fb.daily.json.gz",
+      "raw_sha256": "26ccbf563caf0bfdd5163ddc2e74c1067b814fd9e5681a4050450fb0ba9cbe0a",
+      "retrieved_at": "2026-11-04T19:03:25.613157+00:00"
+    },
+    {
+      "symbol": "غاذر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b9fb9258-4b25-4cd2-b2c0-8dc9ed5e384b.daily.json.gz",
+      "raw_sha256": "6fd294b2e8864445c2b4ceb56e7ac228324c7ce5316e0d5c2a2233f9193182d9",
+      "retrieved_at": "2026-11-04T19:03:26.151832+00:00"
+    },
+    {
+      "symbol": "غانیزان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5318dd74-4cfa-4d65-aba3-a9fc9f345a7d.daily.json.gz",
+      "raw_sha256": "f4700bfea943253b502d1f0653f05e3a1927b4be6c8310209142c040a0d6774c",
+      "retrieved_at": "2026-11-04T19:03:26.450757+00:00"
+    },
+    {
+      "symbol": "غبشهر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c207a726-ee4b-4a30-ae04-94cbe649f95c.daily.json.gz",
+      "raw_sha256": "ff408a7a7388ae4366c127050c1dd106e35f2424a3972301bf2d47fc59b7ea7e",
+      "retrieved_at": "2026-11-04T19:03:27.071752+00:00"
+    },
+    {
+      "symbol": "غبهنوش",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\0cf3d6d6-8fb6-4437-85cf-0da787fd7990.daily.json.gz",
+      "raw_sha256": "d4f7d67bda30dd36131741d149029a6cb66bef8602370460ccc0ce36fb37512a",
+      "retrieved_at": "2026-11-04T19:03:27.962068+00:00"
+    },
+    {
+      "symbol": "غدام",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\184175cc-bfd5-4856-8f6a-894bae35fef7.daily.json.gz",
+      "raw_sha256": "aaee2e7277da59078bb62e5b0836415800312aa9fc9dec685d13f63a49b7b6a3",
+      "retrieved_at": "2026-11-04T19:03:28.797413+00:00"
+    },
+    {
+      "symbol": "غدیس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\04a39bc5-53b1-45c5-b2dd-7530ff52c4e5.daily.json.gz",
+      "raw_sha256": "90b6e5697f504839720620d0895dbec49d6a95c1423bb74dd91fe369b8c85f48",
+      "retrieved_at": "2026-11-04T19:03:29.497404+00:00"
+    },
+    {
+      "symbol": "غشاذر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\0c8b4645-08a0-4a9f-bc8b-c65e70563a16.daily.json.gz",
+      "raw_sha256": "f8748fd3e9c89802ed4679a359f603c1e4faf928a22012cd3e2e870a39eb9c3c",
+      "retrieved_at": "2026-11-04T19:03:30.114438+00:00"
+    },
+    {
+      "symbol": "غشان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b56a14a1-c8d4-4f86-a5a2-d0ff69669d56.daily.json.gz",
+      "raw_sha256": "d2b47a9f277296204406103bd3f5942205d7be71f0416be6ce6711012c66c67d",
+      "retrieved_at": "2026-11-04T19:03:30.728508+00:00"
+    },
+    {
+      "symbol": "غشصفا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\23d9a5f7-2b11-4589-a719-9a387807be88.daily.json.gz",
+      "raw_sha256": "a7564087a1e87fe376c9dd2c14237b869dc854decfe9eb29e9d7986489152c25",
+      "retrieved_at": "2026-11-04T19:03:31.321470+00:00"
+    },
+    {
+      "symbol": "غشهداب",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\372183eb-79c1-4f39-85dc-2ae3a6f30082.daily.json.gz",
+      "raw_sha256": "31ed6d822e534168be074ad83311dd961a83de5545179783f1d6f10934e9639d",
+      "retrieved_at": "2026-11-04T19:03:31.734013+00:00"
+    },
+    {
+      "symbol": "غشوکو",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\f987c8a0-eef2-4fb0-b3b5-dcb976b6eb48.daily.json.gz",
+      "raw_sha256": "2a9b394e5686267b62018dd245b99e352cee512b0fe4eb00260d62dfff87f7d6",
+      "retrieved_at": "2026-11-04T19:03:32.208487+00:00"
+    },
+    {
+      "symbol": "غفارس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\6b9fc3a5-da42-435a-8a04-352cf694f664.daily.json.gz",
+      "raw_sha256": "c23cfb66309fec6f4492b83784ae6e7ddad426b922df128a60c5be79d479522f",
+      "retrieved_at": "2026-11-04T19:03:32.636937+00:00"
+    },
+    {
+      "symbol": "غمایه",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d886d9e9-b6e5-490e-b9ce-f35a32f713b4.daily.json.gz",
+      "raw_sha256": "319f0313151369f61b8a4f54723ec09656172ad91577b849a76bdd9d67477f79",
+      "retrieved_at": "2026-11-04T19:03:32.972303+00:00"
+    },
+    {
+      "symbol": "غمهرا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\5bb860e7-5c2d-4961-bc09-0c9189870011.daily.json.gz",
+      "raw_sha256": "6dddf174021318d641c8c7b079aaa168e2c445d39f30449cf4ed3408692d1924",
+      "retrieved_at": "2026-11-04T19:03:33.531741+00:00"
+    },
+    {
+      "symbol": "غمینو",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\9ff6a23c-5ade-4c8a-a72e-ab0449b274c1.daily.json.gz",
+      "raw_sha256": "c87c0bcb48434a06d505ef021626e6cefef88f3393349ba3315d817bd3604b4a",
+      "retrieved_at": "2026-11-04T19:03:34.080463+00:00"
+    },
+    {
+      "symbol": "غنوش",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\2b087028-34bc-4989-8280-c8fe35c9cc34.daily.json.gz",
+      "raw_sha256": "eb35c999202d179059d347d5e8e245d10f12d969af34f4d073b239e880829df1",
+      "retrieved_at": "2026-11-04T19:03:34.687330+00:00"
+    },
+    {
+      "symbol": "غویتا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\9bb03c0c-0993-4174-baed-3c5e7047d031.daily.json.gz",
+      "raw_sha256": "644dfb7dac96bc1d7592f7206b27c83013c92ba676e0e1565a92b29732c3a899",
+      "retrieved_at": "2026-11-04T19:03:35.140282+00:00"
+    },
+    {
+      "symbol": "غپاک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\8bb132da-23f9-4665-bd9f-cf1b91b2ef9e.daily.json.gz",
+      "raw_sha256": "a67307b0a76433c0596e532a3cdd60c9b20e4fe77cbfe880432443a416252fc3",
+      "retrieved_at": "2026-11-04T19:03:35.693981+00:00"
+    },
+    {
+      "symbol": "غپینو",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c5a432d6-bd29-4dbf-b63b-64ab36c80baf.daily.json.gz",
+      "raw_sha256": "9a34c6c8fbcf5c062b48cb1a0b1b3bef0a7c702c6a7d00ab8120c9fe7b684a65",
+      "retrieved_at": "2026-11-04T19:03:36.248020+00:00"
+    },
+    {
+      "symbol": "غکورش",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\0bba31f6-1723-4fd0-90c1-462dc0e5857a.daily.json.gz",
+      "raw_sha256": "c6a8aa62147100767a1dfb1feabb452237fc8bed0cc59807f5ee421624d85fba",
+      "retrieved_at": "2026-11-04T19:03:36.600594+00:00"
+    },
+    {
+      "symbol": "غگل",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4ab116c4-0627-450e-af57-1dc61acef8f3.daily.json.gz",
+      "raw_sha256": "269d373d67a207cd8acb2e434bef93f4ac12a1a7d3b9282281cfde52f5217076",
+      "retrieved_at": "2026-11-04T19:03:37.110924+00:00"
+    },
+    {
+      "symbol": "غگلستا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\70df11ee-fe59-40ba-adc1-9b63a7740e7b.daily.json.gz",
+      "raw_sha256": "7f67f49ae3f75589d9aede63660f4a285dfafd6c064fe4f0458815e959dddd6c",
+      "retrieved_at": "2026-11-04T19:03:37.556077+00:00"
+    },
+    {
+      "symbol": "غگیلا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\81c70aac-e3a6-4d67-9fe9-fd2c608c1c06.daily.json.gz",
+      "raw_sha256": "fe3a2c59c60e6470762b85e8bf4374a8a81623404b8dd1e13b11f4a7e24ff63f",
+      "retrieved_at": "2026-11-04T19:03:37.930349+00:00"
+    },
+    {
+      "symbol": "فاذر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\1c4e4dc1-e889-4d37-ba14-d369d5d6c79b.daily.json.gz",
+      "raw_sha256": "577607c87d6a9e40450a4fc83a6315f753b1956955841fe4fc9ef0957a5b7200",
+      "retrieved_at": "2026-11-04T19:03:38.569320+00:00"
+    },
+    {
+      "symbol": "فاراک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e41e3018-f79e-489c-be02-733b51352eef.daily.json.gz",
+      "raw_sha256": "372c5d9e2b53bec5bc5b9565bb3855af006abc3197c6c66255886c6e627778a0",
+      "retrieved_at": "2026-11-04T19:03:39.177244+00:00"
+    },
+    {
+      "symbol": "فاسمین",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\7905533f-a68e-480d-a61f-fe8f7390dfdc.daily.json.gz",
+      "raw_sha256": "e15023b1ad33e5283b1391cd58771506d7a767d477ab1887d574c63119e8f668",
+      "retrieved_at": "2026-11-04T19:03:39.456773+00:00"
+    },
+    {
+      "symbol": "فایرا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\32f8a06d-02b7-4ac8-88bf-4c5e2adcaa8e.daily.json.gz",
+      "raw_sha256": "17f62cfd34b5aff822e34f1bbd24a72a0da0ab2d83773e119be00980d3f14cef",
+      "retrieved_at": "2026-11-04T19:03:40.085829+00:00"
+    },
+    {
+      "symbol": "فباهنر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\02156686-a480-45fe-a096-d0a6b6ba6c47.daily.json.gz",
+      "raw_sha256": "af3a74a9d28250dc5e53ef5100b0869754938570a56f48e9fb8f22d9f1f22b33",
+      "retrieved_at": "2026-11-04T19:03:41.091729+00:00"
+    },
+    {
+      "symbol": "فبستم",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e832aea3-5c00-4045-945d-3c1a6d5eaff6.daily.json.gz",
+      "raw_sha256": "c364eb8ed1083890f852080f862caa6d27d027f42bc88fae5fb6fabe63b7b42c",
+      "retrieved_at": "2026-11-04T19:03:41.589910+00:00"
+    },
+    {
+      "symbol": "فبیرا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\812cc82f-571c-4ef3-9a7b-0a2ddcda4cf5.daily.json.gz",
+      "raw_sha256": "0c58b196648523903f441ccf9185b87790a7c2cb381e34552ffd04ab1b627101",
+      "retrieved_at": "2026-11-04T19:03:42.147588+00:00"
+    },
+    {
+      "symbol": "فجر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4ef96c12-8f08-4e9c-b2a5-79f3403d86e3.daily.json.gz",
+      "raw_sha256": "2a4062cce1f6dab70e0f2fd24f30828da34bded0e16b4346d47d8c3d36466b2d",
+      "retrieved_at": "2026-11-04T19:03:42.687550+00:00"
+    },
+    {
+      "symbol": "فخاس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\0311daa9-ed4b-4e8e-b977-2cba4a4670f2.daily.json.gz",
+      "raw_sha256": "8f25c85f533285252b415a24b74481124fae176d339c28933e8174998b6eb351",
+      "retrieved_at": "2026-11-04T19:03:43.217913+00:00"
+    },
+    {
+      "symbol": "فخوز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e1030359-6ee4-449d-bbc1-59d91e96637d.daily.json.gz",
+      "raw_sha256": "14887df6af079f972e304c7729d723e1c18547067180c67ab98d24b9ae048457",
+      "retrieved_at": "2026-11-04T19:03:43.874395+00:00"
+    },
+    {
+      "symbol": "فرآور",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4bcf99ee-09a9-426a-b42c-62ec274e2dfa.daily.json.gz",
+      "raw_sha256": "08ce47cd0b3cb225468a5b220136ec74fdade677060124cf3d15281140423bce",
+      "retrieved_at": "2026-11-04T19:03:44.520459+00:00"
+    },
+    {
+      "symbol": "فزر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\898b9479-9bf8-404a-8f20-df80925db9a0.daily.json.gz",
+      "raw_sha256": "bee7506ee227a82184a04eea5fa6dd642b251d392ce43347d10c66b52782e61a",
+      "retrieved_at": "2026-11-04T19:03:44.917072+00:00"
+    },
+    {
+      "symbol": "فسبزوار",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\19d039eb-a0dc-4908-ae15-0c0d8623df85.daily.json.gz",
+      "raw_sha256": "a704dfa73b8dfd3fcbf2d634b35d5e50fa0dad6b1128b42d1f979b41180df999",
+      "retrieved_at": "2026-11-04T19:03:45.290072+00:00"
+    },
+    {
+      "symbol": "فسرب",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3a998068-900b-46c8-af81-e6be406ed372.daily.json.gz",
+      "raw_sha256": "fc64e712334e75e1b91b97ff185775466783388d0ba276f30680e48cb1781f67",
+      "retrieved_at": "2026-11-04T19:03:45.886478+00:00"
+    },
+    {
+      "symbol": "فسپا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c61f3bb2-42a4-4d11-9ceb-5dccf15d7d77.daily.json.gz",
+      "raw_sha256": "fd6a4b7f92098b1c916cc2273921fb5947a02089cc9556bc4a83bb842ff6cf24",
+      "retrieved_at": "2026-11-04T19:03:46.547006+00:00"
+    },
+    {
+      "symbol": "فملی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\7f80bee8-503d-46cc-9c8a-d410ee29972f.daily.json.gz",
+      "raw_sha256": "1e193472a762898e6fd254baacc87122a371e910d6b8aff1bc644fa5b748e6a3",
+      "retrieved_at": "2026-11-04T19:03:47.157882+00:00"
+    },
+    {
+      "symbol": "فنوال",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d57bcf6f-8134-48ce-9446-904028e79cd0.daily.json.gz",
+      "raw_sha256": "b803afe5c7478886de4db6737a3f517f492a9d131de516319b587f1b82c7009a",
+      "retrieved_at": "2026-11-04T19:03:47.927600+00:00"
+    },
+    {
+      "symbol": "فنورد",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\baa1693d-7de4-4140-9319-aa6fc0186ab1.daily.json.gz",
+      "raw_sha256": "9f50b90c044b7baf70b1618bdcfa7b9c90b35fc941328ac18299f0d05f4596c0",
+      "retrieved_at": "2026-11-04T19:03:48.831072+00:00"
+    },
+    {
+      "symbol": "فولاد",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b2a1f6fa-d81c-4c8d-bd72-c1cf411e5997.daily.json.gz",
+      "raw_sha256": "11f675372107d9f7c07ecd41a64bc0e6bfc675ff43115e767de2d341af8e9312",
+      "retrieved_at": "2026-11-04T19:03:49.680404+00:00"
+    },
+    {
+      "symbol": "فولاژ",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ec7bd9e1-0a0e-47be-a1be-2804adfcf164.daily.json.gz",
+      "raw_sha256": "9464d7ea49353f6bbba7ca6f00094af79d508998ae84c31d363b359bc4e67c88",
+      "retrieved_at": "2026-11-04T19:03:50.244854+00:00"
+    },
+    {
+      "symbol": "فولای",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ec9f3262-9612-48a8-bfec-bbb59441b31b.daily.json.gz",
+      "raw_sha256": "e37ae4a4c34540bdbec611a2c25ae0cca1326345452b6502b06ca0fda91039cd",
+      "retrieved_at": "2026-11-04T19:03:50.754496+00:00"
+    },
+    {
+      "symbol": "فپنتا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\9ea705bb-16b7-4952-ba9f-1215c615858e.daily.json.gz",
+      "raw_sha256": "0e470cdc8d8bc946b075055601986aa42eb60fe90fe770bd7ae09eb598f8ba45",
+      "retrieved_at": "2026-11-04T19:03:51.335885+00:00"
+    },
+    {
+      "symbol": "فگستر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\9fce58d2-2eab-45ed-b51c-54fa00f2c77f.daily.json.gz",
+      "raw_sha256": "7c4cac16a97c7d0126f6ec99260f4949e4bdd6513ce3066b9e8fba0663445c16",
+      "retrieved_at": "2026-11-04T19:03:51.724708+00:00"
+    },
+    {
+      "symbol": "قاسم",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\b2f13de3-6556-4820-8adb-21dee0af731e.daily.json.gz",
+      "raw_sha256": "bc79324a47c63e09b885d32d8db6b001e65b059d95de90c5a639d94276dbe8e2",
+      "retrieved_at": "2026-11-04T19:03:52.188009+00:00"
+    },
+    {
+      "symbol": "قثابت",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\84a95aa7-e76c-4fde-8d1d-bb5d87c09b92.daily.json.gz",
+      "raw_sha256": "d9b337601c3e288468afa87d84b499602b2baffd85aa9a093b95e5990909cbe4",
+      "retrieved_at": "2026-11-04T19:03:52.747886+00:00"
+    },
+    {
+      "symbol": "قرن",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d1ae0534-f55f-4ba6-8a30-0036d4a225c1.daily.json.gz",
+      "raw_sha256": "d0cbaeeebe3e58b3e8e3afbf579f405e8dfbee542557eb2c15df507711d8a6c1",
+      "retrieved_at": "2026-11-04T19:03:53.145716+00:00"
+    },
+    {
+      "symbol": "قزوین",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\bf805c87-c0e9-4f5b-bc55-ceae499a765f.daily.json.gz",
+      "raw_sha256": "c3deb78d6c6b9267bb5ee2fd86d949c1a20bfb37862bb0b06a47aa462cbf4e4b",
+      "retrieved_at": "2026-11-04T19:03:53.824839+00:00"
+    },
+    {
+      "symbol": "قشکر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\299d99a4-5b3b-4458-aad8-76fcd65f91df.daily.json.gz",
+      "raw_sha256": "ff0a60a9fdaefd51620704bddc763dd87ccc1a5b3f305189b09829468289f729",
+      "retrieved_at": "2026-11-04T19:03:54.457949+00:00"
+    },
+    {
+      "symbol": "قصفها",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ef03eb47-e718-4196-bddb-41322006a0d9.daily.json.gz",
+      "raw_sha256": "50053ec23da1c334252ac176f41afc7f7950ff814947e9bf61aa07e59584f7e3",
+      "retrieved_at": "2026-11-04T19:03:55.130237+00:00"
+    },
+    {
+      "symbol": "قلرست",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\f2c66074-5126-4941-a208-a62caa285c36.daily.json.gz",
+      "raw_sha256": "e78bd8b31d36ed0e57d0c2a2ae224c3868794a77ba551646910394157d411d15",
+      "retrieved_at": "2026-11-04T19:03:55.708467+00:00"
+    },
+    {
+      "symbol": "قنیشا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a884725f-ed8a-4f17-a6d3-22e1d3b062ae.daily.json.gz",
+      "raw_sha256": "a9f41b0746a972ff269e2cf75eae41cf6947c696a91fc32547ba3093eaa46dd9",
+      "retrieved_at": "2026-11-04T19:03:56.317063+00:00"
+    },
+    {
+      "symbol": "مادیرا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\fa66cac3-823f-4a5a-aff0-1dc0a5b3d0ac.daily.json.gz",
+      "raw_sha256": "f176d0a37f2b0c96282fe28a945b200605942b6f0f3297d20541338f89d331ac",
+      "retrieved_at": "2026-11-04T19:03:56.759359+00:00"
+    },
+    {
+      "symbol": "مبین",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\40c096e4-8e63-41ad-a886-da6657689328.daily.json.gz",
+      "raw_sha256": "fac6f4e844fcdb4571dbe4680b6f3d5d768c780063204d8a35daffa60c8511f1",
+      "retrieved_at": "2026-11-04T19:03:57.248331+00:00"
+    },
+    {
+      "symbol": "نان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\63fece71-1288-4135-bf9e-ff5ec21d441a.daily.json.gz",
+      "raw_sha256": "1866f18f464a26c35148b04d9385da0226a0e4a5d6df7bf0a0f3642ae049ab80",
+      "retrieved_at": "2026-11-04T19:03:57.603185+00:00"
+    },
+    {
+      "symbol": "نوری",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\0a8e4fe4-bcd4-4ae5-b6c1-044553a86517.daily.json.gz",
+      "raw_sha256": "0b8e107416167bbe652f76cacbbd120aff6c0c713b10c759e4ad8b238ee22177",
+      "retrieved_at": "2026-11-04T19:03:58.037790+00:00"
+    },
+    {
+      "symbol": "هجرت",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3bc882ec-42f3-4aa6-9ff8-6ca689c91a1a.daily.json.gz",
+      "raw_sha256": "669aae4ea7e0089b07e8e197f1ae21b932e6db0e0edc9836d9f4b7c0e96e5c5a",
+      "retrieved_at": "2026-11-04T19:03:58.493872+00:00"
+    },
+    {
+      "symbol": "وتوشه",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\9ffc6a6a-3337-48f3-84a7-5d56050b298f.daily.json.gz",
+      "raw_sha256": "b8e69982c3158ef5ef97da48559933a9b91db66873698f0c11cf6467548f74db",
+      "retrieved_at": "2026-11-04T19:03:59.538382+00:00"
+    },
+    {
+      "symbol": "پارس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\f182c62c-5573-4aaf-b873-d6b4df5017f2.daily.json.gz",
+      "raw_sha256": "0d9595269acbbb2aff59e3325c4a1e4a0315b960a5fcce88e0d7d4ece83937b3",
+      "retrieved_at": "2026-11-04T19:04:00.064191+00:00"
+    },
+    {
+      "symbol": "پارسان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\22bc153e-8dc3-4518-8b91-641807401428.daily.json.gz",
+      "raw_sha256": "ed0a3f9665dbfe1a7289ec0b2fd2c0705c163a3c5db2df3ed0cabd19b30f2bd8",
+      "retrieved_at": "2026-11-04T19:04:00.635806+00:00"
+    },
+    {
+      "symbol": "پاسا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\395bc39f-e369-4ed7-9354-148fdfd2bffc.daily.json.gz",
+      "raw_sha256": "640283f8f1374b4e931d72da1fa4cc6145592cb1e22ff6f5592a3a5fc27c5967",
+      "retrieved_at": "2026-11-04T19:04:01.281744+00:00"
+    },
+    {
+      "symbol": "پاکشو",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\56dcdf48-cbf1-4ad4-be8b-f426604a05c6.daily.json.gz",
+      "raw_sha256": "c0c5f4af200de1f14a791a1b6e892f318821c1eff33405ac8e7b211d329c73fd",
+      "retrieved_at": "2026-11-04T19:04:01.775775+00:00"
+    },
+    {
+      "symbol": "پتایر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\a3787b04-f096-412f-8535-b978e8bd1f26.daily.json.gz",
+      "raw_sha256": "145a728b6f903bcac8b647d81dd72fb953c5585774e395005ec93ba747ee7454",
+      "retrieved_at": "2026-11-04T19:04:02.368449+00:00"
+    },
+    {
+      "symbol": "پخش",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\672f86bf-cbf2-4bf6-9597-521d11f9e20a.daily.json.gz",
+      "raw_sha256": "47a5433b0cc875aa2674e474d6d0e3c12d5039e9bfcd884f7bb029e6e4a49a7e",
+      "retrieved_at": "2026-11-04T19:04:02.996051+00:00"
+    },
+    {
+      "symbol": "پرداخت",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\4a49426f-d2bc-4cfe-9ca1-fe9ff4d7c1ea.daily.json.gz",
+      "raw_sha256": "5764fce8778eb259cf53f1e4a8a19c9c4d9a2d8f7361bef5fa96ba9fd29e0f4e",
+      "retrieved_at": "2026-11-04T19:04:03.515647+00:00"
+    },
+    {
+      "symbol": "پسهند",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\f7aadfae-4289-4049-ae62-fa60e55cadfd.daily.json.gz",
+      "raw_sha256": "b70c391f8028cb2f4b9f59285edd0256f97f17ee76a5bdfa1df16acc211fec37",
+      "retrieved_at": "2026-11-04T19:04:04.283818+00:00"
+    },
+    {
+      "symbol": "پکرمان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c363eecd-eb9b-4924-bdf2-be80e83acc32.daily.json.gz",
+      "raw_sha256": "1e46466ce070f61497125e08e304a0d09863f9fb8ad616055b9ad16edcbc437d",
+      "retrieved_at": "2026-11-04T19:04:04.858585+00:00"
+    },
+    {
+      "symbol": "پکویر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\34215318-8ead-4752-9213-74f6fd40bc36.daily.json.gz",
+      "raw_sha256": "35ce0812823b184ab120d9ac240c2cdfc7f2f7f12b42acc164efb3bec108e362",
+      "retrieved_at": "2026-11-04T19:04:05.320272+00:00"
+    },
+    {
+      "symbol": "پیزد",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\aa357d8e-66fe-4cd6-880b-621b74350f44.daily.json.gz",
+      "raw_sha256": "367ca0f36ae72e88d0efb842cbbb59265fc2e986a3639de6e966827afe3a8851",
+      "retrieved_at": "2026-11-04T19:04:05.727245+00:00"
+    },
+    {
+      "symbol": "چخزر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\6b37d7eb-bf15-4794-b372-1160e633add9.daily.json.gz",
+      "raw_sha256": "6a0da49e29b004399be33f00e80daa00f77b3507139de5a45c91616aa76abbeb",
+      "retrieved_at": "2026-11-04T19:04:06.126929+00:00"
+    },
+    {
+      "symbol": "چدن",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d902203f-0213-4f12-b051-1700f7b33c2c.daily.json.gz",
+      "raw_sha256": "72a51ca0309a09d2422272cf2582d92f954b8a9288ec6f21bc2d36c3ec3d947d",
+      "retrieved_at": "2026-11-04T19:04:06.576818+00:00"
+    },
+    {
+      "symbol": "چکارن",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\cafe7161-5b50-4b8b-9784-126793f3396e.daily.json.gz",
+      "raw_sha256": "369f597725408a5899d124f075970dae126db832b1aed8fab2b3ac692ea07b6a",
+      "retrieved_at": "2026-11-04T19:04:07.161685+00:00"
+    },
+    {
+      "symbol": "چکاپا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\020b03ab-9adc-434a-a289-a0db68763552.daily.json.gz",
+      "raw_sha256": "ff06bec51ee4b09c0a97109b67368d93169429eb671ba4923191155445a485a6",
+      "retrieved_at": "2026-11-04T19:04:07.583989+00:00"
+    },
+    {
+      "symbol": "کاذر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\478b42db-bf36-4b20-8a77-cb81678030c0.daily.json.gz",
+      "raw_sha256": "52a6c6df6d606a93e4cc02fc04878f94b72dd1b75a9de6d6cbee3a1cf1969872",
+      "retrieved_at": "2026-11-04T19:04:08.284359+00:00"
+    },
+    {
+      "symbol": "کاسپین",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3d594732-5172-49ca-b8c5-7b684189196d.daily.json.gz",
+      "raw_sha256": "24f027e7092a38c88f2e898436605f11ea7060f4b1a1406b6c79e3ae1b94644a",
+      "retrieved_at": "2026-11-04T19:04:08.826956+00:00"
+    },
+    {
+      "symbol": "کاما",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\f0c68c28-0f10-4f24-8e2e-946f766bd33e.daily.json.gz",
+      "raw_sha256": "8caad371a4814a873f984a2f7bba8efafe6a182cff180b21a34918bb7b1d8ade",
+      "retrieved_at": "2026-11-04T19:04:09.539425+00:00"
+    },
+    {
+      "symbol": "کاوه",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\38b6cafe-386f-4fda-86b4-82212ed12d5c.daily.json.gz",
+      "raw_sha256": "c02a5816b1063878a82c4ba2f9a2160e2ab9fd26524a1d20654dd6c115b6515d",
+      "retrieved_at": "2026-11-04T19:04:10.084301+00:00"
+    },
+    {
+      "symbol": "کبافق",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\028edfcd-2092-44ad-8f14-d0209f99435d.daily.json.gz",
+      "raw_sha256": "66f8e073fba554273bd94bc2ae29db5787291a936a203e2057c9c0f7e9e699ef",
+      "retrieved_at": "2026-11-04T19:04:10.803028+00:00"
+    },
+    {
+      "symbol": "کحافظ",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\15b866bf-8c4f-45f4-90b3-dbc154615cbe.daily.json.gz",
+      "raw_sha256": "c2ee9c943a4b7c746ea531f2a9b9a192b07630d5d45508d338609b75ecbabf75",
+      "retrieved_at": "2026-11-04T19:04:11.596644+00:00"
+    },
+    {
+      "symbol": "کخاک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d6e3cf9a-42c7-4daa-af08-ff4c8e19447e.daily.json.gz",
+      "raw_sha256": "2a76c328976fca29a051602b5e0933f532a7f1779235d84fe14a8495b2ccfe42",
+      "retrieved_at": "2026-11-04T19:04:12.319249+00:00"
+    },
+    {
+      "symbol": "کرازی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\c7640838-60d8-4b64-ba66-65e3a7112d6b.daily.json.gz",
+      "raw_sha256": "13dba64f33416b71e7b78740255bcf50c94ccbf44f8a7467b65589e97906be53",
+      "retrieved_at": "2026-11-04T19:04:12.916336+00:00"
+    },
+    {
+      "symbol": "کربن",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d747ca7e-87f0-4258-9ffe-dc2ef9cbcf04.daily.json.gz",
+      "raw_sha256": "a5bfc3cdbccad58fccdfa5e67a96ec7f06b907694e3e62c8d7aabe322dfde81e",
+      "retrieved_at": "2026-11-04T19:04:13.268473+00:00"
+    },
+    {
+      "symbol": "کرماشا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\89bfa0d8-db72-4298-b7cb-166c0304b58d.daily.json.gz",
+      "raw_sha256": "d05e7195ddcc3e482567a71a8b760795bee2d183087b94997fd557127248d62d",
+      "retrieved_at": "2026-11-04T19:04:14.294335+00:00"
+    },
+    {
+      "symbol": "کروی",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\31a4e996-b8e0-4bfa-94bc-a28d26e626b9.daily.json.gz",
+      "raw_sha256": "992aef6fe17270f9a548cedd16ae9ec67b70340089e76531db1d36909a1db079",
+      "retrieved_at": "2026-11-04T19:04:14.667096+00:00"
+    },
+    {
+      "symbol": "کزغال",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e76111bd-ee90-4823-a721-6b380c409a86.daily.json.gz",
+      "raw_sha256": "c3c69b690355e8bfd0ea3fae3710ea3e360cd783078d70e65c6546108493f47a",
+      "retrieved_at": "2026-11-04T19:04:15.133422+00:00"
+    },
+    {
+      "symbol": "کساپا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\dd223138-5523-424e-80eb-67ce8e65b0ba.daily.json.gz",
+      "raw_sha256": "a7d95e04e762eb919ad8f11ab91252bc435498d82170f43fc70c3cb58c949c1e",
+      "retrieved_at": "2026-11-04T19:04:15.846531+00:00"
+    },
+    {
+      "symbol": "کسرا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\298fce3f-f6fe-451e-93e1-f4d4ca508782.daily.json.gz",
+      "raw_sha256": "1ee4e04483b1784de3368600cbccbec92504a0006bc82bec19aacb0ce72cb2bc",
+      "retrieved_at": "2026-11-04T19:04:16.790771+00:00"
+    },
+    {
+      "symbol": "کصدف",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e966585f-0e20-4505-b857-714cfe049673.daily.json.gz",
+      "raw_sha256": "2f860d71b11a2c2a568ea66c09dbb3c7f192167c58a241a2cafc971f16d0e52d",
+      "retrieved_at": "2026-11-04T19:04:17.461281+00:00"
+    },
+    {
+      "symbol": "کطبس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e1d45a76-21c9-4594-b5ef-b52788a1e18b.daily.json.gz",
+      "raw_sha256": "dc6015e4b9cb8925b40ac6c3b006d3063bf293a365fed01dc7320e764a9d5624",
+      "retrieved_at": "2026-11-04T19:04:18.172317+00:00"
+    },
+    {
+      "symbol": "کفرا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\9c39ffde-2be2-4831-ab24-a97b65553f9c.daily.json.gz",
+      "raw_sha256": "0dc6fcd745026d3051da3851b349a2fc44668ac2d70197c07a20e6ca32887fc7",
+      "retrieved_at": "2026-11-04T19:04:18.918798+00:00"
+    },
+    {
+      "symbol": "کلر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\e2ac90c5-4667-4e98-b30b-234e32769134.daily.json.gz",
+      "raw_sha256": "656fd50a7d462668d2b0f77a5f3e7aedec6f77894ba42744e051384ac90b8b43",
+      "retrieved_at": "2026-11-04T19:04:19.364114+00:00"
+    },
+    {
+      "symbol": "کلوند",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\eee0ed28-6abc-401d-971e-5e4f42810310.daily.json.gz",
+      "raw_sha256": "3cde03e5d57d3c26fc83ac2c0ff345fc042f6bc7d0ae2c7dc31f7e2e895ba05f",
+      "retrieved_at": "2026-11-04T19:04:20.374317+00:00"
+    },
+    {
+      "symbol": "کماسه",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ebf0e388-b11a-4e8d-918c-7e61cf997d60.daily.json.gz",
+      "raw_sha256": "42292d227fdc270da10930793d8346acba63d1a1b833ba199f2819770e2ec890",
+      "retrieved_at": "2026-11-04T19:04:20.974781+00:00"
+    },
+    {
+      "symbol": "کمنگنز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\18ae240b-8655-405f-9a37-307d7e6a213a.daily.json.gz",
+      "raw_sha256": "3d68b3f4c8f6feb968364cb22b3aa0d650491abb7615275b479f8e2a888de6b3",
+      "retrieved_at": "2026-11-04T19:04:21.612451+00:00"
+    },
+    {
+      "symbol": "کنور",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\81be5f6f-f8d3-4c01-9ef5-ec28582a00d5.daily.json.gz",
+      "raw_sha256": "910fa36741a7076b9d785e5c305ba5c655f44f84a31162401f8a497786595d0f",
+      "retrieved_at": "2026-11-04T19:04:22.121801+00:00"
+    },
+    {
+      "symbol": "کهمدا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\2d123302-2541-40dc-be32-801bab8251a5.daily.json.gz",
+      "raw_sha256": "01bcea048484064f417c20118e0b96740dfaf96771741670aeb1f1146a60b209",
+      "retrieved_at": "2026-11-04T19:04:22.757180+00:00"
+    },
+    {
+      "symbol": "کپارس",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\3214d1b9-e208-41a0-b97d-3f4d9e02ac6c.daily.json.gz",
+      "raw_sha256": "908b44ab053c0b0d4210199b34b520a00f4b28bc1a3692498feb4aec7f75035d",
+      "retrieved_at": "2026-11-04T19:04:23.417734+00:00"
+    },
+    {
+      "symbol": "کپرور",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\cbb1fd64-fdbb-4812-abb5-80f74db50bd1.daily.json.gz",
+      "raw_sha256": "1d589b8322f3dab2a16324746e7cca0bf0363d81253e9f584817b7fed1508df9",
+      "retrieved_at": "2026-11-04T19:04:23.961570+00:00"
+    },
+    {
+      "symbol": "کپشیر",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\79c598a6-429c-4e12-94e6-c5b9b51e9cee.daily.json.gz",
+      "raw_sha256": "731e9fdc8c86d31f6efde6f71d7777cb63e5319a43161874e69ec99b8c3269a0",
+      "retrieved_at": "2026-11-04T19:04:24.622644+00:00"
+    },
+    {
+      "symbol": "کگاز",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\d623a50c-81d3-4dd3-8071-d5aa2d2dc093.daily.json.gz",
+      "raw_sha256": "95ba7584276a003ae297c0af3c2c8d4ed0d9f9604a6ac96600cf047d1704974d",
+      "retrieved_at": "2026-11-04T19:04:25.309506+00:00"
+    },
+    {
+      "symbol": "کیمیا",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\bfbfe8f3-54dd-4146-a664-af82e2f16919.daily.json.gz",
+      "raw_sha256": "7d7502b496601ef93f956d19e7f8c3b485de3018e3cf088774682e08ae1b41db",
+      "retrieved_at": "2026-11-04T19:04:25.735661+00:00"
+    },
+    {
+      "symbol": "کیمیاتک",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\ffc50f05-b5b7-4056-b58f-f305178c4174.daily.json.gz",
+      "raw_sha256": "e5235478789fbbd0558d3a80181cceac82410ab66ccfeb243a1217c0dde8eb83",
+      "retrieved_at": "2026-11-04T19:04:26.146542+00:00"
+    },
+    {
+      "symbol": "گشان",
+      "path": "ranking_research\\output\\paper_cycle\\market\\paper-cycle-20261104T190006109405Z-0c21a08f\\raw\\56860995-8786-4e76-9c41-912e6b91fa85.daily.json.gz",
+      "raw_sha256": "d05fe824b4062832b246485b839f51d919f8ae30c976a2112a3b5f702854a256",
+      "retrieved_at": "2026-11-04T19:04:26.573433+00:00"
+    }
+  ],
+  "interpretation": "research-only extension of unchanged tsetmc_gap_rule_v1 reference-price ratios; not cash/dividend/rights economics or live certification",
+  "database_written": false,
+  "original_cache_changed": false,
+  "latest_financial_manifest": "ranking_research\\output\\return_v12_37\\v12_37_daily_paper-cycle-20261105T190004086286Z-161d8f98\\extraction_manifest.json"
+}

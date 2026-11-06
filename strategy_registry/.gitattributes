@@ -1,0 +1,2 @@
+# Preserve frozen bytes: automatic LF/CRLF conversion would invalidate hashes.
+RFA-FactorMix-033/v1.0.0/** -text

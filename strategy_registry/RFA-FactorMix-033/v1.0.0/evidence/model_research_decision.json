@@ -1,0 +1,78 @@
+{
+  "policy_id": "RFA-FactorMix-033-Q40-Buffer8-Research-20261106",
+  "status": "PROMISING_CHALLENGER_FOR_PARALLEL_PAPER_COMPARISON",
+  "created_at_utc": "2026-11-06T07:18:10.164127+00:00",
+  "production_activated": false,
+  "is_current_page_P1_score": false,
+  "source_model": {
+    "id": "GROUP_WEIGHT_033",
+    "kind": "blocks",
+    "weights": [
+      0.01178982033843565,
+      0.1950482489558543,
+      0.0021009244509838346,
+      0.018452940999857618,
+      0.21010152399682835,
+      0.22776441503917455,
+      0.3253441466496349,
+      0.009397979569230856
+    ]
+  },
+  "block_weights": {
+    "growth": 0.01178982033843565,
+    "profitability": 0.1950482489558543,
+    "valuation": 0.0021009244509838346,
+    "balance": 0.018452940999857618,
+    "momentum": 0.21010152399682835,
+    "risk": 0.22776441503917455,
+    "acceleration": 0.3253441466496349,
+    "p1": 0.009397979569230856
+  },
+  "portfolio": {
+    "id": "n5_d40_band",
+    "family": "core",
+    "n": 5,
+    "method": "p1",
+    "schedule": "quarter",
+    "offset": 40,
+    "buffer": 1.6,
+    "rebalance": "band",
+    "momentum": 63,
+    "pool": 15,
+    "blend": 0.25,
+    "regime": false,
+    "weighting": "equal"
+  },
+  "human_rules": {
+    "target_names": 5,
+    "target_equal_weight": 0.2,
+    "exit_when_rank_exceeds": 8,
+    "hold_survivors_inside_exit_buffer": true,
+    "weight_rebalance_band_absolute": 0.05,
+    "calendar": "actual Jalali quarter end +40 calendar days; explicit initial entry",
+    "decision": "after close; earliest fill following session",
+    "missing_slots": "cash",
+    "unfilled_orders": "explicit; modeled expiry after 5 sessions"
+  },
+  "execution_assumptions": {
+    "fee": 0.005,
+    "slippage": 0.001,
+    "capacity": 0.05,
+    "skip_one_price": true,
+    "delay": 1,
+    "order_life": 5,
+    "max_signal_age": 45,
+    "max_mark_age": 10,
+    "max_financial_age": 550
+  },
+  "nominal_initial_capital_toman": 100000000,
+  "verification_reused": true,
+  "all_statistical_promotion_gates_pass": false,
+  "not_proven_superior_for_future_real_money": true,
+  "next_use": "separate prospective paper contract/account alongside unchanged P1 baseline; neither created by this research run",
+  "historical_scope": "existing reconstructed 254-name universe; historical receipt time unproven; fractional adjusted units and assumed dividend reinvestment",
+  "protocol_sha256": "4802ba2175f3db1b68a845a9013dceb895aa69ca386311782afb8d0bf7d2615e",
+  "selection_sha256": "109246f428cc8c77630542511b0f89322ef63ce29a615da2b3dc22e144153dd8",
+  "score_file": "D:\\RFA\\Company-Financial\\ranking_research\\experiments\\feature_model_search_20261106\\artifacts\\score_cache\\GROUP_WEIGHT_033.npz",
+  "summary_sha256": "097396521da52705eba45ffb078b45fae079f44820283a2499dded15fc5eab86"
+}
