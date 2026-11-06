@@ -50,6 +50,7 @@ export type PerformanceAccount = {
 export type PerformancePoint = {
   date: string; nav_toman: number; baseline_toman: number; cash_toman: number;
   drawdown: number; baseline_drawdown: number; n_positions: number; baseline_positions: number;
+  monthly15_toman?: number; monthly15_drawdown?: number;
 };
 export type PerformanceCase = {
   id: string; start_year: number; start: string; as_of: string; initial_toman: number;
@@ -58,6 +59,10 @@ export type PerformanceCase = {
   annual: { year: number; start: string; end: string; initial_toman: number; final_toman: number;
     return_fraction: number; baseline_initial_toman: number; baseline_final_toman: number; baseline_return_fraction: number }[];
   downloads: Record<string, string>;
+  monthly15?: { strategy_id:string;label:string;policy_sha256:string;archive_sha256:string;account:PerformanceAccount;
+    annual:{year:number;start:string;end:string;initial_toman:number;final_toman:number;return_fraction:number}[];
+    downloads:Record<string,string>;reviews_scheduled:number;stale_decisions_skipped:number;
+    same_frozen_inputs_as_parent:boolean;only_review_calendar_changed:boolean };
 };
 export type PerformanceReport = {
   schema_version: number; strategy_id: string; policy_sha256: string; mode: string; default_case: string;

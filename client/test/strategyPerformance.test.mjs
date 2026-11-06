@@ -145,13 +145,13 @@ test("missing benchmark prices remain gaps, preserve the peak, and cannot see la
   assert.deepEqual(changed.points.slice(0,-1),result.points.slice(0,-1));
 });
 
-test("both real trial windows expose all four drawdowns and retain approved model drawdowns", () => {
+test("real trial windows retain all benchmark drawdowns and the registered monthly comparison", () => {
   const snapshot=validateBenchmarkSnapshot(JSON.parse(readFileSync(new URL("../public/strategies/factormix-033/performance/benchmarks.json",import.meta.url))));
   const definitions=Object.entries(snapshot.series).map(([id,s])=>({id,label:s.label,color:"#000",rows:s.rows}));
   for (const account of source.cases) {
     const result=drawdownComparison(account,definitions);
     assert.equal(result.start,account.start);assert.equal(result.end,account.as_of);
-    assert.equal(result.series.length,4);
+    assert.equal(result.series.length,account.monthly15 ? 5 : 4);
     const stats=Object.fromEntries(result.series.map(s=>[s.id,s.max_drawdown]));
     assert.ok(Math.abs(stats.drawdown-account.accounts.candidate.max_drawdown)<1e-12);
     assert.ok(Math.abs(stats.baseline_drawdown-account.accounts.baseline.max_drawdown)<1e-12);
@@ -163,6 +163,25 @@ test("both real trial windows expose all four drawdowns and retain approved mode
       assert.ok(Math.abs(stats[`${id}_drawdown`]-minimum)<1e-12);
     }
     assert.equal(result.points.find(p=>p.date==="2025-06-22").mesghal_toman_drawdown,null);
+  }
+});
+
+test("monthly series retains its own account, exact drawdown, and fails on corrupt data",()=>{
+  const report=validatePerformanceReport(clone());
+  const account=report.cases[0],m=account.monthly15;
+  assert.ok(m);
+  assert.ok(Math.abs(m.account.final_toman-2943482563.3857675)<1);
+  assert.equal(account.path[0].monthly15_toman,100_000_000);
+  const snapshot=JSON.parse(readFileSync(new URL("../public/strategies/factormix-033/performance/benchmarks.json",import.meta.url)));
+  const definitions=Object.entries(snapshot.series).map(([id,s])=>({id,label:s.label,color:"#000",rows:s.rows}));
+  const aligned=alignBenchmarks(account,definitions,7,true);
+  assert.equal(aligned.points.at(-1).monthly15_toman,account.path.at(-1).monthly15_toman);
+  const dd=drawdownComparison(account,definitions,7,true);
+  assert.ok(Math.abs(dd.series.find(s=>s.id==="monthly15_drawdown").max_drawdown-m.account.max_drawdown)<1e-12);
+  for (const change of [r=>r.cases[0].monthly15.account.final_toman+=100_000,
+    r=>r.cases[0].path[20].monthly15_toman=NaN,
+    r=>r.cases[0].monthly15.annual[1].initial_toman=100_000_000]) {
+    const broken=clone();change(broken);assert.throws(()=>validatePerformanceReport(broken));
   }
 });
 

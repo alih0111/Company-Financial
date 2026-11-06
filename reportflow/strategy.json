@@ -1,0 +1,27 @@
+{
+  "strategy_id": "RFA-ReportFlow-033-v1.0.0",
+  "name": "ReportFlow-033",
+  "version": "1.0.0",
+  "created_client_date": "2026-11-06",
+  "parent": "RFA-FactorMix-033-Q40-Buffer8-v1.0.0",
+  "parent_unchanged": true,
+  "score": "Same eight FactorMix-033 block weights; financial and sales inputs rebuilt at each report event, market inputs updated causally each session",
+  "weights": [0.01178982033843565, 0.1950482489558543, 0.0021009244509838346, 0.018452940999857618, 0.21010152399682835, 0.22776441503917455, 0.3253441466496349, 0.009397979569230856],
+  "portfolio": {"id": "REPORTFLOW_033", "n": 5, "buffer": 1.6, "rebalance": "band", "weighting": "equal"},
+  "review": {
+    "trigger": "new eligible financial statement, monthly sales report, correction or newly eligible comparative facts in the fixed universe",
+    "batch": "once per stock session, after Tehran end-of-day information cutoff",
+    "initial_review": true,
+    "exit_rank": 8,
+    "weight_band_absolute": 0.05,
+    "no_trade_when_no_actionable_change": true,
+    "identical_pending_targets_keep_original_expiry": true,
+    "expected_arrivals_only": {"financial_days_after_quarter": 40, "monthly_day_of_following_jalali_month": 10},
+    "calendar_dates_do_not_invent_a_report": true,
+    "historical_clock": "actual source publication and monthly signal_entry_date; receipt history unavailable",
+    "forward_clock": "max(publication, verified local receipt, comparative availability); never backdate decisions"
+  },
+  "execution": {"fee": 0.005, "slippage": 0.001, "capacity": 0.05, "skip_one_price": true, "delay": 1, "order_life": 5, "max_signal_age": 45, "max_mark_age": 10, "max_financial_age": 550},
+  "backtest": {"requested_start": "2022-03-21", "end": "2026-11-04", "capital_toman": 100000000, "selection_or_retuning": false, "status": "retrospective_research"},
+  "broker_execution_enabled": false
+}

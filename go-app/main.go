@@ -15,6 +15,7 @@ func main() {
 	qvt.StartQvtPaperObserver()
 	// جمع‌آوری خودکار کدال در پس‌زمینه (غیرفعال با CODAL_AUTO_SYNC_ENABLED=0)
 	handlers.StartCodalAutoSync()
+	handlers.StartReportFlowObserver()
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -100,6 +101,8 @@ func main() {
 		protected.POST("/admin/ranking/refresh", handlers.StartRankingRefresh)
 		protected.POST("/admin/factormix/ranking/refresh", handlers.RefreshFactorMixRanking)
 		protected.GET("/factormix/ranking", handlers.GetFactorMixRanking)
+		protected.GET("/reportflow", handlers.GetReportFlow)
+		protected.POST("/admin/reportflow/review", handlers.ReviewReportFlow)
 		protected.GET("/admin/ranking/refresh/status", handlers.GetRankingRefreshStatus)
 
 		// تلاش دوبارهٔ دستی اجرای سبد کاغذی (فقط ادمین) → experimental_paper.py + paper_month_trial.py

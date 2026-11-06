@@ -1,0 +1,16 @@
+{
+  "strategy_sha256": "19d36a882b12783bd0c7142b8783af95084123cec19b5684d30722f79a2dd4bf",
+  "source_hashes": {
+    "ranking_research\\output\\return_v12_37\\v12_37_daily_paper-cycle-20261105T190004086286Z-161d8f98\\extraction_manifest.json": "cb42597e776eb4d22d78996ae2b844798bbf0fc6a98615c12a9f03faec945be7",
+    "ranking_research\\output\\paper_cycle\\codal\\paper-cycle-20261105T190004086286Z-161d8f98\\factor-inputs\\input_reports.json": "9878fde1295a81ca1715aecddf02552d55a914c7086adaae86e29b5056f8a849",
+    "ranking_research\\output\\paper_cycle\\codal\\paper-cycle-20261105T190004086286Z-161d8f98\\factor-inputs\\comparative_lineage.json": "692f0a111c549ca7705d3e94de48d49bc94542e09ea0fd4b673080b8fa854dae",
+    "ranking_research\\output\\paper_cycle\\codal\\paper-cycle-20261105T190004086286Z-161d8f98\\factor-inputs\\monthly_sales_events.parquet": "9d4c905d1a3961e056ed78eef3fd01e3a1d08fc993bc463edd03d257a4f38290",
+    "fundamental_event_research\\monthly_sales_events_universe_v1_1.parquet": "bcd69f109fd1a3bebbaadac0b82d99dbe5047777186216411509b9be850c9895",
+    "strategy_registry\\RFA-FactorMix-033\\v1.0.0\\snapshot_data\\active_inputs.npz": "bded8e686e0716ca80d0a68d5ed466709a10935bacf44186d9d31d689ee7e9d9",
+    "strategy_registry\\RFA-FactorMix-033\\v1.0.0\\strategy.locked.json": "6d28b6b8b603b2f14eec315534a9108f78162746afe32885f055ea4d3dae7526",
+    "qvt_backtest\\output\\financial_history\\share_intervals.json": "762206fe839965a58b8c6ca811891d1109397581152e305616169090d1f53bbe"
+  },
+  "tuning": false,
+  "historical_receipt_proven": false,
+  "daily_reconstruction": true
+}

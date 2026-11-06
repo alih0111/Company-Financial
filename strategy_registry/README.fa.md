@@ -1,5 +1,14 @@
 # محل ثبت و پشتیبان استراتژی منتخب RFA
 
+نسخهٔ مستقل **FactorMix-033 · ماهانه ۱۵، نسخهٔ ۱٫۰٫۰** نیز ثبت شده است:
+
+- [قواعد و راهنمای استفادهٔ ماهانه](D:/RFA/Company-Financial/strategy_registry/RFA-FactorMix-033-M15/v1.0.0/STRATEGY.fa.md)
+- [گزارش مقایسه با نسخهٔ اصلی](D:/RFA/Company-Financial/strategy_registry/RFA-FactorMix-033-M15/v1.0.0/REPORT.fa.md)
+- [بستهٔ کامل و قابل بازپخش](D:/RFA/Company-Financial/strategy_registry/archives/RFA-FactorMix-033-M15-v1.0.0-20261106.zip)
+- [نسخهٔ پشتیبان خارج پروژه](C:/Users/aliheyd/Documents/RFA-Strategy-Backups/RFA-FactorMix-033-M15-v1.0.0-20261106.zip)
+
+رسید در `monthly15.registration.json` است. شروع با ۱۰۰ میلیون تومان از ۶ فروردین ۱۴۰۱ تا ۱۳ آبان ۱۴۰۵، ارزش پایان **۲٬۹۴۳٬۴۸۲٬۵۶۳ تومان** داشت. تنها تقویم بازبینی عوض شده و نسخهٔ اصلی زیر تغییری نکرده است. نمودار بنفش در `/strategy/performance` و پیشنهاد سبد بر اساس دارایی واردشده در `/strategy?tab=ranking` قرار دارد. فرم ماهانه سفارش کارگزاری یا ثبت معامله انجام نمی‌دهد.
+
 نسخهٔ ثبت‌شده: **RFA-FactorMix-033، نسخهٔ ۱٫۰٫۰**، تاریخ ۶ نوامبر ۲۰۲۶.
 
 - [قواعد و راهنمای بازیابی](D:/RFA/Company-Financial/strategy_registry/RFA-FactorMix-033/v1.0.0/STRATEGY.fa.md)

@@ -59,6 +59,7 @@ const NAV_ITEMS: {
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
   // { to: "/ranking", label: "رتبه‌بندی", icon: <FaFlask size={13} /> },
   { to: "/strategy", label: "سبد استراتژی", icon: <FaChartPie size={13} /> },
+  { to: "/strategy/reportflow", label: "استراتژی گزارش‌محور", icon: <FaBolt size={13} /> },
   {
     to: "/strategy/performance",
     label: "عملکرد سبد استراتژی",

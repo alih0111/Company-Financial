@@ -134,6 +134,8 @@ def publish_performance(history,public,atomic_json):
         case['downloads']['report']=filename
         chart_source=ANALYSIS/'artifacts/comparison.png' if case['start_year']==1401 else ARCHIVE/'results/full_comparison.png'
         chart_name=case['id']+'-chart.png';shutil.copyfile(chart_source,folder/chart_name);case['downloads']['chart']=chart_name
+    from factormix.monthly15_performance import attach_monthly15
+    attach_monthly15(cases,folder)
     payload=dict(schema_version=1,strategy_id=history['strategy_id'],policy_sha256=history['policy_sha256'],
         mode='historical_replay',default_case='from-1401',cases=cases,
         integrity=dict(archive_verified_files=history['integrity']['verified_files'],

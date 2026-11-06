@@ -1,0 +1,22 @@
+{
+  "declared_at_utc": "2026-11-06T17:48:51.607040+00:00",
+  "registered_strategy": "RFA-FactorMix-033-Q40-Buffer8-v1.0.0",
+  "requested_start": "2022-03-21",
+  "end": "2026-11-04",
+  "initial_toman": 100000000.0,
+  "only_change": "review calendar: Jalali day 15, first following stock session if closed",
+  "initial_entry": "same explicit initial decision as original, then monthly reviews",
+  "decision": "after close; earliest fill next stock session; unchanged execution rules",
+  "unchanged": [
+    "archived candidate_score",
+    "market data",
+    "portfolio rules",
+    "costs",
+    "fill rules"
+  ],
+  "input_sha256": "bded8e686e0716ca80d0a68d5ed466709a10935bacf44186d9d31d689ee7e9d9",
+  "policy_sha256": "6d28b6b8b603b2f14eec315534a9108f78162746afe32885f055ea4d3dae7526",
+  "engine_sha256": "f81e4a77355d4c684c5e8f5d02583836c3c5f76b32bafb9974c48c36f89c6021",
+  "no_retuning_or_live_account_writes": true,
+  "calendar_chosen_by_user": true
+}

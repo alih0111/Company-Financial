@@ -42,6 +42,10 @@ import {
 type Props = {
   companyName: string;
   refreshTick?: number;
+  // دکمه‌ی «جمع‌آوری کامل قیمت» داخل هدر همین کارت رندر می‌شود (فقط ادمین)
+  collectingPrice?: boolean;
+  priceCollectMsg?: string | null;
+  onCollectPrices?: () => void;
 };
 
 // سقف درخواست از سرور (برابر سقف سمت بک‌اند)
@@ -135,7 +139,13 @@ const MaPeriodInput: React.FC<{
   );
 };
 
-const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
+const PriceChart: React.FC<Props> = ({
+  companyName,
+  refreshTick = 0,
+  collectingPrice = false,
+  priceCollectMsg = null,
+  onCollectPrices,
+}) => {
   const { darkMode } = useDarkMode();
   const dark = darkMode;
   const [data, setData] = useState<PriceHistoryRow[]>([]);
@@ -894,6 +904,35 @@ const PriceChart: React.FC<Props> = ({ companyName, refreshTick = 0 }) => {
           >
             {logScale ? "Log" : "Linear"}
           </button>
+          {/* جمع‌آوری کامل قیمت — داخل هدر کارت، فقط برای ادمین */}
+          {isAdmin && onCollectPrices && (
+            <>
+              <button
+                onClick={onCollectPrices}
+                disabled={collectingPrice}
+                className={`text-xs font-medium px-3 py-1.5 rounded-xl transition-all duration-200 ${
+                  collectingPrice
+                    ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                    : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-sm hover:shadow-md hover:shadow-cyan-500/20"
+                }`}
+              >
+                {collectingPrice
+                  ? "در حال جمع‌آوری... (۱۵-۳۰ ثانیه)"
+                  : "📥 جمع‌آوری کامل قیمت این نماد"}
+              </button>
+              {priceCollectMsg && (
+                <span
+                  className={`text-xs ${
+                    priceCollectMsg.includes("✓")
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-red-500"
+                  }`}
+                >
+                  {priceCollectMsg}
+                </span>
+              )}
+            </>
+          )}
         </div>
       </div>
 

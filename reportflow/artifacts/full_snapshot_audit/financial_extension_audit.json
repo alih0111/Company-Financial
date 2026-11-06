@@ -1,0 +1,33 @@
+{
+  "snapshots": [
+    {
+      "day": "2022-03-26",
+      "companies": 254,
+      "comparatives_admitted": 0,
+      "publication_gate_pass": true,
+      "income_statement_selection": "latest income period; no future owner table",
+      "real_historical_receipt_proven": false
+    },
+    {
+      "day": "2024-05-19",
+      "companies": 254,
+      "comparatives_admitted": 3855,
+      "publication_gate_pass": true,
+      "income_statement_selection": "latest income period; no future owner table",
+      "real_historical_receipt_proven": false
+    },
+    {
+      "day": "2026-11-04",
+      "companies": 254,
+      "comparatives_admitted": 21602,
+      "publication_gate_pass": true,
+      "income_statement_selection": "latest income period; no future owner table",
+      "real_historical_receipt_proven": false
+    }
+  ],
+  "reports_path": "ranking_research\\output\\paper_cycle\\codal\\paper-cycle-20261105T190004086286Z-161d8f98\\factor-inputs\\input_reports.json",
+  "monthly_path": "ranking_research\\output\\paper_cycle\\codal\\paper-cycle-20261105T190004086286Z-161d8f98\\factor-inputs\\monthly_sales_events.parquet",
+  "current_owner_features_used": false,
+  "source_definitions": "same locked financial ratios; V12.37 income-period selection adapter for new dates only",
+  "receipt_limitation": "publication-reconstructed, NOT actual historical receipt evidence"
+}

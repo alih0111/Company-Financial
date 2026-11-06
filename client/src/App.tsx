@@ -45,6 +45,7 @@ const ComparePage = lazy(() => import("./components/ComparePage"));
 const WatchlistPage = lazy(() => import("./components/WatchlistPage"));
 const RankingHubPage = lazy(() => import("./components/RankingHubPage"));
 const FactorMixPage = lazy(() => import("./components/FactorMixPage"));
+const ReportFlowPage = lazy(() => import("./components/ReportFlowPage"));
 const StrategyPerformancePage = lazy(() => import("./components/StrategyPerformancePage"));
 const FinancialStatements = lazy(() => import("./components/FinancialStatements"));
 
@@ -114,7 +115,9 @@ const App = () => {
 
   const isRankingSection = ["/ranking", "/ranking/legacy-cash", "/qvt", "/ranking/research", "/ranking/research/v12-1"].includes(location.pathname);
   const pageTitle =
-    location.pathname === "/strategy/performance"
+    location.pathname === "/strategy/reportflow"
+      ? "استراتژی گزارش‌محور"
+      : location.pathname === "/strategy/performance"
       ? "عملکرد سبد استراتژی"
       : location.pathname === "/strategy"
       ? "سبد استراتژی"
@@ -139,7 +142,9 @@ const App = () => {
                     : "داشبورد";
 
   const pageSubtitle =
-    location.pathname === "/strategy/performance"
+    location.pathname === "/strategy/reportflow"
+      ? "ReportFlow-033 · بررسی خودکار پس از گزارش جدید"
+      : location.pathname === "/strategy/performance"
       ? "FactorMix-033 · مسیر سرمایه و بازده تاریخی"
       : location.pathname === "/strategy"
       ? "FactorMix-033 · دارایی‌ها، معاملات و پیگیری مستقل"
@@ -201,6 +206,8 @@ const App = () => {
         document.title = "RFA | مدل منتخب و ارزیابی آینده";
     } else if (location.pathname === "/ranking/legacy-cash") {
       document.title = "RFA | آرشیو ارزندگی با پشتوانهٔ نقد";
+    } else if (location.pathname === "/strategy/reportflow") {
+      document.title = "RFA | استراتژی گزارش‌محور ReportFlow-033";
     } else if (location.pathname === "/strategy/performance") {
       document.title = "RFA | عملکرد سبد استراتژی FactorMix-033";
     } else if (location.pathname === "/strategy") {
@@ -463,37 +470,12 @@ const App = () => {
           className="animate-fade-in-up min-h-[440px]"
           style={{ animationDelay: "240ms" }}
         >
-          {isAdmin && (
-            <div className="flex items-center gap-3 mb-2">
-              <button
-                onClick={collectCompanyPrices}
-                disabled={collectingPrice}
-                className={`text-xs font-medium px-3 py-1.5 rounded-xl transition-all duration-200 ${
-                  collectingPrice
-                    ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                    : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-sm hover:shadow-md hover:shadow-cyan-500/20"
-                }`}
-              >
-                {collectingPrice
-                  ? "در حال جمع‌آوری... (۱۵-۳۰ ثانیه)"
-                  : "📥 جمع‌آوری کامل قیمت این نماد"}
-              </button>
-              {priceCollectMsg && (
-                <span
-                  className={`text-xs ${
-                    priceCollectMsg.includes("✓")
-                      ? "text-emerald-600 dark:text-emerald-400"
-                      : "text-red-500"
-                  }`}
-                >
-                  {priceCollectMsg}
-                </span>
-              )}
-            </div>
-          )}
           <PriceChart
             companyName={selectedCompany}
             refreshTick={priceRefreshTick}
+            collectingPrice={collectingPrice}
+            priceCollectMsg={priceCollectMsg}
+            onCollectPrices={collectCompanyPrices}
           />
         </div>
       )}
@@ -679,6 +661,10 @@ const App = () => {
                   <Route
                     path="/ranking"
                     element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="/strategy/reportflow"
+                    element={<ProtectedRoute><ReportFlowPage /></ProtectedRoute>}
                   />
                   <Route
                     path="/strategy/performance"

@@ -1,0 +1,16 @@
+{
+  "input_sha256": "f7ea6591ceeeb78cabbf5fc9bc3261f389bc60585d977d3ec55f39bd00cca63d",
+  "strategy_sha256": "19d36a882b12783bd0c7142b8783af95084123cec19b5684d30722f79a2dd4bf",
+  "purpose": "diagnosis, not retuning or promotion",
+  "cases": [
+    "quarterly",
+    "monthly_jalali_10",
+    "monthly_jalali_20",
+    "every_report",
+    "quarterly_zero_cost",
+    "monthly_10_zero_cost",
+    "every_report_zero_cost",
+    "reports_market_blocks_held_quarterly",
+    "reports_nonmarket_blocks_held_quarterly"
+  ]
+}

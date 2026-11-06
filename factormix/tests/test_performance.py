@@ -40,3 +40,20 @@ def test_performance_payload_contains_no_internal_filesystem_paths_or_secrets():
     raw=(PUBLIC/'performance.json').read_text(encoding='utf8')
     for marker in ['D:/','D:\\','C:/','C:\\','postgresql://','password=']:
         assert marker not in raw
+
+
+def test_monthly_overlay_is_exact_registered_account_with_unchanged_parent():
+    report=json.loads((PUBLIC/'performance.json').read_text(encoding='utf8'))
+    case=report['cases'][0]
+    registered=ROOT/'strategy_registry/RFA-FactorMix-033-M15/v1.0.0'
+    nav=pd.read_csv(registered/'results/monthly_jalali_15_nav.csv')
+    parent=pd.read_csv(registered/'results/original_quarterly_nav.csv')
+    assert nav.session.tolist()==[p['date'] for p in case['path']]
+    np.testing.assert_allclose(nav.nav_toman,[p['monthly15_toman'] for p in case['path']],rtol=0,atol=1)
+    np.testing.assert_allclose(parent.nav_toman,[p['nav_toman'] for p in case['path']],rtol=0,atol=1)
+    monthly=case['monthly15']
+    assert monthly['account']['trade_count']==343
+    assert monthly['account']['final_toman']==pytest.approx(2_943_482_563.3857675,abs=1)
+    assert monthly['account']['decision_count']+monthly['stale_decisions_skipped']==monthly['reviews_scheduled']
+    for name in monthly['downloads'].values():
+        assert (PUBLIC/name).is_file()

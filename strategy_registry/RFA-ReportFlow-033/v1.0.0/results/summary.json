@@ -1,0 +1,797 @@
+{
+  "strategy_id": "RFA-ReportFlow-033-v1.0.0",
+  "actual_start": "2022-03-26",
+  "end": "2026-11-04",
+  "initial_toman": 100000000,
+  "accounts": {
+    "reportflow": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 500619924.6425037,
+        "total_return": 4.006199246425036,
+        "cagr": 0.4181407148744358,
+        "max_drawdown": -0.3065162605859605,
+        "sharpe_zero_rf": 2.0848989093472965,
+        "annual_volatility": 0.19439201476846046
+      },
+      "annual": [
+        {
+          "year": 1401,
+          "start": "2022-03-26",
+          "end": "2023-03-19",
+          "initial_toman": 100000000.0,
+          "final_toman": 110365731.4587065,
+          "return_fraction": 0.10365731458706495
+        },
+        {
+          "year": 1402,
+          "start": "2023-03-25",
+          "end": "2024-03-18",
+          "initial_toman": 110365731.4587065,
+          "final_toman": 157510643.64266866,
+          "return_fraction": 0.4271698430377504
+        },
+        {
+          "year": 1403,
+          "start": "2024-03-24",
+          "end": "2025-03-18",
+          "initial_toman": 157510643.64266866,
+          "final_toman": 215749579.51063582,
+          "return_fraction": 0.3697460344336412
+        },
+        {
+          "year": 1404,
+          "start": "2025-03-25",
+          "end": "2026-02-25",
+          "initial_toman": 215749579.51063582,
+          "final_toman": 220519486.58889025,
+          "return_fraction": 0.022108534760872045
+        },
+        {
+          "year": 1405,
+          "start": "2026-05-19",
+          "end": "2026-11-04",
+          "initial_toman": 220519486.58889025,
+          "final_toman": 500619924.6425037,
+          "return_fraction": 1.2701845192293533
+        }
+      ],
+      "fees_toman": 90956953.80238982,
+      "slippage_toman": 18191426.25172835,
+      "fills": 659,
+      "decisions": 670,
+      "reviews": 990,
+      "expired_orders": 30,
+      "blocked_order_days": 693,
+      "maximum_position_count": 7,
+      "ledger": {
+        "daily_reconciliation": "PASS",
+        "sessions": 1051,
+        "trades_checked": 659,
+        "realized_pnl_toman": 371680758.3080882,
+        "unrealized_pnl_toman": 28939166.334415488,
+        "terminal_cash_toman": 26342871.40177028,
+        "positions": [
+          {
+            "symbol": "شلیا",
+            "index_units": 4383.743824517321,
+            "market_value_toman": 106568812.37401606,
+            "cost_basis_toman": 102842790.5682003,
+            "average_cost_toman": 23460.036599999996,
+            "unrealized_pnl_toman": 3726021.8058157563,
+            "weight": 0.21287369345140952,
+            "last_index_price_toman": 24310.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "کیمیا",
+            "index_units": 12371.071952551223,
+            "market_value_toman": 100947947.13281798,
+            "cost_basis_toman": 66084862.87241561,
+            "average_cost_toman": 5341.886549999999,
+            "unrealized_pnl_toman": 34863084.260402374,
+            "weight": 0.20164588376083042,
+            "last_index_price_toman": 8160.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "کهمدا",
+            "index_units": 12132.802101091062,
+            "market_value_toman": 98033040.97681578,
+            "cost_basis_toman": 88002805.55527548,
+            "average_cost_toman": 7253.296049999999,
+            "unrealized_pnl_toman": 10030235.42154029,
+            "weight": 0.1958232905868097,
+            "last_index_price_toman": 8080.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فنورد",
+            "index_units": 7099.229582482216,
+            "market_value_toman": 88243423.71025394,
+            "cost_basis_toman": 102842790.5682003,
+            "average_cost_toman": 14486.472,
+            "unrealized_pnl_toman": -14599366.857946366,
+            "weight": 0.17626830129318008,
+            "last_index_price_toman": 12430.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فگستر",
+            "index_units": 5077.844103900923,
+            "market_value_toman": 80483829.04682963,
+            "cost_basis_toman": 85564637.34222619,
+            "average_cost_toman": 16850.583749999998,
+            "unrealized_pnl_toman": -5080808.295396566,
+            "weight": 0.16076832959515885,
+            "last_index_price_toman": 15850.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          }
+        ]
+      },
+      "first_fill": "2022-03-27",
+      "execution": {
+        "fee": 0.005,
+        "slippage": 0.001,
+        "capacity": 0.05,
+        "skip_one_price": true,
+        "delay": 1,
+        "order_life": 5,
+        "max_signal_age": 45,
+        "max_mark_age": 10,
+        "max_financial_age": 550
+      }
+    },
+    "same_information_quarterly": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 1655799634.270979,
+        "total_return": 15.557996342709789,
+        "cagr": 0.8382130238220542,
+        "max_drawdown": -0.2044931118474117,
+        "sharpe_zero_rf": 3.556158561596035,
+        "annual_volatility": 0.1948036320605484
+      },
+      "annual": [
+        {
+          "year": 1401,
+          "start": "2022-03-26",
+          "end": "2023-03-19",
+          "initial_toman": 100000000.0,
+          "final_toman": 130200954.27801764,
+          "return_fraction": 0.30200954278017633
+        },
+        {
+          "year": 1402,
+          "start": "2023-03-25",
+          "end": "2024-03-18",
+          "initial_toman": 130200954.27801764,
+          "final_toman": 176070423.64697433,
+          "return_fraction": 0.35229748985565634
+        },
+        {
+          "year": 1403,
+          "start": "2024-03-24",
+          "end": "2025-03-18",
+          "initial_toman": 176070423.64697433,
+          "final_toman": 330263004.25940186,
+          "return_fraction": 0.8757437928450014
+        },
+        {
+          "year": 1404,
+          "start": "2025-03-25",
+          "end": "2026-02-25",
+          "initial_toman": 330263004.25940186,
+          "final_toman": 580532646.3094995,
+          "return_fraction": 0.7577889101182094
+        },
+        {
+          "year": 1405,
+          "start": "2026-05-19",
+          "end": "2026-11-04",
+          "initial_toman": 580532646.3094995,
+          "final_toman": 1655799634.270979,
+          "return_fraction": 1.8522076145020483
+        }
+      ],
+      "fees_toman": 46744706.920029104,
+      "slippage_toman": 9348897.477609862,
+      "fills": 180,
+      "decisions": 20,
+      "reviews": 0,
+      "expired_orders": 16,
+      "blocked_order_days": 102,
+      "maximum_position_count": 7,
+      "ledger": {
+        "daily_reconciliation": "PASS",
+        "sessions": 1051,
+        "trades_checked": 180,
+        "realized_pnl_toman": 1467682410.387175,
+        "unrealized_pnl_toman": 88117223.88380378,
+        "terminal_cash_toman": 0.0,
+        "positions": [
+          {
+            "symbol": "شمواد",
+            "index_units": 26152.69303990976,
+            "market_value_toman": 329523932.30286294,
+            "cost_basis_toman": 217844646.88216734,
+            "average_cost_toman": 8329.721399999999,
+            "unrealized_pnl_toman": 111679285.4206956,
+            "weight": 0.19901196103835767,
+            "last_index_price_toman": 12600.0,
+            "price_age_days": 8,
+            "price_date": "2026-10-27",
+            "action": "EXIT_UNFILLED"
+          },
+          {
+            "symbol": "کهمدا",
+            "index_units": 37209.05312980418,
+            "market_value_toman": 300649149.2888178,
+            "cost_basis_toman": 279620726.39904946,
+            "average_cost_toman": 7514.85735,
+            "unrealized_pnl_toman": 21028422.889768362,
+            "weight": 0.1815733879064351,
+            "last_index_price_toman": 8080.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فنورد",
+            "index_units": 21868.735395722837,
+            "market_value_toman": 271828380.9688349,
+            "cost_basis_toman": 279620726.39904946,
+            "average_cost_toman": 12786.32355,
+            "unrealized_pnl_toman": -7792345.430214584,
+            "weight": 0.16416743629039174,
+            "last_index_price_toman": 12430.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "کیمیا",
+            "index_units": 33010.88205221345,
+            "market_value_toman": 269368797.54606175,
+            "cost_basis_toman": 279620726.39904946,
+            "average_cost_toman": 8470.562100000001,
+            "unrealized_pnl_toman": -10251928.852987707,
+            "weight": 0.1626820008718388,
+            "last_index_price_toman": 8160.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فگستر",
+            "index_units": 16594.12697788879,
+            "market_value_toman": 263016912.59953734,
+            "cost_basis_toman": 279620726.39904946,
+            "average_cost_toman": 16850.583749999998,
+            "unrealized_pnl_toman": -16603813.799512118,
+            "weight": 0.1588458574067383,
+            "last_index_price_toman": 15850.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "شلیا",
+            "index_units": 9107.875835658755,
+            "market_value_toman": 221412461.56486434,
+            "cost_basis_toman": 231354857.9088101,
+            "average_cost_toman": 25401.626249999998,
+            "unrealized_pnl_toman": -9942396.343945771,
+            "weight": 0.13371935648623848,
+            "last_index_price_toman": 24310.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          }
+        ]
+      },
+      "first_fill": "2022-03-27",
+      "execution": {
+        "fee": 0.005,
+        "slippage": 0.001,
+        "capacity": 0.05,
+        "skip_one_price": true,
+        "delay": 1,
+        "order_life": 5,
+        "max_signal_age": 45,
+        "max_mark_age": 10,
+        "max_financial_age": 550
+      }
+    },
+    "double_cost": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 289971367.4617625,
+        "total_return": 1.899713674617625,
+        "cagr": 0.2597436823782293,
+        "max_drawdown": -0.35461087587769,
+        "sharpe_zero_rf": 1.383569518040652,
+        "annual_volatility": 0.19880148893357658
+      },
+      "annual": [
+        {
+          "year": 1401,
+          "start": "2022-03-26",
+          "end": "2023-03-19",
+          "initial_toman": 100000000.0,
+          "final_toman": 97614256.67083815,
+          "return_fraction": -0.02385743329161849
+        },
+        {
+          "year": 1402,
+          "start": "2023-03-25",
+          "end": "2024-03-18",
+          "initial_toman": 97614256.67083815,
+          "final_toman": 127569595.28127968,
+          "return_fraction": 0.30687462704810575
+        },
+        {
+          "year": 1403,
+          "start": "2024-03-24",
+          "end": "2025-03-18",
+          "initial_toman": 127569595.28127968,
+          "final_toman": 152706935.3776579,
+          "return_fraction": 0.19704805083807475
+        },
+        {
+          "year": 1404,
+          "start": "2025-03-25",
+          "end": "2026-02-25",
+          "initial_toman": 152706935.3776579,
+          "final_toman": 136360582.826976,
+          "return_fraction": -0.10704394342179613
+        },
+        {
+          "year": 1405,
+          "start": "2026-05-19",
+          "end": "2026-11-04",
+          "initial_toman": 136360582.826976,
+          "final_toman": 289971367.4617625,
+          "return_fraction": 1.1265043126846912
+        }
+      ],
+      "fees_toman": 131444491.19372413,
+      "slippage_toman": 26289193.839189965,
+      "fills": 630,
+      "decisions": 658,
+      "reviews": 990,
+      "expired_orders": 30,
+      "blocked_order_days": 700,
+      "maximum_position_count": 7,
+      "ledger": {
+        "daily_reconciliation": "PASS",
+        "sessions": 1051,
+        "trades_checked": 630,
+        "realized_pnl_toman": 174891535.8437178,
+        "unrealized_pnl_toman": 15079831.618044637,
+        "terminal_cash_toman": 16166426.24972773,
+        "positions": [
+          {
+            "symbol": "شلیا",
+            "index_units": 2556.141250423719,
+            "market_value_toman": 62139793.797800615,
+            "cost_basis_toman": 60325716.71167889,
+            "average_cost_toman": 23600.306399999998,
+            "unrealized_pnl_toman": 1814077.086121723,
+            "weight": 0.21429630912091613,
+            "last_index_price_toman": 24310.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "کیمیا",
+            "index_units": 7169.170820252474,
+            "market_value_toman": 58500433.89326019,
+            "cost_basis_toman": 38525877.98614824,
+            "average_cost_toman": 5373.8262,
+            "unrealized_pnl_toman": 19974555.90711195,
+            "weight": 0.2017455530362819,
+            "last_index_price_toman": 8160.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "کهمدا",
+            "index_units": 6863.5380123123105,
+            "market_value_toman": 55457387.13948347,
+            "cost_basis_toman": 50080932.09977839,
+            "average_cost_toman": 7296.664199999999,
+            "unrealized_pnl_toman": 5376455.039705075,
+            "weight": 0.1912512522354347,
+            "last_index_price_toman": 8080.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فنورد",
+            "index_units": 4139.528747213967,
+            "market_value_toman": 51454342.32786961,
+            "cost_basis_toman": 60325716.71167889,
+            "average_cost_toman": 14573.087999999998,
+            "unrealized_pnl_toman": -8871374.383809283,
+            "weight": 0.17744628643258964,
+            "last_index_price_toman": 12430.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فگستر",
+            "index_units": 2918.1693409224526,
+            "market_value_toman": 46252984.053620875,
+            "cost_basis_toman": 49466866.0847057,
+            "average_cost_toman": 16951.335,
+            "unrealized_pnl_toman": -3213882.031084828,
+            "weight": 0.15950879722536776,
+            "last_index_price_toman": 15850.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          }
+        ]
+      },
+      "first_fill": "2022-03-27",
+      "execution": {
+        "fee": 0.01,
+        "slippage": 0.002,
+        "capacity": 0.05,
+        "skip_one_price": true,
+        "delay": 1,
+        "order_life": 5,
+        "max_signal_age": 45,
+        "max_mark_age": 10,
+        "max_financial_age": 550
+      }
+    },
+    "delay_2_sessions": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 686119679.2308404,
+        "total_return": 5.861196792308404,
+        "cagr": 0.5184845063371082,
+        "max_drawdown": -0.2529177302541784,
+        "sharpe_zero_rf": 2.509012267749361,
+        "annual_volatility": 0.19148294420696627
+      },
+      "annual": [
+        {
+          "year": 1401,
+          "start": "2022-03-26",
+          "end": "2023-03-19",
+          "initial_toman": 100000000.0,
+          "final_toman": 134680769.9138528,
+          "return_fraction": 0.34680769913852805
+        },
+        {
+          "year": 1402,
+          "start": "2023-03-25",
+          "end": "2024-03-18",
+          "initial_toman": 134680769.9138528,
+          "final_toman": 184956538.667693,
+          "return_fraction": 0.37329582230632163
+        },
+        {
+          "year": 1403,
+          "start": "2024-03-24",
+          "end": "2025-03-18",
+          "initial_toman": 184956538.667693,
+          "final_toman": 260670568.2557448,
+          "return_fraction": 0.40936119443760477
+        },
+        {
+          "year": 1404,
+          "start": "2025-03-25",
+          "end": "2026-02-25",
+          "initial_toman": 260670568.2557448,
+          "final_toman": 316293743.8605176,
+          "return_fraction": 0.21338494781735662
+        },
+        {
+          "year": 1405,
+          "start": "2026-05-19",
+          "end": "2026-11-04",
+          "initial_toman": 316293743.8605176,
+          "final_toman": 686119679.2308404,
+          "return_fraction": 1.1692483412931884
+        }
+      ],
+      "fees_toman": 84670154.65384467,
+      "slippage_toman": 16934067.82129907,
+      "fills": 497,
+      "decisions": 351,
+      "reviews": 990,
+      "expired_orders": 21,
+      "blocked_order_days": 253,
+      "maximum_position_count": 7,
+      "ledger": {
+        "daily_reconciliation": "PASS",
+        "sessions": 1051,
+        "trades_checked": 497,
+        "realized_pnl_toman": 553342411.9169909,
+        "unrealized_pnl_toman": 32777267.31384951,
+        "terminal_cash_toman": 35286308.45501292,
+        "positions": [
+          {
+            "symbol": "کهمدا",
+            "index_units": 18841.31232917065,
+            "market_value_toman": 152237803.61969885,
+            "cost_basis_toman": 142158408.0728049,
+            "average_cost_toman": 7545.037499999999,
+            "unrealized_pnl_toman": 10079395.546893954,
+            "weight": 0.22188228705283855,
+            "last_index_price_toman": 8080.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "کیمیا",
+            "index_units": 16895.66693941252,
+            "market_value_toman": 137868642.22560617,
+            "cost_basis_toman": 89574850.96015203,
+            "average_cost_toman": 5301.646349999998,
+            "unrealized_pnl_toman": 48293791.26545414,
+            "weight": 0.20093964128847144,
+            "last_index_price_toman": 8160.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فنورد",
+            "index_units": 10382.795185068324,
+            "market_value_toman": 129058144.15039927,
+            "cost_basis_toman": 142158408.0728049,
+            "average_cost_toman": 13691.728049999998,
+            "unrealized_pnl_toman": -13100263.92240563,
+            "weight": 0.18809858987731862,
+            "last_index_price_toman": 12430.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "شلیا",
+            "index_units": 4806.078830409848,
+            "market_value_toman": 116835776.3672634,
+            "cost_basis_toman": 122082218.17810807,
+            "average_cost_toman": 25401.626249999994,
+            "unrealized_pnl_toman": -5246441.81084466,
+            "weight": 0.1702848349988148,
+            "last_index_price_toman": 24310.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فگستر",
+            "index_units": 7244.984505543203,
+            "market_value_toman": 114833004.41285977,
+            "cost_basis_toman": 122082218.17810807,
+            "average_cost_toman": 16850.583749999998,
+            "unrealized_pnl_toman": -7249213.765248299,
+            "weight": 0.167365851598355,
+            "last_index_price_toman": 15850.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          }
+        ]
+      },
+      "first_fill": "2022-03-29",
+      "execution": {
+        "fee": 0.005,
+        "slippage": 0.001,
+        "capacity": 0.05,
+        "skip_one_price": true,
+        "delay": 2,
+        "order_life": 5,
+        "max_signal_age": 45,
+        "max_mark_age": 10,
+        "max_financial_age": 550
+      }
+    },
+    "original_factormix": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 2547465821.316608,
+        "total_return": 24.47465821316608,
+        "cagr": 1.0182589578968315,
+        "max_drawdown": -0.24208526199306057,
+        "sharpe_zero_rf": 3.9404896155778495,
+        "annual_volatility": 0.20247822622482123
+      },
+      "annual": [
+        {
+          "year": 1401,
+          "start": "2022-03-26",
+          "end": "2023-03-19",
+          "initial_toman": 100000000.0,
+          "final_toman": 181972339.52858555,
+          "return_fraction": 0.8197233952858556
+        },
+        {
+          "year": 1402,
+          "start": "2023-03-25",
+          "end": "2024-03-18",
+          "initial_toman": 181972339.52858555,
+          "final_toman": 257219417.41525573,
+          "return_fraction": 0.4135083281426395
+        },
+        {
+          "year": 1403,
+          "start": "2024-03-24",
+          "end": "2025-03-18",
+          "initial_toman": 257219417.41525573,
+          "final_toman": 558809399.0157903,
+          "return_fraction": 1.1725008346226327
+        },
+        {
+          "year": 1404,
+          "start": "2025-03-25",
+          "end": "2026-02-25",
+          "initial_toman": 558809399.0157903,
+          "final_toman": 830037687.8861833,
+          "return_fraction": 0.4853681583525562
+        },
+        {
+          "year": 1405,
+          "start": "2026-05-19",
+          "end": "2026-11-04",
+          "initial_toman": 830037687.8861833,
+          "final_toman": 2547465821.316608,
+          "return_fraction": 2.069096570547436
+        }
+      ],
+      "fees_toman": 72243899.85980655,
+      "slippage_toman": 14448766.664627109,
+      "fills": 201,
+      "decisions": 20,
+      "reviews": 0,
+      "expired_orders": 18,
+      "blocked_order_days": 98,
+      "maximum_position_count": 9,
+      "ledger": {
+        "daily_reconciliation": "PASS",
+        "sessions": 1051,
+        "trades_checked": 201,
+        "realized_pnl_toman": 2307566160.039951,
+        "unrealized_pnl_toman": 139899661.27665713,
+        "terminal_cash_toman": 0.0,
+        "positions": [
+          {
+            "symbol": "شمواد",
+            "index_units": 40437.49002872171,
+            "market_value_toman": 509512374.36189353,
+            "cost_basis_toman": 336833026.05452985,
+            "average_cost_toman": 8329.7214,
+            "unrealized_pnl_toman": 172679348.3073637,
+            "weight": 0.20000754086606823,
+            "last_index_price_toman": 12600.0,
+            "price_age_days": 8,
+            "price_date": "2026-10-27",
+            "action": "EXIT_UNFILLED"
+          },
+          {
+            "symbol": "کهمدا",
+            "index_units": 60716.81109278139,
+            "market_value_toman": 490591833.62967366,
+            "cost_basis_toman": 456278174.1091497,
+            "average_cost_toman": 7514.857349999998,
+            "unrealized_pnl_toman": 34313659.520523965,
+            "weight": 0.192580339851673,
+            "last_index_price_toman": 8080.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فنورد",
+            "index_units": 35684.86065012407,
+            "market_value_toman": 443562817.88104224,
+            "cost_basis_toman": 456278174.1091497,
+            "average_cost_toman": 12786.32355,
+            "unrealized_pnl_toman": -12715356.228107452,
+            "weight": 0.1741192420206036,
+            "last_index_price_toman": 12430.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "کیمیا",
+            "index_units": 53866.33953243194,
+            "market_value_toman": 439549330.5846447,
+            "cost_basis_toman": 456278174.1091497,
+            "average_cost_toman": 8470.5621,
+            "unrealized_pnl_toman": -16728843.52450502,
+            "weight": 0.17254375972646896,
+            "last_index_price_toman": 8160.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فگستر",
+            "index_units": 27077.88530525833,
+            "market_value_toman": 429184482.0883445,
+            "cost_basis_toman": 456278174.1091497,
+            "average_cost_toman": 16850.583749999998,
+            "unrealized_pnl_toman": -27093692.02080518,
+            "weight": 0.16847506981135035,
+            "last_index_price_toman": 15850.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "شلیا",
+            "index_units": 9669.476872521993,
+            "market_value_toman": 235064982.77100965,
+            "cost_basis_toman": 245620437.54882252,
+            "average_cost_toman": 25401.626249999998,
+            "unrealized_pnl_toman": -10555454.777812868,
+            "weight": 0.09227404772383596,
+            "last_index_price_toman": 24310.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          }
+        ]
+      },
+      "first_fill": "2022-03-27",
+      "execution": {
+        "fee": 0.005,
+        "slippage": 0.001,
+        "capacity": 0.05,
+        "skip_one_price": true,
+        "delay": 1,
+        "order_life": 5,
+        "max_signal_age": 45,
+        "max_mark_age": 10,
+        "max_financial_age": 550
+      }
+    }
+  },
+  "original_archive_verified_files": 73,
+  "original_result_reproduced": true,
+  "future_market_feature_invariance": [
+    "2023-03-19",
+    "2025-03-19"
+  ],
+  "input_sha256": "f7ea6591ceeeb78cabbf5fc9bc3261f389bc60585d977d3ec55f39bd00cca63d",
+  "strategy_sha256": "19d36a882b12783bd0c7142b8783af95084123cec19b5684d30722f79a2dd4bf",
+  "selection_or_retuning": false,
+  "historical_receipt_proven": false,
+  "limitations": [
+    "Retrospective model weights were selected using part of this history; no unseen validation.",
+    "Fixed present-day 254-company universe; historical survivorship and incomplete report coverage.",
+    "Historical report publication reconstruction, not actual historical collection timestamps.",
+    "Daily-bar next-open fills, 5% ADV cap, no proof of real exchange queue priority.",
+    "Fractional adjusted units with assumed dividend reinvestment; not real share/cash corporate actions.",
+    "Terminal NAV is marked portfolio value, not guaranteed cash liquidation proceeds."
+  ]
+}

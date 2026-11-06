@@ -661,6 +661,9 @@ func finishCodalJob(job *codalJob, state string, summary, errorInfo map[string]a
 	codalSyncBusy.Store(false)
 	_ = os.Remove(filepath.Join(filepath.Dir(job.root), "active.lock"))
 	close(job.done)
+	if state == "completed" || state == "completed_with_errors" {
+		queueReportFlowReview("codal:" + job.ID)
+	}
 }
 
 func adminOnly(c *gin.Context) bool {

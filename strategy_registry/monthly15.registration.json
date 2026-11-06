@@ -1,0 +1,19 @@
+{
+  "registry_id": "RFA-FactorMix-033-M15-Buffer8-v1.0.0",
+  "version_directory": "D:\\RFA\\Company-Financial\\strategy_registry\\RFA-FactorMix-033-M15\\v1.0.0",
+  "archive": "D:\\RFA\\Company-Financial\\strategy_registry\\archives\\RFA-FactorMix-033-M15-v1.0.0-20261106.zip",
+  "backup": "C:\\Users\\aliheyd\\Documents\\RFA-Strategy-Backups\\RFA-FactorMix-033-M15-v1.0.0-20261106.zip",
+  "zip_sha256": "dfe47bed7bb23ba82138f67afb08b74d39210e0ec6c00983d182ba6f23010b13",
+  "files_in_version": 34,
+  "archive_bytes": 15011228,
+  "parent_unchanged": true,
+  "standalone_replay": {
+    "status": "PASS",
+    "files_verified": 33,
+    "daily_nav_cash_and_fills_reproduced": true,
+    "final_toman": 2943482563.3857675,
+    "fills": 343
+  },
+  "production_broker_execution": false,
+  "manual_planner_enabled": true
+}

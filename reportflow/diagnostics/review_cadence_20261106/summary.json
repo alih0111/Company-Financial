@@ -1,0 +1,233 @@
+{
+  "accounts": {
+    "quarterly": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 1655799634.270979,
+        "total_return": 15.557996342709789,
+        "cagr": 0.8382130238220542,
+        "max_drawdown": -0.2044931118474117,
+        "sharpe_zero_rf": 3.556158561596035,
+        "annual_volatility": 0.1948036320605484
+      },
+      "fills": 180,
+      "decisions": 20,
+      "reviews": 20,
+      "fees_toman": 46744706.920029104,
+      "slippage_toman": 9348897.477609862,
+      "trading": {
+        "new_entries": 70,
+        "completed_exits": 64,
+        "weight_trim_fills": 2,
+        "median_held_sessions": 62.5,
+        "repurchases_within_20_sessions": 0,
+        "exits_without_same_day_own_report": 61
+      }
+    },
+    "monthly_jalali_10": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 1373390081.8523998,
+        "total_return": 12.733900818523999,
+        "cagr": 0.7651475414491051,
+        "max_drawdown": -0.23998609781667846,
+        "sharpe_zero_rf": 3.160632985898373,
+        "annual_volatility": 0.2056487102543673
+      },
+      "fills": 300,
+      "decisions": 51,
+      "reviews": 55,
+      "fees_toman": 77277800.59338836,
+      "slippage_toman": 15455552.852030294,
+      "trading": {
+        "new_entries": 121,
+        "completed_exits": 116,
+        "weight_trim_fills": 3,
+        "median_held_sessions": 37.5,
+        "repurchases_within_20_sessions": 5,
+        "exits_without_same_day_own_report": 104
+      }
+    },
+    "monthly_jalali_20": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 1773487049.9052322,
+        "total_return": 16.73487049905232,
+        "cagr": 0.8657939421231957,
+        "max_drawdown": -0.23012709401600273,
+        "sharpe_zero_rf": 3.642081651508342,
+        "annual_volatility": 0.19473704669518496
+      },
+      "fills": 321,
+      "decisions": 54,
+      "reviews": 54,
+      "fees_toman": 78089326.03607513,
+      "slippage_toman": 15617858.91439899,
+      "trading": {
+        "new_entries": 117,
+        "completed_exits": 112,
+        "weight_trim_fills": 3,
+        "median_held_sessions": 38.0,
+        "repurchases_within_20_sessions": 2,
+        "exits_without_same_day_own_report": 110
+      }
+    },
+    "every_report": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 500619924.6425037,
+        "total_return": 4.006199246425036,
+        "cagr": 0.4181407148744358,
+        "max_drawdown": -0.3065162605859605,
+        "sharpe_zero_rf": 2.0848989093472965,
+        "annual_volatility": 0.19439201476846046
+      },
+      "fills": 659,
+      "decisions": 670,
+      "reviews": 990,
+      "fees_toman": 90956953.80238982,
+      "slippage_toman": 18191426.25172835,
+      "trading": {
+        "new_entries": 251,
+        "completed_exits": 246,
+        "weight_trim_fills": 7,
+        "median_held_sessions": 13.0,
+        "repurchases_within_20_sessions": 50,
+        "exits_without_same_day_own_report": 188
+      }
+    },
+    "quarterly_zero_cost": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 1930908415.3379092,
+        "total_return": 18.309084153379093,
+        "cagr": 0.9005284607108828,
+        "max_drawdown": -0.19646067040356796,
+        "sharpe_zero_rf": 3.7570066481469566,
+        "annual_volatility": 0.1941926329680346
+      },
+      "fills": 183,
+      "decisions": 20,
+      "reviews": 20,
+      "fees_toman": 0.0,
+      "slippage_toman": 0.0,
+      "trading": {
+        "new_entries": 70,
+        "completed_exits": 64,
+        "weight_trim_fills": 3,
+        "median_held_sessions": 62.5,
+        "repurchases_within_20_sessions": 0,
+        "exits_without_same_day_own_report": 61
+      }
+    },
+    "monthly_10_zero_cost": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 1796709613.4308918,
+        "total_return": 16.967096134308917,
+        "cagr": 0.8710659835347943,
+        "max_drawdown": -0.22750628382142946,
+        "sharpe_zero_rf": 3.5143090554490555,
+        "annual_volatility": 0.20318629283964157
+      },
+      "fills": 311,
+      "decisions": 52,
+      "reviews": 55,
+      "fees_toman": 0.0,
+      "slippage_toman": 0.0,
+      "trading": {
+        "new_entries": 122,
+        "completed_exits": 117,
+        "weight_trim_fills": 3,
+        "median_held_sessions": 37.0,
+        "repurchases_within_20_sessions": 6,
+        "exits_without_same_day_own_report": 104
+      }
+    },
+    "every_report_zero_cost": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 847091564.4680716,
+        "total_return": 7.470915644680716,
+        "cagr": 0.5895083165806059,
+        "max_drawdown": -0.26196065435578975,
+        "sharpe_zero_rf": 2.783321858816226,
+        "annual_volatility": 0.19075079271196746
+      },
+      "fills": 707,
+      "decisions": 630,
+      "reviews": 990,
+      "fees_toman": 0.0,
+      "slippage_toman": 0.0,
+      "trading": {
+        "new_entries": 247,
+        "completed_exits": 242,
+        "weight_trim_fills": 7,
+        "median_held_sessions": 14.0,
+        "repurchases_within_20_sessions": 48,
+        "exits_without_same_day_own_report": 185
+      }
+    },
+    "reports_market_blocks_held_quarterly": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 1169703473.2684174,
+        "total_return": 10.697034732684173,
+        "cagr": 0.7047454806169282,
+        "max_drawdown": -0.28176822182828165,
+        "sharpe_zero_rf": 3.2035676134533677,
+        "annual_volatility": 0.18987983261833433
+      },
+      "fills": 421,
+      "decisions": 582,
+      "reviews": 990,
+      "fees_toman": 76608947.306451,
+      "slippage_toman": 15321814.166641098,
+      "trading": {
+        "new_entries": 147,
+        "completed_exits": 142,
+        "weight_trim_fills": 7,
+        "median_held_sessions": 29.0,
+        "repurchases_within_20_sessions": 7,
+        "exits_without_same_day_own_report": 87
+      }
+    },
+    "reports_nonmarket_blocks_held_quarterly": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 855722912.2592264,
+        "total_return": 7.557229122592265,
+        "cagr": 0.593007232440095,
+        "max_drawdown": -0.24154185531882333,
+        "sharpe_zero_rf": 2.709007907547032,
+        "annual_volatility": 0.1973600530423628
+      },
+      "fills": 597,
+      "decisions": 357,
+      "reviews": 990,
+      "fees_toman": 120467635.79118705,
+      "slippage_toman": 24093571.719443653,
+      "trading": {
+        "new_entries": 221,
+        "completed_exits": 216,
+        "weight_trim_fills": 6,
+        "median_held_sessions": 17.0,
+        "repurchases_within_20_sessions": 33,
+        "exits_without_same_day_own_report": 172
+      }
+    }
+  },
+  "market_block_weight": 0.4378659390360029,
+  "same_information": true,
+  "registered_strategy_changed": false,
+  "retrospective_diagnostics_not_validation": true
+}

@@ -44,6 +44,32 @@ export function validatePerformanceReport(report) {
     }
     if (!close(last,c.accounts.candidate.final_toman) || !close(baseLast,c.accounts.baseline.final_toman) ||
         !c.downloads || Object.values(c.downloads).some(v => typeof v !== "string" || !/^[a-z0-9.-]+$/.test(v) || v.includes(".."))) throw error();
+    if (c.monthly15) {
+      const m=c.monthly15,a=m.account;
+      if (m.strategy_id !== "RFA-FactorMix-033-M15-Buffer8-v1.0.0" || !/^[a-f0-9]{64}$/.test(m.policy_sha256) ||
+          !/^[a-f0-9]{64}$/.test(m.archive_sha256) || !m.same_frozen_inputs_as_parent || !m.only_review_calendar_changed ||
+          !a || a.start!==c.start || a.end!==c.as_of || c.path[0].monthly15_toman!==c.initial_toman ||
+          !m.downloads || Object.values(m.downloads).some(v=>typeof v!=="string" || !/^[a-z0-9.-]+$/.test(v) || v.includes(".."))) throw error();
+      let high=c.initial_toman,worst=0,previous=c.initial_toman;
+      for (const p of c.path) {
+        if (!finite(p.monthly15_toman) || p.monthly15_toman<=0) throw error();
+        high=Math.max(high,p.monthly15_toman);
+        const dd=p.monthly15_toman/high-1;
+        if (!close(dd,p.monthly15_drawdown,1e-10)) throw error();
+        worst=Math.min(worst,dd);
+      }
+      if (!close(a.final_toman,c.path.at(-1).monthly15_toman) || !close(a.max_drawdown,worst,1e-10) ||
+          !close(a.total_return,a.final_toman/c.initial_toman-1,1e-10) || !close(a.cash_toman+a.holdings_value_toman,a.final_toman) ||
+          !finite(a.fees_toman) || !finite(a.slippage_toman) || a.trade_count!==a.buy_count+a.sell_count ||
+          a.decision_count+m.stale_decisions_skipped!==m.reviews_scheduled || !Array.isArray(m.annual) || !m.annual.length) throw error();
+      for (const y of m.annual) {
+        const end=c.path.find(p=>p.date===y.end);
+        if (!end || !close(y.initial_toman,previous) || !close(y.final_toman,end.monthly15_toman) ||
+            !close(y.return_fraction,y.final_toman/y.initial_toman-1,1e-10)) throw error();
+        previous=y.final_toman;
+      }
+      if (!close(previous,a.final_toman)) throw error();
+    }
   }
   return report;
 }
@@ -103,6 +129,7 @@ export function alignBenchmarks(replay,definitions,maxAgeDays=7,preserveWindow=f
   const points=path.map(p=>{
     const point={date:p.date,nav_toman:initial*p.nav_toman/path[0].nav_toman,
       baseline_toman:initial*p.baseline_toman/path[0].baseline_toman};
+    if (replay.monthly15) point.monthly15_toman=initial*p.monthly15_toman/path[0].monthly15_toman;
     for (const s of state) {
       while (s.cursor+1<s.points.length && s.points[s.cursor+1].date<=p.date) s.cursor++;
       const mark=s.points[s.cursor];
@@ -127,6 +154,7 @@ export function drawdownComparison(replay,definitions,maxAgeDays=7,preserveWindo
     {id:"drawdown",label:"FactorMix-033",color:"#059669",max_drawdown:0},
     {id:"baseline_drawdown",label:"مدل قبلی P1",color:"#94a3b8",max_drawdown:0},
   ];
+  if (replay.monthly15) series.push({id:"monthly15_drawdown",label:replay.monthly15.label,color:"#7c3aed",max_drawdown:0});
   const states=aligned.series.map(s=>{
     const definition=definitions.find(d=>d.id===s.id);
     // Include every benchmark quote in the window, including dates when the
@@ -136,13 +164,18 @@ export function drawdownComparison(replay,definitions,maxAgeDays=7,preserveWindo
     series.push(summary);
     return {rows,summary,cursor:-1,peak:s.anchor_value,last:null,drawdown:0,maxAgeDays:definition.maxAgeDays ?? maxAgeDays,end:rows[rows.length-1].date};
   });
-  let peak=path[0].nav_toman,basePeak=path[0].baseline_toman;
+  let peak=path[0].nav_toman,basePeak=path[0].baseline_toman,monthlyPeak=path[0].monthly15_toman;
   const points=path.map(p=>{
     peak=Math.max(peak,p.nav_toman);basePeak=Math.max(basePeak,p.baseline_toman);
     const dd=p.nav_toman/peak-1,baseDD=p.baseline_toman/basePeak-1;
     series[0].max_drawdown=Math.min(series[0].max_drawdown,dd);
     series[1].max_drawdown=Math.min(series[1].max_drawdown,baseDD);
     const result={date:p.date,drawdown:dd,baseline_drawdown:baseDD};
+    if (replay.monthly15) {
+      monthlyPeak=Math.max(monthlyPeak,p.monthly15_toman);
+      result.monthly15_drawdown=p.monthly15_toman/monthlyPeak-1;
+      series[2].max_drawdown=Math.min(series[2].max_drawdown,result.monthly15_drawdown);
+    }
     for (const state of states) {
       while (state.cursor+1<state.rows.length && state.rows[state.cursor+1].date<=p.date) {
         const quote=state.rows[++state.cursor];state.last=quote;

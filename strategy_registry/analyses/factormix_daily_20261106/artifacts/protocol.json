@@ -1,0 +1,40 @@
+{
+  "declared_at_utc": "2026-11-06T19:23:32.336912+00:00",
+  "requested_start": "2022-03-21",
+  "end": "2026-11-04",
+  "initial_toman": 100000000.0,
+  "primary_cases": [
+    "original_quarterly",
+    "monthly_jalali_15",
+    "daily_after_close"
+  ],
+  "diagnostic_cases": [
+    "quarterly_zero_cost",
+    "monthly15_zero_cost",
+    "daily_zero_cost",
+    "daily_delay_2_sessions"
+  ],
+  "primary_only_change": "review schedule; after each stock session close, earliest fill next session",
+  "review_is_not_mandatory_trade": true,
+  "keep_rank_buffer": 8,
+  "weight_band_absolute": 0.05,
+  "all_other_primary_rules_unchanged": true,
+  "input_kind": "same archived FactorMix candidate_score, not ReportFlow daily fundamentals",
+  "input_sha256": "bded8e686e0716ca80d0a68d5ed466709a10935bacf44186d9d31d689ee7e9d9",
+  "policy_sha256": "6d28b6b8b603b2f14eec315534a9108f78162746afe32885f055ea4d3dae7526",
+  "engine_sha256": "f81e4a77355d4c684c5e8f5d02583836c3c5f76b32bafb9974c48c36f89c6021",
+  "execution": {
+    "fee": 0.005,
+    "slippage": 0.001,
+    "capacity": 0.05,
+    "skip_one_price": true,
+    "delay": 1,
+    "order_life": 5,
+    "max_signal_age": 45,
+    "max_mark_age": 10,
+    "max_financial_age": 550
+  },
+  "no_retuning": true,
+  "no_website_publication_or_registration_or_account_writes": true,
+  "pending_policy": "archived engine unchanged: each eligible review replaces pending instructions and starts their lifetime anew; daily reviews can repeatedly renew or cancel them"
+}

@@ -1,0 +1,7 @@
+{
+  "purpose": "execution semantics sensitivity, not a new strategy or score model",
+  "same_frozen_factormix_scores": true,
+  "engine_sha256": "90c7a8a67811c3ec02f84b9d9d36296ee62e95c76bd635bd88ead79198a3c3bf",
+  "change": "do not renew identical pending targets; suppress reviews requiring no orders",
+  "registered_models_and_accounts_unchanged": true
+}

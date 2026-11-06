@@ -119,6 +119,7 @@ function HistoricalCharts({
   const capitalSeries = [
     { id: "nav_toman", label: "FactorMix-033", color: "#059669" },
     { id: "baseline_toman", label: "مدل قبلی P1", color: "#94a3b8" },
+    ...(replay.monthly15 ? [{id:"monthly15_toman",label:replay.monthly15.label,color:"#7c3aed"}] : []),
     ...aligned.series,
   ];
   const names = Object.fromEntries(
@@ -138,6 +139,7 @@ function HistoricalCharts({
       for (const id of [
         "nav_toman",
         "baseline_toman",
+        ...(replay.monthly15 ? ["monthly15_toman"] : []),
         ...aligned.series.map((s) => s.id),
       ]) {
         const value = (p as Record<string, string | number | null>)[id];
@@ -434,6 +436,17 @@ export function PerformanceContent({
         goldLoading={goldLoading}
         goldError={goldError}
       />
+      {replay.monthly15 && <section className={panel} aria-labelledby="monthly-performance-title">
+        <h2 id="monthly-performance-title" className="text-lg font-bold">FactorMix · نسخهٔ ثبت‌شدهٔ ماهانه ۱۵</h2>
+        <p className="mt-2 text-sm leading-8 text-slate-500">همان امتیازها، داده‌ها و قواعد نسخهٔ اصلی؛ بازبینی در پانزدهم هر ماه یا اولین جلسهٔ معاملاتی بعد از آن. خط بنفش، حساب مستقلی با ۱۰۰ میلیون تومان از ابتدای ۱۴۰۱ است.</p>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl bg-violet-50 p-4 dark:bg-violet-950/30"><p className="text-xs">ارزش پایان · تومان</p><p className="mt-2 text-xl font-bold text-violet-700 dark:text-violet-300">{n(replay.monthly15.account.final_toman)}</p><p className="mt-1 text-xs">بازده کل {pct(replay.monthly15.account.total_return)}</p></div>
+          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900/60"><p className="text-xs">اختلاف با FactorMix اصلی · تومان</p><p className="mt-2 text-xl font-bold">{n(replay.monthly15.account.final_toman-a.final_toman)}</p><p className="mt-1 text-xs">{pct(replay.monthly15.account.final_toman/a.final_toman-1)} ارزش پایان بیشتر در این تاریخچه</p></div>
+          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900/60"><p className="text-xs">بیشترین افت سرمایه</p><p className="mt-2 text-xl font-bold">{pct(Math.abs(replay.monthly15.account.max_drawdown))}</p><p className="mt-1 text-xs">{n(replay.monthly15.account.trade_count)} اجرای خرید و فروش؛ هزینه‌ها کسر شده‌اند</p></div>
+        </div>
+        <p className="mt-3 text-xs leading-7 text-slate-500">از {n(replay.monthly15.reviews_scheduled)} نوبت شامل ورود اولیه، {n(replay.monthly15.stale_decisions_skipped)} نوبت طبق قاعدهٔ اصلی به دلیل قدیمی بودن امتیاز کنار گذاشته شد. داده‌های روزانهٔ ReportFlow جایگزین این بازپخش نشده‌اند.</p>
+        <div className="mt-4 flex flex-wrap gap-2">{[["گزارش ماهانه و نتایج سالانه","report"],["مسیر سرمایهٔ ماهانه","nav"],["معاملات ماهانه","trades"],["راهنمای استفادهٔ ماهانه","guide"],["بستهٔ کامل ثبت‌شده ZIP","archive"]].map(([label,key])=><a className={button} key={key} href={base+replay.monthly15!.downloads[key]} download><FaDownload size={11}/>{label}</a>)}<Link className={button} to="/strategy?tab=ranking">بررسی سبد ماهانه</Link></div>
+      </section>}
       <section className={panel} aria-labelledby="annual-performance-title">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>

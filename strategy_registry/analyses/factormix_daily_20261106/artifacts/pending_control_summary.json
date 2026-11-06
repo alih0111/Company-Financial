@@ -1,0 +1,59 @@
+{
+  "accounts": {
+    "original_quarterly": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 2547465821.316608,
+        "total_return": 24.47465821316608,
+        "cagr": 1.0182589578968315,
+        "max_drawdown": -0.24208526199306057,
+        "sharpe_zero_rf": 3.9404896155778495,
+        "annual_volatility": 0.20247822622482123
+      },
+      "fills": 201,
+      "decisions": 20,
+      "identical_pending_preserved": 0,
+      "daily_ledger": "PASS"
+    },
+    "monthly_jalali_15": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 2943482563.3857675,
+        "total_return": 28.434825633857674,
+        "cagr": 1.0825127966230617,
+        "max_drawdown": -0.19267288444536645,
+        "sharpe_zero_rf": 4.372208345578574,
+        "annual_volatility": 0.1898736280430001
+      },
+      "fills": 343,
+      "decisions": 47,
+      "identical_pending_preserved": 0,
+      "daily_ledger": "PASS"
+    },
+    "daily_after_close": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 1367659292.4436357,
+        "total_return": 12.676592924436356,
+        "cagr": 0.7635473923716756,
+        "max_drawdown": -0.2353930460367245,
+        "sharpe_zero_rf": 3.4542954415399625,
+        "annual_volatility": 0.1868163871093843
+      },
+      "fills": 732,
+      "decisions": 261,
+      "identical_pending_preserved": 243,
+      "daily_ledger": "PASS"
+    }
+  },
+  "protocol": {
+    "purpose": "execution semantics sensitivity, not a new strategy or score model",
+    "same_frozen_factormix_scores": true,
+    "engine_sha256": "90c7a8a67811c3ec02f84b9d9d36296ee62e95c76bd635bd88ead79198a3c3bf",
+    "change": "do not renew identical pending targets; suppress reviews requiring no orders",
+    "registered_models_and_accounts_unchanged": true
+  }
+}

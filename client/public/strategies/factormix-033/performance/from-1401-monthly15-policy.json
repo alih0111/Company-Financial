@@ -1,0 +1,96 @@
+{
+  "registry_id": "RFA-FactorMix-033-M15-Buffer8-v1.0.0",
+  "registry_version": "1.0.0",
+  "display_name": "FactorMix-033 · ماهانه ۱۵",
+  "registered_client_date": "2026-11-06",
+  "registered_at_utc": "2026-11-06T17:55:57.323484+00:00",
+  "parent_strategy_id": "RFA-FactorMix-033-Q40-Buffer8-v1.0.0",
+  "parent_policy_sha256": "6d28b6b8b603b2f14eec315534a9108f78162746afe32885f055ea4d3dae7526",
+  "source_model": {
+    "id": "GROUP_WEIGHT_033",
+    "kind": "blocks",
+    "weights": [
+      0.01178982033843565,
+      0.1950482489558543,
+      0.0021009244509838346,
+      0.018452940999857618,
+      0.21010152399682835,
+      0.22776441503917455,
+      0.3253441466496349,
+      0.009397979569230856
+    ]
+  },
+  "block_weights": {
+    "growth": 0.01178982033843565,
+    "profitability": 0.1950482489558543,
+    "valuation": 0.0021009244509838346,
+    "balance": 0.018452940999857618,
+    "momentum": 0.21010152399682835,
+    "risk": 0.22776441503917455,
+    "acceleration": 0.3253441466496349,
+    "p1": 0.009397979569230856
+  },
+  "portfolio": {
+    "id": "n5_m15_band",
+    "family": "core",
+    "n": 5,
+    "method": "p1",
+    "schedule": "jalali_monthly_15",
+    "offset": 40,
+    "buffer": 1.6,
+    "rebalance": "band",
+    "momentum": 63,
+    "pool": 15,
+    "blend": 0.25,
+    "regime": false,
+    "weighting": "equal"
+  },
+  "human_rules": {
+    "target_names": 5,
+    "target_equal_weight": 0.2,
+    "exit_when_rank_exceeds": 8,
+    "hold_survivors_inside_exit_buffer": true,
+    "weight_rebalance_band_absolute": 0.05,
+    "calendar": "Jalali day 15; first stock session on/after it; explicit initial entry",
+    "decision": "after close; earliest fill following session",
+    "missing_slots": "cash",
+    "unfilled_orders": "explicit; modeled expiry after 5 sessions"
+  },
+  "execution_assumptions": {
+    "fee": 0.005,
+    "slippage": 0.001,
+    "capacity": 0.05,
+    "skip_one_price": true,
+    "delay": 1,
+    "order_life": 5,
+    "max_signal_age": 45,
+    "max_mark_age": 10,
+    "max_financial_age": 550
+  },
+  "calendar_policy": {
+    "primary": "observed equity-activity calendar",
+    "historical_frozen_prefix_end": "2026-02-24",
+    "after_prefix": "exclude dates with no positive-volume/value tradable opening across the frozen 254 names",
+    "stock_session_order_expiry": 5,
+    "generic_calendar_is_retained_as_control": true
+  },
+  "replay": {
+    "requested_start": "2022-03-21",
+    "end": "2026-11-04",
+    "initial_toman": 100000000,
+    "expected_final_toman": 2943482563.3857675
+  },
+  "status": "REGISTERED_HISTORICAL_VARIANT_WITH_MANUAL_PLANNER",
+  "broker_execution_enabled": false,
+  "live_automatic_rebalancing_enabled": false,
+  "historical_scores": "same frozen candidate_score as parent",
+  "live_scores": "same locked FactorMix factors recomputed from collected sources; not a claim of identical historical receipt coverage",
+  "limitations": [
+    "model selected using part of this history; not independent out-of-sample evidence",
+    "historical report receipt times unproven; current fixed universe has survivorship risk",
+    "fractional adjusted index units and assumed immediate dividend reinvestment",
+    "daily-bar fill proxies do not certify actual queue execution",
+    "terminal NAV is marked portfolio value, not guaranteed liquidation proceeds"
+  ],
+  "no_future_performance_guarantee": true
+}

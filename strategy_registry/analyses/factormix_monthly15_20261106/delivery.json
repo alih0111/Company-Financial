@@ -1,0 +1,30 @@
+{
+  "strategy_id": "RFA-FactorMix-033-M15-Buffer8-v1.0.0",
+  "archive_sha256": "dfe47bed7bb23ba82138f67afb08b74d39210e0ec6c00983d182ba6f23010b13",
+  "offline_replay": {
+    "status": "PASS",
+    "files_verified": 33,
+    "daily_nav_cash_and_fills_reproduced": true,
+    "final_toman": 2943482563.3857675,
+    "fills": 343
+  },
+  "frontend_build": "PASS",
+  "node_tests_passed": 20,
+  "published_data_tests_passed": 4,
+  "browser": {
+    "status": "PASS",
+    "curves": 5,
+    "actual_csv_matches_registered": true,
+    "monthly_toggle_and_return_modes": true,
+    "cash_entry_and_rank8_hold": true,
+    "mobile_overflow": false,
+    "proposal_download_not_executed": true,
+    "api_mutations": 0,
+    "browser_errors": []
+  },
+  "served_final_toman": 2943482563.3857675,
+  "performance_url": "http://rfa.systemgroup.net/strategy/performance",
+  "planner_url": "http://rfa.systemgroup.net/strategy?tab=ranking",
+  "broker_orders_sent": false,
+  "automatic_monthly_rebalance_enabled": false
+}

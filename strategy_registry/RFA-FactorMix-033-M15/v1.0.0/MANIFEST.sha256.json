@@ -1,0 +1,170 @@
+{
+  "strategy_id": "RFA-FactorMix-033-M15-Buffer8-v1.0.0",
+  "files": [
+    {
+      "path": "parent.strategy.locked.json",
+      "sha256": "6d28b6b8b603b2f14eec315534a9108f78162746afe32885f055ea4d3dae7526",
+      "bytes": 4045
+    },
+    {
+      "path": "replay/audit.py",
+      "sha256": "bf06ce997b0ff59355d864faf8e44b6d4809a23a9505acd95c129b7245ee279c",
+      "bytes": 10676
+    },
+    {
+      "path": "replay/engine_snapshot.py",
+      "sha256": "f81e4a77355d4c684c5e8f5d02583836c3c5f76b32bafb9974c48c36f89c6021",
+      "bytes": 13658
+    },
+    {
+      "path": "replay/reproduce.py",
+      "sha256": "e8e0c5445a3e92d3fcab2dec47753f870405932dd0d2273a27769669e3327197",
+      "bytes": 3836
+    },
+    {
+      "path": "REPORT.fa.md",
+      "sha256": "d12daa5b55e96450b19bdcda997505f78e9dbd09c2e8ca863a1a32f59f95d75f",
+      "bytes": 3342
+    },
+    {
+      "path": "requirements-replay.txt",
+      "sha256": "006c8f1723ad1871f4e20171038d88f92e76276559a01e08c76df62f4ed1f197",
+      "bytes": 47
+    },
+    {
+      "path": "results/monthly_jalali_15_decisions.csv",
+      "sha256": "5a6e368809398271f12feed39a8055f5ab7aed2f35dd2d184ee2881b3c70ba3b",
+      "bytes": 8612
+    },
+    {
+      "path": "results/monthly_jalali_15_ledger.csv",
+      "sha256": "c5314195401c9af8228db4cdeaa70e448efc7b8fbb7c0cb289ff99c47fc20793",
+      "bytes": 67027
+    },
+    {
+      "path": "results/monthly_jalali_15_nav.csv",
+      "sha256": "0c4a000746a512b62060058f777ce65720976b0a49e901f6898f672a5a3e6506",
+      "bytes": 52191
+    },
+    {
+      "path": "results/monthly_jalali_15_review_schedule.csv",
+      "sha256": "ad194bc4719d19cb9cb4f296111ccb13ff595ad362650789725a6aab633000d3",
+      "bytes": 2934
+    },
+    {
+      "path": "results/monthly_jalali_15_trades.csv",
+      "sha256": "6ed92199117c5705da6c7e4737b690bce691549a9308a6f40f28ae0b46f5785d",
+      "bytes": 48368
+    },
+    {
+      "path": "results/original_quarterly_decisions.csv",
+      "sha256": "5af135505cf2dc2f10bd4351269e4ec2de0207740d4fc6fef9b3899b9ee1e42a",
+      "bytes": 3351
+    },
+    {
+      "path": "results/original_quarterly_ledger.csv",
+      "sha256": "94d43da4b13046b06b3a82ee4401e9aa927564e800c87be1faae5004725b4ed3",
+      "bytes": 39308
+    },
+    {
+      "path": "results/original_quarterly_nav.csv",
+      "sha256": "049f5e25466b53e296ee70a833eedd95367589e50bfbc5679b6f86a1cbbaf012",
+      "bytes": 52525
+    },
+    {
+      "path": "results/original_quarterly_review_schedule.csv",
+      "sha256": "75619bba3fb22a3263e4106a6d7f9d6be6f71b4d71788d73daf00d3b6699a3e2",
+      "bytes": 930
+    },
+    {
+      "path": "results/original_quarterly_trades.csv",
+      "sha256": "b52330dcefc148e60445cc412f9c8bf8846ff9a3389afdd091220493799ec905",
+      "bytes": 28401
+    },
+    {
+      "path": "results/protocol.json",
+      "sha256": "8e7430b8a260dd06b22302a6fd83a86a25e2e13d92db9f79c5b3e42ed58825f5",
+      "bytes": 971
+    },
+    {
+      "path": "results/summary.json",
+      "sha256": "7602d1ad346bcacf4fa32f046fc5ba727a9deab5046b7c37bf749d088d4074c4",
+      "bytes": 11652
+    },
+    {
+      "path": "snapshot_data/active_inputs.npz",
+      "sha256": "bded8e686e0716ca80d0a68d5ed466709a10935bacf44186d9d31d689ee7e9d9",
+      "bytes": 14902656
+    },
+    {
+      "path": "source/analysis_run.py",
+      "sha256": "e6933fc2e5479c9dd25d5a4de95108f5f53ac53f90adbde1d9cf3bb3fd07984f",
+      "bytes": 11050
+    },
+    {
+      "path": "source/model_search_feature_audit.py",
+      "sha256": "e8488272fff26b5b72bf4bdc17d2aa860a28d1889c7ae63f2407a46ad22a962d",
+      "bytes": 1539
+    },
+    {
+      "path": "source/model_search_features.py",
+      "sha256": "61379b992902377ee7dcb7a08384a0adff05499188e94d0e3c7e6571250f7b02",
+      "bytes": 8585
+    },
+    {
+      "path": "source/model_search_models.py",
+      "sha256": "81353cfaa100e56699fab6fd3abf26898a1ea0a674f1996bf2fb4f2d4eb26ce7",
+      "bytes": 8169
+    },
+    {
+      "path": "source/model_search_report.py",
+      "sha256": "61a473c9ff2ccb9b2b57b30a1ad75fa2ae0e434fa395c0e8287d6875eeb1e25a",
+      "bytes": 21453
+    },
+    {
+      "path": "source/model_search_run.py",
+      "sha256": "debd47dd6e3661412007345c5ce7631fd7ae59ff9612b18c0f07bcd7c4b073b1",
+      "bytes": 8559
+    },
+    {
+      "path": "source/model_search_stability.py",
+      "sha256": "531b37cd6e3863e589a4d974f20f11885bc571c22758f73fb742dd796a77f329",
+      "bytes": 4524
+    },
+    {
+      "path": "source/model_search_test_research.py",
+      "sha256": "8ba7482b2c22c1da1da279a4fa140ca720ab109f0a2d49e6f0d5e79174dea7cd",
+      "bytes": 2512
+    },
+    {
+      "path": "source/monthlyBasketPlan.d.ts",
+      "sha256": "fb86308564f0c87c2a4f1ca57d990922c7a096596da95506da7d88dc1facaeee",
+      "bytes": 857
+    },
+    {
+      "path": "source/monthlyBasketPlan.js",
+      "sha256": "cdbae9423c2ce12c79dd04e02dd6e51206210b636e87ed8bdce0718b6bdf0ba9",
+      "bytes": 3478
+    },
+    {
+      "path": "source/MonthlyFactorMixPlanner.tsx",
+      "sha256": "d797ccd67b2cbd10fa8673e2f7a9646f101616774c992127fe82e667b724db52",
+      "bytes": 7723
+    },
+    {
+      "path": "source/register.py",
+      "sha256": "d621d9700de55deb1a77dbc82db1266e7528873a2443c7eb6e70e0af380eb103",
+      "bytes": 9875
+    },
+    {
+      "path": "STRATEGY.fa.md",
+      "sha256": "cf37d4174c43f7ae1e48bfff567be09711e7033c6cf6858ccc325d5e1cd1154e",
+      "bytes": 3724
+    },
+    {
+      "path": "strategy.locked.json",
+      "sha256": "7c09d1aaa721650b6eef2eacd296054a1340f74043235005c10741e614d1e430",
+      "bytes": 3457
+    }
+  ]
+}

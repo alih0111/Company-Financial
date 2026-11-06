@@ -1,0 +1,9 @@
+{
+  "strategy_id": "RFA-ReportFlow-033-v1.0.0",
+  "version_directory": "D:\\RFA\\Company-Financial\\strategy_registry\\RFA-ReportFlow-033\\v1.0.0",
+  "archive": "D:\\RFA\\Company-Financial\\strategy_registry\\archives\\RFA-ReportFlow-033-v1.0.0-20261106.zip",
+  "archive_sha256": "a974732907620ab9feec9876d79846a9cd6dc5338f723d433a05c5df2da53726",
+  "files": 48,
+  "old_factormix_unchanged": true,
+  "status": "EXPERIMENTAL_PAPER_ONLY_UNDERPERFORMS_QUARTERLY_CONTROL"
+}

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FaSyncAlt } from "react-icons/fa";
 import { API_BASE } from "../config";
+import MonthlyFactorMixPlanner from "./MonthlyFactorMixPlanner";
 
 type Row = {
   symbol: string; rank: number | null; score: number | null;
@@ -65,7 +66,7 @@ export default function CurrentFactorMixRanking() {
 
   const normalize = (value: string) => value.replace(/ي/g, "ی").replace(/ك/g, "ک").replace(/\s|\u200c/g, "");
   const rows = ranking?.rows.filter(row => normalize(row.symbol).includes(normalize(search))) ?? [];
-  const pages = Math.max(1, Math.ceil(rows.length / 20));
+  const pages = Math.max(1, Math.ceil(rows.length / 10));
   const currentPage = Math.min(page, pages - 1);
   const button = "inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm disabled:opacity-50 dark:border-slate-700";
   return <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800/60">
@@ -84,7 +85,7 @@ export default function CurrentFactorMixRanking() {
       <label className="mt-4 grid max-w-xs gap-2 text-xs">جست‌وجوی نماد<input className="min-h-10 rounded-xl border border-slate-200 bg-transparent px-3 dark:border-slate-700" type="search" value={search} onChange={e => { setSearch(e.target.value); setPage(0); }} /></label>
       <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[650px] text-right text-sm">
         <thead><tr className="border-b text-xs text-slate-500">{["رتبه", "نماد", "امتیاز", "رتبهٔ قبلی", "تغییر امتیاز", "تاریخ قیمت / وضعیت"].map(label => <th key={label} className="p-3" scope="col">{label}</th>)}</tr></thead>
-        <tbody>{rows.slice(currentPage * 20, (currentPage + 1) * 20).map(row => <tr key={row.symbol} className="border-b border-slate-100 dark:border-slate-700">
+        <tbody>{rows.slice(currentPage * 10, (currentPage + 1) * 10).map(row => <tr key={row.symbol} className="border-b border-slate-100 dark:border-slate-700">
           <td className="p-3">{row.rank === null ? "—" : number(row.rank)}</td><th scope="row" className="p-3">{row.symbol}</th>
           <td className="p-3 tabular-nums" dir="ltr">{row.score === null ? "—" : number(row.score, 4)}</td>
           <td className="p-3">{row.previous_rank === null ? "—" : number(row.previous_rank)}</td>
@@ -95,5 +96,6 @@ export default function CurrentFactorMixRanking() {
       {!rows.length && <p className="mt-3 text-sm">نمادی پیدا نشد.</p>}
       <div className="mt-4 flex items-center gap-3 text-xs"><button className={button} disabled={currentPage === 0} onClick={() => setPage(currentPage - 1)}>قبلی</button><span>{number(currentPage + 1)} / {number(pages)}</span><button className={button} disabled={currentPage + 1 >= pages} onClick={() => setPage(currentPage + 1)}>بعدی</button></div>
     </> : !busy && !error && <p className="mt-4 text-sm text-slate-500">برای ساخت اولین رتبه‌بندی، «به‌روزرسانی امتیازها» را بزنید.</p>}
+    <MonthlyFactorMixPlanner ranking={ranking} busy={busy} />
   </section>;
 }
