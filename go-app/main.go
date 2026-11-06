@@ -98,6 +98,8 @@ func main() {
 
 		// اجرای دستی چرخهٔ دریافت Codal و بازسازی رتبه‌بندی P1/P3 (فقط ادمین)
 		protected.POST("/admin/ranking/refresh", handlers.StartRankingRefresh)
+		protected.POST("/admin/factormix/ranking/refresh", handlers.RefreshFactorMixRanking)
+		protected.GET("/factormix/ranking", handlers.GetFactorMixRanking)
 		protected.GET("/admin/ranking/refresh/status", handlers.GetRankingRefreshStatus)
 
 		// تلاش دوبارهٔ دستی اجرای سبد کاغذی (فقط ادمین) → experimental_paper.py + paper_month_trial.py

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { FaArrowDown, FaArrowUp, FaArrowLeft, FaCheckCircle, FaDownload, FaHistory, FaSyncAlt } from "react-icons/fa";
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { FactorMixDashboard, FactorMixTrade } from "./factorMixTypes";
+import CurrentFactorMixRanking from "./CurrentFactorMixRanking";
 
 const base = `${import.meta.env.BASE_URL}strategies/factormix-033/`;
 const n = (v: number, digits = 0) => new Intl.NumberFormat("fa-IR", { maximumFractionDigits: digits }).format(v);
@@ -121,6 +122,7 @@ function Ranking({ data }: { data: FactorMixDashboard }) {
   const current = Math.min(page,pageCount-1);
   const last = data.decisions[data.decisions.length-1];
   return <div className="space-y-5">
+    <CurrentFactorMixRanking />
     <section className={panel}>
       <h2 className="text-lg font-bold">سبد از کدام رتبه‌بندی انتخاب شده؟</h2>
       <p className="mt-3 text-sm leading-8 text-slate-600 dark:text-slate-300">آخرین انتخاب در پایان {day(last.date)} با امتیاز خودِ FactorMix-033 انجام شده است. پنج نماد هدف در آن تصمیم عبارت‌اند از:</p>
