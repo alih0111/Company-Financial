@@ -348,11 +348,11 @@ const BigDataTable: React.FC<Props> = ({ data, onScoresRefreshed }) => {
   };
 
   return (
-    <div className="animate-fade-in-up glass-border glass-border-active rounded-3xl border border-gray-200/80 dark:border-gray-700/60 bg-white/70 dark:bg-gray-800/50 backdrop-blur-xl shadow-2xl shadow-indigo-500/5 dark:shadow-indigo-500/10 py-4 px-6">
+    <div className="animate-fade-in-up rounded-2xl border border-gray-200/80 dark:border-gray-700/60 bg-white/70 dark:bg-gray-800/50 shadow-sm p-4 sm:p-5">
       {/* ── Toolbar ── */}
       <div className="flex items-center gap-3 mb-4 flex-wrap justify-between">
         {/* Search */}
-        <div className="relative flex-1 max-w-md">
+        <div className="relative flex-1 basis-56 min-w-0 max-w-md">
           <FaSearch className="absolute top-1/2 left-3.5 -translate-y-1/2 text-gray-500 dark:text-gray-400 text-sm" />
           <input
             type="text"
@@ -360,11 +360,11 @@ const BigDataTable: React.FC<Props> = ({ data, onScoresRefreshed }) => {
             onChange={handleSearch}
             placeholder="جستجوی شرکت..."
             dir="rtl"
-            className="w-full py-2.5 pr-4 pl-10 rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm text-gray-900 dark:text-gray-100 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-400 transition-all duration-300 shadow-sm focus:shadow-md focus:shadow-indigo-500/10"
+            className="w-full py-2.5 pr-4 pl-10 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/60 dark:bg-gray-800/60 text-gray-900 dark:text-gray-100 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-400 transition-colors"
           />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           {onScoresRefreshed && (
             <button
               type="button"
@@ -431,7 +431,7 @@ const BigDataTable: React.FC<Props> = ({ data, onScoresRefreshed }) => {
       )}
 
       {/* ── Table ── */}
-      <div className="overflow-auto max-h-[70vh] rounded-2xl">
+      <div className="overflow-auto overscroll-contain max-h-[70vh] rounded-xl border border-gray-200/70 dark:border-gray-700/60">
         <table
           {...getTableProps()}
           className="min-w-full text-sm border-collapse"
@@ -445,7 +445,7 @@ const BigDataTable: React.FC<Props> = ({ data, onScoresRefreshed }) => {
                 <tr
                   {...hgProps}
                   key={hgProps.key}
-                  className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/25"
+                  className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700"
                 >
                   {headerGroup.headers.map((column) => {
                     const col = column as unknown as Record<string, unknown>;
@@ -458,18 +458,18 @@ const BigDataTable: React.FC<Props> = ({ data, onScoresRefreshed }) => {
                       <th
                         {...headerProps}
                         key={headerProps.key}
-                        className={`p-4 text-center text-white/95 font-bold text-xs tracking-wide select-none cursor-pointer hover:bg-white/10 transition-colors duration-200 ${
+                        className={`p-4 text-center text-gray-600 dark:text-gray-300 font-semibold text-xs select-none cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors duration-200 ${
                           (col.className as string) || ""
                         }`}
                       >
                         <div className="flex items-center justify-center gap-2">
                           <span>{column.render("Header")}</span>
-                          <span className="flex items-center text-white/60">
+                          <span className="flex items-center text-gray-400">
                             {col.isSorted ? (
                               col.isSortedDesc ? (
-                                <FaSortDown className="text-white/90" />
+                                <FaSortDown className="text-emerald-600 dark:text-emerald-400" />
                               ) : (
-                                <FaSortUp className="text-white/90" />
+                                <FaSortUp className="text-emerald-600 dark:text-emerald-400" />
                               )
                             ) : (
                               <FaSort className="opacity-30" />
@@ -519,9 +519,7 @@ const BigDataTable: React.FC<Props> = ({ data, onScoresRefreshed }) => {
                   className={`
                     cursor-pointer transition-all duration-200 ease-out
                     border-l-[3px] ${rowBorderColor(score)}
-                    hover:bg-indigo-50/70 dark:hover:bg-indigo-950/30
-                    hover:shadow-lg hover:shadow-indigo-500/5
-                    hover:-translate-y-[1px]
+                    hover:bg-emerald-50/70 dark:hover:bg-emerald-950/30
                     ${
                       rowIndex % 2 === 0
                         ? "bg-white/40 dark:bg-gray-900/20"

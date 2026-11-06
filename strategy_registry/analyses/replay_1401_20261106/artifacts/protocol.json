@@ -1,0 +1,49 @@
+{
+  "declared_at_utc": "2026-11-06T11:00:24.523985+00:00",
+  "strategy_id": "RFA-FactorMix-033-Q40-Buffer8-v1.0.0",
+  "requested_start": "2022-03-21",
+  "end": "2026-11-04",
+  "capital_toman": 100000000.0,
+  "selection_or_retuning": false,
+  "input_sha256": "bded8e686e0716ca80d0a68d5ed466709a10935bacf44186d9d31d689ee7e9d9",
+  "policy_sha256": "6d28b6b8b603b2f14eec315534a9108f78162746afe32885f055ea4d3dae7526",
+  "engine_sha256": "f81e4a77355d4c684c5e8f5d02583836c3c5f76b32bafb9974c48c36f89c6021",
+  "primary_calendar": {
+    "primary": "observed equity-activity calendar",
+    "historical_frozen_prefix_end": "2026-02-24",
+    "after_prefix": "exclude dates with no positive-volume/value tradable opening across the frozen 254 names",
+    "stock_session_order_expiry": 5,
+    "generic_calendar_is_retained_as_control": true
+  },
+  "portfolio": {
+    "id": "n5_d40_band",
+    "family": "core",
+    "n": 5,
+    "method": "p1",
+    "schedule": "quarter",
+    "offset": 40,
+    "buffer": 1.6,
+    "rebalance": "band",
+    "momentum": 63,
+    "pool": 15,
+    "blend": 0.25,
+    "regime": false,
+    "weighting": "equal"
+  },
+  "execution": {
+    "fee": 0.005,
+    "slippage": 0.001,
+    "capacity": 0.05,
+    "skip_one_price": true,
+    "delay": 1,
+    "order_life": 5,
+    "max_signal_age": 45,
+    "max_mark_age": 10,
+    "max_financial_age": 550
+  },
+  "baseline": "P1 BASE: same market, capital, start/end and execution; its original fixed policy",
+  "previous_history_used_only_for_features": true,
+  "real_historical_receipt_proven": false,
+  "performance_is_retrospective_not_unseen_validation": true,
+  "all_outputs_outside_frozen_archive": true
+}

@@ -62,6 +62,92 @@
   }
 }
 
+/* Application chrome stays in the viewport; only the page body scrolls. */
+@layer components {
+  .app-shell {
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    padding: 12px;
+  }
+
+  .app-layout {
+    display: flex;
+    gap: 16px;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  .app-main {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 4px 24px -12px rgb(15 23 42 / 0.12);
+  }
+
+  .app-scrollport {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+    overflow: auto;
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+    padding: 20px;
+    scroll-padding-block: 20px;
+  }
+
+  .app-page {
+    min-width: 0;
+  }
+
+  .app-scrollport-chat {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .app-scrollport-chat > .app-page {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sidebar-scrollport {
+    overscroll-behavior-y: contain;
+    scrollbar-gutter: stable;
+  }
+
+  .sidebar-tool {
+    @apply flex shrink-0 items-center justify-center gap-2 w-full min-h-9 rounded-xl border border-gray-200/80 bg-gray-50/70 px-3 py-2 text-xs font-medium text-gray-600 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/[0.08] dark:bg-white/[0.03] dark:text-gray-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-950/40 dark:hover:text-emerald-300;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-shell {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 639px) {
+  .app-shell {
+    padding: 0;
+  }
+
+  .app-main {
+    border-radius: 0;
+    border: 0;
+  }
+
+  .app-scrollport {
+    padding: 16px 12px;
+  }
+}
+
 /* ══════════════════════════════════════════════════════════
    شبکه‌ی امنیت کنتراست دارک‌مود
    کلاس‌های روشنی که واریانت dark ندارند در تم تاریک ناخوانا می‌شوند؛

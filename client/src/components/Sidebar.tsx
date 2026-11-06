@@ -1,5 +1,5 @@
 import { errorMessage } from "../utils/errorMessage";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Select from "react-select";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -16,14 +16,15 @@ import {
   FaArrowRight,
   FaTable,
   FaRobot,
-  FaFlask,
-  FaGlobe,
-  FaEye,
 } from "react-icons/fa";
 import QuickSyncModal from "./QuickSyncModal";
 import SymbolSyncModal from "./SymbolSyncModal";
 import { useDarkMode } from "../utils/theme";
-import { addViewedItem, collectBrsPrices, getActiveCodalSyncJob } from "../utils/api";
+import {
+  addViewedItem,
+  collectBrsPrices,
+  getActiveCodalSyncJob,
+} from "../utils/api";
 
 interface SidebarProps {
   companyOptions: { value: string; label: string }[];
@@ -52,11 +53,17 @@ const NAV_ITEMS: {
   adminOnly?: boolean;
 }[] = [
   { to: "/dashboard", label: "داشبورد شرکت", icon: <FaChartLine size={13} /> },
-  { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
-  { to: "/compare", label: "مقایسه و نسبت", icon: <FaBalanceScale size={13} /> },
-  { to: "/watchlist", label: "دیده‌بان", icon: <FaEye size={13} /> },
+  // { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
+  // { to: "/compare", label: "مقایسه و نسبت", icon: <FaBalanceScale size={13} /> },
+  // { to: "/watchlist", label: "دیده‌بان", icon: <FaEye size={13} /> },
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
-  { to: "/ranking", label: "رتبه‌بندی", icon: <FaFlask size={13} /> },
+  // { to: "/ranking", label: "رتبه‌بندی", icon: <FaFlask size={13} /> },
+  { to: "/strategy", label: "سبد استراتژی", icon: <FaChartPie size={13} /> },
+  {
+    to: "/strategy/performance",
+    label: "عملکرد سبد استراتژی",
+    icon: <FaChartLine size={13} />,
+  },
   { to: "/chat", label: "دستیار سرمایه‌گذاری", icon: <FaRobot size={13} /> },
   // { to: "/portfolio", label: "پورتفولیو", icon: <FaBriefcase size={13} /> },
   {
@@ -80,8 +87,43 @@ const Sidebar: React.FC<SidebarProps> = ({
   onDataCollected,
 }) => {
   const location = useLocation();
-  const isRankingPath = ["/ranking", "/qvt", "/ranking/research", "/ranking/research/v12-1"].includes(location.pathname);
-  const [toolsOpen, setToolsOpen] = useState(true);
+  const isRankingPath = [
+    "/ranking",
+    "/qvt",
+    "/ranking/research",
+    "/ranking/research/v12-1",
+  ].includes(location.pathname);
+  const [toolsOpen, setToolsOpen] = useState(false);
+  const sidebarRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (!open || window.matchMedia("(min-width: 1024px)").matches) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const sidebar = sidebarRef.current;
+    const focusable = () => Array.from(sidebar?.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), [tabindex="0"]',
+    ) ?? []).filter((element) => element.getClientRects().length > 0);
+    focusable()[0]?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose?.();
+      if (event.key !== "Tab") return;
+      const elements = focusable();
+      const first = elements[0];
+      const last = elements[elements.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      previousFocus?.focus({ preventScroll: true });
+    };
+  }, [open, onClose]);
   const [loadingBrsDaily, setLoadingBrsDaily] = useState(false);
   const [loadingBrsBackfill, setLoadingBrsBackfill] = useState(false);
   const [loadingBrsSync, setLoadingBrsSync] = useState(false);
@@ -107,14 +149,18 @@ const Sidebar: React.FC<SidebarProps> = ({
     const check = async () => {
       try {
         const active = await getActiveCodalSyncJob();
-        if (!stopped) setCodalWaitingCaptcha(active?.state === "waiting_captcha");
+        if (!stopped)
+          setCodalWaitingCaptcha(active?.state === "waiting_captcha");
       } catch {
         // Sidebar visibility is informational; the modal reports polling errors.
       }
       if (!stopped) timer = window.setTimeout(check, 2500);
     };
     void check();
-    return () => { stopped = true; window.clearTimeout(timer); };
+    return () => {
+      stopped = true;
+      window.clearTimeout(timer);
+    };
   }, [isAdmin]);
 
   // جمع‌آوری تاریخچه‌ی قیمت نماد انتخاب‌شده از BRS
@@ -195,13 +241,17 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
+    <>
     <aside
-      className={`theme-transition fixed left-0 top-0 z-40 h-full w-80 p-6 overflow-y-auto bg-white/95 dark:bg-[#101a2f]/95 backdrop-blur-xl shadow-2xl shadow-emerald-500/5 dark:shadow-black/50 border-r border-gray-200/80 dark:border-white/[0.06] flex flex-col gap-3 transition-transform duration-300 ease-out-expo lg:sticky lg:top-4 lg:h-auto lg:max-h-[97vh] lg:mb-0 lg:mr-0 lg:rounded-3xl lg:border lg:translate-x-0 ${
-        open ? "translate-x-0" : "-translate-x-full"
+      ref={sidebarRef}
+      id="app-sidebar"
+      aria-label="منوی اصلی"
+      className={`theme-transition fixed right-0 top-0 z-40 h-dvh w-72 max-w-[calc(100vw-32px)] shrink-0 p-5 overflow-hidden bg-white dark:bg-[#101a2f] shadow-xl shadow-gray-900/5 border-l border-gray-200/80 dark:border-white/[0.06] flex flex-col gap-3 transition-transform duration-300 ease-out-expo lg:static lg:h-full lg:w-64 xl:w-72 lg:rounded-[20px] lg:border lg:translate-x-0 ${
+        open ? "translate-x-0 visible" : "translate-x-full invisible lg:visible"
       }`}
     >
-      <div className="pb-2 flex justify-between items-center">
-        <h2 className="flex items-center gap-2 text-xl font-bold text-gradient-emerald tracking-tight">
+      <div className="pb-2 shrink-0 flex justify-between items-center">
+        <h2 className="flex items-center gap-2 text-lg font-bold text-emerald-600 dark:text-emerald-400 tracking-tight">
           <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-md shadow-emerald-500/25">
             <FaChartLine size={14} />
           </span>
@@ -219,7 +269,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* ── منوی ناوبری اصلی ── */}
-      <nav className="flex flex-col gap-1">
+      <nav aria-label="صفحه‌های برنامه" className="shrink-0 flex flex-col gap-1">
         {NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin).map((item) => (
           <NavLink
             key={item.to}
@@ -227,7 +277,8 @@ const Sidebar: React.FC<SidebarProps> = ({
             end
             onClick={onClose}
             className={({ isActive }) => {
-              const active = isActive || (item.to === "/ranking" && isRankingPath);
+              const active =
+                isActive || (item.to === "/ranking" && isRankingPath);
               return `flex items-center gap-2.5 h-10 px-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
                 active
                   ? "bg-gradient-to-l from-emerald-500/15 to-teal-500/10 text-emerald-700 dark:text-emerald-300 ring-1 ring-emerald-500/25 shadow-sm"
@@ -236,20 +287,21 @@ const Sidebar: React.FC<SidebarProps> = ({
             }}
           >
             {({ isActive }) => {
-              const active = isActive || (item.to === "/ranking" && isRankingPath);
+              const active =
+                isActive || (item.to === "/ranking" && isRankingPath);
               return (
-              <>
-                <span
-                  className={`flex items-center justify-center w-7 h-7 rounded-lg text-sm transition ${
-                    active
-                      ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/25"
-                      : "bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400"
-                  }`}
-                >
-                  {item.icon}
-                </span>
-                {item.label}
-              </>
+                <>
+                  <span
+                    className={`flex items-center justify-center w-7 h-7 rounded-lg text-sm transition ${
+                      active
+                        ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white shadow-sm shadow-emerald-500/25"
+                        : "bg-gray-100 dark:bg-gray-700/50 text-gray-500 dark:text-gray-400"
+                    }`}
+                  >
+                    {item.icon}
+                  </span>
+                  {item.label}
+                </>
               );
             }}
           </NavLink>
@@ -257,7 +309,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       {/* ── جست‌وجوی شرکت ── */}
-      <div>
+      <div className="shrink-0">
         <label
           htmlFor="company"
           className="mb-1.5 block px-1 text-[11px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide"
@@ -272,10 +324,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           }
           onChange={(option) => option && handleCompanySelect(option.value)}
           isSearchable
+          isRtl
+          menuPortalTarget={document.body}
+          menuPosition="fixed"
           placeholder="جست‌وجو یا انتخاب..."
           isLoading={loadingCompanies}
           className="text-sm rtl:text-right"
           styles={{
+            menuPortal: (base) => ({ ...base, zIndex: 60 }),
             control: (base, state) => ({
               ...base,
               borderRadius: "0.75rem",
@@ -359,7 +415,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         />
       </div>
 
-      <div className="flex flex-col justify-start h-full overflow-auto text-sm ">
+      <div className="sidebar-scrollport flex-1 min-h-0 overflow-y-auto text-sm">
         {isAdmin && (
           <>
             <div className="pb-2 flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/60">
@@ -367,6 +423,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => setToolsOpen((v) => !v)}
                 className="flex items-center justify-between w-full group"
                 aria-expanded={toolsOpen}
+                aria-controls="sidebar-data-tools"
               >
                 <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                   ابزارهای داده
@@ -376,7 +433,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 </span>
               </button>
             </div>
-            <div className={`flex flex-col gap-2 ${toolsOpen ? "" : "hidden"}`}>
+            <div id="sidebar-data-tools" className={`flex flex-col gap-2 ${toolsOpen ? "" : "hidden"}`}>
               <button
                 onClick={() => setSymbolSync("financial")}
                 disabled={!selectedCompany}
@@ -385,7 +442,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     ? `آخرین گزارش‌های سود «${selectedCompany}»`
                     : "ابتدا یک نماد انتخاب کنید"
                 }
-                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-emerald-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                className="sidebar-tool"
               >
                 <FaCoins size={13} />
                 جمع‌آوری سود
@@ -399,7 +456,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     ? `آخرین گزارش‌های فروش «${selectedCompany}»`
                     : "ابتدا یک نماد انتخاب کنید"
                 }
-                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                className="sidebar-tool"
               >
                 <FaChartPie size={13} />
                 جمع‌آوری فروش
@@ -413,7 +470,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     ? `تاریخچه‌ی قیمت «${selectedCompany}»`
                     : "ابتدا یک نماد انتخاب کنید"
                 }
-                className="flex items-center justify-center gap-2 w-full h-9 bg-gradient-to-r from-fuchsia-500 to-purple-600 hover:from-fuchsia-600 hover:to-purple-700 text-white rounded-xl p-2  text-sm tracking-wide shadow-sm hover:shadow-md hover:shadow-purple-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]"
+                className="sidebar-tool"
               >
                 <FaDownload size={13} />
                 {loadingCompanyPrices ? "در حال اجرا..." : "جمع‌آوری قیمت‌ها"}
@@ -430,7 +487,11 @@ const Sidebar: React.FC<SidebarProps> = ({
                   }`}
                 >
                   <FaBolt size={13} />
-                  {codalWaitingCaptcha ? "کد امنیتی منتظر پاسخ است" : quickSyncing ? "در حال بررسی... · بازکردن وضعیت" : "جمع‌آوری سریع"}
+                  {codalWaitingCaptcha
+                    ? "کد امنیتی منتظر پاسخ است"
+                    : quickSyncing
+                      ? "در حال بررسی... · بازکردن وضعیت"
+                      : "جمع‌آوری سریع"}
                 </button>
               </div>
 
@@ -454,12 +515,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     onClick={runBrsDaily}
                     disabled={loadingBrsDaily}
-                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm transition-all duration-200
-                      ${
-                        loadingBrsDaily
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 hover:shadow-md hover:shadow-emerald-500/20  active:scale-[0.98]"
-                      }`}
+                    className="sidebar-tool"
                   >
                     <FaSyncAlt size={13} />
                     {loadingBrsDaily ? "در حال اجرا..." : "قیمت روزانه"}
@@ -467,12 +523,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     onClick={runBrsBackfill}
                     disabled={loadingBrsBackfill}
-                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm transition-all duration-200
-                      ${
-                        loadingBrsBackfill
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 hover:shadow-md hover:shadow-cyan-500/20  active:scale-[0.98]"
-                      }`}
+                    className="sidebar-tool"
                   >
                     <FaDownload size={13} />
                     {loadingBrsBackfill ? "در حال اجرا..." : "تاریخچه قیمت"}
@@ -480,12 +531,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   <button
                     onClick={runBrsSync}
                     disabled={loadingBrsSync}
-                    className={`flex items-center justify-center gap-2 w-full h-9 text-white rounded-xl p-2 text-sm tracking-wide shadow-sm transition-all duration-200
-                      ${
-                        loadingBrsSync
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : "bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 hover:shadow-md hover:shadow-amber-500/20  active:scale-[0.98]"
-                      }`}
+                    className="sidebar-tool"
                   >
                     <FaBalanceScale size={13} />
                     {loadingBrsSync ? "در حال اجرا..." : "تعدیل قیمت‌ها"}
@@ -501,7 +547,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           </>
         )}
         {!isAdmin && (
-          <div className="shadow-sm mt-1 backdrop-blur-sm rounded-2xl border border-gray-200/60 dark:border-white/[0.06] h-4/6 flex flex-1 flex-col bg-white/40 dark:bg-white/[0.03]">
+          <div className="shadow-sm mt-1 rounded-2xl border border-gray-200/60 dark:border-white/[0.06] bg-white/40 dark:bg-white/[0.03]">
             <div className="p-4 pb-2 flex justify-between items-center">
               <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                 مرور سود
@@ -511,7 +557,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               </span>
             </div>
 
-            <div className="overflow-auto direction-rtl flex-1 p-2 pt-0">
+            <div className="p-2 pt-0">
               <div className="direction-ltr">
                 <ul className="space-y-0.5 text-xs text-gray-700 dark:text-gray-300">
                   {companyProfits.map((company, index) => {
@@ -558,7 +604,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         )}
 
-        <div className="profile mt-4 overflow-hidden">
+      </div>
+        <div className="profile shrink-0 border-t border-gray-100 dark:border-white/[0.06] pt-3">
           <button
             onClick={() => {
               localStorage.removeItem("token");
@@ -587,8 +634,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </span>
           </button>
         </div>
-      </div>
-
+    </aside>
       <QuickSyncModal
         visible={quickSyncOpen}
         onClose={() => setQuickSyncOpen(false)}
@@ -602,7 +648,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         onClose={() => setSymbolSync(null)}
         onDataCollected={onDataCollected}
       />
-    </aside>
+    </>
   );
 };
 

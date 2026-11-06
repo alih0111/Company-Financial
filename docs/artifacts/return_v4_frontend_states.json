@@ -1,0 +1,23 @@
+{
+  "checked_at": "2026-10-16T13:09:22.918Z",
+  "run_id": "v4_20261016T130610656257Z",
+  "component": "ResearchRankingView",
+  "actual_component_ssr": true,
+  "cases": [
+    {
+      "state": "normal",
+      "passed": true,
+      "displayed_rows": 10
+    },
+    {
+      "state": "partial",
+      "passed": true,
+      "displayed_rows": 2
+    },
+    {
+      "state": "empty",
+      "passed": true,
+      "displayed_rows": 0
+    }
+  ]
+}

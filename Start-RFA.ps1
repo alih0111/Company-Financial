@@ -255,8 +255,8 @@ function Start-Backend {
 }
 
 function Start-Frontend {
-    # Keep the site's configured public API hostname. Using localhost here
-    # would make remote browsers call their own machine instead of the server.
+    # The browser uses the same-origin /api path; Vite proxies it to the local
+    # Go backend, so remote clients do not need to resolve a separate API host.
     $previousApiBase = $env:VITE_API_BASE
     Remove-Item Env:VITE_API_BASE -ErrorAction SilentlyContinue
     try {

@@ -1,0 +1,14 @@
+{
+  "analysis": "replay_1401_20261106",
+  "strategy_version": "1.0.0",
+  "files": 18,
+  "sha256": "0f4839448080551caa49e94a233629a59dfe4eca947abf0e45f7082f67905c20",
+  "bytes": 314967,
+  "archives": [
+    "D:\\RFA\\Company-Financial\\strategy_registry\\archives\\RFA-FactorMix-033-Replay-1401-20261106.zip",
+    "C:\\Users\\aliheyd\\Documents\\RFA-Strategy-Backups\\RFA-FactorMix-033-Replay-1401-20261106.zip"
+  ],
+  "integrity": "PASS",
+  "junit_tests": 7,
+  "remote_upload": false
+}

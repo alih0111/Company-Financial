@@ -11,6 +11,7 @@ export default function RankingHubPage() {
   const { pathname } = useLocation();
   const archived = ["/ranking/legacy-cash", "/qvt", "/ranking/research"].includes(pathname);
   return <div dir="rtl" className="space-y-4">
+    {!archived && <Link to="/strategy" className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100"><span><b>سبد استراتژی FactorMix-033</b><span className="ms-2 text-xs opacity-80">ترکیب دارایی‌ها، دفتر معاملات و پیگیری مستقل</span></span><span className="text-xs font-bold">مشاهدهٔ سبد ←</span></Link>}
     {archived && (
       <div className="animate-fade-in-up flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-amber-300/60 bg-gradient-to-l from-amber-50 to-orange-50/60 p-4 text-sm leading-7 text-amber-950 dark:border-amber-500/25 dark:from-amber-950/40 dark:to-orange-950/30 dark:text-amber-100">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 ring-1 ring-amber-500/25">

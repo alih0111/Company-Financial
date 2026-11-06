@@ -1,0 +1,89 @@
+{
+  "files": [
+    {
+      "path": "artifacts/baseline_decisions.csv",
+      "bytes": 3224,
+      "sha256": "afbeaad9adb78bd80ce3fcfc34bcc6675f8202532a0c74e43fd9578c31707110"
+    },
+    {
+      "path": "artifacts/baseline_ledger.csv",
+      "bytes": 30105,
+      "sha256": "91c548f85c1275f14e15e2cf3401374e6e8b1b331e3cd105ebf7ac5b5473c226"
+    },
+    {
+      "path": "artifacts/baseline_nav.csv",
+      "bytes": 55570,
+      "sha256": "e32cad061cd81bd5a8174cb01f526316086ec25bf882ed0e60e7450ce1d691a1"
+    },
+    {
+      "path": "artifacts/baseline_trades.csv",
+      "bytes": 21587,
+      "sha256": "a93e1889ad297b930db89dd268c424e54fe4de08ea66729137bbd433539aca5e"
+    },
+    {
+      "path": "artifacts/candidate_decisions.csv",
+      "bytes": 3351,
+      "sha256": "5af135505cf2dc2f10bd4351269e4ec2de0207740d4fc6fef9b3899b9ee1e42a"
+    },
+    {
+      "path": "artifacts/candidate_ledger.csv",
+      "bytes": 39308,
+      "sha256": "94d43da4b13046b06b3a82ee4401e9aa927564e800c87be1faae5004725b4ed3"
+    },
+    {
+      "path": "artifacts/candidate_nav.csv",
+      "bytes": 52525,
+      "sha256": "049f5e25466b53e296ee70a833eedd95367589e50bfbc5679b6f86a1cbbaf012"
+    },
+    {
+      "path": "artifacts/candidate_trades.csv",
+      "bytes": 28401,
+      "sha256": "b52330dcefc148e60445cc412f9c8bf8846ff9a3389afdd091220493799ec905"
+    },
+    {
+      "path": "artifacts/comparison.png",
+      "bytes": 222948,
+      "sha256": "7b6aa1d04bfddfbc019846da6a11020a35b455290d7c722107d2eac1fec48628"
+    },
+    {
+      "path": "artifacts/protocol.json",
+      "bytes": 1701,
+      "sha256": "e342c1a697e8f10b898acde240aa11299acf8ce55c8ac27d8207817cb0fe9891"
+    },
+    {
+      "path": "artifacts/summary.json",
+      "bytes": 12600,
+      "sha256": "00218f00de1127ef05daa06e2cd057e0b0255ed92b5fef6b8a68136416c53c3b"
+    },
+    {
+      "path": "artifacts/tests.junit.xml",
+      "bytes": 1435,
+      "sha256": "8fb14cdbd4a03f564c345ea0e558fce5fdb106f57a9994821bcb8fe0d5682438"
+    },
+    {
+      "path": "README.md",
+      "bytes": 1306,
+      "sha256": "2091539c8019200ea98a0f2fce70a120717fc498f32dde02663e34427017996f"
+    },
+    {
+      "path": "REPORT.fa.md",
+      "bytes": 8688,
+      "sha256": "096fcd628b7c7bdb34a9770cdb2829c0ca54fae7eb882b18f9698640d3906742"
+    },
+    {
+      "path": "report.py",
+      "bytes": 12216,
+      "sha256": "95aafbbbfa726ddfe86764702a56e395187127431e7fcfe004c7ddaa5f5f4d3c"
+    },
+    {
+      "path": "run.py",
+      "bytes": 10676,
+      "sha256": "bf06ce997b0ff59355d864faf8e44b6d4809a23a9505acd95c129b7245ee279c"
+    },
+    {
+      "path": "test_replay.py",
+      "bytes": 5284,
+      "sha256": "2d31b4a9087079eef50faa87a6351a02c05b2afe03ac27e7c756a2ec7669f0b6"
+    }
+  ]
+}

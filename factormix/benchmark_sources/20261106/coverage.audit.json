@@ -1,0 +1,30 @@
+{
+  "before_rows": 2,
+  "inserted_rows": 1106,
+  "after_rows": 1108,
+  "first_date": "2022-03-26",
+  "last_date": "2026-11-04",
+  "existing_values_preserved": true,
+  "max_existing_value_difference": 0.0400000000372529,
+  "status": "PASS",
+  "series": {
+    "index_toman": {
+      "first_date": "2022-03-26",
+      "last_date": "2026-11-04",
+      "count": 1108,
+      "replay_dates_without_fresh_mark": []
+    },
+    "mesghal_toman": {
+      "first_date": "2022-03-26",
+      "last_date": "2026-11-04",
+      "count": 1076,
+      "replay_dates_without_fresh_mark": [
+        "2025-06-21",
+        "2025-06-22",
+        "2025-06-23",
+        "2025-06-24",
+        "2025-06-25"
+      ]
+    }
+  }
+}

@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "strategy:publish": "node scripts/publish-factormix.mjs",
+    "test:strategy-performance": "node --test test/strategyPerformance.test.mjs",
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",

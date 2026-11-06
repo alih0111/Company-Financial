@@ -127,7 +127,7 @@ const ChatPage = () => {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-11rem)] min-h-[420px]" dir="rtl">
+    <div className="flex flex-1 flex-col min-h-[320px]" dir="rtl">
       {/* هدر چت */}
       <div className="flex items-center gap-3 pb-3 border-b border-gray-200/80 dark:border-gray-700/60">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md shadow-emerald-500/25">
@@ -146,7 +146,7 @@ const ChatPage = () => {
       {/* پیام‌ها */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto py-4 space-y-3 scroll-smooth"
+        className="flex-1 min-h-0 overflow-y-auto overscroll-contain py-4 space-y-3 scroll-smooth"
       >
         {messages.map((m, i) => (
           <div
@@ -241,7 +241,7 @@ const ChatPage = () => {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder="سوال خود را بنویسید…"
-          className="flex-1 bg-white dark:bg-[#16213a] border border-gray-200/80 dark:border-white/[0.08] rounded-full px-4 py-2.5 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/40 transition-all duration-200"
+          className="flex-1 min-w-0 bg-white dark:bg-[#16213a] border border-gray-200/80 dark:border-white/[0.08] rounded-full px-4 py-2.5 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/40 transition-all duration-200"
         />
         <button
           onClick={() => send(input)}

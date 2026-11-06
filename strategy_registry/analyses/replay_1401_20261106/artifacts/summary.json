@@ -1,0 +1,346 @@
+{
+  "strategy_id": "RFA-FactorMix-033-Q40-Buffer8-v1.0.0",
+  "requested_jalali_start": "1401-01-01",
+  "actual_start": "2022-03-26",
+  "actual_start_jalali": "1401-01-06",
+  "end": "2026-11-04",
+  "end_jalali": "1405-08-13",
+  "initial_toman": 100000000.0,
+  "accounts": {
+    "candidate": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 2547465821.316608,
+        "total_return": 24.47465821316608,
+        "cagr": 1.0182589578968315,
+        "max_drawdown": -0.24208526199306057,
+        "sharpe_zero_rf": 3.9404896155778495,
+        "annual_volatility": 0.20247822622482123
+      },
+      "annual": [
+        {
+          "year": 1401,
+          "start": "2022-03-26",
+          "end": "2023-03-19",
+          "initial_toman": 100000000.0,
+          "final_toman": 181972339.52858555,
+          "return_fraction": 0.8197233952858556
+        },
+        {
+          "year": 1402,
+          "start": "2023-03-25",
+          "end": "2024-03-18",
+          "initial_toman": 181972339.52858555,
+          "final_toman": 257219417.41525573,
+          "return_fraction": 0.4135083281426395
+        },
+        {
+          "year": 1403,
+          "start": "2024-03-24",
+          "end": "2025-03-18",
+          "initial_toman": 257219417.41525573,
+          "final_toman": 558809399.0157903,
+          "return_fraction": 1.1725008346226327
+        },
+        {
+          "year": 1404,
+          "start": "2025-03-25",
+          "end": "2026-02-25",
+          "initial_toman": 558809399.0157903,
+          "final_toman": 830037687.8861833,
+          "return_fraction": 0.4853681583525562
+        },
+        {
+          "year": 1405,
+          "start": "2026-05-19",
+          "end": "2026-11-04",
+          "initial_toman": 830037687.8861833,
+          "final_toman": 2547465821.316608,
+          "return_fraction": 2.069096570547436
+        }
+      ],
+      "fees_toman": 72243899.85980655,
+      "slippage_toman": 14448766.664627109,
+      "fills": 201,
+      "buy_fills": 121,
+      "sell_fills": 80,
+      "decisions": 20,
+      "first_fill": "2022-03-27",
+      "first_decision": {
+        "session": "2022-03-26",
+        "config": "n5_d40_band",
+        "signal_date": "2022-03-26",
+        "signal_age": 0,
+        "nav_toman": 100000000.0,
+        "target": "دفرا;فملی;کمنگنز;کرماشا;شمواد",
+        "weights": "0.20000000;0.20000000;0.20000000;0.20000000;0.20000000"
+      },
+      "expired_orders": 18,
+      "stale_decisions_skipped": 0,
+      "maximum_position_count": 9,
+      "ledger": {
+        "daily_reconciliation": "PASS",
+        "sessions": 1051,
+        "trades_checked": 201,
+        "realized_pnl_toman": 2307566160.039951,
+        "unrealized_pnl_toman": 139899661.27665713,
+        "terminal_cash_toman": 0.0,
+        "positions": [
+          {
+            "symbol": "شمواد",
+            "index_units": 40437.49002872171,
+            "market_value_toman": 509512374.36189353,
+            "cost_basis_toman": 336833026.05452985,
+            "average_cost_toman": 8329.7214,
+            "unrealized_pnl_toman": 172679348.3073637,
+            "weight": 0.20000754086606823,
+            "last_index_price_toman": 12600.0,
+            "price_age_days": 8,
+            "price_date": "2026-10-27",
+            "action": "EXIT_UNFILLED"
+          },
+          {
+            "symbol": "کهمدا",
+            "index_units": 60716.81109278139,
+            "market_value_toman": 490591833.62967366,
+            "cost_basis_toman": 456278174.1091497,
+            "average_cost_toman": 7514.857349999998,
+            "unrealized_pnl_toman": 34313659.520523965,
+            "weight": 0.192580339851673,
+            "last_index_price_toman": 8080.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فنورد",
+            "index_units": 35684.86065012407,
+            "market_value_toman": 443562817.88104224,
+            "cost_basis_toman": 456278174.1091497,
+            "average_cost_toman": 12786.32355,
+            "unrealized_pnl_toman": -12715356.228107452,
+            "weight": 0.1741192420206036,
+            "last_index_price_toman": 12430.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "کیمیا",
+            "index_units": 53866.33953243194,
+            "market_value_toman": 439549330.5846447,
+            "cost_basis_toman": 456278174.1091497,
+            "average_cost_toman": 8470.5621,
+            "unrealized_pnl_toman": -16728843.52450502,
+            "weight": 0.17254375972646896,
+            "last_index_price_toman": 8160.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "فگستر",
+            "index_units": 27077.88530525833,
+            "market_value_toman": 429184482.0883445,
+            "cost_basis_toman": 456278174.1091497,
+            "average_cost_toman": 16850.583749999998,
+            "unrealized_pnl_toman": -27093692.02080518,
+            "weight": 0.16847506981135035,
+            "last_index_price_toman": 15850.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "شلیا",
+            "index_units": 9669.476872521993,
+            "market_value_toman": 235064982.77100965,
+            "cost_basis_toman": 245620437.54882252,
+            "average_cost_toman": 25401.626249999998,
+            "unrealized_pnl_toman": -10555454.777812868,
+            "weight": 0.09227404772383596,
+            "last_index_price_toman": 24310.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          }
+        ]
+      }
+    },
+    "baseline": {
+      "metrics": {
+        "start": "2022-03-26",
+        "end": "2026-11-04",
+        "final_toman": 1539972413.5330396,
+        "total_return": 14.399724135330395,
+        "cagr": 0.8095258318877046,
+        "max_drawdown": -0.264458710641405,
+        "sharpe_zero_rf": 3.170043877727945,
+        "annual_volatility": 0.21430354872574073
+      },
+      "annual": [
+        {
+          "year": 1401,
+          "start": "2022-03-26",
+          "end": "2023-03-19",
+          "initial_toman": 100000000.0,
+          "final_toman": 164467054.3511094,
+          "return_fraction": 0.6446705435110938
+        },
+        {
+          "year": 1402,
+          "start": "2023-03-25",
+          "end": "2024-03-18",
+          "initial_toman": 164467054.3511094,
+          "final_toman": 201440191.33616224,
+          "return_fraction": 0.22480573468605725
+        },
+        {
+          "year": 1403,
+          "start": "2024-03-24",
+          "end": "2025-03-18",
+          "initial_toman": 201440191.33616224,
+          "final_toman": 369372530.49490756,
+          "return_fraction": 0.8336585566407688
+        },
+        {
+          "year": 1404,
+          "start": "2025-03-25",
+          "end": "2026-02-25",
+          "initial_toman": 369372530.49490756,
+          "final_toman": 512207567.3371401,
+          "return_fraction": 0.38669642447654007
+        },
+        {
+          "year": 1405,
+          "start": "2026-05-19",
+          "end": "2026-11-04",
+          "initial_toman": 512207567.3371401,
+          "final_toman": 1539972413.5330396,
+          "return_fraction": 2.0065397540669574
+        }
+      ],
+      "fees_toman": 35247949.11272562,
+      "slippage_toman": 7049532.120026039,
+      "fills": 152,
+      "buy_fills": 82,
+      "sell_fills": 70,
+      "decisions": 20,
+      "first_fill": "2022-03-27",
+      "first_decision": {
+        "session": "2022-03-26",
+        "config": "BASE",
+        "signal_date": "2022-03-26",
+        "signal_age": 0,
+        "nav_toman": 100000000.0,
+        "target": "شغدیر;فولاد;فملی;دکپسول;دفرا",
+        "weights": "0.20000000;0.20000000;0.20000000;0.20000000;0.20000000"
+      },
+      "expired_orders": 21,
+      "stale_decisions_skipped": 0,
+      "maximum_position_count": 7,
+      "ledger": {
+        "daily_reconciliation": "PASS",
+        "sessions": 1051,
+        "trades_checked": 152,
+        "realized_pnl_toman": 986685081.6522212,
+        "unrealized_pnl_toman": 453287331.8808182,
+        "terminal_cash_toman": 0.0,
+        "positions": [
+          {
+            "symbol": "غاذر",
+            "index_units": 6975.9574700814865,
+            "market_value_toman": 309732511.671618,
+            "cost_basis_toman": 87395556.69475383,
+            "average_cost_toman": 12528.109162014853,
+            "unrealized_pnl_toman": 222336954.97686416,
+            "weight": 0.20112861045414615,
+            "last_index_price_toman": 44400.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "دارو",
+            "index_units": 26612.665822267,
+            "market_value_toman": 306311783.61429316,
+            "cost_basis_toman": 181061238.63996878,
+            "average_cost_toman": 6803.57390158462,
+            "unrealized_pnl_toman": 125250544.97432438,
+            "weight": 0.198907318678226,
+            "last_index_price_toman": 11510.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "شمواد",
+            "index_units": 21985.875480057915,
+            "market_value_toman": 277022031.0487297,
+            "cost_basis_toman": 187582392.11118996,
+            "average_cost_toman": 8531.950082285093,
+            "unrealized_pnl_toman": 89439638.93753976,
+            "weight": 0.1798876581257579,
+            "last_index_price_toman": 12600.0,
+            "price_age_days": 8,
+            "price_date": "2026-10-27",
+            "action": "EXIT_UNFILLED"
+          },
+          {
+            "symbol": "دقاضی",
+            "index_units": 9328.59331805231,
+            "market_value_toman": 225751958.2968659,
+            "cost_basis_toman": 210215298.06876954,
+            "average_cost_toman": 22534.511999999995,
+            "unrealized_pnl_toman": 15536660.228096366,
+            "weight": 0.14659480670756994,
+            "last_index_price_toman": 24200.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "دتماد",
+            "index_units": 3272.165523400747,
+            "market_value_toman": 218646100.27363792,
+            "cost_basis_toman": 210215298.06876954,
+            "average_cost_toman": 64243.47929999999,
+            "unrealized_pnl_toman": 8430802.204868376,
+            "weight": 0.14198053052912493,
+            "last_index_price_toman": 66820.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          },
+          {
+            "symbol": "کیمیا",
+            "index_units": 24817.160371065525,
+            "market_value_toman": 202508028.6278947,
+            "cost_basis_toman": 210215298.06876954,
+            "average_cost_toman": 8470.5621,
+            "unrealized_pnl_toman": -7707269.440874845,
+            "weight": 0.13150107550517492,
+            "last_index_price_toman": 8160.0,
+            "price_age_days": 0,
+            "price_date": "2026-11-04",
+            "action": "HOLD"
+          }
+        ]
+      }
+    }
+  },
+  "final_difference_toman": 1007493407.7835684,
+  "previous_1402_result_reproduced": true,
+  "previous_1402_result_toman": 1290465605.5777485,
+  "archive_files_verified": 73,
+  "frozen_policy_unchanged": true,
+  "no_live_or_paper_account_writes": true,
+  "limitations": [
+    "model selected using part of this history; not independent out-of-sample evidence",
+    "historical report receipt times unproven; current fixed universe has survivorship risk",
+    "fractional adjusted index units and assumed immediate dividend reinvestment",
+    "daily-bar fill proxies do not certify actual queue execution",
+    "terminal NAV is marked portfolio value, not guaranteed liquidation proceeds"
+  ]
+}

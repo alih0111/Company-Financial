@@ -18,10 +18,12 @@ import NotFound from "./components/NotFound";
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
   lazy,
   Suspense,
   useMemo,
   useState,
+  useRef,
 } from "react";
 import {
   getAIStockSummary,
@@ -42,6 +44,8 @@ const MarketPage = lazy(() => import("./components/MarketPage"));
 const ComparePage = lazy(() => import("./components/ComparePage"));
 const WatchlistPage = lazy(() => import("./components/WatchlistPage"));
 const RankingHubPage = lazy(() => import("./components/RankingHubPage"));
+const FactorMixPage = lazy(() => import("./components/FactorMixPage"));
+const StrategyPerformancePage = lazy(() => import("./components/StrategyPerformancePage"));
 const FinancialStatements = lazy(() => import("./components/FinancialStatements"));
 
 // لودر سطح صفحه برای Suspense
@@ -101,10 +105,20 @@ const App = () => {
   const { isAdmin, username } = getAuthStatus();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const closeSidebar = useCallback(() => setSidebarOpen(false), []);
+  const pageScrollRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (pageScrollRef.current) pageScrollRef.current.scrollTop = 0;
+  }, [location.pathname]);
 
   const isRankingSection = ["/ranking", "/ranking/legacy-cash", "/qvt", "/ranking/research", "/ranking/research/v12-1"].includes(location.pathname);
   const pageTitle =
-    isRankingSection
+    location.pathname === "/strategy/performance"
+      ? "عملکرد سبد استراتژی"
+      : location.pathname === "/strategy"
+      ? "سبد استراتژی"
+      : isRankingSection
       ? "رتبه‌بندی"
       : location.pathname === "/Table"
       ? "غربال بازار"
@@ -125,7 +139,11 @@ const App = () => {
                     : "داشبورد";
 
   const pageSubtitle =
-    isRankingSection
+    location.pathname === "/strategy/performance"
+      ? "FactorMix-033 · مسیر سرمایه و بازده تاریخی"
+      : location.pathname === "/strategy"
+      ? "FactorMix-033 · دارایی‌ها، معاملات و پیگیری مستقل"
+      : isRankingSection
       ? "مدل منتخب، وضعیت داده و ارزیابی آینده"
       : location.pathname === "/Table"
       ? "غربال و مقایسه‌ی همه‌ی شرکت‌های بازار"
@@ -183,6 +201,10 @@ const App = () => {
         document.title = "RFA | مدل منتخب و ارزیابی آینده";
     } else if (location.pathname === "/ranking/legacy-cash") {
       document.title = "RFA | آرشیو ارزندگی با پشتوانهٔ نقد";
+    } else if (location.pathname === "/strategy/performance") {
+      document.title = "RFA | عملکرد سبد استراتژی FactorMix-033";
+    } else if (location.pathname === "/strategy") {
+      document.title = "RFA | سبد استراتژی FactorMix-033";
     } else if (location.pathname === "/ranking") {
       document.title = "RFA | رتبه‌بندی مدل منتخب";
     } else if (location.pathname === "/login") {
@@ -311,7 +333,7 @@ const App = () => {
         <div className="animate-fade-in-up grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard
             icon={<FaBullseye className="text-lg" />}
-            label="Score"
+            label="امتیاز کمی"
             value={currentMetric.quant_score?.toFixed(1) ?? "--"}
             colorClass="text-indigo-600 dark:text-indigo-400"
             bgClass="bg-indigo-500/10 ring-indigo-500/20"
@@ -319,7 +341,7 @@ const App = () => {
           />
           <StatCard
             icon={<FaArrowUp className="text-lg" />}
-            label="EPS Growth"
+            label="رشد سود خالص"
             value={
               currentMetric.net_profit_growth_4_reports != null
                 ? `${currentMetric.net_profit_growth_4_reports.toFixed(1)}%`
@@ -336,7 +358,7 @@ const App = () => {
           />
           <StatCard
             icon={<FaChartBar className="text-lg" />}
-            label="Sales Growth"
+            label="رشد فروش"
             value={
               currentMetric.sales_growth_12m != null
                 ? `${currentMetric.sales_growth_12m.toFixed(1)}%`
@@ -370,11 +392,11 @@ const App = () => {
       {hasFundamentals && (
         <div className="animate-fade-in-up" style={{ animationDelay: "80ms" }}>
           {data1 ? (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="sm:w-3/4">
+            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(180px,1fr)] gap-3">
+              <div className="min-w-0">
                 <ChartComponent data={data1} />
               </div>
-              <div className="sm:w-1/4">
+              <div className="min-w-0">
                 {/* گیج، درصد رشد خام را نشان می‌دهد (همان منبع کارت بالای صفحه)
                     نه رتبه‌ی درصدی بازار — رتبه‌ها در بخش تجزیه‌ی امتیاز هستند. */}
                 {currentMetric?.net_profit_growth_4_reports != null && (
@@ -397,11 +419,11 @@ const App = () => {
       {hasFundamentals && (
         <div className="animate-fade-in-up" style={{ animationDelay: "160ms" }}>
           {data2 ? (
-            <div className="flex flex-col sm:flex-row gap-3">
-              <div className="sm:w-3/4">
+            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(180px,1fr)] gap-3">
+              <div className="min-w-0">
                 <ChartComponent data={data2} />
               </div>
-              <div className="sm:w-1/4">
+              <div className="min-w-0">
                 {currentMetric?.sales_growth_12m != null && (
                   <DonutChartComponent
                     score={currentMetric.sales_growth_12m}
@@ -512,11 +534,11 @@ const App = () => {
     <ToastProvider>
       <ConfirmProvider>
         <div
-          className={`min-h-screen ${
+          className={`${hideSidebar ? "min-h-screen" : "app-shell"} ${
             darkMode ? "dark" : ""
-          } theme-transition min-h-screen`}
+          } theme-transition`}
         >
-          <div className="flex h-full">
+          <div className={hideSidebar ? "flex min-h-screen" : "app-layout"}>
             {!hideSidebar && (
               <Sidebar
                 companyOptions={companyOptions}
@@ -527,7 +549,7 @@ const App = () => {
                 isAdmin={isAdmin}
                 username={username}
                 open={sidebarOpen}
-                onClose={() => setSidebarOpen(false)}
+                onClose={closeSidebar}
                 onDataCollected={handleDataCollected}
               />
             )}
@@ -535,11 +557,11 @@ const App = () => {
             {!hideSidebar && sidebarOpen && (
               <div
                 className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
-                onClick={() => setSidebarOpen(false)}
+                onClick={closeSidebar}
               />
             )}
 
-            <main className="app-panel flex-1 min-w-0 backdrop-blur-xl shadow-2xl shadow-emerald-500/5 dark:shadow-black/40 transition-all duration-300 my-4 mx-[15px] p-4 rounded-3xl">
+            <main id="main-content" className={hideSidebar ? "flex-1 min-w-0" : "app-main app-panel"}>
               {!hideSidebar && (
                 <AppHeader
                   title={pageTitle}
@@ -549,15 +571,21 @@ const App = () => {
                   username={username}
                   isAdmin={isAdmin}
                   onMenuClick={() => setSidebarOpen(true)}
+                  menuOpen={sidebarOpen}
                 />
               )}
+              <div
+                ref={pageScrollRef}
+                className={hideSidebar ? undefined : `app-scrollport${location.pathname === "/chat" ? " app-scrollport-chat" : ""}`}
+                role={hideSidebar ? undefined : "region"}
+                tabIndex={hideSidebar ? undefined : 0}
+                aria-label={hideSidebar ? undefined : "محتوای صفحه"}
+              >
               {location.pathname !== "/login" &&
                 location.pathname !== "/register" &&
-                !isRankingSection && <ScoreFreshnessBadge />}
-              {/* هر جا جمع‌آوری کدال به کد امنیتی بخورد، همان‌جا در سایت پنل باز می‌شود. */}
-              {!isGuestOnly && <CodalCaptchaWatcher />}
+                !isRankingSection && !location.pathname.startsWith("/strategy") && <ScoreFreshnessBadge />}
               <Suspense fallback={<PageLoader />}>
-                <div key={location.pathname} className="animate-fade-in-up">
+                <div key={location.pathname} className="app-page">
                   <Routes>
                   <Route
                     path="/login"
@@ -653,6 +681,14 @@ const App = () => {
                     element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
                   />
                   <Route
+                    path="/strategy/performance"
+                    element={<ProtectedRoute><StrategyPerformancePage /></ProtectedRoute>}
+                  />
+                  <Route
+                    path="/strategy"
+                    element={<ProtectedRoute><FactorMixPage /></ProtectedRoute>}
+                  />
+                  <Route
                     path="/assets"
                     element={
                       isAdmin ? (
@@ -668,7 +704,10 @@ const App = () => {
                   </Routes>
                 </div>
               </Suspense>
+              </div>
             </main>
+            {/* پنل سراسری باید بیرون از قاب اسکرول، روی تمام برنامه دیده شود. */}
+            {!isGuestOnly && <CodalCaptchaWatcher />}
           </div>
         </div>
       </ConfirmProvider>
