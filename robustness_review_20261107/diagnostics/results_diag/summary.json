@@ -1,0 +1,72 @@
+{
+  "started": "2026-11-07 21:30:22",
+  "errors": [],
+  "panel_mode": "apply_monthly_correction",
+  "panel_columns": [
+    "decision_time",
+    "symbol",
+    "company_id",
+    "revenue_growth",
+    "operating_profit_growth",
+    "net_profit_growth",
+    "operating_margin",
+    "net_margin",
+    "roe",
+    "margin_trend",
+    "interest_coverage",
+    "cash_conversion",
+    "earnings_quality",
+    "pe",
+    "ps",
+    "pb",
+    "avg_trade_value_30d",
+    "leverage",
+    "current_ratio",
+    "volatility_30d",
+    "price_momentum_30d",
+    "net_profit_ttm",
+    "s2_raw",
+    "sources",
+    "publication_cutoff",
+    "blocked",
+    "dq",
+    "financial_age_days",
+    "price_date",
+    "share_proof",
+    "sales_growth_12m",
+    "sales_growth_3m",
+    "sales_stability"
+  ],
+  "panel_dates": [
+    "2021-04-03",
+    "2026-02-24",
+    250
+  ],
+  "symbols_missing_in_panel": [],
+  "compared_sessions": [
+    "2021-04-03",
+    "2026-02-24",
+    1171
+  ],
+  "rank_corr_frozen_vs_panelrebuilt_median": 0.9997536983821449,
+  "rank_corr_frozen_vs_eventrebuilt_median": 0.9469923078530766,
+  "block_rank_corr_panel_vs_event_median": {
+    "growth": 0.7502006869063254,
+    "profitability": 0.8619722520167377,
+    "valuation": 0.820219757433096,
+    "balance": 0.9651059323334841,
+    "momentum": 1.0,
+    "risk": 1.0,
+    "acceleration": 0.596617403554409,
+    "p1": 1.0
+  },
+  "sizes_mb": {
+    "panel_blocks.npz": 3.05,
+    "panel_raw_daily.npz": 1.47
+  },
+  "input_sha256": {
+    "event_inputs.npz": "f7ea6591ceeeb78cabbf5fc9bc3261f389bc60585d977d3ec55f39bd00cca63d",
+    "frozen_zip": "dfe47bed7bb23ba82138f67afb08b74d39210e0ec6c00983d182ba6f23010b13"
+  },
+  "finished": "2026-11-07 21:30:55"
+}
