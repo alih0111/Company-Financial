@@ -1,0 +1,20 @@
+import common as c, numpy as np, json
+from dataclasses import replace as R
+res={}
+def add(k,**kw): res[k]=c.summ(c.run(**kw))
+add('BASE M15')
+add('Quarterly+40',sched=c.ORIG)
+for s in [.005,.01,.02]: add(f'slip {s*100:g}%',ex=R(c.EX,slippage=s))
+add('fee1%+slip1%',ex=R(c.EX,fee=.01,slippage=.01))
+for cap in [.02,.01]: add(f'cap {cap*100:g}% ADV',ex=R(c.EX,capacity=cap))
+add('delay 2 sessions',ex=R(c.EX,delay=2))
+add('order life 2',ex=R(c.EX,order_life=2))
+for n in [3,5,7,8,10,15]: add(f'N={n}',cfg=R(c.CFG,n=n))
+for b in [1.0,1.3,2.0,3.0]: add(f'buffer {b}',cfg=R(c.CFG,buffer=b))
+add('rebalance equal (full)',cfg=R(c.CFG,rebalance='equal'))
+for d in [1,3,5,8,10,12,15,18,20,22,25,28]: add(f'day {d}',sched=c.monthly(d))
+add('regime filter',cfg=R(c.CFG,regime=True))
+add('inverse-vol weight',cfg=R(c.CFG,weighting='inverse_vol'))
+add('EqualWeight 254 universe',cfg=R(c.CFG,family='equal_universe',n=254))
+json.dump(res,open('battery.json','w'),ensure_ascii=False,indent=0)
+for k,v in res.items(): print(f'{k:26s}',' '.join(f'{a}={b}' for a,b in v.items()))

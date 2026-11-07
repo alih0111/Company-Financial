@@ -1,0 +1,326 @@
+{
+"BASE M15": {
+"full": 29.49,
+"sel": 5.78,
+"ver": 1.85,
+"new": 2.76,
+"maxDD%": -19.3,
+"trades": 343,
+"expired": 41
+},
+"Quarterly+40": {
+"full": 25.47,
+"sel": 5.21,
+"ver": 1.58,
+"new": 3.09,
+"maxDD%": -24.2,
+"trades": 201,
+"expired": 18
+},
+"slip 0.5%": {
+"full": 25.15,
+"sel": 5.24,
+"ver": 1.77,
+"new": 2.72,
+"maxDD%": -20.8,
+"trades": 335,
+"expired": 42
+},
+"slip 1%": {
+"full": 20.47,
+"sel": 4.67,
+"ver": 1.66,
+"new": 2.64,
+"maxDD%": -22.6,
+"trades": 324,
+"expired": 39
+},
+"slip 2%": {
+"full": 13.97,
+"sel": 3.68,
+"ver": 1.47,
+"new": 2.57,
+"maxDD%": -26.4,
+"trades": 302,
+"expired": 35
+},
+"fee1%+slip1%": {
+"full": 17.06,
+"sel": 4.19,
+"ver": 1.57,
+"new": 2.59,
+"maxDD%": -24.5,
+"trades": 307,
+"expired": 35
+},
+"cap 2% ADV": {
+"full": 30.97,
+"sel": 6.09,
+"ver": 1.82,
+"new": 2.8,
+"maxDD%": -21.4,
+"trades": 563,
+"expired": 80
+},
+"cap 1% ADV": {
+"full": 28.57,
+"sel": 5.6,
+"ver": 1.82,
+"new": 2.81,
+"maxDD%": -22.0,
+"trades": 746,
+"expired": 120
+},
+"delay 2 sessions": {
+"full": 28.44,
+"sel": 6.06,
+"ver": 1.84,
+"new": 2.55,
+"maxDD%": -19.8,
+"trades": 358,
+"expired": 41
+},
+"order life 2": {
+"full": 27.97,
+"sel": 5.89,
+"ver": 1.71,
+"new": 2.77,
+"maxDD%": -23.9,
+"trades": 310,
+"expired": 75
+},
+"N=3": {
+"full": 40.48,
+"sel": 5.65,
+"ver": 2.17,
+"new": 3.29,
+"maxDD%": -13.3,
+"trades": 325,
+"expired": 34
+},
+"N=5": {
+"full": 29.49,
+"sel": 5.78,
+"ver": 1.85,
+"new": 2.76,
+"maxDD%": -19.3,
+"trades": 343,
+"expired": 41
+},
+"N=7": {
+"full": 23.42,
+"sel": 5.42,
+"ver": 1.73,
+"new": 2.5,
+"maxDD%": -18.9,
+"trades": 385,
+"expired": 40
+},
+"N=8": {
+"full": 23.9,
+"sel": 5.31,
+"ver": 1.7,
+"new": 2.65,
+"maxDD%": -19.8,
+"trades": 401,
+"expired": 36
+},
+"N=10": {
+"full": 22.88,
+"sel": 5.0,
+"ver": 1.58,
+"new": 2.89,
+"maxDD%": -17.7,
+"trades": 432,
+"expired": 42
+},
+"N=15": {
+"full": 19.53,
+"sel": 4.52,
+"ver": 1.42,
+"new": 3.03,
+"maxDD%": -18.3,
+"trades": 528,
+"expired": 66
+},
+"buffer 1.0": {
+"full": 25.2,
+"sel": 5.05,
+"ver": 1.82,
+"new": 2.74,
+"maxDD%": -18.1,
+"trades": 418,
+"expired": 41
+},
+"buffer 1.3": {
+"full": 27.47,
+"sel": 5.73,
+"ver": 1.74,
+"new": 2.75,
+"maxDD%": -20.6,
+"trades": 363,
+"expired": 43
+},
+"buffer 2.0": {
+"full": 26.13,
+"sel": 5.04,
+"ver": 1.91,
+"new": 2.71,
+"maxDD%": -21.1,
+"trades": 315,
+"expired": 38
+},
+"buffer 3.0": {
+"full": 30.2,
+"sel": 5.87,
+"ver": 1.68,
+"new": 3.06,
+"maxDD%": -21.4,
+"trades": 269,
+"expired": 28
+},
+"rebalance equal (full)": {
+"full": 29.49,
+"sel": 5.87,
+"ver": 1.84,
+"new": 2.73,
+"maxDD%": -19.5,
+"trades": 486,
+"expired": 44
+},
+"day 1": {
+"full": 11.64,
+"sel": 4.07,
+"ver": 1.37,
+"new": 2.08,
+"maxDD%": -20.2,
+"trades": 329,
+"expired": 34
+},
+"day 3": {
+"full": 24.36,
+"sel": 5.29,
+"ver": 1.79,
+"new": 2.57,
+"maxDD%": -15.9,
+"trades": 353,
+"expired": 42
+},
+"day 5": {
+"full": 24.62,
+"sel": 5.85,
+"ver": 1.8,
+"new": 2.34,
+"maxDD%": -18.9,
+"trades": 378,
+"expired": 36
+},
+"day 8": {
+"full": 25.99,
+"sel": 5.45,
+"ver": 1.8,
+"new": 2.64,
+"maxDD%": -20.0,
+"trades": 345,
+"expired": 45
+},
+"day 10": {
+"full": 23.12,
+"sel": 5.17,
+"ver": 1.66,
+"new": 2.7,
+"maxDD%": -22.4,
+"trades": 360,
+"expired": 45
+},
+"day 12": {
+"full": 28.99,
+"sel": 5.29,
+"ver": 1.88,
+"new": 2.91,
+"maxDD%": -22.9,
+"trades": 358,
+"expired": 41
+},
+"day 15": {
+"full": 29.49,
+"sel": 5.78,
+"ver": 1.85,
+"new": 2.76,
+"maxDD%": -19.3,
+"trades": 343,
+"expired": 41
+},
+"day 18": {
+"full": 17.92,
+"sel": 4.6,
+"ver": 1.46,
+"new": 2.67,
+"maxDD%": -22.0,
+"trades": 304,
+"expired": 34
+},
+"day 20": {
+"full": 19.15,
+"sel": 4.47,
+"ver": 1.85,
+"new": 2.32,
+"maxDD%": -19.7,
+"trades": 334,
+"expired": 34
+},
+"day 22": {
+"full": 12.69,
+"sel": 4.03,
+"ver": 1.56,
+"new": 2.02,
+"maxDD%": -29.2,
+"trades": 308,
+"expired": 54
+},
+"day 25": {
+"full": 22.15,
+"sel": 5.24,
+"ver": 1.52,
+"new": 2.78,
+"maxDD%": -21.3,
+"trades": 334,
+"expired": 44
+},
+"day 28": {
+"full": 15.31,
+"sel": 4.33,
+"ver": 1.34,
+"new": 2.64,
+"maxDD%": -18.3,
+"trades": 345,
+"expired": 33
+},
+"regime filter": {
+"full": 21.24,
+"sel": 4.5,
+"ver": 1.74,
+"new": 2.71,
+"maxDD%": -17.1,
+"trades": 339,
+"expired": 39
+},
+"inverse-vol weight": {
+"full": 25.58,
+"sel": 5.43,
+"ver": 1.76,
+"new": 2.68,
+"maxDD%": -20.1,
+"trades": 384,
+"expired": 43
+},
+"EqualWeight 254 universe": {
+"full": 8.1,
+"sel": 2.47,
+"ver": 1.22,
+"new": 2.7,
+"maxDD%": -26.3,
+"trades": 299,
+"expired": 317
+}
+}
