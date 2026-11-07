@@ -7,13 +7,15 @@ Frozen contracts implemented here (see SHADOW_V1_SPEC.md):
 """
 from __future__ import annotations
 
+import os
+
 import datetime as dt
 import gzip
 import hashlib
 import json
 from pathlib import Path
 
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 ROOT = Path(r"D:\RFA\Company-Financial")
 SPEC_PATH = ROOT / "portfolio_shadow" / "SHADOW_V1_SPEC.md"
 STATE_PATH = ROOT / "portfolio_shadow" / "shadow_v1_state.json"

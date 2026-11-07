@@ -6,6 +6,8 @@ Decision #1 rule. Writes nothing.
 """
 from __future__ import annotations
 
+import os
+
 import json
 import sys
 from pathlib import Path
@@ -14,7 +16,7 @@ import psycopg
 
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ROOT = Path(__file__).resolve().parents[1]
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 FREEZE = "2026-10-03 19:40:34+00"
 
 with psycopg.connect(DSN) as conn:

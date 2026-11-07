@@ -30,7 +30,9 @@ def main():
         def api(route):
             path=route.request.url
             calls.append(dict(method=route.request.method,url=path))
-            if path.endswith('/factormix/ranking'):
+            if path.endswith('/me'):
+                route.fulfill(json=dict(username='Local UI test',isAdmin=True))
+            elif path.endswith('/factormix/ranking'):
                 route.fulfill(json=dict(ranking=ranking,running=False))
             elif '/price-history' in path or '/family/history' in path:
                 route.fulfill(json=[])
@@ -51,6 +53,15 @@ def main():
         page.get_by_role('button',name='بازده تجمعی',exact=True).click()
         expect(chart.locator('.recharts-line-curve')).to_have_count(5)
         page.get_by_role('button',name='ارزش سبد',exact=True).click()
+        expect(page.get_by_role('heading',name='عملکرد مدل نهایی · FactorMix ماهانه ۱۵',exact=True)).to_be_visible()
+        with page.expect_download() as annual_event:
+            page.get_by_role('link',name='دریافت جدول سالانه',exact=True).click()
+        annual_download=annual_event.value
+        assert annual_download.suggested_filename=='from-1401-monthly15-annual.csv'
+        annual_download.save_as(OUT/'selected-annual.csv')
+        import csv
+        annual=list(csv.DictReader((OUT/'selected-annual.csv').open(encoding='utf-8-sig')))
+        assert abs(float(annual[-1]['final_toman'])-2_943_482_563.3857675)<1
         chart.scroll_into_view_if_needed();chart.screenshot(path=str(OUT/'monthly15-chart.png'))
         with page.expect_download() as event:
             page.get_by_role('link',name='مسیر سرمایهٔ ماهانه',exact=True).click()
@@ -60,6 +71,8 @@ def main():
         assert page.evaluate('document.documentElement.scrollWidth<=innerWidth+1')
         chart.screenshot(path=str(OUT/'monthly15-chart-mobile.png'))
         page.goto(URL+'/strategy?tab=ranking',wait_until='networkidle')
+        expect(page.get_by_role('heading',name='FactorMix · ماهانه ۱۵',exact=True).last).to_be_visible()
+        assert page.get_by_role('link',name='استراتژی گزارش‌محور',exact=True).count()==0
         planner=page.locator('section[aria-labelledby="monthly-planner-title"]')
         expect(planner.get_by_role('button',name='بررسی سبد ماهانه',exact=True)).to_be_enabled()
         planner.get_by_label('نقد فعلی سبد · تومان',exact=True).fill('۱۰۰٬۰۰۰٬۰۰۰')
@@ -84,12 +97,23 @@ def main():
         page.screenshot(path=str(OUT/'monthly15-planner-mobile.png'))
         page.set_viewport_size(dict(width=1440,height=1000))
         planner.screenshot(path=str(OUT/'monthly15-planner-desktop.png'))
+        page.goto(URL+'/strategy/reportflow',wait_until='networkidle')
+        expect(page.get_by_role('heading',name='آزمایش قبلی گزارش‌محور',exact=True)).to_be_visible()
+        assert page.locator('.recharts-line-curve').count()==0
+        assert page.get_by_role('button',name='درخواست بررسی',exact=True).count()==0
+        assert not any('/api/reportflow' in c['url'] for c in calls)
+        page.screenshot(path=str(OUT/'reportflow-archived.png'))
+        page.get_by_role('button',name='مشاهدهٔ گزارش آزمایش قدیمی ReportFlow',exact=True).click()
+        expect(page.locator('.recharts-line-curve')).to_have_count(3)
+        page.get_by_role('link',name='مدل نهایی · FactorMix ماهانه ۱۵',exact=True).click()
+        expect(page.get_by_role('heading',name='FactorMix · ماهانه ۱۵',exact=True).last).to_be_visible()
         assert not any(c['method']!='GET' for c in calls),calls
         assert not errors,errors
         browser.close()
     result=dict(status='PASS',curves=5,actual_csv_matches_registered=True,monthly_toggle_and_return_modes=True,
                 cash_entry_and_rank8_hold=True,mobile_overflow=False,proposal_download_not_executed=True,
-                api_mutations=0,browser_errors=errors)
+                api_mutations=0,browser_errors=errors,selected_model_home=True,selected_annual_download=True,
+                reportflow_archived_and_readonly=True)
     (OUT/'result.json').write_text(json.dumps(result,indent=2),encoding='utf8')
     print(json.dumps(result))
 

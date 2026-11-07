@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "status": "FINAL_SELECTED_BY_USER",
+  "selected_client_date": "2026-11-07",
+  "strategy_id": "RFA-FactorMix-033-M15-Buffer8-v1.0.0",
+  "display_name": "FactorMix · ماهانه ۱۵",
+  "registered_version": "1.0.0",
+  "version_directory": "RFA-FactorMix-033-M15/v1.0.0",
+  "primary_route": "/strategy",
+  "performance_route": "/strategy/performance",
+  "review_calendar": "Jalali day 15, first stock session on or after it, after close",
+  "manual_planner_enabled": true,
+  "broker_execution_enabled": false,
+  "archived_research": [
+    {"strategy_id": "RFA-ReportFlow-033-v1.0.0", "route": "/strategy/reportflow", "paper_observer_enabled": false},
+    {"strategy_id": "RFA-FactorMix-033-Q40-Buffer8-v1.0.0", "route": "/strategy/history"}
+  ],
+  "registered_packages_unchanged": true
+}

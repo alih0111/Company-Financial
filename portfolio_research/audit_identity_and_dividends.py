@@ -6,6 +6,8 @@ PARTS 4-5 (cash-dividend data audit), PART 6 (total-return feasibility verdict).
 """
 from __future__ import annotations
 
+import os
+
 import datetime as dt
 import hashlib
 import json
@@ -23,7 +25,7 @@ ROOT = Path(r"D:\RFA\Company-Financial")
 HERE = ROOT / "portfolio_research"
 PANEL = ROOT / "ui_score_research" / "ui_score_historical_pit_v2.parquet"
 DAILY = ROOT / "research_bundle" / "daily_market_panel.parquet"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 
 R = {"identity_audit": {}, "identity_map": {}, "feasibility_recheck": {},
      "dividends": {}, "total_return": {}, "readiness": {}, "artifacts": {}}

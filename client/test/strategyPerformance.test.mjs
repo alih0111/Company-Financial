@@ -1,10 +1,37 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
+import { validateMonthlyPortfolio } from "../src/components/monthlyPortfolioData.js";
 import { familyHistoryPrices, alignBenchmarks, drawdownComparison, selectBenchmarkRows, validateBenchmarkSnapshot, validatePerformanceReport } from "../src/components/strategyPerformanceData.js";
 
 const source = JSON.parse(readFileSync(new URL("../public/strategies/factormix-033/performance/performance.json", import.meta.url)));
 const clone = () => structuredClone(source);
+
+test("monthly portfolio reconciles every fill, cash and remaining position", () => {
+  const data = JSON.parse(readFileSync(new URL("../public/strategies/factormix-033/performance/from-1401-monthly15-portfolio.json", import.meta.url)));
+  assert.equal(validateMonthlyPortfolio(data), data);
+  assert.equal(data.trades.length, 343);
+  assert.equal(data.positions.length, 6);
+  assert.equal(data.positions.find(p => p.symbol === "شمواد").action, "EXIT_UNFILLED");
+  assert.equal(data.positions.find(p => p.symbol === "شمواد").price_age_days, 8);
+  assert.equal(data.nav_toman, source.cases[0].monthly15.account.final_toman);
+  for (const mutate of [
+    d => { d.strategy_id = source.strategy_id; },
+    d => { d.cash_toman += 100; },
+    d => { d.trades.pop(); },
+    d => { d.trades[0].side = "SELL"; },
+    d => { d.trades[0].gross_toman += 100; },
+    d => { d.trades[0].decision = d.trades[0].session; },
+    d => { d.positions[0].market_value_toman += 100; },
+    d => { d.positions[0].index_units += 10; },
+    d => { d.positions[0].unrealized_pnl_toman = NaN; },
+    d => { d.positions[0].price_age_days = 99; },
+    d => { d.positions.pop(); },
+  ]) {
+    const broken = structuredClone(data); mutate(broken);
+    assert.throws(() => validateMonthlyPortfolio(broken));
+  }
+});
 
 test("published periods are separate 100m accounts with the approved final values", () => {
   const report = validatePerformanceReport(clone());

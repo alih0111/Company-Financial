@@ -1,6 +1,6 @@
 import { errorMessage } from "../utils/errorMessage";
 import { Fragment, useEffect, useMemo, useState } from "react";
-import { jwtDecode } from "jwt-decode";
+import { getAuthStatus } from "../hooks/useGetUser";
 import QvtPaperPanel from "./QvtPaperPanel";
 import {
   fetchQvtV2Ranking,
@@ -753,8 +753,7 @@ export default function QvtRankingPage() {
   }, []);
   const [watchStorageKey] = useState(() => {
     try {
-      const token = localStorage.getItem("token");
-      const username = token ? jwtDecode<{ username?: string }>(token).username : undefined;
+      const username = getAuthStatus().username;
       return `qvt-ranking-watchlist-v1:${encodeURIComponent(username || "preview")}`;
     } catch { return "qvt-ranking-watchlist-v1:preview"; }
   });

@@ -1,26 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
-import {
-  fetchCompanyNames,
-  fetchSalesData,
-  fetchSalesData2,
-  fetchSalesDataAllScore,
-  fetchSalesDataScore,
-  // fetchStockPrice,
-  fetchStockPriceScore,
-} from "../utils/api";
-import type { DataPoint } from "../components/ChartComponent";
-
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-
-interface ScoreModel {
-  companyID: string;
-  companyName: string;
-  epsGrowth: number;
-  epsLevel: string;
-  finalScore: string;
-  salesGrowth: number;
-  salesStability: string;
-}
+import { fetchCompanyNames, fetchSalesData, fetchSalesData2, fetchSalesDataAllScore } from "../utils/api";
+import { cachedResource } from "../utils/cachedResource";
+import { sessionRevision } from "./useGetUser";
+import type { DataPoint } from "../components/ChartComponent";
 
 interface AllScoreModel {
   company_id: string;
@@ -35,189 +18,115 @@ interface AllScoreModel {
   priceScore: number;
 }
 
-interface StockDataPoint {
-  TradeDate: string; // e.g., "2023-05-23"
-  Open: number;
-  High: number;
-  Low: number;
-  Close: number;
+const companyNames = cachedResource(fetchCompanyNames, 10 * 60_000);
+const allScores = cachedResource<AllScoreModel[]>(fetchSalesDataAllScore, 5 * 60_000);
+
+interface CompanyDataNeeds {
+  names: boolean;
+  details: boolean;
+  scores: boolean;
 }
 
-// enabled=false داده‌ای نمی‌گیرد — برای صفحاتی که داده‌ی شرکت نمایش نمی‌دهند
-// (لندینگ/ورود/ثبت‌نام) تا کال بی‌دلیل به بک‌اند زده نشود.
-// کش ماژول‌سطح برای امتیاز همه‌ی شرکت‌ها — به شرکت انتخابی وابسته نیست،
-// پس با هر تغییر نماد نباید دوباره از سرور گرفته شود.
-let allScoreCache: { at: number; data: AllScoreModel[] } | null = null;
-const ALL_SCORE_TTL_MS = 5 * 60 * 1000;
-
-export default function useCompanyData(enabled = true) {
-  const [companyOptions, setCompanyOptions] = useState<
-    { value: string; label: string }[]
-  >([]);
-  const [selectedCompany, setSelectedCompany] = useState<string>("");
+export default function useCompanyData({ names, details, scores }: CompanyDataNeeds) {
+  const [searchParams] = useSearchParams();
+  const paramCompany = searchParams.get("companyname") || "";
+  const [company, setSelectedCompany] = useState("");
+  const selectedCompany = paramCompany || company;
+  const [companyOptions, setCompanyOptions] = useState<{ value: string; label: string }[]>([]);
   const [data1, setData1] = useState<DataPoint[]>([]);
   const [data2, setData2] = useState<DataPoint[]>([]);
-  const [dataScore, setDataScore] = useState<ScoreModel[]>();
-  const [allDataScore, setAllDataScore] = useState<AllScoreModel[]>();
-  const [stockPriceScore, setStockPriceScore] = useState<ScoreModel[]>();
+  const [dataCompany, setDataCompany] = useState("");
+  const [allDataScore, setAllDataScore] = useState<AllScoreModel[]>([]);
   const [loadingData, setLoadingData] = useState(false);
   const [loadingCompanies, setLoadingCompanies] = useState(false);
-  const [searchParams] = useSearchParams();
-  const [stockPrice, setStockPrice] = useState<StockDataPoint[]>([]);
-
-  const [hasSynced, setHasSynced] = useState(false);
+  const [companyError, setCompanyError] = useState<string | null>(null);
+  const [dataError, setDataError] = useState<string | null>(null);
+  const [scoresError, setScoresError] = useState<string | null>(null);
+  const [namesRetry, setNamesRetry] = useState(0);
+  const [refreshTick, setRefreshTick] = useState(0);
+  const sessionKey = String(sessionRevision());
+  const latestParam = useRef(paramCompany);
+  latestParam.current = paramCompany;
 
   useEffect(() => {
-    if (!hasSynced && companyOptions.length) {
-      const paramCompany = searchParams.get("companyname");
-      if (paramCompany) {
-        setSelectedCompany(paramCompany);
-      }
-      setHasSynced(true);
-    }
-  }, [searchParams, companyOptions, hasSynced]);
-
-  // همگام‌سازی با تغییر companyname در URL (مثلاً کلیک روی نماد در غربال بازار
-  // وقتی داشبورد از قبل باز است) — بدون نیاز به رفرش دستی صفحه.
-  const paramCompany = searchParams.get("companyname") || "";
-  useEffect(() => {
-    if (paramCompany) {
-      setSelectedCompany((prev) => (prev === paramCompany ? prev : paramCompany));
-    }
+    if (paramCompany) setSelectedCompany(paramCompany);
   }, [paramCompany]);
 
-  const loadCompanyOptions = useCallback(async () => {
+  useEffect(() => {
+    if (!names) return;
+    let active = true;
     setLoadingCompanies(true);
-    try {
-      const names = await fetchCompanyNames();
-      const options = names.map((name) => ({ value: name, label: name }));
-      setCompanyOptions(options);
-
-      const paramCompany = searchParams.get("companyname");
-
-      if(paramCompany == null || paramCompany == ""){
-        const firstName = names[0];
-        setSelectedCompany(firstName);
+    setCompanyError(null);
+    companyNames.load(sessionKey).then((values) => {
+      if (!active) return;
+      setCompanyOptions(values.map((name) => ({ value: name, label: name })));
+      if (!values.length) setCompanyError("فهرست شرکت‌ها خالی است؛ در حال حاضر شرکتی برای نمایش موجود نیست.");
+      setSelectedCompany((current) => latestParam.current || current || values[0] || "");
+    }).catch((error) => {
+      if (active) {
+        console.error("Error fetching company names:", error);
+        setCompanyError("دریافت فهرست شرکت‌ها انجام نشد. اتصال سرویس داده را بررسی کنید یا دوباره تلاش کنید.");
       }
-
-      // if (paramCompany && names.includes(paramCompany)) {
-      //   setSelectedCompany(paramCompany);
-      // } else if (names.length > 0) {
-      //   const firstName = names[0];
-      //   setSelectedCompany(firstName);
-      //   setSearchParams({ companyname: firstName });
-      // }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoadingCompanies(false);
-    }
-  }, [searchParams]);
+    }).finally(() => { if (active) setLoadingCompanies(false); });
+    return () => { active = false; };
+  }, [names, sessionKey, namesRetry]);
 
   useEffect(() => {
-    if (enabled) loadCompanyOptions();
-  }, [enabled, loadCompanyOptions]);
-
-  const fetchData = useCallback(async (force = false) => {
-    if (!selectedCompany) return;
+    if (!details || !selectedCompany) return;
+    const controller = new AbortController();
     setLoadingData(true);
-
-    // Reset previous data immediately
+    setDataError(null);
     setData1([]);
     setData2([]);
-    setDataScore(undefined);
-    setStockPriceScore(undefined);
-    setStockPrice([]);
-    // setAllDataScore(undefined);
-
-    const cachedAllScore = allScoreCache;
-    const allScoreFresh =
-      !force &&
-      !!cachedAllScore &&
-      Date.now() - cachedAllScore.at < ALL_SCORE_TTL_MS;
-
-    try {
-      const [
-        result1,
-        result2,
-        resultScore,
-        resultAllScore,
-        // resultPrice,
-        resultPriceScore,
-      ] = await Promise.allSettled([
-        fetchSalesData(selectedCompany),
-        fetchSalesData2(selectedCompany),
-        fetchSalesDataScore(selectedCompany),
-        allScoreFresh && cachedAllScore
-          ? Promise.resolve(cachedAllScore.data)
-          : fetchSalesDataAllScore(),
-        // fetchStockPrice(selectedCompany),
-        fetchStockPriceScore(selectedCompany),
-      ]);
-
-      if (result1.status === "fulfilled") {
-        setData1((result1.value as DataPoint[]) || []);
-      } else {
-        console.error("Error fetching data1:", result1.reason);
+    void Promise.allSettled([
+      fetchSalesData(selectedCompany, controller.signal),
+      fetchSalesData2(selectedCompany, controller.signal),
+    ]).then(([profit, sales]) => {
+      if (controller.signal.aborted) return;
+      if (profit.status === "fulfilled") setData1(profit.value || []);
+      else console.error("Error fetching profit data:", profit.reason);
+      if (sales.status === "fulfilled") setData2(sales.value || []);
+      else console.error("Error fetching sales data:", sales.reason);
+      if (profit.status === "rejected" || sales.status === "rejected") {
+        setDataError("دریافت بخشی از اطلاعات سود و فروش شرکت انجام نشد؛ دوباره تلاش کنید.");
       }
-
-      if (result2.status === "fulfilled") {
-        setData2((result2.value as DataPoint[]) || []);
-      } else {
-        console.error("Error fetching data2:", result2.reason);
-      }
-
-      if (resultScore.status === "fulfilled") {
-        setDataScore(resultScore.value || []);
-      } else {
-        console.error("Error fetching score data:", resultScore.reason);
-      }
-
-      if (resultAllScore.status === "fulfilled") {
-        const allScoreValue = (resultAllScore.value as AllScoreModel[]) || [];
-        if (!allScoreFresh) {
-          allScoreCache = { at: Date.now(), data: allScoreValue };
-        }
-        setAllDataScore(allScoreValue);
-      } else {
-        console.error("Error fetching score data:", resultAllScore.reason);
-      }
-
-      // if (resultPrice.status === "fulfilled") {
-      //   setStockPrice(resultPrice.value || []);
-      // } else {
-      //   console.error("Error fetching score data:", resultPrice.reason);
-      // }
-
-      if (resultPriceScore.status === "fulfilled") {
-        setStockPriceScore(resultPriceScore.value || []);
-      } else {
-        console.error("Error fetching score data:", resultPriceScore.reason);
-      }
-    } catch (e) {
-      console.error("Unexpected error in fetchData:", e);
-    } finally {
+      setDataCompany(selectedCompany);
       setLoadingData(false);
-    }
-  }, [selectedCompany]);
+    });
+    return () => controller.abort();
+  }, [details, selectedCompany, refreshTick, sessionKey]);
 
   useEffect(() => {
-    if (enabled) fetchData();
-  }, [enabled, fetchData]);
+    if (!scores) return;
+    let active = true;
+    setScoresError(null);
+    allScores.load(sessionKey).then((values) => {
+      if (active) setAllDataScore(values);
+    }).catch((error) => {
+      if (active) {
+        console.error("Error fetching market scores:", error);
+        setScoresError("دریافت امتیازهای بازار انجام نشد؛ دوباره تلاش کنید.");
+      }
+    });
+    return () => { active = false; };
+  }, [scores, refreshTick, sessionKey]);
+
+  const refreshData = useCallback(() => {
+    allScores.invalidate();
+    setRefreshTick((value) => value + 1);
+  }, []);
+
+  const retryCompanyNames = useCallback(() => {
+    companyNames.invalidate();
+    setNamesRetry((value) => value + 1);
+  }, []);
 
   return {
-    companyOptions,
-    selectedCompany,
-    setSelectedCompany,
-    data1,
-    data2,
-    dataScore,
-    stockPrice,
+    companyOptions, selectedCompany, setSelectedCompany,
+    data1: dataCompany === selectedCompany ? data1 : [],
+    data2: dataCompany === selectedCompany ? data2 : [],
     allDataScore,
-    stockPriceScore,
-    loadingData,
-    loadingCompanies,
-    // به‌روزرسانی دستی (پس از جمع‌آوری داده) کش را هم می‌شکند
-    refreshData: () => fetchData(true),
+    loadingData: details && !!selectedCompany && (loadingData || dataCompany !== selectedCompany),
+    loadingCompanies, refreshData, companyError, dataError, scoresError, retryCompanyNames,
   };
 }

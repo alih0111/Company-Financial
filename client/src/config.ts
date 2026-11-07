@@ -1,6 +1,7 @@
 // پیکربندی متمرکز فرانت — با متغیر محیطی قابل‌بازنویسی است (.env را ببینید)
 export const API_BASE =
-  (import.meta.env.VITE_API_BASE as string | undefined) ??
-  "/api";
+  ((import.meta.env.VITE_API_BASE as string | undefined)?.trim() || "/api").replace(/\/+$/, "");
 
 export const APP_TITLE = "RFA | بینش شرکت‌ها";
+
+export const requiresSecureAuth = () => import.meta.env.PROD && window.location.protocol !== "https:";

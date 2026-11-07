@@ -8,6 +8,8 @@ no tuning, no rescue.
 """
 from __future__ import annotations
 
+import os
+
 import bisect
 import csv
 import datetime as dt
@@ -214,7 +216,7 @@ def main() -> int:
 
     # ---------------- PHASE 4: attach frozen outcomes (post-snapshot) ----------------
     import psycopg
-    DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+    DSN = os.environ["CDF_RESEARCH_DSN"]
     ca_events = {}
     with psycopg.connect(DSN) as pg, pg.cursor() as cur:
         cur.execute("""SELECT s.codal_symbol, ca.action_date, ca.adjustment_factor

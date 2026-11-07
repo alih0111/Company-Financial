@@ -14,6 +14,8 @@ The V1.1 artifact is read-only here. No V1.2 spec is created unless every gate p
 """
 from __future__ import annotations
 
+import os
+
 import datetime as dt
 import hashlib
 import json
@@ -109,7 +111,7 @@ def main() -> int:
     bad_utc = bad_wall = bad_date = bad_entry = unresolvable = 0
     import bisect
     import psycopg
-    DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+    DSN = os.environ["CDF_RESEARCH_DSN"]
     with psycopg.connect(DSN) as pg, pg.cursor() as cur:
         cur.execute("SELECT DISTINCT trade_date FROM market.price_observations ORDER BY trade_date")
         cal = [d.isoformat() for (d,) in cur.fetchall()]

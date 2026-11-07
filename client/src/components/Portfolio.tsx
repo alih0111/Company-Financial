@@ -15,12 +15,11 @@ import {
   getPortfolio,
   upsertHolding,
   deleteHolding,
-  getAIStockSummary,
+  getCompanyDirectory,
 } from "../utils/api";
 import type {
   PortfolioSummary,
   PortfolioHoldingEnriched,
-  AIStockMetric,
 } from "../utils/api";
 import { useDarkMode } from "../utils/theme";
 import { glassTooltipStyle, fmtShort } from "../utils/chart-theme";
@@ -77,20 +76,8 @@ const Portfolio = () => {
     setLoading(true);
     setError(null);
     try {
-      const [pf, rows] = await Promise.all([
-        getPortfolio(),
-        getAIStockSummary(1000),
-      ]);
+      const pf = await getPortfolio();
       setData(pf);
-      setCompanies(
-        rows
-          .filter((r: AIStockMetric) => !!r.company_id)
-          .map((r: AIStockMetric) => ({
-            value: r.company_id,
-            label: r.symbol ? `${r.symbol} — ${r.company_name}` : r.company_name,
-            price: r.latest_price,
-          }))
-      );
     } catch (e: unknown) {
       setError(errorMessage(e, "Failed to load portfolio"));
     } finally {
@@ -102,9 +89,29 @@ const Portfolio = () => {
     loadData();
   }, [loadData]);
 
+  // Market-wide metrics are needed only by the add-company selector.
+  useEffect(() => {
+    if (!showForm || editingId) return;
+    const controller = new AbortController();
+    getCompanyDirectory(controller.signal).then((rows) => {
+      if (controller.signal.aborted) return;
+      setCompanies(rows.filter((row) => !!row.company_id).map((row) => ({
+        value: row.company_id,
+        label: row.symbol ? `${row.symbol} — ${row.company_name}` : row.company_name,
+        price: undefined,
+      })));
+    }).catch((reason: unknown) => {
+      if (!controller.signal.aborted) setError(errorMessage(reason, "خطا در دریافت فهرست شرکت‌ها"));
+    });
+    return () => controller.abort();
+  }, [showForm, editingId]);
+
   const selectedCompanyOption = useMemo(
-    () => companies.find((c) => c.value === form.company_id) || null,
-    [companies, form.company_id]
+    () => companies.find((c) => c.value === form.company_id) || (editingId ? {
+      value: form.company_id,
+      label: form.symbol ? `${form.symbol} — ${form.company_name}` : form.company_name,
+    } : null),
+    [companies, form.company_id, form.company_name, form.symbol, editingId]
   );
 
   const resetForm = () => {

@@ -1,160 +1,253 @@
 package main
 
 import (
+	"context"
+	"errors"
+	"go-app/config"
 	"go-app/handlers"
 	qvt "go-app/handlers/qvt"
 	"go-app/middleware"
+	"log"
+	"net"
+	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
-func main() {
-	qvt.StartQvtPaperObserver()
-	// جمع‌آوری خودکار کدال در پس‌زمینه (غیرفعال با CODAL_AUTO_SYNC_ENABLED=0)
-	handlers.StartCodalAutoSync()
-	handlers.StartReportFlowObserver()
-	r := gin.Default()
-
-	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+func newRouter() (*gin.Engine, error) {
+	r := gin.New()
+	r.Use(middleware.RequestSafety())
+	if err := r.SetTrustedProxies(config.CSVEnv("TRUSTED_PROXIES")); err != nil {
+		return nil, err
+	}
+	r.Use(middleware.SecurityHeaders(), middleware.RateLimit(600, time.Minute), middleware.OriginGuard())
+	if origins := config.CSVEnv("CORS_ALLOWED_ORIGINS"); len(origins) > 0 {
+		r.Use(cors.New(cors.Config{
+			AllowOrigins:     origins,
+			AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowHeaders:     []string{"Origin", "Authorization", "Content-Type"},
+			ExposeHeaders:    []string{"Content-Length"},
+			AllowCredentials: false,
+			MaxAge:           12 * time.Hour,
+		}))
+	}
 
 	api := r.Group("/api")
 
 	// Observability only: read mode + backend availability. No secrets.
-	r.GET("/api/health/shadow", handlers.GetShadowHealth)
+	r.GET("/api/health/live", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"status": "ok"}) })
+	r.GET("/api/health/ready", handlers.GetReadiness)
+	r.GET("/api/strategy/summary", middleware.RateLimit(30, time.Minute), handlers.GetPublicStrategySummary)
+	r.GET("/api/config", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"registration_enabled": config.RegistrationEnabled() && config.SMTPConfigured()})
+	})
 
 	// نوار قیمت لحظه‌ای صفحه‌ی اصلی (عمومی — TSETMC + TGJU با کش سروری)
-	api.GET("/market/ticker", handlers.GetMarketTicker)
+	api.GET("/market/ticker", middleware.RateLimit(120, time.Minute), handlers.GetMarketTicker)
 
-	r.POST("/api/register/send-code", handlers.SendVerificationCode)
-	r.POST("/api/register", handlers.Register)
-	api.POST("/login", handlers.Login)
+	auth := api.Group("", middleware.RateLimit(20, time.Minute), middleware.RequestBodyLimit())
+	auth.POST("/register/send-code", middleware.RateLimit(5, time.Hour), middleware.ConcurrencyLimit(2), handlers.SendVerificationCode)
+	passwordWork := middleware.ConcurrencyLimit(4)
+	auth.POST("/register", passwordWork, handlers.Register)
+	auth.POST("/login", passwordWork, handlers.Login)
 
 	protected := api.Group("/")
-	protected.Use(middleware.AuthMiddleware())
+	protected.Use(middleware.RateLimit(300, time.Minute))
+	protected.Use(middleware.AuthMiddleware(), middleware.RequestBodyLimit())
+	admin := protected.Group("", middleware.AdminOnly())
+	data := protected.Group("", middleware.DataRateLimit(), middleware.DataConcurrency(), middleware.DataAccess())
+	protected.GET("/data-access", middleware.UserRateLimit(12, time.Minute), handlers.GetDataAccess)
+	admin.GET("/admin/data-access", handlers.ListDataAccess)
+	admin.GET("/admin/data-access/:username", handlers.GetDataAccess)
+	admin.PUT("/admin/data-access/:username", handlers.SetDataAccess)
+	aiQuota := middleware.UserRateLimit(30, time.Hour)
 	{
-		protected.GET("/AllCompanyScores", handlers.GetCompanyScores)
-		protected.GET("/SalesData", handlers.GetSalesData)
-		protected.GET("/CompanyNames", handlers.GetCompanyNames)
-		protected.POST("/GetUrl", handlers.GetURL)
-		protected.GET("/SalesData2", handlers.GetSalesData2)
-		protected.POST("/GetUrl2", handlers.GetURL2)
-		protected.GET("/CompanyScores", handlers.GetCompanyScores2)
-		protected.GET("/StockPriceScore", handlers.StockPriceScore)
-		protected.POST("/run-script", handlers.RunScript)
-		protected.POST("/run-script2", handlers.RunScript2)
-		protected.POST("/fetchAllData", handlers.BulkFetch)
-		protected.GET("/FetchFullPE", handlers.RunScriptPE)
+		protected.GET("/health/shadow", handlers.GetShadowHealth)
+		protected.POST("/logout", handlers.Logout)
+		protected.GET("/me", func(c *gin.Context) {
+			c.JSON(http.StatusOK, gin.H{"username": c.GetString("username"), "isAdmin": c.GetBool("isAdmin")})
+		})
+		admin.GET("/AllCompanyScores", handlers.GetCompanyScores)
+		data.GET("/SalesData", handlers.GetSalesData)
+		data.GET("/CompanyNames", handlers.GetCompanyNames)
+		data.GET("/companies", handlers.GetCompanyDirectory)
+		admin.POST("/GetUrl", handlers.GetURL)
+		data.GET("/SalesData2", handlers.GetSalesData2)
+		admin.POST("/GetUrl2", handlers.GetURL2)
+		data.GET("/CompanyScores", handlers.GetCompanyScores2)
+		data.GET("/StockPriceScore", handlers.StockPriceScore)
+		admin.POST("/run-script", middleware.RetiredCollector(), handlers.RunScript)
+		admin.POST("/run-script2", middleware.RetiredCollector(), handlers.RunScript2)
+		admin.POST("/fetchAllData", middleware.RetiredCollector(), handlers.BulkFetch)
+		admin.GET("/FetchFullPE", middleware.RetiredCollector(), handlers.RunScriptPE)
 		protected.POST("/users/get-items", handlers.AddViewedItem)
 
 		// تاریخچه‌ی قیمت نماد
-		protected.GET("/price-history", handlers.GetPriceHistory)
+		data.GET("/price-history", handlers.GetPriceHistory)
 
 		// شاخص‌های بازار + صندوق‌های طلا/کالا (صفحه‌ی «بازار»)
-		protected.GET("/market/assets", handlers.GetMarketAssets)
-		protected.POST("/market/collect", handlers.RunMarketAssetsCollector)
+		data.GET("/market/assets", handlers.GetMarketAssets)
+		admin.POST("/market/collect", handlers.RunMarketAssetsCollector)
 
 		// تحلیل QVT نسخه ۲ (آزمایشی) — فقط‌خواندنی روی آرتیفکت‌های پایلوت
-		protected.GET("/qvt-v2", qvt.GetQvtV2Report)
+		admin.GET("/qvt-v2", qvt.GetQvtV2Report)
 
 		// «کشف فرصت‌ها» QVT — همان snapshot، گروه‌بندی مقایسه‌پذیر و لایه‌های پارتو (فقط‌خواندنی)
-		protected.GET("/qvt-v2/discovery", qvt.GetQvtV2Discovery)
+		admin.GET("/qvt-v2/discovery", qvt.GetQvtV2Discovery)
 
 		// رتبه‌بندی سادهٔ اولویت بررسی (۰..۱۰۰ آزمایشی) — همان snapshot، فقط‌خواندنی
-		protected.GET("/qvt-v2/ranking", qvt.GetQvtV2Ranking)
-		protected.GET("/ranking/cash-review", qvt.GetCashReviewRanking)
-		protected.GET("/qvt-v2/paper", qvt.GetQvtV2Paper)
+		admin.GET("/qvt-v2/ranking", qvt.GetQvtV2Ranking)
+		admin.GET("/ranking/cash-review", qvt.GetCashReviewRanking)
+		admin.GET("/qvt-v2/paper", qvt.GetQvtV2Paper)
 
 		// خروجی CSV امتیازات
-		protected.GET("/export/scores", handlers.ExportScoresCSV)
+		admin.GET("/export/scores", handlers.ExportScoresCSV)
 
 		// کالکتور قیمت BRS (فقط ادمین) → py/brs_prices.py
-		protected.POST("/brs/collect", handlers.RunBrsCollector)
+		admin.POST("/brs/collect", handlers.RunBrsCollector)
 
 		// sync مبتنی بر discovery کدال (فقط ادمین) → py/sync_codal.py
-		protected.POST("/sync-codal", handlers.RunSyncCodal)
-		protected.POST("/sync-codal/jobs", handlers.StartCodalSyncJob)
-		protected.GET("/sync-codal/jobs/active", handlers.GetActiveCodalJob)
-		protected.GET("/sync-codal/jobs/:job_id", handlers.GetCodalJob)
-		protected.POST("/sync-codal/jobs/:job_id/captcha", handlers.SubmitCodalCaptcha)
-		protected.POST("/sync-codal/jobs/:job_id/captcha/refresh", handlers.RefreshCodalCaptcha)
-		protected.POST("/sync-codal/jobs/:job_id/captcha/resume", handlers.ResumeCodalChallenge)
-		protected.POST("/sync-codal/jobs/:job_id/cancel", handlers.CancelCodalJob)
+		admin.POST("/sync-codal", handlers.RunSyncCodal)
+		admin.POST("/sync-codal/jobs", handlers.StartCodalSyncJob)
+		admin.GET("/sync-codal/jobs/active", handlers.GetActiveCodalJob)
+		admin.GET("/sync-codal/jobs/:job_id", handlers.GetCodalJob)
+		admin.POST("/sync-codal/jobs/:job_id/captcha", handlers.SubmitCodalCaptcha)
+		admin.POST("/sync-codal/jobs/:job_id/captcha/refresh", handlers.RefreshCodalCaptcha)
+		admin.POST("/sync-codal/jobs/:job_id/captcha/resume", handlers.ResumeCodalChallenge)
+		admin.POST("/sync-codal/jobs/:job_id/cancel", handlers.CancelCodalJob)
 
 		// وضعیت جمع‌آوری خودکار کدال (فقط ادمین)
-		protected.GET("/sync-codal/status", handlers.GetCodalSyncStatus)
+		admin.GET("/sync-codal/status", handlers.GetCodalSyncStatus)
 
 		// به‌روزرسانی دستی امتیازهای «غربال بازار» (فقط ادمین) → orchestrate_refresh.py
 		// بدون این دکمه هیچ زمان‌بندی‌ای امتیازها را بازمحاسبه نمی‌کند.
-		protected.POST("/admin/analytics/refresh", handlers.RefreshAnalyticsScores)
+		admin.POST("/admin/analytics/refresh", handlers.RefreshAnalyticsScores)
 
 		// اجرای دستی چرخهٔ دریافت Codal و بازسازی رتبه‌بندی P1/P3 (فقط ادمین)
-		protected.POST("/admin/ranking/refresh", handlers.StartRankingRefresh)
-		protected.POST("/admin/factormix/ranking/refresh", handlers.RefreshFactorMixRanking)
-		protected.GET("/factormix/ranking", handlers.GetFactorMixRanking)
-		protected.GET("/reportflow", handlers.GetReportFlow)
-		protected.POST("/admin/reportflow/review", handlers.ReviewReportFlow)
-		protected.GET("/admin/ranking/refresh/status", handlers.GetRankingRefreshStatus)
+		admin.POST("/admin/ranking/refresh", handlers.StartRankingRefresh)
+		admin.POST("/admin/factormix/ranking/refresh", handlers.RefreshFactorMixRanking)
+		data.GET("/factormix/ranking", handlers.GetFactorMixRanking)
+		data.POST("/factormix/plan", handlers.PlanFactorMix)
+		admin.GET("/reportflow", handlers.GetReportFlow)
+		admin.POST("/admin/reportflow/review", handlers.ReviewReportFlow)
+		admin.GET("/admin/ranking/refresh/status", handlers.GetRankingRefreshStatus)
 
 		// تلاش دوبارهٔ دستی اجرای سبد کاغذی (فقط ادمین) → experimental_paper.py + paper_month_trial.py
-		protected.POST("/admin/paper-trial/refresh", handlers.StartPaperTrialRefresh)
-		protected.GET("/admin/paper-trial/refresh/status", handlers.GetPaperTrialRefreshStatus)
+		admin.POST("/admin/paper-trial/refresh", handlers.StartPaperTrialRefresh)
+		admin.GET("/admin/paper-trial/refresh/status", handlers.GetPaperTrialRefreshStatus)
 
-		protected.GET("/summary", handlers.GetAIStockSummary)
-		protected.GET("/detail", handlers.GetAIStockDetail)
+		data.GET("/summary", handlers.GetAIStockSummary)
+		data.GET("/detail", handlers.GetAIStockDetail)
 
 		// صورت‌های مالی کامل (سود و زیان، ترازنامه، جریان نقد عملیاتی)
-		protected.GET("/financial-statements", handlers.GetFinancialStatements)
-		protected.POST("/analyze", handlers.AnalyzeTopStocksWithAI)
+		data.GET("/financial-statements", handlers.GetFinancialStatements)
+		admin.POST("/analyze", middleware.RateLimit(10, time.Hour), handlers.AnalyzeTopStocksWithAI)
 
-		protected.GET("/portfolio", handlers.GetPortfolio)
+		data.GET("/portfolio", handlers.GetPortfolio)
 		protected.POST("/portfolio", handlers.UpsertHolding)
 		protected.DELETE("/portfolio/:company_id", handlers.DeleteHolding)
 
 		// دستیار چت سرمایه‌گذاری (مبتنی بر دیتای امتیاز کمی)
-		protected.POST("/chat", handlers.Chat)
+		data.POST("/chat", aiQuota, handlers.Chat)
 
 		// همان چت با رویدادهای پیشرفت (SSE)
-		protected.POST("/chat/stream", handlers.ChatStream)
+		data.POST("/chat/stream", aiQuota, handlers.ChatStream)
 
 		// بررسی سلامت اتصال مدل زبانی (بدون افشای کلید)
-		protected.GET("/health/ai", handlers.GetAIHealth)
+		admin.GET("/health/ai", middleware.RateLimit(5, time.Hour), handlers.GetAIHealth)
 
 		// دارایی خانواده (فقط ادمین) → جایگزین اکسل «دارایی»
-		protected.GET("/family/assets", handlers.GetFamilyAssets)
-		protected.POST("/family/assets", handlers.CreateFamilyAsset)
-		protected.POST("/family/people", handlers.CreateFamilyPerson)
-		protected.POST("/family/prices", handlers.SaveFamilyPrices)
-		protected.POST("/family/sync-prices", handlers.SyncFamilyPrices)
-		protected.PUT("/family/holdings", handlers.UpsertFamilyHolding)
-		protected.DELETE("/family/holdings", handlers.DeleteFamilyHolding)
-		protected.PUT("/family/account", handlers.UpdateFamilyAccount)
-		protected.GET("/family/cashflows", handlers.GetFamilyCashFlows)
-		protected.POST("/family/cashflows", handlers.AddFamilyCashFlow)
-		protected.DELETE("/family/cashflows/:id", handlers.DeleteFamilyCashFlow)
-		protected.GET("/family/history", handlers.GetFamilyHistory)
+		admin.GET("/family/assets", handlers.GetFamilyAssets)
+		admin.POST("/family/assets", handlers.CreateFamilyAsset)
+		admin.POST("/family/people", handlers.CreateFamilyPerson)
+		admin.POST("/family/prices", handlers.SaveFamilyPrices)
+		admin.POST("/family/sync-prices", handlers.SyncFamilyPrices)
+		admin.PUT("/family/holdings", handlers.UpsertFamilyHolding)
+		admin.DELETE("/family/holdings", handlers.DeleteFamilyHolding)
+		admin.PUT("/family/account", handlers.UpdateFamilyAccount)
+		admin.GET("/family/cashflows", handlers.GetFamilyCashFlows)
+		admin.POST("/family/cashflows", handlers.AddFamilyCashFlow)
+		admin.DELETE("/family/cashflows/:id", handlers.DeleteFamilyCashFlow)
+		admin.GET("/family/history", handlers.GetFamilyHistory)
 
 		// اتصال سبد هر شخص به کارگزاری آگاه (فقط ادمین)
-		protected.GET("/family/broker", handlers.GetFamilyBrokerAccounts)
-		protected.PUT("/family/broker", handlers.UpsertFamilyBrokerAccount)
-		protected.DELETE("/family/broker", handlers.DeleteFamilyBrokerAccount)
-		protected.POST("/family/sync-broker", handlers.StartFamilyBrokerSync)
-		protected.GET("/family/sync-broker/status", handlers.GetFamilyBrokerJob)
-		protected.POST("/family/sync-broker/captcha", handlers.SubmitFamilyBrokerCaptcha)
+		admin.GET("/family/broker", handlers.GetFamilyBrokerAccounts)
+		admin.PUT("/family/broker", handlers.UpsertFamilyBrokerAccount)
+		admin.DELETE("/family/broker", handlers.DeleteFamilyBrokerAccount)
+		admin.POST("/family/sync-broker", handlers.StartFamilyBrokerSync)
+		admin.GET("/family/sync-broker/status", handlers.GetFamilyBrokerJob)
+		admin.POST("/family/sync-broker/captcha", handlers.SubmitFamilyBrokerCaptcha)
 	}
+	if err := serveFrontend(r, os.Getenv("FRONTEND_DIR")); err != nil {
+		return nil, err
+	}
+	return r, nil
+}
+
+func main() {
+	if len(os.Args) > 1 && os.Args[1] == "admin" {
+		if err := createAdmin(os.Args[2:], os.Stdin); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+	if len(os.Args) == 2 && os.Args[1] == "healthcheck" {
+		client := &http.Client{Timeout: 5 * time.Second}
+		port := os.Getenv("PORT")
+		if port == "" {
+			port = "5000"
+		}
+		res, err := client.Get("http://127.0.0.1:" + port + "/api/health/ready")
+		if err != nil {
+			os.Exit(1)
+		}
+		defer res.Body.Close()
+		if res.StatusCode != http.StatusOK {
+			os.Exit(1)
+		}
+		return
+	}
+	if err := config.ValidateRuntime(); err != nil {
+		log.Fatal(err)
+	}
+	if config.Production() {
+		gin.SetMode(gin.ReleaseMode)
+	}
+	r, err := newRouter()
+	if err != nil {
+		log.Fatal(err)
+	}
+	qvt.StartQvtPaperObserver()
+	handlers.StartCodalAutoSync()
+	handlers.StartReportFlowObserver()
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "5000"
 	}
-	r.Run(":" + port)
+	server := &http.Server{
+		Addr: net.JoinHostPort(config.ListenHost(), port), Handler: r,
+		ReadHeaderTimeout: 10 * time.Second, ReadTimeout: 30 * time.Second,
+		IdleTimeout: 90 * time.Second, MaxHeaderBytes: 32 << 10,
+		// WriteTimeout stays unset for SSE chat and long-running admin jobs.
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	go func() {
+		log.Printf("RFA listening on %s", server.Addr)
+		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatal(err)
+		}
+	}()
+	<-ctx.Done()
+	shutdown, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancel()
+	if err := server.Shutdown(shutdown); err != nil {
+		log.Print("HTTP shutdown: ", err)
+	}
 }

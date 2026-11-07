@@ -33,6 +33,15 @@ func TestSecretsRoundTrip(t *testing.T) {
 	}
 }
 
+func TestMalformedEncryptedSecretDoesNotPanic(t *testing.T) {
+	t.Setenv("CDF_SECRET_KEY", base64.StdEncoding.EncodeToString(make([]byte, 32)))
+	for _, nonce := range []string{"", base64.StdEncoding.EncodeToString([]byte{1}), base64.StdEncoding.EncodeToString(make([]byte, 200))} {
+		if _, err := DecryptString(base64.StdEncoding.EncodeToString([]byte{1, 2}), nonce); err == nil {
+			t.Fatal("malformed encryption accepted")
+		}
+	}
+}
+
 func TestSecretsInvalidKey(t *testing.T) {
 	t.Setenv("CDF_SECRET_KEY", "not-a-valid-key")
 	if SecretsEnabled() {

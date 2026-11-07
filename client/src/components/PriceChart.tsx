@@ -483,10 +483,10 @@ const PriceChart: React.FC<Props> = ({
       if (!range || loadingRef.current || exhaustedRef.current) return;
       if (range.from >= -1 || candlesRef.current.length === 0) return;
       const cur = daysRef.current;
-      if (cur >= ALL_DAYS) return;
+      if (cur >= (getAuthStatus().isAdmin ? ALL_DAYS : 730)) return;
       // رکورد لازم = کندل‌های فعلی + فضای خالی سمت چپ (+ حاشیه)
       const needed = candlesRef.current.length - range.from + 8;
-      const next = Math.min(Math.max(Math.ceil(needed), cur * 2), ALL_DAYS);
+      const next = Math.min(Math.max(Math.ceil(needed), cur * 2), getAuthStatus().isAdmin ? ALL_DAYS : 730);
       autoExtendRef.current = true;
       daysRef.current = next;
       setDays(next);
@@ -824,6 +824,7 @@ const PriceChart: React.FC<Props> = ({
           </span>
           <h3 className="font-bold text-gray-800 dark:text-white text-sm">
             نمودار قیمت
+            {!getAuthStatus().isAdmin && <span className="ms-2 text-xs font-normal text-slate-500">حداکثر ۷۳۰ رکورد اخیر</span>}
           </h3>
           <WatchStar itemKey={companyName} label={companyName} kind="stock" size={12} />
           <span className="text-[10px] font-medium text-gray-400 bg-gray-100 dark:bg-gray-700/50 px-2 py-0.5 rounded-full">

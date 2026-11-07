@@ -16,6 +16,8 @@ Writes output/research_decision_panel_ext.json (does not touch the frozen base p
 """
 from __future__ import annotations
 
+import os
+
 import bisect
 import datetime as dt
 import gzip
@@ -87,7 +89,7 @@ def main() -> int:
     import os
     os.environ.setdefault("CDF_PILOT_DB", "company_financial_analytics_shadow_v121")
     import psycopg
-    with psycopg.connect("postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121") as pg, pg.cursor() as cur:
+    with psycopg.connect(os.environ["CDF_RESEARCH_DSN"]) as pg, pg.cursor() as cur:
         cur.execute("""SELECT s.codal_symbol, ca.action_date FROM market.corporate_actions ca
                        JOIN core.securities s ON s.id=ca.security_id
                        WHERE ca.source='tsetmc_gap_rule_v1' AND ca.action_type IN

@@ -19,10 +19,14 @@ def main():
         context = browser.new_context(viewport={'width': 1440, 'height': 1000})
         page = context.new_page(); page.on('pageerror', lambda e: errors.append(str(e)))
         page.goto(URL, wait_until='networkidle')
-        expect(page.get_by_role('heading', name='سبد با رسیدن گزارش‌ها بررسی می‌شود')).to_be_visible(timeout=20000)
+        expect(page.get_by_role('heading', name='آزمایش قبلی گزارش‌محور')).to_be_visible(timeout=20000)
+        expect(page.locator('.recharts-line-curve')).to_have_count(0)
+        assert page.get_by_role('button',name='درخواست بررسی',exact=True).count()==0
+        expect(page.get_by_role('link', name='مدل نهایی · FactorMix ماهانه ۱۵')).to_have_attribute('href', '/strategy')
+        page.get_by_role('button',name='مشاهدهٔ گزارش آزمایش قدیمی ReportFlow',exact=True).click()
         expect(page.get_by_text('۵۰۰٬۶۱۹٬۹۲۵', exact=True).first).to_be_visible()
         expect(page.locator('.recharts-line-curve')).to_have_count(3)
-        expect(page.get_by_role('link', name='مشاهدهٔ FactorMix اصلی')).to_have_attribute('href', '/strategy')
+        expect(page.get_by_role('link', name='بازگشت به مدل نهایی ماهانه ۱۵')).to_have_attribute('href', '/strategy')
         checks.append('real 1401 results, all three curves and independent parent link render')
         with page.expect_download() as event:
             page.get_by_role('link', name='همهٔ خرید و فروش‌ها', exact=True).click()
@@ -30,11 +34,11 @@ def main():
         lines = target.read_text(encoding='utf-8-sig').splitlines()
         assert len(lines) - 1 == result['accounts']['reportflow']['fills']
         checks.append('downloaded real transaction ledger has all 659 fills')
-        page.get_by_role('heading', name='سبد با رسیدن گزارش‌ها بررسی می‌شود').scroll_into_view_if_needed()
+        page.get_by_role('heading', name='آزمایش قبلی گزارش‌محور').scroll_into_view_if_needed()
         page.screenshot(path=str(OUT / 'desktop.png'), full_page=True)
         page.locator('[aria-label="نمودار ارزش سبد ReportFlow، FactorMix اصلی و کنترل فصلی"]').screenshot(path=str(OUT / 'comparison-chart.png'))
         page.set_viewport_size({'width': 390, 'height': 844})
-        expect(page.get_by_role('heading', name='سبد با رسیدن گزارش‌ها بررسی می‌شود')).to_be_visible()
+        expect(page.get_by_role('heading', name='آزمایش قبلی گزارش‌محور')).to_be_visible()
         assert page.evaluate('document.documentElement.scrollWidth <= innerWidth + 1')
         page.screenshot(path=str(OUT / 'mobile.png'), full_page=True)
         checks.append('390px mobile has no page overflow')
@@ -42,6 +46,7 @@ def main():
         invalid = {**result, 'strategy_id': 'wrong-version'}
         page.route('**/strategies/reportflow-033/backtest.json', lambda route: route.fulfill(json=invalid))
         page.reload(wait_until='networkidle')
+        page.get_by_role('button',name='مشاهدهٔ گزارش آزمایش قدیمی ReportFlow',exact=True).click()
         expect(page.get_by_text('گزارش ReportFlow معتبر نیست.', exact=True)).to_be_visible()
         page.unroute('**/strategies/reportflow-033/backtest.json')
         page.get_by_role('button', name='تلاش دوباره', exact=True).click()

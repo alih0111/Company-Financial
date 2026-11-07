@@ -314,7 +314,7 @@ func boardDecideV(pol boardDecisionPolicy, vcm map[string]any, comparableValid b
 		}
 	}
 	if basis != "" {
-		add(basis)
+		add("%s", basis)
 	}
 	var mean *float64
 	sum, n := 0.0, 0

@@ -9,6 +9,8 @@ one-way traded notional. Benchmark = equal-weight ALL eligible names with identi
 """
 from __future__ import annotations
 
+import os
+
 import datetime as dt
 import gzip
 import hashlib
@@ -28,7 +30,7 @@ PANEL = ROOT / "ui_score_research" / "ui_score_historical_pit_v2.parquet"
 IMAP = HERE / "portfolio_identity_map.parquet"
 DAILY = ROOT / "research_bundle" / "daily_market_panel.parquet"
 RAW = ROOT / "historical_codal_backfill" / "output" / "raw_closing_universe"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 PREREG_SHA = "10e6aa0e477b89eb73a5deacb72a4e337467fcfd2a06fd736a78e5954ecaf17c"
 SCORE_SHA = "543dfbf732ae9b60eff8014b2226faa806ffb85baec8794a109870c97df0639a"
 SEED, B = 20261003, 2000

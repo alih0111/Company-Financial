@@ -80,6 +80,25 @@ def test_paper_account_initialization_is_idempotent(tmp_path, monkeypatch):
     assert again['initial_toman'] == 100_000_000
 
 
+def test_retired_strategy_cannot_initialize_or_update_paper_account(tmp_path, monkeypatch):
+    from reportflow import service
+    retired = tmp_path / 'model'
+    retired.mkdir()
+    (retired / 'retired.json').write_text('{}')
+    state = tmp_path / 'state'
+    monkeypatch.setattr(service, 'HERE', retired)
+    monkeypatch.setattr(service, 'STATE', state)
+    result = service.cycle(init=True)
+    assert result['state'] == 'ARCHIVED'
+    assert result['automatic_enabled'] is False
+    assert not state.exists()
+    state.mkdir()
+    original = b'{"cash_toman":100000000,"holdings":{}}'
+    (state / 'portfolio.json').write_bytes(original)
+    assert service.cycle()['state'] == 'ARCHIVED'
+    assert (state / 'portfolio.json').read_bytes() == original
+
+
 def test_new_sales_trigger_waits_until_the_report_is_usable(tmp_path):
     from reportflow.service import report_fingerprint
     (tmp_path / 'input_reports.json').write_text('[]')

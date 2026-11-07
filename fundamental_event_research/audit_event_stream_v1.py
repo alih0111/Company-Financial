@@ -17,6 +17,8 @@ All thresholds come from the frozen preregistration; nothing is tuned.
 """
 from __future__ import annotations
 
+import os
+
 import bisect
 import datetime as dt
 import hashlib
@@ -37,7 +39,7 @@ ROOT = Path(r"D:\RFA\Company-Financial")
 BUNDLE = ROOT / "research_bundle"
 PB = ROOT / "historical_codal_backfill" / "output" / "pub_backfill"
 OUT = ROOT / "fundamental_event_research"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 
 TEHRAN = ZoneInfo("Asia/Tehran")
 UTC = dt.timezone.utc

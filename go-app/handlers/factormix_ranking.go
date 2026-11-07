@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"go-app/config"
 	"net/http"
 	"os"
 	"os/exec"
@@ -29,6 +30,9 @@ func GetFactorMixRanking(c *gin.Context) {
 	if body, err := os.ReadFile(filepath.Join(root, ".runtime", "factormix-ranking", "status.json")); err == nil {
 		_ = json.Unmarshal(body, &status)
 	}
+	if config.Production() && status.Error != "" {
+		status.Error = "بازسازی ناموفق بود؛ مدیر باید گزارش سرور را بررسی کند."
+	}
 	raw, err := os.ReadFile(path)
 	if os.IsNotExist(err) {
 		c.JSON(http.StatusOK, gin.H{"ranking": nil, "running": factorMixRankingBusy.Load(), "refresh_error": status.Error})
@@ -39,7 +43,15 @@ func GetFactorMixRanking(c *gin.Context) {
 		return
 	}
 	c.Header("Cache-Control", "no-store")
-	c.JSON(http.StatusOK, gin.H{"ranking": json.RawMessage(raw), "running": factorMixRankingBusy.Load(), "refresh_error": status.Error})
+	var ranking any = json.RawMessage(raw)
+	if !c.GetBool("isAdmin") {
+		value, ok := limitedFactorMixRanking(c, raw)
+		if !ok {
+			return
+		}
+		ranking = value
+	}
+	c.JSON(http.StatusOK, gin.H{"ranking": ranking, "running": factorMixRankingBusy.Load(), "refresh_error": status.Error})
 }
 
 // RefreshFactorMixRanking invokes only the score publisher, with no account API.

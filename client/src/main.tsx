@@ -5,6 +5,8 @@ import { BrowserRouter } from "react-router-dom";
 import "vazirmatn/Vazirmatn-font-face.css";
 import "./index.css";
 import App from "./App.tsx";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { refreshSession, clearSession } from "./hooks/useGetUser";
 
 // پیش‌نمایش UI بدون بک‌اند — فقط dev و با ‎?__mock=1
 const boot = async () => {
@@ -16,11 +18,12 @@ const boot = async () => {
       console.error("mock api failed:", e);
     }
   }
+  try { await refreshSession(); } catch { clearSession(); }
   createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <BrowserRouter>
         {" "}
-        <App />
+        <ErrorBoundary><App /></ErrorBoundary>
       </BrowserRouter>
     </StrictMode>
   );

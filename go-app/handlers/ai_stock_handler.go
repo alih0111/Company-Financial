@@ -387,12 +387,21 @@ func GetAIStockSummary(c *gin.Context) {
 	sh := integration.Default()
 	if sh.SummaryRoute() == integration.RouteCanary {
 		if rows, err := sh.FetchSummaryCanonical(c.Request.Context()); err == nil && len(rows) > 0 {
+			if !c.GetBool("isAdmin") {
+				writeLimitedSummary(c, rows)
+				return
+			}
 			c.JSON(http.StatusOK, buildCanonicalSummary(rows, limitQuery))
 			return
 		} else if config.SQLServerMode() == "offline_expected" {
 			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "canonical summary unavailable; SQL Server is offline_expected"})
 			return
 		}
+	}
+
+	if !c.GetBool("isAdmin") {
+		c.JSON(503, gin.H{"error": "منبع canonical برای این درخواست در دسترس نیست."})
+		return
 	}
 
 	db := config.GetDB()

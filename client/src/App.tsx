@@ -36,6 +36,10 @@ import { getAuthStatus } from "./hooks/useGetUser";
 const Landing = lazy(() => import("./components/Landing"));
 const Login = lazy(() => import("./components/Login"));
 const Register = lazy(() => import("./components/Register"));
+const DataAccessAdmin = lazy(() => import("./components/DataAccessAdmin"));
+const MarketScreenerPage = lazy(() => import("./components/MarketScreenerPage"));
+const DataUsageNotice = lazy(() => import("./components/DataUsageNotice"));
+const StrategySummary = lazy(() => import("./components/StrategySummary"));
 const BigDataTable = lazy(() => import("./components/BigDataTable"));
 const Portfolio = lazy(() => import("./components/Portfolio"));
 const FamilyAssets = lazy(() => import("./components/FamilyAssets"));
@@ -45,6 +49,7 @@ const ComparePage = lazy(() => import("./components/ComparePage"));
 const WatchlistPage = lazy(() => import("./components/WatchlistPage"));
 const RankingHubPage = lazy(() => import("./components/RankingHubPage"));
 const FactorMixPage = lazy(() => import("./components/FactorMixPage"));
+const MonthlyFactorMixPage = lazy(() => import("./components/MonthlyFactorMixPage"));
 const ReportFlowPage = lazy(() => import("./components/ReportFlowPage"));
 const StrategyPerformancePage = lazy(() => import("./components/StrategyPerformancePage"));
 const FinancialStatements = lazy(() => import("./components/FinancialStatements"));
@@ -79,7 +84,15 @@ const App = () => {
     location.pathname === "/login" || location.pathname === "/register";
   // صفحات مهمان (لندینگ/ورود/ثبت‌نام) داده‌ی شرکت نمایش نمی‌دهند؛
   // fetch را غیرفعال می‌کنیم تا کال بی‌دلیل به بک‌اند زده نشود.
-  const isGuestOnly = isLanding || hideSidebar;
+  const isGuestOnly = isLanding || hideSidebar || location.pathname==="/performance";
+  const { isAdmin, username } = getAuthStatus();
+  const isAuthenticated = !!username;
+  const isDashboard = isAuthenticated && location.pathname === "/dashboard";
+  const isTable = isAuthenticated && location.pathname === "/Table";
+  const needsSummary = isDashboard || isTable;
+  const [companySearchOpened, setCompanySearchOpened] = useState(false);
+  const [profitReviewOpen, setProfitReviewOpen] = useState(false);
+  const [codalWaitingCaptcha, setCodalWaitingCaptcha] = useState(false);
 
   const {
     companyOptions,
@@ -87,12 +100,19 @@ const App = () => {
     setSelectedCompany,
     data1,
     data2,
-    dataScore,
     allDataScore,
     loadingData,
     loadingCompanies,
     refreshData,
-  } = useCompanyData(!isGuestOnly);
+    companyError,
+    dataError,
+    scoresError,
+    retryCompanyNames,
+  } = useCompanyData({
+    names: isAuthenticated && !isGuestOnly && (isDashboard || companySearchOpened),
+    details: isDashboard,
+    scores: isAdmin && isAuthenticated && !isGuestOnly && isTable,
+  });
 
   const [, setSearchParams] = useSearchParams();
 
@@ -102,8 +122,6 @@ const App = () => {
     setSearchParams({ companyname: name });
     navigate(`/dashboard?companyname=${encodeURIComponent(name || "")}`);
   };
-
-  const { isAdmin, username } = getAuthStatus();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
@@ -116,11 +134,13 @@ const App = () => {
   const isRankingSection = ["/ranking", "/ranking/legacy-cash", "/qvt", "/ranking/research", "/ranking/research/v12-1"].includes(location.pathname);
   const pageTitle =
     location.pathname === "/strategy/reportflow"
-      ? "استراتژی گزارش‌محور"
+      ? "آرشیو آزمایش ReportFlow"
+      : location.pathname === "/strategy/history"
+      ? "آرشیو FactorMix فصلی"
       : location.pathname === "/strategy/performance"
       ? "عملکرد سبد استراتژی"
       : location.pathname === "/strategy"
-      ? "سبد استراتژی"
+      ? "FactorMix · ماهانه ۱۵"
       : isRankingSection
       ? "رتبه‌بندی"
       : location.pathname === "/Table"
@@ -143,11 +163,13 @@ const App = () => {
 
   const pageSubtitle =
     location.pathname === "/strategy/reportflow"
-      ? "ReportFlow-033 · بررسی خودکار پس از گزارش جدید"
+      ? "آزمایش قدیمی؛ مدل نهایی FactorMix · ماهانه ۱۵ است"
+      : location.pathname === "/strategy/history"
+      ? "نسخهٔ فصلی قدیمی؛ فقط برای مرور سوابق"
       : location.pathname === "/strategy/performance"
-      ? "FactorMix-033 · مسیر سرمایه و بازده تاریخی"
+      ? "مدل نهایی ماهانه ۱۵ · مسیر سرمایه و بازده تاریخی"
       : location.pathname === "/strategy"
-      ? "FactorMix-033 · دارایی‌ها، معاملات و پیگیری مستقل"
+      ? "مدل نهایی منتخب · بررسی و پیشنهاد سبد ماهانه"
       : isRankingSection
       ? "مدل منتخب، وضعیت داده و ارزیابی آینده"
       : location.pathname === "/Table"
@@ -207,11 +229,13 @@ const App = () => {
     } else if (location.pathname === "/ranking/legacy-cash") {
       document.title = "RFA | آرشیو ارزندگی با پشتوانهٔ نقد";
     } else if (location.pathname === "/strategy/reportflow") {
-      document.title = "RFA | استراتژی گزارش‌محور ReportFlow-033";
+      document.title = "RFA | آرشیو آزمایش ReportFlow";
+    } else if (location.pathname === "/strategy/history") {
+      document.title = "RFA | آرشیو FactorMix فصلی";
     } else if (location.pathname === "/strategy/performance") {
-      document.title = "RFA | عملکرد سبد استراتژی FactorMix-033";
+      document.title = "RFA | عملکرد FactorMix ماهانه ۱۵";
     } else if (location.pathname === "/strategy") {
-      document.title = "RFA | سبد استراتژی FactorMix-033";
+      document.title = "RFA | FactorMix ماهانه ۱۵، مدل نهایی";
     } else if (location.pathname === "/ranking") {
       document.title = "RFA | رتبه‌بندی مدل منتخب";
     } else if (location.pathname === "/login") {
@@ -226,11 +250,15 @@ const App = () => {
   }, [selectedCompany, location.pathname]);
 
   const [aiRows, setAiRows] = useState<Record<string, AIStockMetric>>({});
+  const [summaryError, setSummaryError] = useState<string | null>(null);
   const [priceRefreshTick, setPriceRefreshTick] = useState(0);
 
-  const loadAIData = useCallback(async () => {
+  const loadAIData = useCallback(async (signal?: AbortSignal) => {
+    if (!needsSummary || (!isAdmin && (!isDashboard || !selectedCompany))) return;
+    setSummaryError(null);
     try {
-      const rows = await getAIStockSummary(1000);
+      const rows = await getAIStockSummary(isAdmin?1000:20, signal, isAdmin?undefined:selectedCompany);
+      if (signal?.aborted) return;
 
       const rowMap: Record<string, AIStockMetric> = {};
 
@@ -242,9 +270,12 @@ const App = () => {
 
       setAiRows(rowMap);
     } catch (err) {
-      console.error("Failed to load AI data:", err);
+      if (!signal?.aborted) {
+        console.error("Failed to load AI data:", err);
+        setSummaryError("دریافت خلاصهٔ امتیازهای شرکت‌ها انجام نشد؛ دوباره تلاش کنید.");
+      }
     }
-  }, []);
+  }, [needsSummary, isAdmin, isDashboard, selectedCompany]);
 
   const handleDataCollected = useCallback(() => {
     refreshData();
@@ -253,8 +284,11 @@ const App = () => {
   }, [refreshData, loadAIData]);
 
   useEffect(() => {
-    if (!isGuestOnly) loadAIData();
-  }, [isGuestOnly, loadAIData]);
+    if (!needsSummary) return;
+    const controller = new AbortController();
+    void loadAIData(controller.signal);
+    return () => controller.abort();
+  }, [needsSummary, loadAIData]);
 
   // A score snapshot only changes when the refresh job stores a new run, so a tab
   // left open keeps showing the old one. Re-fetch on focus/visibility and on an
@@ -262,13 +296,14 @@ const App = () => {
   // فاصله‌ی حداقل بین رفرش‌ها ۶۰ ثانیه است تا کلیک‌های مکرر روی پنجره
   // کالهای تکراری به بک‌اند نزند.
   useEffect(() => {
-    if (isGuestOnly) return;
+    if (!needsSummary) return;
+    const controller = new AbortController();
     let lastLoad = Date.now();
     const reload = () => {
       if (document.visibilityState !== "visible") return;
       if (Date.now() - lastLoad < 60_000) return;
       lastLoad = Date.now();
-      loadAIData();
+      void loadAIData(controller.signal);
     };
     window.addEventListener("focus", reload);
     document.addEventListener("visibilitychange", reload);
@@ -277,8 +312,9 @@ const App = () => {
       window.removeEventListener("focus", reload);
       document.removeEventListener("visibilitychange", reload);
       window.clearInterval(timer);
+      controller.abort();
     };
-  }, [isGuestOnly, loadAIData]);
+  }, [needsSummary, loadAIData]);
 
   const bigTableData = useMemo(() => {
     const baseData = Array.isArray(allDataScore) ? allDataScore : [];
@@ -305,11 +341,13 @@ const App = () => {
     () =>
       (data1?.length ?? 0) > 0 ||
       (data2?.length ?? 0) > 0 ||
-      (dataScore?.length ?? 0) > 0,
-    [data1, data2, dataScore],
+      !!currentMetric,
+    [data1, data2, currentMetric],
   );
 
-  const mainContent = loadingData ? (
+  const mainContent = (
+    <div className="flex flex-col gap-3">
+    {loadingData && (
     <div className="flex items-center justify-center h-full">
       <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
         <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
@@ -333,8 +371,7 @@ const App = () => {
         </span>
       </div>
     </div>
-  ) : (
-    <div className="flex flex-col gap-3">
+    )}
       {/* ── Stats Summary Cards ── */}
       {currentMetric && (
         <div className="animate-fade-in-up grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -396,7 +433,7 @@ const App = () => {
       )}
 
       {/* ── EPS Chart + Donut ── */}
-      {hasFundamentals && (
+      {!loadingData && hasFundamentals && (
         <div className="animate-fade-in-up" style={{ animationDelay: "80ms" }}>
           {data1 ? (
             <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(180px,1fr)] gap-3">
@@ -423,7 +460,7 @@ const App = () => {
       )}
 
       {/* ── Sales Chart + Donut ── */}
-      {hasFundamentals && (
+      {!loadingData && hasFundamentals && (
         <div className="animate-fade-in-up" style={{ animationDelay: "160ms" }}>
           {data2 ? (
             <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,3fr)_minmax(180px,1fr)] gap-3">
@@ -450,6 +487,7 @@ const App = () => {
       {/* نماد بدون صورت مالی (صندوق طلا/کالا): فقط نمودار قیمت */}
       {selectedCompany &&
         !loadingData &&
+        !dataError &&
         !hasFundamentals &&
         !currentMetric && (
           <div className="animate-fade-in-up rounded-2xl border border-amber-200/70 dark:border-amber-900/40 bg-amber-50/60 dark:bg-amber-900/10 p-4">
@@ -481,14 +519,14 @@ const App = () => {
       )}
 
       {/* ── Score Breakdown ── */}
-      {selectedCompany && hasFundamentals && (
+      {selectedCompany && !loadingData && hasFundamentals && (
         <div className="animate-fade-in-up" style={{ animationDelay: "320ms" }}>
           <ScoreBreakdown metric={currentMetric} />
         </div>
       )}
 
       {/* ── صورت‌های مالی کامل (سود و زیان / ترازنامه / جریان نقد) ── */}
-      {selectedCompany && hasFundamentals && (
+      {selectedCompany && !loadingData && hasFundamentals && (
         <div className="animate-fade-in-up" style={{ animationDelay: "400ms" }}>
           <Suspense fallback={<PageLoader />}>
             <FinancialStatements companyName={selectedCompany} />
@@ -527,6 +565,10 @@ const App = () => {
                 selectedCompany={selectedCompany}
                 onCompanyChange={handleCompanyChange}
                 loadingCompanies={loadingCompanies}
+                onCompanySearchOpen={() => setCompanySearchOpened(true)}
+                profitReviewOpen={profitReviewOpen}
+                onProfitReviewToggle={() => setProfitReviewOpen((value) => !value)}
+                codalWaitingCaptcha={codalWaitingCaptcha}
                 companyProfits={allDataScore ?? []}
                 isAdmin={isAdmin}
                 username={username}
@@ -563,12 +605,23 @@ const App = () => {
                 tabIndex={hideSidebar ? undefined : 0}
                 aria-label={hideSidebar ? undefined : "محتوای صفحه"}
               >
-              {location.pathname !== "/login" &&
-                location.pathname !== "/register" &&
-                !isRankingSection && !location.pathname.startsWith("/strategy") && <ScoreFreshnessBadge />}
+              {isAuthenticated && !isGuestOnly && !isAdmin && <Suspense fallback={null}><DataUsageNotice key={username} /></Suspense>}
+              {needsSummary && <ScoreFreshnessBadge />}
+              {needsSummary && (summaryError || (isDashboard && (companyError || dataError)) || (isTable && scoresError)) && (
+                <div role="alert" className="mb-3 rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
+                  <p>{(isDashboard && (companyError || dataError)) || (isTable && scoresError) || summaryError}</p>
+                  <button type="button" className="mt-3 rounded-lg border border-amber-400 px-3 py-1.5 font-semibold" onClick={() => {
+                    if (isDashboard && companyError) retryCompanyNames();
+                    handleDataCollected();
+                  }}>تلاش دوباره</button>
+                </div>
+              )}
+              {isDashboard && !selectedCompany && loadingCompanies && <PageLoader />}
               <Suspense fallback={<PageLoader />}>
                 <div key={location.pathname} className="app-page">
                   <Routes>
+                  <Route path="/performance" element={<StrategySummary />} />
+                  <Route path="/admin/data-access" element={<ProtectedRoute>{isAdmin ? <DataAccessAdmin /> : <Navigate to="/dashboard" replace />}</ProtectedRoute>} />
                   <Route
                     path="/login"
                     element={
@@ -593,12 +646,12 @@ const App = () => {
                     path="/Table"
                     element={
                       <ProtectedRoute>
-                        <BigDataTable
+                        {isAdmin ? <BigDataTable
                           data={bigTableData}
                           onScoresRefreshed={
                             isAdmin ? handleDataCollected : undefined
                           }
-                        />
+                        /> : <MarketScreenerPage />}
                       </ProtectedRoute>
                     }
                   />
@@ -644,35 +697,39 @@ const App = () => {
                   />
                   <Route
                     path="/qvt"
-                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
+                    element={<ProtectedRoute>{isAdmin ? <RankingHubPage /> : <StrategySummary />}</ProtectedRoute>}
                   />
                   <Route
                     path="/ranking/research"
-                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
+                    element={<ProtectedRoute>{isAdmin ? <RankingHubPage /> : <StrategySummary />}</ProtectedRoute>}
                   />
                   <Route
                     path="/ranking/research/v12-1"
-                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
+                    element={<ProtectedRoute>{isAdmin ? <RankingHubPage /> : <StrategySummary />}</ProtectedRoute>}
                   />
                   <Route
                     path="/ranking/legacy-cash"
-                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
+                    element={<ProtectedRoute>{isAdmin ? <RankingHubPage /> : <StrategySummary />}</ProtectedRoute>}
                   />
                   <Route
                     path="/ranking"
-                    element={<ProtectedRoute><RankingHubPage /></ProtectedRoute>}
+                    element={<ProtectedRoute>{isAdmin ? <RankingHubPage /> : <StrategySummary />}</ProtectedRoute>}
                   />
                   <Route
                     path="/strategy/reportflow"
-                    element={<ProtectedRoute><ReportFlowPage /></ProtectedRoute>}
+                    element={<ProtectedRoute>{isAdmin ? <ReportFlowPage /> : <StrategySummary />}</ProtectedRoute>}
                   />
                   <Route
                     path="/strategy/performance"
-                    element={<ProtectedRoute><StrategyPerformancePage /></ProtectedRoute>}
+                    element={<ProtectedRoute>{isAdmin ? <StrategyPerformancePage /> : <StrategySummary />}</ProtectedRoute>}
+                  />
+                  <Route
+                    path="/strategy/history"
+                    element={<ProtectedRoute>{isAdmin ? <FactorMixPage /> : <StrategySummary />}</ProtectedRoute>}
                   />
                   <Route
                     path="/strategy"
-                    element={<ProtectedRoute><FactorMixPage /></ProtectedRoute>}
+                    element={<ProtectedRoute><MonthlyFactorMixPage /></ProtectedRoute>}
                   />
                   <Route
                     path="/assets"
@@ -693,7 +750,7 @@ const App = () => {
               </div>
             </main>
             {/* پنل سراسری باید بیرون از قاب اسکرول، روی تمام برنامه دیده شود. */}
-            {!isGuestOnly && <CodalCaptchaWatcher />}
+            {!isGuestOnly && isAdmin && <CodalCaptchaWatcher onWaitingChange={setCodalWaitingCaptcha} />}
           </div>
         </div>
       </ConfirmProvider>

@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/joho/godotenv"
+	_ "github.com/microsoft/go-mssqldb"
 )
 
 var ConnectionString string

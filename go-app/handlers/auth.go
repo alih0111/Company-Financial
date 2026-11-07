@@ -4,45 +4,16 @@ import (
 	"database/sql"
 	"fmt"
 	"go-app/config"
-	"log"
-	"math/rand"
 	"net/http"
 	"os"
-	"testing"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/joho/godotenv"
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/gomail.v2"
 )
-
-var (
-	smtpEmail    string
-	smtpPassword string
-	jwtSecret    []byte
-)
-
-func init() {
-	err := godotenv.Load()
-	if err != nil && !testing.Testing() {
-		// در تست‌ها cwd پوشه‌ی پکیج است و .env آنجا نیست؛ بدون این fatal،
-		// هیچ تستی از این پکیج اصلاً اجرا نمی‌شد.
-		log.Fatal("Error loading .env file")
-	}
-
-	smtpEmail = os.Getenv("SMTP_EMAIL")
-	smtpPassword = os.Getenv("SMTP_PASSWORD")
-	jwtSecret = []byte(os.Getenv("JWT_SECRET"))
-
-	if (smtpEmail == "" || smtpPassword == "") && !testing.Testing() {
-		log.Fatal("SMTP_EMAIL or SMTP_PASSWORD is not set in .env")
-	}
-}
-
-// var jwtSecret = []byte("your_secret_key")       // Replace with an env var in production
-var verificationCodes = make(map[string]string) // email -> code
 
 func Login(c *gin.Context) {
 	var creds struct {
@@ -51,6 +22,20 @@ func Login(c *gin.Context) {
 	}
 	if err := c.BindJSON(&creds); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+	creds.Username = strings.TrimSpace(creds.Username)
+	if creds.Username == "" || len(creds.Username) > 254 || creds.Password == "" || len(creds.Password) > 72 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "نام کاربری و گذرواژه معتبر وارد کنید"})
+		return
+	}
+	if len(config.JWTSecret()) < 32 {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "سرویس ورود پیکربندی نشده است"})
+		return
+	}
+	if !allowLoginAttempt(creds.Username, time.Now()) {
+		c.Header("Retry-After", "900")
+		c.JSON(429, gin.H{"error": "تلاش‌های ورود زیاد بوده است؛ کمی بعد دوباره تلاش کنید"})
 		return
 	}
 
@@ -75,10 +60,11 @@ func Login(c *gin.Context) {
 	`, creds.Username).Scan(&actualUsername, &hashedPassword, &isAdmin)
 
 	if err == sql.ErrNoRows {
+		_ = config.VerifyPassword(dummyLoginHash, creds.Password)
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	} else if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "سرویس حساب‌ها موقتاً در دسترس نیست"})
 		return
 	}
 
@@ -86,14 +72,15 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
 		return
 	}
+	clearLoginAttempts(creds.Username)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"username": actualUsername,
 		"isAdmin":  isAdmin,
-		"exp":      time.Now().Add(time.Hour * 72).Unix(),
+		"exp":      time.Now().Add(config.SessionLifetime).Unix(),
 	})
 
-	tokenString, err := token.SignedString(jwtSecret)
+	tokenString, err := token.SignedString(config.JWTSecret())
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to sign token"})
 		return
@@ -103,10 +90,15 @@ func Login(c *gin.Context) {
 	_, _ = db.Exec(`UPDATE [codal].[dbo].[Users] SET [IsOnline] = 1, [Token] = @p2 WHERE [UserName] = @p1`,
 		actualUsername, tokenString)
 
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	http.SetCookie(c.Writer, config.SessionCookie(tokenString, time.Now().Add(config.SessionLifetime)))
+	c.JSON(http.StatusOK, gin.H{"username": actualUsername, "isAdmin": isAdmin})
 }
 
 func Register(c *gin.Context) {
+	if !config.RegistrationEnabled() {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "ثبت‌نام فعلاً بسته است"})
+		return
+	}
 	var input struct {
 		Email    string `json:"email"`
 		Username string `json:"username"`
@@ -119,9 +111,14 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	expectedCode, ok := verificationCodes[input.Email]
-	if !ok || expectedCode != input.Code {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired verification code"})
+	input.Email = normalizeEmail(input.Email)
+	input.Username = strings.TrimSpace(input.Username)
+	if !validRegistration(input.Email, input.Username, input.Password) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ایمیل معتبر، نام کاربری ۳ تا ۶۴ حرفی بدون فاصله و گذرواژه غیررایج با حداقل ۱۵ نویسه و حداکثر ۷۲ بایت لازم است"})
+		return
+	}
+	if !signupCodes.consume(input.Email, input.Code, time.Now()) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "کد تأیید نادرست یا منقضی است؛ کد تازه درخواست کنید"})
 		return
 	}
 
@@ -173,35 +170,48 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	delete(verificationCodes, input.Email)
 	c.JSON(http.StatusOK, gin.H{"message": "Registration successful"})
 }
 
 func SendVerificationCode(c *gin.Context) {
+	if !config.RegistrationEnabled() || !config.SMTPConfigured() {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "ارسال ایمیل ثبت‌نام فعلاً در دسترس نیست"})
+		return
+	}
 	var input struct {
 		Email string `json:"email"`
 	}
 
-	if err := c.BindJSON(&input); err != nil || input.Email == "" {
+	if err := c.BindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Valid email is required"})
 		return
 	}
-
-	code := fmt.Sprintf("%06d", rand.Intn(1000000))
-	verificationCodes[input.Email] = code
+	input.Email = normalizeEmail(input.Email)
+	if input.Email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "ایمیل معتبر وارد کنید"})
+		return
+	}
+	code, err := signupCodes.issue(input.Email, time.Now())
+	if err != nil {
+		c.Header("Retry-After", "60")
+		c.JSON(http.StatusTooManyRequests, gin.H{"error": "برای ارسال دوبارهٔ کد یک دقیقه صبر کنید"})
+		return
+	}
 
 	// Send email
 	m := gomail.NewMessage()
-	m.SetHeader("From", smtpEmail)
+	sender := os.Getenv("SMTP_FROM")
+	if sender == "" {
+		sender = os.Getenv("SMTP_EMAIL")
+	}
+	m.SetHeader("From", sender)
 	m.SetHeader("To", input.Email)
 	m.SetHeader("Subject", "Your Verification Code")
-	m.SetBody("text/plain", fmt.Sprintf("Your code is: %s", code))
+	m.SetBody("text/plain", fmt.Sprintf("کد تأیید حساب RFA: %s\nاین کد تا ۱۰ دقیقه معتبر است. اگر این درخواست را ثبت نکرده‌اید، پیام را نادیده بگیرید.", code))
 
-	d := gomail.NewDialer("smtp.gmail.com", 587, smtpEmail, smtpPassword)
-
-	if err := d.DialAndSend(m); err != nil {
-		fmt.Printf("Error sending email: %v\n", err) // Add this
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send email"})
+	if err := sendSignupMail(m, sender, input.Email); err != nil {
+		signupCodes.discard(input.Email)
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "ارسال ایمیل ناموفق بود؛ کمی بعد دوباره تلاش کنید"})
 		return
 	}
 

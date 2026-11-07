@@ -70,6 +70,10 @@ func GetPriceHistory(c *gin.Context) {
 	}
 
 	limit := parseIntQuery(c, "limit", 365)
+	if !c.GetBool("isAdmin") && limit > 730 {
+		c.JSON(400, gin.H{"error": "حداکثر تاریخچهٔ قابل دریافت در هر درخواست ۷۳۰ رکورد است.", "code": "data_window_limit", "maximum": 730})
+		return
+	}
 	if limit > MaxPriceHistoryLimit {
 		limit = MaxPriceHistoryLimit
 	}

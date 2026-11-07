@@ -15,6 +15,8 @@ import (
 	"time"
 	"unicode"
 
+	"errors"
+	"go-app/dataaccess"
 	"go-app/integration"
 
 	"github.com/gin-gonic/gin"
@@ -693,13 +695,13 @@ func callAIChat(dataContext string, history []chatIncomingMessage) string {
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
-	client := &http.Client{Timeout: 45 * time.Second}
+	client := &http.Client{Timeout: 45 * time.Second, CheckRedirect: rejectAIRedirect}
 	resp, err := client.Do(httpReq)
 	if err != nil {
 		return ""
 	}
 	defer resp.Body.Close()
-	respBytes, _ := io.ReadAll(resp.Body)
+	respBytes, _ := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return ""
 	}
@@ -713,7 +715,7 @@ func callAIChat(dataContext string, history []chatIncomingMessage) string {
 // Chat هندلر POST /api/chat است.
 func Chat(c *gin.Context) {
 	var body chatRequestBody
-	if err := c.ShouldBindJSON(&body); err != nil || len(body.Messages) == 0 {
+	if err := c.ShouldBindJSON(&body); err != nil || !validChatHistory(body.Messages) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "messages is required"})
 		return
 	}
@@ -750,6 +752,11 @@ func Chat(c *gin.Context) {
 			c.JSON(http.StatusOK, chatResponseBody{Reply: reply, Intent: "agent", ToolsUsed: used})
 			return
 		} else if err != nil {
+			var denied *dataaccess.Denied
+			if errors.As(err, &denied) {
+				c.JSON(429, gin.H{"error": "سهمیهٔ دریافت داده کافی نیست؛ درخواست کوچک‌تری انتخاب کنید یا پس از بازنشانی سهمیه تلاش کنید.", "code": "data_quota_exceeded", "resets_at": denied.Reset})
+				return
+			}
 			log.Printf("chat: agent failed, falling back to rules: %v", err)
 		}
 	}
@@ -767,6 +774,10 @@ func ruleFallbackReply(c *gin.Context, userMsg string, body chatRequestBody) cha
 	rows, err := sh.FetchSummaryCanonical(c.Request.Context())
 	if err != nil || len(rows) == 0 {
 		return chatResponseBody{Reply: "الان به دیتای امتیازدهی دسترسی ندارم. لطفاً چند دقیقه‌ی دیگر دوباره امتحان کن.", Intent: "data_unavailable"}
+	}
+	rows, err = limitedChatRows(c, userMsg, rows)
+	if err != nil {
+		return chatResponseBody{Reply: "دریافت اطلاعات این پرسش در سهمیهٔ حساب ممکن نیست؛ پرسش محدودتری انتخاب کنید یا پس از بازنشانی سهمیه تلاش کنید.", Intent: "data_limited"}
 	}
 	norm := normalizeFaText(userMsg)
 	mentions := findCompanyMentions(userMsg, rows)

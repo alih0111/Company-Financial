@@ -22,6 +22,8 @@ Formula (verified against compute_metrics.py lines 719-790):
 """
 from __future__ import annotations
 
+import os
+
 import datetime as dt
 import gzip
 import hashlib
@@ -45,7 +47,7 @@ HERE = ROOT / "ui_score_research"
 SRC = HERE / "ui_score_historical_pit_v2" / "ui_score_historical_pit_v2.jsonl"
 PQ = HERE / "ui_score_historical_pit_v2.parquet"
 RAW = ROOT / "historical_codal_backfill" / "output" / "raw_closing_universe"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 HORIZONS = (21, 63, 126, 252)
 SEED, B = 20261003, 2000
 FROZEN_V2 = {"21": 0.0574, "63": 0.0853, "126": 0.1096, "252": 0.1031}

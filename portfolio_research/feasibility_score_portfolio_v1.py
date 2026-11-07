@@ -11,6 +11,8 @@ preregistration):
 """
 from __future__ import annotations
 
+import os
+
 import datetime as dt
 import hashlib
 import json
@@ -28,7 +30,7 @@ HERE = ROOT / "portfolio_research"
 HERE.mkdir(exist_ok=True)
 PANEL = ROOT / "ui_score_research" / "ui_score_historical_pit_v2.parquet"
 DAILY = ROOT / "research_bundle" / "daily_market_panel.parquet"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 
 R = {"rebalance_dates": {}, "selection": {}, "tradability": {}, "coverage": {},
      "semantics": {}, "gates_precheck": {}, "artifacts": {}}

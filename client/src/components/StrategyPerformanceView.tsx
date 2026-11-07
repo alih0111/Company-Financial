@@ -117,7 +117,7 @@ function HistoricalCharts({
     [replay, definitions],
   );
   const capitalSeries = [
-    { id: "nav_toman", label: "FactorMix-033", color: "#059669" },
+    { id: "nav_toman", label: "FactorMix · فصلی قدیمی", color: "#059669" },
     { id: "baseline_toman", label: "مدل قبلی P1", color: "#94a3b8" },
     ...(replay.monthly15 ? [{id:"monthly15_toman",label:replay.monthly15.label,color:"#7c3aed"}] : []),
     ...aligned.series,
@@ -423,8 +423,11 @@ export function PerformanceContent({
   goldLoading?: boolean;
   goldError?: string;
 }) {
-  const a = replay.accounts.candidate,
+  const original = replay.accounts.candidate;
+  const a = replay.monthly15?.account ?? original,
     b = replay.accounts.baseline;
+  const accountLabel = replay.monthly15 ? "FactorMix · ماهانه ۱۵" : "FactorMix · فصلی قدیمی";
+  const annual = replay.annual.map(y => ({...y, ...replay.monthly15?.annual.find(m => m.year === y.year)}));
   const stale = a.positions.filter((p) => (p.price_age_days ?? 0) > 0);
   return (
     <div className="space-y-5">
@@ -437,11 +440,11 @@ export function PerformanceContent({
         goldError={goldError}
       />
       {replay.monthly15 && <section className={panel} aria-labelledby="monthly-performance-title">
-        <h2 id="monthly-performance-title" className="text-lg font-bold">FactorMix · نسخهٔ ثبت‌شدهٔ ماهانه ۱۵</h2>
+        <h2 id="monthly-performance-title" className="text-lg font-bold">مدل نهایی منتخب · FactorMix ماهانه ۱۵</h2>
         <p className="mt-2 text-sm leading-8 text-slate-500">همان امتیازها، داده‌ها و قواعد نسخهٔ اصلی؛ بازبینی در پانزدهم هر ماه یا اولین جلسهٔ معاملاتی بعد از آن. خط بنفش، حساب مستقلی با ۱۰۰ میلیون تومان از ابتدای ۱۴۰۱ است.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl bg-violet-50 p-4 dark:bg-violet-950/30"><p className="text-xs">ارزش پایان · تومان</p><p className="mt-2 text-xl font-bold text-violet-700 dark:text-violet-300">{n(replay.monthly15.account.final_toman)}</p><p className="mt-1 text-xs">بازده کل {pct(replay.monthly15.account.total_return)}</p></div>
-          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900/60"><p className="text-xs">اختلاف با FactorMix اصلی · تومان</p><p className="mt-2 text-xl font-bold">{n(replay.monthly15.account.final_toman-a.final_toman)}</p><p className="mt-1 text-xs">{pct(replay.monthly15.account.final_toman/a.final_toman-1)} ارزش پایان بیشتر در این تاریخچه</p></div>
+          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900/60"><p className="text-xs">اختلاف با نسخهٔ فصلی قدیمی · تومان</p><p className="mt-2 text-xl font-bold">{n(replay.monthly15.account.final_toman-original.final_toman)}</p><p className="mt-1 text-xs">{pct(replay.monthly15.account.final_toman/original.final_toman-1)} ارزش پایان بیشتر در این تاریخچه</p></div>
           <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900/60"><p className="text-xs">بیشترین افت سرمایه</p><p className="mt-2 text-xl font-bold">{pct(Math.abs(replay.monthly15.account.max_drawdown))}</p><p className="mt-1 text-xs">{n(replay.monthly15.account.trade_count)} اجرای خرید و فروش؛ هزینه‌ها کسر شده‌اند</p></div>
         </div>
         <p className="mt-3 text-xs leading-7 text-slate-500">از {n(replay.monthly15.reviews_scheduled)} نوبت شامل ورود اولیه، {n(replay.monthly15.stale_decisions_skipped)} نوبت طبق قاعدهٔ اصلی به دلیل قدیمی بودن امتیاز کنار گذاشته شد. داده‌های روزانهٔ ReportFlow جایگزین این بازپخش نشده‌اند.</p>
@@ -451,14 +454,14 @@ export function PerformanceContent({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 id="annual-performance-title" className="text-lg font-bold">
-              عملکرد سال‌های شمسی
+              عملکرد سال‌های شمسی · {accountLabel}
             </h2>
             <p className="mt-2 text-xs leading-7 text-slate-500">
               یک حساب پیوسته؛ سرمایه در ابتدای سال‌ها دوباره ۱۰۰ میلیون نمی‌شود.
               همهٔ مبالغ جدول میلیون تومان‌اند.
             </p>
           </div>
-          <a className={button} href={base + replay.downloads.annual} download>
+          <a className={button} href={base + (replay.monthly15?.downloads.annual ?? replay.downloads.annual)} download>
             <FaDownload size={11} />
             دریافت جدول سالانه
           </a>
@@ -472,9 +475,9 @@ export function PerformanceContent({
               <tr className="border-b text-xs text-slate-500 dark:border-slate-700">
                 {[
                   "سال / پایان داده",
-                  "آغاز مدل جدید",
-                  "پایان مدل جدید",
-                  "بازده مدل جدید",
+                  "آغاز " + accountLabel,
+                  "پایان " + accountLabel,
+                  "بازده " + accountLabel,
                   "آغاز P1",
                   "پایان P1",
                   "بازده P1",
@@ -486,7 +489,7 @@ export function PerformanceContent({
               </tr>
             </thead>
             <tbody>
-              {replay.annual.map((y) => (
+              {annual.map((y) => (
                 <tr
                   key={y.year}
                   className="border-b border-slate-100 last:border-0 dark:border-slate-700/50"
@@ -529,7 +532,7 @@ export function PerformanceContent({
                   شاخص کل بازه
                 </th>
                 <th className="p-3" scope="col">
-                  FactorMix-033
+                  {accountLabel}
                 </th>
                 <th className="p-3" scope="col">
                   P1
@@ -581,17 +584,17 @@ export function PerformanceContent({
         <h2 className="text-lg font-bold">دریافت خروجی همین بازه</h2>
         <div className="mt-4 flex flex-wrap gap-2">
           {[
-            ["گزارش", "report"],
-            ["نمودار PNG", "chart"],
-            ["مسیر سرمایهٔ مدل", "candidate_nav"],
-            ["مسیر سرمایهٔ P1", "baseline_nav"],
-            ["معاملات مدل", "candidate_trades"],
-            ["معاملات P1", "baseline_trades"],
-          ].map(([label, key]) => (
+            ["گزارش مدل نهایی", replay.monthly15?.downloads.report ?? replay.downloads.report],
+            ["نمودار قدیمی · فصلی و P1", replay.downloads.chart],
+            ["مسیر سرمایهٔ مدل نهایی", replay.monthly15?.downloads.nav ?? replay.downloads.candidate_nav],
+            ["مسیر سرمایهٔ P1", replay.downloads.baseline_nav],
+            ["معاملات مدل نهایی", replay.monthly15?.downloads.trades ?? replay.downloads.candidate_trades],
+            ["معاملات P1", replay.downloads.baseline_trades],
+          ].map(([label, filename]) => (
             <a
               className={button}
-              key={key}
-              href={base + replay.downloads[key]}
+              key={filename}
+              href={base + filename}
               download
             >
               <FaDownload size={11} />
@@ -663,13 +666,13 @@ export default function StrategyPerformanceView({
             className="text-xs font-bold tracking-wide text-emerald-700 dark:text-emerald-400"
             dir="ltr"
           >
-            FactorMix-033 · v1.0.0
+            FactorMix · ماهانه ۱۵ · مدل نهایی
           </p>
           <h1 className="mt-2 text-2xl font-black sm:text-3xl">
-            عملکرد سبد استراتژی
+            عملکرد مدل نهایی · FactorMix ماهانه ۱۵
           </h1>
           <p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">
-            مسیر سرمایه، افت و بازده سالانه با همان وزن‌ها و قواعد ثبت‌شده
+            خط بنفش مدل نهایی ماهانهٔ ۱۵ است؛ نسخهٔ فصلی قدیمی و P1 برای مقایسه نمایش داده می‌شوند.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

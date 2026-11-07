@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getShadowHealth, type ShadowHealth } from "../utils/api";
 import { getAuthStatus } from "../hooks/useGetUser";
 
@@ -43,23 +43,31 @@ export default function ScoreFreshnessBadge() {
   const [health, setHealth] = useState<ShadowHealth | null>(null);
   const [failed, setFailed] = useState(false);
 
-  const load = useCallback(async () => {
-    try {
-      setHealth(await getShadowHealth());
-      setFailed(false);
-    } catch {
-      setFailed(true);
-    }
-  }, []);
-
   useEffect(() => {
-    load();
+    const controller = new AbortController();
+    let pending = false;
+    let lastLoad = 0;
+    const load = async (force = false) => {
+      if (controller.signal.aborted || document.visibilityState !== "visible" || pending) return;
+      if (!force && Date.now() - lastLoad < 60_000) return;
+      pending = true;
+      lastLoad = Date.now();
+      try {
+        const value = await getShadowHealth(controller.signal);
+        if (controller.signal.aborted) return;
+        setHealth(value);
+        setFailed(false);
+      } catch {
+        if (!controller.signal.aborted) setFailed(true);
+      } finally { pending = false; }
+    };
+    void load();
     const onFocus = () => load();
     const onVisibility = () => {
       if (document.visibilityState === "visible") load();
     };
     // پس از «به‌روزرسانی امتیازها» همین صفحه باید run تازه را نشان دهد.
-    const onRefreshed = () => load();
+    const onRefreshed = () => load(true);
     window.addEventListener("focus", onFocus);
     document.addEventListener("visibilitychange", onVisibility);
     window.addEventListener("rfa:score-refreshed", onRefreshed);
@@ -69,8 +77,9 @@ export default function ScoreFreshnessBadge() {
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("rfa:score-refreshed", onRefreshed);
       window.clearInterval(timer);
+      controller.abort();
     };
-  }, [load]);
+  }, []);
 
   if (failed) return <p role="status" className="mb-3 text-xs text-amber-700 dark:text-amber-300">تازگی امتیاز نامعلوم است؛ وضعیت سلامت دریافت نشد.</p>;
   if (!health) return null;

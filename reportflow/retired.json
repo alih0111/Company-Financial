@@ -1,0 +1,9 @@
+{
+  "strategy_id": "RFA-ReportFlow-033-v1.0.0",
+  "status": "ARCHIVED_RESEARCH_NOT_SELECTED",
+  "retired_client_date": "2026-11-07",
+  "selected_strategy_id": "RFA-FactorMix-033-M15-Buffer8-v1.0.0",
+  "reason": "User confirmed FactorMix monthly day 15 as the final selected strategy. Preserve ReportFlow research and paper history; stop further reviews.",
+  "paper_observer_enabled": false,
+  "historical_archive_unchanged": true
+}

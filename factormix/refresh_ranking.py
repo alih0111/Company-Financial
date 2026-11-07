@@ -220,7 +220,7 @@ def calculate(run_dir, day):
 def main():
     STATE.mkdir(parents=True, exist_ok=True)
     # OS releases this lock even after interruption. The lock file is retained.
-    import msvcrt
+    from runtime_lock import acquire_file_lock, release_file_lock
     with (STATE / 'refresh.lock').open('a+b') as lock:
         lock.seek(0)
         if lock.read(1) == b'':
@@ -228,7 +228,7 @@ def main():
             lock.flush()
         lock.seek(0)
         try:
-            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+            acquire_file_lock(lock)
         except OSError:
             raise SystemExit('FactorMix refresh already running')
         try:
@@ -245,7 +245,7 @@ def main():
             raise
         finally:
             lock.seek(0)
-            msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+            release_file_lock(lock)
 
 
 if __name__ == '__main__':

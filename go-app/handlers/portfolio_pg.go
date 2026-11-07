@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"database/sql"
+	"math"
 	"net/http"
 	"strings"
 	"time"
@@ -48,6 +49,13 @@ func defaultPortfolioID(ctx context.Context, db *sql.DB, userID string) (string,
 // company key (security mapping first, then the company's primary security).
 func resolveSecurityByLegacyCompany(ctx context.Context, db *sql.DB, legacyKey string) (string, bool, error) {
 	var id string
+	// New clients can use canonical security UUIDs directly; legacy keys remain
+	// accepted for the existing company selector.
+	if err := db.QueryRowContext(ctx, `SELECT id::text FROM core.securities WHERE id::text=$1 AND is_active=true`, legacyKey).Scan(&id); err == nil {
+		return id, true, nil
+	} else if err != sql.ErrNoRows {
+		return "", false, err
+	}
 	err := db.QueryRowContext(ctx, `
 		SELECT target_uuid::text FROM core.legacy_entity_map
 		WHERE entity_type = 'security' AND legacy_key = $1 LIMIT 1`, legacyKey).Scan(&id)
@@ -100,11 +108,15 @@ func getPortfolioPG(c *gin.Context) {
 	}
 
 	rows, err := db.QueryContext(ctx, `
-		SELECT COALESCE(pa.security_id::text, ''), COALESCE(pa.symbol, ''), COALESCE(pa.name, ''),
+		SELECT COALESCE(lem.legacy_key, pa.security_id::text, ''), COALESCE(pa.symbol, ''), COALESCE(pa.name, ''),
 		       pos.quantity, COALESCE(pos.avg_cost_rial, 0),
 		       COALESCE(lp.price, 0)
 		FROM portfolio.positions pos
 		JOIN portfolio.assets pa ON pa.id = pos.asset_id
+		LEFT JOIN LATERAL (
+			SELECT legacy_key FROM core.legacy_entity_map
+			WHERE entity_type='security' AND target_uuid=pa.security_id ORDER BY created_at, id LIMIT 1
+		) lem ON true
 		LEFT JOIN LATERAL (
 			SELECT po.closing_price_rial AS price
 			FROM market.price_observations po
@@ -121,13 +133,13 @@ func getPortfolioPG(c *gin.Context) {
 	enriched := []models.PortfolioHoldingEnriched{}
 	var totalMarketValue, totalCost float64
 	for rows.Next() {
-		var secID, symbol, name string
+		var companyID, symbol, name string
 		var qty, cost, live float64
-		if err := rows.Scan(&secID, &symbol, &name, &qty, &cost, &live); err != nil {
+		if err := rows.Scan(&companyID, &symbol, &name, &qty, &cost, &live); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "portfolio scan error"})
 			return
 		}
-		h := models.PortfolioHolding{CompanyID: legacyCompanyBySecurity(ctx, db, secID), Symbol: symbol, CompanyName: name, Quantity: qty, BuyPrice: cost}
+		h := models.PortfolioHolding{CompanyID: companyID, Symbol: symbol, CompanyName: name, Quantity: qty, BuyPrice: cost}
 		e := models.PortfolioHoldingEnriched{PortfolioHolding: h}
 		if live > 0 {
 			e.LatestPrice = live
@@ -144,6 +156,10 @@ func getPortfolioPG(c *gin.Context) {
 		totalMarketValue += e.MarketValue
 		totalCost += e.CostBasis
 		enriched = append(enriched, e)
+	}
+	if rows.Err() != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "portfolio read error"})
+		return
 	}
 	for i := range enriched {
 		if totalMarketValue > 0 {
@@ -163,7 +179,6 @@ func getPortfolioPG(c *gin.Context) {
 }
 
 func upsertHoldingPG(c *gin.Context, req UpsertHoldingRequest) {
-	username := c.GetString("username")
 	db, err := config.GetPG()
 	if err != nil || db == nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "postgres portfolio unavailable"})
@@ -171,82 +186,61 @@ func upsertHoldingPG(c *gin.Context, req UpsertHoldingRequest) {
 	}
 	ctx, cancel := portfolioTimeout()
 	defer cancel()
-
 	companyID := strings.TrimSpace(req.CompanyID)
-	if companyID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "company_id is required"})
+	if companyID == "" || req.Quantity <= 0 || req.BuyPrice <= 0 || math.IsInf(req.Quantity*req.BuyPrice, 0) || math.IsNaN(req.Quantity*req.BuyPrice) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "نماد معتبر، تعداد و قیمت خرید بزرگ‌تر از صفر لازم است"})
 		return
 	}
-	if req.Quantity <= 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "quantity must be greater than 0"})
-		return
-	}
-	uid, ok, err := userIDByUsername(ctx, db, username)
-	if err != nil || !ok {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
-		return
-	}
-	pid, ok, err := defaultPortfolioID(ctx, db, uid)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "portfolio lookup error"})
-		return
-	}
-	if !ok {
-		if err := db.QueryRowContext(ctx, `INSERT INTO portfolio.portfolios (id, user_id, name, portfolio_type, base_currency, is_active, created_at, updated_at)
-			VALUES (gen_random_uuid(), $1, 'default', 'personal', 'IRR', true, now(), now()) RETURNING id::text`, uid).Scan(&pid); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "portfolio create error"})
-			return
-		}
-	}
-
-	secID, found, err := resolveSecurityByLegacyCompany(ctx, db, companyID)
+	securityID, found, err := resolveSecurityByLegacyCompany(ctx, db, companyID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "identity resolution error"})
 		return
 	}
-	var assetID string
-	if found {
-		err = db.QueryRowContext(ctx, `SELECT id::text FROM portfolio.assets WHERE security_id = $1`, secID).Scan(&assetID)
-		if err == sql.ErrNoRows {
-			name := req.CompanyName
-			if strings.TrimSpace(name) == "" {
-				name = req.Symbol
-			}
-			if strings.TrimSpace(name) == "" {
-				name = "asset"
-			}
-			if err := db.QueryRowContext(ctx, `INSERT INTO portfolio.assets (id, security_id, asset_type, name, symbol, pricing_source, is_active, created_at, updated_at)
-				VALUES (gen_random_uuid(), $1, 'stock', $2, $3, 'market', true, now(), now()) RETURNING id::text`,
-				secID, name, req.Symbol).Scan(&assetID); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "asset create error"})
-				return
-			}
-		} else if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "asset lookup error"})
-			return
-		}
-	} else {
-		name := req.CompanyName
-		if strings.TrimSpace(name) == "" {
-			name = req.Symbol
-		}
-		if strings.TrimSpace(name) == "" {
-			name = "asset"
-		}
-		if err := db.QueryRowContext(ctx, `INSERT INTO portfolio.assets (id, security_id, asset_type, name, symbol, pricing_source, is_active, created_at, updated_at)
-			VALUES (gen_random_uuid(), NULL, 'other', $1, $2, 'manual', true, now(), now()) RETURNING id::text`,
-			name, req.Symbol).Scan(&assetID); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "asset create error"})
-			return
-		}
+	if !found {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "نماد در فهرست معتبر بازار پیدا نشد"})
+		return
 	}
-
-	if _, err := db.ExecContext(ctx, `INSERT INTO portfolio.positions (portfolio_id, asset_id, quantity, avg_cost_rial, cost_basis_rial, as_of_at, computed_from_tx_count)
-		VALUES ($1, $2, $3, $4, $5, now(), 0)
-		ON CONFLICT (portfolio_id, asset_id) DO UPDATE SET quantity=EXCLUDED.quantity,
-			avg_cost_rial=EXCLUDED.avg_cost_rial, cost_basis_rial=EXCLUDED.cost_basis_rial, as_of_at=now()`,
-		pid, assetID, req.Quantity, req.BuyPrice, req.Quantity*req.BuyPrice); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "position save error"})
+	tx, err := db.BeginTx(ctx, nil)
+	if err != nil {
+		c.JSON(503, gin.H{"error": "portfolio transaction unavailable"})
+		return
+	}
+	defer tx.Rollback()
+	// Serialize the user's writes, including creation of the default portfolio.
+	// No unique user/name constraint exists in the canonical base schema.
+	var userID, portfolioID string
+	err = tx.QueryRowContext(ctx, `SELECT id::text FROM auth.users WHERE username=$1 AND is_active=true FOR UPDATE`, c.GetString("username")).Scan(&userID)
+	if err != nil {
+		c.JSON(404, gin.H{"error": "user not found"})
+		return
+	}
+	err = tx.QueryRowContext(ctx, `SELECT id::text FROM portfolio.portfolios WHERE user_id=$1 AND name='default' ORDER BY created_at, id LIMIT 1`, userID).Scan(&portfolioID)
+	if err == sql.ErrNoRows {
+		err = tx.QueryRowContext(ctx, `INSERT INTO portfolio.portfolios (user_id,name,portfolio_type,base_currency,is_active) VALUES ($1,'default','personal','IRR',true) RETURNING id::text`, userID).Scan(&portfolioID)
+	}
+	if err != nil {
+		c.JSON(500, gin.H{"error": "portfolio create error"})
+		return
+	}
+	// Use canonical display fields rather than letting a visitor rename a
+	// globally shared asset. ON CONFLICT is safe for simultaneous first writes.
+	var assetID string
+	err = tx.QueryRowContext(ctx, `INSERT INTO portfolio.assets (security_id,asset_type,name,symbol,pricing_source,is_active)
+        SELECT s.id,'stock',co.display_name,s.codal_symbol,'market',true FROM core.securities s JOIN core.companies co ON co.id=s.company_id WHERE s.id=$1
+        ON CONFLICT (security_id) DO UPDATE SET security_id=EXCLUDED.security_id RETURNING id::text`, securityID).Scan(&assetID)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "asset create error"})
+		return
+	}
+	_, err = tx.ExecContext(ctx, `INSERT INTO portfolio.positions (portfolio_id,asset_id,quantity,avg_cost_rial,cost_basis_rial,as_of_at,computed_from_tx_count)
+        VALUES ($1,$2,$3,$4,$5,now(),0) ON CONFLICT (portfolio_id,asset_id) DO UPDATE SET quantity=EXCLUDED.quantity,
+        avg_cost_rial=EXCLUDED.avg_cost_rial,cost_basis_rial=EXCLUDED.cost_basis_rial,as_of_at=now()`, portfolioID, assetID, req.Quantity, req.BuyPrice, req.Quantity*req.BuyPrice)
+	if err != nil {
+		c.JSON(500, gin.H{"error": "position save error"})
+		return
+	}
+	if err = tx.Commit(); err != nil {
+		c.JSON(500, gin.H{"error": "portfolio commit error"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "holding saved", "canonical": true})

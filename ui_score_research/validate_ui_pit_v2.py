@@ -14,6 +14,8 @@ increment convention, same as FE6), |Delta spread| >= 1.0pp.
 """
 from __future__ import annotations
 
+import os
+
 import datetime as dt
 import gzip
 import json
@@ -33,7 +35,7 @@ ROOT = Path(r"D:\RFA\Company-Financial")
 HERE = ROOT / "ui_score_research"
 SRC = HERE / "ui_score_historical_pit_v2" / "ui_score_historical_pit_v2.jsonl"
 RAW = ROOT / "historical_codal_backfill" / "output" / "raw_closing_universe"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 HORIZONS = (21, 63, 126, 252)
 FROZEN = {"21": 0.1103, "63": 0.1543, "126": 0.1806, "252": 0.1571}
 SEED, B = 20261003, 2000

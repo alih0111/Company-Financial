@@ -3,6 +3,8 @@ package integration
 import (
 	"strings"
 	"testing"
+
+	"github.com/jackc/pgx/v5"
 )
 
 func clearCanonicalEnv(t *testing.T) {
@@ -46,6 +48,22 @@ func TestSafeDSNStripsCredentials(t *testing.T) {
 	got := safeDSN("postgresql://postgres:secret@localhost:5432/db?options=x")
 	if strings.Contains(got, "secret") {
 		t.Fatalf("safeDSN leaked credentials: %s", got)
+	}
+}
+
+func TestCanonicalDSNReadOnlyOptionsAreDecodedByDriver(t *testing.T) {
+	clearCanonicalEnv(t)
+	t.Setenv("DATABASE_URL", "postgresql://postgres:secret@localhost:5432/company_financial_test_dsn?options=-c%20statement_timeout%3D2000")
+	dsn, err := buildCanonicalDSN(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cfg, err := pgx.ParseConfig(dsn)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, want := cfg.RuntimeParams["options"], "-c statement_timeout=2000 -c default_transaction_read_only=on"; got != want {
+		t.Fatalf("PostgreSQL startup options = %q, want %q", got, want)
 	}
 }
 

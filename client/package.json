@@ -4,6 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "test": "npm run test:csv && npm run test:errors && npm run test:qvt-ratio && npm run test:indicators && npm run test:strategy-performance && npm run test:page-requests && npm run test:security",
+    "test:page-requests": "node --test test/pageRequests.test.mjs",
     "strategy:publish": "node scripts/publish-factormix.mjs",
     "test:strategy-performance": "node --test test/strategyPerformance.test.mjs",
     "dev": "vite",
@@ -13,7 +15,8 @@
     "test:errors": "node --test test/errorMessage.test.mjs",
     "test:qvt-ratio": "node --test test/qvtRatio.test.mjs",
     "test:indicators": "esbuild src/utils/indicators.ts --format=esm --outfile=test/.generated/indicators.mjs && node --test test/indicators.test.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:security": "node scripts/build-security-tests.mjs && node --test test/security.test.mjs"
   },
   "dependencies": {
     "@types/react-table": "^7.7.20",
@@ -42,9 +45,14 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
     "postcss": "^8.5.3",
+    "react-test-renderer": "19.1.0",
     "tailwindcss": "^3.4.1",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
     "vite": "^6.3.5"
+  },
+  "overrides": {
+    "glob": "^14.0.4",
+    "minimatch@^9.0.0": "^11.0.5"
   }
 }

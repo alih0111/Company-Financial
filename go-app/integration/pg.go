@@ -79,7 +79,9 @@ func buildCanonicalDSN(readOnly bool) (string, error) {
 			q.Set("options", existing+" "+ro)
 		}
 	}
-	u.RawQuery = q.Encode()
+	// PostgreSQL URIs use percent-encoded spaces. pgx preserves literal '+' in
+	// URI query values, so form encoding would send "-c+setting" to the server.
+	u.RawQuery = strings.ReplaceAll(q.Encode(), "+", "%20")
 	return u.String(), nil
 }
 

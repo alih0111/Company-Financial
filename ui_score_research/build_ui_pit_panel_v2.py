@@ -44,7 +44,7 @@ OUT = HERE / "ui_score_historical_pit_v2"
 OUT.mkdir(exist_ok=True)
 SIG = Path(r"D:\RFA\Company-Financial\canonical_postgres_v1_2_1\backtesting_v1\output\phase3_signals.csv")
 RAW = ROOT / "historical_codal_backfill" / "output" / "raw_closing_universe"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 VERSION = "ui_score_historical_pit_v2"
 EOD = lambda y, m, d: dt.datetime(y, m, d, 23, 59, 59, tzinfo=dt.timezone.utc)
 WEIGHTS = {

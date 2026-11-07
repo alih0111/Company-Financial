@@ -16,6 +16,8 @@ with period_end in [as_of - 730d, as_of] (TTM + YoY comparable reach).
 """
 from __future__ import annotations
 
+import os
+
 import datetime as dt
 import hashlib
 import json
@@ -35,7 +37,7 @@ ROOT = Path(r"D:\RFA\Company-Financial")
 HERE = ROOT / "ui_score_research"
 PB = ROOT / "historical_codal_backfill" / "output" / "pub_backfill"
 EVENT_ART = ROOT / "fundamental_event_research" / "monthly_sales_events_universe_v1_1.parquet"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 TEHRAN = ZoneInfo("Asia/Tehran")
 FA_DIGITS = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
 RE_TITLE = re.compile(r"منتهی\s*به\s*([۰-۹\d]{4})/([۰-۹\d]{1,2})/([۰-۹\d]{1,2})")

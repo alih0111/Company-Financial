@@ -1,25 +1,22 @@
+import { getAuthStatus, sessionHeaders } from "../hooks/useGetUser";
+import { apiFetch } from "./request";
 import { API_BASE } from "../config";
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("token");
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-};
+const getAuthHeaders = () => ({...sessionHeaders(), "Content-Type": "application/json"});
 
 export const fetchCompanyNames = async (): Promise<string[]> => {
-  const res = await fetch(`${API_BASE}/CompanyNames`, {
+  const res = await apiFetch(`${API_BASE}/CompanyNames`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch company names");
   return res.json();
 };
 
-export const fetchSalesData = async (companyName: string) => {
-  const res = await fetch(
+export const fetchSalesData = async (companyName: string, signal?: AbortSignal) => {
+  const res = await apiFetch(
     `${API_BASE}/SalesData?companyName=${encodeURIComponent(companyName)}`,
     {
+      signal,
       headers: getAuthHeaders(),
     }
   );
@@ -28,10 +25,11 @@ export const fetchSalesData = async (companyName: string) => {
   return res.json();
 };
 
-export const fetchSalesData2 = async (companyName: string) => {
-  const res = await fetch(
+export const fetchSalesData2 = async (companyName: string, signal?: AbortSignal) => {
+  const res = await apiFetch(
     `${API_BASE}/SalesData2?companyName=${encodeURIComponent(companyName)}`,
     {
+      signal,
       headers: getAuthHeaders(),
     }
   );
@@ -41,7 +39,7 @@ export const fetchSalesData2 = async (companyName: string) => {
 };
 
 export const fetchSalesDataScore = async (companyName: string) => {
-  const res = await fetch(
+  const res = await apiFetch(
     `${API_BASE}/CompanyScores?companyName=${encodeURIComponent(companyName)}`,
     {
       headers: getAuthHeaders(),
@@ -53,7 +51,7 @@ export const fetchSalesDataScore = async (companyName: string) => {
 };
 
 export const fetchSalesDataAllScore = async () => {
-  const res = await fetch(`${API_BASE}/AllCompanyScores`, {
+  const res = await apiFetch(`${API_BASE}/AllCompanyScores`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch sales data 2");
@@ -61,7 +59,7 @@ export const fetchSalesDataAllScore = async () => {
 };
 
 export const fetchStockPriceScore = async (companyName: string) => {
-  const res = await fetch(
+  const res = await apiFetch(
     `${API_BASE}/StockPriceScore?companyName=${encodeURIComponent(
       companyName
     )}`,
@@ -78,7 +76,7 @@ export const fetchStockPriceScore = async (companyName: string) => {
 // جایگزین canonical: syncCodal و collectBrsPrices.
 
 export const addViewedItem = async (item: string) => {
-  const res = await fetch(`${API_BASE}/users/get-items`, {
+  const res = await apiFetch(`${API_BASE}/users/get-items`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify({ item }),
@@ -195,8 +193,10 @@ export interface AIStockMetric {
   pb_rank: number;
 }
 
-export async function getAIStockSummary(limit = 20): Promise<AIStockMetric[]> {
-  const res = await fetch(`${API_BASE}/summary?limit=${limit}`, {
+export async function getAIStockSummary(limit = 20, signal?: AbortSignal, companyName?: string): Promise<AIStockMetric[]> {
+  const target=companyName ? `&companyName=${encodeURIComponent(companyName)}` : "";
+  const res = await apiFetch(`${API_BASE}/summary?limit=${getAuthStatus().isAdmin?limit:20}${target}`, {
+    signal,
     headers: getAuthHeaders(),
   });
 
@@ -226,8 +226,8 @@ export interface ShadowHealth {
   analytics_status?: string;
 }
 
-export async function getShadowHealth(): Promise<ShadowHealth> {
-  const res = await fetch(`${API_BASE}/health/shadow`);
+export async function getShadowHealth(signal?: AbortSignal): Promise<ShadowHealth> {
+  const res = await apiFetch(`${API_BASE}/health/shadow`, { signal });
   if (!res.ok) {
     throw new Error(`Failed to fetch score freshness: ${res.status}`);
   }
@@ -257,7 +257,7 @@ export interface AnalyticsRefreshResult {
 }
 
 export async function refreshAnalyticsScores(): Promise<AnalyticsRefreshResult> {
-  const res = await fetch(`${API_BASE}/admin/analytics/refresh`, {
+  const res = await apiFetch(`${API_BASE}/admin/analytics/refresh`, {
     method: "POST",
     headers: getAuthHeaders(),
   });
@@ -297,7 +297,7 @@ export interface RankingRefreshRequest {
 }
 
 export async function startRankingRefresh(): Promise<RankingRefreshRequest> {
-  const res = await fetch(`${API_BASE}/admin/ranking/refresh`, {
+  const res = await apiFetch(`${API_BASE}/admin/ranking/refresh`, {
     method: "POST",
     headers: getAuthHeaders(),
   });
@@ -316,7 +316,7 @@ export async function startRankingRefresh(): Promise<RankingRefreshRequest> {
 }
 
 export async function getRankingRefreshStatus(): Promise<RankingRefreshStatus> {
-  const res = await fetch(`${API_BASE}/admin/ranking/refresh/status`, {
+  const res = await apiFetch(`${API_BASE}/admin/ranking/refresh/status`, {
     headers: getAuthHeaders(),
     cache: "no-store",
   });
@@ -358,7 +358,7 @@ export interface PaperTrialRefreshStatus {
 }
 
 export async function startPaperTrialRefresh(): Promise<PaperTrialRefreshStart> {
-  const res = await fetch(`${API_BASE}/admin/paper-trial/refresh`, {
+  const res = await apiFetch(`${API_BASE}/admin/paper-trial/refresh`, {
     method: "POST",
     headers: getAuthHeaders(),
   });
@@ -377,7 +377,7 @@ export async function startPaperTrialRefresh(): Promise<PaperTrialRefreshStart> 
 }
 
 export async function getPaperTrialRefreshStatus(): Promise<PaperTrialRefreshStatus> {
-  const res = await fetch(`${API_BASE}/admin/paper-trial/refresh/status`, {
+  const res = await apiFetch(`${API_BASE}/admin/paper-trial/refresh/status`, {
     headers: getAuthHeaders(),
     cache: "no-store",
   });
@@ -426,7 +426,7 @@ export interface PortfolioSummary {
 }
 
 export async function getPortfolio(): Promise<PortfolioSummary> {
-  const res = await fetch(`${API_BASE}/portfolio`, {
+  const res = await apiFetch(`${API_BASE}/portfolio`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok) {
@@ -449,7 +449,7 @@ export interface UpsertHoldingPayload {
 export async function upsertHolding(
   payload: UpsertHoldingPayload
 ): Promise<unknown> {
-  const res = await fetch(`${API_BASE}/portfolio`, {
+  const res = await apiFetch(`${API_BASE}/portfolio`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify(payload),
@@ -462,7 +462,7 @@ export async function upsertHolding(
 }
 
 export async function deleteHolding(companyID: string): Promise<unknown> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${API_BASE}/portfolio/${encodeURIComponent(companyID)}`,
     {
       method: "DELETE",
@@ -494,7 +494,8 @@ export async function getPriceHistory(
   companyName: string,
   limit = 365
 ): Promise<PriceHistoryRow[]> {
-  const res = await fetch(
+  if (!getAuthStatus().isAdmin) limit=Math.min(limit,730);
+  const res = await apiFetch(
     `${API_BASE}/price-history?companyName=${encodeURIComponent(
       companyName
     )}&limit=${limit}`,
@@ -510,7 +511,7 @@ export async function getPriceHistory(
 }
 
 export async function analyzeTopStocks(limit = 20): Promise<unknown> {
-  const res = await fetch(`${API_BASE}/analyze`, {
+  const res = await apiFetch(`${API_BASE}/analyze`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -544,7 +545,7 @@ export async function collectBrsPrices(
     api?: boolean;
   }
 ): Promise<unknown> {
-  const res = await fetch(`${API_BASE}/brs/collect`, {
+  const res = await apiFetch(`${API_BASE}/brs/collect`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify({
@@ -653,7 +654,7 @@ async function familyFetch<T>(
   path: string,
   init?: RequestInit
 ): Promise<T> {
-  const res = await fetch(`${API_BASE}/family${path}`, {
+  const res = await apiFetch(`${API_BASE}/family${path}`, {
     ...init,
     headers: getAuthHeaders(),
   });
@@ -940,7 +941,7 @@ export interface CodalSyncJob {
 }
 
 const codalJobRequest = async <T>(path: string, init?: RequestInit): Promise<T> => {
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await apiFetch(`${API_BASE}${path}`, {
     ...init,
     headers: { ...getAuthHeaders(), ...(init?.headers ?? {}) },
   });
@@ -991,7 +992,7 @@ export const cancelCodalSyncJob = (jobId: string) =>
 export async function syncCodal(
   payload: SyncCodalPayload = {}
 ): Promise<SyncCodalSummary> {
-  const res = await fetch(`${API_BASE}/sync-codal`, {
+  const res = await apiFetch(`${API_BASE}/sync-codal`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify({
@@ -1027,7 +1028,7 @@ export interface ChatResponse {
 export async function sendChatMessage(
   messages: ChatMessage[]
 ): Promise<ChatResponse> {
-  const res = await fetch(`${API_BASE}/chat`, {
+  const res = await apiFetch(`${API_BASE}/chat`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify({ messages }),
@@ -1056,7 +1057,7 @@ export async function sendChatMessageStream(
   onEvent: (e: ChatProgressEvent) => void,
   signal?: AbortSignal
 ): Promise<ChatResponse> {
-  const res = await fetch(`${API_BASE}/chat/stream`, {
+  const res = await apiFetch(`${API_BASE}/chat/stream`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify({ messages }),
@@ -1146,7 +1147,7 @@ export interface MarketAssets {
 }
 
 export async function getMarketAssets(): Promise<MarketAssets> {
-  const res = await fetch(`${API_BASE}/market/assets`, {
+  const res = await apiFetch(`${API_BASE}/market/assets`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to fetch market assets");
@@ -1157,7 +1158,7 @@ export async function collectMarketAssets(
   mode: "daily" | "backfill" | "ensure" = "daily",
   options?: { symbol?: string; limit?: number; all?: boolean }
 ): Promise<unknown> {
-  const res = await fetch(`${API_BASE}/market/collect`, {
+  const res = await apiFetch(`${API_BASE}/market/collect`, {
     method: "POST",
     headers: getAuthHeaders(),
     body: JSON.stringify({
@@ -1257,7 +1258,7 @@ const qvtServerError = async (res: Response, fallback: string) => {
 };
 
 export async function fetchQvtV2Summary(): Promise<QvtV2Summary> {
-  const res = await fetch(`${API_BASE}/qvt-v2`, {
+  const res = await apiFetch(`${API_BASE}/qvt-v2`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok)
@@ -1266,7 +1267,7 @@ export async function fetchQvtV2Summary(): Promise<QvtV2Summary> {
 }
 
 export async function fetchQvtV2Detail<T = unknown>(companyId: string): Promise<T> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${API_BASE}/qvt-v2?company_id=${encodeURIComponent(companyId)}`,
     { headers: getAuthHeaders() }
   );
@@ -1820,7 +1821,7 @@ export interface QvtDiscoveryResponse {
 }
 
 export async function fetchQvtV2Discovery(): Promise<QvtDiscoveryResponse> {
-  const res = await fetch(`${API_BASE}/qvt-v2/discovery`, {
+  const res = await apiFetch(`${API_BASE}/qvt-v2/discovery`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok)
@@ -2023,7 +2024,7 @@ export interface QvtRankingResponse {
 }
 
 export async function fetchQvtV2Ranking(): Promise<QvtRankingResponse> {
-  const res = await fetch(`${API_BASE}/qvt-v2/ranking`, {
+  const res = await apiFetch(`${API_BASE}/qvt-v2/ranking`, {
     headers: getAuthHeaders(),
   });
   if (!res.ok)
@@ -2099,7 +2100,7 @@ export interface QvtPaperSummary {
 }
 
 export async function fetchQvtV2Paper(): Promise<QvtPaperSummary> {
-  const res = await fetch(`${API_BASE}/qvt-v2/paper`, { headers: getAuthHeaders() });
+  const res = await apiFetch(`${API_BASE}/qvt-v2/paper`, { headers: getAuthHeaders() });
   if (!res.ok) throw await qvtServerError(res, "آزمایش سبد در دسترس نیست");
   return res.json();
 }
@@ -2153,6 +2154,7 @@ export interface FSDerived {
 }
 
 export interface FSPeriod {
+  amounts_in_rial?: boolean;
   report_date: string;
   duration_months: number;
   fiscal_year: number;
@@ -2174,10 +2176,15 @@ export async function fetchFinancialStatements(
   companyName: string,
   limit = 12
 ): Promise<FinancialStatementsResponse> {
-  const res = await fetch(
+  const res = await apiFetch(
     `${API_BASE}/financial-statements?companyName=${encodeURIComponent(companyName)}&limit=${limit}`,
     { headers: getAuthHeaders() }
   );
   if (!res.ok) throw new Error("صورت‌های مالی در دسترس نیست");
   return res.json();
+}
+
+export async function getCompanyDirectory(signal?:AbortSignal):Promise<{company_id:string;company_name:string;symbol:string}[]>{
+ const response=await apiFetch(`${API_BASE}/companies`,{signal,cache:"no-store"});
+ if(!response.ok)throw new Error("فهرست شرکت‌ها در دسترس نیست.");return response.json();
 }

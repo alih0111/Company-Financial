@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { authResponse } from "../utils/request";
 import { Link, useNavigate } from "react-router-dom";
 import {
   FaEnvelope,
@@ -11,14 +12,15 @@ import {
 } from "react-icons/fa";
 import { useDarkMode } from "../utils/theme";
 import AuthLayout from "./AuthLayout";
-import { API_BASE } from "../config";
+import { API_BASE, requiresSecureAuth } from "../config";
+import SecureAuthNotice from "./SecureAuthNotice";
 
 // سنجه‌ی ساده‌ی قدرت گذرواژه — فقط راهنمای بصری، نه اعتبارسنجی امنیتی
 const passwordStrength = (pass: string): { score: number; label: string; barCls: string } => {
   if (!pass) return { score: 0, label: "", barCls: "" };
   let score = 0;
-  if (pass.length >= 8) score++;
-  if (pass.length >= 12) score++;
+  if ([...pass].length >= 15) score++;
+  if ([...pass].length >= 20) score++;
   if (/[A-Z]/.test(pass) && /[a-z]/.test(pass)) score++;
   if (/\d/.test(pass)) score++;
   if (/[^A-Za-z0-9]/.test(pass)) score++;
@@ -37,10 +39,28 @@ const Register = () => {
   const [busy, setBusy] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [available, setAvailable] = useState<boolean | null>(null);
+  const [cooldown, setCooldown] = useState(0);
   const navigate = useNavigate();
   const { darkMode, toggleDarkMode } = useDarkMode();
 
   const strength = useMemo(() => passwordStrength(password), [password]);
+  const validPassword = [...password].length >= 15 && new TextEncoder().encode(password).length <= 72;
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_BASE}/config`, { signal: controller.signal })
+      .then(async (res) => { if (!res.ok) throw new Error(); return res.json(); })
+      .then((data) => setAvailable(data.registration_enabled === true))
+      .catch(() => { if (!controller.signal.aborted) setAvailable(false); });
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!cooldown) return;
+    const timer = window.setTimeout(() => setCooldown(cooldown - 1), 1000);
+    return () => window.clearTimeout(timer);
+  }, [cooldown]);
 
   const handleSendCode = async () => {
     setError(null);
@@ -52,10 +72,11 @@ const Register = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      const data = await res.json();
+      const data = await authResponse(res);
       if (res.ok) {
         setCodeSent(true);
-        setNotice("کد تأیید به ایمیل شما ارسال شد.");
+        setCooldown(60);
+        setNotice("کد تأیید ارسال شد و تا ۱۰ دقیقه معتبر است.");
       } else {
         setError(data.error || "ارسال کد ناموفق بود.");
       }
@@ -73,9 +94,9 @@ const Register = () => {
       const res = await fetch(`${API_BASE}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, username, password, code: verificationCode }),
+        body: JSON.stringify({ email: email.trim(), username: username.trim(), password, code: verificationCode }),
       });
-      const data = await res.json();
+      const data = await authResponse(res);
 
       if (res.ok) {
         setNotice("ثبت‌نام موفق بود! در حال انتقال به صفحه ورود…");
@@ -94,6 +115,15 @@ const Register = () => {
     "mb-1.5 block text-xs font-semibold text-gray-600 dark:text-gray-300";
   const inputCls =
     "w-full rounded-xl border border-gray-200 dark:border-gray-600/80 dark:bg-gray-900/40 bg-white/70 text-gray-800 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 py-2.5 pr-10 text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 hover:border-gray-300 dark:hover:border-gray-500";
+
+  if (requiresSecureAuth()) return <SecureAuthNotice darkMode={darkMode} toggleDarkMode={toggleDarkMode}/>;
+  if (available !== true) return (
+    <AuthLayout darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
+      <h1 className="mb-4 text-center text-xl font-bold">ساخت حساب جدید</h1>
+      <p role="status" className="text-center text-sm leading-7 text-gray-600 dark:text-gray-300">{available === null ? "در حال بررسی دسترسی ثبت‌نام…" : "ثبت‌نام فعلاً در دسترس نیست. اگر حساب دارید، وارد شوید."}</p>
+      <Link to="/login" className="mt-5 block text-center font-bold text-emerald-600">ورود به حساب</Link>
+    </AuthLayout>
+  );
 
   return (
     <AuthLayout darkMode={darkMode} toggleDarkMode={toggleDarkMode}>
@@ -202,7 +232,10 @@ const Register = () => {
                   dir="ltr"
                   placeholder="کد ۶ رقمی"
                   value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/[۰-۹]/g, (digit) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(digit))).replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit))).replace(/\D/g, "").slice(0, 6))}
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
                   className={`${inputCls} text-left tracking-[0.3em]`}
                   autoFocus
                 />
@@ -219,6 +252,9 @@ const Register = () => {
                   type="text"
                   placeholder="نامی که با آن وارد می‌شوید"
                   value={username}
+                  autoComplete="username"
+                  minLength={3}
+                  maxLength={64}
                   onChange={(e) => setUsername(e.target.value)}
                   className={inputCls}
                 />
@@ -235,10 +271,12 @@ const Register = () => {
                   type="password"
                   placeholder="••••••••"
                   value={password}
+                  autoComplete="new-password"
                   onChange={(e) => setPassword(e.target.value)}
                   className={inputCls}
                 />
               </div>
+              <p className="mt-2 text-xs text-gray-500">حداقل ۱۵ نویسه؛ حداکثر ۷۲ بایت. از عبارت غیررایج استفاده کنید.</p>
               {password && (
                 <div className="mt-2 flex items-center gap-2">
                   <div className="h-1 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
@@ -254,11 +292,14 @@ const Register = () => {
             </div>
             <button
               onClick={handleRegister}
-              disabled={busy || !verificationCode || !username || !password}
+              disabled={busy || verificationCode.length !== 6 || username.trim().length < 3 || !validPassword}
               className="group flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-500/25 transition hover:scale-[1.02] hover:shadow-xl hover:shadow-emerald-500/30 active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {busy ? "در حال ثبت…" : "تکمیل ثبت‌نام"}
               <FaArrowLeft size={12} className="transition-transform duration-300 group-hover:-translate-x-0.5" />
+            </button>
+            <button type="button" onClick={handleSendCode} disabled={busy || cooldown > 0} className="w-full text-center text-sm text-emerald-600 disabled:text-gray-400">
+              {cooldown > 0 ? `ارسال مجدد تا ${cooldown} ثانیهٔ دیگر` : "ارسال دوبارهٔ کد تأیید"}
             </button>
             <button
               onClick={() => {

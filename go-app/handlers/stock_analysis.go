@@ -7,8 +7,8 @@ import (
 
 	"go-app/config"
 
-	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gin-gonic/gin"
+	_ "github.com/microsoft/go-mssqldb"
 )
 
 type StockRow struct {

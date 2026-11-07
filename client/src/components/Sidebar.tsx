@@ -1,3 +1,4 @@
+import { logoutSession } from "../hooks/useGetUser";
 import { errorMessage } from "../utils/errorMessage";
 import React, { useEffect, useRef, useState } from "react";
 import Select from "react-select";
@@ -23,7 +24,6 @@ import { useDarkMode } from "../utils/theme";
 import {
   addViewedItem,
   collectBrsPrices,
-  getActiveCodalSyncJob,
 } from "../utils/api";
 
 interface SidebarProps {
@@ -32,6 +32,10 @@ interface SidebarProps {
   onCompanyChange: (val: string) => void;
 
   loadingCompanies: boolean;
+  onCompanySearchOpen: () => void;
+  profitReviewOpen: boolean;
+  onProfitReviewToggle: () => void;
+  codalWaitingCaptcha: boolean;
   isAdmin: boolean;
   username: string | null;
   open?: boolean;
@@ -52,14 +56,14 @@ const NAV_ITEMS: {
   icon: React.ReactNode;
   adminOnly?: boolean;
 }[] = [
+  { to:"/admin/data-access",label:"دسترسی دادهٔ کاربران",icon:<FaShieldAlt size={13}/>,adminOnly:true },
   { to: "/dashboard", label: "داشبورد شرکت", icon: <FaChartLine size={13} /> },
   // { to: "/market", label: "بازار و طلا", icon: <FaGlobe size={13} /> },
   // { to: "/compare", label: "مقایسه و نسبت", icon: <FaBalanceScale size={13} /> },
   // { to: "/watchlist", label: "دیده‌بان", icon: <FaEye size={13} /> },
   { to: "/Table", label: "غربال بازار", icon: <FaTable size={13} /> },
   // { to: "/ranking", label: "رتبه‌بندی", icon: <FaFlask size={13} /> },
-  { to: "/strategy", label: "سبد استراتژی", icon: <FaChartPie size={13} /> },
-  { to: "/strategy/reportflow", label: "استراتژی گزارش‌محور", icon: <FaBolt size={13} /> },
+  { to: "/strategy", label: "FactorMix · ماهانه ۱۵", icon: <FaChartPie size={13} /> },
   {
     to: "/strategy/performance",
     label: "عملکرد سبد استراتژی",
@@ -80,6 +84,10 @@ const Sidebar: React.FC<SidebarProps> = ({
   selectedCompany,
   onCompanyChange,
   loadingCompanies,
+  onCompanySearchOpen,
+  profitReviewOpen,
+  onProfitReviewToggle,
+  codalWaitingCaptcha,
   companyProfits,
   isAdmin,
   username,
@@ -88,6 +96,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   onDataCollected,
 }) => {
   const location = useLocation();
+  const [logoutError, setLogoutError] = useState("");
+  const [loggingOut, setLoggingOut] = useState(false);
   const isRankingPath = [
     "/ranking",
     "/qvt",
@@ -131,7 +141,6 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [brsMsg, setBrsMsg] = useState<string | null>(null);
   const [quickSyncOpen, setQuickSyncOpen] = useState(false);
   const [quickSyncing, setQuickSyncing] = useState(false);
-  const [codalWaitingCaptcha, setCodalWaitingCaptcha] = useState(false);
   // جمع‌آوری سود/فروش per-symbol — مودال با تعداد گزارش دلخواه
   const [symbolSync, setSymbolSync] = useState<"financial" | "monthly" | null>(
     null,
@@ -142,27 +151,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     text: string;
   } | null>(null);
   const { darkMode } = useDarkMode();
-
-  useEffect(() => {
-    if (!isAdmin) return;
-    let stopped = false;
-    let timer = 0;
-    const check = async () => {
-      try {
-        const active = await getActiveCodalSyncJob();
-        if (!stopped)
-          setCodalWaitingCaptcha(active?.state === "waiting_captcha");
-      } catch {
-        // Sidebar visibility is informational; the modal reports polling errors.
-      }
-      if (!stopped) timer = window.setTimeout(check, 2500);
-    };
-    void check();
-    return () => {
-      stopped = true;
-      window.clearTimeout(timer);
-    };
-  }, [isAdmin]);
 
   // جمع‌آوری تاریخچه‌ی قیمت نماد انتخاب‌شده از BRS
   const runCompanyPrices = async () => {
@@ -324,6 +312,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             companyOptions.find((opt) => opt.value === selectedCompany) || null
           }
           onChange={(option) => option && handleCompanySelect(option.value)}
+          onMenuOpen={onCompanySearchOpen}
           isSearchable
           isRtl
           menuPortalTarget={document.body}
@@ -549,16 +538,16 @@ const Sidebar: React.FC<SidebarProps> = ({
         )}
         {!isAdmin && (
           <div className="shadow-sm mt-1 rounded-2xl border border-gray-200/60 dark:border-white/[0.06] bg-white/40 dark:bg-white/[0.03]">
-            <div className="p-4 pb-2 flex justify-between items-center">
-              <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                مرور سود
-              </h3>
-              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 tabular-nums">
-                {companyProfits.length.toLocaleString("fa-IR")}
+            <button type="button" onClick={onProfitReviewToggle} aria-expanded={profitReviewOpen} aria-controls="sidebar-profit-review" className="w-full p-4 pb-2 flex justify-between items-center">
+              <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
+                مرور بازار
               </span>
-            </div>
+              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20 tabular-nums">
+                {profitReviewOpen ? companyProfits.length.toLocaleString("fa-IR") : "+"}
+              </span>
+            </button>
 
-            <div className="p-2 pt-0">
+            {profitReviewOpen && <div id="sidebar-profit-review" className="p-2 pt-0"><NavLink to="/Table" className="block px-3 py-2 text-xs underline">جست‌وجو و مقایسهٔ شرکت‌ها در غربال بازار</NavLink>
               <div className="direction-ltr">
                 <ul className="space-y-0.5 text-xs text-gray-700 dark:text-gray-300">
                   {companyProfits.map((company, index) => {
@@ -601,16 +590,19 @@ const Sidebar: React.FC<SidebarProps> = ({
                   })}
                 </ul>
               </div>
-            </div>
+            </div>}
           </div>
         )}
 
       </div>
         <div className="profile shrink-0 border-t border-gray-100 dark:border-white/[0.06] pt-3">
+ {logoutError && <p role="alert" className="mb-2 text-xs text-red-600">{logoutError}</p>}
           <button
-            onClick={() => {
-              localStorage.removeItem("token");
-              window.location.href = "/login";
+            disabled={loggingOut}
+            onClick={async () => {
+              setLoggingOut(true); setLogoutError("");
+              try { await logoutSession(); window.location.assign("/login"); }
+              catch { setLogoutError("خروج کامل نشد؛ دوباره تلاش کنید."); setLoggingOut(false); }
             }}
             className="group flex items-center justify-between w-full h-10 px-3 rounded-2xl border border-gray-200/70 dark:border-white/[0.07] bg-white/60 dark:bg-white/[0.03] hover:border-red-400/50 dark:hover:border-red-500/40 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all duration-300 shadow-sm"
           >

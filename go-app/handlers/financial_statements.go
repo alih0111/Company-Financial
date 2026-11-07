@@ -71,6 +71,7 @@ type fsDerived struct {
 }
 
 type fsPeriod struct {
+	AmountsInRial    bool              `json:"amounts_in_rial,omitempty"`
 	ReportDate       string            `json:"report_date"`
 	DurationMonths   int               `json:"duration_months"`
 	FiscalYear       int               `json:"fiscal_year"`
@@ -107,7 +108,7 @@ func fsDiv(a, b *float64) *float64 {
 }
 
 func fsPct(part, whole *float64) *float64 {
-	if whole == nil || *whole == 0 {
+	if part == nil || whole == nil || *whole == 0 {
 		return nil
 	}
 	v := *part / *whole * 100
@@ -160,6 +161,10 @@ func GetFinancialStatements(c *gin.Context) {
 	}
 	if limit > 40 {
 		limit = 40
+	}
+	if config.SQLServerMode() == "offline_expected" {
+		getCanonicalFinancialStatements(c, companyName, limit)
+		return
 	}
 
 	db := config.GetDB()
@@ -296,14 +301,14 @@ func GetFinancialStatements(c *gin.Context) {
 		ocfCur := fsNull(ocf)
 
 		p.Derived = fsDerived{
-			NetMarginPct:      fsPct(npCur, revCur),
-			RevenueYoYPct:     fsGrowthPct(revCur, revLast),
-			NetProfitYoYPct:   fsGrowthPct(npCur, npLast),
-			EPSYoYPct:         fsGrowthPct(epsCur, epsLYCur),
-			CurrentRatio:      fsDiv(caCur, clCur),
-			DebtToAssetsPct:   fsPct(tlCur, taCur),
-			CurrentAssetsPct:  fsPct(caCur, taCur),
-			CashConversionPct: fsPct(ocfCur, npCur),
+			NetMarginPct:          fsPct(npCur, revCur),
+			RevenueYoYPct:         fsGrowthPct(revCur, revLast),
+			NetProfitYoYPct:       fsGrowthPct(npCur, npLast),
+			EPSYoYPct:             fsGrowthPct(epsCur, epsLYCur),
+			CurrentRatio:          fsDiv(caCur, clCur),
+			DebtToAssetsPct:       fsPct(tlCur, taCur),
+			CurrentAssetsPct:      fsPct(caCur, taCur),
+			CashConversionPct:     fsPct(ocfCur, npCur),
 			NonCurrentAssets:      fsAmount{Current: fsSub(taCur, caCur)},
 			NonCurrentLiabilities: fsAmount{Current: fsSub(tlCur, clCur)},
 		}

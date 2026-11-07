@@ -1,0 +1,131 @@
+name: rfa
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  db:
+    image: postgres:18-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: company_financial
+      POSTGRES_USER: rfa_owner
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run python deploy/generate_env.py first}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?APP_DB_PASSWORD is required}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./canonical_postgres_v1_2_1/sql:/schema:ro
+      - ./deploy/init-db.sh:/docker-entrypoint-initdb.d/10-rfa.sh:ro
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -h 127.0.0.1 -U rfa_owner -d company_financial"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [database]
+    logging: *logging
+
+  app:
+    build: .
+    image: rfa-app:${RFA_VERSION:-local}
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      DATABASE_URL: postgresql://rfa_app:${APP_DB_PASSWORD}@db:5432/company_financial?sslmode=disable
+      CDF_ALLOW_NON_TEST_PG: "1"
+      CDF_SQLSERVER_MODE: offline_expected
+      CDF_READ_MODE: canonical
+      CDF_AUTH_BACKEND: postgres
+      CDF_PORTFOLIO_BACKEND: postgres
+      CDF_INGESTION_MODE: canonical_only
+      CDF_MARKET_INGESTION_AUTHORITY: canonical
+      CDF_MONTHLY_INGESTION_AUTHORITY: canonical
+      CDF_FINANCIAL_INGESTION_AUTHORITY: canonical
+      CDF_CODAL_INGESTION_AUTHORITY: canonical
+      CDF_MARKET_FALLBACK_LEGACY: "false"
+      CDF_MONTHLY_FALLBACK_LEGACY: "false"
+      CDF_FINANCIAL_FALLBACK_LEGACY: "false"
+      CDF_CODAL_FALLBACK_LEGACY: "false"
+      CDF_FAMILY_BACKEND: disabled
+      CDF_SECRET_KEY: ${CDF_SECRET_KEY:?CDF_SECRET_KEY is required}
+      TRUSTED_PROXIES: "172.30.47.2"
+      CDF_REGISTRATION_ENABLED: ${CDF_REGISTRATION_ENABLED:-0}
+      CDF_DATA_DAILY_REQUESTS: ${CDF_DATA_DAILY_REQUESTS:-300}
+      CDF_DATA_DAILY_RECORDS: ${CDF_DATA_DAILY_RECORDS:-12000}
+      CDF_DATA_DAILY_BYTES: ${CDF_DATA_DAILY_BYTES:-8388608}
+      CDF_DATA_DAILY_SYMBOLS: ${CDF_DATA_DAILY_SYMBOLS:-40}
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_EMAIL: ${SMTP_EMAIL:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      AI_CHAT_URL: ${AI_CHAT_URL:-}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-}
+      BRS_API_KEY: ${BRS_API_KEY:-}
+      CODAL_AUTO_SYNC_ENABLED: ${CODAL_AUTO_SYNC_ENABLED:-0}
+      QVT_PAPER_OBSERVER_ENABLED: "0"
+      REPORTFLOW_AUTOMATIC_ENABLED: "0"
+    volumes:
+      - app_runtime:/app/.runtime
+      - api_runtime:/app/go-app/.runtime
+      - ranking_output:/app/ranking_research/output
+      - public_artifacts:/app/client/public
+    networks:
+      database: {}
+      edge:
+        ipv4_address: 172.30.47.3
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    pids_limit: 256
+    shm_size: 256mb
+    logging: *logging
+
+  web:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    tmpfs: [/tmp]
+    pids_limit: 128
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      edge:
+        ipv4_address: 172.30.47.2
+    logging: *logging
+
+networks:
+  database:
+    internal: true
+  edge:
+    ipam:
+      config:
+        - subnet: 172.30.47.0/28
+
+volumes:
+  postgres_data:
+  app_runtime:
+  api_runtime:
+  ranking_output:
+  public_artifacts:
+  caddy_data:
+  caddy_config:

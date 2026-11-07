@@ -1,3 +1,4 @@
+import { getAuthStatus } from "../hooks/useGetUser";
 // دیده‌بان شخصی — ذخیره محلی (localStorage) با رویداد تغییر تا همه‌ی
 // کامپوننت‌ها (صفحه دیده‌بان، ستاره‌های صفحه بازار و ...) هم‌زمان به‌روز شوند.
 
@@ -9,13 +10,13 @@ export interface WatchItem {
   kind: WatchKind;
 }
 
-const STORAGE_KEY = "rfa_watchlist_v1";
+const storageKey = () => `rfa_watchlist_v2:${encodeURIComponent(getAuthStatus().username || "guest")}`;
 export const MAX_WATCH = 15;
 const EVENT = "rfa:watchlist-changed";
 
 export function getWatchlist(): WatchItem[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey());
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -28,7 +29,7 @@ export function getWatchlist(): WatchItem[] {
 }
 
 function persist(items: WatchItem[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  localStorage.setItem(storageKey(), JSON.stringify(items));
   window.dispatchEvent(new CustomEvent(EVENT));
 }
 

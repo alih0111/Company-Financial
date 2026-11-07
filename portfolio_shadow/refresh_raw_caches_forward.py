@@ -19,6 +19,8 @@ timestamped; never overwritten within a cycle).
 """
 from __future__ import annotations
 
+import os
+
 import argparse
 import datetime as dt
 import gzip
@@ -37,7 +39,7 @@ RAW = ROOT / "historical_codal_backfill" / "output" / "raw_closing_universe"
 IDX = json.loads((ROOT / "historical_codal_backfill" / "output" / "tsetmc_share" / "index.json")
                  .read_text(encoding="utf-8"))
 AUDIT = SHADOW / "launch_audit"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 H = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
      "Accept": "application/json, text/plain, */*", "Referer": "https://cdn.tsetmc.com/"}
 LAST = {"t": 0.0}

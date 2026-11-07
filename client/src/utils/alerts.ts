@@ -1,3 +1,4 @@
+import { getAuthStatus } from "../hooks/useGetUser";
 // هشدار قیمت — سمت کلاینت، بدون نیاز به بک‌اند.
 // هر هشدار: نماد + جهت (بالای/زیر) + قیمت هدف. هنگام بارگذاری قیمت‌ها
 // (مثلاً در دیده‌بان) بررسی می‌شود؛ هشدار فعال‌شده یک‌بار اعلان می‌دهد و
@@ -12,12 +13,12 @@ export interface PriceAlert {
   triggeredAt: number | null;
 }
 
-const STORAGE_KEY = "rfa_alerts_v1";
+const storageKey = () => `rfa_alerts_v2:${encodeURIComponent(getAuthStatus().username || "guest")}`;
 const EVENT = "rfa:alerts-changed";
 
 export function getAlerts(): PriceAlert[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey());
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -30,7 +31,7 @@ export function getAlerts(): PriceAlert[] {
 }
 
 function persist(items: PriceAlert[]) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  localStorage.setItem(storageKey(), JSON.stringify(items));
   window.dispatchEvent(new CustomEvent(EVENT));
 }
 

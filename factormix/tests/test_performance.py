@@ -9,6 +9,23 @@ ROOT=Path(__file__).resolve().parents[2]
 PUBLIC=ROOT/'client/public/strategies/factormix-033/performance'
 
 
+def test_monthly_portfolio_view_matches_the_registered_ledger_and_all_fills():
+    view=json.loads((PUBLIC/'from-1401-monthly15-portfolio.json').read_text(encoding='utf8'))
+    registered=ROOT/'strategy_registry/RFA-FactorMix-033-M15/v1.0.0'
+    account=json.loads((registered/'results/summary.json').read_text(encoding='utf8'))['accounts']['monthly_jalali_15']
+    trades=pd.read_csv(registered/'results/monthly_jalali_15_trades.csv')
+    assert view['strategy_id']=='RFA-FactorMix-033-M15-Buffer8-v1.0.0'
+    assert view['mode']=='historical_replay'
+    assert view['nav_toman']==account['metrics']['final_toman']
+    assert view['cash_toman']==account['ledger']['terminal_cash_toman']
+    for published, original in zip(view['positions'],account['ledger']['positions'],strict=True):
+        assert all(published[key]==value for key,value in original.items())
+    assert len(view['trades'])==len(trades)==343
+    for field in ['session','decision','symbol','side','units','gross_toman','fee_toman','slippage_toman','index_price']:
+        assert [t[field] for t in view['trades']]==trades[field].tolist()
+    assert view['last_decision']['targets']==pd.read_csv(registered/'results/monthly_jalali_15_decisions.csv').iloc[-1].target.split(';')
+
+
 def test_published_1401_path_and_downloads_match_the_verified_analysis():
     report=json.loads((PUBLIC/'performance.json').read_text(encoding='utf8'))
     case=next(c for c in report['cases'] if c['start_year']==1401)
@@ -57,3 +74,6 @@ def test_monthly_overlay_is_exact_registered_account_with_unchanged_parent():
     assert monthly['account']['decision_count']+monthly['stale_decisions_skipped']==monthly['reviews_scheduled']
     for name in monthly['downloads'].values():
         assert (PUBLIC/name).is_file()
+    annual=pd.read_csv(PUBLIC/monthly['downloads']['annual'])
+    assert annual.final_toman.iloc[-1]==pytest.approx(monthly['account']['final_toman'],abs=1)
+    assert annual.final_toman.iloc[0]==pytest.approx(monthly['annual'][0]['final_toman'],abs=1)

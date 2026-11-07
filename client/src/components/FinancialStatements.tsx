@@ -59,7 +59,9 @@ const fmtRatio = (v: number) =>
 
 // مقدارِ مطلق «هر سهم (ریال)»: مقدار خام هم‌واحد گزارش × ۱۰۰۰ ÷ سرمایه.
 // برای سود خالص این دقیقاً EPS را بازتولید می‌کند (لنگر سمت سرور چک شده است).
-const perShare = (amount: FSAmount | undefined, capital: number | null | undefined): number | null => {
+const perShare = (amount: FSAmount | undefined, period: FSPeriod): number | null => {
+  if (period.amounts_in_rial) return null;
+  const capital = period.income_statement.capital;
   const cur = amount?.current;
   if (cur == null || capital == null || capital === 0) return null;
   return (cur * 1000) / capital;
@@ -107,7 +109,7 @@ function buildIncomeRows(periods: FSPeriod[]): Row[] {
       hint: "درآمد هم‌واحد گزارش باز-مقیاس‌شده به هر سهم (ریال)",
       kind: "rial",
       values: periods.map((p) =>
-        perShare(p.income_statement.revenue, p.income_statement.capital)
+        perShare(p.income_statement.revenue, p)
       ),
     },
     {
@@ -116,7 +118,7 @@ function buildIncomeRows(periods: FSPeriod[]): Row[] {
       hint: "سود خالص هم‌واحد گزارش باز-مقیاس‌شده — باید با سطر EPS هم‌خوان باشد",
       kind: "rial",
       values: periods.map((p) =>
-        perShare(p.income_statement.net_profit, p.income_statement.capital)
+        perShare(p.income_statement.net_profit, p)
       ),
     },
     {
@@ -151,11 +153,11 @@ function buildIncomeRows(periods: FSPeriod[]): Row[] {
     {
       key: "capital",
       label: "سرمایه",
-      hint: "هم‌واحد گزارش کدال",
+      hint: periods[0]?.amounts_in_rial ? "ریال" : "هم‌واحد گزارش کدال",
       kind: "raw",
       values: periods.map((p) => num(p.income_statement.capital)),
       warnIfUnitInconsistent: true,
-      section: "مبالغ هم‌واحد گزارش",
+      section: periods[0]?.amounts_in_rial ? "مبالغ (ریال)" : "مبالغ هم‌واحد گزارش",
     },
     {
       key: "revenue",
@@ -198,7 +200,7 @@ function buildBalanceRows(periods: FSPeriod[]): Row[] {
       hint: "حقوق صاحبان سهام باز-مقیاس‌شده به هر سهم (ریال)",
       kind: "rial",
       values: periods.map((p) =>
-        perShare(p.balance_sheet.total_equity, p.income_statement.capital)
+        perShare(p.balance_sheet.total_equity, p)
       ),
       section: "هر سهم (ریال)",
     },
@@ -229,7 +231,7 @@ function buildBalanceRows(periods: FSPeriod[]): Row[] {
       kind: "raw",
       values: periods.map((p) => num(p.balance_sheet.total_assets.current)),
       warnIfUnitInconsistent: true,
-      section: "مبالغ هم‌واحد گزارش",
+      section: periods[0]?.amounts_in_rial ? "مبالغ (ریال)" : "مبالغ هم‌واحد گزارش",
     },
     {
       key: "current_assets",
@@ -292,7 +294,7 @@ function buildCashflowRows(periods: FSPeriod[]): Row[] {
       hint: "خالص جریان‌های نقدی عملیاتی (تجمعی) باز-مقیاس‌شده به هر سهم (ریال)",
       kind: "rial",
       values: periods.map((p) =>
-        perShare(p.cash_flow.operating, p.income_statement.capital)
+        perShare(p.cash_flow.operating, p)
       ),
       goodWhenPositive: true,
       section: "هر سهم (ریال)",
@@ -311,7 +313,7 @@ function buildCashflowRows(periods: FSPeriod[]): Row[] {
       kind: "raw",
       values: periods.map((p) => num(p.cash_flow.operating.current)),
       warnIfUnitInconsistent: true,
-      section: "مبالغ هم‌واحد گزارش",
+      section: periods[0]?.amounts_in_rial ? "مبالغ (ریال)" : "مبالغ هم‌واحد گزارش",
     },
     {
       key: "ocf_ly",
@@ -397,7 +399,7 @@ export default function FinancialStatements({ companyName }: FinancialStatements
     () =>
       chronological.map((p) => ({
         name: faDigits(p.report_date),
-        value: p.income_statement.eps_rial ?? 0,
+        value: num(p.income_statement.eps_rial),
       })),
     [chronological]
   );
@@ -406,8 +408,8 @@ export default function FinancialStatements({ companyName }: FinancialStatements
     () =>
       chronological.map((p) => ({
         name: faDigits(p.report_date),
-        جاری: p.derived.current_assets_pct ?? 0,
-        بدهی: p.derived.debt_to_assets_pct ?? 0,
+        جاری: num(p.derived.current_assets_pct),
+        بدهی: num(p.derived.debt_to_assets_pct),
       })),
     [chronological]
   );
@@ -416,7 +418,7 @@ export default function FinancialStatements({ companyName }: FinancialStatements
     () =>
       chronological.map((p) => ({
         name: faDigits(p.report_date),
-        value: perShare(p.cash_flow.operating, p.income_statement.capital) ?? 0,
+        value: perShare(p.cash_flow.operating, p),
       })),
     [chronological]
   );
@@ -588,8 +590,8 @@ export default function FinancialStatements({ companyName }: FinancialStatements
           </div>
 
           <p className="mt-3 text-[11px] leading-5 text-gray-400 dark:text-gray-500">
-            {data?.unit_note} مقادیر «هر سهم» با لنگر EPS×سرمایه از مبالغ
-            هم‌واحد گزارش باز-مقیاس شده‌اند.
+            {data?.unit_note}
+            {!data?.periods.some((period) => period.amounts_in_rial) && " مقادیر «هر سهم» با لنگر EPS×سرمایه از مبالغ هم‌واحد گزارش باز-مقیاس شده‌اند."}
           </p>
         </>
       )}
@@ -611,7 +613,7 @@ function MiniChart({
   series,
 }: {
   title: string;
-  data: Record<string, number | string>[];
+  data: Record<string, number | string | null>[];
   type: "bar" | "line";
   series?: MiniSeries[];
 }) {

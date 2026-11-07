@@ -1,5 +1,9 @@
 # محل ثبت و پشتیبان استراتژی منتخب RFA
 
+**مدل نهایی منتخب کاربر: FactorMix · ماهانه ۱۵.** انتخاب جاری در
+`selected_strategy.json` ثبت شده است. مسیر اصلی `/strategy` همین مدل را
+نشان می‌دهد؛ ReportFlow و نسخهٔ فصلی برای مرور سوابق در آرشیو قرار دارند.
+
 نسخهٔ مستقل **FactorMix-033 · ماهانه ۱۵، نسخهٔ ۱٫۰٫۰** نیز ثبت شده است:
 
 - [قواعد و راهنمای استفادهٔ ماهانه](D:/RFA/Company-Financial/strategy_registry/RFA-FactorMix-033-M15/v1.0.0/STRATEGY.fa.md)

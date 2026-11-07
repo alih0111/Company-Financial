@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"go-app/config"
 	"go-app/integration"
 
 	"github.com/gin-gonic/gin"
@@ -155,22 +156,22 @@ func callAgentModel(req agentRequest) (agentMessage, string, error) {
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
 
-	client := &http.Client{Timeout: agentCallTimeout}
+	client := &http.Client{Timeout: agentCallTimeout, CheckRedirect: rejectAIRedirect}
 	resp, err := client.Do(httpReq)
 	if err != nil {
-		return agentMessage{}, "", err
+		return agentMessage{}, "", fmt.Errorf("AI provider request failed")
 	}
 	defer resp.Body.Close()
-	raw, _ := io.ReadAll(resp.Body)
+	raw, _ := io.ReadAll(io.LimitReader(resp.Body, 4<<20))
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return agentMessage{}, "", fmt.Errorf("ai status=%d body=%s", resp.StatusCode, truncateForLog(string(raw), 300))
+		return agentMessage{}, "", fmt.Errorf("AI provider status=%d", resp.StatusCode)
 	}
 	var parsed agentResponse
 	if err := json.Unmarshal(raw, &parsed); err != nil {
 		return agentMessage{}, "", fmt.Errorf("invalid ai response: %w", err)
 	}
 	if parsed.Error != nil {
-		return agentMessage{}, "", fmt.Errorf("ai error: %s", parsed.Error.Message)
+		return agentMessage{}, "", fmt.Errorf("AI provider rejected the request")
 	}
 	if len(parsed.Choices) == 0 {
 		return agentMessage{}, "", fmt.Errorf("ai response has no choices")
@@ -223,6 +224,12 @@ func runChatAgent(c *gin.Context, userMessage string, history []chatIncomingMess
 	if err != nil {
 		return "", nil, err
 	}
+	if !c.GetBool("isAdmin") {
+		rows, err = limitedChatRows(c, userMessage, rows)
+		if err != nil {
+			return "", nil, err
+		}
+	}
 	tools := newChatToolset(rows)
 	toolsUsed := make([]string, 0, 4)
 
@@ -230,6 +237,9 @@ func runChatAgent(c *gin.Context, userMessage string, history []chatIncomingMess
 	specs := make([]agentToolSpec, 0, len(tools))
 	byName := make(map[string]chatTool, len(tools))
 	for _, t := range tools {
+		if !c.GetBool("isAdmin") && (t.name == "critique_my_portfolio" || t.name == "get_my_portfolio") {
+			continue
+		}
 		var s agentToolSpec
 		s.Type = "function"
 		s.Function.Name = t.name
@@ -243,7 +253,7 @@ func runChatAgent(c *gin.Context, userMessage string, history []chatIncomingMess
 	if looksHard(normalizeFaText(userMessage)) {
 		model = aiModel("hard")
 	}
-	log.Printf("chat-agent: model=%s tools=%d question=%q", model, len(specs), truncateForLog(userMessage, 80))
+	log.Printf("chat-agent: tools=%d", len(specs))
 
 	msgs := []agentMessage{{Role: "system", Content: agentSystemPromptFa}}
 	start := 0
@@ -287,6 +297,9 @@ func runChatAgent(c *gin.Context, userMessage string, history []chatIncomingMess
 
 		// پیام دستیار با درخواست‌های ابزار + نتایج هر ابزار
 		msgs = append(msgs, agentMessage{Role: "assistant", Content: msg.Content, ToolCalls: msg.ToolCalls})
+		if !c.GetBool("isAdmin") && len(msg.ToolCalls) > 4 {
+			return "", toolsUsed, fmt.Errorf("too many tool calls")
+		}
 		for _, call := range msg.ToolCalls {
 			tool, ok := byName[call.Function.Name]
 			if !ok {
@@ -304,10 +317,19 @@ func runChatAgent(c *gin.Context, userMessage string, history []chatIncomingMess
 			}
 			sink(agentEvent{Type: "tool_start", Tool: call.Function.Name})
 			out, err := tool.run(c.Request.Context(), username, args)
+			if err == nil {
+				if accessErr := chargeChatOutput(c, out, nil); accessErr != nil {
+					return "", toolsUsed, accessErr
+				}
+			}
 			if err != nil {
 				log.Printf("chat-agent: tool %s failed: %v", call.Function.Name, err)
-				out = "خطا در اجرای ابزار: " + err.Error()
-				sink(agentEvent{Type: "tool_error", Tool: call.Function.Name, Error: truncateForLog(err.Error(), 120)})
+				message := err.Error()
+				if config.Production() {
+					message = "دادهٔ ابزار در دسترس نیست."
+				}
+				out = "خطا در اجرای ابزار: " + message
+				sink(agentEvent{Type: "tool_error", Tool: call.Function.Name, Error: truncateForLog(message, 120)})
 			} else {
 				log.Printf("chat-agent: tool %s ok (%d chars)", call.Function.Name, len(out))
 				sink(agentEvent{Type: "tool_done", Tool: call.Function.Name, Chars: len(out)})

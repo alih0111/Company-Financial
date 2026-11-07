@@ -136,6 +136,10 @@ def paper_inputs(frozen, market, md, snapshots):
 
 def cycle(now=None, *, init=False):
     now = now or datetime.now(timezone.utc)
+    if (HERE / 'retired.json').exists():
+        return dict(state='ARCHIVED', strategy_id='RFA-ReportFlow-033-v1.0.0',
+                    message='آزمایش ReportFlow بایگانی شده است؛ مدل نهایی FactorMix ماهانهٔ ۱۵ است. حساب قبلی حفظ شده و بررسی تازه انجام نمی‌شود.',
+                    automatic_enabled=False, broker_execution_enabled=False)
     STATE.mkdir(parents=True, exist_ok=True)
     if init:
         initialize(now)
@@ -228,13 +232,13 @@ def cycle(now=None, *, init=False):
 def main():
     parser = argparse.ArgumentParser(); parser.add_argument('--init', action='store_true')
     args = parser.parse_args(); STATE.mkdir(parents=True, exist_ok=True)
-    import msvcrt
+    from runtime_lock import acquire_file_lock, release_file_lock
     with (STATE / 'service.lock').open('a+b') as handle:
         handle.seek(0)
         if not handle.read(1): handle.write(b'0'); handle.flush()
         handle.seek(0)
         try:
-            msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+            acquire_file_lock(handle)
         except OSError:
             return
         try:
@@ -245,7 +249,7 @@ def main():
             atomic(STATE / 'status.json', dict(state='FAILED', message='بررسی خودکار ناموفق بود؛ حساب قبلی حفظ شده است.', error=str(exc)))
             raise
         finally:
-            handle.seek(0); msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+            release_file_lock(handle)
 
 
 if __name__ == '__main__':

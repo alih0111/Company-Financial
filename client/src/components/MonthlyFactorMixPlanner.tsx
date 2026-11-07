@@ -1,6 +1,8 @@
+import { API_BASE } from "../config";
+import { apiFetch } from "../utils/request";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { monthlyBasketPlan, parseToman, type MonthlyRanking, type MonthlyPlan } from "./monthlyBasketPlan.js";
+import { parseToman, type MonthlyRanking, type MonthlyPlan } from "./monthlyBasketPlan.js";
 
 const n = (value:number) => new Intl.NumberFormat("fa-IR",{maximumFractionDigits:0}).format(value);
 const pct = (value:number) => new Intl.NumberFormat("fa-IR",{style:"percent",maximumFractionDigits:1}).format(value);
@@ -12,16 +14,20 @@ export default function MonthlyFactorMixPlanner({ranking,busy}:{ranking:MonthlyR
   const [holdings,setHoldings] = useState<{symbol:string;value:string}[]>([]);
   const [result,setResult] = useState<MonthlyPlan|null>(null);
   const [error,setError] = useState("");
+  const [planning,setPlanning]=useState(false);
   const today = new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Tehran",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date());
   const current = result && ranking && result.ranking_computed_at_utc === ranking.computed_at_utc && !busy;
   const fresh = ranking?.date === today;
   const snapshotNote = !fresh ? "امتیازها مربوط به امروز نیستند؛ برای تصمیم جدید ابتدا «به‌روزرسانی امتیازها» را بزنید." : "تاریخ قیمت را هم بررسی کنید؛ محاسبهٔ امروز با قیمت قدیمی، به معنی آماده بودن دادهٔ جلسهٔ پانزدهم نیست.";
-  function review() {
-    setError(""); setResult(null);
+  async function review() {
+    setError(""); setResult(null); setPlanning(true);
     try {
       if (!ranking) throw new Error("ابتدا امتیازهای FactorMix را به‌روز کنید.");
-      setResult(monthlyBasketPlan(ranking,holdings.map(h=>({symbol:h.symbol,value_toman:parseToman(h.value)})),parseToman(cash)));
-    } catch (e) { setError(e instanceof Error ? e.message : "بررسی ناموفق بود."); }
+      const funds=parseToman(cash);const positions=holdings.map(h=>({symbol:h.symbol,value_toman:parseToman(h.value)}));
+      if(!Number.isFinite(funds)||funds<0||positions.some(h=>!Number.isFinite(h.value_toman)||h.value_toman<=0))throw new Error("مقادیر نقد و دارایی معتبر نیستند.");
+      const response=await apiFetch(`${API_BASE}/factormix/plan`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({cash_toman:funds,holdings:positions})});
+      const body=await response.json();if(!response.ok)throw new Error(body.error||"بررسی سبد ناموفق بود.");setResult(body);
+    } catch (e) { setError(e instanceof Error ? e.message : "بررسی ناموفق بود."); } finally {setPlanning(false);}
   }
   function download() {
     if (!result || !current) return;
@@ -34,14 +40,14 @@ export default function MonthlyFactorMixPlanner({ranking,busy}:{ranking:MonthlyR
     <p className="mt-2 text-sm leading-8 text-slate-600 dark:text-slate-300">گزارش‌های جدید را در طول ماه جمع کنید. روز ۱۵، یا اولین جلسهٔ سهام بعد از آن، پس از پایان بازار گزارش‌ها و قیمت‌ها را به‌روز و سپس امتیازها را محاسبه کنید. تغییرهای لازم از جلسهٔ بعد بررسی و اجرا می‌شوند.</p>
     <p className="mt-2 text-xs leading-7 text-slate-500">ارزش روز همهٔ دارایی‌های همین سبد و نقد را وارد کنید. برای شروع با پول نقد، دارایی اضافه نکنید. این فرم پیشنهاد می‌سازد؛ سفارش کارگزاری و ثبت معامله انجام نمی‌دهد. ورودی‌ها با خروج از صفحه پاک می‌شوند.</p>
     <p role="status" className="mt-2 text-xs leading-7 text-amber-700 dark:text-amber-300">{snapshotNote} بررسی خارج از موعد، پیش‌نمایش است.</p>
-    <label className="mt-4 grid max-w-xs gap-2 text-xs">نقد فعلی سبد · تومان<input className={field} inputMode="numeric" value={cash} placeholder="مثلاً ۱۰۰٬۰۰۰٬۰۰۰" onChange={e=>{setCash(e.target.value);setResult(null);}} /></label>
+    <label className="mt-4 grid max-w-xs gap-2 text-xs">نقد فعلی سبد · تومان<input disabled={planning} className={field} inputMode="numeric" value={cash} placeholder="مثلاً ۱۰۰٬۰۰۰٬۰۰۰" onChange={e=>{setCash(e.target.value);setResult(null);}} /></label>
     <datalist id="monthly-model-symbols">{ranking?.rows.map(r=><option value={r.symbol} key={r.symbol}/>)}</datalist>
     <div className="mt-3 space-y-3">{holdings.map((h,i)=><div className="flex flex-wrap items-end gap-2" key={i}>
-      <label className="grid min-w-0 flex-1 gap-2 text-xs">نماد دارایی {n(i+1)}<input className={field} list="monthly-model-symbols" value={h.symbol} onChange={e=>{setHoldings(holdings.map((row,k)=>k===i?{...row,symbol:e.target.value}:row));setResult(null);}} /></label>
-      <label className="grid min-w-0 flex-1 gap-2 text-xs">ارزش روز دارایی {n(i+1)} · تومان<input className={field} inputMode="numeric" value={h.value} onChange={e=>{setHoldings(holdings.map((row,k)=>k===i?{...row,value:e.target.value}:row));setResult(null);}} /></label>
-      <button className={button} aria-label={`حذف دارایی ${n(i+1)}`} onClick={()=>{setHoldings(holdings.filter((_,k)=>k!==i));setResult(null);}}>حذف</button>
+      <label className="grid min-w-0 flex-1 gap-2 text-xs">نماد دارایی {n(i+1)}<input disabled={planning} className={field} list="monthly-model-symbols" value={h.symbol} onChange={e=>{setHoldings(holdings.map((row,k)=>k===i?{...row,symbol:e.target.value}:row));setResult(null);}} /></label>
+      <label className="grid min-w-0 flex-1 gap-2 text-xs">ارزش روز دارایی {n(i+1)} · تومان<input disabled={planning} className={field} inputMode="numeric" value={h.value} onChange={e=>{setHoldings(holdings.map((row,k)=>k===i?{...row,value:e.target.value}:row));setResult(null);}} /></label>
+      <button className={button} disabled={planning} aria-label={`حذف دارایی ${n(i+1)}`} onClick={()=>{setHoldings(holdings.filter((_,k)=>k!==i));setResult(null);}}>حذف</button>
     </div>)}</div>
-    <div className="mt-4 flex flex-wrap gap-2"><button className={button} onClick={()=>{setHoldings([...holdings,{symbol:"",value:""}]);setResult(null);}}>افزودن دارایی</button><button className={`${button} bg-violet-700 text-white`} disabled={!ranking || busy} onClick={review}>بررسی سبد ماهانه</button><Link className={button} to="/strategy/performance">نمودار عملکرد و نسخهٔ ثبت‌شده</Link></div>
+    <div className="mt-4 flex flex-wrap gap-2"><button className={button} disabled={holdings.length>=10 || planning} onClick={()=>{setHoldings([...holdings,{symbol:"",value:""}]);setResult(null);}}>افزودن دارایی</button><button className={`${button} bg-violet-700 text-white`} disabled={!ranking || busy || planning} onClick={review}>بررسی سبد ماهانه</button><Link className={button} to="/strategy/performance">نمودار عملکرد و نسخهٔ ثبت‌شده</Link></div>
     {error && <p className="mt-3 text-sm text-rose-600" role="alert">{error}</p>}
     {result && !current && <p className="mt-3 text-sm text-amber-700" role="status">امتیازها تغییر کرده‌اند؛ برای پیشنهاد تازه دوباره بررسی کنید.</p>}
     {result && current && <div className="mt-5 space-y-3" aria-label="پیشنهاد سبد ماهانه">

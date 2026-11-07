@@ -6,6 +6,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import Select, { type GroupBase, type StylesConfig } from "react-select";
 import { fetchCompanyNames, getMarketAssets } from "../utils/api";
 import { useDarkMode } from "../utils/theme";
+import { cachedResource } from "../utils/cachedResource";
+import { sessionRevision } from "../hooks/useGetUser";
 
 export type AssetKind = "stock" | "fund" | "index";
 
@@ -18,7 +20,6 @@ export interface AssetOption {
 type AssetGroup = GroupBase<AssetOption>;
 
 // ── کش ماژولی گزینه‌ها — در همه‌ی صفحات مشترک است ──
-let optionsCache: { at: number; options: AssetOption[] } | null = null;
 const OPTIONS_TTL = 10 * 60 * 1000;
 
 const KIND_LABEL: Record<AssetKind, string> = {
@@ -32,6 +33,7 @@ async function loadOptions(): Promise<AssetOption[]> {
     fetchCompanyNames(),
     getMarketAssets(),
   ]);
+  if (namesRes.status === "rejected" && assetsRes.status === "rejected") throw namesRes.reason;
 
   const options: AssetOption[] = [];
   const seen = new Set<string>();
@@ -63,18 +65,19 @@ async function loadOptions(): Promise<AssetOption[]> {
   return options;
 }
 
+const optionsResource = cachedResource(loadOptions, OPTIONS_TTL);
+
 function useAssetOptions() {
-  const [options, setOptions] = useState<AssetOption[]>(() => optionsCache?.options ?? []);
-  const [loading, setLoading] = useState(!optionsCache);
+  const [options, setOptions] = useState<AssetOption[]>([]);
+  const [loading, setLoading] = useState(true);
+  const sessionKey = String(sessionRevision());
 
   useEffect(() => {
-    if (optionsCache && Date.now() - optionsCache.at < OPTIONS_TTL) return;
     let alive = true;
     setLoading(true);
-    loadOptions()
+    optionsResource.load(sessionKey)
       .then((opts) => {
-        if (!alive || opts.length === 0) return;
-        optionsCache = { at: Date.now(), options: opts };
+        if (!alive) return;
         setOptions(opts);
       })
       .catch(() => undefined)
@@ -82,7 +85,7 @@ function useAssetOptions() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [sessionKey]);
 
   const groups = useMemo<AssetGroup[]>(() => {
     const order: AssetKind[] = ["index", "fund", "stock"];

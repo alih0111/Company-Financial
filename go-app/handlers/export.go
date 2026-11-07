@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"go-app/config"
 
@@ -236,9 +237,14 @@ func ExportScoresCSV(c *gin.Context) {
 }
 
 func csvStr(s string) string {
-	s = strings.ReplaceAll(s, "\"", "'")
 	s = strings.ReplaceAll(s, "\n", " ")
 	s = strings.ReplaceAll(s, "\r", "")
+	s = strings.ReplaceAll(s, "\x00", "")
+	trimmed := strings.TrimLeftFunc(s, func(r rune) bool { return unicode.IsSpace(r) || unicode.IsControl(r) || r == '\ufeff' })
+	if len(trimmed) > 0 && strings.ContainsAny(trimmed[:1], "=+-@") {
+		s = "'" + s
+	}
+	s = strings.ReplaceAll(s, "\"", "\"\"")
 	return "\"" + s + "\""
 }
 

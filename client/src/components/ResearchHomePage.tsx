@@ -79,11 +79,12 @@ const factorNames: Record<string, string> = {
   volatility_30d: "نوسان ۳۰روزه", price_momentum_30d: "شتاب قیمت ۳۰روزه",
 };
 
-function useResearchSources() {
+function useResearchSources(enabled: boolean) {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [error, setError] = useState("");
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
+    if (!enabled) return;
     const controller = new AbortController();
     setLoaded(null);
     setError("");
@@ -113,7 +114,7 @@ function useResearchSources() {
       if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "خطای ناشناخته در خواندن منابع محلی.");
     });
     return () => controller.abort();
-  }, [attempt]);
+  }, [attempt, enabled]);
   return { loaded, error, retry: () => setAttempt((value) => value + 1) };
 }
 
@@ -129,11 +130,12 @@ export default function ResearchHomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = ["paper", "method", "archive"].includes(searchParams.get("view") ?? "") ? searchParams.get("view")! : "overview";
   const setTab = (value: string) => setSearchParams(value === "overview" ? {} : { view: value });
-  const { loaded, error, retry } = useResearchSources();
+  const { loaded, error, retry } = useResearchSources(tab === "overview" || tab === "method");
+  const [ledgerOpen, setLedgerOpen] = useState(false);
   const [officialLogs, setOfficialLogs] = useState<{ events: LedgerRow[]; decisions: LedgerRow[] } | null>(null);
   const [ledgerError, setLedgerError] = useState("");
   useEffect(() => {
-    if (loaded?.official.status !== "ACTIVE") { setOfficialLogs(null); setLedgerError(""); return; }
+    if (tab !== "overview" || !ledgerOpen || loaded?.official.status !== "ACTIVE") return;
     const controller = new AbortController();
     const readJsonl = async (url: string) => {
       const response = await fetch(url, { signal: controller.signal, cache: "no-cache" });
@@ -145,7 +147,7 @@ export default function ResearchHomePage() {
       .then(([events, decisions]) => setOfficialLogs({ events, decisions }))
       .catch((reason: unknown) => { if (!controller.signal.aborted) setLedgerError(reason instanceof Error ? reason.message : "خطا در خواندن دفتر رسمی."); });
     return () => controller.abort();
-  }, [loaded]);
+  }, [loaded, tab, ledgerOpen]);
   const weights = useMemo(() => {
     if (!loaded) return [];
     return loaded.contract.methods.map((method) => ({ method, rows: loaded.contract.factor_order.map((factor, i) => ({ factor, weight: method.weights[i] })) }));
@@ -189,7 +191,7 @@ export default function ResearchHomePage() {
         {readiness?.missing_inputs?.length ? <details className="rounded-xl bg-slate-50 p-3 text-sm dark:bg-slate-900"><summary className="cursor-pointer font-semibold">جزئیات فنی ورودی‌های قرارداد V12.28</summary><ul className="mt-2 list-disc space-y-2 px-5 leading-6">{readiness.missing_inputs.map((item) => <li key={item.input}><strong>{item.input}:</strong> {item.needed_for}</li>)}</ul></details> : null}
       </section>
 
-      <details className="space-y-3 rounded-2xl border border-slate-200 p-4 dark:border-slate-700"><summary className="cursor-pointer font-bold">دفتر ارزیابی آینده و نتیجه‌ها</summary>{active ? <>
+      <details onToggle={(event) => setLedgerOpen(event.currentTarget.open)} className="space-y-3 rounded-2xl border border-slate-200 p-4 dark:border-slate-700"><summary className="cursor-pointer font-bold">دفتر ارزیابی آینده و نتیجه‌ها</summary>{active ? <>
         <p className="text-sm leading-7">داده‌های این بخش فقط از دفتر رسمی آینده خوانده می‌شوند؛ تاریخچهٔ شبیه‌سازی وارد آن نمی‌شود.</p>
         {ledgerError ? <p role="alert" className="text-sm">دفتر رسمی بارگذاری نشد؛ دادهٔ جایگزین نمایش داده نمی‌شود. {ledgerError}</p> : !officialLogs ? <p role="status" className="text-sm">در حال خواندن دفتر رسمی…</p> : <>
           <div className="grid gap-3 sm:grid-cols-2">{Object.entries(loaded?.official.account_results ?? {}).map(([method, result]) => <article key={method} className="rounded-xl bg-slate-50 p-3 text-sm leading-7 dark:bg-slate-800"><h3 className="font-bold">حساب {method}</h3><p>وجه نقد: {result.cash_toman == null ? "هنوز مشخص نیست" : `${fmt(result.cash_toman)} تومان`}</p><p>دارایی: {result.holdings_actual_shares ? Object.entries(result.holdings_actual_shares).filter(([, qty]) => qty > 0).map(([symbol, qty]) => `${symbol} (${fmt(qty)} سهم)`).join("، ") || "بدون سهم ثبت‌شده" : "هنوز مشخص نیست"}</p><p>NAV: {result.nav_toman == null ? "هنوز مشخص نیست" : `${fmt(result.nav_toman)} تومان`} · سود خالص: {result.net_profit_toman == null ? "هنوز مشخص نیست" : `${fmt(result.net_profit_toman)} تومان`} · کارمزد: {result.fees_toman == null ? "هنوز مشخص نیست" : `${fmt(result.fees_toman)} تومان`}</p></article>)}</div>

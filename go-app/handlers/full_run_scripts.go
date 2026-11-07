@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gin-gonic/gin"
+	_ "github.com/microsoft/go-mssqldb"
 )
 
 type BulkFetchRequest struct {

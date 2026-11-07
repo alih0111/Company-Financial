@@ -6,6 +6,8 @@ the same-date equal-weight full base product universe. Gates SG1-SG8 applied mec
 """
 from __future__ import annotations
 
+import os
+
 import bisect
 import datetime as dt
 import gzip
@@ -49,7 +51,7 @@ def main() -> int:
 
     # outcomes: adjusted returns from raw pClosing + CONFIRMED factors
     import psycopg
-    DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+    DSN = os.environ["CDF_RESEARCH_DSN"]
     ca_events = {}
     with psycopg.connect(DSN) as pg, pg.cursor() as cur:
         cur.execute("""SELECT s.codal_symbol, ca.action_date, ca.adjustment_factor

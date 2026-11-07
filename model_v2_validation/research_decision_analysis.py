@@ -27,6 +27,8 @@ REGIME_MECHANISM_EVIDENCE rubric (stated BEFORE computing):
 """
 from __future__ import annotations
 
+import os
+
 import bisect
 import csv
 import datetime as dt
@@ -119,7 +121,7 @@ def main() -> int:
     import os
     os.environ.setdefault("CDF_PILOT_DB", "company_financial_analytics_shadow_v121")
     import psycopg
-    DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+    DSN = os.environ["CDF_RESEARCH_DSN"]
     with psycopg.connect(DSN) as pg, pg.cursor() as cur:
         cur.execute("""SELECT s.codal_symbol, ca.action_date FROM market.corporate_actions ca
                        JOIN core.securities s ON s.id=ca.security_id

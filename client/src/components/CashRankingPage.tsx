@@ -1,3 +1,5 @@
+import { sessionHeaders } from "../hooks/useGetUser";
+import { apiFetch } from "../utils/request";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { API_BASE } from "../config";
 import QvtRankingPage from "./QvtRankingPage";
@@ -44,7 +46,7 @@ export default function CashRankingPage() {
   useEffect(() => {
     const controller = new AbortController();
     let retry: number | undefined;
-    const load = () => { fetch(`${API_BASE}/ranking/cash-review`, { signal: controller.signal, headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } })
+    const load = () => { apiFetch(`${API_BASE}/ranking/cash-review`, { signal: controller.signal, headers: { ...sessionHeaders() } })
       .then(async response => { if (!response.ok) throw new Error("دریافت رتبه‌بندی جدید ممکن نشد؛ دوباره صفحه را باز کنید."); return response.json() as Promise<Ranking>; })
       .then(result => { if (result.version !== "cash-backed-review-v1" || result.promotion_ready !== false || result.real_orders !== 0) throw new Error("نسخهٔ رتبه‌بندی قابل تأیید نیست."); setData(result); if (!result.classification_summary) { setList("all"); retry = window.setTimeout(load, 15000); } })
       .catch((e: Error) => { if (e.name !== "AbortError") setError(e.message); });

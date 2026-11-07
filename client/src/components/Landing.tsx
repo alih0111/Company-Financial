@@ -1,3 +1,4 @@
+import { apiFetch } from "../utils/request";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -372,7 +373,7 @@ const TickerTape: React.FC = () => {
       // وقتی تب مخفی است درخواست نزنیم — با بازگشت کاربر دوباره گرفته می‌شود
       if (document.hidden) return;
       try {
-        const res = await fetch(`${API_BASE}/market/ticker`);
+        const res = await apiFetch(`${API_BASE}/market/ticker`);
         if (!res.ok) throw new Error(String(res.status));
         const data = (await res.json()) as { items?: TickerItem[] };
         if (!alive) return;

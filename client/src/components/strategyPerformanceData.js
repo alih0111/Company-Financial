@@ -151,7 +151,7 @@ export function drawdownComparison(replay,definitions,maxAgeDays=7,preserveWindo
   const path=aligned.points.length>=2 ? aligned.points : replay.path;
   const start=path[0].date,end=path[path.length-1].date;
   const series=[
-    {id:"drawdown",label:"FactorMix-033",color:"#059669",max_drawdown:0},
+    {id:"drawdown",label:"FactorMix · فصلی قدیمی",color:"#059669",max_drawdown:0},
     {id:"baseline_drawdown",label:"مدل قبلی P1",color:"#94a3b8",max_drawdown:0},
   ];
   if (replay.monthly15) series.push({id:"monthly15_drawdown",label:replay.monthly15.label,color:"#7c3aed",max_drawdown:0});

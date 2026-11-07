@@ -24,9 +24,10 @@ import (
 //   CDF_SQLSERVER_MODE    = active | fallback | offline_expected (default: active)
 
 var (
-	pgOnce   sync.Once
-	pgDB     *sql.DB
-	pgErr    error
+	pgMu      sync.Mutex
+	pgRetryAt time.Time
+	pgDB      *sql.DB
+	pgErr     error
 )
 
 var allowedPGPrefixes = []string{
@@ -88,7 +89,16 @@ func firstEnv(keys ...string) string {
 // GetPG returns a lazily-initialized read-write canonical PostgreSQL pool.
 // Returns (nil, error) when not configured; callers must handle nil.
 func GetPG() (*sql.DB, error) {
-	pgOnce.Do(func() {
+	pgMu.Lock()
+	defer pgMu.Unlock()
+	if pgDB != nil {
+		return pgDB, nil
+	}
+	if time.Now().Before(pgRetryAt) {
+		return nil, pgErr
+	}
+	pgRetryAt = time.Now().Add(5 * time.Second)
+	func() {
 		dsn, err := pgDSNReadWrite()
 		if err != nil {
 			pgErr = err
@@ -99,8 +109,8 @@ func GetPG() (*sql.DB, error) {
 			pgErr = err
 			return
 		}
-		db.SetMaxOpenConns(8)
-		db.SetMaxIdleConns(2)
+		db.SetMaxOpenConns(16)
+		db.SetMaxIdleConns(4)
 		db.SetConnMaxLifetime(30 * time.Minute)
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -110,7 +120,8 @@ func GetPG() (*sql.DB, error) {
 			return
 		}
 		pgDB = db
-	})
+		pgErr = nil
+	}()
 	return pgDB, pgErr
 }
 

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import {
   cancelCodalSyncJob,
   getActiveCodalSyncJob,
@@ -13,6 +13,7 @@ import CodalCaptchaPanel from "./CodalCaptchaPanel";
 import { getCaptchaPanelCount, subscribeCaptchaPanel } from "./codalCaptchaVisibility";
 
 const POLL_MS = 3000;
+const IDLE_POLL_MS = 30_000;
 
 /**
  * Site-wide captcha prompt.
@@ -23,20 +24,17 @@ const POLL_MS = 3000;
  * panel as a floating card on every page: the operator types the code here and
  * the worker continues. Nothing is retried while it waits.
  */
-export default function CodalCaptchaWatcher() {
+export default function CodalCaptchaWatcher({ onWaitingChange }: { onWaitingChange: (waiting: boolean) => void }) {
   const { isAdmin } = getAuthStatus();
   const [job, setJob] = useState<CodalSyncJob | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const mountedInsideModal = useSyncExternalStore(subscribeCaptchaPanel, getCaptchaPanelCount);
 
-  const poll = useCallback(async () => {
-    try {
-      setJob(await getActiveCodalSyncJob());
-    } catch {
-      // The watcher is a safety net; a failed poll must stay silent.
-    }
-  }, []);
+  useEffect(() => {
+    onWaitingChange(job?.state === "waiting_captcha");
+    return () => onWaitingChange(false);
+  }, [job?.state, onWaitingChange]);
 
   useEffect(() => {
     if (!isAdmin) return;
@@ -44,15 +42,25 @@ export default function CodalCaptchaWatcher() {
     let timer = 0;
     const tick = async () => {
       if (stopped) return;
-      await poll();
-      if (!stopped) timer = window.setTimeout(tick, POLL_MS);
+      let delay = IDLE_POLL_MS;
+      if (document.visibilityState === "visible") {
+        try {
+          const next = await getActiveCodalSyncJob();
+          if (stopped) return;
+          setJob(next);
+          if (next) delay = POLL_MS;
+        } catch {
+          // A failed background check must stay silent.
+        }
+      }
+      if (!stopped) timer = window.setTimeout(tick, delay);
     };
     void tick();
     return () => {
       stopped = true;
       window.clearTimeout(timer);
     };
-  }, [isAdmin, poll]);
+  }, [isAdmin]);
 
   const challenge = job?.challenge;
   const visible =

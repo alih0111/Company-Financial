@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	_ "github.com/denisenkom/go-mssqldb"
 	"github.com/gin-gonic/gin"
+	_ "github.com/microsoft/go-mssqldb"
 
 	"go-app/config"
 	"go-app/integration"
@@ -44,6 +44,10 @@ func probeSQLServer() (bool, string) {
 func GetShadowHealth(c *gin.Context) {
 	sh := integration.Default()
 	st := sh.RefreshStatus(c.Request.Context())
+	canonicalError := st.CanonicalError
+	if config.Production() && canonicalError != "" {
+		canonicalError = "canonical backend unavailable"
+	}
 
 	sqlReachable, sqlNote := probeSQLServer()
 	sqlMode := config.SQLServerMode()
@@ -82,7 +86,7 @@ func GetShadowHealth(c *gin.Context) {
 		"postgres_status":      postgresStatus,
 		"canonical_configured": st.CanonicalConfigured,
 		"canonical_reachable":  st.CanonicalReachable,
-		"canonical_error":      st.CanonicalError,
+		"canonical_error":      canonicalError,
 		"analytics_status":     analytics,
 		"connectivity_status":  connectivity,
 		"score_version":        st.ScoreVersion,

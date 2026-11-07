@@ -19,6 +19,8 @@ The only market data read is the canonical trading calendar (trade dates).
 """
 from __future__ import annotations
 
+import os
+
 import bisect
 import datetime as dt
 import hashlib
@@ -38,7 +40,7 @@ sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 ROOT = Path(r"D:\RFA\Company-Financial")
 PB = ROOT / "historical_codal_backfill" / "output" / "pub_backfill"
 OUT = ROOT / "fundamental_event_research"
-DSN = "postgresql://postgres:pG%402027@localhost:5432/company_financial_analytics_shadow_v121"
+DSN = os.environ["CDF_RESEARCH_DSN"]
 
 TEHRAN = ZoneInfo("Asia/Tehran")
 UTC = dt.timezone.utc

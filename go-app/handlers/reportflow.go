@@ -14,6 +14,11 @@ import (
 
 var reportFlowBusy atomic.Bool
 
+func reportFlowArchived(root string) bool {
+	_, err := os.Stat(filepath.Join(root, "reportflow", "retired.json"))
+	return err == nil
+}
+
 // ReportFlow has its own account and files. It never invokes a broker or the
 // FactorMix publisher. The Python process also takes an OS-level lock.
 func StartReportFlowObserver() {
@@ -31,6 +36,9 @@ func queueReportFlowReview(source string) {
 		return
 	}
 	dir := filepath.Join(root, ".runtime", "reportflow")
+	if reportFlowArchived(root) {
+		return
+	}
 	if _, err := os.Stat(filepath.Join(dir, "account.json")); err != nil {
 		return
 	}
@@ -46,6 +54,9 @@ func reportFlowTick() {
 	defer reportFlowBusy.Store(false)
 	root, err := analyticsRepoRoot()
 	if err != nil {
+		return
+	}
+	if reportFlowArchived(root) {
 		return
 	}
 	dir := filepath.Join(root, ".runtime", "reportflow")
@@ -76,7 +87,8 @@ func GetReportFlow(c *gin.Context) {
 		c.JSON(500, gin.H{"error": "مسیر حساب مستقل در دسترس نیست."})
 		return
 	}
-	result := gin.H{"running": reportFlowBusy.Load(), "automatic_enabled": os.Getenv("REPORTFLOW_AUTOMATIC_ENABLED") != "0"}
+	archived := reportFlowArchived(root)
+	result := gin.H{"running": reportFlowBusy.Load(), "automatic_enabled": !archived && os.Getenv("REPORTFLOW_AUTOMATIC_ENABLED") != "0", "archived": archived, "selected_strategy_id": "RFA-FactorMix-033-M15-Buffer8-v1.0.0"}
 	for _, name := range []string{"status", "portfolio", "account", "worker-error"} {
 		raw, err := os.ReadFile(filepath.Join(root, ".runtime", "reportflow", name+".json"))
 		if err == nil && json.Valid(raw) {
@@ -94,6 +106,10 @@ func ReviewReportFlow(c *gin.Context) {
 	root, err := analyticsRepoRoot()
 	if err != nil {
 		c.JSON(500, gin.H{"error": "مسیر حساب مستقل در دسترس نیست."})
+		return
+	}
+	if reportFlowArchived(root) {
+		c.JSON(410, gin.H{"error": "آزمایش ReportFlow بایگانی شده است؛ از بررسی سبد ماهانهٔ FactorMix استفاده کنید."})
 		return
 	}
 	if _, err := os.Stat(filepath.Join(root, ".runtime", "reportflow", "account.json")); err != nil {

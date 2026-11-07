@@ -92,6 +92,9 @@ func DecryptString(cipherB64, nonceB64 string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if len(nonce) != gcm.NonceSize() || len(ct) < gcm.Overhead() {
+		return "", errors.New("invalid encrypted secret")
+	}
 	plain, err := gcm.Open(nil, nonce, ct, nil)
 	if err != nil {
 		return "", err

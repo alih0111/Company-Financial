@@ -223,16 +223,12 @@ const FamilyAssets = () => {
     setLoading(true);
     setError(null);
     try {
-      const [st, hist, fl, brk] = await Promise.all([
+      const [st, hist] = await Promise.all([
         getFamilyAssets(),
         getFamilyHistory(),
-        getFamilyCashFlows(),
-        getFamilyBrokerAccounts().catch(() => [] as FamilyBrokerAccount[]),
       ]);
       setState(st);
       setHistory(hist || []);
-      setFlows(fl || []);
-      setBrokerAccounts(brk || []);
       setPriceDate((prev) => prev || st.today_datekey);
       setFlowForm((f) => ({ ...f, date_key: f.date_key || st.today_datekey }));
       setPriceInputs((prev) => {
@@ -251,6 +247,18 @@ const FamilyAssets = () => {
   useEffect(() => {
     loadAll();
   }, [loadAll]);
+
+  useEffect(() => {
+    if (tab !== "flows" && tab !== "broker") return;
+    let active = true;
+    const load = tab === "flows"
+      ? getFamilyCashFlows().then((values) => { if (active) setFlows(values || []); })
+      : getFamilyBrokerAccounts().then((values) => { if (active) setBrokerAccounts(values || []); });
+    load.catch((reason: unknown) => {
+      if (active) setError(errorMessage(reason, "خطا در بارگذاری اطلاعات بخش"));
+    });
+    return () => { active = false; };
+  }, [tab, state]);
 
   useEffect(() => {
     if (!msg) return;
