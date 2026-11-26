@@ -33,8 +33,18 @@ CUTOFF = dt.date(2026, 9, 3)
 D1, D2, D3 = (dt.date(2026, 9, d) for d in (1, 2, 3))
 
 
-def emitted(watermark, stored):
-    rows = list(refresh_chart_prices.chart_rows("sid", BARS, "u", CUTOFF, watermark, stored))
+def stored_row(close, **overrides):
+    row = {"trade_date": None, "jalali_date_text": "1405/06/11", "open_price_rial": close,
+           "first_price_rial": close, "high_price_rial": close, "low_price_rial": close,
+           "closing_price_rial": close, "last_price_rial": close, "yesterday_price_rial": None,
+           "volume": 10, "trade_value_rial": None, "trade_count": None,
+           "closing_change_percent": None}
+    row.update(overrides)
+    return row
+
+
+def emitted(watermark, stored, raw=BARS):
+    rows = list(refresh_chart_prices.chart_rows("sid", raw, "u", CUTOFF, watermark, stored))
     return {row[1]: row for row in rows}
 
 
@@ -54,13 +64,13 @@ def test_pre_event_history_is_back_adjusted():
 
 def test_stale_stored_rows_are_re_emitted():
     # Stored legacy closes keep the old scale: repair must rewrite them.
-    rows = emitted(D2, {D1: 100.0, D2: 110.0})
+    rows = emitted(D2, {D1: stored_row(100.0), D2: stored_row(110.0)})
     assert set(rows) == {D1, D2, D3}
 
 
 def test_consistent_stored_rows_are_not_rewritten():
     # Matching adjusted history must stay untouched to avoid daily row bloat.
-    rows = emitted(D2, {D1: 50.0, D2: 55.0})
+    rows = emitted(D2, {D1: stored_row(50.0), D2: stored_row(55.0)})
     assert set(rows) == {D2, D3}
 
 
@@ -70,7 +80,33 @@ def test_empty_watermark_emits_full_history():
 
 def test_stale_row_tolerance():
     stale = refresh_chart_prices.stale_row
-    assert not stale({D1: 50.0}, D1, 50.0)
-    assert not stale({D1: 50.0}, D1, 50.04)  # rounding noise stays put
-    assert stale({D1: 50.0}, D1, 50.1)  # a real scale break repairs
+    assert not stale({D1: stored_row(50.0)}, D1, 50.0)
+    assert not stale({D1: stored_row(50.0)}, D1, 50.04)  # rounding noise stays put
+    assert stale({D1: stored_row(50.0)}, D1, 50.1)  # a real scale break repairs
     assert stale({}, D1, 50.0)  # missing day is always emitted
+
+
+def test_gap_day_between_chain_bars_is_rescaled():
+    # A halt day stored only by the broker keeps the pre-event scale; it must be
+    # rescaled into the chain's scale so it stops splitting the chart in two.
+    raw = [BARS[0], BARS[2]]  # chain skips the halt day between d1 and d3
+    halt = dt.date(2026, 9, 2)
+    rows = emitted(D1, {halt: stored_row(108.0)}, raw=raw)
+    gap = rows[halt]
+    assert gap[5] == "local_heuristic"
+    assert gap[11] == 59.4  # 108 * (55 / 100), continuous with the 55..56 chain
+    assert gap[14] == 10  # volumes are not rescaled
+
+
+def test_gap_day_with_no_matching_scale_is_left_alone():
+    raw = [BARS[0], BARS[2]]
+    halt = dt.date(2026, 9, 2)
+    rows = emitted(D1, {halt: stored_row(300.0)}, raw=raw)
+    assert halt not in rows  # continuity guard refuses both candidate scales
+
+
+def test_gap_day_outside_chain_range_is_untouched():
+    raw = [BARS[0], BARS[2]]
+    older = dt.date(2026, 8, 31)
+    rows = emitted(D1, {older: stored_row(99.0)}, raw=raw)
+    assert older not in rows  # no chain neighbor to prove the scale

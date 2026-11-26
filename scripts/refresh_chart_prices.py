@@ -59,7 +59,7 @@ def daily_rows(code, receipt):
     return rows, url
 
 
-def stale_row(stored_closes, day, close):
+def stale_row(stored_rows, day, close):
     """True when the currently-served adjusted close disagrees with the recomputed one.
 
     Corporate actions (capital increases, ...) reset the exchange reference price;
@@ -68,16 +68,56 @@ def stale_row(stored_closes, day, close):
     disagreeing days lets the chart's DISTINCT ON (collected_at DESC) pick up the
     corrected versions without rewriting unrelated history on every run.
     """
-    stored = stored_closes.get(day)
-    return stored is None or abs(close - float(stored)) > 0.001 * float(stored)
+    stored = stored_rows.get(day)
+    return (stored is None
+            or abs(close - float(stored["closing_price_rial"] or 0)) > 0.001 * close)
 
 
-def chart_rows(sid, raw, url, cutoff, watermark, stored_closes):
+def gap_rows(sid, url, stored_rows, chain, factors):
+    """Rescale stored-only days into the settled chain's scale.
+
+    Halt days carry no settled bar in the TSETMC chain, but the broker collector
+    still stores a candle for them. Such a day keeps whatever scale was current
+    when it was stored, so after a capital increase it surfaces as a fake cliff
+    between two chain days. Rescale its prices by the chain factor whose result
+    sits closest to the next trading day and require continuity, otherwise the
+    day is left untouched.
+    """
+    chain_days = sorted(chain)
+    for day in sorted(stored_rows):
+        if day in chain or not chain_days or not chain_days[0] < day < chain_days[-1]:
+            continue
+        stored = stored_rows[day]
+        base = stored["closing_price_rial"]
+        if not base or base <= 0:
+            continue
+        target = float(chain[next(d for d in chain_days if d > day)])
+        factor = min(factors, key=lambda f: abs(float(base) * f - target))
+        if abs(float(base) * factor - target) > 0.15 * target:
+            continue
+        def rescaled(value):
+            return round(float(value) * factor, 4) if value and value > 0 else None
+        fields = (rescaled(stored["open_price_rial"]), rescaled(stored["first_price_rial"]),
+                  rescaled(stored["high_price_rial"]), rescaled(stored["low_price_rial"]),
+                  rescaled(base), rescaled(stored["last_price_rial"]),
+                  rescaled(stored["yesterday_price_rial"]), stored["volume"],
+                  stored["trade_value_rial"], stored["trade_count"],
+                  stored["closing_change_percent"])
+        # default=str keeps Decimal pass-through fields deterministic for the hash.
+        digest = hashlib.sha256(json.dumps(fields, default=str).encode()).hexdigest()
+        yield (sid, day, stored["jalali_date_text"]
+               or jdatetime.date.fromgregorian(date=day).strftime("%Y/%m/%d"),
+               SOURCE, url, "local_heuristic", digest, *fields)
+
+
+def chart_rows(sid, raw, url, cutoff, watermark, stored_rows):
     bars = sorted((r for r in raw if str(r["dEven"]) <= cutoff.strftime("%Y%m%d")
                    and r["pClosing"] > 0 and r["zTotTran"] > 0), key=lambda r: r["dEven"])
     if not bars:
         raise ValueError("no settled trade in source")
     factor = 1.0
+    chain = {}
+    factors = set()
     for i in range(len(bars) - 1, -1, -1):
         bar = bars[i]
         day = dt.date.fromisoformat(str(bar["dEven"]))
@@ -90,7 +130,9 @@ def chart_rows(sid, raw, url, cutoff, watermark, stored_closes):
         # is the honest denominator for the event day's change percent too.
         change = round(100 * (bar["pClosing"] / bar["priceYesterday"] - 1), 4) if bar["priceYesterday"] > 0 else None
         close = adjusted("pClosing")
-        if watermark is None or day >= watermark or stale_row(stored_closes, day, close):
+        chain[day] = close
+        factors.add(factor)
+        if watermark is None or day >= watermark or stale_row(stored_rows, day, close):
             fields = (opening, opening, adjusted("priceMax"), adjusted("priceMin"), close,
                       adjusted("pDrCotVal"), yesterday, int(bar["qTotTran5J"]),
                       bar["qTotCap"], int(bar["zTotTran"]), change)
@@ -100,9 +142,10 @@ def chart_rows(sid, raw, url, cutoff, watermark, stored_closes):
         if i and bar["priceYesterday"] > 0 and bar["priceYesterday"] != bars[i-1]["pClosing"]:
             # Back-adjust earlier prices across the exchange's reference-price reset.
             factor *= bar["priceYesterday"] / bars[i-1]["pClosing"]
+    yield from gap_rows(sid, url, stored_rows, chain, factors)
 
 
-def vendor_rows(sid, symbol, cutoff, watermark, stored_closes):
+def vendor_rows(sid, symbol, cutoff, watermark, stored_rows):
     sys.path.insert(0, str(ROOT / "go-app/py"))
     import brs_prices as brs
     payload = brs.fetch_candlestick(symbol, 3)
@@ -116,7 +159,7 @@ def vendor_rows(sid, symbol, cutoff, watermark, stored_closes):
         close = brs.to_int(bar["close"])
         if day > cutoff or not close or close <= 0:
             continue
-        if watermark is None or day >= watermark or stale_row(stored_closes, day, close):
+        if watermark is None or day >= watermark or stale_row(stored_rows, day, close):
             opening, high, low, volume = (brs.to_int(bar[key]) for key in ("open", "high", "low", "volume"))
             if not low or not high or not low <= close <= high or volume is None or volume < 0:
                 raise ValueError("invalid adjusted candle")
@@ -128,15 +171,23 @@ def vendor_rows(sid, symbol, cutoff, watermark, stored_closes):
         previous = close
 
 
-def stored_closes(conn, sid):
-    """Latest currently-served adjusted close per day, across every source."""
+def stored_rows(conn, sid):
+    """Latest currently-served adjusted row per day, across every source."""
     rows = conn.execute("""
-        SELECT DISTINCT ON (po.trade_date) po.trade_date, po.closing_price_rial
+        SELECT DISTINCT ON (po.trade_date) po.trade_date, po.jalali_date_text,
+               po.open_price_rial, po.first_price_rial, po.high_price_rial,
+               po.low_price_rial, po.closing_price_rial, po.last_price_rial,
+               po.yesterday_price_rial, po.volume, po.trade_value_rial,
+               po.trade_count, po.closing_change_percent
         FROM market.price_observations po
         WHERE po.security_id=%s AND po.price_series='adjusted'
         ORDER BY po.trade_date, po.collected_at DESC, po.id DESC
     """, (sid,)).fetchall()
-    return {day: close for day, close in rows}
+    names = ("trade_date", "jalali_date_text", "open_price_rial", "first_price_rial",
+             "high_price_rial", "low_price_rial", "closing_price_rial", "last_price_rial",
+             "yesterday_price_rial", "volume", "trade_value_rial", "trade_count",
+             "closing_change_percent")
+    return {row[0]: dict(zip(names, row)) for row in rows}
 
 
 def main():
@@ -155,7 +206,7 @@ def main():
             raise RuntimeError("empty chart universe")
         for sid, symbol, code in targets:
             try:
-                marks = stored_closes(conn, sid)
+                marks = stored_rows(conn, sid)
                 watermark = max(marks, default=None)
                 if not str(code).isdigit():
                     raise ValueError("missing instrument code")
