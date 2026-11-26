@@ -91,7 +91,7 @@ def test_gap_day_between_chain_bars_is_rescaled():
     # rescaled into the chain's scale so it stops splitting the chart in two.
     raw = [BARS[0], BARS[2]]  # chain skips the halt day between d1 and d3
     halt = dt.date(2026, 9, 2)
-    rows = emitted(D1, {halt: stored_row(108.0)}, raw=raw)
+    rows = emitted(D1, {halt: stored_row(108.0, yesterday_price_rial=105.0)}, raw=raw)
     gap = rows[halt]
     assert gap[5] == "local_heuristic"
     assert gap[11] == 59.4  # 108 * (55 / 100), continuous with the 55..56 chain
@@ -131,3 +131,23 @@ def test_degenerate_fill_requires_neighbour_agreement():
     broken = stored_row(1000.0, yesterday_price_rial=None, volume=None)
     rows = emitted(dt.date(2026, 9, 1), {halt: broken}, raw=raw)
     assert halt not in rows  # neighbours disagree (real event between them)
+
+
+def test_canceled_session_far_off_own_reference_is_filled():
+    # A broker candle whose close sits far off its own reference price marks a
+    # canceled session; fill it with the previous close like any halt day.
+    raw = [BARS[0], BARS[2]]
+    halt = dt.date(2026, 9, 2)
+    canceled = stored_row(108.0, yesterday_price_rial=55.0, volume=1)
+    rows = emitted(D1, {halt: canceled}, raw=raw)
+    gap = rows[halt]
+    assert gap[11] == 55.0
+    assert gap[17] == 0.0
+
+
+def test_normal_candle_off_own_reference_but_matching_scale_is_rescaled():
+    raw = [BARS[0], BARS[2]]
+    halt = dt.date(2026, 9, 2)
+    stale = stored_row(110.0, yesterday_price_rial=108.0, volume=5)  # old scale, sane
+    rows = emitted(D1, {halt: stale}, raw=raw)
+    assert rows[halt][11] == 60.5  # 110 * (55 / 100), kept its real prices

@@ -81,9 +81,9 @@ def gap_rows(sid, url, stored_rows, chain, factors):
     when it was stored, so after a capital increase it surfaces as a fake cliff
     between two chain days. Rescale its prices by the chain factor whose result
     sits closest to the next trading day and require continuity. A degenerate
-    stored row (halt day or broken candle with no reference price) has no usable
-    scale at all: fill it with the previous close once both chain neighbours
-    agree, otherwise leave the day untouched.
+    stored row (halt day, canceled session or broken candle far off its own
+    reference price) has no usable scale at all: fill it with the previous
+    close once both chain neighbours agree, otherwise leave the day untouched.
     """
     chain_days = sorted(chain)
     for day in sorted(stored_rows):
@@ -96,26 +96,33 @@ def gap_rows(sid, url, stored_rows, chain, factors):
         newer = next(d for d in chain_days if d > day)
         older = max((d for d in chain_days if d < day), default=None)
         target = float(chain[newer])
-        factor = min(factors, key=lambda f: abs(float(base) * f - target))
-        if abs(float(base) * factor - target) > 0.15 * target:
-            # Degenerate stored rows (halt day or broken candle, e.g. a missing
-            # reference price) hold no usable scale. On such a day the traded
-            # price equals the previous close, so fill it from the chain once
-            # both neighbours agree on the scale; otherwise leave it alone.
-            if (older is None or stored["yesterday_price_rial"] is not None
-                    or abs(float(chain[older]) - target) > 0.15 * target):
+        reference = stored["yesterday_price_rial"]
+        # A close far off its own reference marks a canceled or broken session:
+        # within exchange bands no settled bar can move that far in a day, and
+        # rescaling such a candle would only preserve its garbage prices.
+        broken = (reference is None
+                  or abs(float(base) - float(reference)) > 0.2 * float(reference))
+        if broken:
+            # Degenerate stored rows (halt day, canceled session or broken
+            # candle) hold no usable scale. On such a day the traded price
+            # equals the previous close, so fill it from the chain once both
+            # neighbours agree on the scale; otherwise leave it alone.
+            if older is None or abs(float(chain[older]) - target) > 0.15 * target:
                 continue
-            reference = float(chain[older])
-            fields = (reference, reference, reference, reference, reference, reference,
-                      reference, stored["volume"], stored["trade_value_rial"],
+            value = float(chain[older])
+            fields = (value, value, value, value, value, value,
+                      value, stored["volume"], stored["trade_value_rial"],
                       stored["trade_count"], 0.0)
         else:
+            factor = min(factors, key=lambda f: abs(float(base) * f - target))
+            if abs(float(base) * factor - target) > 0.15 * target:
+                continue
             def rescaled(value):
                 return round(float(value) * factor, 4) if value and value > 0 else None
             fields = (rescaled(stored["open_price_rial"]), rescaled(stored["first_price_rial"]),
                       rescaled(stored["high_price_rial"]), rescaled(stored["low_price_rial"]),
                       rescaled(base), rescaled(stored["last_price_rial"]),
-                      rescaled(stored["yesterday_price_rial"]), stored["volume"],
+                      rescaled(reference), stored["volume"],
                       stored["trade_value_rial"], stored["trade_count"],
                       stored["closing_change_percent"])
         # default=str keeps Decimal pass-through fields deterministic for the hash.
