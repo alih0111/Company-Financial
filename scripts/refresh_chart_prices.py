@@ -59,37 +59,50 @@ def daily_rows(code, receipt):
     return rows, url
 
 
-def chart_rows(sid, raw, url, cutoff, watermark):
+def stale_row(stored_closes, day, close):
+    """True when the currently-served adjusted close disagrees with the recomputed one.
+
+    Corporate actions (capital increases, ...) reset the exchange reference price;
+    rows stored before the event keep the old scale forever because the table is
+    append-only. Recomputing the full back-adjusted chain and re-emitting only the
+    disagreeing days lets the chart's DISTINCT ON (collected_at DESC) pick up the
+    corrected versions without rewriting unrelated history on every run.
+    """
+    stored = stored_closes.get(day)
+    return stored is None or abs(close - float(stored)) > 0.001 * float(stored)
+
+
+def chart_rows(sid, raw, url, cutoff, watermark, stored_closes):
     bars = sorted((r for r in raw if str(r["dEven"]) <= cutoff.strftime("%Y%m%d")
                    and r["pClosing"] > 0 and r["zTotTran"] > 0), key=lambda r: r["dEven"])
     if not bars:
         raise ValueError("no settled trade in source")
     factor = 1.0
-    revise_history = False
     for i in range(len(bars) - 1, -1, -1):
         bar = bars[i]
         day = dt.date.fromisoformat(str(bar["dEven"]))
-        if watermark and day < watermark and not revise_history:
-            break
         def adjusted(key):
             value = bar[key]
             return round(value * factor, 4) if value > 0 else None
         opening = adjusted("priceFirst")
-        yesterday = bar["priceYesterday"]
-        change = round(100 * (bar["pClosing"] / yesterday - 1), 4) if yesterday > 0 else None
-        fields = (opening, opening, adjusted("priceMax"), adjusted("priceMin"), adjusted("pClosing"),
-                  adjusted("pDrCotVal"), adjusted("priceYesterday"), int(bar["qTotTran5J"]),
-                  bar["qTotCap"], int(bar["zTotTran"]), change)
-        digest = hashlib.sha256(json.dumps(fields).encode()).hexdigest()
-        yield (sid, day, jdatetime.date.fromgregorian(date=day).strftime("%Y/%m/%d"),
-               SOURCE, url, "local_heuristic", digest, *fields)
-        if i and yesterday > 0 and yesterday != bars[i-1]["pClosing"]:
+        yesterday = adjusted("priceYesterday")
+        # The exchange reference price is already corporate-action adjusted, so it
+        # is the honest denominator for the event day's change percent too.
+        change = round(100 * (bar["pClosing"] / bar["priceYesterday"] - 1), 4) if bar["priceYesterday"] > 0 else None
+        close = adjusted("pClosing")
+        if watermark is None or day >= watermark or stale_row(stored_closes, day, close):
+            fields = (opening, opening, adjusted("priceMax"), adjusted("priceMin"), close,
+                      adjusted("pDrCotVal"), yesterday, int(bar["qTotTran5J"]),
+                      bar["qTotCap"], int(bar["zTotTran"]), change)
+            digest = hashlib.sha256(json.dumps(fields).encode()).hexdigest()
+            yield (sid, day, jdatetime.date.fromgregorian(date=day).strftime("%Y/%m/%d"),
+                   SOURCE, url, "local_heuristic", digest, *fields)
+        if i and bar["priceYesterday"] > 0 and bar["priceYesterday"] != bars[i-1]["pClosing"]:
             # Back-adjust earlier prices across the exchange's reference-price reset.
-            factor *= yesterday / bars[i-1]["pClosing"]
-            revise_history = True
+            factor *= bar["priceYesterday"] / bars[i-1]["pClosing"]
 
 
-def vendor_rows(sid, symbol, cutoff, watermark):
+def vendor_rows(sid, symbol, cutoff, watermark, stored_closes):
     sys.path.insert(0, str(ROOT / "go-app/py"))
     import brs_prices as brs
     payload = brs.fetch_candlestick(symbol, 3)
@@ -103,7 +116,7 @@ def vendor_rows(sid, symbol, cutoff, watermark):
         close = brs.to_int(bar["close"])
         if day > cutoff or not close or close <= 0:
             continue
-        if watermark is None or day >= watermark:
+        if watermark is None or day >= watermark or stale_row(stored_closes, day, close):
             opening, high, low, volume = (brs.to_int(bar[key]) for key in ("open", "high", "low", "volume"))
             if not low or not high or not low <= close <= high or volume is None or volume < 0:
                 raise ValueError("invalid adjusted candle")
@@ -115,6 +128,17 @@ def vendor_rows(sid, symbol, cutoff, watermark):
         previous = close
 
 
+def stored_closes(conn, sid):
+    """Latest currently-served adjusted close per day, across every source."""
+    rows = conn.execute("""
+        SELECT DISTINCT ON (po.trade_date) po.trade_date, po.closing_price_rial
+        FROM market.price_observations po
+        WHERE po.security_id=%s AND po.price_series='adjusted'
+        ORDER BY po.trade_date, po.collected_at DESC, po.id DESC
+    """, (sid,)).fetchall()
+    return {day: close for day, close in rows}
+
+
 def main():
     load_dotenv(ROOT / "go-app/.env")
     local = dt.datetime.now(TEHRAN)
@@ -124,24 +148,24 @@ def main():
     with psycopg.connect(os.environ["DATABASE_URL"].replace("postgresql+psycopg:", "postgresql:"),
                          dbname=os.environ["CDF_CANONICAL_DB"], autocommit=True) as conn:
         targets = conn.execute("""
-            SELECT s.id, s.codal_symbol, s.tsetmc_ins_code,
-              (SELECT max(trade_date) FROM market.price_observations
-               WHERE security_id=s.id AND price_series='adjusted')
+            SELECT s.id, s.codal_symbol, s.tsetmc_ins_code
             FROM core.securities s WHERE s.is_active ORDER BY s.codal_symbol
         """).fetchall()
         if not targets:
             raise RuntimeError("empty chart universe")
-        for sid, symbol, code, watermark in targets:
+        for sid, symbol, code in targets:
             try:
+                marks = stored_closes(conn, sid)
+                watermark = max(marks, default=None)
                 if not str(code).isdigit():
                     raise ValueError("missing instrument code")
                 try:
                     raw, url = daily_rows(str(code), cache.get(str(sid)))
-                    records = chart_rows(sid, raw, url, cutoff, watermark)
+                    records = chart_rows(sid, raw, url, cutoff, watermark, marks)
                 except urllib.error.HTTPError as exc:
                     if exc.code not in (404, 500, 502, 503, 504):
                         raise
-                    records = vendor_rows(sid, symbol, cutoff, watermark)
+                    records = vendor_rows(sid, symbol, cutoff, watermark, marks)
                 with conn.transaction(), conn.cursor() as cursor:
                     cursor.executemany(INSERT, records)
                     inserted += cursor.rowcount

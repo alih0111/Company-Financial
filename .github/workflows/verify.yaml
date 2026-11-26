@@ -47,7 +47,7 @@ jobs:
           python -m pytest -q tests/test_runtime_lock.py
       - name: Offline financial contract tests
         run: |
-          python -m pytest -q -rs factormix/tests/test_monthly_paper.py factormix/tests/test_decision_readiness.py factormix/tests/test_ranking_input_evidence.py factormix/tests/test_market_source_evidence.py factormix/tests/test_offline_imports.py factormix/tests/test_benchmark_history.py ranking_research/tests/test_codal_invalid_response.py ranking_research/tests/test_experimental_risk.py ranking_research/tests/test_paper_account_atomic.py qvt_paper/tests/test_execution.py go-app/py/tests/test_broker_agah_offline.py go-app/py/tests/test_broker_captcha_offline.py live_broker/tests --ignore=live_broker/tests/test_ledger_postgres.py
+          python -m pytest -q -rs factormix/tests/test_monthly_paper.py factormix/tests/test_decision_readiness.py factormix/tests/test_ranking_input_evidence.py factormix/tests/test_market_source_evidence.py factormix/tests/test_offline_imports.py factormix/tests/test_benchmark_history.py ranking_research/tests/test_codal_invalid_response.py ranking_research/tests/test_experimental_risk.py ranking_research/tests/test_paper_account_atomic.py qvt_paper/tests/test_execution.py go-app/py/tests/test_broker_agah_offline.py go-app/py/tests/test_broker_captcha_offline.py live_broker/tests tests/test_refresh_chart_prices.py --ignore=live_broker/tests/test_ledger_postgres.py
       - name: Python dependency audit
         run: |
           python -m pip install pip-audit==2.10.1
