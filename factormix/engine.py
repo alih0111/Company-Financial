@@ -168,6 +168,60 @@ def target_for(data,i,cfg,execution,q,nav):
     return target,pending,selected
 
 
+def fill_pending(session, decision_day, symbols, op, locked, previous_close, adv,
+                 q, cash, pending, target, execution):
+    """Apply the daily-bar execution proxy to one already-pending batch."""
+    trades = []
+    good = np.isfinite(op)&(op>0)
+    if execution.skip_one_price:
+        good &= ~locked
+    active = pending&good
+    blocked_days = int(np.sum(pending&~good))
+    # Never use today's close to size an order at today's opening.
+    marks=previous_close.copy()
+    marks[good] = op[good]
+    wealth=cash+float(q@marks)
+    desired=target*wealth
+    need=desired-q*marks
+    cap=np.full(len(q),np.inf) if execution.capacity is None else execution.capacity*adv
+    filled=np.zeros(len(q),bool)
+    for j in np.flatnonzero(active & (need < -1)):
+        base=min(-need[j],q[j]*op[j],cap[j])
+        if base<=1:
+            continue
+        u = base / op[j]
+        gross = base * (1 - execution.slippage)
+        fee = gross * execution.fee
+        q[j] -= u
+        cash += gross - fee
+        filled[j]=base>=-need[j]-1 or q[j]<1e-10
+        trades.append(dict(session=session,decision=decision_day,symbol=str(symbols[j]),side='SELL',
+            gross_toman=gross,fee_toman=fee,slippage_toman=base-gross,units=u,index_price=op[j],
+            adv_toman=float(adv[j]),base_toman=base))
+    buy_ids=np.flatnonzero(active & (need > 1))
+    base_need=np.minimum(np.maximum(need[buy_ids],0),cap[buy_ids])
+    required=float(base_need.sum())*(1+execution.slippage)*(1+execution.fee)
+    fraction=min(1,cash/required) if required>0 else 0
+    for j,base in zip(buy_ids,base_need*fraction):
+        if base<=1:
+            continue
+        u = base / op[j]
+        gross = base * (1 + execution.slippage)
+        fee = gross * execution.fee
+        q[j] += u
+        cash -= gross + fee
+        # Fee-driven pro-rata shortage completes; capacity or unfunded
+        # orders remain pending while exits are still outstanding.
+        filled[j]=(base_need[np.searchsorted(buy_ids,j)]>=need[j]-1 and
+                   (fraction>=1-1e-9 or not np.any(active&(need<-1)&~filled)))
+        trades.append(dict(session=session,decision=decision_day,symbol=str(symbols[j]),side='BUY',
+            gross_toman=gross,fee_toman=fee,slippage_toman=gross-base,units=u,index_price=op[j],
+            adv_toman=float(adv[j]),base_toman=base))
+    filled |= active & (np.abs(need)<=1)
+    pending[filled]=False
+    return cash, trades, blocked_days
+
+
 def simulate(data,cfg,execution=Execution(),start='2021-04-03',end='2026-02-24',
              capital=100_000_000.0,detail=False,choice_schedule=None,observer=None):
     cal = data['cal'].tolist()
@@ -188,45 +242,17 @@ def simulate(data,cfg,execution=Execution(),start='2021-04-03',end='2026-02-24',
                 expired += int(pending.sum())
                 pending[:] = False
             else:
-                good = np.isfinite(op)&(op>0)
-                if execution.skip_one_price:
-                    good &= ~data['locked'][i]
-                active = pending&good
-                blocked_days += int(np.sum(pending&~good))
-                # Never use today's close to size an order at today's opening.
-                marks=data['close'][max(i-1,0)].copy()
-                marks[good] = op[good]
-                wealth=cash+float(q@marks)
-                desired=target*wealth
-                need=desired-q*marks
-                cap=np.full(len(q),np.inf) if execution.capacity is None else execution.capacity*data['adv'][i]
-                filled=np.zeros(len(q),bool)
-                for j in np.flatnonzero(active & (need < -1)):
-                    base=min(-need[j],q[j]*op[j],cap[j])
-                    if base<=1:
-                        continue
-                    u=base/op[j];gross=base*(1-execution.slippage);fee=gross*execution.fee
-                    q[j]-=u;cash+=gross-fee;cost+=fee;slipcost+=base-gross;gross_turnover+=base;ntrades+=1
-                    filled[j]=base>=-need[j]-1 or q[j]<1e-10
-                    if detail:trades.append(dict(session=cal[i],decision=decision_day,symbol=str(data['syms'][j]),side='SELL',
-                        gross_toman=gross,fee_toman=fee,slippage_toman=base-gross,units=u,index_price=op[j],adv_toman=float(data['adv'][i,j])))
-                buy_ids=np.flatnonzero(active & (need > 1))
-                base_need=np.minimum(np.maximum(need[buy_ids],0),cap[buy_ids])
-                required=float(base_need.sum())*(1+execution.slippage)*(1+execution.fee)
-                fraction=min(1,cash/required) if required>0 else 0
-                for j,base in zip(buy_ids,base_need*fraction):
-                    if base<=1:
-                        continue
-                    u=base/op[j];gross=base*(1+execution.slippage);fee=gross*execution.fee
-                    q[j]+=u;cash-=gross+fee;cost+=fee;slipcost+=gross-base;gross_turnover+=base;ntrades+=1
-                    # Fee-driven pro-rata shortage completes; capacity or unfunded
-                    # orders remain pending while exits are still outstanding.
-                    filled[j]=(base_need[np.searchsorted(buy_ids,j)]>=need[j]-1 and
-                               (fraction>=1-1e-9 or not np.any(active&(need<-1)&~filled)))
-                    if detail:trades.append(dict(session=cal[i],decision=decision_day,symbol=str(data['syms'][j]),side='BUY',
-                        gross_toman=gross,fee_toman=fee,slippage_toman=gross-base,units=u,index_price=op[j],adv_toman=float(data['adv'][i,j])))
-                filled |= active & (np.abs(need)<=1)
-                pending[filled]=False
+                cash, fills, blocked = fill_pending(
+                    cal[i], decision_day, data['syms'], op, data['locked'][i],
+                    data['close'][max(i-1,0)], data['adv'][i], q, cash, pending, target, execution)
+                blocked_days += blocked
+                for fill in fills:
+                    cost += fill['fee_toman']
+                    slipcost += fill['slippage_toman']
+                    gross_turnover += fill.pop('base_toman')
+                ntrades += len(fills)
+                if detail:
+                    trades.extend(fills)
         nav=cash+float(q@data['close'][i])
         if cash < -1e-4 or (q < -1e-7).any() or not np.isfinite(nav) or nav<=0:
             raise AssertionError((cal[i],cash,nav))

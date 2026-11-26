@@ -544,7 +544,7 @@ export async function collectBrsPrices(
     threshold?: number;
     api?: boolean;
   }
-): Promise<unknown> {
+): Promise<{ factor_mix_paper?: "requested" | "failed_to_start" }> {
   const res = await apiFetch(`${API_BASE}/brs/collect`, {
     method: "POST",
     headers: getAuthHeaders(),

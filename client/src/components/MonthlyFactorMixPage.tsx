@@ -2,11 +2,13 @@ import { getAuthStatus } from "../hooks/useGetUser";
 import { Link } from "react-router-dom";
 import CurrentFactorMixRanking from "./CurrentFactorMixRanking";
 import MonthlyStrategyPortfolio from "./MonthlyStrategyPortfolio";
+import MonthlyFactorMixPaper from "./MonthlyFactorMixPaper";
 
 const panel = "rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800/60";
 const button = "inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 px-4 py-2 text-sm dark:border-slate-700";
 
 export default function MonthlyFactorMixPage() {
+  const { isAdmin } = getAuthStatus();
   return <main dir="rtl" className="mx-auto max-w-[1500px] space-y-5 text-slate-800 dark:text-slate-100">
     <header className={panel}>
       <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">مدل نهایی منتخب · نسخهٔ ۱٫۰٫۰</p>
@@ -14,6 +16,7 @@ export default function MonthlyFactorMixPage() {
       <p className="mt-3 text-sm leading-8 text-slate-600 dark:text-slate-300">گزارش‌های مالی، فروش ماهانه و اصلاحیه‌ها در طول ماه جمع می‌شوند. بازبینی سبد پس از پایان بازارِ پانزدهم هر ماه، یا اولین جلسهٔ سهام بعد از آن، انجام می‌شود. تغییرهای لازم از جلسهٔ بعد پیگیری می‌شوند.</p>
       <div className="mt-4 flex flex-wrap gap-2"><Link className={`${button} bg-violet-700 text-white`} to="/strategy/performance">عملکرد مدل نهایی</Link><a className={button} href="#monthly-planner-title">بررسی سبد ماهانه</a>{getAuthStatus().isAdmin && <a className={button} href={`${import.meta.env.BASE_URL}strategies/factormix-033/performance/from-1401-monthly15-guide.fa.md`} download>راهنمای نسخهٔ ثبت‌شده</a>}</div>
     </header>
+    {isAdmin && <MonthlyFactorMixPaper />}
     <MonthlyStrategyPortfolio />
     <section className={panel} aria-label="قواعد مدل نهایی">
       <h2 className="text-lg font-bold">قواعد همین مدل</h2>

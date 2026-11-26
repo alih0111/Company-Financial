@@ -181,8 +181,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     setLoadingBrsDaily(true);
     setBrsMsg(null);
     try {
-      await collectBrsPrices("daily");
-      setBrsMsg("قیمت روزانه ذخیره شد ✓");
+      const result = await collectBrsPrices("daily");
+      setBrsMsg(result.factor_mix_paper === "failed_to_start"
+        ? "قیمت روزانه ذخیره شد؛ بررسی سبد کاغذی شروع نشد."
+        : result.factor_mix_paper === "requested"
+          ? "قیمت روزانه ذخیره شد؛ درخواست بررسی سبد کاغذی FactorMix ثبت شد."
+          : "قیمت روزانه ذخیره شد ✓");
       onDataCollected?.();
     } catch (e: unknown) {
       setBrsMsg(errorMessage(e, "خطا در دریافت قیمت"));

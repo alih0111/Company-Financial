@@ -131,6 +131,7 @@ func newRouter() (*gin.Engine, error) {
 		// اجرای دستی چرخهٔ دریافت Codal و بازسازی رتبه‌بندی P1/P3 (فقط ادمین)
 		admin.POST("/admin/ranking/refresh", handlers.StartRankingRefresh)
 		admin.POST("/admin/factormix/ranking/refresh", handlers.RefreshFactorMixRanking)
+		admin.GET("/admin/factormix/paper", handlers.GetFactorMixPaper)
 		data.GET("/factormix/ranking", handlers.GetFactorMixRanking)
 		data.POST("/factormix/plan", handlers.PlanFactorMix)
 		admin.GET("/reportflow", handlers.GetReportFlow)

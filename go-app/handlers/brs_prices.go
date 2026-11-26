@@ -15,12 +15,12 @@ import (
 
 // BrsCollectRequest بدنه‌ی درخواست اجرای کالکتور قیمت BRS.
 type BrsCollectRequest struct {
-	Mode      string  `json:"mode"`   // "daily" | "backfill" | "sync"
-	Limit     int     `json:"limit"`  // backfill: تعداد نماد | sync: تعداد روز
-	Symbol    string  `json:"symbol"` // فقط backfill: نماد خاص
-	Force     bool    `json:"force"`  // فقط backfill: نادیده‌گرفتن تاریخچه
-	Raw       bool    `json:"raw"`    // فقط backfill: بدون تطبیق codal
-	API       bool    `json:"api"`    // فقط sync: استفاده از API به‌جای تعدیل محلی
+	Mode      string  `json:"mode"`      // "daily" | "backfill" | "sync"
+	Limit     int     `json:"limit"`     // backfill: تعداد نماد | sync: تعداد روز
+	Symbol    string  `json:"symbol"`    // فقط backfill: نماد خاص
+	Force     bool    `json:"force"`     // فقط backfill: نادیده‌گرفتن تاریخچه
+	Raw       bool    `json:"raw"`       // فقط backfill: بدون تطبیق codal
+	API       bool    `json:"api"`       // فقط sync: استفاده از API به‌جای تعدیل محلی
 	Threshold float64 `json:"threshold"` // فقط sync: آستانه‌ی تشخیص شکاف (درصد)
 }
 
@@ -111,6 +111,14 @@ func RunBrsCollector(c *gin.Context) {
 	result := gin.H{
 		"message": "collector executed",
 		"mode":    mode,
+	}
+	if mode == "daily" {
+		if err := startFactorMixPaper(); err != nil {
+			log.Printf("FactorMix monthly paper cycle could not start: %v", err)
+			result["factor_mix_paper"] = "failed_to_start"
+		} else {
+			result["factor_mix_paper"] = "requested"
+		}
 	}
 	if mode == "daily" || mode == "backfill" {
 		if config.FamilyBackend() == "postgres" {
