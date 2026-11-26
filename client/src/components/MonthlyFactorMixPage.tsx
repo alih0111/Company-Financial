@@ -24,6 +24,6 @@ export default function MonthlyFactorMixPage() {
       <p className="mt-2 text-xs leading-7 text-slate-500">ابتدا جمع‌آوری گزارش‌ها و قیمت‌ها را تمام کنید، سپس امتیازها را به‌روز کنید و ارزش روز دارایی‌ها و نقد همین سبد را در فرم پایین وارد کنید. فرم پیشنهاد می‌سازد؛ ارسال سفارش کارگزاری یا ثبت معامله انجام نمی‌دهد.</p>
     </section>
     <CurrentFactorMixRanking />
-    <footer className="flex flex-wrap gap-4 border-t border-slate-200 pt-4 text-xs leading-7 text-slate-500 dark:border-slate-700"><span>مدل منتخب: FactorMix · ماهانه ۱۵</span><Link className="underline" to="/strategy/history">آرشیو نسخهٔ فصلی قدیمی</Link><Link className="underline" to="/strategy/reportflow">آرشیو آزمایش ReportFlow</Link></footer>
+    <footer className="flex flex-wrap items-center gap-4 border-t border-slate-200 pt-4 text-xs leading-7 text-slate-500 dark:border-slate-700"><span>مدل منتخب: FactorMix · ماهانه ۱۵</span><details><summary className="cursor-pointer underline">آرشیو نسخه‌های قدیمی</summary><div className="mt-2 flex flex-col gap-1"><Link className="underline" to="/strategy/history">آرشیو نسخهٔ فصلی قدیمی</Link><Link className="underline" to="/strategy/reportflow">آرشیو آزمایش ReportFlow</Link></div></details></footer>
   </main>;
 }

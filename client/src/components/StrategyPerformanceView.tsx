@@ -96,6 +96,7 @@ function HistoricalCharts({
 }) {
   const [mode, setMode] = useState<"value" | "return">("value");
   const [log, setLog] = useState(true);
+  const [showLegacy, setShowLegacy] = useState(false);
   const [hiddenCapital, setHiddenCapital] = useState<string[]>([]);
   const [hiddenDrawdown, setHiddenDrawdown] = useState<string[]>([]);
   const toggleCapital = (id: string) =>
@@ -116,11 +117,15 @@ function HistoricalCharts({
     () => drawdownComparison(replay, definitions, 7, true),
     [replay, definitions],
   );
-  const capitalSeries = [
+  // نسخه‌های قدیمی (فصلی و P1) فقط با کلید مقایسهٔ دستی به نمودار اضافه می‌شوند.
+  const legacySeries = [
     { id: "nav_toman", label: "FactorMix · فصلی قدیمی", color: "#059669" },
     { id: "baseline_toman", label: "مدل قبلی P1", color: "#94a3b8" },
+  ];
+  const capitalSeries = [
     ...(replay.monthly15 ? [{id:"monthly15_toman",label:replay.monthly15.label,color:"#7c3aed"}] : []),
     ...aligned.series,
+    ...(showLegacy ? legacySeries : []),
   ];
   const names = Object.fromEntries(
     capitalSeries.flatMap((s) => [
@@ -131,6 +136,8 @@ function HistoricalCharts({
   const drawdownNames = Object.fromEntries(
     drawdowns.series.map((s) => [s.id, s.label]),
   );
+  const visibleDrawdowns = showLegacy ? drawdowns.series
+    : drawdowns.series.filter((s) => !["drawdown", "baseline_drawdown"].includes(s.id));
   const isValue = mode === "value";
   const points = useMemo(() => {
     const source = aligned.points.length >= 2 ? aligned.points : replay.path;
@@ -193,6 +200,13 @@ function HistoricalCharts({
                 {log ? "مقیاس لگاریتمی" : "مقیاس خطی"}
               </button>
             )}
+            <button
+              className={button}
+              aria-pressed={showLegacy}
+              onClick={() => setShowLegacy((v) => !v)}
+            >
+              {showLegacy ? "حذف نسخه‌های قدیمی" : "مقایسه با نسخه‌های قدیمی"}
+            </button>
           </div>
         </div>
         {(indexLoading || goldLoading) && (
@@ -313,7 +327,7 @@ function HistoricalCharts({
           role="group"
           aria-label="خطوط افت سرمایه"
         >
-          {drawdowns.series.map((s) => (
+          {visibleDrawdowns.map((s) => (
             <SeriesToggle
               key={s.id}
               label={s.label}
@@ -323,25 +337,7 @@ function HistoricalCharts({
             />
           ))}
         </div>
-        {/* <div className="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-          {drawdowns.series
-            .filter((s) => !hiddenDrawdown.includes(s.id))
-            .map((s) => (
-              <div
-                key={s.id}
-                className="rounded-xl bg-slate-50 px-3 py-2 text-xs leading-7 dark:bg-slate-900/60"
-              >
-                <p style={{ color: s.color }}>● {s.label}</p>
-                <p>
-                  بیشترین افت مشاهده‌شده:{" "}
-                  <b className="tabular-nums">
-                    {pct(Math.abs(s.max_drawdown))}
-                  </b>
-                </p>
-              </div>
-            ))}
-        </div> */}
-        {drawdowns.series.every((s) => hiddenDrawdown.includes(s.id)) ? (
+        {visibleDrawdowns.every((s) => hiddenDrawdown.includes(s.id)) ? (
           <p role="status" className="py-20 text-center text-sm text-slate-500">
             همهٔ خطوط خاموش‌اند؛ یک خط را روشن کنید.
           </p>
@@ -382,7 +378,7 @@ function HistoricalCharts({
                     drawdownNames[name],
                   ]}
                 />
-                {drawdowns.series.map((s) => (
+                {visibleDrawdowns.map((s) => (
                   <Area
                     key={s.id}
                     dataKey={s.id}
@@ -423,12 +419,47 @@ export function PerformanceContent({
   goldLoading?: boolean;
   goldError?: string;
 }) {
-  const original = replay.accounts.candidate;
-  const a = replay.monthly15?.account ?? original,
-    b = replay.accounts.baseline;
+  const a = replay.monthly15?.account ?? replay.accounts.candidate;
   const accountLabel = replay.monthly15 ? "FactorMix · ماهانه ۱۵" : "FactorMix · فصلی قدیمی";
   const annual = replay.annual.map(y => ({...y, ...replay.monthly15?.annual.find(m => m.year === y.year)}));
   const stale = a.positions.filter((p) => (p.price_age_days ?? 0) > 0);
+  const downloadGroups: { title: string; tone: string; files: [string, string][] }[] = replay.monthly15 ? [
+    {
+      title: "مدل نهایی · ماهانه ۱۵", tone: "text-violet-700 dark:text-violet-300",
+      files: [
+        ["گزارش ماهانه", replay.monthly15.downloads.report],
+        ["جدول سالانه", replay.monthly15.downloads.annual],
+        ["مسیر سرمایهٔ ماهانه", replay.monthly15.downloads.nav],
+        ["معاملات ماهانه", replay.monthly15.downloads.trades],
+        ["راهنمای استفادهٔ ماهانه", replay.monthly15.downloads.guide],
+        ["بستهٔ کامل ثبت‌شده ZIP", replay.monthly15.downloads.archive],
+      ],
+    },
+    {
+      title: "نسخه‌های قدیمی · فصلی و P1", tone: "text-slate-500",
+      files: [
+        ["گزارش فصلی", replay.downloads.report],
+        ["نمودار قدیمی", replay.downloads.chart],
+        ["مسیر سرمایهٔ فصلی", replay.downloads.candidate_nav],
+        ["معاملات فصلی", replay.downloads.candidate_trades],
+        ["مسیر سرمایهٔ P1", replay.downloads.baseline_nav],
+        ["معاملات P1", replay.downloads.baseline_trades],
+      ],
+    },
+  ] : [
+    {
+      title: accountLabel, tone: "text-slate-500",
+      files: [
+        ["گزارش", replay.downloads.report],
+        ["جدول سالانه", replay.downloads.annual],
+        ["نمودار", replay.downloads.chart],
+        ["مسیر سرمایه", replay.downloads.candidate_nav],
+        ["معاملات", replay.downloads.candidate_trades],
+        ["مسیر سرمایهٔ P1", replay.downloads.baseline_nav],
+        ["معاملات P1", replay.downloads.baseline_trades],
+      ],
+    },
+  ];
   return (
     <div className="space-y-5">
       <HistoricalCharts
@@ -442,13 +473,12 @@ export function PerformanceContent({
       {replay.monthly15 && <section className={panel} aria-labelledby="monthly-performance-title">
         <h2 id="monthly-performance-title" className="text-lg font-bold">مدل نهایی منتخب · FactorMix ماهانه ۱۵</h2>
         <p className="mt-2 text-sm leading-8 text-slate-500">همان امتیازها، داده‌ها و قواعد نسخهٔ اصلی؛ بازبینی در پانزدهم هر ماه یا اولین جلسهٔ معاملاتی بعد از آن. خط بنفش، حساب مستقلی با ۱۰۰ میلیون تومان از ابتدای ۱۴۰۱ است.</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl bg-violet-50 p-4 dark:bg-violet-950/30"><p className="text-xs">ارزش پایان · تومان</p><p className="mt-2 text-xl font-bold text-violet-700 dark:text-violet-300">{n(replay.monthly15.account.final_toman)}</p><p className="mt-1 text-xs">بازده کل {pct(replay.monthly15.account.total_return)}</p></div>
-          <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900/60"><p className="text-xs">اختلاف با نسخهٔ فصلی قدیمی · تومان</p><p className="mt-2 text-xl font-bold">{n(replay.monthly15.account.final_toman-original.final_toman)}</p><p className="mt-1 text-xs">{pct(replay.monthly15.account.final_toman/original.final_toman-1)} ارزش پایان بیشتر در این تاریخچه</p></div>
           <div className="rounded-xl bg-slate-50 p-4 dark:bg-slate-900/60"><p className="text-xs">بیشترین افت سرمایه</p><p className="mt-2 text-xl font-bold">{pct(Math.abs(replay.monthly15.account.max_drawdown))}</p><p className="mt-1 text-xs">{n(replay.monthly15.account.trade_count)} اجرای خرید و فروش؛ هزینه‌ها کسر شده‌اند</p></div>
         </div>
         <p className="mt-3 text-xs leading-7 text-slate-500">از {n(replay.monthly15.reviews_scheduled)} نوبت شامل ورود اولیه، {n(replay.monthly15.stale_decisions_skipped)} نوبت طبق قاعدهٔ اصلی به دلیل قدیمی بودن امتیاز کنار گذاشته شد. داده‌های روزانهٔ ReportFlow جایگزین این بازپخش نشده‌اند.</p>
-        <div className="mt-4 flex flex-wrap gap-2">{[["گزارش ماهانه و نتایج سالانه","report"],["مسیر سرمایهٔ ماهانه","nav"],["معاملات ماهانه","trades"],["راهنمای استفادهٔ ماهانه","guide"],["بستهٔ کامل ثبت‌شده ZIP","archive"]].map(([label,key])=><a className={button} key={key} href={base+replay.monthly15!.downloads[key]} download><FaDownload size={11}/>{label}</a>)}<Link className={button} to="/strategy?tab=ranking">بررسی سبد ماهانه</Link></div>
+        <div className="mt-4 flex flex-wrap gap-2"><Link className={button} to="/strategy">بررسی سبد ماهانه</Link></div>
       </section>}
       <section className={panel} aria-labelledby="annual-performance-title">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -467,7 +497,7 @@ export function PerformanceContent({
           </a>
         </div>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[950px] text-right text-sm">
+          <table className="w-full min-w-[520px] text-right text-sm">
             <caption className="sr-only">
               بازده سالانهٔ حساب شروع {yearLabel(replay.start_year)}
             </caption>
@@ -478,9 +508,6 @@ export function PerformanceContent({
                   "آغاز " + accountLabel,
                   "پایان " + accountLabel,
                   "بازده " + accountLabel,
-                  "آغاز P1",
-                  "پایان P1",
-                  "بازده P1",
                 ].map((h) => (
                   <th className="p-3 font-medium" scope="col" key={h}>
                     {h}
@@ -507,15 +534,6 @@ export function PerformanceContent({
                     {n(y.final_toman / 1e6, 1)}
                   </td>
                   <td className="p-3 tabular-nums">{pct(y.return_fraction)}</td>
-                  <td className="p-3 tabular-nums">
-                    {n(y.baseline_initial_toman / 1e6, 1)}
-                  </td>
-                  <td className="p-3 tabular-nums">
-                    {n(y.baseline_final_toman / 1e6, 1)}
-                  </td>
-                  <td className="p-3 tabular-nums">
-                    {pct(y.baseline_return_fraction)}
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -525,38 +543,33 @@ export function PerformanceContent({
       <section className={panel}>
         <h2 className="text-lg font-bold">هزینه و اجرای مدل</h2>
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[580px] text-right text-sm">
+          <table className="w-full min-w-0 max-w-[420px] text-right text-sm">
             <thead>
               <tr className="border-b text-xs text-slate-500 dark:border-slate-700">
                 <th className="p-3" scope="col">
-                  شاخص کل بازه
+                  سنجش
                 </th>
                 <th className="p-3" scope="col">
                   {accountLabel}
-                </th>
-                <th className="p-3" scope="col">
-                  P1
                 </th>
               </tr>
             </thead>
             <tbody>
               {[
-                ["کارمزد کسرشده · تومان", n(a.fees_toman), n(b.fees_toman)],
+                ["کارمزد کسرشده · تومان", n(a.fees_toman)],
                 [
                   "اثر لغزش قیمت · تومان",
                   n(a.slippage_toman),
-                  n(b.slippage_toman),
                 ],
                 [
                   "اجرای خرید / فروش",
                   `${n(a.buy_count)} / ${n(a.sell_count)}`,
-                  `${n(b.buy_count)} / ${n(b.sell_count)}`,
                 ],
-                ["تعداد تصمیم", n(a.decision_count), n(b.decision_count)],
-                ["اولین اجرای خرید", day(a.first_fill), day(b.first_fill)],
-                ["نقد پایان · تومان", n(a.cash_toman), n(b.cash_toman)],
-                ["بازده مرکب سالانهٔ تاریخی", pct(a.cagr), pct(b.cagr)],
-              ].map(([label, left, right]) => (
+                ["تعداد تصمیم", n(a.decision_count)],
+                ["اولین اجرای خرید", day(a.first_fill)],
+                ["نقد پایان · تومان", n(a.cash_toman)],
+                ["بازده مرکب سالانهٔ تاریخی", pct(a.cagr)],
+              ].map(([label, value]) => (
                 <tr
                   className="border-b border-slate-100 last:border-0 dark:border-slate-700/50"
                   key={label}
@@ -567,8 +580,7 @@ export function PerformanceContent({
                   >
                     {label}
                   </th>
-                  <td className="p-3 tabular-nums">{left}</td>
-                  <td className="p-3 tabular-nums">{right}</td>
+                  <td className="p-3 tabular-nums">{value}</td>
                 </tr>
               ))}
             </tbody>
@@ -576,56 +588,67 @@ export function PerformanceContent({
         </div>
         <p className="mt-4 text-xs leading-7 text-slate-500">
           کارمزد ۰٫۵٪ و لغزش ۰٫۱٪ هر طرف قبلاً در نتیجه منظور شده‌اند؛ دوباره از
-          سود کم نشوند. P1 با قواعد ثابت سبد خودش مقایسه می‌شود؛ این جدول
-          به‌تنهایی اثر امتیاز را از اثر قواعد سبد جدا نمی‌کند.
+          سود کم نشوند.
         </p>
       </section>
       <section className={panel}>
-        <h2 className="text-lg font-bold">دریافت خروجی همین بازه</h2>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {[
-            ["گزارش مدل نهایی", replay.monthly15?.downloads.report ?? replay.downloads.report],
-            ["نمودار قدیمی · فصلی و P1", replay.downloads.chart],
-            ["مسیر سرمایهٔ مدل نهایی", replay.monthly15?.downloads.nav ?? replay.downloads.candidate_nav],
-            ["مسیر سرمایهٔ P1", replay.downloads.baseline_nav],
-            ["معاملات مدل نهایی", replay.monthly15?.downloads.trades ?? replay.downloads.candidate_trades],
-            ["معاملات P1", replay.downloads.baseline_trades],
-          ].map(([label, filename]) => (
-            <a
-              className={button}
-              key={filename}
-              href={base + filename}
-              download
-            >
-              <FaDownload size={11} />
-              {label}
-            </a>
-          ))}
-        </div>
-        <p className="mt-3 text-xs text-slate-500">
-          تمام فایل‌های این بخش مربوط به حساب با شروع{" "}
-          {yearLabel(replay.start_year)} هستند.
+        <h2 className="text-lg font-bold">خروجی‌ها</h2>
+        <p className="mt-2 text-xs leading-7 text-slate-500">
+          همهٔ فایل‌ها مربوط به حساب با شروع {yearLabel(replay.start_year)} هستند.
         </p>
+        <details className="mt-3">
+          <summary className="cursor-pointer text-sm font-semibold">
+            دریافت فایل‌های گزارش
+          </summary>
+          <div className="mt-4 grid gap-5 sm:grid-cols-2">
+            {downloadGroups.map((group) => (
+              <div key={group.title}>
+                <p className={`text-xs font-semibold ${group.tone}`}>
+                  {group.title}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {group.files.map(([label, filename]) => (
+                    <a
+                      className={button}
+                      key={filename}
+                      href={base + filename}
+                      download
+                    >
+                      <FaDownload size={11} />
+                      {label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </details>
       </section>
       <aside className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-xs leading-8 text-amber-950 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-100">
         <p>
-          <b>مبنای این اعداد بازپخش تاریخی است.</b> بخشی از همین تاریخچه در
-          انتخاب مدل استفاده شده و زمان دریافت تاریخی همهٔ گزارش‌ها اثبات نشده
-          است. ارقام اسمی‌اند؛ تورم تعدیل نشده و واحدها شاخصی تعدیل‌شده‌اند.
-          ارزش پایان، وجه نقد قابل برداشت فوری نیست.
+          <b>مبنای این اعداد بازپخش تاریخی است.</b> ارقام اسمی‌اند؛ تورم تعدیل
+          نشده و ارزش پایان، وجه نقد قابل برداشت فوری نیست.
         </p>
-        {stale.map((p) => (
-          <p key={p.symbol}>
-            {p.symbol}: {n(p.market_value_toman)} تومان با قیمت{" "}
-            {day(p.price_date!)}، {n(p.price_age_days!)} روز قدیمی‌تر از پایان
-            داده{p.action === "EXIT_UNFILLED" ? "؛ خروج اجرا نشده است" : ""}.
-          </p>
-        ))}
-        <p>
-          روزهای بدون فعالیت سهام در تقویم مشاهده‌شدهٔ همین نسخه رسیدگی شده‌اند.
-          انتخاب بازه یا بازخوانی گزارش، حساب جدید و معاملهٔ واقعی ایجاد
-          نمی‌کند.
-        </p>
+        <details className="mt-1">
+          <summary className="cursor-pointer font-semibold">
+            جزئیات و محدودیت‌های گزارش
+          </summary>
+          <div className="mt-2 space-y-2">
+            {stale.map((p) => (
+              <p key={p.symbol}>
+                {p.symbol}: {n(p.market_value_toman)} تومان با قیمت{" "}
+                {day(p.price_date!)}، {n(p.price_age_days!)} روز قدیمی‌تر از پایان
+                داده{p.action === "EXIT_UNFILLED" ? "؛ خروج اجرا نشده است" : ""}.
+              </p>
+            ))}
+            <p>بخشی از همین تاریخچه در انتخاب مدل استفاده شده و زمان دریافت تاریخی همهٔ گزارش‌ها اثبات نشده است.</p>
+            <p>
+              روزهای بدون فعالیت سهام در تقویم مشاهده‌شدهٔ همین نسخه رسیدگی شده‌اند.
+              انتخاب بازه یا بازخوانی گزارش، حساب جدید و معاملهٔ واقعی ایجاد
+              نمی‌کند.
+            </p>
+          </div>
+        </details>
       </aside>
     </div>
   );
@@ -672,7 +695,7 @@ export default function StrategyPerformanceView({
             عملکرد مدل نهایی · FactorMix ماهانه ۱۵
           </h1>
           <p className="mt-2 text-sm leading-7 text-slate-500 dark:text-slate-400">
-            خط بنفش مدل نهایی ماهانهٔ ۱۵ است؛ نسخهٔ فصلی قدیمی و P1 برای مقایسه نمایش داده می‌شوند.
+            خط بنفش مدل نهایی ماهانهٔ ۱۵ است؛ شاخص کل و مثقال برای مقایسه روشن‌اند و نسخه‌های قدیمی با دکمهٔ «مقایسه با نسخه‌های قدیمی» افزوده می‌شوند.
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -682,7 +705,7 @@ export default function StrategyPerformanceView({
           </button>
           <Link className={button} to="/strategy">
             <FaArrowRight size={11} />
-            سبد استراتژی
+            بررسی سبد ماهانه
           </Link>
         </div>
       </header>
