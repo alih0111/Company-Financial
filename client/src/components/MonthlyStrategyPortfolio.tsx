@@ -43,7 +43,7 @@ export default function MonthlyStrategyPortfolio() {
 
   return <section id="strategy-portfolio" aria-labelledby="strategy-portfolio-title" className="min-w-0 scroll-mt-4 rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 dark:border-slate-700 dark:bg-slate-800/60">
     <div className="flex flex-wrap items-start justify-between gap-3">
-      <div><p className="text-xs font-semibold text-violet-700 dark:text-violet-300">FactorMix · ماهانه ۱۵</p><h2 id="strategy-portfolio-title" className="mt-2 text-xl font-black">سبد و خریدوفروش‌های بازپخش تاریخی</h2></div>
+      <div><p className="text-xs font-semibold text-violet-700 dark:text-violet-300">FactorMix · ماهانه ۱۵</p><h2 id="strategy-portfolio-title" className="mt-2 text-xl font-black">شبیه‌سازی تاریخی · دارایی‌ها و معاملات بازپخش از ۱۴۰۱</h2></div>
       <button type="button" className={button} onClick={() => setAttempt(value => value + 1)} disabled={!data && !error}><FaSyncAlt size={11} />بازخوانی سبد</button>
     </div>
     {!data && !error && <p role="status" className="mt-6 text-sm text-slate-500">در حال خواندن دارایی‌ها و معاملات…</p>}
