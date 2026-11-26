@@ -101,7 +101,8 @@ def test_gap_day_between_chain_bars_is_rescaled():
 def test_gap_day_with_no_matching_scale_is_left_alone():
     raw = [BARS[0], BARS[2]]
     halt = dt.date(2026, 9, 2)
-    rows = emitted(D1, {halt: stored_row(300.0)}, raw=raw)
+    # A well-formed candle (has a reference price) that fits no chain scale.
+    rows = emitted(D1, {halt: stored_row(300.0, yesterday_price_rial=295.0)}, raw=raw)
     assert halt not in rows  # continuity guard refuses both candidate scales
 
 
@@ -110,3 +111,23 @@ def test_gap_day_outside_chain_range_is_untouched():
     older = dt.date(2026, 8, 31)
     rows = emitted(D1, {older: stored_row(99.0)}, raw=raw)
     assert older not in rows  # no chain neighbor to prove the scale
+
+
+def test_degenerate_gap_day_is_filled_with_previous_close():
+    # A broken candle (no reference price, no volume) carries no usable scale;
+    # a no-trade day's price equals the previous close, so fill from the chain.
+    raw = [BARS[0], BARS[2]]
+    halt = dt.date(2026, 9, 2)
+    broken = stored_row(1000.0, yesterday_price_rial=None, volume=None)
+    rows = emitted(D1, {halt: broken}, raw=raw)
+    gap = rows[halt]
+    assert gap[11] == 55.0  # chain close of d1, the previous trading day
+    assert gap[17] == 0.0  # no trades happened, change is zero
+
+
+def test_degenerate_fill_requires_neighbour_agreement():
+    raw = [bar("20260901", 100, 95), bar("20260903", 50, 25)]  # a real 2x event inside
+    halt = dt.date(2026, 9, 2)
+    broken = stored_row(1000.0, yesterday_price_rial=None, volume=None)
+    rows = emitted(dt.date(2026, 9, 1), {halt: broken}, raw=raw)
+    assert halt not in rows  # neighbours disagree (real event between them)
