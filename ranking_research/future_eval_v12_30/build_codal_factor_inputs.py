@@ -43,13 +43,13 @@ def resolve_factor_destinations(output_dir: Path, dynamic_store_dir: Path | None
     return out, dynamic_store
 
 
-def validate_source_evidence(prepared: dict, by_id: dict, evidence_doc: dict, root: Path = ROOT) -> None:
+def validate_source_evidence(prepared: dict, by_feed_id: dict, evidence_doc: dict, root: Path = ROOT) -> None:
     """Bind candidates to the exact manifest item, receipt, identity and parser replay."""
     evidence_rows = {(x["feed"], str(x["tracing_no"])): x for x in evidence_doc.get("reports", [])}
     for feed in ("financial", "sales"):
         for candidate in prepared.get(feed, []):
             key = (feed, str(candidate.get("tracing_no")))
-            audit = evidence_rows.get(key); item = by_id.get(key[1], {})
+            audit = evidence_rows.get(key); item = by_feed_id.get(key, {})
             ev = item.get("body_evidence") or {}
             path = root / ev.get("path", "__missing__")
             if (not audit or audit.get("receipt_exactly_linked_to_source_manifest") is not True
@@ -163,8 +163,9 @@ def main() -> int:
                    help="Isolated destination for parser-owned raw bodies and manifests; must be inside --output-dir.")
     p.add_argument("--source-evidence-audit", type=Path,
                    help="Optional sealed local archive audit; binds every parsed candidate to its exact receipt and raw bytes.")
+    p.add_argument("--file-only", action="store_true", help="Use only captured public files and frozen inputs.")
     p.add_argument("--sales-timing-calendar-manifest", "--session-calendar-manifest",
-                   dest="sales_timing_calendar_manifest", type=Path,
+                   dest="sales_timing_calendar_manifest", type=Path, action="append",
                    help="Verified market-wide session evidence used only to assign monthly-sales signal_entry_date.")
     p.add_argument("--sales-timing-calendar-provider", default="nscstart",
                    choices=("nscstart", "public"),
@@ -177,10 +178,11 @@ def main() -> int:
     src = json.loads(src_path.read_text(encoding="utf-8"))
     prepared_path = src_path.parent / "prepared/prepared-inputs.json"
     prepared = json.loads(prepared_path.read_text(encoding="utf-8")) if prepared_path.exists() else {"financial": [], "sales": []}
-    by_id = {str(item.get("tracing_no")): item for feed in src.get("feeds", {}).values() for item in feed.get("report_ids", [])}
+    by_feed_id = {(feed, str(item.get("tracing_no"))): item
+                  for feed, document in src.get("feeds", {}).items() for item in document.get("report_ids", [])}
     if a.source_evidence_audit:
         evidence_doc = json.loads(a.source_evidence_audit.resolve().read_text(encoding="utf-8"))
-        validate_source_evidence(prepared, by_id, evidence_doc)
+        validate_source_evidence(prepared, by_feed_id, evidence_doc)
     cut = pd.Timestamp(cutoff(a.evaluation_date))
     out, dynamic_store = resolve_factor_destinations(
         a.output_dir, a.dynamic_store_dir, D.STORE / "automated" / str(src.get("run_id")))
@@ -193,7 +195,7 @@ def main() -> int:
     used_ids = {(str(x.get("company_id")), str(x.get("tracing_no"))) for x in reports}
     financial_rows = []; financial_blocked = []
     for candidate in prepared.get("financial", []):
-        report_id = str(candidate["tracing_no"]); item = by_id.get(report_id, {})
+        report_id = str(candidate["tracing_no"]); item = by_feed_id.get(("financial", report_id), {})
         pub = pd.Timestamp(candidate["published_at"]).tz_convert("UTC")
         received = pd.Timestamp(candidate["received_at_utc"]).tz_convert("UTC")
         reasons = []
@@ -214,23 +216,33 @@ def main() -> int:
         # upstream capture directory is evidence, not a replay dependency.
         raw_dir = dynamic_store
         main_path = raw_dir / f"financial-{report_id}-main.html"
-        pages = [{"role": "financial", "page_id": "main", "source": candidate.get("report_url"),
+        role = "financial"
+        try:
+            D.payload(body.decode("utf-8", "strict"))
+        except ValueError as exc:
+            if str(exc) != "no_dynamic_datasource" or not candidate.get("financial_pages"):
+                raise
+            role = "navigation_only"
+        pages = [{"role": role, "page_id": "main", "source": candidate.get("report_url"),
                   "path": str(main_path.resolve()), "sha256": sha(body),
                   "received_at_utc": (item.get("body_evidence") or {}).get("retrieved_at_utc")}]
         main_path.write_bytes(body)
         for page in candidate.get("financial_pages", []):
             sheet_id = str(page["sheet_id"])
             compressed = (ROOT / page["path"]).read_bytes()
-            if sha(compressed) != page.get("stored_compressed_sha256"):
+            stored_hash = sha(compressed)
+            expected_stored = page.get("stored_compressed_sha256")
+            if expected_stored is not None and stored_hash != expected_stored:
                 raise ValueError(f"financial_page_compressed_hash_mismatch:{report_id}:{sheet_id}")
             payload = gzip.decompress(compressed)
-            if sha(payload) != page.get("payload_sha256"):
+            # Earlier collector receipts recorded the same payload hash as sha256.
+            if sha(payload) != (page.get("payload_sha256") or page.get("sha256")):
                 raise ValueError(f"financial_page_payload_hash_mismatch:{report_id}:{sheet_id}")
             page_path = raw_dir / f"financial-{report_id}-sheet-{sheet_id}.html"
             page_path.write_bytes(payload)
             pages.append({"role": "financial", "page_id": f"sheet:{sheet_id}", "sheet_id": sheet_id,
                           "source": page.get("final_url") or page.get("url"), "path": str(page_path.resolve()),
-                          "sha256": sha(payload), "stored_compressed_sha256": page.get("stored_compressed_sha256"),
+                          "sha256": sha(payload), "stored_compressed_sha256": stored_hash,
                           "received_at_utc": page.get("retrieved_at_utc"), "http_status": page.get("http_status"),
                           "redirect_chain": page.get("redirect_chain", [])})
         dyn_manifest = {"tracing_no": report_id, "company_id": candidate["company_id"],
@@ -252,19 +264,12 @@ def main() -> int:
                         "tracing_no": report_id, "source": "codal_incremental_verified"})
 
     events = pd.read_parquet(EVENTS)
-    sales_timing_manifest = None
-    sessions = []
-    if a.sales_timing_calendar_manifest:
-        sales_timing_manifest = json.loads(a.sales_timing_calendar_manifest.resolve().read_text(encoding="utf-8"))
-        raw_path = ROOT / sales_timing_manifest["raw_path"]
-        raw = gzip.decompress(raw_path.read_bytes())
-        doc = json.loads(raw)
-        if (sales_timing_manifest.get("source") != "TSETMC documented API MarketInfo/NSCStart"
-                or sha(raw) != sales_timing_manifest.get("raw_sha256")
-                or not isinstance(doc.get("Data"), list)):
-            raise ValueError("official_sales_timing_calendar_source_or_hash_invalid")
-        sessions = sorted({str(x.get("DEven")) for x in doc["Data"]
-                           if x.get("NSCEnd") == "1" and len(str(x.get("DEven", ""))) == 8})
+    from factormix.ranking_evidence import EvidenceFiles, MarketCalendar
+    calendar_paths = a.sales_timing_calendar_manifest or []
+    calendar = MarketCalendar(EvidenceFiles(ROOT), [
+        json.loads(path.read_text(encoding="utf-8")) for path in calendar_paths])
+    if calendar.invalid:
+        raise ValueError("official_sales_timing_calendar_source_or_hash_invalid") from calendar.invalid
     sales_rows = []; sales_blocked = []
     for candidate in prepared.get("sales", []):
         report_id = str(candidate["tracing_no"])
@@ -277,13 +282,13 @@ def main() -> int:
             reasons.append("correction_predecessor_unresolved")
         already = events.event_id.astype(str).eq(report_id).any()
         if already: reasons.append("report_already_in_frozen_event_archive")
-        local_pub_day = pub_utc.tz_convert("Asia/Tehran").strftime("%Y%m%d")
-        next_sessions = [d for d in sessions if d > local_pub_day]
-        if not next_sessions: reasons.append("no_verified_next_session_in_calendar_window")
+        local_pub_day = pub_utc.tz_convert("Asia/Tehran").date()
+        next_session = calendar.next_after(local_pub_day)
+        if next_session is None: reasons.append("no_verified_next_session_in_calendar_window")
         if reasons:
             sales_blocked.append({"tracing_no": report_id, "symbol": candidate["symbol"], "reasons": reasons})
             continue
-        next_date = dt.datetime.strptime(next_sessions[0], "%Y%m%d").date().isoformat()
+        next_date = next_session.isoformat()
         period = pd.Timestamp(candidate["period_end"]).date()
         row = {c: None for c in events.columns}
         row.update({"event_id": report_id, "publication_role": "correction" if candidate["is_correction"] else "original",
@@ -296,7 +301,7 @@ def main() -> int:
             "published_at_raw_jalali": candidate["publish_time_raw_jalali"],
             "published_at_tehran": pub_utc.tz_convert("Asia/Tehran").tz_localize(None), "published_at": pub_utc,
             "tehran_date": pub_utc.tz_convert("Asia/Tehran").date(), "signal_entry_date": next_date,
-            "letter_title": next((x.get("title") for x in by_id.values() if str(x.get("tracing_no")) == report_id), ""),
+            "letter_title": by_feed_id.get(("sales", report_id), {}).get("title", ""),
             "source_url": candidate.get("report_url"), "source": "codal_incremental_verified",
             "ineligibility_reason": "", "event_eligible": True})
         events = pd.concat([events, pd.DataFrame([row])], ignore_index=True)
@@ -313,6 +318,8 @@ def main() -> int:
         parsed_all = D.verified_parsed(rec)
         page_meta = {str(p.get("page_id")): p for p in json.loads(Path(rec["dynamic_manifest_path"]).read_text(encoding="utf-8"))["pages"]}
         for page_id, page in page_meta.items():
+            if page.get("role") == "navigation_only":
+                continue
             parsed_page = D.parsed_page(Path(page["path"]).read_text(encoding="utf-8"), rec)
             for statement, bucket in parsed_page["statements"].items():
                 headers = parsed_page["period_headers"][statement]
@@ -341,9 +348,12 @@ def main() -> int:
     # Quick Sync writes authoritative values to canonical PostgreSQL.  Merge
     # those already-collected rows before the unchanged ranking engine runs;
     # this is a local database read and never triggers another Codal crawl.
-    from canonical_ranking_inputs import merge_canonical_inputs
-    canonical = merge_canonical_inputs(reports, lineage, comparisons, events, cut, a.evaluation_date)
-    events = canonical.pop("events")
+    if a.file_only:
+        canonical = {"state": "file_only", "financial_ids": [], "financial_inputs": [], "sales_inputs": []}
+    else:
+        from canonical_ranking_inputs import merge_canonical_inputs
+        canonical = merge_canonical_inputs(reports, lineage, comparisons, events, cut, a.evaluation_date)
+        events = canonical.pop("events")
     financial_ids_path = out / "fresh-financial-ids.json"
     reports_path.write_text(json.dumps(reports, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     lineage_path.write_text(json.dumps(lineage, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -358,11 +368,13 @@ def main() -> int:
         "financial": {"parsed_candidates": len(prepared.get("financial", [])), "admitted": len(financial_rows) + len(canonical_financial), "held": len(financial_blocked), "admission_errors": financial_blocked,
                       "admitted_inputs": [{"tracing_no": r["tracing_no"], "company_id": r["company_id"], "symbol": r["symbol"],
                         "period_end": r["period_end"], "published_at": r["published_at"], "received_at": r["observed_at"],
+                        "available_at_utc": r["available_at_utc"],
                         "source_body_sha256": r["sha256"], "supersedes_tracing_no": r.get("supersedes_tracing_no")} for r in financial_rows] + canonical_financial},
         "sales": {"parsed_candidates": len(prepared.get("sales", [])), "admitted": len(sales_rows) + len(canonical_sales), "held": len(sales_blocked), "admission_errors": sales_blocked,
-                  "sales_timing_calendar_manifest": str(a.sales_timing_calendar_manifest) if a.sales_timing_calendar_manifest else None,
+                  "sales_timing_calendar_manifest": str(calendar_paths[-1]) if calendar_paths else None,
+                  "sales_timing_calendar_manifests": [provenance_path(path, ROOT) for path in calendar_paths],
                   "timing_calendar_purpose": "assign the locked monthly-sales factor's first eligible signal_entry_date after publication; independent of order-fill review and O00 global-index validation",
-                  "timing_calendar_state": "verified_market_wide_sessions" if sales_timing_manifest else "missing_verified_market_wide_sessions",
+                  "timing_calendar_state": "verified_market_wide_sessions" if calendar.sessions else "missing_verified_market_wide_sessions",
                   "timing_calendar_provider": a.sales_timing_calendar_provider,
                   "public_profile_sales_capability_note": ("the public-paper-v1 calendar is not used for sales PIT timing; capability separation is explicit, and refusal is reported with its own reason, not a missing token") if a.sales_timing_calendar_provider == "public" else None,
                   "order_review_state_is_not_a_factor_input": True, "o00_global_calendar_is_not_a_factor_input": True,

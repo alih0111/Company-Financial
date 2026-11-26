@@ -9,6 +9,7 @@ import datetime as dt
 import gzip
 import hashlib
 import json
+import os
 import re
 import sys
 import time
@@ -20,15 +21,15 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "go-app/py"))
-sys.path.insert(0, str(ROOT))
+sys.path[:0] = [str(ROOT / "qvt_backtest"), str(ROOT / "provenance_v1"),
+                str(ROOT / "go-app/py"), str(ROOT)]
 import codal_feed
 from ranking_research.future_eval_v12_30.http_retry import open_readonly, ReadOnlyRateLimitedError
 
 UNIVERSE = ROOT / "ranking_research/output/return_v12_30/v12_30_20261022_data_procurement_pack_01/frozen_universe_identity_map.csv"
 OWNER = ROOT / "ranking_research/output/owner_current_inputs_20261014T215850582899Z/input_reports.json"
 SALES = ROOT / "fundamental_event_research/monthly_sales_events_universe_v1_1.parquet"
-OUT = ROOT / "ranking_research/output/paper_cycle/codal"
+OUT = Path(os.environ.get("PAPER_CYCLE_CODAL_OUTPUT") or ROOT / "ranking_research/output/paper_cycle/codal")
 TEHRAN = timezone(timedelta(hours=3, minutes=30))
 
 
@@ -91,12 +92,23 @@ def merge_cached_report_items(*sources: dict) -> dict:
         for tracing_no, candidate in (source or {}).items():
             previous = merged.get(str(tracing_no), {})
             keep = dict(candidate)
-            for field in ("body_evidence", "financial_pages", "financial_pages_complete",
-                          "invalid_response_evidence", "body_error"):
-                if not keep.get(field) and previous.get(field):
-                    keep[field] = previous[field]
-            if previous.get("financial_pages_complete") and not keep.get("financial_pages_complete"):
-                keep["financial_pages_complete"] = previous["financial_pages_complete"]
+            same_version = all(previous.get(k) == keep.get(k) for k in ("published_at", "symbol", "company_id"))
+            if same_version:
+                observations = [value for value in (previous.get("discovery_retrieved_at_utc"),
+                                keep.get("discovery_retrieved_at_utc")) if value]
+                if observations:
+                    first = min(observations, key=parse_stamp)
+                    keep["discovery_retrieved_at_utc"] = first
+                    receipt = (previous if previous.get("discovery_retrieved_at_utc") == first else
+                               candidate).get("discovery_page")
+                    if receipt:
+                        keep["discovery_page"] = receipt
+                    else:
+                        keep.pop("discovery_page", None)
+                for field in ("body_evidence", "financial_pages", "financial_pages_complete",
+                              "invalid_response_evidence", "body_error"):
+                    if not keep.get(field) and previous.get(field):
+                        keep[field] = previous[field]
             merged[str(tracing_no)] = keep
     return merged
 
@@ -171,10 +183,11 @@ def discover_with_evidence(letter_type: int, page_number: int, *, symbol: str, f
     if http_status != 200:
         raise ValueError(f"codal_feed_http_{http_status}")
     payload = json.loads(raw.decode("utf-8"))
-    reports = [codal_feed.parse_letter(letter, letter_type) for letter in (payload.get("Letters") or [])]
+    all_reports = [codal_feed.parse_letter(letter) for letter in (payload.get("Letters") or [])]
+    reports = [report for report in all_reports if report.letter_type == letter_type]
     from codal_feed import FeedPage
     page = FeedPage(letter_type=letter_type, page_number=page_number,
-                    total=int(payload.get("Total") or 0), reports=reports)
+                    total=int(payload.get("Total") or 0), reports=reports, all_reports=all_reports)
     return page, raw, {"url": url, "http_status": http_status, "http_date": http_date,
                        "request_attempts": attempts, "retry_wait_seconds": wait}
 
@@ -262,11 +275,17 @@ def record_report_body_evidence(item: dict, body: bytes, *, path: str, content_t
     return True
 
 
-def acquire_financial_sheets(item: dict, body: bytes, raw_dir: Path, only_sheet_ids: set[str] | None = None) -> None:
-    """Fetch the report's explicitly listed parent statement sheets, once each."""
+class FinancialSheetChallenge(ValueError):
+    def __init__(self, kind: str, retry_after: str | None):
+        super().__init__(kind + "_http_200")
+        self.kind = kind
+        self.retry_at = invalid_response_retry_at(retry_after)
+
+
+def financial_sheet_requirements(item: dict, body: bytes) -> tuple[dict, set[str]]:
+    """Extract parent sheets from the actual landing page, without network I/O."""
     from bs4 import BeautifulSoup
     import dynamic_financial as D
-    from dynamic_financial import source_url
     source = urllib.parse.urlparse(item.get("url", ""))
     if source.scheme != "https" or source.hostname not in ("codal.ir", "www.codal.ir"):
         raise ValueError("untrusted_financial_report_url")
@@ -276,66 +295,107 @@ def acquire_financial_sheets(item: dict, body: bytes, raw_dir: Path, only_sheet_
            "parser_version": D.VERSION}
     shown_codes = set()
     try:
-        parsed = D.parsed_page(html, rec)
+        D.parsed_page(html, rec)
         shown_codes = {str(sheet.get("code")) for sheet in D.payload(html).get("sheets", [])}
     except ValueError as exc:
         if str(exc) != "no_dynamic_datasource":
             raise
-        parsed = {"statements": {}}
     soup = BeautifulSoup(html, "html.parser")
     selector = soup.find("select", id="ctl00_ddlTable") or soup.find("select", id="ddlTable")
-    related = list(item.get("financial_pages", []))
+    required = set()
+    query = urllib.parse.parse_qs(source.query, keep_blank_values=True)
     if selector:
         for option in selector.find_all("option"):
             kind = D.H.P._caption_kind(" ".join(option.find_all(string=True, recursive=False)))
             code = option.get("value")
-            if not kind or kind[1] or not code or not str(code).isdigit() or str(code) in shown_codes:
-                continue
-            if only_sheet_ids is not None and str(code) not in only_sheet_ids:
-                continue
-            query = urllib.parse.parse_qs(source.query, keep_blank_values=True)
-            if query.get("sheetId") == [str(code)]:
-                continue
-            query["sheetId"] = [str(code)]
-            url = urllib.parse.urlunsplit((source.scheme, source.netloc, source.path,
-                                           urllib.parse.urlencode(query, doseq=True), ""))
-            request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0",
-                "Accept": "text/html,application/xhtml+xml,*/*", "Referer": item["url"]})
-            response, attempts, wait = open_readonly(request, timeout=35)
-            with response:
-                page_body = response.read(8 * 1024 * 1024 + 1)
-                status, http_date, content_type = response.status, response.headers.get("Date"), response.headers.get("Content-Type")
-            if len(page_body) > 8 * 1024 * 1024 or status != 200:
-                raise ValueError("financial_sheet_response_invalid")
-            invalid_kind = http_200_error_kind(page_body)
-            if invalid_kind:
-                raise ValueError(f"{invalid_kind}_http_200")
-            # Validate each page against the report's own identity/publication/period now.
+            if kind and not kind[1] and code and str(code).isdigit() and str(code) not in shown_codes:
+                if query.get("sheetId") != [str(code)]:
+                    required.add(str(code))
+    return rec, required
+
+
+def acquire_financial_sheets(item: dict, body: bytes, raw_dir: Path, only_sheet_ids: set[str] | None = None) -> None:
+    """Fetch the report's explicitly listed parent statement sheets, once each."""
+    import dynamic_financial as D
+
+    rec, required = financial_sheet_requirements(item, body)
+    source = urllib.parse.urlparse(item["url"])
+    query = urllib.parse.parse_qs(source.query, keep_blank_values=True)
+    related = {str(page["sheet_id"]): page for page in item.get("financial_pages", [])}
+    item["financial_pages_complete"] = False
+    for code in sorted(required):
+        cached = related.pop(code, None)
+        if cached is not None:
             try:
-                D.parsed_page(page_body.decode("utf-8", "strict"), rec)
-            except ValueError as exc:
-                if str(exc) != "duplicate_dynamic_cell":
-                    raise
-            sha256 = digest(page_body)
-            path = raw_dir / f"letter-{item['letter_type']}-tracing-{item['tracing_no']}-sheet-{code}.html.gz"
-            path.write_bytes(gzip.compress(page_body, compresslevel=6))
-            related.append({"sheet_id": str(code), "path": str(path.relative_to(ROOT)).replace("\\", "/"),
-                "sha256": sha256, "bytes": len(page_body), "content_type": content_type,
-                "http_date": http_date, "retrieved_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
-                "request_attempts": attempts, "retry_wait_seconds": wait, "url": url,
-                "final_url": getattr(response, "final_url", url),
-                "redirect_chain": getattr(response, "redirect_chain", []),
-                "http_status": status})
-            time.sleep(0.15)
-    item["financial_pages"] = related
-    item["financial_pages_complete"] = True
+                payload = gzip.decompress((ROOT / cached["path"]).read_bytes())
+                if digest(payload) == cached["sha256"]:
+                    related[code] = cached
+                    continue
+            except (OSError, EOFError, KeyError, ValueError):
+                pass
+        item["financial_pages"] = list(related.values())
+        if only_sheet_ids is not None and code not in only_sheet_ids:
+            continue
+        query["sheetId"] = [str(code)]
+        url = urllib.parse.urlunsplit((source.scheme, source.netloc, source.path,
+                                       urllib.parse.urlencode(query, doseq=True), ""))
+        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0",
+            "Accept": "text/html,application/xhtml+xml,*/*", "Referer": item["url"]})
+        response, attempts, wait = open_readonly(request, timeout=35)
+        with response:
+            page_body = response.read(8 * 1024 * 1024 + 1)
+            status, http_date, content_type = response.status, response.headers.get("Date"), response.headers.get("Content-Type")
+            retry_after = response.headers.get("Retry-After")
+        if len(page_body) > 8 * 1024 * 1024 or status != 200:
+            raise ValueError("financial_sheet_response_invalid")
+        invalid_kind = http_200_error_kind(page_body)
+        if invalid_kind in ("codal_captcha_page", "codal_rate_limit_page"):
+            raise FinancialSheetChallenge(invalid_kind, retry_after)
+        if invalid_kind:
+            raise ValueError(f"{invalid_kind}_http_200")
+        # Validate each page against the report's own identity/publication/period now.
+        try:
+            D.parsed_page(page_body.decode("utf-8", "strict"), rec)
+        except ValueError as exc:
+            if str(exc) != "duplicate_dynamic_cell":
+                raise
+        sha256 = digest(page_body)
+        path = raw_dir / f"letter-{item['letter_type']}-tracing-{item['tracing_no']}-sheet-{code}.html.gz"
+        compressed = gzip.compress(page_body, compresslevel=6, mtime=0)
+        path.write_bytes(compressed)
+        related[code] = {"sheet_id": code, "path": str(path.relative_to(ROOT)).replace("\\", "/"),
+            "sha256": sha256, "payload_sha256": sha256, "stored_compressed_sha256": digest(compressed),
+            "bytes": len(page_body), "content_type": content_type,
+            "http_date": http_date, "retrieved_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
+            "request_attempts": attempts, "retry_wait_seconds": wait, "url": url,
+            "final_url": getattr(response, "final_url", url),
+            "redirect_chain": getattr(response, "redirect_chain", []),
+            "http_status": status}
+        item["financial_pages"] = list(related.values())
+        time.sleep(0.15)
+    item["financial_pages"] = [related[code] for code in sorted(required & related.keys())]
+    item["financial_pages_complete"] = required <= related.keys()
 
 
 def main() -> int:
+    import argparse
     import pandas as pd
-    if len(sys.argv) != 2:
-        raise SystemExit("usage: acquire_codal_incremental.py <run-id>")
-    run_id = sys.argv[1]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("run_id")
+    parser.add_argument("--feed-budget-seconds", type=int)
+    parser.add_argument("--evidence-from-jalali", help="Earliest publication date for a full decision-evidence scan.")
+    args = parser.parse_args()
+    if args.feed_budget_seconds is not None and args.feed_budget_seconds < 1:
+        parser.error("--feed-budget-seconds must be positive")
+    run_id = args.run_id
+    if args.evidence_from_jalali:
+        from ranking_research.future_eval_v12_30.prepare_codal_inputs import jalali_gregorian
+        if not re.fullmatch(r"1[34]\d{2}/\d{2}/\d{2}", args.evidence_from_jalali):
+            parser.error("--evidence-from-jalali must use YYYY/MM/DD")
+        try:
+            jalali_gregorian(args.evidence_from_jalali)
+        except ValueError:
+            parser.error("--evidence-from-jalali must be a valid Jalali date")
     symbols_df = pd.read_csv(UNIVERSE, dtype=str)
     if len(symbols_df) != 254 or symbols_df.company_id.nunique() != 254 or symbols_df.symbol.nunique() != 254:
         raise SystemExit("FROZEN_UNIVERSE_NOT_254_UNIQUE")
@@ -348,6 +408,8 @@ def main() -> int:
               "frozen_universe_count": 254, "feeds": {}}
     watermarks = {6: watermarks_by_identity(6), 58: watermarks_by_identity(58)}
     for letter_type, key in ((6, "financial"), (58, "sales")):
+        deadline = time.monotonic() + (args.feed_budget_seconds or float("inf"))
+        budget_exhausted = False
         started = dt.datetime.now(dt.timezone.utc).isoformat()
         feed = {"letter_type": letter_type, "state": "started", "last_successful_retrieval_utc": None,
                 "latest_published_at": None, "pages": 0, "reports_seen": 0, "frozen_symbol_reports": 0,
@@ -356,8 +418,12 @@ def main() -> int:
                 "frozen_identity_coverage": 0,
                 "new_reports": 0, "report_bodies_received": 0, "report_body_errors": [],
                 "report_ids": [], "error": None, "raw_pages": [], "search_window_policy": "per-identity archive watermark minus 7-day overlap; 365 days for identities without local watermark; all reported pages fetched",
-                "identities_checked_path": None, "coverage_basis": "successful_exact-symbol_query_with_consistent_page_total"}
-        resume_path = OUT / f"{key}-resume.json"
+                "identities_checked_path": None, "coverage_basis": "successful_exact-symbol_query_with_consistent_page_total",
+                "evidence_from_jalali": args.evidence_from_jalali}
+        if args.evidence_from_jalali:
+            feed["search_window_policy"] = "per-identity from the earlier of explicit evidence start and incremental overlap"
+        suffix = '-' + args.evidence_from_jalali.replace('/', '-') if args.evidence_from_jalali else ''
+        resume_path = OUT / f"{key}{suffix}-resume.json"
         cache_path = OUT / "archive" / f"{key}-report-cache.json"
         cached_items = load_archived_report_items(key)
         resume = json.loads(resume_path.read_text(encoding="utf-8")) if resume_path.exists() else {}
@@ -366,7 +432,9 @@ def main() -> int:
         audits = list(resume.get("audits", []))
         checkpoint_checked_symbols = {str(x.get("symbol")) for x in audits
             if str(x.get("status", "")).startswith("checked_")}
-        report_items = merge_cached_report_items(cached_items, resume.get("report_items", {}))
+        report_items = {report_id: item
+                        for report_id, item in merge_cached_report_items(cached_items, resume.get("report_items", {})).items()
+                        if codal_feed._letter_type_from_item({"Url": item.get("url")}) == letter_type}
         # Persist the discovered archive locally before continuing. This is a
         # file-only step and ensures a later run can retry missing bodies without
         # losing the successful metadata search or its page checkpoint.
@@ -435,11 +503,14 @@ def main() -> int:
         page_error = None
         stop_feed = False
         for identity_index, row in enumerate(symbols_df.itertuples(index=False), 1):
+            if time.monotonic() >= deadline:
+                budget_exhausted = True
+                break
             symbol, company_id = str(row.symbol), str(row.company_id)
             if symbol in completed_symbols:
                 continue
             watermark = watermarks[letter_type].get(company_id)
-            from_date = window_start(watermark)
+            from_date = min(window_start(watermark), args.evidence_from_jalali) if args.evidence_from_jalali else window_start(watermark)
             if cursor and cursor.get("symbol") == symbol:
                 audits = [x for x in audits if str(x.get("symbol")) != symbol]
                 audit = cursor["audit"]
@@ -458,7 +529,7 @@ def main() -> int:
             try:
                 if expected_pages is None:
                     first, raw_feed, http = discover_with_evidence(letter_type, 1, symbol=symbol, from_date=from_date)
-                    expected_pages = first.total_pages or (1 if not first.reports else None)
+                    expected_pages = first.total_pages or (1 if first.is_empty else None)
                     first_total = first.total
                     start_page = 1
                     first_fetched = (first, raw_feed, http)
@@ -468,6 +539,9 @@ def main() -> int:
                     raise ValueError("codal_total_pages_missing")
                 page_numbers = list(range(start_page, expected_pages + 1))
                 for page_no in page_numbers:
+                    if time.monotonic() >= deadline:
+                        budget_exhausted = True
+                        break
                     page_started = dt.datetime.now(dt.timezone.utc).isoformat()
                     if page_no == 1 and first_fetched:
                         page, raw, page_http = first_fetched
@@ -497,19 +571,23 @@ def main() -> int:
                             "published_at_raw_jalali": report_item.published_at_raw, "url": report_item.report_url,
                             "version_metadata": {str(k): v for k, v in (report_item.raw or {}).items()
                                 if any(token in str(k).lower() for token in ("version", "correction", "previous", "reference", "supersed"))},
-                            "letter_type": letter_type, "discovery_retrieved_at_utc": dt.datetime.now(dt.timezone.utc).isoformat()}
+                            "letter_type": letter_type, "discovery_retrieved_at_utc": page_meta["retrieved_at_utc"],
+                            "discovery_page": page_meta}
                         previous_item = report_items.get(report_item.report_id, {})
-                        if pub and (not watermark or parse_stamp(pub) > parse_stamp(watermark)):
-                            report_items[report_item.report_id] = record
+                        if pub and (args.evidence_from_jalali or not watermark or parse_stamp(pub) > parse_stamp(watermark)):
+                            if previous_item and previous_item.get("published_at") == pub:
+                                report_items[report_item.report_id] = merge_cached_report_items(
+                                    {report_item.report_id: previous_item}, {report_item.report_id: record})[str(report_item.report_id)]
+                            else:
+                                report_items[report_item.report_id] = record
                             audit["new_reports"] += 1
                             if report_item.report_id not in audit["report_ids"]:
                                 audit["report_ids"].append(report_item.report_id)
                         elif previous_item and previous_item.get("published_at") == pub:
                             # Preserve locally stored valid bodies and their receipt
                             # times when an overlap page returns the same metadata.
-                            report_items[report_item.report_id] = {**record, **{
-                                k: v for k, v in previous_item.items()
-                                if k in ("body_evidence", "invalid_response_evidence", "financial_pages", "financial_pages_complete")}}
+                            report_items[report_item.report_id] = merge_cached_report_items(
+                                {report_item.report_id: previous_item}, {report_item.report_id: record})[str(report_item.report_id)]
                     cursor = {"symbol": symbol, "company_id": company_id, "from_date_jalali": from_date,
                         "expected_pages": expected_pages, "first_total": first_total, "next_page": page_no + 1,
                         "last_confirmed_page": page_no, "audit": audit}
@@ -520,6 +598,8 @@ def main() -> int:
                     save_json(cache_path, {"schema_version": 1, "letter_type": letter_type,
                         "updated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(), "report_items": report_items})
                     time.sleep(0.15)
+                if budget_exhausted:
+                    break
                 audit.update({"pages_fetched": expected_pages, "expected_pages": expected_pages,
                               "total_consistent": True,
                               "status": "checked_with_new_reports" if audit["new_reports"] else "checked_no_new_reports"})
@@ -579,7 +659,7 @@ def main() -> int:
         audit_path.write_text(json.dumps({"letter_type": letter_type, "search_window_policy": feed["search_window_policy"],
             "identities": full_audit}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         feed["identities_checked_path"] = str(audit_path.relative_to(ROOT)).replace("\\", "/")
-        fresh_reports = list(report_items.values())
+        fresh_reports = sorted(report_items.values(), key=lambda item: item.get("published_at") or "", reverse=True)
         feed["archive_reuse"]["reprocessed_from_local_body"] = 0
         feed["archive_reuse"]["retried_after_missing_or_invalid_body"] = 0
         for idx, item in enumerate(fresh_reports, 1):
@@ -590,6 +670,9 @@ def main() -> int:
             if item.get("body_evidence") and (key != "financial" or item.get("financial_pages_complete")):
                 continue
             if stop_feed:
+                break
+            if time.monotonic() >= deadline:
+                budget_exhausted = True
                 break
             url = urllib.parse.urlparse(item.get("url", ""))
             if url.scheme != "https" or url.hostname not in ("codal.ir", "www.codal.ir", "excel.codal.ir"):
@@ -667,6 +750,17 @@ def main() -> int:
                     "latest_published_at": newest})
                 save_json(cache_path, {"schema_version": 1, "letter_type": letter_type,
                     "updated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(), "report_items": report_items})
+            except FinancialSheetChallenge as exc:
+                feed["report_body_errors"].append({"tracing_no": item["tracing_no"], "error": str(exc)})
+                feed["deferred_reason"] = exc.kind
+                feed["rate_limit"] = {"next_attempt_at_utc": exc.retry_at, "source_stopped": True,
+                                      "stage": "financial_sheet"}
+                stop_feed = True
+                save_json(resume_path, {"state": "deferred_invalid_response", "audits": audits,
+                    "report_items": report_items, "raw_pages": feed["raw_pages"], "pages": feed["pages"],
+                    "cursor": None, "latest_published_at": newest, "next_attempt_at_utc": exc.retry_at,
+                    "deferred_reason": exc.kind, "rate_limit": feed["rate_limit"]})
+                break
             except ReadOnlyRateLimitedError as exc:
                 feed["report_body_errors"].append({"tracing_no": item["tracing_no"], "error": str(exc)})
                 item["body_error"] = str(exc)
@@ -690,7 +784,8 @@ def main() -> int:
         feed["reports_seen"] = sum(int(x.get("reports_in_window", 0)) for x in audits)
         feed["frozen_symbol_reports"] = feed["reports_seen"]
         total_checked = feed["companies_checked"] + feed["companies_previously_checked"]
-        feed.update({"state": "received" if total_checked == 254 and not feed["companies_unchecked"] and not feed["report_body_errors"] else "partial",
+        feed.update({"state": "received" if total_checked == 254 and not feed["companies_unchecked"] and not feed["report_body_errors"] and not budget_exhausted else "partial",
+                     "budget_exhausted": budget_exhausted,
                      "last_successful_retrieval_utc": max((x.get("retrieved_at_utc") for x in feed["raw_pages"] if x.get("retrieved_at_utc")), default=None),
                      "latest_published_at": newest, "frozen_identity_coverage": total_checked,
                      "pagination_complete": total_checked == 254 and not feed["companies_unchecked"],
@@ -706,7 +801,11 @@ def main() -> int:
                 for x in report_items.values())})
         save_json(cache_path, {"schema_version": 1, "letter_type": letter_type,
             "updated_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(), "report_items": report_items})
-        if not stop_feed and feed["companies_checked"] == 254:
+        if budget_exhausted:
+            save_json(resume_path, {"state": "in_progress", "audits": audits, "report_items": report_items,
+                "raw_pages": feed["raw_pages"], "pages": feed["pages"], "cursor": cursor,
+                "latest_published_at": newest})
+        elif not stop_feed and total_checked == 254:
             save_json(resume_path, {"state": "complete", "completed_at_utc": dt.datetime.now(dt.timezone.utc).isoformat()})
         feed["finished_at_utc"] = dt.datetime.now(dt.timezone.utc).isoformat()
         report["feeds"][key] = feed
@@ -718,7 +817,7 @@ def main() -> int:
                         "HTTP 200 CAPTCHA/rate-limit pages are retained as invalid evidence, never as successful report bodies or extraction input.",
                         "Receipt timestamps are this run's timestamps and are not attributed to historical archive records."]
     path = out / "manifest.json"
-    path.write_text(json.dumps(report, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    save_json(path, report)
     print(json.dumps({"manifest": str(path.relative_to(ROOT)).replace("\\", "/"),
         "feeds": {k: {f: v.get(f) for f in ("state", "pages", "reports_seen", "companies_checked", "companies_new_reports", "companies_no_new_reports", "companies_failed", "new_reports", "report_bodies_received", "latest_published_at", "error")}
                   for k, v in report["feeds"].items()}}, ensure_ascii=False))

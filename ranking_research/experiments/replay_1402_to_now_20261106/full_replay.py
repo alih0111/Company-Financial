@@ -36,7 +36,7 @@ def ratio(a,b,positive=False,scale=1):
     except (TypeError,ValueError):return np.nan
 
 
-def append_financial(data,md,meta,needed):
+def append_financial(data,md,meta,needed,*,evidence_trace=None):
     reports_path=ROOT/meta['financial']['reports_path']
     records=json.loads(reports_path.read_text(encoding='utf8'))
     comparisons=json.loads((ROOT/meta['financial']['comparatives_path']).read_text(encoding='utf8'))
@@ -45,17 +45,31 @@ def append_financial(data,md,meta,needed):
     original=pd.read_parquet(ROOT/'fundamental_event_research/monthly_sales_events_universe_v1_1.parquet')
     events=pd.concat([original,events],ignore_index=True).drop_duplicates('event_id',keep='last')
     identities=pd.read_csv(ROOT/'ranking_research/output/return_v12_30/v12_30_20261022_data_procurement_pack_01/frozen_universe_identity_map.csv',dtype=str)
-    selected_ids={str(r.company_id):{'symbol':str(r.symbol),'security_id':md.sym2sid[str(r.symbol)]} for r in identities.itertuples()}
     intervals=json.loads((ROOT/'qvt_backtest/output/financial_history/share_intervals.json').read_text(encoding='utf8'))['intervals']
+    snapshots, audit = financial_snapshots(md, records, comparisons, events, identities, intervals, needed,
+                                           evidence_trace=evidence_trace)
+    for day, frame in snapshots.groupby('decision_time'):
+        frame.to_parquet(OUT/f'financial_{day}.parquet',index=False)
+        print('FINANCIAL SNAPSHOT',day,len(frame),'companies',flush=True)
+    (OUT/'financial_extension_audit.json').write_text(json.dumps({'snapshots':audit,'reports_path':str(reports_path.relative_to(ROOT)),
+        'monthly_path':str(monthly_path.relative_to(ROOT)),'current_owner_features_used':False,
+        'source_definitions':'same locked financial ratios; V12.37 income-period selection adapter for new dates only',
+        'receipt_limitation':'publication-reconstructed, NOT actual historical receipt evidence'},ensure_ascii=False,indent=2),encoding='utf8')
+    return snapshots
+
+
+def financial_snapshots(md, records, comparisons, events, identities, intervals, needed, *, evidence_trace=None):
+    """Build the same publication-cutoff snapshots from decoded source inputs."""
+    selected_ids={str(r.company_id):{'symbol':str(r.symbol),'security_id':md.sym2sid[str(r.symbol)]} for r in identities.itertuples()}
     skeleton=pd.concat([identities[['company_id','symbol']].assign(decision_time=d) for d in needed],ignore_index=True)
-    monthly=build_monthly(events,skeleton,needed,[],jalali=True,keep_corrections=True).set_index(['decision_time','symbol'])
+    monthly=build_monthly(events,skeleton,needed,[],jalali=True,keep_corrections=True,include_sources=True).set_index(['decision_time','symbol'])
     all_rows=[];audit=[]
     for day in needed:
         cut=cutoff(day)
         # Comparative facts with explicit later availability are not backdated.
         rcopy=[{**r,'facts':[dict(f) for f in r['facts']]} for r in records]
         bykey={(str(r['company_id']),str(r['tracing_no'])):r for r in rcopy}
-        admitted=0
+        admitted=0;added={}
         for comp in comparisons:
             available=comp.get('available_at_utc')
             if available and pd.Timestamp(available)>pd.Timestamp(cut):continue
@@ -68,6 +82,7 @@ def append_financial(data,md,meta,needed):
                 rec['facts'].append(dict(statement_type=comp['statement_type'],metric_code=comp['metric_code'],
                     period_order=int(comp['period_order']),value=float(comp['canonical_value']),unit=comp['canonical_unit'],basis='parent'))
                 admitted+=1
+                added.setdefault(str(comp['company_id']),[]).append(comp)
             elif not np.isclose(float(prior['value']),float(comp['canonical_value']),rtol=1e-12,atol=1):
                 raise RuntimeError('Comparative value conflict')
         source=LocalSnapshots(rcopy,[],selected_ids,md,intervals)
@@ -126,6 +141,47 @@ def append_financial(data,md,meta,needed):
             vals[13]=vals[12]*vals[6]/100 if 0<vals[12]<=60 and vals[6]>0 and vals[12]*vals[6]/100<=100 else np.nan
             vals[14]=vals[12]*vals[7]/100 if 0<vals[12]<=60 and vals[7]>0 and vals[12]*vals[7]/100<=30 else np.nan
             selected=eng.snapshot_source_reports.get(cid,[])
+            if evidence_trace is not None:
+                traces={str(report['tracing_no']) for report in selected}
+                nulls={}
+                # These are explicit model exclusions with observed operands.
+                # Missing share proof, missing financial cells and an
+                # unexplained TTM null remain unresolved.
+                valuation_unusable = (g('eps') is not None and g('eps') <= 0
+                                      or (net is not None and net <= 0 and g('net_profit') is not None
+                                          and g('net_profit') > 0))
+                if valuation_unusable:
+                    nulls.update({field:'nonpositive_earnings_per_share' for field in ('pe','ps','pb')})
+                operands = ((2,g('revenue'),g('revenue',2),False),
+                            (5,op,rev,False),(6,net,rev,False),
+                            (7,net,bg('total_equity'),True),
+                            (9,g('operating_profit'),g('finance_cost'),False),
+                            (10,m.get('ocf_ttm'),net,True),
+                            (11,g('other_non_operating'),g('operating_profit'),False),
+                            (17,bg('total_liabilities'),bg('total_equity'),True),
+                            (18,bg('current_assets'),bg('current_liabilities'),True))
+                for i, numerator, denominator, positive in operands:
+                    if (not np.isfinite(vals[i]) and numerator is not None and denominator is not None
+                            and np.isfinite(numerator) and np.isfinite(denominator)
+                            and (denominator == 0 or positive and denominator < 0)):
+                        nulls[FIELDS[i]]='observed_denominator_outside_model_domain'
+                for i, value, limit in ((5,ratio(op,rev,scale=100),200),(6,ratio(net,rev,scale=100),200),
+                                        (7,ratio(net,bg('total_equity'),True,100),300),
+                                        (9,ratio(g('operating_profit'),g('finance_cost')),10000)):
+                    if np.isfinite(value) and abs(value)>limit and not np.isfinite(vals[i]):
+                        nulls[FIELDS[i]]='ratio_outside_locked_range'
+                if share_ok and np.isfinite(vals[12]):
+                    for i, basis in ((13,6),(14,7)):
+                        if np.isfinite(vals[basis]) and not np.isfinite(vals[i]):
+                            nulls[FIELDS[i]]='valuation_ratio_outside_locked_range'
+                for i, value, low, high in ((17,ratio(bg('total_liabilities'),bg('total_equity'),True),0,50),
+                                            (18,ratio(bg('current_assets'),bg('current_liabilities'),True),0,15)):
+                    if np.isfinite(value) and not low<=value<=high and not np.isfinite(vals[i]):
+                        nulls[FIELDS[i]]='ratio_outside_locked_range'
+                evidence_trace[sym,day]={'comparatives':[comp for comp in added.get(cid,[]) if str(comp['tracing_no']) in traces],
+                                         'share_interval':iv if share_ok and not valuation_unusable else None,
+                                         'share_mark_date':actual,
+                                         'validated_nulls':nulls}
             assert all(pd.Timestamp(s['published_at'])<pd.Timestamp(cut) for s in selected)
             period=cell.get('_period');age=(pd.Timestamp(day)-pd.Timestamp(period)).days if period else 9999
             priceage=(pd.Timestamp(day)-pd.Timestamp(actual)).days if actual else 9999
@@ -136,17 +192,12 @@ def append_financial(data,md,meta,needed):
             dq=(.28 if count>=16 else .16 if count>=8 else .09 if count>=4 else 0)+(.21 if len(ids)>=90 else .13 if len(ids)>=30 else .06 if len(ids)>=10 else 0)+(.09 if price else 0)+(.08 if selected and months<=5 else .045 if selected and months<=8 else 0)+(.06 if priceage<=7 else .035 if priceage<=14 else 0)
             rows.append(dict(decision_time=day,symbol=sym,company_id=cid,**dict(zip(FIELDS,vals)),
                 net_profit_ttm=net,dq=dq,financial_age_days=age,blocked=False,
-                sources=json.dumps(selected,ensure_ascii=False),publication_cutoff=cut.isoformat(),price_date=actual))
-        frame=pd.DataFrame(rows);frame.to_parquet(OUT/f'financial_{day}.parquet',index=False)
+                sources=json.dumps(selected,ensure_ascii=False),sales_sources=json.dumps(row.sales_sources),
+                publication_cutoff=cut.isoformat(),price_date=actual))
         all_rows.extend(rows);audit.append(dict(day=day,companies=len(rows),comparatives_admitted=admitted,
             publication_gate_pass=True,income_statement_selection='latest income period; no future owner table',
             real_historical_receipt_proven=False))
-        print('FINANCIAL SNAPSHOT',day,len(rows),'companies',flush=True)
-    (OUT/'financial_extension_audit.json').write_text(json.dumps({'snapshots':audit,'reports_path':str(reports_path.relative_to(ROOT)),
-        'monthly_path':str(monthly_path.relative_to(ROOT)),'current_owner_features_used':False,
-        'source_definitions':'same locked financial ratios; V12.37 income-period selection adapter for new dates only',
-        'receipt_limitation':'publication-reconstructed, NOT actual historical receipt evidence'},ensure_ascii=False,indent=2),encoding='utf8')
-    return pd.DataFrame(all_rows)
+    return pd.DataFrame(all_rows), audit
 
 
 def build_extended_scores(data,frame,policy):

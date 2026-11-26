@@ -15,7 +15,10 @@ import urllib.error
 import urllib.request
 import argparse
 from pathlib import Path
-from http_retry import ReadOnlyRateLimitedError, open_readonly
+try:
+    from ranking_research.future_eval_v12_30.http_retry import ReadOnlyRateLimitedError, open_readonly
+except ImportError:
+    from http_retry import ReadOnlyRateLimitedError, open_readonly
 
 import pandas as pd
 
@@ -35,15 +38,22 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
-def fetch_one(row):
+def fetch_one(row, *, daily_only=False, with_adjustments=False, previous=None):
     cid, symbol, security_id, ins_code = map(str, row)
     result = {"company_id": cid, "symbol": symbol, "security_id": security_id,
               "ins_code": ins_code, "retrieved_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
               "status": "started", "sources": {}}
-    for kind, url in (
+    endpoints = (
         ("daily", f"https://cdn.tsetmc.com/api/ClosingPrice/GetClosingPriceDailyList/{ins_code}/0"),
         ("share_change", f"https://cdn.tsetmc.com/api/Instrument/GetInstrumentShareChange/{ins_code}"),
-    ):
+    )
+    if with_adjustments:
+        endpoints += (("adjustment", f"https://cdn.tsetmc.com/api/ClosingPrice/GetPriceAdjustList/{ins_code}"),)
+    if previous:
+        result.update({k: v for k, v in previous.items() if k not in ('status', 'errors')})
+    for kind, url in endpoints[:1] if daily_only else endpoints:
+        if kind in result['sources']:
+            continue
         try:
             req = urllib.request.Request(url, headers=HEADERS)
             response = None
@@ -100,15 +110,18 @@ def fetch_one(row):
                 result["daily"] = dated[-60:]
                 result["daily_total_rows"] = len(records)
                 result["latest_quote_date"] = dated[-1]["date"] if dated else None
-            else:
+            elif kind == "share_change":
                 changes = doc.get("instrumentShareChange")
                 if not isinstance(changes, list): raise ValueError("SHARE_CHANGE_LIST_MISSING")
                 for item in changes:
                     if str(item.get("insCode")) != ins_code: raise ValueError("SHARE_CHANGE_INSCODE_MISMATCH")
                 result["share_changes"] = changes
-            raw_path = OUT / "raw" / f"{cid}.{kind}.json.gz"
+            elif not isinstance(doc.get("priceAdjust"), list):
+                raise ValueError("PRICE_ADJUST_LIST_MISSING")
+            raw_path = OUT / "raw" / f"{cid}.{kind}.{sha(raw)[:20]}.json.gz"
             raw_path.parent.mkdir(parents=True, exist_ok=True)
-            raw_path.write_bytes(gzip.compress(raw, compresslevel=6))
+            if not raw_path.exists():
+                raw_path.write_bytes(gzip.compress(raw, compresslevel=6))
             result["sources"][kind] = {"url": url, "http_status": status, "http_date": http_date,
                 "retrieved_at_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
                 "raw_path": str(raw_path.relative_to(ROOT)).replace("\\", "/"),
@@ -128,6 +141,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, default=OUT,
                         help="Fresh run directory; use a new directory for each daily acquisition.")
+    parser.add_argument("--daily-only", action="store_true", help="Collect only closing-price history.")
+    parser.add_argument("--with-adjustments", action="store_true")
     args = parser.parse_args()
     OUT = args.output_dir if args.output_dir.is_absolute() else ROOT / args.output_dir
     OUT.mkdir(parents=True, exist_ok=True)
@@ -144,25 +159,30 @@ def main():
         raise SystemExit("FROZEN_IDENTITY_TO_CACHED_INSCODE_JOIN_FAILED")
     targets = list(matched[["company_id", "symbol", "security_id", "ins_code"]].itertuples(index=False, name=None))
     checkpoint = OUT / "progress.jsonl"
-    done = {}
+    done, previous = {}, {}
     if checkpoint.exists():
         for line in checkpoint.read_text(encoding="utf-8").splitlines():
             try:
                 item = json.loads(line)
-                if item.get("status") == "complete": done[item["company_id"]] = item
+                previous[item["company_id"]] = item
+                if item.get("status") == "complete" and (not args.with_adjustments or 'adjustment' in item['sources']):
+                    done[item["company_id"]] = item
             except Exception: pass
     # Keep request concurrency low for the public official endpoint. Resume is cache-first.
     for i, row in enumerate(targets, 1):
         cid = str(row[0])
         if cid in done: continue
-        item = fetch_one(row)
+        item = fetch_one(row, daily_only=args.daily_only, with_adjustments=args.with_adjustments,
+                         previous=previous.get(cid) if args.with_adjustments else None)
         with checkpoint.open("a", encoding="utf-8") as f: f.write(json.dumps(item, ensure_ascii=False) + "\n")
         print(json.dumps({"n": i, "of": len(targets), "symbol": item["symbol"], "status": item["status"],
                           "latest_quote_date": item.get("latest_quote_date"), "errors": item.get("errors")}, ensure_ascii=False), flush=True)
         if item["status"] != "complete":
             # Keep collecting independent identities and report every failure.
             # A throttled identity has its own bounded Retry-After-aware retry.
-            pass
+            if any(e['error_type'] == 'ReadOnlyRateLimitedError' or 'public_capture_budget_exhausted' in e['error']
+                   for e in item['errors']):
+                break
         else:
             done[cid] = item
         time.sleep(0.12)

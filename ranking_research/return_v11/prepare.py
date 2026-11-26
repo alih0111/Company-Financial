@@ -4,8 +4,7 @@ import hashlib,json,pickle
 from pathlib import Path
 import shutil
 import numpy as np,pandas as pd,jdatetime
-from ranking_research.return_v11.core import ROOT,V9,V10,OUT,sha,WEIGHTS,cfg,score,simulate_v10
-from ranking_research.return_v8.features import FIELDS,ranks,penalties
+from ranking_research.return_v8.features import ROOT,FIELDS,ranks,penalties
 
 EVENTS=ROOT/'fundamental_event_research/monthly_sales_events_universe_v1_1.parquet'
 V8=ROOT/'ranking_research/output/return_v8/v8_20261016T202437867840Z'
@@ -65,7 +64,7 @@ def timeline(events,cal,*,jalali=False,keep_corrections=False):
   elif verified and pd.notna(value):lookup.setdefault(r.company_id,[]).append((r.known_date,r.period_key,float(value),'verified_original',str(r.event_id)))
  return lookup
 
-def build_monthly(events,feat,cal,syms,*,jalali=False,keep_corrections=False):
+def build_monthly(events,feat,cal,syms,*,jalali=False,keep_corrections=False,include_sources=False):
  symbols=feat[['symbol','company_id']].drop_duplicates();
  if symbols.symbol.duplicated().any():raise ValueError('Ambiguous symbol-to-company map')
  timelines=timeline(events,cal,jalali=jalali,keep_corrections=keep_corrections)
@@ -74,9 +73,17 @@ def build_monthly(events,feat,cal,syms,*,jalali=False,keep_corrections=False):
   ev=timelines.get(str(sr.company_id),[]);ix=0;known={};last_status={}
   for day in cal:
    while ix<len(ev) and str(ev[ix][0])[:10]<=str(day)[:10]:
-    _,period,value,reason,event_id=ev[ix];known[period]=value;last_status[period]=(reason,event_id);ix+=1
+    known_day,period,value,reason,event_id=ev[ix];known[period]=value;last_status[period]=(reason,event_id,str(known_day.date()));ix+=1
    vals=metrics(known)
    rows.append({'decision_time':day,'symbol':sr.symbol,'company_id':str(sr.company_id),'sales_growth_12m':vals[0],'sales_growth_3m':vals[1],'sales_stability':vals[2],'known_months':sum(v is not None for v in known.values()),'known_periods':len(known),'latest_period':max(known,default=None),'missing_reason_12m':reason_for(known,24),'missing_reason_3m':reason_for(known,6),'missing_reason_stability':reason_for(known,12)})
+   if include_sources:
+    # Evidence only covers the same contiguous span queried by metrics().
+    # Keep masks inside that span but do not pull older months across a gap.
+    periods = sorted(last_status)[-24:]
+    if periods:
+     year,month=map(int,periods[-1].split('-'));start_year,start_month=divmod(year*12+month-24,12)
+     periods=[p for p in periods if p>=f'{start_year:04d}-{start_month+1:02d}']
+    rows[-1]['sales_sources'] = [(period, *last_status[period]) for period in periods]
  return pd.DataFrame(rows)
 
 def reason_for(months,n):
@@ -98,6 +105,8 @@ def make_tensor(base,monthly,*,rebuild_penalty=False,net=None):
  return t
 
 def run():
+ from ranking_research.return_v11.core import V9,V10,OUT,sha,WEIGHTS,cfg,score,simulate_v10
+
  OUT.mkdir(parents=True,exist_ok=True)
  t0=pickle.load((V10/'tensors_v10.pkl').open('rb'));v9t=pickle.load((V9/'tensors_v9.pkl').open('rb'))
  events=pd.read_parquet(EVENTS);feat=pd.read_parquet(V9/'monthly_sales_features_v9.parquet',columns=['decision_time','symbol','company_id'])

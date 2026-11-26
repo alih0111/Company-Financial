@@ -110,7 +110,7 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
     if not company_ids:
         return {"financial_admitted": 0, "sales_admitted": 0, "financial_ids": [], "state": "empty_universe"}
 
-    with psycopg.connect(canonical_dsn()) as conn:
+    with psycopg.connect(canonical_dsn(), options='-c default_transaction_read_only=on') as conn:
         letters = _letter_index(conn, company_ids, cutoff)
         financial_rows = conn.execute(
             """
@@ -118,7 +118,8 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
               SELECT DISTINCT ON (fs.company_id, fs.period_end_date, fs.statement_type)
                      fs.id, fs.company_id::text AS company_id, fs.period_end_date,
                      fs.statement_type, r.source_report_id, r.jalali_period_text,
-                     rv.collected_at
+                     rv.collected_at, rv.id::text AS version_id,
+                     CASE WHEN r.source = 'codal' THEN rv.content_hash END AS content_hash
               FROM fundamentals.financial_statements fs
               JOIN ingestion.reports r ON r.id = fs.report_id
               JOIN ingestion.report_versions rv ON rv.id = fs.report_version_id
@@ -129,7 +130,7 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
                        rv.collected_at DESC, fs.created_at DESC
             )
             SELECT p.company_id, p.period_end_date, p.statement_type,
-                   p.source_report_id, p.jalali_period_text, p.collected_at,
+                   p.source_report_id, p.jalali_period_text, p.collected_at, p.version_id, p.content_hash,
                    f.metric_code, f.period_order, f.comparison_type,
                    f.canonical_value, f.canonical_unit
             FROM picked p
@@ -147,7 +148,8 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
             SELECT DISTINCT ON (ma.company_id, ma.period_end_date)
                    ma.company_id::text, ma.security_id::text, ma.period_end_date,
                    ma.jalali_period_text, ma.sales_amount_rial,
-                   r.source_report_id, rv.collected_at
+                   r.source_report_id, rv.collected_at, rv.id::text,
+                   CASE WHEN r.source = 'codal' THEN rv.content_hash END
             FROM fundamentals.monthly_activities ma
             JOIN ingestion.reports r ON r.id = ma.report_id
             JOIN ingestion.report_versions rv ON rv.id = ma.report_version_id
@@ -162,9 +164,9 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
         ).fetchall()
 
     grouped = defaultdict(list)
-    meta = {}
+    meta, versions = {}, defaultdict(set)
     for row in financial_rows:
-        (cid, period, statement, source_report_id, jalali_period, collected_at,
+        (cid, period, statement, source_report_id, jalali_period, collected_at, version_id, content_hash,
          metric, order, comparison_type, value, unit) = row
         cid, period = str(cid), str(period)
         if period < latest_base_period.get(cid, ""):
@@ -172,6 +174,7 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
         key = (cid, period)
         meta[key] = {"source_report_id": str(source_report_id),
                      "jalali_period": str(jalali_period or ""), "collected_at": collected_at}
+        versions[key].add((str(source_report_id), version_id, content_hash))
         grouped[key].append({"statement_type": str(statement), "metric_code": str(metric),
                              "period_order": int(order), "comparison_type": comparison_type,
                              "value": float(value), "unit": str(unit), "basis": "parent"})
@@ -212,6 +215,10 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
             "source_url": letter.get("source_url") if letter else None,
             "history_basis": "canonical_quick_sync_point_in_time", "facts": own,
         }
+        if len(versions[cid, period]) == 1:
+            source_id, version_id, content_hash = next(iter(versions[cid, period]))
+            if content_hash and source_id == record["source_report_id"]:
+                record.update(source_content_sha256=content_hash, source_version_id=version_id)
         reports.append(record)
         lineage.append({"company_id": cid, "period": period, "published_at": record["published_at"],
                         "observed_at": record["observed_at"], "tracing_no": tracing,
@@ -243,7 +250,7 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
         latest_event_period[cid] = max(period, latest_event_period.get(cid, ""))
     admitted_sales = []
     new_event_rows = []
-    for cid, security_id, period, jalali_period, sales, source_report_id, collected_at in monthly_rows:
+    for cid, security_id, period, jalali_period, sales, source_report_id, collected_at, version_id, content_hash in monthly_rows:
         cid, period = str(cid), str(period)
         if cid not in symbols or period <= latest_event_period.get(cid, ""):
             continue
@@ -252,12 +259,14 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
         event_id = letter["source_id"] if letter else "canonical-monthly:" + str(source_report_id)
         if event_id in existing_event_ids:
             continue
+        is_correction = bool(letter and "اصلاحیه" in letter["title"])
         row = {column: None for column in events.columns}
-        row.update({"event_id": event_id, "publication_role": "original", "is_correction": False,
+        row.update({"event_id": event_id, "publication_role": "correction" if is_correction else "original",
+            "is_correction": is_correction,
             "security_id": security_id, "symbol": symbols[cid], "company_id": cid,
             "event_type": "monthly_sales_report", "period_end": dt.date.fromisoformat(period),
             "match_status": "MATCH_CANONICAL_QUICK_SYNC", "CURRENT_PERIOD_SALES": float(sales),
-            "current_value_version_known": True, "current_period_has_correction": False,
+            "current_value_version_known": not is_correction, "current_period_has_correction": is_correction,
             "published_at_raw_jalali": None,
             "published_at_tehran": pd.Timestamp(published).tz_convert("Asia/Tehran").tz_localize(None),
             "published_at": pd.Timestamp(published).tz_convert("UTC"),
@@ -268,9 +277,12 @@ def merge_canonical_inputs(reports: list[dict], lineage: list[dict], comparisons
             "source": "canonical_postgres_quick_sync", "ineligibility_reason": "", "event_eligible": True})
         new_event_rows.append(row)
         existing_event_ids.add(event_id)
-        admitted_sales.append({"company_id": cid, "symbol": symbols[cid], "period_end": period,
-                               "tracing_no": event_id, "published_at": _iso(published),
-                               "received_at": _iso(collected_at), "signal_entry_date": row["signal_entry_date"]})
+        entry = {"company_id": cid, "symbol": symbols[cid], "period_end": period,
+                 "tracing_no": event_id, "published_at": _iso(published),
+                 "received_at": _iso(collected_at), "signal_entry_date": row["signal_entry_date"]}
+        if content_hash and str(source_report_id) == event_id:
+            entry.update(source_version_id=version_id, source_content_sha256=content_hash)
+        admitted_sales.append(entry)
 
     if new_event_rows:
         events = pd.concat([events, pd.DataFrame(new_event_rows)], ignore_index=True)

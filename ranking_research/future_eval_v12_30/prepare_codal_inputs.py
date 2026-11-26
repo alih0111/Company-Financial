@@ -81,7 +81,7 @@ def correction_predecessor(item: dict, html: str) -> str | None:
     return None
 
 
-def parse_financial(html: str, item: dict, identity: dict, retrieved: str, body_sha: str) -> dict:
+def parse_financial(html: str, item: dict, identity: dict, retrieved: str, body_sha: str, *, root=ROOT) -> dict:
     import dynamic_financial as D
     from bs4 import BeautifulSoup
     source_pub = dt.datetime.fromisoformat(item["published_at"])
@@ -99,7 +99,7 @@ def parse_financial(html: str, item: dict, identity: dict, retrieved: str, body_
     pages = [{"html": html, "sha256": body_sha}]
     received_stamps = [dt.datetime.fromisoformat(retrieved.replace("Z", "+00:00"))]
     for page in item.get("financial_pages", []):
-        page_path = Path(page["path"])
+        page_path = root / page["path"]
         page_bytes = gzip.decompress(page_path.read_bytes()) if page_path.suffix == ".gz" else page_path.read_bytes()
         if sha(page_bytes) != page.get("sha256"):
             raise ValueError("financial_sheet_body_hash_mismatch")
@@ -250,6 +250,7 @@ def parse_sales(html: str, item: dict, retrieved: str, body_sha: str) -> dict:
 
 def main() -> int:
     import argparse
+    import codal_feed
     parser = argparse.ArgumentParser()
     parser.add_argument("manifest", type=Path)
     args = parser.parse_args()
@@ -264,11 +265,15 @@ def main() -> int:
               "errors": [], "lineage": {"publication_time_preserved": True, "receipt_time_preserved": True,
                   "received_at_backdated": False, "raw_body_hash_required": True}}
     by_feed = source.get("feeds", {})
-    for feed_name in ("financial", "sales"):
+    excluded_other_type = 0
+    for feed_name, letter_type in (("financial", 6), ("sales", 58)):
         feed = by_feed.get(feed_name, {})
         for item in feed.get("report_ids", []):
             body_evidence = item.get("body_evidence")
             if not body_evidence:
+                continue
+            if codal_feed._letter_type_from_item({"Url": item.get("url")}) != letter_type:
+                excluded_other_type += 1
                 continue
             try:
                 raw_path = ROOT / body_evidence["path"]
@@ -305,7 +310,8 @@ def main() -> int:
                                          "symbol": item.get("symbol"), "error": f"{type(exc).__name__}:{str(exc)[:220]}"})
     output["counts"] = {"financial_bodies": sum(bool(x.get("body_evidence")) and not x.get("body_evidence", {}).get("http_200_error_page") for x in by_feed.get("financial", {}).get("report_ids", [])),
                          "financial_parsed": len(output["financial"]), "sales_bodies": sum(bool(x.get("body_evidence")) and not x.get("body_evidence", {}).get("http_200_error_page") for x in by_feed.get("sales", {}).get("report_ids", [])),
-                         "sales_parsed": len(output["sales"]), "parse_errors": len(output["errors"])}
+                         "sales_parsed": len(output["sales"]), "parse_errors": len(output["errors"]),
+                         "excluded_other_type": excluded_other_type}
     target = out_dir / "prepared-inputs.json"
     target.write_text(json.dumps(output, ensure_ascii=False, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps({"prepared": str(target.relative_to(ROOT)).replace("\\", "/"), **output["counts"]}, ensure_ascii=False))
