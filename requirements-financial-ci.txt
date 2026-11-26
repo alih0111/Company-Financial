@@ -1,0 +1,27 @@
+# Python 3.13; portable offline financial test environment, not production ingestion.
+beautifulsoup4==4.13.4
+certifi==2025.7.9
+charset-normalizer==3.4.2
+colorama==0.4.6; sys_platform == 'win32'
+idna==3.10
+iniconfig==2.3.0
+jalali_core==1.0.0
+jdatetime==5.2.0
+numpy==2.3.1
+packaging==25.0
+pandas==2.3.1
+pluggy==1.6.0
+psycopg==3.3.6
+psycopg-binary==3.3.6
+pyarrow==25.0.1
+Pygments==2.21.0
+pytest==9.1.1
+python-dateutil==2.9.0.post0
+python-dotenv==1.1.1
+pytz==2025.2
+requests==2.32.4
+six==1.17.0
+soupsieve==2.7
+typing_extensions==4.14.1
+tzdata==2025.2
+urllib3==2.5.0
